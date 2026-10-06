@@ -159,7 +159,7 @@ describe('kanban', () => {
     })
   })
 
-  describe('keyboard moves', () => {
+  describe('keyboard pick-up', () => {
     it('should pick up an item with Space', async () => {
       const { item, press, live } = mountBoard()
 
@@ -178,136 +178,16 @@ describe('kanban', () => {
     })
 
     it('should ignore arrows while not picked up', async () => {
-      const { board, press, moves } = mountBoard()
+      const { wrapper, press, moves } = mountBoard()
 
       await press('a', 'ArrowDown')
 
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
       expect(moves).toHaveLength(0)
-    })
-
-    it('should move within a column with ArrowDown and ArrowUp', async () => {
-      const { board, press, moves } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'ArrowDown')
-
-      expect(board.value.todo).toEqual(['b', 'a', 'c'])
-      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'todo', fromIndex: 0, toIndex: 1 }])
-
-      await press('a', 'ArrowUp')
-
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-      expect(moves).toHaveLength(2)
-    })
-
-    it('should not move past the ends of a column', async () => {
-      const { board, press, moves } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'ArrowUp')
-
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-      expect(moves).toHaveLength(0)
-    })
-
-    it('should jump to the ends with Home and End', async () => {
-      const { board, press } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'End')
-
-      expect(board.value.todo).toEqual(['b', 'c', 'a'])
-
-      await press('a', 'Home')
-
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-    })
-
-    it('should transfer across columns with ArrowRight and ArrowLeft', async () => {
-      const { board, press, moves, item, live } = mountBoard()
-
-      await press('b', ' ')
-      await press('b', 'ArrowRight')
-
-      expect(board.value.todo).toEqual(['a', 'c'])
-      expect(board.value.doing).toEqual(['d', 'b'])
-      expect(moves.at(-1)).toEqual({ value: 'b', from: 'todo', to: 'doing', fromIndex: 1, toIndex: 1 })
-      expect(item('b').attributes('data-state')).toBe('grabbed')
-      expect(live()).toContain('doing')
-
-      await press('b', 'ArrowLeft')
-
-      expect(board.value.doing).toEqual(['d'])
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-    })
-
-    it('should not move past the first or last column', async () => {
-      const { board, press, moves } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'ArrowLeft')
-
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-      expect(moves).toHaveLength(0)
-    })
-
-    it('should move focus with the item into its new column', async () => {
-      const { press, item } = mountBoard()
-
-      ;(item('b').element as HTMLElement).focus()
-      await press('b', ' ')
-      await press('b', 'ArrowRight')
-
-      expect(document.activeElement).toBe(item('b').element)
-    })
-
-    it('should drop with Space and announce the landing', async () => {
-      const { item, press, live } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'ArrowDown')
-      await press('a', ' ')
-
-      expect(item('a').attributes('data-state')).toBe('idle')
-      expect(live()).toContain('position 2 of 3')
-    })
-
-    it('should return the item to its origin with Escape', async () => {
-      const { board, press, moves, item } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'ArrowDown')
-      await press('a', 'ArrowRight')
-      await press('a', 'Escape')
-
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
-      expect(board.value.doing).toEqual(['d'])
-      expect(item('a').attributes('data-state')).toBe('idle')
-      expect(moves.at(-1)).toMatchObject({ value: 'a', to: 'todo', toIndex: 0 })
-    })
-
-    it('should cancel without moving when nothing changed', async () => {
-      const { press, moves, live } = mountBoard()
-
-      await press('a', ' ')
-      await press('a', 'Escape')
-
-      expect(moves).toHaveLength(0)
-      expect(live()).toContain('todo')
-    })
-
-    it('should drop in place when focus leaves', async () => {
-      const { item, press } = mountBoard()
-
-      await press('a', ' ')
-      await item('a').trigger('blur')
-
-      expect(item('a').attributes('data-state')).toBe('idle')
     })
 
     it('should ignore modified keys and keys from descendants', async () => {
-      const { item, press, wrapper } = mountBoard()
+      const { item, press } = mountBoard()
 
       await press('a', ' ', { ctrlKey: true })
       expect(item('a').attributes('data-state')).toBe('idle')
@@ -318,7 +198,72 @@ describe('kanban', () => {
       await nextTick()
 
       expect(item('a').attributes('data-state')).toBe('idle')
-      expect(wrapper.exists()).toBe(true)
+    })
+  })
+
+  describe('keyboard target', () => {
+    it('should preview without touching the board', async () => {
+      const { board, press, moves, item, wrapper, live } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+      expect(item('c').attributes('data-drop')).toBe('before')
+      expect(wrapper.find('[data-list="todo"]').attributes('data-target')).toBeDefined()
+      expect(wrapper.find('[data-column="todo"]').attributes('data-target')).toBeDefined()
+      expect(live()).toContain('position 2 of 3')
+    })
+
+    it('should mark the end of a column with data-drop after', async () => {
+      const { press, item } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'End')
+
+      expect(item('c').attributes('data-drop')).toBe('after')
+      expect(item('b').attributes('data-drop')).toBeUndefined()
+    })
+
+    it('should clear the preview when the target returns to the origin', async () => {
+      const { press, wrapper } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+      await press('a', 'ArrowUp')
+
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
+      expect(wrapper.find('[data-target]').exists()).toBe(false)
+    })
+
+    it('should not move the target past the ends of a column', async () => {
+      const { press, wrapper } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowUp')
+
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
+    })
+
+    it('should not move the target past the first or last column', async () => {
+      const { press, wrapper, live } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowLeft')
+
+      expect(wrapper.find('[data-target]').exists()).toBe(false)
+      expect(live()).not.toContain('cannot')
+    })
+
+    it('should target another column, keeping the index when it fits', async () => {
+      const { press, item, wrapper } = mountBoard()
+
+      await press('b', ' ')
+      await press('b', 'ArrowRight')
+
+      expect(wrapper.find('[data-list="doing"]').attributes('data-target')).toBeDefined()
+      expect(item('d').attributes('data-drop')).toBe('after')
     })
 
     it('should swap arrow roles for a vertical board', async () => {
@@ -326,31 +271,186 @@ describe('kanban', () => {
 
       await press('a', ' ')
       await press('a', 'ArrowRight')
+      await press('a', 'Enter')
 
       expect(board.value.todo).toEqual(['b', 'a', 'c'])
 
+      await press('a', ' ')
       await press('a', 'ArrowDown')
+      await press('a', 'Enter')
 
       expect(board.value.doing).toEqual(['d', 'a'])
     })
   })
 
-  describe('gates', () => {
-    it('should reject a move the destination does not accept', async () => {
+  describe('keyboard drop', () => {
+    it('should commit one move per drop', async () => {
+      const { board, press, moves, item, live } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+      await press('a', 'ArrowDown')
+      await press('a', 'ArrowRight')
+      await press('a', 'ArrowDown')
+      await press('a', 'Enter')
+
+      expect(board.value.todo).toEqual(['b', 'c'])
+      expect(board.value.doing).toEqual(['d', 'a'])
+      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'doing', fromIndex: 0, toIndex: 1 }])
+      expect(item('a').attributes('data-state')).toBe('idle')
+      expect(live()).toContain('position 2 of 2')
+    })
+
+    it('should reorder within a column on drop', async () => {
+      const { board, press, moves } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'End')
+      await press('a', ' ')
+
+      expect(board.value.todo).toEqual(['b', 'c', 'a'])
+      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'todo', fromIndex: 0, toIndex: 2 }])
+    })
+
+    it('should not emit when dropped where it was picked up', async () => {
+      const { press, moves, item } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+      await press('a', 'ArrowUp')
+      await press('a', ' ')
+
+      expect(moves).toHaveLength(0)
+      expect(item('a').attributes('data-state')).toBe('idle')
+    })
+
+    it('should move focus with the item into its new column', async () => {
+      const { press, item } = mountBoard()
+
+      ;(item('b').element as HTMLElement).focus()
+      await press('b', ' ')
+      await press('b', 'ArrowRight')
+      await press('b', 'Enter')
+
+      expect(document.activeElement).toBe(item('b').element)
+    })
+  })
+
+  describe('keyboard cancel', () => {
+    it('should discard the target with Escape without touching the board', async () => {
+      const { board, press, moves, item, wrapper, live } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+      await press('a', 'ArrowRight')
+      await press('a', 'Escape')
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(board.value.doing).toEqual(['d'])
+      expect(moves).toHaveLength(0)
+      expect(item('a').attributes('data-state')).toBe('idle')
+      expect(wrapper.find('[data-target]').exists()).toBe(false)
+      expect(live()).toContain('todo')
+    })
+
+    it('should cancel when focus leaves', async () => {
+      const { board, item, press, moves } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+      await item('a').trigger('blur')
+
+      expect(item('a').attributes('data-state')).toBe('idle')
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+    })
+
+    it('should not consult the origin column accept on Escape', async () => {
+      let calls = 0
       const { board, press, moves, live } = mountBoard({
+        columns: {
+          todo: {
+            accept: () => {
+              calls++
+              return false
+            },
+          },
+        },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+      await press('a', 'Escape')
+
+      expect(calls).toBe(0)
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(board.value.doing).toEqual(['d'])
+      expect(moves).toHaveLength(0)
+      expect(live()).not.toContain('cannot')
+    })
+
+    it('should keep an external reorder made mid-pickup on Escape', async () => {
+      const { board, press, flush, moves, item } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowDown')
+
+      board.value.todo = ['c', 'b', 'a']
+      await flush()
+
+      await press('a', 'Escape')
+
+      expect(board.value.todo).toEqual(['c', 'b', 'a'])
+      expect(moves).toHaveLength(0)
+      expect(item('a').attributes('aria-posinset')).toBe('3')
+    })
+  })
+
+  describe('gates', () => {
+    it('should skip a column that does not accept the item', async () => {
+      const { board, press, moves, wrapper } = mountBoard({
         columns: { doing: { accept: () => false } },
       })
 
       await press('a', ' ')
       await press('a', 'ArrowRight')
 
-      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(wrapper.find('[data-list="done"]').attributes('data-target')).toBeDefined()
+      expect(wrapper.find('[data-list="doing"]').attributes('data-target')).toBeUndefined()
+
+      await press('a', 'Enter')
+
       expect(board.value.doing).toEqual(['d'])
-      expect(moves).toHaveLength(0)
+      expect(board.value.done).toEqual(['a'])
+      expect(moves).toEqual([{ value: 'a', from: 'todo', to: 'done', fromIndex: 0, toIndex: 0 }])
+    })
+
+    it('should skip a disabled column', async () => {
+      const { board, press } = mountBoard({
+        columns: { doing: { disabled: true } },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+      await press('a', 'Enter')
+
+      expect(board.value.doing).toEqual(['d'])
+      expect(board.value.done).toEqual(['a'])
+    })
+
+    it('should announce and stay when no column in that direction accepts', async () => {
+      const { press, wrapper, live } = mountBoard({
+        columns: { doing: { accept: () => false }, done: { disabled: true } },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      expect(wrapper.find('[data-target]').exists()).toBe(false)
       expect(live()).toContain('cannot')
     })
 
-    it('should pass value, source, and index to accept', async () => {
+    it('should pass value, source, and target index to accept', async () => {
       const calls: unknown[][] = []
       const { press } = mountBoard({
         columns: {
@@ -366,27 +466,15 @@ describe('kanban', () => {
       await press('c', ' ')
       await press('c', 'ArrowRight')
 
-      expect(calls).toEqual([['c', 'todo', 1]])
+      expect(calls[0]).toEqual(['c', 'todo', 1])
     })
 
-    it('should reject moves into a disabled column', async () => {
-      const { wrapper, board, press } = mountBoard({
+    it('should make items of a disabled column inert', async () => {
+      const { item, press, wrapper } = mountBoard({
         columns: { doing: { disabled: true } },
       })
 
       expect(wrapper.find('[data-column="doing"]').attributes('data-disabled')).toBeDefined()
-
-      await press('a', ' ')
-      await press('a', 'ArrowRight')
-
-      expect(board.value.doing).toEqual(['d'])
-    })
-
-    it('should make items of a disabled column inert', async () => {
-      const { item, press } = mountBoard({
-        columns: { doing: { disabled: true } },
-      })
-
       expect(item('d').attributes('tabindex')).toBe('-1')
       expect(item('d').attributes('aria-disabled')).toBe('true')
 
@@ -428,24 +516,37 @@ describe('kanban', () => {
       await flush()
 
       await press('e', ' ')
-      await press('e', 'ArrowUp')
+      await press('e', 'Home')
+      await press('e', 'Enter')
 
-      expect(board.value.todo).toEqual(['a', 'b', 'e', 'c'])
+      expect(board.value.todo).toEqual(['e', 'a', 'b', 'c'])
     })
 
     it('should drop items removed from the bound array', async () => {
-      const { board, item, flush, press } = mountBoard()
+      const { board, item, flush } = mountBoard()
 
       board.value.todo = ['c', 'a']
       await flush()
 
       expect(item('b').exists()).toBe(false)
       expect(item('c').attributes('aria-posinset')).toBe('1')
+    })
+
+    it('should release the pick-up when the item leaves the board', async () => {
+      const { board, press, flush, item, wrapper } = mountBoard()
 
       await press('a', ' ')
-      await press('a', 'ArrowUp')
+      await press('a', 'ArrowRight')
 
-      expect(board.value.todo).toEqual(['a', 'c'])
+      board.value.todo = ['b', 'c']
+      await flush()
+
+      expect(wrapper.find('[data-target]').exists()).toBe(false)
+
+      board.value.todo = ['a', 'b', 'c']
+      await flush()
+
+      expect(item('a').attributes('data-state')).toBe('idle')
     })
 
     it('should follow a reorder of the bound array while disabled', async () => {
@@ -484,8 +585,24 @@ describe('kanban', () => {
 
       await press('a', ' ')
       await press('a', 'ArrowRight')
+      await press('a', 'Enter')
 
       expect(board.value.done).toEqual(['a'])
+    })
+
+    it('should retarget when the target column unmounts mid-pickup', async () => {
+      const { board, press, flush, moves } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      delete board.value.doing
+      await flush()
+
+      await press('a', 'Enter')
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
     })
   })
 })

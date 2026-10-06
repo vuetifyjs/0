@@ -70,7 +70,7 @@
 
   const slotProps = toRef((): KanbanInstructionsSlotProps => ({
     text: locale.ti('Kanban.instructions')
-      ?? 'Press Space or Enter to pick up an item. Use the arrow keys to move it, Space or Enter to drop it, and Escape to cancel.',
+      ?? 'Press Space or Enter to pick up an item. Use the arrow keys to choose where it goes, Space or Enter to drop it, and Escape to cancel.',
     attrs: { id },
   }))
 </script>

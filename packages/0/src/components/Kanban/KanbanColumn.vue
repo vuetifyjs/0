@@ -69,12 +69,15 @@
     items: T[]
     /** Whether the column is disabled */
     isDisabled: boolean
+    /** Whether a picked-up item would drop into this column */
+    isTarget: boolean
     /** Attributes to bind to the column element */
     attrs: {
       'role': 'group'
       'aria-label': string | undefined
       'aria-disabled': boolean
       'data-disabled': true | undefined
+      'data-target': true | undefined
     }
   }
 </script>
@@ -153,6 +156,7 @@
       ticket.items.onboard(list.map(item => ({ value: item })))
     } finally {
       syncing = false
+      root.sync()
     }
   }
 
@@ -183,17 +187,22 @@
 
   onBeforeUnmount(() => {
     ticket.unregister()
+    root.sync()
   })
+
+  const isTarget = toRef(() => root.preview.value?.column === ticket.id)
 
   const slotProps = toRef((): KanbanColumnSlotProps<T> => ({
     id: ticket.id,
     items: model.value,
     isDisabled: isDisabled.value,
+    isTarget: isTarget.value,
     attrs: {
       'role': 'group',
       'aria-label': label,
       'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
+      'data-target': isTarget.value || undefined,
     },
   }))
 
