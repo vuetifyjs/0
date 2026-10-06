@@ -1,22 +1,14 @@
 /**
  * Shared validateOn machinery for the native-wrapping form components
  * (BuCheckbox, BuRadio, BuSelect, BuFile).
- *
- * v0's `parseValidateOn` lives inside `InputRoot.vue` and is not exported from
- * the Input barrel, so the pattern is reproduced here once for the whole
- * package instead of per component. v0-core follow-up: export
- * `parseValidateOn` from the Input barrel so this file can shrink to the
- * `createValidateOn` factory.
  */
+
+// Framework
+import { parseValidateOn } from '@vuetify/v0'
 
 // Types
 import type { ValidateEvent, ValidateOn } from '@vuetify/v0'
 import type { Ref } from 'vue'
-
-export interface ValidateParsed {
-  event: ValidateEvent
-  modifier?: 'lazy' | 'eager'
-}
 
 /** The subset of a `createInput` return the validateOn gate needs. */
 export interface ValidateHost {
@@ -35,24 +27,10 @@ export interface ValidateHandlers {
   onBlur: () => void
 }
 
-/** Parse a `validateOn` expression into its event and modifier parts. */
-function parse (value: ValidateOn): ValidateParsed {
-  const parts = String(value).split(' ')
-  let event: ValidateEvent = 'blur'
-  let modifier: 'lazy' | 'eager' | undefined
-
-  for (const part of parts) {
-    if (part === 'lazy' || part === 'eager') modifier = part
-    else if (part === 'blur' || part === 'input' || part === 'submit') event = part
-  }
-
-  return { event, modifier }
-}
-
 /** Factory wiring the canonical validateOn gate + focus handlers to an input. */
 export function createValidateOn (input: ValidateHost, validateOn: () => ValidateOn): ValidateHandlers {
   function should (trigger: ValidateEvent): boolean {
-    const { event, modifier } = parse(validateOn())
+    const { event, modifier } = parseValidateOn(validateOn())
     if (event === 'submit') return false
     if (modifier === 'lazy' && !input.isTouched.value) return false
     if (modifier === 'eager') {

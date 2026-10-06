@@ -10,6 +10,7 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { parseValidateOn } from '#v0/components/Input'
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
@@ -176,19 +177,6 @@
   }
 
   export const [useNumberFieldRoot, provideNumberFieldRoot] = createContext<NumberFieldRootContext>()
-
-  function parseValidateOn (value: ValidateOn) {
-    const parts = String(value).split(' ')
-    let event: ValidateEvent = 'blur'
-    let modifier: 'lazy' | 'eager' | undefined
-
-    for (const part of parts) {
-      if (part === 'lazy' || part === 'eager') modifier = part
-      else if (part === 'blur' || part === 'input' || part === 'submit') event = part
-    }
-
-    return { event, modifier }
-  }
 </script>
 
 <script setup lang="ts">

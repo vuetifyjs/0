@@ -2,13 +2,13 @@ export { default as InputControl } from './InputControl.vue'
 export { default as InputDescription } from './InputDescription.vue'
 export { default as InputError } from './InputError.vue'
 export { default as InputRoot } from './InputRoot.vue'
-export { provideInputRoot, useInputRoot } from './InputRoot.vue'
+export { parseValidateOn, provideInputRoot, useInputRoot } from './InputRoot.vue'
 
 // Types
 export type { InputControlProps, InputControlSlotProps } from './InputControl.vue'
 export type { InputDescriptionProps, InputDescriptionSlotProps } from './InputDescription.vue'
 export type { InputErrorProps, InputErrorSlotProps } from './InputError.vue'
-export type { InputRootContext, InputRootProps, InputRootSlotProps, ValidateEvent, ValidateOn } from './InputRoot.vue'
+export type { InputRootContext, InputRootProps, InputRootSlotProps, ParsedValidateOn, ValidateEvent, ValidateOn } from './InputRoot.vue'
 
 // Context
 import Control from './InputControl.vue'
