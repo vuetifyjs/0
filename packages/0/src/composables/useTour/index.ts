@@ -542,12 +542,17 @@ export function createTour<
       if (isFunction(ticket?.leave)) {
         ticket.leave()
       }
-      scope?.stop()
-      scope = undefined
-      deactivate()
-      isReady.value = false
     } finally {
-      leaving = false
+      // The hook can throw. Cleanup still has to drop the anchor, and
+      // `leaving` has to clear or begin() never starts again.
+      try {
+        scope?.stop()
+        scope = undefined
+        deactivate()
+        isReady.value = false
+      } finally {
+        leaving = false
+      }
     }
   }
 
@@ -652,29 +657,25 @@ export function createTour<
     // enter this start just opened.
     if (leaving) return
 
-    instead = false
-
     if (steps.size === 0) {
       if (isActive.value) {
         leave()
         isActive.value = false
         restore()
       }
-      epoch++
-      navigating = false
-      flight = undefined
-      return
-    }
-
-    if (isActive.value) {
+    } else if (isActive.value) {
       leave()
     }
 
     // After leave(), so a hook that calls complete() still sees this
-    // navigation and does not start a second one.
+    // navigation and does not start a second one. That hook may set
+    // instead for the navigation this start replaces.
+    instead = false
     epoch++
     navigating = false
     flight = undefined
+
+    if (steps.size === 0) return
 
     remember()
     isComplete.value = false
@@ -759,14 +760,20 @@ export function createTour<
       flight = undefined
       return
     }
-    // leave() already ran for this visit (prev, or a hook that stopped
-    // from inside leave). A second leave repeats the step hook.
-    if (!departed) leave()
-    isActive.value = false
-    restore()
-    epoch++
-    navigating = false
-    flight = undefined
+
+    try {
+      // leave() already ran for this visit (prev, or a hook that stopped
+      // from inside leave). A second leave repeats the step hook.
+      if (!departed) leave()
+    } finally {
+      // A throwing leave hook must still end the tour and retire the
+      // in-flight navigation. The throw propagates after this.
+      isActive.value = false
+      restore()
+      epoch++
+      navigating = false
+      flight = undefined
+    }
   }
 
   async function complete () {
@@ -787,7 +794,20 @@ export function createTour<
     navigating = true
     const token = generation
     const mine = epoch
-    const run = (async () => {
+    // Published before the body. form.submit() runs before gate()
+    // awaits, and a restart there must replace this flight, not lose
+    // the replacement when this body returns.
+    const settled: {
+      resolve?: () => void
+      reject?: (error: unknown) => void
+    } = {}
+    const run = new Promise<void>((resolve, reject) => {
+      settled.resolve = resolve
+      settled.reject = reject
+    })
+    flight = run
+    void (async () => {
+      let failed = false
       try {
         if (!await gate()) {
           if (mine === epoch) instead = false
@@ -799,14 +819,18 @@ export function createTour<
         }
 
         end()
+      } catch (error) {
+        failed = true
+        settled.reject?.(error)
       } finally {
         if (mine === epoch) {
           navigating = false
           flight = undefined
         }
+        // Early returns above skip anything after this try. Resolve here.
+        if (!failed) settled.resolve?.()
       }
     })()
-    flight = run
     return run
   }
 
@@ -825,7 +849,18 @@ export function createTour<
     navigating = true
     const token = generation
     const mine = epoch
-    const run = (async () => {
+    // Flight is published before the body, same as complete().
+    const settled: {
+      resolve?: () => void
+      reject?: (error: unknown) => void
+    } = {}
+    const run = new Promise<void>((resolve, reject) => {
+      settled.resolve = resolve
+      settled.reject = reject
+    })
+    flight = run
+    void (async () => {
+      let failed = false
       try {
         if (!await gate()) {
           if (mine === epoch) instead = false
@@ -860,14 +895,18 @@ export function createTour<
 
         steps.next()
         enter('forward')
+      } catch (error) {
+        failed = true
+        settled.reject?.(error)
       } finally {
         if (mine === epoch) {
           navigating = false
           flight = undefined
         }
+        // Early returns above skip anything after this try. Resolve here.
+        if (!failed) settled.resolve?.()
       }
     })()
-    flight = run
     return run
   }
 
@@ -908,7 +947,18 @@ export function createTour<
     navigating = true
     const token = generation
     const mine = epoch
-    const run = (async () => {
+    // Flight is published before the body, same as complete().
+    const settled: {
+      resolve?: () => void
+      reject?: (error: unknown) => void
+    } = {}
+    const run = new Promise<void>((resolve, reject) => {
+      settled.resolve = resolve
+      settled.reject = reject
+    })
+    flight = run
+    void (async () => {
+      let failed = false
       try {
         if (!await gate()) {
           if (mine === epoch) instead = false
@@ -940,14 +990,18 @@ export function createTour<
 
         steps.select(id)
         enter('jump')
+      } catch (error) {
+        failed = true
+        settled.reject?.(error)
       } finally {
         if (mine === epoch) {
           navigating = false
           flight = undefined
         }
+        // Early returns above skip anything after this try. Resolve here.
+        if (!failed) settled.resolve?.()
       }
     })()
-    flight = run
     return run
   }
 

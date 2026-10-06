@@ -778,6 +778,90 @@ describe('createTour', () => {
       expect(tour.isActive.value).toBe(false)
       expect(tour.isComplete.value).toBe(true)
     })
+
+    it('should reject next when leave throws', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            throw new Error('boom')
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+
+      await expect(tour.next()).rejects.toThrow('boom')
+
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isReady.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should restart when leave completes during start', async () => {
+      const tour = createTour()
+      let once = false
+
+      tour.steps.onboard([
+        {
+          id: 'a',
+          leave () {
+            if (once) return
+            once = true
+            void tour.complete()
+          },
+        },
+        { id: 'b' },
+      ])
+      tour.start()
+
+      const pending = tour.next()
+      tour.start()
+      await pending
+      await tour.next()
+
+      expect(tour.isComplete.value).toBe(false)
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.steps.selectedId.value).toBe('b')
+    })
+
+    it('should complete the restarted flight when submit restarts synchronously', async () => {
+      const tour = createTour()
+
+      function hold (_value: boolean) {}
+      let release: (value: boolean) => void = hold
+      let calls = 0
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(() => {
+        calls++
+        if (calls === 1) {
+          tour.stop()
+          tour.start()
+          void tour.next()
+          return Promise.resolve(true)
+        }
+        return new Promise(resolve => {
+          release = resolve
+        })
+      })
+
+      const pending = tour.next()
+      const done = tour.complete()
+
+      release(true)
+      await done
+      await pending
+
+      expect(tour.isComplete.value).toBe(true)
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.steps.selectedId.value).toBe('a')
+    })
   })
 
   describe('activate', () => {
@@ -823,6 +907,31 @@ describe('createTour', () => {
 
       expect(tour.activators.get('target')).toBeUndefined()
       expect(el.style.getPropertyValue('anchor-name')).toBe('')
+    })
+
+    it('should drop the anchor when leave throws during stop', () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+      let threw = false
+
+      tour.steps.onboard([{
+        id: 'a',
+        leave () {
+          if (threw) return
+          threw = true
+          throw new Error('boom')
+        },
+      }])
+      tour.start()
+      tour.activate(el, { scroll: false })
+
+      expect(() => tour.stop()).toThrow('boom')
+      tour.stop()
+
+      expect(tour.isActive.value).toBe(false)
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+      expect(tour.activators.size).toBe(0)
+      expect(tour.isReady.value).toBe(false)
     })
 
     it('should ignore activate from an enter that resolves after stop', async () => {
