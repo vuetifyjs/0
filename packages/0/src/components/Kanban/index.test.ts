@@ -27,6 +27,7 @@ function mountBoard (options: {
   columns?: Record<string, Record<string, unknown>>
   items?: Record<string, Record<string, unknown>>
   instructions?: boolean
+  extra?: Component
 } = {}) {
   const board = ref<Board>(options.board ?? { todo: ['a', 'b', 'c'], doing: ['d'], done: [] })
   const moves: KanbanMovePayload[] = []
@@ -61,6 +62,7 @@ function mountBoard (options: {
         })),
         options.instructions === false ? null : h(Kanban.Instructions as Component, { 'data-instructions': '' }),
         h(Kanban.LiveRegion as Component, { 'data-live': '' }),
+        options.extra ? h(options.extra) : null,
       ])
     },
   })
@@ -644,6 +646,72 @@ describe('kanban', () => {
       await nextTick()
 
       expect(context?.kanban.columns.get('todo')?.value).toEqual({ title: 'Backlog' })
+    })
+
+    it('should name an unlabelled column by its id', async () => {
+      const { press, live } = mountBoard({ columns: { doing: { label: undefined } } })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      expect(live()).toContain('over doing')
+    })
+
+    it('should map the remaining arrows for a vertical board', async () => {
+      const { board, press } = mountBoard({ root: { orientation: 'vertical' } })
+
+      await press('d', ' ')
+      await press('d', 'ArrowUp')
+      await press('d', 'Enter')
+
+      expect(board.value.todo).toEqual(['d', 'a', 'b', 'c'])
+
+      await press('b', ' ')
+      await press('b', 'ArrowLeft')
+      await press('b', 'Enter')
+
+      expect(board.value.todo).toEqual(['d', 'b', 'a', 'c'])
+    })
+
+    it('should treat context calls without a pick-up as no-ops', async () => {
+      let context: KanbanRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          context = useKanbanRoot('v0:kanban')
+          return () => null
+        },
+      })
+      const { board, moves } = mountBoard({ extra: Probe })
+
+      context!.shift('down')
+      context!.drop()
+      context!.cancel()
+      context!.sync()
+
+      expect(context!.move('missing', 'todo', 0)).toBe(false)
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+    })
+
+    it('should release the pick-up when its item is removed behind the model', async () => {
+      let context: KanbanRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          context = useKanbanRoot('v0:kanban')
+          return () => null
+        },
+      })
+      const { press, item } = mountBoard({ extra: Probe })
+
+      await press('a', ' ')
+
+      const at = context!.locate('a')!
+      at.column.items.unregister(at.ticket.id)
+      context!.shift('down')
+      await nextTick()
+
+      expect(context!.grabbed.value).toBeNull()
+      expect(item('a').exists()).toBe(false)
     })
 
     it('should treat a throwing accept as a refusal', async () => {

@@ -294,11 +294,10 @@
     }
   }
 
-  function over (grab: KanbanGrab) {
+  function over (grab: KanbanGrab, column: KanbanBoardColumn) {
     const item = name(grab.value, grab.label)
-    const column = kanban.columns.get(grab.target.column)
     const position = grab.target.index + 1
-    const size = column ? capacity(column, grab.origin.column) + 1 : 0
+    const size = capacity(column, grab.origin.column) + 1
     const fallback = `${item} over ${title(column)}, position ${position} of ${size}`
     announce(locale.ti('Kanban.over', { item, column: title(column), position, size }) ?? fallback)
   }
@@ -332,6 +331,7 @@
     const current = grab.target.index
     const max = capacity(column, at.column.id)
     let target: KanbanPosition | undefined
+    let destination = column
 
     if (direction === 'prev' || direction === 'next') {
       const columns = kanban.columns.values()
@@ -342,6 +342,7 @@
         const slot = clamp(current, 0, capacity(candidate, at.column.id))
         if (!admits(candidate, at.column, at.ticket, slot)) continue
         target = { column: candidate.id, index: slot }
+        destination = candidate
         break
       }
 
@@ -370,7 +371,7 @@
 
     const next = { ...grab, target }
     grabbed.value = next
-    over(next)
+    over(next, destination)
   }
 
   function drop () {
