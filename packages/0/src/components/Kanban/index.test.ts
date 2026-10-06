@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { Kanban } from './index'
 
@@ -573,6 +573,119 @@ describe('kanban', () => {
       wrappers.push(wrapper)
 
       expect(wrapper.findAll('[role="listitem"]')).toHaveLength(0)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should name unlabelled items by value, and objects generically', async () => {
+      const { press, live } = mountBoard({ items: { a: { label: undefined } } })
+
+      await press('a', ' ')
+
+      expect(live()).toContain('a picked up')
+
+      const card = { id: 1 }
+      const Harness = defineComponent({
+        setup () {
+          return () => h(Kanban.Root as Component, null, () => [
+            h(Kanban.Column as unknown as Component, { label: 'Solo', modelValue: [card] }, {
+              default: ({ items }: { items: object[] }) => h(Kanban.List as Component, null, () => items.map(item => h(Kanban.Item as unknown as Component, { 'key': 1, 'value': item, 'data-card': '' }))),
+            }),
+            h(Kanban.LiveRegion as Component, { 'data-solo': '' }),
+          ])
+        },
+      })
+
+      const wrapper = mount(Harness, { attachTo: document.body })
+      wrappers.push(wrapper)
+
+      await wrapper.find('[data-card]').trigger('keydown', { key: ' ' })
+      await nextTick()
+      await nextTick()
+
+      expect(wrapper.find('[data-solo]').text()).toContain('Item picked up')
+    })
+
+    it('should treat a throwing accept as a refusal', async () => {
+      using spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const { press, wrapper } = mountBoard({
+        columns: {
+          doing: {
+            accept: () => {
+              throw new Error('boom')
+            },
+          },
+        },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      expect(wrapper.find('[data-list="done"]').attributes('data-target')).toBeDefined()
+      expect(spy).toHaveBeenCalled()
+    })
+
+    it('should refuse an index the target column does not accept', async () => {
+      const { press, item, live } = mountBoard({
+        board: { todo: ['x', 'a'], doing: ['d', 'e'] },
+        columns: { doing: { accept: (_: unknown, __: unknown, index: number) => index > 0 } },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      expect(item('e').attributes('data-drop')).toBe('before')
+
+      await press('a', 'Home')
+
+      expect(item('e').attributes('data-drop')).toBe('before')
+      expect(live()).toContain('cannot')
+    })
+
+    it('should announce and keep the item when the drop is refused late', async () => {
+      const open = ref(true)
+      const { board, press, moves, live } = mountBoard({
+        columns: { doing: { accept: () => open.value } },
+      })
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      open.value = false
+      await press('a', 'Enter')
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(moves).toHaveLength(0)
+      expect(live()).toContain('cannot')
+    })
+
+    it('should keep the target through unrelated board changes', async () => {
+      const { board, press, flush, item } = mountBoard()
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      board.value.done = ['x']
+      await flush()
+
+      expect(item('d').attributes('data-drop')).toBe('before')
+    })
+
+    it('should clamp the target when its column shrinks', async () => {
+      const { board, press, flush, item, wrapper } = mountBoard({
+        board: { todo: ['a', 'b', 'c'], doing: ['d', 'e', 'f'] },
+      })
+
+      await press('c', ' ')
+      await press('c', 'ArrowRight')
+
+      expect(item('f').attributes('data-drop')).toBe('before')
+
+      board.value.doing = ['d']
+      await flush()
+
+      expect(item('d').attributes('data-drop')).toBe('after')
+      expect(wrapper.find('[data-list="doing"]').attributes('data-target')).toBeDefined()
     })
   })
 
