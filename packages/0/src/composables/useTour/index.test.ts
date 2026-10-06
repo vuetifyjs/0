@@ -7,7 +7,7 @@ import { createTour, createTourContext, createTourPlugin, useTour } from './inde
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createApp, defineComponent, h, nextTick } from 'vue'
+import { createApp, defineComponent, h, nextTick, onBeforeMount } from 'vue'
 
 // Types
 import type { ShallowRef } from 'vue'
@@ -498,10 +498,18 @@ describe('createTour', () => {
 
       void tour.next()
       const completing = tour.complete()
+      let settled = false
+      void completing.then(() => {
+        settled = true
+      })
+
+      await Promise.resolve()
+      expect(settled).toBe(false)
 
       release(true)
       await completing
 
+      expect(settled).toBe(true)
       expect(tour.isActive.value).toBe(false)
       expect(tour.isComplete.value).toBe(true)
     })
@@ -576,6 +584,74 @@ describe('createTour', () => {
       expect(tour.steps.selectedId.value).toBe('a')
       expect(tour.isActive.value).toBe(false)
       expect(tour.isComplete.value).toBe(true)
+    })
+
+    it('should finish the tour when submit awaits complete after yielding', async () => {
+      const tour = createTour()
+      const then = Promise.prototype.then
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(async () => {
+        await Promise.resolve()
+        await Promise.resolve()
+        await tour.complete()
+        return true
+      })
+
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+      expect(Promise.prototype.then).toBe(then)
+    })
+
+    it('should leave the tour incomplete when a yielded submit returns false', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      tour.start()
+
+      vi.spyOn(tour.form, 'has').mockReturnValue(true)
+      vi.spyOn(tour.form, 'submit').mockImplementation(async () => {
+        await Promise.resolve()
+        await tour.complete()
+        return false
+      })
+
+      await tour.next()
+
+      expect(tour.steps.selectedId.value).toBe('a')
+      expect(tour.isActive.value).toBe(true)
+      expect(tour.isComplete.value).toBe(false)
+    })
+
+    it('should complete another tour from inside a yielded submit', async () => {
+      const left = createTour()
+      const right = createTour()
+
+      left.steps.onboard([{ id: 'a' }, { id: 'b' }])
+      right.steps.onboard([{ id: 'a' }])
+      left.start()
+      right.start()
+
+      vi.spyOn(left.form, 'has').mockReturnValue(true)
+      vi.spyOn(left.form, 'submit').mockImplementation(async () => {
+        await Promise.resolve()
+        await right.complete()
+        return true
+      })
+
+      await left.next()
+
+      expect(right.isActive.value).toBe(false)
+      expect(right.isComplete.value).toBe(true)
+      expect(left.isActive.value).toBe(true)
+      expect(left.steps.selectedId.value).toBe('b')
+      expect(left.isComplete.value).toBe(false)
     })
 
     it('should not advance when the tour stops during validation', async () => {
@@ -798,6 +874,46 @@ describe('createTour', () => {
       expect(tour.isActive.value).toBe(true)
       expect(tour.isReady.value).toBe(false)
       expect(tour.steps.selectedId.value).toBe('a')
+    })
+
+    it('should finish the tour when leave throws during complete', async () => {
+      const tour = createTour()
+      const el = document.createElement('div')
+
+      tour.steps.onboard([{
+        id: 'a',
+        leave () {
+          throw new Error('boom')
+        },
+      }])
+      tour.start()
+      tour.activate(el, { scroll: false })
+
+      await expect(tour.complete()).rejects.toThrow('boom')
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(true)
+      expect(tour.isReady.value).toBe(false)
+      expect(el.style.getPropertyValue('anchor-name')).toBe('')
+      expect(tour.activators.size).toBe(0)
+    })
+
+    it('should not force complete when leave stops and then throws', async () => {
+      const tour = createTour()
+
+      tour.steps.onboard([{
+        id: 'a',
+        leave () {
+          tour.stop()
+          throw new Error('boom')
+        },
+      }])
+      tour.start()
+
+      await expect(tour.complete()).rejects.toThrow('boom')
+
+      expect(tour.isActive.value).toBe(false)
+      expect(tour.isComplete.value).toBe(false)
     })
 
     it('should restart when leave completes during start', async () => {
@@ -1259,6 +1375,124 @@ describe('createTour', () => {
       expect(tour.isActive.value).toBe(true)
       expect(tour.steps.selectedId.value).toBe('b')
       tour.stop()
+    })
+
+    it('should start when start is called from beforeMount', async () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }, { id: 'b' }])
+          onBeforeMount(() => {
+            tour!.start()
+            tour!.start({ stepId: 'b' })
+          })
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(false)
+      await nextTick()
+
+      expect(tour!.isActive.value).toBe(true)
+      expect(tour!.steps.selectedId.value).toBe('b')
+      wrapper.unmount()
+    })
+
+    it('should not start when stop runs before the beforeMount flush', async () => {
+      let tour: ReturnType<typeof createTour> | undefined
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          onBeforeMount(() => {
+            tour!.start()
+            tour!.stop()
+          })
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      await nextTick()
+
+      expect(tour!.isActive.value).toBe(false)
+      wrapper.unmount()
+    })
+
+    it('should keep a setup start on the mounted hook when beforeMount starts again', async () => {
+      let tour: ReturnType<typeof createTour> | undefined
+      let entries = 0
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([
+            { id: 'a', enter () {
+              entries++
+            } },
+            { id: 'b', enter () {
+              entries++
+            } },
+          ])
+          tour.start()
+          onBeforeMount(() => {
+            tour!.start({ stepId: 'b' })
+          })
+          return () => h('div')
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(tour!.isActive.value).toBe(true)
+      expect(tour!.steps.selectedId.value).toBe('b')
+      expect(entries).toBe(1)
+      await nextTick()
+      expect(entries).toBe(1)
+      wrapper.unmount()
+    })
+
+    it('should start from the first render after mount', async () => {
+      let tour: ReturnType<typeof createTour> | undefined
+      let duringRender = true
+      let started = false
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const Host = defineComponent({
+        setup () {
+          tour = createTour()
+          tour.steps.onboard([{ id: 'a' }])
+          return () => {
+            if (!started) {
+              started = true
+              tour!.start()
+            }
+            duringRender = tour!.isActive.value
+            return h('div')
+          }
+        },
+      })
+
+      const wrapper = mount(Host)
+
+      expect(duringRender).toBe(false)
+      expect(tour!.isActive.value).toBe(false)
+      await nextTick()
+      await nextTick()
+
+      expect(tour!.isActive.value).toBe(true)
+      const warned = spy.mock.calls.some(call => {
+        const text = String(call[0])
+        return text.includes('onMounted') || text.includes('onScopeDispose')
+      })
+      expect(warned).toBe(false)
+      wrapper.unmount()
     })
   })
 

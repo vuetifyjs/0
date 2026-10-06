@@ -52,8 +52,8 @@ import { toElement } from '#v0/composables/toElement'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { getActiveElement, isFunction, isThenable, isUndefined } from '#v0/utilities'
-import { effectScope, getCurrentInstance, hasInjectionContext, onMounted, onScopeDispose, shallowRef, toRef, watch } from 'vue'
+import { getActiveElement, isFunction, isObject, isString, isThenable, isUndefined } from '#v0/utilities'
+import { effectScope, getCurrentInstance, hasInjectionContext, nextTick, onMounted, onScopeDispose, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { FormContext } from '#v0/composables/createForm'
@@ -239,7 +239,8 @@ export interface TourContext<
   /**
    * Dismiss and mark complete. Emits `completed` for the current step.
    * Resolves after an in-flight `next()` or `step()` finishes that completion,
-   * or after its gate drops it.
+   * or after its gate drops it. From inside the submit that gate is already
+   * awaiting, it requests completion and resolves so that submit can finish.
    *
    * @example
    * ```ts
@@ -363,6 +364,97 @@ interface Programmatic {
   owned: boolean
 }
 
+// The flight waits on form.submit(), so complete() inside that submit cannot
+// wait on the flight. `submitting` covers only the synchronous call.
+// Node follows that submit across `await` with AsyncLocalStorage. Browsers
+// have none: `await` on a native promise does not call `Promise.prototype.then`,
+// so the patch only marks `.then()` chains, and native await is recognized by
+// this gate's name on the async stack. Callers outside that submit still
+// receive the flight.
+interface AsyncStore {
+  getStore: () => object | undefined
+  run: <T>(token: object, fn: () => T) => T
+}
+
+function createAsyncStore (): AsyncStore | undefined {
+  const host = globalThis as {
+    process?: {
+      getBuiltinModule?: (id: string) => unknown
+    }
+  }
+  const builtin = host.process?.getBuiltinModule
+  if (!isFunction(builtin)) return undefined
+
+  const hooks = builtin.call(host.process, 'node:async_hooks')
+  if (!isObject(hooks)) return undefined
+
+  const Storage = hooks.AsyncLocalStorage
+  if (!isFunction(Storage)) return undefined
+
+  return new (Storage as new () => AsyncStore)()
+}
+
+const chain: object[] = []
+const nativeThen = Promise.prototype.then
+const asyncStore = createAsyncStore()
+let marks = 0
+
+function wrap (
+  token: object | undefined,
+  fn?: ((value: unknown) => unknown) | null,
+): ((value: unknown) => unknown) | null | undefined {
+  if (!isFunction(fn) || isUndefined(token)) return fn
+  return (value: unknown) => resume(token, () => fn(value))
+}
+
+function gateThen (
+  this: Promise<unknown>,
+  onFulfilled?: ((value: unknown) => unknown) | null,
+  onRejected?: ((reason: unknown) => unknown) | null,
+): Promise<unknown> {
+  const token = chain.at(-1)
+  return nativeThen.call(
+    this,
+    wrap(token, onFulfilled),
+    wrap(token, onRejected),
+  ) as Promise<unknown>
+}
+
+function resumeThen<T> (token: object, fn: () => T): T {
+  chain.push(token)
+  const previous = Promise.prototype.then
+  // Native await does not enter this. `.then()` does. Restored before return.
+  /* eslint-disable unicorn/no-thenable */
+  Promise.prototype.then = gateThen as typeof nativeThen
+  try {
+    return fn()
+  } finally {
+    chain.pop()
+    if (chain.length === 0) Promise.prototype.then = previous
+  }
+  /* eslint-enable unicorn/no-thenable */
+}
+
+function resume<T> (token: object, fn: () => T): T {
+  if (asyncStore) return asyncStore.run(token, fn)
+  return resumeThen(token, fn)
+}
+
+function frame (mark: string): boolean {
+  const prepare = Error.prepareStackTrace
+  const limit = Error.stackTraceLimit
+  // A custom formatter can drop async frames. The default keeps the gate name.
+  Reflect.deleteProperty(Error, 'prepareStackTrace')
+  Error.stackTraceLimit = 50
+  try {
+    const stack = new Error('v0:tour').stack
+    return isString(stack) && stack.includes(mark)
+  } finally {
+    Error.stackTraceLimit = limit
+    if (isFunction(prepare)) Error.prepareStackTrace = prepare
+  }
+}
+
 /**
  * Creates a new tour instance.
  *
@@ -413,6 +505,8 @@ export function createTour<
   let unwatch: (() => void) | undefined
   let submitting = false
   let departed = false
+  let gateToken: object | undefined
+  const mark = `v0TourGate/${++marks}/`
 
   function abort () {
     held = undefined
@@ -443,10 +537,17 @@ export function createTour<
     // completed() may have stopped the tour. next() honors that and does
     // not leave again or mark complete. end() follows the same rule.
     if (!isActive.value) return
-    leave()
-    isActive.value = false
-    isComplete.value = true
-    restore()
+    try {
+      leave()
+    } finally {
+      // leave() can throw. The tour still has to close, unless that hook
+      // already stopped it — forcing isComplete would undo the stop.
+      if (isActive.value) {
+        isActive.value = false
+        isComplete.value = true
+        restore()
+      }
+    }
   }
 
   // Complete without a second finish(). `left` skips leave() — the
@@ -626,28 +727,37 @@ export function createTour<
     steps.emit('completed', ticket)
   }
 
+  function inside (): boolean {
+    if (isUndefined(gateToken)) return false
+    if (asyncStore?.getStore() === gateToken) return true
+    if (chain.includes(gateToken)) return true
+    return frame(mark)
+  }
+
   async function gate (): Promise<boolean> {
     const id = steps.selectedId.value
     if (isUndefined(id) || !form.has(id)) return true
 
     // True only while submit() is on the stack. complete() from inside
     // submit must not await this navigation — that cycle never settles.
+    // The token follows that submit across its awaits, which `submitting`
+    // cannot see. It is cleared once this gate settles.
+    const token = {}
+    gateToken = token
     submitting = true
-    let pending: Promise<boolean> | boolean
+    let pending: Promise<boolean>
     try {
-      pending = form.submit(id)
-    } catch (error) {
-      logger.warn('createTour: form submit failed', error)
-      return false
-    } finally {
-      submitting = false
-    }
-
-    try {
+      try {
+        pending = resume(token, () => form.submit(id))
+      } finally {
+        submitting = false
+      }
       return await pending
     } catch (error) {
       logger.warn('createTour: form submit failed', error)
       return false
+    } finally {
+      if (gateToken === token) gateToken = undefined
     }
   }
 
@@ -692,26 +802,50 @@ export function createTour<
     enter('forward')
   }
 
+  function releaseQueued () {
+    held = undefined
+    latched = false
+    unwatch?.()
+    unwatch = undefined
+  }
+
+  function flushQueued () {
+    latched = false
+    if (isUndefined(held)) return
+    const queued = held
+    held = undefined
+    begin(queued)
+  }
+
   function queueMounted (options: { stepId?: ID }) {
     held = options
     if (latched) return
 
     latched = true
-    onMounted(() => {
-      latched = false
-      if (isUndefined(held)) return
-      const queued = held
-      held = undefined
-      begin(queued)
-    })
+    const instance = getCurrentInstance()
+    // componentUpdateFn copies instance.m before beforeMount. A mounted
+    // hook registered from there is missed when that copy was empty, and
+    // onMounted during render warns and does not register. nextTick runs
+    // after isMounted, so the first render still sees an inactive tour.
+    // Setup keeps onMounted. nextTick from setup also runs during SSR and
+    // would emit active state the server HTML does not have.
+    if (instance?.update) {
+      void nextTick(flushQueued)
+      // Render turns the component scope off. Run it so dispose still binds.
+      // `scope` is on the runtime instance and absent from the public type.
+      const scope = (instance as { scope?: { run: (fn: () => void) => void } }).scope
+      if (!isUndefined(scope)) {
+        scope.run(() => {
+          onScopeDispose(releaseQueued)
+        })
+      }
+      return
+    }
+
+    onMounted(flushQueued)
     // Clears the latch only. A tour that already started must keep running
     // when this child unmounts.
-    onScopeDispose(() => {
-      held = undefined
-      latched = false
-      unwatch?.()
-      unwatch = undefined
-    })
+    onScopeDispose(releaseQueued)
   }
 
   function queueHydration (options: { stepId?: ID }) {
@@ -787,7 +921,9 @@ export function createTour<
 
     if (navigating) {
       instead = true
-      if (submitting || isUndefined(flight)) return
+      // Inside the submit this gate awaits, the flight cannot be awaited:
+      // it is waiting on that same submit. Settle here. Outside it, wait.
+      if (submitting || inside() || isUndefined(flight)) return
       return flight
     }
 
@@ -1004,6 +1140,8 @@ export function createTour<
     })()
     return run
   }
+
+  Object.defineProperty(gate, 'name', { value: mark })
 
   onScopeDispose(() => {
     abort()
