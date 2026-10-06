@@ -68,8 +68,8 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 </template>
 ```
 
-> [!WARNING]
-> For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
+> [!TIP]
+> Buttons may differ in width — the fit is measured from the rendered controls and pages. Inside a flex row, give the root `min-width: 0` (`min-w-0`) so it can shrink below its content.
 
 ## Accessibility
 
@@ -102,7 +102,7 @@ From `size` (total item count) divided by `items-per-page` (default `10`) — fo
 
 ??? Why is my responsive pagination overflowing or miscounting buttons?
 
-Responsive sizing measures one sample button's width, so variable-width buttons (single-digit "1" vs double-digit "50") throw off the fit calculation. Give every page button the same width.
+In a flex row the root defaults to `min-width: auto` and can't shrink below the buttons it renders, so it never reports less space. Add `min-width: 0` (`min-w-0`) to the root.
 
 ??? How do I keep the ARIA attributes when rendering custom controls?
 

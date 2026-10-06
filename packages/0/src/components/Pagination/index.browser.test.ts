@@ -10,6 +10,9 @@ import { Pagination } from './index'
 import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
+// Types
+import type { PaginationTicket } from '#v0/composables/createPagination'
+
 describe('pagination', () => {
   describe('root', () => {
     describe('rendering', () => {
@@ -2009,6 +2012,87 @@ describe('pagination', () => {
 
       // With explicit totalVisible, should show exactly that many items
       expect(slotProps.items.length).toBe(5)
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('in a flexbox container', () => {
+    function mountFlex (options: { size: number, width: number }) {
+      const width = ref(options.width)
+      const page = ref(1)
+
+      const wrapper = mount(defineComponent(() => () => h('div', { style: { display: 'flex', width: `${width.value}px` } }, [
+        h(Pagination.Root, {
+          'modelValue': page.value,
+          'onUpdate:modelValue': (value: number) => (page.value = value),
+          'size': options.size,
+          'itemsPerPage': 1,
+          'style': { display: 'flex', gap: '4px', minWidth: 0 },
+        }, {
+          default: ({ items }: { items: PaginationTicket[] }) => [
+            h(Pagination.Prev, { style: { width: '24px' } }, () => '<'),
+            ...items.map((item, index) => item.type === 'page'
+              ? h(Pagination.Item, { key: `page-${item.value}`, value: item.value, style: { minWidth: '40px' } })
+              : h(Pagination.Ellipsis, { key: `ellipsis-${index}`, style: { width: '40px' } }),
+            ),
+            h(Pagination.Next, { style: { width: '24px' } }, () => '>'),
+          ],
+        }),
+        h('button', 'sibling'),
+      ])), { attachTo: document.body })
+
+      function bounds () {
+        const root = wrapper.find('nav').element.getBoundingClientRect()
+        const buttons = wrapper.findAll('nav > *').map(item => item.element.getBoundingClientRect())
+        return {
+          left: Math.min(...buttons.map(rect => rect.left)) - root.left,
+          right: root.right - Math.max(...buttons.map(rect => rect.right)),
+        }
+      }
+
+      return { wrapper, width, page, bounds, count: () => wrapper.findAll('nav > *').length - 2 }
+    }
+
+    async function frames (count: number) {
+      for (let index = 0; index < count; index++) {
+        await new Promise(resolve => requestAnimationFrame(resolve))
+      }
+    }
+
+    it('should fit pages next to narrower controls', async () => {
+      const { wrapper, bounds, count } = mountFlex({ size: 999, width: 600 })
+
+      await vi.waitFor(() => expect(count()).toBeGreaterThan(7))
+
+      expect(bounds().left).toBeGreaterThanOrEqual(0)
+      expect(bounds().right).toBeGreaterThanOrEqual(0)
+
+      wrapper.unmount()
+    })
+
+    it('should not overflow after jumping to wider page numbers', async () => {
+      const { wrapper, page, bounds } = mountFlex({ size: 100_000, width: 645 })
+
+      await frames(10)
+      page.value = 100_000
+
+      await vi.waitFor(() => {
+        expect(bounds().left).toBeGreaterThanOrEqual(0)
+        expect(bounds().right).toBeGreaterThanOrEqual(0)
+      })
+
+      wrapper.unmount()
+    })
+
+    it('should show more pages when the container grows', async () => {
+      const { wrapper, width, count } = mountFlex({ size: 999, width: 300 })
+
+      await frames(10)
+      const before = count()
+      width.value = 600
+
+      await vi.waitFor(() => expect(count()).toBeGreaterThan(before))
 
       wrapper.unmount()
     })
