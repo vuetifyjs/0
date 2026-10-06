@@ -125,9 +125,7 @@
 
   function onSide () {
     menu.value = false
-    playground.side.value = !playground.side.value
-    playground.bottom.value = !playground.bottom.value
-    sidePref.value = playground.side.value
+    playground.movePreview()
   }
 
   function onIntro () {
@@ -528,10 +526,9 @@
           </button>
 
           <button
-            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
-            :class="playground.left.value ? 'text-on-surface/40 cursor-not-allowed' : 'text-on-surface hover:bg-surface-tint'"
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
             type="button"
-            @click="!playground.left.value && onSide()"
+            @click="onSide"
           >
             <AppIcon :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'" :size="14" />
             {{ playground.side.value ? 'Preview Bottom' : 'Preview Right' }}
