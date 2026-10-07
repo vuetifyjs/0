@@ -6,7 +6,7 @@
  * not whatever the dev server happens to be running later.
  */
 
-export interface PlayBuild {
+interface PlayBuild {
   name: string
   version: string
   commit: string
@@ -28,7 +28,7 @@ export interface BuildRow {
 
 const REPO = 'https://github.com/vuetifyjs/0'
 
-export const playBuild: PlayBuild = {
+const playBuild: PlayBuild = {
   name: 'Vuetify0 Play',
   version: __PLAY_VERSION__,
   commit: __PLAY_COMMIT__,
@@ -46,7 +46,7 @@ function releaseHref (repo: string, version: string): string | undefined {
 }
 
 /** `2026-10-06T18:04:12.345Z` → `2026-10-06 18:04 UTC`. */
-export function formatBuilt (iso: string): string {
+function formatBuilt (iso: string): string {
   const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(iso)
   if (!match) return iso || 'unknown'
   return `${match[1]} ${match[2]} UTC`
