@@ -18,15 +18,34 @@
     cells.value?.[Math.min(Math.max(index, 0), max)]?.focus()
   }
 
+  function spread (index: number, text: string) {
+    const previous = otp.value.value.length
+    const written = otp.distribute(text, index)
+    if (written > 0) focus(Math.min(index, previous) + written)
+  }
+
+  // Typed and dropped text land here so a filled cell is overwritten in place, not
+  // merged; maxlength stays off the cells because the browser would truncate
+  // autofilled codes to it, so autofill (insertReplacementText) runs through onInput
+  function onBeforeinput (index: number, event: InputEvent) {
+    if (event.inputType === 'insertReplacementText') return
+    const text = event.data ?? event.dataTransfer?.getData('text') ?? ''
+    if (text.length === 0) return
+    event.preventDefault()
+    if (text.length > 1) return spread(index, text)
+    if (!otp.accepts(text)) return
+    const at = Math.min(index, otp.value.value.length)
+    otp.write(at, text)
+    focus(at + 1)
+  }
+
   function onInput (index: number, event: Event) {
     const target = event.target as HTMLInputElement
     const text = target.value
 
     if (text.length > 1) {
-      const previous = otp.value.value.length
-      const written = otp.distribute(text, index)
+      spread(index, text)
       target.value = otp.value.value[index] ?? ''
-      if (written > 0) focus(Math.min(index, previous) + written)
       return
     }
 
@@ -45,10 +64,7 @@
 
   function onPaste (index: number, event: ClipboardEvent) {
     event.preventDefault()
-    const text = event.clipboardData?.getData('text') ?? ''
-    const previous = otp.value.value.length
-    const consumed = otp.distribute(text, index)
-    if (consumed > 0) focus(Math.min(index, previous) + consumed)
+    spread(index, event.clipboardData?.getData('text') ?? '')
   }
 </script>
 
@@ -63,8 +79,8 @@
       :data-state="state"
       :disabled="locked"
       inputmode="numeric"
-      maxlength="1"
       :value="item.value"
+      @beforeinput="onBeforeinput(item.index, $event)"
       @input="onInput(item.index, $event)"
       @keydown="onKeydown(item.index, $event)"
       @paste="onPaste(item.index, $event)"

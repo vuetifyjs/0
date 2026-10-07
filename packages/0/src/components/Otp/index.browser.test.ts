@@ -93,6 +93,45 @@ describe('otp', () => {
     expect(document.activeElement).toBe(itemEls()[3]!.element)
   })
 
+  // A maxlength="1" box let the browser truncate UA-inserted text to one
+  // character before onInput ran, so one-time-code autofill wrote only '1'.
+  it('should distribute a full code inserted through native editing', async () => {
+    const model = ref('')
+    const { itemEls, wait } = mountOtp({ model, length: 4 })
+    await wait()
+
+    const input = itemEls()[0]!.element as HTMLInputElement
+    input.focus()
+    document.execCommand('insertText', false, '1234')
+    await wait()
+
+    expect(model.value).toBe('1234')
+    expect(document.activeElement).toBe(itemEls()[3]!.element)
+  })
+
+  // Without maxlength a native drop onto a filled box merged with its
+  // character ('51234') and onInput then shifted the code.
+  it('should distribute text dropped onto a filled box instead of merging it', async () => {
+    const model = ref('5')
+    const { itemEls, wait } = mountOtp({ model, length: 4 })
+    await wait()
+
+    const dataTransfer = new DataTransfer()
+    dataTransfer.setData('text/plain', '1234')
+    const event = new InputEvent('beforeinput', {
+      inputType: 'insertFromDrop',
+      dataTransfer,
+      bubbles: true,
+      cancelable: true,
+    })
+    itemEls()[0]!.element.dispatchEvent(event)
+    await wait()
+
+    expect(event.defaultPrevented).toBe(true)
+    expect(model.value).toBe('1234')
+    expect(document.activeElement).toBe(itemEls()[3]!.element)
+  })
+
   it('should focus the next empty box when pasting into a later box on an empty value', async () => {
     const model = ref('')
     const { itemEls, wait } = mountOtp({ model, length: 6 })

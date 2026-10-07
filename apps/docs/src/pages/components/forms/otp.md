@@ -46,6 +46,28 @@ Otp renders a group of single-character boxes. Items expose fill state via data 
 </template>
 ```
 
+## Examples
+
+::: gn-example
+/components/otp/useTwoFactor.ts 1
+/components/otp/TwoFactorForm.vue 2
+/components/otp/two-factor.vue 3
+
+### Two-factor sign-in form
+
+A second-factor step that posts the code through a real `<form>` the moment the last box fills. Setting `name="code"` on `Otp.Root` auto-renders `Otp.HiddenInput`, so the joined value travels with the form like any native field — the summary panel reads it back with `new FormData(form)` to prove what the browser would send. There is no submit button: `@complete` calls `requestSubmit()`, which runs the [Form](/components/forms/form) submit pipeline (including any registered field validation) before the `@submit` handler fires.
+
+Form runs in `renderless` mode so the example owns the `<form>` element and can hand it to `FormData`; Form's `@submit` resolves after its async validation pass, by which point the hidden input carries the full code.
+
+Reach for this shape when the code is the whole step and nothing else needs confirming. If the server can reject the code and the field must clear and lock while the request is in flight, build on [createOtp](/composables/forms/create-otp) and its decisional `onComplete` instead — `@complete` is observational and cannot veto a value. Related: [Input](/components/forms/input), [Form](/components/forms/form).
+
+| File | Role |
+|------|------|
+| `useTwoFactor.ts` | Owns the code, the submitted payload, and reset |
+| `TwoFactorForm.vue` | Renders Otp inside a Form and auto-submits on `@complete` |
+| `two-factor.vue` | Wires the composable to the form and shows the posted payload |
+:::
+
 ## Recipes
 
 ### Completion
@@ -115,7 +137,6 @@ Otp.Root is a `role="group"` with a locale-driven default accessible name. Each 
 | `aria-describedby` | Same id as Root when `ariaDescribedby` is set |
 | `autocomplete` | `one-time-code` |
 | `inputmode` | `numeric` when `pattern` is `'numeric'`, otherwise `text` |
-| `maxlength` | `1` |
 
 ### Data Attributes
 
