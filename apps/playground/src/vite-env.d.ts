@@ -11,6 +11,16 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
+/** Injected by apps/playground/vite.config.ts from build-meta.ts. */
+declare const __PLAY_VERSION__: string
+declare const __PLAY_COMMIT__: string
+declare const __PLAY_COMMIT_FULL__: string
+declare const __PLAY_DIRTY__: boolean
+declare const __PLAY_BUILT__: string
+declare const __PLAY_VUE__: string
+declare const __PLAY_V0__: string
+declare const __PLAY_GENESIS__: string
+
 declare module '*.md' {
   // Types
   import type { ComponentOptions } from 'vue'

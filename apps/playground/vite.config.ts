@@ -12,6 +12,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'vue-router/vite'
 
+import { playBuildDefines, readPlayBuildMeta } from './build-meta.ts'
+
 // Types
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
@@ -139,6 +141,7 @@ export default defineConfig({
     '__VUE_OPTIONS_API__': 'true',
     '__VUE_PROD_DEVTOOLS__': 'false',
     '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
+    ...playBuildDefines(readPlayBuildMeta(import.meta.url)),
   },
   resolve: {
     alias: {
