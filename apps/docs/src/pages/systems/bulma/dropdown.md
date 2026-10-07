@@ -52,7 +52,7 @@ Positioning stays Bulma's. The menu is placed by CSS against the trigger, so the
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Skips v0's [Popover](/components/disclosure/popover) entirely. `Popover.Content` hardwires `popover=""`, which promotes the menu to the top layer and sets UA `margin: unset` — both fight Bulma's in-flow `.dropdown-menu { position: absolute }`. Open state is a boolean `v-model` plus `useClickOutside` and a local Escape handler bound to the dropdown subtree, not the document: a dropdown inside `BuModal` must not close the modal on the first Escape.
 

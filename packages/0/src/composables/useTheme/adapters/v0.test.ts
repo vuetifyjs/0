@@ -421,6 +421,7 @@ describe('v0StyleSheetThemeAdapter', () => {
       expect(css).toContain('--v0-primary: #1976d2')
       expect(css).toContain('--v0-secondary: #424242')
       expect(css).toContain('color-scheme: light')
+      expect(css).not.toContain('color: var(')
     })
 
     it('should generate dark color-scheme when isDark is true', () => {

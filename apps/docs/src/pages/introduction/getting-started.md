@@ -78,14 +78,14 @@ bunx @vuetify/cli init --type vuetify0
 
 :::
 
-Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [DevKey](/guide/integration/devkey), the reference v0 starter project.
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured — the same shape as [DevKey](/guide/integration/devkey), the reference Vuetify0 starter project.
 
 > [!TIP]
 > Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />
 
 ## Manual Setup
 
-To add v0 to an existing project, follow the steps below.
+To add Vuetify0 to an existing project, follow the steps below.
 
 ### Create Vue Project
 
@@ -176,10 +176,52 @@ app.mount('#app')
 > [!NOTE]
 > For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
 
+## Seed Working Examples
+
+Vuetify0 is headless: installing `@vuetify/v0` and importing a component gives you logic, accessibility, and state management — but no rendered UI. To start with a working, styled example you can edit and ship, use `vuetify add` to pull from the [docs registry](https://0.vuetifyjs.com/registry/index.json):
+
+::: code-group no-filename
+
+```bash pnpm
+# Interactive picker
+pnpm dlx @vuetify/cli add
+
+# Seed a Dialog example
+pnpm dlx @vuetify/cli add dialog
+
+# Seed a composable plugin
+pnpm dlx @vuetify/cli add use-theme
+```
+
+```bash npm
+npx @vuetify/cli add
+npx @vuetify/cli add dialog
+npx @vuetify/cli add use-theme
+```
+
+```bash yarn
+yarn dlx @vuetify/cli add
+yarn dlx @vuetify/cli add dialog
+yarn dlx @vuetify/cli add use-theme
+```
+
+```bash bun
+bunx @vuetify/cli add
+bunx @vuetify/cli add dialog
+bunx @vuetify/cli add use-theme
+```
+
+:::
+
+The CLI writes example files into your project, installs any missing dependencies, and records the install in `vuetify.json` so you can diff or refresh later.
+
+> [!TIP]
+> See the [Vuetify CLI guide](/guide/tooling/vuetify-cli) for the full command list, registry options, and `vuetify.json` tracking.
+
 ## Requirements
 
 - Vue 3.5.0 or higher
-- Node 22+
+- Node 22+ recommended for app tooling. Developing Vuetify0 itself requires Node 26+ (see [Contributing](/introduction/contributing)).
 
 ## Usage
 
@@ -213,7 +255,7 @@ Components are completely unstyled. Add your own classes using Tailwind, UnoCSS,
 
 ## Styling
 
-v0 is style-agnostic. Choose your preferred CSS framework and map theme colors to v0's CSS variables.
+Vuetify0 is style-agnostic. Choose your preferred CSS framework and map theme colors to v0's CSS variables.
 
 ### UnoCSS
 
@@ -397,7 +439,7 @@ Type-safe access via `useCssModule()`:
 
 ## Nuxt
 
-v0 works with Nuxt via a standard plugin.
+Vuetify0 works with Nuxt via a standard plugin.
 
 ### 1. Create Plugin
 
@@ -444,7 +486,7 @@ export default defineNuxtConfig({
 ```
 
 > [!TIP]
-> For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/integration/nuxt).
+> This plugin uses the default theme adapter, which emits no CSS during SSR. The [Nuxt guide](/guide/integration/nuxt) replaces `plugins/vuetify0.ts` with one plugin that renders the theme on the server, stores it in a cookie, and sets up hydration and breakpoints. Use that file on its own.
 
 ## Exposed Exports
 
@@ -484,24 +526,25 @@ Click the portrait to copy John's identity into [Grok Bot](https://x.ai/bot). Se
 
 ## Next Steps
 
-Now that v0 is installed, choose your path:
+Now that Vuetify0 is installed, choose your path:
 
 | Goal | Start Here |
 | - | - |
 | Understand the architecture | [Components](/guide/fundamentals/components) → [Composables](/guide/fundamentals/composables) → [Core](/guide/fundamentals/core) |
 | Build production UIs now | [Theming](/guide/features/theming) → [Accessibility](/guide/features/accessibility) |
 | Build a component library | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Seed styled examples | [Vuetify CLI](/guide/tooling/vuetify-cli) (`vuetify add`) |
 | Set up an AI agent | [Agents](/guide/tooling/agents) → [AI Tools](/guide/tooling/ai-tools) |
 | Explore interactively | [Playground](/playground) |
 
 > [!TIP]
-> Use `Cmd+/` on any documentation page to ask AI questions about v0.
+> Use `Cmd+/` on any documentation page to ask AI questions about Vuetify0.
 
 > [!TOUR] using-search
 
-## Support v0
+## Support Vuetify0
 
-v0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
+Vuetify0 is built and maintained in the open. If it's useful to you or your team, sponsoring funds the work and keeps it moving — and need a hand shipping? The [Services](/services) page covers direct support plans and fixed-scope project builds.
 
 ::: sponsor
 :::

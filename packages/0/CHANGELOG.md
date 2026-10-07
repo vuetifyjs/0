@@ -1,5 +1,87 @@
 # @vuetify/v0
 
+## 1.2.3
+
+### Patch Changes
+
+- [#1003](https://github.com/vuetifyjs/0/pull/1003) [`6426af3`](https://github.com/vuetifyjs/0/commit/6426af360bb47b3c9d8d513a0eae86d8bb05c629) Thanks [@johnleider](https://github.com/johnleider)! - fix(useBreakpoints): breakpoint flags follow the matched name
+
+  `sm` is the `sm` threshold, including when a custom map is not in ascending order. `name` and the boolean flags stay in agreement. Default thresholds are unchanged.
+
+- [#1004](https://github.com/vuetifyjs/0/pull/1004) [`675e097`](https://github.com/vuetifyjs/0/commit/675e09776bb003a9c8b1424ce6b786d908ac6279) Thanks [@johnleider](https://github.com/johnleider)! - fix(useBreakpoints): resize updates run without the plugin
+
+  `createBreakpoints()` follows viewport changes on its own. With `ssr` set, that listener waits for the first `update()`, so the server width stays in place until hydration. The plugin still calls `update()` once after mount in that case.
+
+- [#1001](https://github.com/vuetifyjs/0/pull/1001) [`bbc0ac0`](https://github.com/vuetifyjs/0/commit/bbc0ac024a46900d67e87fc33a981c080372a053) Thanks [@johnleider](https://github.com/johnleider)! - useStorage no longer throws when the browser refuses localStorage; it falls back to memory and reads tolerate a throwing adapter.
+
+## 1.2.2
+
+### Patch Changes
+
+- [#982](https://github.com/vuetifyjs/0/pull/982) [`09a62d7`](https://github.com/vuetifyjs/0/commit/09a62d7ecba84e0f6a8c02f59cb05fc7ac7b65f6) Thanks [@johnleider](https://github.com/johnleider)! - fix(createFilter): track reactive `keys`
+
+  `keys` now accepts a ref or getter (`MaybeRefOrGetter<readonly string[]>`), so changing which fields are searched re-runs the filter. Passing a plain `string[]` is unchanged.
+
+- [#982](https://github.com/vuetifyjs/0/pull/982) [`09a62d7`](https://github.com/vuetifyjs/0/commit/09a62d7ecba84e0f6a8c02f59cb05fc7ac7b65f6) Thanks [@johnleider](https://github.com/johnleider)! - fix(useTheme): stop emitting element-level color on `[data-theme]`
+
+  `ThemeAdapter.generate()` still writes custom properties and `:root { color-scheme }`. It no longer sets `color: var(--*-on-background)` on the theme selector — applying tokens is Paper's job. Unstyled hosts that relied on that inherited `color` need to set it themselves.
+
+- [#985](https://github.com/vuetifyjs/0/pull/985) [`8396668`](https://github.com/vuetifyjs/0/commit/839666876b63106567ae01ae2b8b8a88970b8eb5) Thanks [@johnleider](https://github.com/johnleider)! - fix(Toggle): emit native `disabled` on the default button host
+
+  Disabled `Toggle.Root` now sets the HTML `disabled` attribute when `as` is `"button"` (the default) and omits `aria-disabled` on that path. Non-button hosts still get `aria-disabled`.
+
+## 1.2.1
+
+### Patch Changes
+
+- [#959](https://github.com/vuetifyjs/0/pull/959) [`ac90199`](https://github.com/vuetifyjs/0/commit/ac90199f51f30b0b2cc95c46016598278ac18c26) Thanks [@johnleider](https://github.com/johnleider)! - fix(Breadcrumbs): keep every crumb visible when Ellipsis is omitted ([#911](https://github.com/vuetifyjs/0/issues/911))
+
+  Truncation only runs when `Breadcrumbs.Ellipsis` is composed.
+
+- [#933](https://github.com/vuetifyjs/0/pull/933) [`7d41f19`](https://github.com/vuetifyjs/0/commit/7d41f191ef90a04385a1bf9ab2e5b6beae3016c8) Thanks [@johnleider](https://github.com/johnleider)! - fix(createDataTable): honor the factory `locale` option when a locale plugin is installed
+
+- [#933](https://github.com/vuetifyjs/0/pull/933) [`7d41f19`](https://github.com/vuetifyjs/0/commit/7d41f191ef90a04385a1bf9ab2e5b6beae3016c8) Thanks [@johnleider](https://github.com/johnleider)! - fix(DataGrid): keep column resize working after hide()
+
+  `hide()` leaves columns mounted; resize now matches Splitter panel count, not visible-only columns.
+
+- [#953](https://github.com/vuetifyjs/0/pull/953) [`897cdcf`](https://github.com/vuetifyjs/0/commit/897cdcf0f5d6683f282261c378d84e1550df191c) Thanks [@johnleider](https://github.com/johnleider)! - fix(createValidation): fail unknown rule aliases; join Form via formNamespace
+
+  Unresolved alias strings no longer pass validation. Fields join a Form through `formNamespace` (default `'v0:form'`), matching `groupNamespace` — a custom Form `namespace` only collects children that set the same key.
+
+- [#954](https://github.com/vuetifyjs/0/pull/954) [`2e0025c`](https://github.com/vuetifyjs/0/commit/2e0025cde4d5bcda140834628883fa8a8dff42ba) Thanks [@johnleider](https://github.com/johnleider)! - fix(Input): required fields fail Form submit under novalidate
+
+  `required` on Input and NumberField now registers a presence rule, so empty required fields fail `submit()` even though Form defaults to `novalidate`.
+
+- [#944](https://github.com/vuetifyjs/0/pull/944) [`6ec1732`](https://github.com/vuetifyjs/0/commit/6ec173270d312591f966e32ede760531a1d18e24) Thanks [@J-Sek](https://github.com/J-Sek)! - fix(findMatchRanges): directional `ignoreAccents` now matches an already-accented spelling verbatim
+
+  `ignoreAccents: 'query'` and `'target'` fold only one side of the comparison, so a heavily-accented word like `Kraków` could fail to match its own exact spelling — the query got folded to `Krakow` while the target stayed accented, and the two no longer agreed.
+
+  Both modes now also check for a literal, unfolded match, so typing the exact accented text always finds it — without changing what they're for: `'query'` still only folds the query (typing `cafe` won't find `café`) and `'target'` still only folds the text (typing `café` won't find `cafe`), so a different accent on either side (`café` vs `cafè`) still doesn't match.
+
+- [#957](https://github.com/vuetifyjs/0/pull/957) [`c9575fd`](https://github.com/vuetifyjs/0/commit/c9575fd4c5be46333b010e022f6f00de240a3459) Thanks [@johnleider](https://github.com/johnleider)! - fix(InputControl): keep wrapper attrs when Root leaves them unset
+
+  Wrappers can set a control attr the ambient Input.Root left unset (`readonly`, `disabled`, `required`, `name`, `form`). Root-set values still win.
+
+- [#938](https://github.com/vuetifyjs/0/pull/938) [`9f8eb78`](https://github.com/vuetifyjs/0/commit/9f8eb78d500e2a6f064a32422586cc5483b61c0d) Thanks [@johnleider](https://github.com/johnleider)! - fix(Popover): restore CSS anchoring when Content sets a custom id
+
+  A custom Content `id` paired with a matching Activator `target` is the native popover pairing. Positioning now follows that id again instead of the Root-generated one.
+
+- [#947](https://github.com/vuetifyjs/0/pull/947) [`1b6bb65`](https://github.com/vuetifyjs/0/commit/1b6bb65d01c61bb9e025e1ada9d50b634047b0b7) Thanks [@johnleider](https://github.com/johnleider)! - fix(usePopover): name the plugin namespace `v0:popover`
+
+  `createPopoverPlugin` now provides at `v0:popover`, matching every other plugin. Compound `Popover.Root` context moved to `v0:popover:root` so the two keys do not collide. If you passed `namespace: 'v0:popover-plugin'` explicitly, drop it or switch to `v0:popover`.
+
+- [#933](https://github.com/vuetifyjs/0/pull/933) [`7d41f19`](https://github.com/vuetifyjs/0/commit/7d41f191ef90a04385a1bf9ab2e5b6beae3016c8) Thanks [@johnleider](https://github.com/johnleider)! - fix(Progress): emit a number when filling after an indeterminate start
+
+  An unbound Progress that later received a fill value used to write `[n]` because scalar-vs-array was frozen at setup. Fill also omits inline width while indeterminate so CSS animations can run.
+
+- [#951](https://github.com/vuetifyjs/0/pull/951) [`8155332`](https://github.com/vuetifyjs/0/commit/81553324651e93150ad9f61236d465fade96bd5b) Thanks [@johnleider](https://github.com/johnleider)! - fix(selection): make ticket.unregister() clear selection and tree state
+
+  `ticket.unregister()` now drops the id from selection, mixed, and nested maps — the same cleanup `unregister(id)` already did. `clear()` / `dispose()` on a group or tree wipe mixed and open state too. Stepping after an earlier item unmounts, Progress percent after a segment unmounts, and mandatory `unselectAll` on a tree no longer leave ghost ids or re-select a disabled node.
+
+- [#958](https://github.com/vuetifyjs/0/pull/958) [`2bfaf60`](https://github.com/vuetifyjs/0/commit/2bfaf6049a3c9c7504ed12c898f38af67df4d850) Thanks [@johnleider](https://github.com/johnleider)! - fix(TabsItem): let renderless items supply a focus target
+
+  Pass `el` to `Tabs.Item` when `as` is `null` so arrow keys move focus to the real control.
+
 ## 1.2.0
 
 DataTable, DataGrid, and Alert ship in this minor, not 1.1.0. 1.1.0 went out earlier with Splitter pending-intent and `@vuetify/play` after those `feat`s landed on `master`.
@@ -362,7 +444,7 @@ DataTable, DataGrid, and Alert ship in this minor, not 1.1.0. 1.1.0 went out ear
       entry.contentRect.height; // 30 — content box, as before
       entry.borderBoxSize[0].blockSize; // 40 — with 4px padding and a 1px border
     },
-    { box: "border-box" }
+    { box: "border-box" },
   );
   ```
 

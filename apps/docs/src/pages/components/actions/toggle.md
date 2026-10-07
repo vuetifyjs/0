@@ -82,7 +82,8 @@ Toggle renders as a native `<button>` element with proper ARIA attributes:
 | Attribute | Value | Description |
 |-----------|-------|-------------|
 | `aria-pressed` | `true` / `false` | Reflects the pressed state |
-| `aria-disabled` | `true` / absent | Present when disabled |
+| `disabled` | present / absent | Native `<button>` host (the default) when disabled |
+| `aria-disabled` | `true` / `false` | Non-button hosts (`as` is not `button`) |
 
 ### Group ARIA
 

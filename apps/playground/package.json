@@ -17,6 +17,7 @@
     "@vuetify/v0": "workspace:*",
     "client-zip": "catalog:",
     "pinia": "catalog:",
+    "prettier": "catalog:",
     "swetrix": "catalog:",
     "vue": "catalog:"
   },

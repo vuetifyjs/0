@@ -47,13 +47,13 @@ There is no auto-hide: `content=0` renders a badge that says 0. When zero means 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmBadge` renders v0's [Atom](/components/primitives/atom) — the polymorphic primitive at the bottom of the component system — pinned to `as="span"`. Atom's other two modes exist but are not exposed here: `EmBadge` forwards neither `as` nor `renderless`, so the anatomy is fixed. A badge is always exactly one span.
 
 What Emerald gets from the Atom base is its attribute forwarding. Everything you put on `EmBadge` that is not a prop — `class`, `aria-hidden`, `role`, an id — lands on the rendered span, which is what makes the call-site accessibility patterns below work without the component needing props for them.
 
-The ownership split is the usual Emerald one: the component publishes state as data attributes — `data-variant` always, `data-dot` when `dot` is set — and the stylesheet hangs every rule off those. The capping logic (`99+`), the slot-over-content precedence, and the dot's content suppression are the only behavior Emerald adds; there is no context, no namespace, and no v0 composable underneath.
+The ownership split is the usual Emerald one: the component publishes state as data attributes — `data-variant` always, `data-dot` when `dot` is set — and the stylesheet hangs every rule off those. The capping logic (`99+`), the slot-over-content precedence, and the dot's content suppression are the only behavior Emerald adds; there is no context, no namespace, and no Vuetify0 composable underneath.
 
 ## Examples
 

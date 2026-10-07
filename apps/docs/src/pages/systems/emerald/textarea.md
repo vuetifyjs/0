@@ -45,7 +45,7 @@ Everything around the control is a prop. `label` renders the visible label and w
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmTextarea` renders v0's [Input](/components/forms/input) compound — the same four parts as `EmTextField`: `Input.Root` owns the field, `Input.Control` is the element you type into, and `Input.Description` and `Input.Error` are the two message regions.
 
@@ -55,7 +55,7 @@ The ownership split around the label is the same as the text field's, and worth 
 
 Emerald's additions are CSS and two structural decisions. First, `Input.Error` is always rendered rather than conditionally mounted — the region carries `aria-live="polite"`, and a live region must already be in the document when its content arrives or the insertion is not announced. Second, `rows` is threaded twice: onto the control as the native attribute, and into a `--emerald-textarea-rows` custom property that the stylesheet multiplies by the body line-height to compute the control's `min-height` — which is what makes `rows` a floor for the drag-resize rather than just an initial size.
 
-The state attributes the stylesheet keys on — `data-focused`, `data-disabled`, `data-readonly`, `data-state="invalid"` — are all emitted by v0, on the root and on the control. Emerald writes no state class; the one attribute it binds itself, `data-disabled` on the root, mirrors what v0 already emits there.
+The state attributes the stylesheet keys on — `data-focused`, `data-disabled`, `data-readonly`, `data-state="invalid"` — are all emitted by v0, on the root and on the control. Emerald writes no state class; the one attribute it binds itself, `data-disabled` on the root, mirrors what Vuetify0 already emits there.
 
 ## Examples
 

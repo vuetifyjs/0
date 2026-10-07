@@ -57,7 +57,7 @@
 
       if (npmRes.ok) {
         const npm = await npmRes.json()
-        newStats.downloads = formatNumber(npm.downloads)
+        newStats.downloads = formatNumber(npm.downloads, 0)
       }
 
       stats.value = newStats
@@ -66,9 +66,9 @@
     }
   })
 
-  function formatNumber (num: number): string {
-    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+  function formatNumber (num: number, decimals = 1): string {
+    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(decimals)}M`
+    if (num >= 1000) return `${(num / 1000).toFixed(decimals)}K`
     return num.toString()
   }
 </script>
@@ -97,7 +97,7 @@
     </p>
 
     <div class="relative flex flex-col items-center gap-6 mb-10">
-      <div class="grid grid-cols-2 md:flex gap-4 justify-center">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:flex gap-4 justify-center">
         <router-link
           class="home-hero-cta-primary px-8 py-3.5 bg-primary text-on-primary rounded-xl font-semibold text-lg text-center whitespace-nowrap transition-all duration-150 inline-flex items-center justify-center gap-2"
           to="/introduction/getting-started"
@@ -127,10 +127,10 @@
 
       <div class="hidden md:block w-px bg-divider" />
 
-      <div>
+      <a href="https://npmx.dev/package/@vuetify/v0#downloads" rel="noopener" target="_blank">
         <div class="stat-number min-w-[4ch]">{{ stats.downloads }}</div>
         <div class="stat-label">Monthly Downloads</div>
-      </div>
+      </a>
 
       <div class="hidden md:block w-px bg-divider" />
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button, useHotkey, useStorage, useTheme } from '@vuetify/v0'
+  import { Button, useBreakpoints, useHotkey, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
@@ -27,6 +27,7 @@
   }
 
   const playground = usePlayground()
+  const { isMobile } = useBreakpoints()
   const theme = useTheme()
   const storage = useStorage()
   const viewport = storage.get<Viewport>('playground-viewport', '100%')
@@ -60,6 +61,20 @@
         @click="reload"
       >
         <AppIcon icon="reset" :size="14" />
+      </AppTooltip>
+
+      <AppTooltip
+        v-if="!isMobile"
+        :aria-label="playground.side.value ? 'Preview bottom' : 'Preview right'"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity opacity-50"
+        position-area="bottom"
+        :text="playground.side.value ? 'Preview bottom' : 'Preview right'"
+        @click="playground.movePreview()"
+      >
+        <AppIcon
+          :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'"
+          :size="14"
+        />
       </AppTooltip>
 
       <Button.Group

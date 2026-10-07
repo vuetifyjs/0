@@ -18,7 +18,7 @@ related:
 
 # DevKey
 
-DevKey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the v0 Alpha.
+DevKey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetifyjs/devkey)) is the reference starter project for Vuetify0. Scaffolded with the [Vuetify CLI](/guide/tooling/vuetify-cli), it shows how the pieces fit together in a real Vue 3 app — and is the canonical example shipped with the Vuetify0 Alpha.
 
 <DocsPageFeatures :frontmatter />
 
@@ -30,9 +30,9 @@ DevKey ([live](https://devkey.vuetifyjs.com), [source](https://github.com/vuetif
 
 ## Preview
 
-The DevKey home page. Navigation, hero layout, feature grid, and pricing cards are all built from v0 components.
+The DevKey home page. Navigation, hero layout, feature grid, and pricing cards are all built from Vuetify0 components.
 
-![DevKey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png "The DevKey landing page, rendered with v0 components")
+![DevKey home page](https://cdn.vuetifyjs.com/docs/images/devkey/home.png "The DevKey landing page, rendered with Vuetify0 components")
 
 ## Overview
 
@@ -127,10 +127,10 @@ devkey/
 ├── public/                # Static assets served as-is
 ├── src/
 │   ├── components/        # Reusable Vue components
-│   ├── plugins/           # v0 plugin registration (theme, locale, etc.)
+│   ├── plugins/           # Vuetify0 plugin registration (theme, locale, etc.)
 │   ├── styles/            # Global styles and theme tokens
 │   ├── App.vue            # Root component
-│   └── main.ts            # App entry — registers v0 plugins
+│   └── main.ts            # App entry — registers Vuetify0 plugins
 ├── index.html
 ├── vite.config.mts        # Vite + UnoCSS + fonts
 ├── tsconfig.json          # Project references
@@ -146,7 +146,7 @@ DevKey is intentionally small — the goal is to show the wiring, not fill it wi
 - **Plugin registration** — where and how `createThemePlugin` and friends get installed on the Vue `app`
 - **UnoCSS + theme tokens** — mapping v0's CSS variables to UnoCSS theme colors for utility-class styling
 - **Font loading** — `@fontsource/inter` wired through `unplugin-fonts` for zero-flash webfonts
-- **Routing** — `vue-router` 5's built-in file-based routing alongside v0 components
+- **Routing** — `vue-router` 5's built-in file-based routing alongside Vuetify0 components
 - **TypeScript** — `vue-tsc` configured with project references for fast, strict type checks
 
 ## Next Steps
@@ -155,7 +155,7 @@ Once DevKey is running locally, explore the pieces it relies on:
 
 | Goal | Start Here |
 | - | - |
-| Understand how v0 plugins are wired | [Getting Started](/introduction/getting-started) |
-| Build your own components on top of v0 | [Building Frameworks](/guide/fundamentals/building-frameworks) |
+| Understand how Vuetify0 plugins are wired | [Getting Started](/introduction/getting-started) |
+| Build your own components on top of Vuetify0 | [Building Frameworks](/guide/fundamentals/building-frameworks) |
 | Customize the theme | [Theming](/guide/features/theming) |
 | Add SSR | [Nuxt](/guide/integration/nuxt) |

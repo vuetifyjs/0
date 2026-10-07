@@ -84,7 +84,7 @@
             <AppTooltip
               v-if="app.stats.commit"
               as="a"
-              class="flex items-center gap-1 hover:text-primary hover:underline"
+              class="flex items-center gap-1 min-h-9 hover:text-primary hover:underline"
               :href="app.stats.commit.html_url"
               rel="noopener nofollow"
               target="_blank"
@@ -99,7 +99,7 @@
 
       <div class="flex items-center gap-4">
         <router-link
-          class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-opacity"
+          class="inline-flex items-center min-h-9 text-sm opacity-60 hover:opacity-100 hover:text-primary transition-opacity"
           to="/services"
         >
           Services

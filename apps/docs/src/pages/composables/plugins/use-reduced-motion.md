@@ -95,7 +95,7 @@ app.use(createReducedMotionPlugin({ adapter: new ClassReducedMotionAdapter() }))
 `useReducedMotion` uses the plugin pattern with a media-query core and a DOM adapter:
 
 ```mermaid "Reduced Motion Plugin"
-flowchart LR
+flowchart TD
   plugin[createReducedMotionPlugin] --> context[createReducedMotion]
   context --> media[usePrefersReducedMotion]
   context --> adapter[ReducedMotionAdapter]

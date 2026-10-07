@@ -22,9 +22,9 @@ v0 theming uses CSS custom properties for runtime theme switching. The theme plu
 <DocsPageFeatures :frontmatter />
 
 > [!TIP]
-> v0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
+> Vuetify0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
 
-> [!ASKAI] How do I use v0 theming with Tailwind CSS instead of UnoCSS?
+> [!ASKAI] How do I use Vuetify0 theming with Tailwind CSS instead of UnoCSS?
 
 ## Quick Start
 
@@ -66,7 +66,7 @@ app.use(
 ```
 
 > [!TIP]
-> Don't want to pick colors manually? v0 ships [pre-built palettes](/guide/features/palettes) from Material Design, Tailwind, Radix, and Ant Design — plus generators that create a full theme from a single brand color.
+> Don't want to pick colors manually? Vuetify0 ships [pre-built palettes](/guide/features/palettes) from Material Design, Tailwind, Radix, and Ant Design — plus generators that create a full theme from a single brand color.
 
 ### 2. Use in Components
 

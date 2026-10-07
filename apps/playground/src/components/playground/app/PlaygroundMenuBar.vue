@@ -9,6 +9,8 @@
   import PlaygroundMenuItem from '@/components/playground/app/PlaygroundMenuItem.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundOpenDialog from '@/components/playground/open/PlaygroundOpenDialog.vue'
+  // Local
+  import { DEFAULT_OPEN_RAIL, normalizeOpenRail, type OpenRail } from '@/components/playground/open/types'
 
   // Context
   import { usePlayground } from './PlaygroundApp.vue'
@@ -28,6 +30,7 @@
   const {
     currentId: oneId,
     currentTitle: oneTitle,
+    isLinked,
     currentMeta,
     isOwner,
     saving: oneSaving,
@@ -40,6 +43,10 @@
   const breakpoints = useBreakpoints()
   const storage = useStorage()
   const sidePref = storage.get('playground-preview-right', false)
+  // Enroll on this always-mounted bar. PlaygroundOpenDialog is v-if'd; a
+  // storage.get() watch created there dies on close and stops persisting.
+  const openRail = storage.get<OpenRail>('playground-open-rail', DEFAULT_OPEN_RAIL)
+  openRail.value = normalizeOpenRail(openRail.value)
 
   const menu = shallowRef(false)
   const file = shallowRef(false)
@@ -118,9 +125,7 @@
 
   function onSide () {
     menu.value = false
-    playground.side.value = !playground.side.value
-    playground.bottom.value = !playground.bottom.value
-    sidePref.value = playground.side.value
+    playground.movePreview()
   }
 
   function onIntro () {
@@ -289,15 +294,15 @@
           <div class="border-t border-divider my-1" />
 
           <!--
-            Linked: always One# identity + autosave switch (toggle only gates API writes).
-            Unlinked: Save to Vuetify One.
+            Linked: truncated title + autosave switch (One#id in cloud tooltip).
+            Unlinked: Local status, then Save to Vuetify One.
           -->
           <div
-            v-if="oneId"
+            v-if="isLinked"
             class="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs"
           >
-            <span class="min-w-0 flex-1 truncate tabular-nums text-on-surface-variant">
-              One#{{ oneId }}
+            <span class="min-w-0 flex-1 truncate text-on-surface-variant">
+              {{ oneTitle }}
             </span>
 
             <AppTooltip
@@ -308,8 +313,8 @@
               :text="oneSaving
                 ? 'Syncing…'
                 : autosaveEnabled
-                  ? `Auto-saving to Vuetify One (${oneTitle})`
-                  : 'Auto-save off'"
+                  ? `Auto-saving to Vuetify One · One#${oneId}`
+                  : `Auto-save off · One#${oneId}`"
             >
               <AppIcon
                 :class="!autosaveEnabled && !oneSaving ? 'opacity-40' : ''"
@@ -318,41 +323,56 @@
               />
             </AppTooltip>
 
-            <Switch.Root
-              aria-label="Auto-save"
-              class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
-              :model-value="autosaveEnabled"
-              @update:model-value="setAutosave"
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0"
+              :open-delay="200"
+              position-area="right"
+              text="Save changes to Vuetify One as you edit"
             >
-              <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
-                <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
-              </Switch.Track>
-            </Switch.Root>
+              <Switch.Root
+                class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+                label="Auto-save"
+                :model-value="autosaveEnabled"
+                @update:model-value="setAutosave"
+              >
+                <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                  <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+                </Switch.Track>
+              </Switch.Root>
+            </AppTooltip>
+          </div>
+
+          <div
+            v-else
+            class="w-full flex items-center px-3 py-1.5 text-xs text-on-surface-variant"
+          >
+            Local
           </div>
 
           <PlaygroundMenuItem
-            v-else
+            v-if="!isLinked"
             @click="onSave(false)"
           >
             Save to Vuetify One
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
-            v-if="oneId"
+            v-if="isLinked"
             @click="onSave(false)"
           >
             Rename
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
-            v-if="oneId"
+            v-if="isLinked"
             @click="onSave(true)"
           >
             Save as new
           </PlaygroundMenuItem>
 
           <!-- Lifecycle actions for linked playgrounds -->
-          <template v-if="oneId">
+          <template v-if="isLinked">
             <div class="border-t border-divider my-1" />
 
             <!-- Owner actions -->
@@ -441,6 +461,30 @@
           <PlaygroundMenuItem @click="onFormat">
             <span class="flex-1">Format</span>
             <span class="text-on-surface/40 text-2.5">Ctrl+S</span>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex shrink-0"
+              :open-delay="200"
+              position-area="right"
+              text="Format the file when the editor loses focus"
+              @click.stop
+            >
+              <Switch.Root
+                as="span"
+                class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+                label="Auto format"
+                :model-value="playground.autoFormat.value"
+                @click.stop
+                @keydown.enter.prevent
+                @keydown.space.prevent
+                @update:model-value="playground.autoFormat.value = $event"
+              >
+                <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                  <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+                </Switch.Track>
+              </Switch.Root>
+            </AppTooltip>
           </PlaygroundMenuItem>
 
           <div class="border-t border-divider my-1" />
@@ -482,10 +526,9 @@
           </button>
 
           <button
-            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs transition-colors text-left"
-            :class="playground.left.value ? 'text-on-surface/40 cursor-not-allowed' : 'text-on-surface hover:bg-surface-tint'"
+            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-tint transition-colors text-left"
             type="button"
-            @click="!playground.left.value && onSide()"
+            @click="onSide"
           >
             <AppIcon :icon="playground.side.value ? 'layout-vertical' : 'layout-horizontal'" :size="14" />
             {{ playground.side.value ? 'Preview Bottom' : 'Preview Right' }}
@@ -520,6 +563,7 @@
 
   <PlaygroundOpenDialog
     v-if="dialog"
+    v-model:rail="openRail"
     @close="dialog = false"
   />
 

@@ -6,12 +6,12 @@
   }>()
 
   const emit = defineEmits<{
-    'update:modelValue': [value: string]
+    'update:model-value': [value: string]
   }>()
 
   function onColorInput (event: Event) {
     const target = event.target as HTMLInputElement
-    emit('update:modelValue', target.value)
+    emit('update:model-value', target.value)
   }
 
   function onTextInput (event: Event) {
@@ -23,7 +23,7 @@
       value = `#${value}`
     }
 
-    emit('update:modelValue', value)
+    emit('update:model-value', value)
   }
 </script>
 

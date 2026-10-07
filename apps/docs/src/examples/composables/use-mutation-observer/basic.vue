@@ -11,6 +11,7 @@
   const mutations = ref<MutationEntry[]>([])
   const childCount = shallowRef(0)
   const activeChildren = shallowRef(0)
+  let edits = 0
 
   const { isPaused, pause, resume } = useMutationObserver(
     target,
@@ -36,7 +37,7 @@
           case 'characterData': {
             mutations.value = [...mutations.value, {
               type: 'characterData',
-              detail: `text updated`,
+              detail: 'text updated',
             }]
 
             break
@@ -66,8 +67,8 @@
 
   function onRemoveChild () {
     const el = target.value
-    if (!el?.lastElementChild) return
-    el.lastElementChild.remove()
+    if (!el || activeChildren.value === 0) return
+    el.lastElementChild?.remove()
     activeChildren.value--
   }
 
@@ -75,6 +76,14 @@
     const el = target.value
     if (!el) return
     el.toggleAttribute('data-highlighted')
+  }
+
+  function onUpdateText () {
+    const text = target.value?.lastElementChild?.firstChild
+    if (text?.nodeType !== Node.TEXT_NODE) return
+    edits++
+    const base = (text.nodeValue ?? 'Child').replace(/ · edit \d+$/, '')
+    text.nodeValue = `${base} · edit ${edits}`
   }
 
   function onClear () {
@@ -93,7 +102,8 @@
       </button>
 
       <button
-        class="px-3 py-1.5 bg-secondary text-on-secondary rounded-md text-sm font-medium"
+        class="px-3 py-1.5 bg-secondary text-on-secondary rounded-md text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
+        :disabled="activeChildren === 0"
         @click="onRemoveChild"
       >
         Remove Child
@@ -107,6 +117,14 @@
       </button>
 
       <button
+        class="px-3 py-1.5 bg-warning text-on-warning rounded-md text-sm font-medium disabled:opacity-50 disabled:pointer-events-none"
+        :disabled="activeChildren === 0"
+        @click="onUpdateText"
+      >
+        Update Text
+      </button>
+
+      <button
         class="px-3 py-1.5 rounded-md text-sm font-medium border border-divider hover:bg-surface-tint"
         @click="isPaused ? resume() : pause()"
       >
@@ -114,13 +132,15 @@
       </button>
     </div>
 
-    <div
-      ref="target"
-      class="min-h-16 p-3 rounded-lg border-2 border-dashed border-divider flex flex-wrap gap-2 items-start"
-    >
+    <div class="relative">
+      <div
+        ref="target"
+        class="p-3 rounded-lg border-2 border-dashed border-divider flex flex-wrap gap-2 items-start data-[highlighted]:border-primary data-[highlighted]:bg-primary/10"
+      />
+
       <span
         v-if="activeChildren === 0"
-        class="text-sm text-on-surface-variant opacity-60"
+        class="absolute inset-0 flex items-center px-3 text-sm text-on-surface-variant opacity-60 pointer-events-none"
       >
         Add children to observe mutations
       </span>

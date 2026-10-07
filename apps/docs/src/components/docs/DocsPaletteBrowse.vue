@@ -112,6 +112,14 @@
     clicks.value.set(path, hex)
   }
 
+  function swatchTitle (hue: string, key: string, collection: Record<string, string>) {
+    const hex = collection[key]
+    if (!hex) return undefined
+    const path = `${hue}.${key}`
+    const role = picked.value.get(path)
+    return role ? `${path} · ${hex} · ${role}` : `${path} · ${hex}`
+  }
+
   function onRemove (path: string) {
     clicks.value.delete(path)
   }
@@ -225,18 +233,23 @@
             {{ tone }}
           </div>
 
-          <button
+          <div
             v-for="([hue, collection]) in rows"
             :key="hue"
-            class="h-7 cursor-pointer border-0 transition-opacity"
-            :class="[
-              collection[tone] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
-              picked.has(`${hue}.${tone}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
-            ]"
-            :style="collection[tone] ? { backgroundColor: collection[tone] } : {}"
-            :title="collection[tone] ? `${hue}.${tone} · ${collection[tone]}${picked.has(`${hue}.${tone}`) ? ` · ${picked.get(`${hue}.${tone}`)}` : ''}` : ''"
-            @click="collection[tone] && onSwatch(hue, tone, collection[tone]!)"
-          />
+          >
+            <AppTooltip
+              as="button"
+              class="h-7 w-full cursor-pointer border-0 transition-opacity"
+              :class="[
+                collection[tone] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
+                picked.has(`${hue}.${tone}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
+              ]"
+              :style="collection[tone] ? { backgroundColor: collection[tone] } : {}"
+              :text="swatchTitle(hue, tone, collection)"
+              type="button"
+              @click="collection[tone] && onSwatch(hue, tone, collection[tone]!)"
+            />
+          </div>
         </template>
       </div>
 
@@ -267,18 +280,23 @@
           </div>
 
           <!-- Swatch cells -->
-          <button
+          <div
             v-for="col in columns"
             :key="col"
-            class="h-7 cursor-pointer border-0 transition-opacity"
-            :class="[
-              collection[col] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
-              picked.has(`${hue}.${col}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
-            ]"
-            :style="collection[col] ? { backgroundColor: collection[col] } : {}"
-            :title="collection[col] ? `${hue}.${col} · ${collection[col]}${picked.has(`${hue}.${col}`) ? ` · ${picked.get(`${hue}.${col}`)}` : ''}` : ''"
-            @click="collection[col] && onSwatch(hue, col, collection[col]!)"
-          />
+          >
+            <AppTooltip
+              as="button"
+              class="h-7 w-full cursor-pointer border-0 transition-opacity"
+              :class="[
+                collection[col] ? 'hover:opacity-80' : 'opacity-0 pointer-events-none',
+                picked.has(`${hue}.${col}`) && 'outline outline-2 -outline-offset-2 outline-on-surface',
+              ]"
+              :style="collection[col] ? { backgroundColor: collection[col] } : {}"
+              :text="swatchTitle(hue, col, collection)"
+              type="button"
+              @click="collection[col] && onSwatch(hue, col, collection[col]!)"
+            />
+          </div>
         </template>
       </div>
     </div>

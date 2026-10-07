@@ -49,13 +49,13 @@ A status message with four severity variants. The live-region role follows the s
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmAlert` renders v0's [Atom](/components/primitives/atom) — the polymorphic primitive at the bottom of the component system — rather than a behavioral compound, because an alert has no behavior to wrap. There is nothing to open, select, or validate; the component's only logic is one line that derives the live-region role from the variant.
 
 Atom's job here is the rendering contract. It can render as any element or as nothing at all — that is its `as` and `renderless` surface — and `EmAlert` uses exactly one point on that surface: a `div`. Neither prop is part of `EmAlert`'s own surface, so an `EmAlert` renders as an element in the flow. What you do get from the base is standard attribute forwarding — a `class` or `id` you put on `EmAlert` lands on that root `div`.
 
-The split is the usual Emerald one, just with less on v0's side than usual: v0 renders the element, Emerald owns everything painted on it. The variant is published as a `data-variant` attribute and every visual rule in the stylesheet hangs off that attribute — Emerald writes no state classes. `EmAlertTitle` and `EmAlertDescription` are pure Emerald: plain `div`s carrying the class the alert's stylesheet targets, with no v0 involvement at all.
+The split is the usual Emerald one, just with less on Vuetify0's side than usual: v0 renders the element, Emerald owns everything painted on it. The variant is published as a `data-variant` attribute and every visual rule in the stylesheet hangs off that attribute — Emerald writes no state classes. `EmAlertTitle` and `EmAlertDescription` are pure Emerald: plain `div`s carrying the class the alert's stylesheet targets, with no v0 involvement at all.
 
 ## Examples
 

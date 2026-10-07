@@ -55,7 +55,7 @@ export abstract class ThemeAdapter {
         .map(([key, val]) => `  --${this.prefix}-${key}: ${this.rgb ? this.decompose(val) : val};`)
         .join('\n')
 
-      css += `[data-theme="${theme}"] {\n${vars}\n  color: var(--${this.prefix}-on-background);\n}\n`
+      css += `[data-theme="${theme}"] {\n${vars}\n}\n`
     }
 
     if (!isUndefined(isDark)) {

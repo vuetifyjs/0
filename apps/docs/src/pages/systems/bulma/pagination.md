@@ -56,7 +56,7 @@ Bulma's `.pagination` with the JavaScript it never shipped: current page, ellips
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuPagination` maps onto v0's [Pagination](/components/semantic/pagination) compound: `Pagination.Root`, `Pagination.Prev`, `Pagination.Next`, `Pagination.Item` and `Pagination.Ellipsis`.
 

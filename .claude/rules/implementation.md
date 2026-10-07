@@ -66,7 +66,7 @@ A headless lib exposes a small, fixed set of injection / DoS sinks, and v0 alrea
 |-----------|-------|--------------------|
 | Build a plain object keyed by caller- or registry-supplied strings | Skip keys in `UNSAFE_KEYS` (`#v0/utilities`) — `__proto__` / `constructor` / `prototype` | `mergeDeep` has it; `usePermissions` didn't |
 | Interpolate a value into a CSS string or `<style>` text | Mirror `ThemeAdapter` — validate keys with `SAFE_IDENT`, reject values matching `UNSAFE_CSS` (`useTheme/adapters/adapter.ts`) | v0 `ThemeAdapter` has it; paper `useTheme` didn't |
-| Build a `querySelector` string from a runtime id or value | Wrap the dynamic part in `CSS.escape()` | `createCombobox`, `Select` have it |
+| Build a `querySelector` string from a runtime id or value | Wrap the dynamic part in `CSS.escape()` | Component-owned ids (ComboboxItem / SelectItem `#${id}-option-${ticket.id}`). A composable must not `querySelector` for the node — PHILOSOPHY §2.5. |
 | Allocate an array from a caller-controlled count (`range(n)`, …) | Bound it — `clamp(Math.floor(n), 0, CAP)`, or the `n > Number.MAX_SAFE_INTEGER → []` guard | `createPagination` has it; `createRating` didn't |
 
 `UNSAFE_KEYS` is importable from `#v0/utilities`; the `ThemeAdapter` CSS sanitizer is a `private static` pattern to mirror, not import. Registry / selection / nested / tokens keyed state is `Map`-based and prototype-pollution-immune by construction — keep it that way; never swap a keyed `Map` for a plain `{}` index.
@@ -115,7 +115,8 @@ interface RegistryTicket {
 **Naming pair (enforced).** Input/output types always pair: `FooTicketInput` → `FooTicket`. Defined together, exported together. [intent:97]
 
 **Ticket state typing (enforced).**
-- Boolean state: `Readonly<Ref<boolean>>` — e.g., `isSelected`, `isMixed`. [intent:98]
+- Boolean state on **selection-chain** tickets: `Readonly<Ref<boolean>>` — e.g., `isSelected`, `isMixed`. [intent:98]
+- Queue / form tickets may use plain booleans for upsert-patched data fields (`QueueTicket.isPaused: boolean`). Do not force those onto `Readonly<Ref<boolean>>`.
 - Methods: plain functions, no parameters — self-reference via closure. [intent:99]
 - Config input: `MaybeRefOrGetter<T>`. Config output: plain `T`. [intent:100]
 

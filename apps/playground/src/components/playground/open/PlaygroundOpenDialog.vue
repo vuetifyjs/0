@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter, useStorage } from '@vuetify/v0'
+  import { createFilter } from '@vuetify/v0'
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
@@ -42,14 +42,13 @@
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
   import type { VuetifyComponentEntry, VuetifyExampleMeta } from '@/data/vuetify-examples'
 
+  const rail = defineModel<OpenRail>('rail', { required: true })
   const emit = defineEmits<{ close: [] }>()
 
   const playground = usePlayground()
   const one = useOnePlaygrounds()
-  const storage = useStorage()
-  const railPref = storage.get('playground-open-rail', 'v0')
   const restored = readOpenSession()
-  const rail = shallowRef<OpenRail>(normalizeOpenRail(restored?.rail ?? railPref.value))
+  if (restored?.rail) rail.value = normalizeOpenRail(restored.rail)
   const query = shallowRef(restored?.query ?? '')
   /** Vuetify0 kind chip — Components / Composables / Plugins (or all). */
   const kind = shallowRef<OpenKind | 'all'>(restored?.kind ?? 'all')
@@ -385,7 +384,6 @@
       pendingScroll.value = pane.value.scrollTop
     }
 
-    railPref.value = rail.value
     writeOpenSession({
       rail: rail.value,
       scrollTop: pendingScroll.value,

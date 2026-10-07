@@ -13,7 +13,7 @@
 
 <template>
   <Breadcrumbs.Root>
-    <Breadcrumbs.List class="flex items-center gap-2 list-none m-0 p-0 text-sm">
+    <Breadcrumbs.List class="flex flex-wrap items-center gap-2 list-none m-0 p-0 text-sm">
       <template v-for="(item, index) in items" :key="item.text">
         <Breadcrumbs.Divider
           v-if="index > 0"
@@ -29,10 +29,13 @@
           class="text-on-surface-variant list-none shrink-0 m-0"
         />
 
-        <Breadcrumbs.Item class="list-none shrink-0 m-0" :text="item.text">
+        <Breadcrumbs.Item
+          :class="['list-none m-0', item.to ? 'shrink-0' : 'min-w-0']"
+          :text="item.text"
+        >
           <Breadcrumbs.Page
             v-if="!item.to"
-            class="text-on-surface-variant whitespace-nowrap"
+            class="text-on-surface-variant block truncate"
           >
             {{ item.text }}
           </Breadcrumbs.Page>

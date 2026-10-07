@@ -17,7 +17,7 @@
 </script>
 
 <template>
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
     <button
       v-for="c in composables"
       :key="c.name"
@@ -37,9 +37,9 @@
       <div class="text-xs text-on-surface-variant space-y-0.5">
         <div>{{ c.benchmarkCount }} benchmarks &middot; {{ c.groupCount }} groups</div>
 
-        <div class="font-mono truncate" :title="c.fastest.name">
+        <AppTooltip as="div" class="font-mono truncate" :text="c.fastest.name">
           {{ c.fastest.hzLabel }}
-        </div>
+        </AppTooltip>
       </div>
     </button>
   </div>

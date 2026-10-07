@@ -4,7 +4,7 @@ meta:
 - name: description
   content: Emerald is a complete design system built on Vuetify0 — Figma-derived tokens, an icon set addressed by role, and Em* components that compose v0's headless compounds.
 - name: keywords
-  content: emerald, design system, vuetify0, paper, vue design system, design tokens, emerald components
+  content: emerald, design system, vuetify0, paper, vue design system, design tokens, emerald components, figma, ui kit
 features:
   category: Guide
   label: 'Emerald'
@@ -23,12 +23,12 @@ related:
 Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em*` components that wrap v0's headless compounds. v0 supplies the behavior and the accessibility; Emerald decides what it looks like.
 
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
-  <DocsCard href="https://store.vuetifyjs.com" hoverable disabled>
+  <DocsCard href="https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma" hoverable>
     <div class="flex items-center gap-3 mb-2">
-      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="w-8 h-8">
-      <div class="text-lg font-semibold">Emerald UI Kit — coming soon</div>
+      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/vstore.svg" alt="" class="h-8 w-auto shrink-0 hue-rotate-[-58deg] saturate-[1.25]">
+      <div class="text-lg font-semibold">Official Emerald UI Kit for Figma</div>
     </div>
-    <div class="text-sm text-on-surface-variant">The Figma UI Kit will be on the Vuetify Store. The design system, components, and dashboard are MIT.</div>
+    <div class="text-sm text-on-surface-variant">The companion Figma library — tokens, icons, components, and dashboard patterns that match this package. The code stays MIT.</div>
   </DocsCard>
   <DocsCard href="/demo/emerald/" hoverable>
     <div class="flex items-center gap-3 mb-2">
@@ -47,12 +47,20 @@ A design system here is a **complete framework**, not a theme. Emerald does not 
 
 That split is the whole point of the layering. An `EmSelect` is a few dozen lines of template and CSS over v0's `Select` compound. When v0 fixes a listbox keyboard bug, Emerald inherits the fix without a release of its own.
 
-The practical consequence for you: everything you learn about a v0 compound applies to the Emerald component that wraps it, and anything Emerald does not expose is still reachable by dropping to the v0 component underneath.
+The practical consequence for you: everything you learn about a Vuetify0 compound applies to the Emerald component that wraps it, and anything Emerald does not expose is still reachable by dropping to the Vuetify0 component underneath.
+
+## Figma UI Kit
+
+The Vue package is MIT. The Figma file is the paid companion — same `--emerald-*` tokens, same `Em*` anatomy, same `emerald-light` / `emerald-dark` themes. You can ship from this documentation and the source without it.
+
+The kit is the design-side mirror of `@paper/emerald`: Figma variables wired to the token names this package emits, every shipped `Em*` family with variants and compound parts, the role-based icon set (48 glyphs, 72 names), and layout scaffolding from the [dashboard](/demo/emerald/).
+
+Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma). Personal, Commercial, and Unlimited licenses; the Vue package is not behind any of them.
 
 ## Installation
 
 > [!IMPORTANT]
-> `@paper/emerald` is MIT — the package, the components, and the dashboard. It is not on npm yet; the install below is the shape that will resolve when it publishes. The Figma UI Kit is a separate Store listing.
+> `@paper/emerald` is MIT — the package, the components, and the dashboard. It is not on npm yet; the install below is the shape that will resolve when it publishes. The [Official Emerald UI Kit for Figma](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma) is a separate Store listing.
 
 ```bash
 pnpm add @paper/emerald
@@ -112,7 +120,7 @@ Colors are emitted twice: as the hex value and as space-separated RGB channels, 
 
 ### The v0 bridge
 
-Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that v0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
+Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that Vuetify0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
 
 The mapping is mostly one-to-one (`--v0-primary` ← `--emerald-primary`), with a few renames where the two vocabularies disagree about severity: `--v0-error` reads Emerald's `danger`, `--v0-warning` reads `alert`, and `--v0-accent` reads `primary`. Each is emitted with its paired foreground, so a kit never gets a background without the `on-` color that is legible against it.
 

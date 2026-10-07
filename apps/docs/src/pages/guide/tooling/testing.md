@@ -1,5 +1,5 @@
 ---
-title: Testing Guide - Unit and Component Testing for v0
+title: Testing Guide - Unit and Component Testing for Vuetify0
 features:
   label: Testing
   order: 4
@@ -17,7 +17,7 @@ related:
 
 # Testing
 
-Patterns for testing apps that use v0, plus the package-internal techniques used when contributing to `@vuetify/v0`.
+Patterns for testing apps that use Vuetify0, plus the package-internal techniques used when contributing to `@vuetify/v0`.
 
 <DocsPageFeatures :frontmatter />
 
@@ -140,7 +140,7 @@ it('should throw V0_PLUGIN_MISSING when the date plugin is absent', () => {
 
 ## Asserting warnings
 
-When a test intentionally triggers a v0 warning (for example, passing an invalid prop or registering a duplicate), capture it with `vi.spyOn` and assert it was called. The `using` form auto-restores the spy when the block exits:
+When a test intentionally triggers a Vuetify0 warning (for example, passing an invalid prop or registering a duplicate), capture it with `vi.spyOn` and assert it was called. The `using` form auto-restores the spy when the block exits:
 
 ```ts
 import { expect, it, vi } from 'vitest'

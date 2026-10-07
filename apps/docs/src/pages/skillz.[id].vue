@@ -122,7 +122,7 @@
             <span class="hidden sm:inline">Back to Skillz</span>
           </RouterLink>
 
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
             <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
 
             <!-- Reset button (shows when there's progress) -->

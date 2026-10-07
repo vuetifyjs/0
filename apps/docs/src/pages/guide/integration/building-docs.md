@@ -2,7 +2,7 @@
 title: Building This Documentation - v0 as Proof of Concept
 meta:
   - name: description
-    content: How the v0 documentation site is built using v0 composables, UnoCSS, and vite-ssg. A real-world proof of concept for headless UI patterns.
+    content: How the Vuetify0 documentation site is built using Vuetify0 composables, UnoCSS, and vite-ssg. A real-world proof of concept for headless UI patterns.
   - name: keywords
     content: vuetify0, documentation, vite-ssg, unocss, proof of concept, headless ui
 features:
@@ -17,7 +17,7 @@ related:
 
 # Building This Documentation
 
-This documentation site is itself a proof of concept for v0. Every pattern documented here is used to build the site you're reading.
+This documentation site is itself a proof of concept for Vuetify0. Every pattern documented here is used to build the site you're reading.
 
 <DocsPageFeatures :frontmatter />
 
@@ -105,7 +105,7 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses `createSi
 
 ### Mobile Navigation
 
-The `AppNav` component composes v0 primitives for interaction, overlay stacking, and SSR-safe responsiveness:
+The `AppNav` component composes Vuetify0 primitives for interaction, overlay stacking, and SSR-safe responsiveness:
 
 ```vue AppNav.vue collapse
 <script setup lang="ts">
@@ -338,7 +338,7 @@ Map utilities to semantic tokens, not raw colors:
 
 ### 3. SSR-Safe Composables
 
-All v0 composables handle SSR. Use the same patterns:
+All Vuetify0 composables handle SSR. Use the same patterns:
 
 ```ts
 import { useStorage, useWindowEventListener } from '@vuetify/v0'

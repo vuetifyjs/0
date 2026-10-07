@@ -1,23 +1,45 @@
 # Paper — Design Systems & Kits
 
-**Paper** is the family of design systems and kits built on `@vuetify/v0`, published
-under the `@paper/*` scope. Each package stands on its own — v0 is the only substrate.
+**Paper** is the family of design systems, kits, and compat packages built on
+`@vuetify/v0`, published under the `@paper/*` scope. Each package stands on its
+own — v0 is the only substrate.
 
 This document is the family contract. Per-package specifics live in that package's
 `SPEC.md` (see [Per-package SPEC.md](#per-package-specmd)); this document defines what
 is common, what is required, and what is forbidden — so patterns are decided once, not
 rediscovered per component.
 
-Rulings 1–3 below are **decided**; sections 4–5 are **PROPOSED** and open for review.
+Rulings 1–3 and 6–8 are **decided**; sections 4–5 are **PROPOSED** and open for review.
 
 The stack:
 
 ```
 @vuetify/v0      the substrate — compound components, composables, utilities,
                  and the theme engine (incl. V0StyleSheetThemeAdapter)
-@paper/*         design systems and kits (the classes below), each standalone on v0
-vuetify          orchestration + defaults (Material ships here)
+@paper/*         design systems, kits, and compat (the classes below),
+                 each standalone on v0
+vuetify          orchestration + defaults. Wraps a design system
+                 (v0 Button → MdButton → VBtn). Does not own Material.
 ```
+
+Not every `@paper/*` package is a rich design system. Genesis is a kit; Bulma is
+compat. Most **design systems** will be feature-rich because they implement a full
+specification. A kit missing a token pipeline is correct, not incomplete — do not
+pad Genesis to look like Emerald.
+
+## Catalog and sequence
+
+Original **design systems** ship in this order. Compat work does not wait on it.
+
+| Package | Class | Status | Role |
+|---|---|---|---|
+| `@paper/emerald` (`Em*`) | design system | shipping (preview) | First commercial DS. Figma Emerald 1.0. Showcase for v0. |
+| `@paper/onyx` (`On*`) | design system | next | Second original language. Proves Paper is a family, not Vuetify's CSS extracted. Paper primitives (`useColor` / `useContrast`) and shared icon extraction are gated here. |
+| `@paper/material` (`Md*`) | design system | after Onyx | Complete pinned MD3. Vuetify consumes it (`VBtn` wraps `MdButton`). Ships after Onyx so Material is one language among several, not Paper's definition. |
+| `@paper/genesis` (`Gn*`) | kit | shipping | Docs primitives. Purpose-scoped, `--v0-*` only. |
+| `@paper/bulma` (`Bu*`) | compat | shipping | Bulma markup, v0 JS. |
+| `@paper/bootstrap` (`B*`) | compat | parallel | Prefix reserved. Search wedge; may ship alongside Onyx / Material. |
+| daisyUI | compat | external ([daisyfy](https://github.com/J-Sek/v0-daisyui)) | Named; not in-repo. |
 
 ## Three classes
 
@@ -28,14 +50,15 @@ wrong class.
 
 | | **Design system** | **Kit** | **Compat** |
 |---|---|---|---|
-| Intent | Encompass everything — a complete visual framework | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
-| Exemplars | Material, Emerald, Onyx | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external) |
-| Token namespace | Owns one (`--emerald-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
+| Intent | Complete, exclusive implementation of **one** specification | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
+| Exemplars | Emerald, Onyx, Material | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external); Bootstrap (`B*`, reserved) |
+| Token namespace | Owns one (`--emerald-*`, `--onyx-*`, `--material-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
 | Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | **Forbidden** at Tier 1. A later plugin would drive upstream vars, never an owned prefix |
 | Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme | **None** — the user's own upstream CSS is the styling source |
-| Component coverage | Full, spec-driven | Only what the purpose needs | Upstream's documented component / element / form families; composites are Tier 2 |
+| Component coverage | The pinned spec, all of it, and nothing else (ruling 7) | Only what the purpose needs | Upstream's documented component / element / form families; composites are labeled Tier 2 |
 | Visual language | Its own | Blends with whatever theme is active | Upstream's, verbatim |
-| Component prefix | `Em*`, `On*` | `Gn*` | `Bu*` (`B*` reserved for Bootstrap) |
+| Component prefix | `Em*`, `On*`, `Md*` | `Gn*` | `Bu*` (`B*` reserved for Bootstrap) |
+| Installable without Vuetify | **Required** | Required | Required |
 
 "Custom design system via bring-your-own Figma" is a **delivery mode** of the design
 system class, not a fourth class: same contract, same pipeline, tokens sourced from the
@@ -206,8 +229,8 @@ What *is* shared is the **role vocabulary** and the resolution mechanism:
   lazy fallback so the renderer still draws with nothing installed. The design system's
   main plugin composes it; consumers extend or replace roles through its options.
   Overriding a role must restyle the system's own chrome, which means **components may
-  not inline their own artwork** — an Em*/On* component that hardcodes an SVG is a
-  component a consumer cannot rebrand.
+  not inline their own artwork** — an `Em*` / `On*` / `Md*` component that hardcodes
+  an SVG is a component a consumer cannot rebrand.
 - Do not promise the glyph map is tree-shakeable. Measured against Emerald's build
   (rollup and esbuild, `dist/index.mjs`): a module-scope trinity —
   `const [a, b, c] = createXContext()` — survives tree-shaking even annotated
@@ -216,22 +239,74 @@ What *is* shared is the **role vocabulary** and the resolution mechanism:
   the only mechanism that would actually drop it, and no design system has needed one yet.
 - Whatever a design system's glyphs are (path data, sprite ids, icon-font classnames,
   UnoCSS `i-*` classes), the *role* layer is the same; the renderer is the design
-  system's own component (`EmIcon`, and its Onyx counterpart).
+  system's own component (`EmIcon`, `OnIcon`, `MdIcon`).
 
 Emerald is the first implementation — `packages/emerald/src/icons.ts` plus `EmIcon`,
 drawing 24x24 stroke-grid path data. Whether the role vocabulary, the collect/alias
 plumbing, or the renderer itself is worth extracting into a shared package is **to be
-evaluated against the second implementation**: one consumer is not a pattern. Decision
-deferred, not made — until then, a second design system copies the approach, not the
-code.
+evaluated against the second implementation** (Onyx): one consumer is not a pattern.
+Decision deferred, not made — until then, a second design system copies the approach,
+not the code.
+
+### 7. Spec completeness and exclusivity (design systems)
+
+A design system is a **complete, exclusive** implementation of one specification.
+Users always know exactly what they get. Fire-and-forget: the package is the spec.
+
+- **Complete.** Every component, variant, and state in the pinned spec ships (ruling 5
+  is the per-component bar). If MD3 has a date picker, `@paper/material` has one.
+- **Exclusive.** Nothing the spec does not contain, even when v0 already has the
+  primitive. If the spec has no sparkline, there is no `MdSparkline`. A v0 primitive
+  existing is not a reason to ship.
+- **Pinned.** `SPEC.md` names the spec so "complete" is auditable: Figma file key +
+  version, "MD3 as of YYYY-MM", upstream `bulma@1.0.4` for compat. Unversioned
+  "we implement Material" is a treadmill; Google (and Figma files) move.
+- **Escape hatch.** A missing piece is the consumer's: compose a v0 primitive with
+  the package's tokens and classes (or upstream CSS, for compat). That composition
+  is unsupported as a Paper component. Document the hole; do not grow a silent
+  leftover tier. Compat Tier 2 (e.g. bulma-extensions) is the labeled exception —
+  extra-spec work must say so in `SPEC.md`.
+- **API shape is the spec's, not Vuetify's.** MD3 filled / outlined / tonal buttons
+  and color roles belong on `MdButton` because they are Material, not because `VBtn`
+  has `variant` / `color`. Vuetify density, ripple, `to`, and named slots (`#prepend`)
+  do not.
+
+Kits already live this rule: coverage is the purpose, not v0's catalog. Genesis
+shipping no `GnDialog` is correct.
+
+### 8. Orchestrator wrapping
+
+A design system is installable **without Vuetify** (`pnpm add @paper/material`,
+`MdButton`, `createMaterialPlugin()`). An orchestrator may wrap DS components and
+put its own interface on top. That is how Vuetify keeps identity — defaults,
+density, router, and the non-spec long tail (`VVideo`, `VSparkline`, …) — without
+Paper packages becoming Vuetify.
+
+```
+v0 Button.Root  →  MdButton (pinned MD3 API)  →  VBtn (Vuetify API)
+```
+
+- The wrapper **translates**. Non-spec props (`density`, `ripple`, `to`) must not
+  fall through onto the DS vnode. Mapping is explicit.
+- The DS does not grow orchestrator API to make the wrapper trivial.
+- **One stylesheet paints.** Dual CSS (`VBtn.sass` and Material CSS on the same
+  node) is forbidden.
+- The wrappee surface is the spec API plus composition hooks (`attrs` / `expose` /
+  the root element). It is not a Vuetify-shaped prop list "so the wrapper is easier."
+- The DS still has app authors as a first-class consumer. Wrappability is a
+  constraint, not the product.
 
 ## Per-package SPEC.md
 
 Every `@paper/*` package carries a `SPEC.md` declaring:
 
 1. its **class** (design system, kit, or compat) and purpose;
-2. its **token source** (e.g. the canonical Figma file key) — design systems only;
-3. its component inventory and any intentional deviations from this contract, with
+2. its **pinned spec** — design systems: Figma file key + version, or named spec +
+   date (e.g. MD3 as of YYYY-MM). Compat: upstream package + verified version.
+   Kits: the purpose boundary;
+3. a **coverage** statement: what the spec contains that ships, and what is
+   deliberately out (ruling 7). A v0 primitive in the "out" list is not a bug;
+4. its component inventory and any intentional deviations from this contract, with
    reasons.
 
 `packages/genesis/SPEC.md` is the exemplar of the kit *shape*, and declares its class.

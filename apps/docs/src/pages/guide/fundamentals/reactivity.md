@@ -31,7 +31,7 @@ v0 takes the opposite approach: start non-reactive, opt in when needed. This giv
 - **Full control** — You decide what triggers updates
 
 > [!TIP]
-> Most apps only need selection reactivity, which v0 provides automatically. The minimal approach matters for large collections and high-frequency operations.
+> Most apps only need selection reactivity, which Vuetify0 provides automatically. The minimal approach matters for large collections and high-frequency operations.
 
 ## The Reactivity Spectrum
 
@@ -162,7 +162,7 @@ This is intentional. Most UI patterns only need to react to *selection changes*,
 
 ## Opting Into Reactivity
 
-When you need reactive collections, v0 provides three patterns.
+When you need reactive collections, Vuetify0 provides three patterns.
 
 ### Pattern 1: reactive option
 
@@ -421,7 +421,7 @@ See [Benchmarks](/guide/fundamentals/benchmarks) for detailed measurements and m
 ## FAQ
 
 ::: faq
-??? Why doesn't v0 just make everything reactive like Vue?
+??? Why doesn't Vuetify0 just make everything reactive like Vue?
 
 Performance and predictability. Vue's deep reactivity is convenient but has costs:
 
@@ -472,7 +472,7 @@ Use non-reactive access for performance-critical reads, proxy for template bindi
 
 ??? What about reactivity with Pinia or other stores?
 
-v0 composables work alongside any state management. If you're storing a registry in Pinia:
+Vuetify0 composables work alongside any state management. If you're storing a registry in Pinia:
 
 ```ts
 // In Pinia store

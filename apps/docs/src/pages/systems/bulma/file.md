@@ -56,11 +56,11 @@ Boxed, centered, right, fullwidth, color and size all land on the root `.file`. 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuFile` calls [createInput](/composables/forms/create-input) for validation, form registration, the generated id and `aria-invalid`. The value is a `FileList | null`, dirtied once at least one file is selected. The element is a native `<input type="file">` inside the documented `.file` / `.file-label` tree; Cta, Icon, and Name are composed parts.
 
-It does **not** wrap a v0 file compound — v0 does not ship one — and it does not wrap Input.Control either. Bulma's file CSS is written for this exact tree, including the class collision it ships: `.file-label` is both the outer `<label>` and the inner CTA `<span>`. Compose that inner span as markup inside `BuFileCta`. A restyled text input would not produce that markup.
+It does **not** wrap a Vuetify0 file compound — Vuetify0 does not ship one — and it does not wrap Input.Control either. Bulma's file CSS is written for this exact tree, including the class collision it ships: `.file-label` is both the outer `<label>` and the inner CTA `<span>`. Compose that inner span as markup inside `BuFileCta`. A restyled text input would not produce that markup.
 
 Fallthrough is split. `class` and `style` merge onto `div.file`; every other attribute lands on the native input.
 
@@ -99,7 +99,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 
 :::
 
-Bulma's docs hook a script on this markup to copy the chosen filename into `.file-name`. `BuFileName` is that script: the span updates from the selected `FileList` via the `bulma:file` context, and `clear()` resets both the v0 value and the native input.
+Bulma's docs hook a script on this markup to copy the chosen filename into `.file-name`. `BuFileName` is that script: the span updates from the selected `FileList` via the `bulma:file` context, and `clear()` resets both the Vuetify0 value and the native input.
 
 ## Examples
 
@@ -162,7 +162,7 @@ The default slot is Cta/Name, not the CTA text. Slot props: `files`, `errors`, `
 | Expose | Type | Description |
 |--------|------|-------------|
 | `files` | `Readonly<ShallowRef<FileList \| null>>` | Current selection; `null` until a file is picked |
-| `clear` | `() => void` | Reset the v0 value and the native input |
+| `clear` | `() => void` | Reset the Vuetify0 value and the native input |
 
 There is no `v-model`. `id`, `name`, `form`, `required` and `rules` are snapshotted at setup because `createInput` takes plain values for those options.
 

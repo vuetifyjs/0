@@ -88,7 +88,7 @@ flowchart LR
 | Option | Type | Default | Notes |
 | - | - | - | - |
 | `mode` | `'some' \| 'every' \| 'union' \| 'intersection'` | `'some'` | Multi-query matching strategy. See Filter Modes below |
-| `keys` | `string[]` | — | Object keys to filter on. When omitted, all values are checked |
+| `keys` | `MaybeRefOrGetter<readonly string[]>` | — | Object keys to filter on. When omitted, all values are checked. Tracks refs and getters. |
 | `customFilter` | `(query, item) => boolean` | — | Bypass built-in logic entirely with a custom predicate |
 
 ```ts
@@ -125,9 +125,10 @@ When the query is an array, each mode controls how multiple queries are matched 
 | - | :-: | - |
 | `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
 | `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
+| `keys` | <AppSuccessIcon /> | `MaybeRefOrGetter` — changing the keys re-runs the filter |
 
 > [!TIP] Reactive filtering
-> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
+> The query, items, and `keys` passed to `apply()` / `createFilter()` can be reactive. The filtered result automatically updates when any of them change.
 
 ## Examples
 
@@ -161,7 +162,7 @@ Both pass when any query matches, but `some` tests each field value independentl
 
 ??? How do I limit filtering to specific object fields?
 
-Pass `keys: ['name', 'email']` in the options. When `keys` is omitted, every value on the item is checked.
+Pass `keys: ['name', 'email']` in the options — a ref or getter is also accepted and tracked. When `keys` is omitted, every value on the item is checked.
 
 ??? When should I use createFilter vs createDataTable?
 

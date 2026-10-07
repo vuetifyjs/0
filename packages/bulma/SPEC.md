@@ -8,11 +8,18 @@
 Bulma ships zero JavaScript by design — its docs tell you to bring your own JS for modal,
 dropdown, navbar burger, and dismissals; `@paper/bulma` is that JS. Components render
 Bulma's real markup and classes against the user's own `bulma.css`, while `@vuetify/v0`
-provides all behavior, focus management, and accessibility. A second wedge resurrects the
-abandoned `bulma-extensions` ecosystem (switch, slider, steps, tooltip, …) on v0
-primitives, themed by the user's own Bulma variables.
+provides all behavior, focus management, and accessibility. A second **labeled** wedge (Tier 2) resurrects the abandoned `bulma-extensions`
+ecosystem (switch, slider, steps, tooltip, …) on v0 primitives, themed by the
+user's own Bulma variables. Tier 2 is extra-spec — it must stay named as such
+(ruling 7). It is not a silent leftover tier of "things people asked for."
 
 Component prefix: `Bu*` (`B*` is reserved for a future Bootstrap compat).
+
+**Coverage.** Tier 1 is Bulma 1.0's documented component / element / form families,
+all of it, and nothing else. A v0 primitive existing is not a reason to add
+`BuCalendar` / `BuCombobox` (Combobox is labeled Tier 2). Consumers who want a
+missing piece compose a v0 primitive with the user's `bulma.css`; that composition
+is unsupported as a `@paper/bulma` component.
 
 ## Upstream pin
 
