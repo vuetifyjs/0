@@ -103,10 +103,10 @@
         <Tooltip.Root :close-delay="100" interactive :open-delay="300">
           <Tooltip.Activator as="span" class="inline-flex cursor-help">
             <BenchmarkSparkline
-              :height="18"
+              :height="22"
               :points="historyPoints.map(p => ({ label: p.version, value: p.hz, isCurrent: p.isCurrent }))"
               :tier="benchmark.tier"
-              :width="64"
+              :width="96"
             />
           </Tooltip.Activator>
 
