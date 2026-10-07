@@ -25,14 +25,14 @@ Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
   <DocsCard href="https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma" hoverable>
     <div class="flex items-center gap-3 mb-2">
-      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/vstore.svg" alt="" class="h-8 w-auto shrink-0 hue-rotate-[-58deg] saturate-[1.25]">
+      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/vstore.svg" alt="" class="size-8 object-contain shrink-0 hue-rotate-[-58deg] saturate-[1.25]">
       <div class="text-lg font-semibold">Official Emerald UI Kit for Figma</div>
     </div>
     <div class="text-sm text-on-surface-variant">The companion Figma library — tokens, icons, components, and dashboard patterns that match this package. The code stays MIT.</div>
   </DocsCard>
   <DocsCard href="/demo/emerald/" hoverable>
     <div class="flex items-center gap-3 mb-2">
-      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="w-8 h-8">
+      <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="size-8 object-contain shrink-0">
       <div class="text-lg font-semibold">Dashboard</div>
     </div>
     <div class="text-sm text-on-surface-variant">The MIT showcase app — calendar, kanban, and the rest of the inventory, built on these components.</div>
