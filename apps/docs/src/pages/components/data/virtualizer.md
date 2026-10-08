@@ -158,6 +158,7 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
     :height="400"
     :item-height="40"
     :items="rows"
+    tabindex="-1"
   >
     <Virtualizer.Item
       v-for="item in items"
@@ -167,7 +168,10 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
     >
       {{ item.raw.name }}
 
-      <Button.Root @click="scrollTo(item.index, { block: 'center', behavior: 'smooth' })">
+      <Button.Root
+        :aria-label="`Center ${item.raw.name}`"
+        @click="scrollTo(item.index, { block: 'center', behavior: 'smooth' })"
+      >
         Center
       </Button.Root>
     </Virtualizer.Item>
@@ -179,7 +183,7 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
 
 The scroll container gets `tabindex="0"` so keyboard users can focus it and scroll with the arrow, Page Up/Down, Home, and End keys (axe `scrollable-region-focusable`). It is a default — pass your own `tabindex` (for example `-1` when focus lives on the rows) and it wins. The same goes for `overflow-y` in your own `style`.
 
-Virtualizer imposes no role. A bare row has no semantics, and the right role depends on the content — a feed, a listbox, a grid. Pass the role and its position attributes yourself; they reach the rendered element through attribute passthrough. Because only the visible window is in the DOM, `aria-setsize` and `aria-posinset` are how assistive tech learns the true list length.
+Virtualizer imposes no role. A bare row has no semantics, and the right role depends on the content — a feed, a listbox, a grid. Pass the role and its position attributes yourself; they reach the rendered element through attribute passthrough. Because only the visible window is in the DOM, `aria-setsize` and `aria-posinset` are how assistive tech learns the true list length — for `list`, `listbox`, and `feed` rows.
 
 ```vue
 <script setup lang="ts">
@@ -210,6 +214,10 @@ Virtualizer imposes no role. A bare row has no semantics, and the right role dep
   </Virtualizer.Root>
 </template>
 ```
+
+A `grid` or `table` uses row counts instead: put `aria-rowcount` on Root (the total row count plus any header rows), `:aria-rowindex` on each Item (its 1-based position, counting header rows), and `role="gridcell"` cells inside each row. [DataGrid](/components/data/data-grid) wires the same attributes.
+
+Rows with focusable content unmount when they scroll out of the window. If a row holding focus unmounts, Virtualizer moves focus to the scroll container so it does not fall back to `<body>`. For keyboard-navigable lists, prefer keeping focus on the container and pointing at the current row with `aria-activedescendant`, calling `scrollTo(index, { block: 'nearest' })` as the cursor moves — [useVirtualFocus](/composables/system/use-virtual-focus) handles the cursor.
 
 ### Data Attributes
 
