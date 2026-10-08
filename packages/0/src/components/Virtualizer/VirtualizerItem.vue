@@ -28,7 +28,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { getActiveElement, isNull, isUndefined } from '#v0/utilities'
+  import { isNull, isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, onUnmounted, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -96,7 +96,9 @@
 
   onBeforeUnmount(() => {
     if (!IN_BROWSER) return
-    held = !!el.value?.contains(getActiveElement())
+    // contains() does not cross shadow boundaries; document.activeElement is
+    // retargeted to the shadow host, which sits in the row's light DOM
+    held = !!el.value?.contains(document.activeElement)
   })
 
   onUnmounted(() => {

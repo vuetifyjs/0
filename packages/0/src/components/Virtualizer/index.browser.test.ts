@@ -237,5 +237,43 @@ describe('virtualizer (browser)', () => {
 
       expect(events).toEqual([])
     })
+
+    it('should move focus to the container when focus sat inside a shadow root', async () => {
+      const name = 'v0-virtualizer-shadow-input'
+      if (!customElements.get(name)) {
+        customElements.define(name, class extends HTMLElement {
+          constructor () {
+            super()
+            this.attachShadow({ mode: 'open' }).append(document.createElement('input'))
+          }
+        })
+      }
+
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(Virtualizer.Root as unknown as Component, {
+        props: { items, itemHeight: 40, height: 400, overscan: 2 },
+        slots: {
+          default: (props: { items: { index: number }[] }) =>
+            props.items.map(item =>
+              h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () => h(name)),
+            ),
+        },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await settle()
+
+      const host = wrapper.find('[data-index="0"]').element.firstElementChild as HTMLElement
+      host.shadowRoot!.querySelector('input')!.focus()
+      expect(document.activeElement).toBe(host)
+
+      const el = wrapper.element as HTMLElement
+      el.scrollTop = 20_000
+      el.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      expect(wrapper.find('[data-index="0"]').exists()).toBe(false)
+      expect(document.activeElement).toBe(el)
+    })
   })
 })
