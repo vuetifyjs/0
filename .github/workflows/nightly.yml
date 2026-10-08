@@ -1,0 +1,106 @@
+name: Nightly Release
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # 12:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'vuetifyjs'
+    environment: preview
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        branch: [master, dev]
+        include:
+          - branch: master
+            tag: nightly
+          - branch: dev
+            tag: nightly-dev
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
+
+      - name: Check for recent commits
+        id: check-commits
+        run: |
+          last=$(git show -s --format=%ct HEAD)
+          now=$(date +%s)
+          diff=$(($now - $last))
+          if [ $diff -gt 86400 ]; then
+            echo "Last commit was more than 24 hours ago, skipping release"
+            echo "should-release=false" >> $GITHUB_OUTPUT
+          else
+            echo "should-release=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup
+        if: steps.check-commits.outputs.should-release == 'true'
+        uses: ./.github/actions/setup
+
+      # OIDC trusted publishing requires npm >= 11.5.1
+      - name: Update npm
+        if: steps.check-commits.outputs.should-release == 'true'
+        run: npm install -g npm@latest
+
+      - name: Compute nightly version
+        if: steps.check-commits.outputs.should-release == 'true'
+        id: version
+        run: |
+          BASE_VERSION=$(node -p "require('./packages/0/package.json').version")
+          DATE=$(date +'%Y-%m-%d')
+          NIGHTLY_VERSION="${BASE_VERSION}-${{ matrix.branch }}.${DATE}"
+          echo "version=${NIGHTLY_VERSION}" >> $GITHUB_OUTPUT
+          echo "Nightly version: ${NIGHTLY_VERSION}"
+
+      - name: Safety checks
+        if: steps.check-commits.outputs.should-release == 'true'
+        env:
+          NPM_TAG: ${{ matrix.tag }}
+          NIGHTLY_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Guard: tag must not be empty
+          if [ -z "$NPM_TAG" ]; then
+            echo "::error::NPM_TAG is empty — aborting to protect latest"
+            exit 1
+          fi
+
+          # Guard: tag must not be 'latest'
+          if [ "$NPM_TAG" = "latest" ]; then
+            echo "::error::NPM_TAG is 'latest' — nightlies must never move latest"
+            exit 1
+          fi
+
+          # Guard: version must contain the prerelease suffix
+          if [[ ! "$NIGHTLY_VERSION" =~ -master\. ]] && [[ ! "$NIGHTLY_VERSION" =~ -dev\. ]]; then
+            echo "::error::Version '${NIGHTLY_VERSION}' does not contain required prerelease suffix (-master. or -dev.)"
+            exit 1
+          fi
+
+          echo "Safety checks passed: tag='${NPM_TAG}', version='${NIGHTLY_VERSION}'"
+
+      - name: Bump version in workspace
+        if: steps.check-commits.outputs.should-release == 'true'
+        run: |
+          cd packages/0
+          npm version "${{ steps.version.outputs.version }}" --no-git-tag-version
+
+      - name: Build
+        if: steps.check-commits.outputs.should-release == 'true'
+        run: pnpm --filter @vuetify/v0 build
+
+      - name: Publish
+        if: steps.check-commits.outputs.should-release == 'true'
+        run: |
+          pnpm publish ./packages/0 \
+            --no-git-checks \
+            --tag "${{ matrix.tag }}" \
+            --access public
