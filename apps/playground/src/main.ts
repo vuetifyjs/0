@@ -3,7 +3,7 @@ import { ViteSSG } from 'vite-ssg'
 import { routes } from 'vue-router/auto-routes'
 
 // Framework
-import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
+import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, createTooltipPlugin, IN_BROWSER } from '@vuetify/v0'
 
 // Context
 import App from './App.vue'
@@ -32,6 +32,7 @@ export const createApp = ViteSSG(
     app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
     app.use(createStoragePlugin())
     app.use(createStackPlugin())
+    app.use(createTooltipPlugin({ openDelay: 500, closeDelay: 200 }))
 
     function getSystemTheme (): 'light' | 'dark' {
       if (!IN_BROWSER) return 'light'
