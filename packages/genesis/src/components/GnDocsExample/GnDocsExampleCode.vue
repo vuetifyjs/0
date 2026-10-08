@@ -14,6 +14,10 @@
     hidePeekToggle?: boolean
     /** Hide the internal filename badge (when a parent toolbar shows it instead) */
     hideFilename?: boolean
+    /** Cap the expanded (non-peeked) content height and scroll internally past it */
+    maxHeight?: string
+    /** Stretch content to fill the available flex height and scroll internally; overrides peek/maxHeight */
+    fill?: boolean
   }
 </script>
 
@@ -31,6 +35,8 @@
     peekLines = 6,
     hidePeekToggle = false,
     hideFilename = false,
+    maxHeight,
+    fill = false,
   } = defineProps<GnDocsExampleCodeProps>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
@@ -39,6 +45,13 @@
   const shouldPeek = toRef(() => peek && lineCount.value > peekLines)
   const peekHeight = toRef(() => `${peekLines * 1.5 + 1}rem`)
   const truncated = toRef(() => shouldPeek.value && !expanded.value)
+
+  const contentStyle = toRef(() => {
+    if (fill) return { flex: '1 1 auto', minHeight: '0', overflowY: 'auto' as const }
+    if (truncated.value) return { maxHeight: peekHeight.value, overflow: 'hidden' }
+    if (maxHeight) return { maxHeight, overflowY: 'auto' as const }
+    return undefined
+  })
 
   function onToggle () {
     expanded.value = !expanded.value
@@ -59,7 +72,7 @@
 
     <div
       class="genesis-docs-example-code__content"
-      :style="truncated ? { maxHeight: peekHeight, overflow: 'hidden' } : undefined"
+      :style="contentStyle"
     >
       <slot :code :file-name :language>
         <pre class="genesis-docs-example-code__fallback"><code>{{ code }}</code></pre>
