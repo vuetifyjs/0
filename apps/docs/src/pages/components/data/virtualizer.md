@@ -219,7 +219,28 @@ Virtualizer imposes no role. A bare row has no semantics, and the right role dep
 
 A `grid` or `table` uses row counts instead: put `aria-rowcount` on Root (the total row count plus any header rows), `:aria-rowindex` on each Item (its 1-based position, counting header rows), and `role="gridcell"` cells inside each row. [DataGrid](/components/data/data-grid) wires the same attributes.
 
-Rows with focusable content unmount when they scroll out of the window. If a row holding focus unmounts, Virtualizer moves focus to the scroll container so it does not fall back to `<body>`. For keyboard-navigable lists, prefer keeping focus on the container and pointing at the current row with `aria-activedescendant`, calling `scrollTo(index, { block: 'nearest' })` as the cursor moves — [useVirtualFocus](/composables/system/use-virtual-focus) handles the cursor.
+Rows with focusable content unmount when they scroll out of the window. If a row holding focus unmounts, Virtualizer moves focus to the scroll container so it does not fall back to `<body>`.
+
+For keyboard-navigable lists, prefer keeping DOM focus on the container and pointing at the current row with `aria-activedescendant`. That attribute is only valid on a composite role, so the container must be a `listbox` or `grid` (with `option` or `row` items), not a `list`. [useVirtualFocus](/composables/system/use-virtual-focus) drives the cursor, but it only highlights a row whose element exists — after a Home or End jump the target row is not mounted yet, so the cursor moves while `aria-activedescendant` does not. Wire it in three steps:
+
+1. Give every cursor item an `el` getter that resolves the mounted row, or `null` while it is scrolled out.
+2. When `highlightedId` changes, call `scrollTo(index, { block: 'nearest' })` from Root's default slot. It mounts the new window synchronously.
+3. After `nextTick`, call `highlight(id)` again so the now-mounted row gets `aria-activedescendant` and `data-highlighted`.
+
+```ts
+const cursor = useVirtualFocus(
+  () => rows.map(row => ({ id: row.id, el: () => document.getElementById(row.id) })),
+  { control: () => document.getElementById('rows') },
+)
+
+watch(cursor.highlightedId, id => {
+  if (isUndefined(id)) return
+  scrollTo(rows.findIndex(row => row.id === id), { block: 'nearest' })
+  nextTick(() => cursor.highlight(id))
+})
+```
+
+The [virtualized listbox](/composables/forms/create-combobox#virtualized-listbox) example for `createCombobox` uses the same sequence with `createVirtual`.
 
 ### Data Attributes
 
