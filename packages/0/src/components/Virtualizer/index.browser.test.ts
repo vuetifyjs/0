@@ -171,5 +171,35 @@ describe('virtualizer (browser)', () => {
 
       expect(wrapper.attributes('tabindex')).toBe('0')
     })
+
+    it('should move focus to the container when a focused row scrolls out', async () => {
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(Virtualizer.Root as unknown as Component, {
+        props: { items, itemHeight: 40, height: 400, overscan: 2 },
+        slots: {
+          default: (props: { items: { index: number }[] }) =>
+            props.items.map(item =>
+              h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
+                h('button', { type: 'button' }, `Item ${item.index}`),
+              ),
+            ),
+        },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await settle()
+
+      const button = wrapper.find('[data-index="0"] button').element as HTMLButtonElement
+      button.focus()
+      expect(document.activeElement).toBe(button)
+
+      const el = wrapper.element as HTMLElement
+      el.scrollTop = 20_000
+      el.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      expect(wrapper.find('[data-index="0"]').exists()).toBe(false)
+      expect(document.activeElement).toBe(el)
+    })
   })
 })

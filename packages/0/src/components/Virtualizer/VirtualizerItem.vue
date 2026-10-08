@@ -23,9 +23,12 @@
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
+  // Globals
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { mergeProps, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { getActiveElement, isUndefined } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -76,6 +79,16 @@
   watch(() => index, value => {
     if (isUndefined(height.value)) return
     root.resize(value, height.value)
+  })
+
+  // A row scrolled out of the window unmounts; if it held focus, the browser
+  // drops focus to <body>. Hand it to the scroll container instead so
+  // keyboard users keep their place in the list.
+  onBeforeUnmount(() => {
+    if (!IN_BROWSER) return
+    const container = root.element.value
+    if (!container?.isConnected || !el.value?.contains(getActiveElement())) return
+    container.focus({ preventScroll: true })
   })
 
   const itemAttrs = toRef(() => ({
