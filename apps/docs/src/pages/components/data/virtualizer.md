@@ -221,26 +221,11 @@ A `grid` or `table` uses row counts instead: put `aria-rowcount` on Root (the to
 
 Rows with focusable content unmount when they scroll out of the window. If a row holding focus unmounts, Virtualizer moves focus to the scroll container so it does not fall back to `<body>`.
 
-For keyboard-navigable lists, prefer keeping DOM focus on the container and pointing at the current row with `aria-activedescendant`. That attribute is only valid on a composite role, so the container must be a `listbox` or `grid` (with `option` or `row` items), not a `list`. [useVirtualFocus](/composables/system/use-virtual-focus) drives the cursor, but it only highlights a row whose element exists — after a Home or End jump the target row is not mounted yet, so the cursor moves while `aria-activedescendant` does not. Wire it in three steps:
+For keyboard-navigable lists, prefer keeping DOM focus on the container and pointing at the current row with `aria-activedescendant`. That attribute is only valid on a composite role, so the container must be a `listbox` or `grid` (with `option` or `row` items), not a `list`.
 
-1. Give every cursor item an `el` getter that resolves the mounted row, or `null` while it is scrolled out.
-2. When `highlightedId` changes, call `scrollTo(index, { block: 'nearest' })` from Root's default slot. It mounts the new window synchronously.
-3. After `nextTick`, call `highlight(id)` again so the now-mounted row gets `aria-activedescendant` and `data-highlighted`.
+A cursor over a windowed list has to scroll before it highlights. [useVirtualFocus](/composables/system/use-virtual-focus) only highlights a row whose element exists, so after a Home or End jump the target row is not mounted yet and the cursor moves while `aria-activedescendant` does not. Each cursor move needs `scrollTo(index, { block: 'nearest' })` to mount the row, then `highlight(id)` after `nextTick` to point at it.
 
-```ts
-const cursor = useVirtualFocus(
-  () => rows.map(row => ({ id: row.id, el: () => document.getElementById(row.id) })),
-  { control: () => document.getElementById('rows') },
-)
-
-watch(cursor.highlightedId, id => {
-  if (isUndefined(id)) return
-  scrollTo(rows.findIndex(row => row.id === id), { block: 'nearest' })
-  nextTick(() => cursor.highlight(id))
-})
-```
-
-The [virtualized listbox](/composables/forms/create-combobox#virtualized-listbox) example for `createCombobox` uses the same sequence with `createVirtual`.
+That sequence runs from script, and `Virtualizer.Root` only hands `scrollTo` to its default slot. For `aria-activedescendant` lists, drive [createVirtual](/composables/data/create-virtual) directly instead — the [virtualized listbox](/composables/forms/create-combobox#virtualized-listbox) example for `createCombobox` shows the full wiring.
 
 ### Data Attributes
 
