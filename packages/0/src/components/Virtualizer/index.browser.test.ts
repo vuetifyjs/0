@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 // Transformers
 import { toElement } from '#v0/composables/toElement'
@@ -180,10 +180,11 @@ describe('virtualizer (browser)', () => {
         props: { itemHeight: undefined },
         item: { style: { height: '40px', padding: '5px 0', borderBottom: '2px solid', boxSizing: 'content-box' } },
       })
-      await settle()
-
       const el = wrapper.element as HTMLElement
-      expect(el.scrollHeight).toBe(1000 * 52)
+      // The estimate comes from the first ResizeObserver callback, which can
+      // land after a fixed frame count when the runner is busy (e.g. right
+      // after a failing test)
+      await vi.waitFor(() => expect(el.scrollHeight).toBe(1000 * 52))
 
       el.scrollTop = 52 * 100
       el.dispatchEvent(new Event('scroll'))
