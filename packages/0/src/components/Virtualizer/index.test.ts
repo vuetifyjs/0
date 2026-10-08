@@ -11,7 +11,7 @@ import { mount } from '@vue/test-utils'
 import { h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { VirtualizerRootContext } from './VirtualizerRoot.vue'
+import type { VirtualizerRootContext, VirtualizerRootProps } from './VirtualizerRoot.vue'
 
 // A ResizeObserver stub that synchronously reports a fixed contentRect for
 // whatever element it observes — happy-dom implements the ResizeObserver
@@ -265,6 +265,17 @@ describe('virtualizer', () => {
     })
 
     expect(keys.toSorted()).toEqual(['items', 'reset', 'scrollTo'])
+  })
+
+  it('should only accept pixel values for itemHeight', () => {
+    // createVirtual parses itemHeight as a float, so a unit string like
+    // "2.5rem" would silently read as 2.5px
+    const valid: VirtualizerRootProps[] = [{ itemHeight: 40 }, { itemHeight: '40' }, { itemHeight: null }]
+    // @ts-expect-error unit strings are not pixels
+    const invalid: VirtualizerRootProps = { itemHeight: '2.5rem' }
+
+    expect(valid).toHaveLength(3)
+    expect(invalid.itemHeight).toBe('2.5rem')
   })
 
   it('should size the scroll container from the height prop', () => {

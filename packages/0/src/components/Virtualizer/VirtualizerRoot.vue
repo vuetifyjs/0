@@ -41,8 +41,8 @@
   export interface VirtualizerRootProps<T = unknown> extends AtomProps {
     /** The items to virtualize */
     items?: readonly T[]
-    /** The height of each item, in pixels. Used as the initial estimate for unmeasured items */
-    itemHeight?: number | string | null
+    /** The height of each item, in pixels (a number or numeric string). Used as the initial estimate for unmeasured items */
+    itemHeight?: number | `${number}` | null
     /** The height of the scroll container, in pixels */
     height?: number | string
     /** Extra items rendered outside the viewport for smoother scrolling (default: 5) */
