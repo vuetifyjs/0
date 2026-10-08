@@ -18,6 +18,7 @@
   import { useVirtualizerRoot } from './VirtualizerRoot.vue'
 
   // Composables
+  import { useLogger } from '#v0/composables/useLogger'
   import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
   // Transformers
@@ -27,7 +28,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { getActiveElement, isUndefined } from '#v0/utilities'
+  import { getActiveElement, isNull, isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -58,6 +59,11 @@
   } = defineProps<VirtualizerItemProps>()
 
   const root = useVirtualizerRoot(namespace)
+
+  if (renderless || isNull(as)) {
+    const logger = useLogger()
+    logger.warn('[v0:virtualizer] `renderless` and `as="null"` are not supported on Virtualizer.Item — height measurement requires the wrapper element. Remove them or use createVirtual directly.')
+  }
 
   const itemRef = useTemplateRef<AtomExpose>('item')
   const el = toRef(() => toElement(itemRef.value?.element) ?? null)

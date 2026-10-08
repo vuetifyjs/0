@@ -404,6 +404,26 @@ describe('virtualizer', () => {
     expect(wrapper.find('[data-spacer]').exists()).toBe(false)
   })
 
+  it.each([
+    ['renderless', { renderless: true }],
+    ['a null as', { as: null }],
+  ])('should warn when an item is %s', async (_, props) => {
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const items = Array.from({ length: 1 }, (_, i) => ({ id: i }))
+    mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: (slot: { items: readonly { index: number }[] }) =>
+          slot.items.map(item => h(Virtualizer.Item as any, { key: item.index, index: item.index, ...props }, () => h('div'))),
+      },
+    })
+    await nextTick()
+
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Virtualizer.Item'))
+  })
+
   it('should call the latest edge callback after the prop is replaced', async () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const first = vi.fn()
