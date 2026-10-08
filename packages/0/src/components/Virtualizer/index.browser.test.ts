@@ -4,7 +4,7 @@ import { Virtualizer } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
+import { defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
@@ -200,6 +200,42 @@ describe('virtualizer (browser)', () => {
 
       expect(wrapper.find('[data-index="0"]').exists()).toBe(false)
       expect(document.activeElement).toBe(el)
+    })
+
+    it('should not focus the container when the whole root unmounts', async () => {
+      const show = shallowRef(true)
+      const events: string[] = []
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => show.value
+            ? h(Virtualizer.Root as unknown as Component, {
+                items,
+                itemHeight: 40,
+                height: 400,
+                onFocus: () => events.push('focus'),
+                onFocusin: (event: FocusEvent) => events.push(`focusin:${(event.target as HTMLElement).tagName}`),
+              }, {
+                default: (props: { items: { index: number }[] }) =>
+                  props.items.map(item =>
+                    h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
+                      h('button', { type: 'button' }, `Item ${item.index}`),
+                    ),
+                  ),
+              })
+            : h('div')
+        },
+      }), { attachTo: document.body })
+      wrappers.push(wrapper)
+      await settle()
+
+      ;(wrapper.find('[data-index="1"] button').element as HTMLButtonElement).focus()
+      events.length = 0
+
+      show.value = false
+      await settle()
+
+      expect(events).toEqual([])
     })
   })
 })

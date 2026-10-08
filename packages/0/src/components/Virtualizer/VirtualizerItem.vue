@@ -29,7 +29,7 @@
 
   // Utilities
   import { getActiveElement, isNull, isUndefined } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, onUnmounted, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -89,11 +89,19 @@
 
   // A row scrolled out of the window unmounts; if it held focus, the browser
   // drops focus to <body>. Hand it to the scroll container instead so
-  // keyboard users keep their place in the list.
+  // keyboard users keep their place in the list. Focus is read before the
+  // row leaves the DOM and restored after, by which point a Root unmounting
+  // as a whole has already detached its container and is left alone.
+  let held = false
+
   onBeforeUnmount(() => {
     if (!IN_BROWSER) return
+    held = !!el.value?.contains(getActiveElement())
+  })
+
+  onUnmounted(() => {
     const container = root.element.value
-    if (!container?.isConnected || !el.value?.contains(getActiveElement())) return
+    if (!held || !container?.isConnected) return
     container.focus({ preventScroll: true })
   })
 
