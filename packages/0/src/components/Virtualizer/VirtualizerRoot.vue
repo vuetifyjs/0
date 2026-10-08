@@ -43,7 +43,7 @@
     items?: readonly T[]
     /** The height of each item, in pixels (a number or numeric string). Used as the initial estimate for unmeasured items */
     itemHeight?: number | `${number}` | null
-    /** The height of the scroll container, in pixels */
+    /** Height of the scroll container; numbers and unitless numeric strings are pixels, other strings pass through as CSS */
     height?: number | string
     /** Extra items rendered outside the viewport for smoother scrolling (default: 5) */
     overscan?: number
@@ -145,7 +145,7 @@
 
   provideVirtualizerRoot(namespace, virtual)
 
-  // A unitless string ("400") is pixels, matching how createVirtual parses it
+  // A unitless numeric string ("400") is pixels; anything else is CSS
   const height = toRef(() => {
     if (isUndefined(_height)) return undefined
     return isNumber(_height) || /^\d*\.?\d+$/.test(_height) ? `${_height}px` : _height
