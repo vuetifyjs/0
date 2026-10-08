@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
+// Transformers
+import { toElement } from '#v0/composables/toElement'
+
 import { Virtualizer } from './index'
 
 // Utilities
@@ -146,7 +149,7 @@ describe('virtualizer (browser)', () => {
   })
 
   describe('expose', () => {
-    it('should scroll to an index through a template ref', async () => {
+    it('should expose the container and scrollTo through a template ref', async () => {
       const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
       let list: Readonly<ShallowRef<VirtualizerRootExpose | null>> | undefined
       const wrapper = mount(defineComponent({
@@ -157,6 +160,8 @@ describe('virtualizer (browser)', () => {
       }), { attachTo: document.body })
       wrappers.push(wrapper)
       await settle()
+
+      expect(toElement(list!.value!.element)).toBe(wrapper.element)
 
       list!.value!.scrollTo(300)
       await settle()

@@ -73,7 +73,7 @@
     namespace?: string
   }
 
-  export interface VirtualizerRootExpose {
+  export interface VirtualizerRootExpose extends AtomExpose {
     /** Scroll to an item by index */
     scrollTo: (index: number, options?: ScrollToOptions) => void
     /** Reset the virtualizer to its initial scroll state */
@@ -148,10 +148,11 @@
   })
 
   const containerRef = useTemplateRef<AtomExpose>('container')
-  const el = toRef(() => toElement(containerRef.value?.element) ?? null)
+  // Atom's exposed element arrives unwrapped through the component proxy
+  const element = toRef(() => (toElement(containerRef.value?.element) ?? null) as HTMLElement | null)
 
-  watch(el, element => {
-    virtual.element.value = (element ?? undefined) as HTMLElement | undefined
+  watch(element, value => {
+    virtual.element.value = value ?? undefined
   })
 
   // Root's beforeUnmount runs before its Items', with or without a leave
@@ -164,7 +165,7 @@
 
   provideVirtualizerRoot(namespace, { ...virtual, closing })
 
-  defineExpose<VirtualizerRootExpose>({ scrollTo: virtual.scrollTo, reset: virtual.reset })
+  defineExpose<VirtualizerRootExpose>({ element, scrollTo: virtual.scrollTo, reset: virtual.reset })
 
   // A unitless numeric string ("400") is pixels; anything else is CSS
   const height = toRef(() => {
