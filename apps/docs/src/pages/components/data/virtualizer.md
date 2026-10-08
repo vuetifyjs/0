@@ -272,7 +272,55 @@ For keyboard-navigable lists, prefer keeping DOM focus on the container and poin
 
 A cursor over a windowed list has to scroll before it highlights. [useVirtualFocus](/composables/system/use-virtual-focus) only highlights a row whose element exists, so after a Home or End jump the target row is not mounted yet and the cursor moves while `aria-activedescendant` does not. Each cursor move needs `scrollTo(index, { block: 'nearest' })` to mount the row, then `highlight(id)` after `nextTick` to point at it.
 
-That sequence runs from script, and `Virtualizer.Root` only hands `scrollTo` to its default slot. For `aria-activedescendant` lists, drive [createVirtual](/composables/data/create-virtual) directly instead — the [virtualized listbox](/composables/forms/create-combobox#virtualized-listbox) example for `createCombobox` shows the full wiring.
+A template ref on Root provides both halves: `element` is the container that keeps focus and carries `aria-activedescendant`, and `scrollTo` mounts the target row. Give every cursor item an `id` and an `el` getter that finds the mounted row (or `null` while it is scrolled out), and put the same `id` on each Item.
+
+```vue
+<script setup lang="ts">
+  import { isUndefined, useVirtualFocus, Virtualizer } from '@vuetify/v0'
+  import { nextTick, useTemplateRef, watch } from 'vue'
+
+  const fruits = Array.from({ length: 5000 }, (_, i) => ({ id: `fruit-${i}`, name: `Fruit ${i + 1}` }))
+  const list = useTemplateRef('list')
+
+  const cursor = useVirtualFocus(
+    () => fruits.map(fruit => ({ id: fruit.id, el: () => document.getElementById(fruit.id) })),
+    { control: () => list.value?.element },
+  )
+
+  watch(cursor.highlightedId, id => {
+    if (isUndefined(id)) return
+    list.value?.scrollTo(fruits.findIndex(fruit => fruit.id === id), { block: 'nearest' })
+    nextTick(() => cursor.highlight(id))
+  })
+</script>
+
+<template>
+  <Virtualizer.Root
+    ref="list"
+    v-slot="{ items }"
+    aria-label="Fruits"
+    :height="320"
+    :item-height="40"
+    :items="fruits"
+    role="listbox"
+  >
+    <Virtualizer.Item
+      v-for="item in items"
+      :id="item.raw.id"
+      :key="item.raw.id"
+      :aria-posinset="item.index + 1"
+      :aria-setsize="fruits.length"
+      class="h-10 px-3 flex items-center data-[highlighted]:bg-surface-tint"
+      :index="item.index"
+      role="option"
+    >
+      {{ item.raw.name }}
+    </Virtualizer.Item>
+  </Virtualizer.Root>
+</template>
+```
+
+`control` must be a getter over the template ref so `useVirtualFocus` attaches its keydown listener once Root mounts. For a combobox, or full control over the markup, the [virtualized listbox](/composables/forms/create-combobox#virtualized-listbox) example drives [createVirtual](/composables/data/create-virtual) directly with the same sequence.
 
 ### Data Attributes
 
