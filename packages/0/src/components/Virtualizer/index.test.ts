@@ -385,7 +385,22 @@ describe('virtualizer', () => {
     })
 
     expect(warnSpy).toHaveBeenCalledTimes(1)
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('`renderless` is not supported'))
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('not supported'))
+    expect(wrapper.find('[data-spacer]').exists()).toBe(false)
+  })
+
+  it('should treat a null as like renderless', () => {
+    // Atom renders a null `as` without a wrapper, the same as renderless
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500, as: null },
+      slots: { default: () => h('div', { class: 'scroller' }) },
+    })
+
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('not supported'))
     expect(wrapper.find('[data-spacer]').exists()).toBe(false)
   })
 

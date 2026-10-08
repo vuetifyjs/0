@@ -23,7 +23,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { isNumber, isUndefined } from '#v0/utilities'
+  import { isNull, isNumber, isUndefined } from '#v0/utilities'
   import { mergeProps, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -112,9 +112,12 @@
     namespace = 'v0:virtualizer:root',
   } = defineProps<VirtualizerRootProps<T>>()
 
-  if (renderless) {
+  // Atom renders a null `as` without a wrapper, exactly like renderless
+  const bare = toRef(() => renderless || isNull(as))
+
+  if (bare.value) {
     const logger = useLogger()
-    logger.warn('[v0:virtualizer] `renderless` is not supported — the spacers and scroll measurement require the wrapper element. Remove `renderless` or use createVirtual directly.')
+    logger.warn('[v0:virtualizer] `renderless` and `as="null"` are not supported on Virtualizer.Root — the spacers and scroll measurement require the wrapper element. Remove them or use createVirtual directly.')
   }
 
   const _items = toRef(() => items)
@@ -179,10 +182,10 @@
     :as
     :renderless
   >
-    <div v-if="!renderless" data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
+    <div v-if="!bare" data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
 
     <slot v-bind="slotProps" />
 
-    <div v-if="!renderless" data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
+    <div v-if="!bare" data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
   </Atom>
 </template>
