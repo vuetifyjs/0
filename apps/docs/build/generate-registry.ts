@@ -15,8 +15,51 @@
 import { build, contract } from './registry'
 
 // Types
-import type { Registry } from './registry'
+import type { Registry, RegistryItem } from './registry'
 import type { Plugin } from 'vite'
+
+const VIRTUAL_MODULE_ID = 'virtual:registry-catalog'
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+
+/** Row serialized into `virtual:registry-catalog`. Shape matches `cliChip.ts`. */
+interface RegistryChipItem {
+  name: string
+  path: string
+  category: string
+  exampleIds: string[]
+  install?: { factory: string }
+}
+
+function isRegistrySource (file: string): boolean {
+  const normalized = file.replaceAll('\\', '/')
+  const data = normalized.endsWith('maturity.json')
+    || normalized.endsWith('package.json')
+    || normalized.endsWith('uno.config.ts')
+  const docs = (normalized.includes('/pages/') || normalized.includes('/examples/'))
+    && (normalized.endsWith('.md') || normalized.endsWith('.vue') || normalized.endsWith('.ts'))
+  return data || docs
+}
+
+/** Docs URL → route path. `/index` and a trailing slash collapse to the route. */
+function catalogPath (docs: string): string {
+  const stripped = new URL(docs).pathname.replace(/\/$/, '').replace(/\/index$/, '')
+  return stripped || '/'
+}
+
+function chipCatalog (items: RegistryItem[]): Record<string, RegistryChipItem> {
+  const catalog: Record<string, RegistryChipItem> = {}
+  for (const item of items) {
+    const path = catalogPath(item.docs)
+    catalog[path] = {
+      name: item.name,
+      path,
+      category: item.category,
+      exampleIds: item.examples.map(example => example.id),
+      ...(item.install ? { install: { factory: item.install.factory } } : {}),
+    }
+  }
+  return catalog
+}
 
 /**
  * Docs-only tokens in an example render unstyled once copied into a consumer
@@ -59,34 +102,41 @@ export default function generateRegistryPlugin (): Plugin {
     return registry
   }
 
+  function drop () {
+    registry = null
+    pending = null
+  }
+
   return {
     name: 'generate-registry',
 
-    configureServer (server) {
+    resolveId (id) {
+      if (id === VIRTUAL_MODULE_ID) return RESOLVED_VIRTUAL_MODULE_ID
+    },
+
+    async load (id) {
+      if (id !== RESOLVED_VIRTUAL_MODULE_ID) return
+      const data = await get()
+      return `export const catalog = ${JSON.stringify(chipCatalog(data.items))}\n`
+    },
+
+    configureServer (_server) {
       dev = true
 
-      // Mirror generate-nav / generate-llms-full: drop the memo when source
-      // pages or examples change so a local CLI against the dev origin sees
-      // fresh bodies without a server restart. `add`/`unlink` matter when an
-      // author creates or deletes an example file mid-session.
+      // Drop the memo when source pages or examples change so a local CLI
+      // against the dev origin sees fresh bodies without a server restart.
+      // The client catalog is pushed from `hotUpdate` — invalidateModule
+      // here would mark it stale without sending an update.
       function invalidate (file: string) {
-        // Vite may report Windows paths with `\`; normalize before matching.
-        const normalized = file.replaceAll('\\', '/')
-        const data = normalized.endsWith('maturity.json')
-          || normalized.endsWith('package.json')
-          || normalized.endsWith('uno.config.ts')
-        const docs = (normalized.includes('/pages/') || normalized.includes('/examples/'))
-          && (normalized.endsWith('.md') || normalized.endsWith('.vue') || normalized.endsWith('.ts'))
-        if (!data && !docs) return
-        registry = null
-        pending = null
+        if (!isRegistrySource(file)) return
+        drop()
       }
 
       for (const event of ['change', 'add', 'unlink'] as const) {
-        server.watcher.on(event, invalidate)
+        _server.watcher.on(event, invalidate)
       }
 
-      server.middlewares.use(async (req, res, next) => {
+      _server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split('?')[0]
         if (!url?.startsWith('/registry/') || !url.endsWith('.json')) return next()
 
@@ -161,9 +211,19 @@ export default function generateRegistryPlugin (): Plugin {
       }
     },
 
+    hotUpdate (options) {
+      if (!isRegistrySource(options.file)) return
+      drop()
+      // `handleHotUpdate` only runs for updates, so a created or deleted
+      // example never reached the catalog. Returning this list replaces
+      // the affected modules — keep them and append the catalog.
+      const mod = this.environment.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
+      if (!mod || options.modules.includes(mod)) return
+      return [...options.modules, mod]
+    },
+
     buildEnd () {
-      registry = null
-      pending = null
+      drop()
     },
   }
 }
