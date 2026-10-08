@@ -57,8 +57,14 @@ Standard: dual-script with imports and type exports in regular script; runtime l
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
+  import { useComponentGroup } from './ComponentGroup.vue'
+
   // Composables
   import { createContext } from '#v0/composables'
+
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
 
   // Utilities
   import { useId } from '#v0/utilities'
@@ -105,6 +111,8 @@ Standard: dual-script with imports and type exports in regular script; runtime l
 **Enforced rules.**
 - `defineOptions({ name: '...' })` — always required (100%). [intent:156]
 - **All imports go in `<script lang="ts">`** (preferred). Vue imports, composable imports, utility imports — all in regular. `<script setup>` should contain zero import statements. New components must follow this; some legacy Roots (`Dialog/DialogRoot.vue`, `Tabs/TabsRoot.vue`) still carry imports inside `<script setup>` pending a sweep — do not cite them as precedent. [intent:36, intent:157, intent:158]
+- Import groups, in order, each under its comment header (omit empty groups): `// Components` → `// Context` (sibling context hooks, relative `./XRoot.vue`) → `// Composables` → `// Transformers` (`toElement`) → `// Constants` → `// Utilities` → `// Types`. Measured: `// Context` in 147 SFCs, `// Transformers` in 22, `// Constants` in 10.
+- Narrow `toElement(...)` to `HTMLElement` only at the use site that needs it, as an inline cast: `(toElement(item.el) as HTMLElement | undefined)?.focus()` (`Tabs/TabsItem.vue:132,154,164`). `toElement` returns `Element | undefined`; this boundary cast is the accepted pattern, not a lint escape (see "Consuming AtomExpose in the same SFC").
 - Props interface and slot props interface exported from regular script. [intent:159]
 - Context `[useX, provideX]` exported from regular script. [intent:160]
 - Cleanup uses `onBeforeUnmount`, not `onUnmounted`. [intent:161, PHILOSOPHY §7.3]
