@@ -12,22 +12,29 @@
     is,
     name,
     themes = { light: 'light', dark: 'dark' },
+    themeAttribute = 'data-theme',
   } = defineProps<{
     /** Resolved example component, or undefined when the query names nothing. */
     is?: Component
     /** Example path from the query string, shown when resolution fails. */
     name: string
     /**
-     * What each scheme is called in `data-theme`. The docs page only ever speaks
-     * in light and dark; a design system is free to name its themes something
-     * else, and Emerald does (`emerald-light` / `emerald-dark`) because those are the
-     * ids its stylesheet keys on. Defaulting to the scheme names themselves
-     * keeps every system that agrees with the docs — Bulma — untouched.
+     * What each scheme is called on `themeAttribute`. The docs page only ever
+     * speaks in light and dark; a design system is free to name its themes
+     * something else, and Emerald does (`emerald-light` / `emerald-dark`)
+     * because those are the ids its stylesheet keys on. Defaulting to the
+     * scheme names themselves keeps every system that agrees with the docs —
+     * Bulma — untouched.
      *
      * Upstream candidate: this is the one piece of the sandbox that is not
      * system-agnostic, and it belongs next to the entry that owns the frame.
      */
     themes?: Record<'light' | 'dark', string>
+    /**
+     * Attribute the scheme is written to. Bulma and Emerald use `data-theme`.
+     * Bootstrap 6 keys its stylesheet on `data-bs-theme`.
+     */
+    themeAttribute?: string
   }>()
 
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
@@ -128,13 +135,15 @@
   //
   //   overlay  something is laid out against the viewport (a modal and its
   //            backdrop). Meant to cover everything, page chrome included.
+  //            Bulma: `position: fixed`. Bootstrap 6: an open `<dialog>` or
+  //            `.drawer.show`.
   //   float    out-of-flow content spilled past the example's box AND is owned
-  //            by component state — Bulma marks that with `is-active`, which
-  //            only this package's JS sets. It belongs to the page, so page
-  //            chrome occludes it.
+  //            by component state. Bulma marks that with `is-active`. Bootstrap
+  //            6 marks it with `.menu.show` or the `show` class on the absolute
+  //            element. It belongs to the page, so page chrome occludes it.
   //   grow     everything else, including a pure-CSS `:hover` reveal
-  //            (`is-hoverable`), which carries no `is-active` anywhere. The
-  //            frame makes room for it instead of being promoted.
+  //            (`is-hoverable`), which carries neither `is-active` nor `show`.
+  //            The frame makes room for it instead of being promoted.
   //
   // `escaping` is reported either way: promotion clips to it, growth sizes
   // around it.
@@ -149,10 +158,16 @@
 
       const style = getComputedStyle(node)
       const position = style.position
+      // The open dialog itself, not its descendants. Children that are merely
+      // in normal flow must not each become their own overlay. A dialog can
+      // sit inside the example box and still cover the viewport via
+      // `::backdrop`, so ownership does not require the box to be escaped.
+      const owner = (node instanceof HTMLDialogElement && node.open)
+        || (node.classList.contains('drawer') && node.classList.contains('show'))
 
-      if (position !== 'fixed' && position !== 'absolute') continue
+      if (position !== 'fixed' && position !== 'absolute' && !owner) continue
 
-      if (position === 'fixed' && inert(node, style)) continue
+      if (position === 'fixed' && !owner && inert(node, style)) continue
 
       const rect = node.getBoundingClientRect()
 
@@ -165,12 +180,12 @@
         || rect.left < box.left - SLACK
         || rect.right > box.right + SLACK
 
-      if (!escapes) continue
+      if (!escapes && !owner) continue
 
-      escaping.push(toRect(rect))
+      if (rect.width > 0 || rect.height > 0) escaping.push(toRect(rect))
 
-      if (position === 'fixed') tier = 'overlay'
-      else if (node.closest('.is-active')) tier ??= 'float'
+      if (position === 'fixed' || owner) tier = 'overlay'
+      else if (node.closest('.is-active, .menu.show') || node.classList.contains('show')) tier ??= 'float'
     }
 
     return {
@@ -277,7 +292,7 @@
 
     switch (event.data?.type) {
       case 'v0:sandbox:theme': {
-        document.documentElement.dataset.theme = event.data.dark ? themes.dark : themes.light
+        document.documentElement.setAttribute(themeAttribute, event.data.dark ? themes.dark : themes.light)
         break
       }
       // Also the parent's acknowledgement that the frame has settled: re-pin
