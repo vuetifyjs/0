@@ -4,10 +4,10 @@ import { createVirtual } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, shallowRef } from 'vue'
+import { defineComponent, h, nextTick, onMounted, shallowRef } from 'vue'
 
 // Types
-import type { VirtualOptions } from './index'
+import type { VirtualContext, VirtualOptions } from './index'
 
 const ITEM = 40
 const VIEWPORT = 400
@@ -22,8 +22,22 @@ function frames (count = 4) {
   })
 }
 
-function setup (options: VirtualOptions = {}) {
-  const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+function list (length: number) {
+  return Array.from({ length }, (_, i) => i)
+}
+
+interface SetupOptions extends VirtualOptions {
+  initial?: number[]
+  hidden?: boolean
+  /** Bind `virtual.element` as the template ref instead of syncing it */
+  direct?: boolean
+  mounted?: (virtual: VirtualContext<number>) => void
+}
+
+function setup (_options: SetupOptions = {}) {
+  const { initial = list(100), hidden: _hidden = false, direct, mounted, ...options } = _options
+  const items = shallowRef(initial)
+  const hidden = shallowRef(_hidden)
   const key = shallowRef(0)
 
   const wrapper = mount(defineComponent({
@@ -36,10 +50,16 @@ function setup (options: VirtualOptions = {}) {
         if (el) virtual.element.value = el as HTMLElement
       }
 
+      if (mounted) onMounted(() => mounted(virtual))
+
       return () => h('div', {
         key: key.value,
-        ref: onRef,
-        style: { height: `${VIEWPORT}px`, overflowY: 'auto' },
+        ref: direct ? virtual.element : onRef,
+        style: {
+          height: `${VIEWPORT}px`,
+          overflowY: 'auto',
+          display: hidden.value ? 'none' : 'block',
+        },
         onScroll: virtual.scroll,
       }, [
         h('div', { style: { height: `${virtual.offset.value}px` } }),
@@ -54,9 +74,17 @@ function setup (options: VirtualOptions = {}) {
 
   return {
     wrapper,
+    items,
     el: () => wrapper.element as HTMLElement,
-    remount: () => key.value++,
+    show: () => {
+      hidden.value = false
+      key.value++
+    },
   }
+}
+
+function max (el: HTMLElement) {
+  return el.scrollHeight - el.clientHeight
 }
 
 describe('createVirtual', () => {
@@ -68,24 +96,55 @@ describe('createVirtual', () => {
 
       expect(el().scrollHeight).toBe(100 * ITEM)
       expect(el().scrollTop).toBeGreaterThan(0)
-      expect(el().scrollTop).toBe(el().scrollHeight - el().clientHeight)
+      expect(el().scrollTop).toBe(max(el()))
 
       wrapper.unmount()
     })
 
-    it('should pin to the bottom again when the element is re-assigned', async () => {
-      const { wrapper, el, remount } = setup({ direction: 'reverse' })
+    it('should pin to the bottom when the first items arrive after mount', async () => {
+      const { wrapper, el, items } = setup({ direction: 'reverse', initial: [] })
 
       await frames()
 
-      const previous = el()
-      remount()
+      items.value = list(100)
 
       await frames()
 
-      expect(el()).not.toBe(previous)
       expect(el().scrollTop).toBeGreaterThan(0)
-      expect(el().scrollTop).toBe(el().scrollHeight - el().clientHeight)
+      expect(el().scrollTop).toBe(max(el()))
+
+      wrapper.unmount()
+    })
+
+    it('should pin when remounted after a mount with no viewport', async () => {
+      const { wrapper, el, show } = setup({ direction: 'reverse', hidden: true })
+
+      await frames()
+
+      show()
+
+      await frames()
+
+      expect(el().scrollTop).toBeGreaterThan(0)
+      expect(el().scrollTop).toBe(max(el()))
+
+      wrapper.unmount()
+    })
+
+    it('should not override a scrollTo made right after mount', async () => {
+      const { wrapper, el } = setup({
+        direction: 'reverse',
+        height: VIEWPORT,
+        direct: true,
+        mounted: async virtual => {
+          await nextTick()
+          virtual.scrollTo(10)
+        },
+      })
+
+      await frames()
+
+      expect(el().scrollTop).toBe(10 * ITEM)
 
       wrapper.unmount()
     })
