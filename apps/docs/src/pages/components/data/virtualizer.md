@@ -24,7 +24,7 @@ Headless virtualized list that mounts only the rows inside (and slightly beyond)
 
 ## Usage
 
-`Virtualizer.Root` renders the scroll container and the spacers that stand in for off-screen rows. Its default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. Give the container a height with the `height` prop, an inline style, or a class.
+`Virtualizer.Root` renders the scroll container and the spacers that stand in for off-screen rows. Its default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. The container needs a definite height — the `height` prop, an `h-*` class, or a flex or grid parent that sizes it. `max-height` alone is not enough: the container starts at zero height, so no rows render to grow it.
 
 ::: gn-example
 /components/virtualizer/basic
@@ -65,6 +65,8 @@ flowchart LR
 
 Rows do not need a fixed height. Each `Virtualizer.Item` reports its measured height, and the spacers and scrollbar correct themselves as rows render.
 
+The measurement is the row's border box, so margins are not counted. Space rows with padding inside the row, or a `gap` on content inside it — never a margin on `Virtualizer.Item`.
+
 ```vue
 <script setup lang="ts">
   import { Virtualizer } from '@vuetify/v0'
@@ -91,7 +93,7 @@ Rows do not need a fixed height. Each `Virtualizer.Item` reports its measured he
 
 ### Infinite scroll
 
-`@end-reached` fires when the scroll position comes within `end-threshold` pixels of the end. Append to `items` and the window extends. `@start-reached` mirrors it for the top.
+`@end-reached` fires when the scroll position comes within `end-threshold` pixels of the end. Replace the array with one that includes the new page — `items.value = [...items.value, ...page]` — and the window extends. Pushing onto the existing array in place is not detected. `@start-reached` mirrors it for the top.
 
 The callbacks fire on every animation frame of scrolling while the position stays inside the threshold, not once per crossing. An async loader needs an in-flight guard so a slow request is not started several times.
 
@@ -240,7 +242,7 @@ Edge callbacks run from scroll events only, never on mount. If the initial `item
 
 ??? Does Virtualizer support renderless mode?
 
-No. The spacers and scroll measurement need the wrapper element, so Root warns and renders no spacers when `renderless` is set. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
+No. The spacers and scroll measurement need the wrapper element, so Root warns and renders no spacers when `renderless` is set or `as` is `null`. Item warns too — without its element it cannot measure, so the row stops reporting its height. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
 
 ??? What does Virtualizer render on the server?
 
