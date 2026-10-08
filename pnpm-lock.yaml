@@ -536,6 +536,9 @@ importers:
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.7
+      '@paper/bootstrap':
+        specifier: workspace:*
+        version: link:../../packages/bootstrap
       '@paper/bulma':
         specifier: workspace:*
         version: link:../../packages/bulma
@@ -893,6 +896,31 @@ importers:
       vue-i18n:
         specifier: 'catalog:'
         version: 11.4.8(vue@3.5.42(typescript@6.0.3))
+
+  packages/bootstrap:
+    dependencies:
+      '@vuetify/v0':
+        specifier: workspace:^
+        version: link:../0
+    devDependencies:
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.1.11(playwright@1.62.1)(vite@8.2.2(@types/node@25.6.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.102.0)(sass@1.103.0)(terser@5.48.0)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.11)
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.14(@arethetypeswrong/core@0.18.5)(@tsdown/css@0.22.14)(@volar/typescript@2.4.28)(oxc-resolver@11.24.2)(publint@0.3.24)(tsx@4.23.12)(typescript@6.0.3)(unrun@0.2.37(synckit@0.11.12))(vue-tsc@3.3.10(typescript@6.0.3))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      unplugin-vue:
+        specifier: 'catalog:'
+        version: 7.2.0(@types/node@25.6.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.102.0)(sass@1.103.0)(terser@5.48.0)(tsx@4.23.12)(vue@3.5.42(typescript@6.0.3))(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/browser-playwright@4.1.11)(@vitest/coverage-v8@4.1.11)(happy-dom@20.11.6)(jsdom@28.1.0(supports-color@8.1.1))(vite@8.2.2(@types/node@25.6.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.102.0)(sass@1.103.0)(terser@5.48.0)(tsx@4.23.12)(yaml@2.9.0))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.42(typescript@6.0.3)
 
   packages/bulma:
     dependencies:
