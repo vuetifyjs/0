@@ -67,3 +67,17 @@ SHA in `PIN.md`, one or more blocks per file, each introduced by
    Any other extra attribute needs an explicit `ignoreAttrs` entry.
 3. Colon utility classes (`md:d-none`) are real class tokens. Do not escape
    them.
+
+## BDialog
+
+- Host element is `<dialog class="dialog">`. `size` adds only `dialog-sm`,
+  `dialog-lg`, or `dialog-xl`.
+- `showModal()` and `close()` run on this component's element ref. Both are
+  guarded with `element.open`. `onCancel` calls `preventDefault()` so
+  `.hiding` can run before `close()`.
+- Scroll lock is the `dialog-open` class on `document.documentElement`.
+- `blocking` adds `dialog-static` on a backdrop click and does not close.
+  Escape still closes.
+- Fixture diff ignores `open` and `style`.
+- `BDialogTitle` renders through `Dialog.Title`. `BDialogClose` does not use
+  `Dialog.Close`.

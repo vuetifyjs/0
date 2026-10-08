@@ -78,6 +78,34 @@ not `col-md-6`.
 Accordion is `<details>` / `<summary>`. Navbar collapse is a drawer. Collapse
 toggles `.show` only — there is no `.collapsing` class.
 
+## BDialog
+
+Native `<dialog class="dialog">`. v0 `Dialog.Root` owns `v-model`.
+`Dialog.Content` is renderless, with `scrim` false and `closeOnClickOutside`
+false, because that mode exposes no element. This component calls `showModal()`
+and `close()` on its own `<dialog>`.
+
+Backdrop is `::backdrop`. A backdrop click is a click whose target is the
+dialog element.
+
+- `blocking` is Bootstrap's `backdrop: "static"`. The click adds
+  `.dialog-static` for the bounce and does not close. Escape still closes.
+  v6 static backdrop does not trap Escape. `keyboard: false` is not a prop.
+  `modal: false` (`show()`) is out of scope.
+- Close adds `.hiding` and calls `close()` after the opacity transition, so
+  the exit animation still has a top layer and a backdrop. `.dialog-instant`
+  and `prefers-reduced-motion: reduce` close immediately.
+- While a modal dialog is open, `dialog-open` is set on
+  `document.documentElement` and removed when none remain.
+- `size` adds `dialog-sm`, `dialog-lg`, or `dialog-xl`. `dialog-scrollable`,
+  `dialog-fullscreen`, `dialog-instant`, and the slide modifiers are user
+  classes.
+- Do not emit `data-bs-toggle` or `data-bs-dismiss`. Conform ignores `open`
+  and `style` (native open state, stack z-index).
+- `BDialogTitle` is `Dialog.Title` as `h1.dialog-title` and supplies
+  `aria-labelledby`. `BDialogClose` is `button.btn-close`. It injects
+  `bootstrap:dialog` and warns in dev when that context is missing.
+
 ## Tier 1
 
 Overlay: `BDialog`, `BDrawer`, `BMenu`, `BTooltip`, `BPopover`, `BToast`

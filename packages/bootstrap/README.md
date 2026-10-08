@@ -4,7 +4,7 @@ Vue behavior for [Bootstrap 6](https://getbootstrap.com/)'s markup. Bootstrap sh
 
 Nothing about your stylesheet changes. There is no plugin, no `theme.css`, and no CSS in the package.
 
-The package is a scaffold. Components land against the commit in `harness/PIN.md`. Bootstrap 6 is not on npm yet.
+`BDialog` is implemented. The rest of the catalog lands against the commit in `harness/PIN.md`. Bootstrap 6 is not on npm yet.
 
 ## Install
 

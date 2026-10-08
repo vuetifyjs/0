@@ -1,0 +1,6 @@
+export * from './BDialog'
+export * from './BDialogBody'
+export * from './BDialogClose'
+export * from './BDialogFooter'
+export * from './BDialogHeader'
+export * from './BDialogTitle'

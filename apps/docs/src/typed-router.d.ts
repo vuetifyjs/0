@@ -1235,6 +1235,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bootstrap/': RouteRecordInfo<
+      '/systems/bootstrap/',
+      '/systems/bootstrap',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/dialog': RouteRecordInfo<
+      '/systems/bootstrap/dialog',
+      '/systems/bootstrap/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/bulma/': RouteRecordInfo<
       '/systems/bulma/',
       '/systems/bulma',
@@ -2962,6 +2976,22 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/index.md': {
+      routes:
+        | '/systems/bootstrap/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/dialog.md': {
+      routes:
+        | '/systems/bootstrap/dialog'
       views:
         | never
       pathParamNames:
