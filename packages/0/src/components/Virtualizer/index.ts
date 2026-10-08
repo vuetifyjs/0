@@ -33,7 +33,7 @@ import Root from './VirtualizerRoot.vue'
  *   <Virtualizer.Root :items :item-height="40" style="height: 600px" v-slot="{ items: visible }">
  *     <Virtualizer.Item
  *       v-for="item in visible"
- *       :key="item.index"
+ *       :key="item.raw.id"
  *       :index="item.index"
  *     >
  *       {{ item.raw.name }}
@@ -80,7 +80,7 @@ export const Virtualizer = {
    *   >
    *     <Virtualizer.Item
    *       v-for="item in visible"
-   *       :key="item.index"
+   *       :key="item.raw.id"
    *       :index="item.index"
    *     >
    *       {{ item.raw.name }}

@@ -13,7 +13,7 @@
   >
     <Virtualizer.Item
       v-for="item in visibleItems"
-      :key="item.index"
+      :key="item.raw.id"
       :index="item.index"
     >
       {{ item.raw.name }}
