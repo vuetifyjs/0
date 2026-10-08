@@ -59,7 +59,7 @@ import type { Ref } from 'vue'
  * useResizeObserver(el, ([entry]) => {
  *   entry.contentRect.height        // content box, excludes padding + border
  *   entry.contentBoxSize[0].blockSize   // same value, writing-mode relative
- *   entry.borderBoxSize[0].blockSize    // includes padding + border
+ *   entry.borderBoxSize?.[0]?.blockSize // includes padding + border
  * }, { box: 'border-box' })
  * ```
  */
@@ -77,8 +77,11 @@ export interface ResizeObserverEntry {
    * Unlike `getBoundingClientRect()`, this is a layout measurement and is not
    * scaled by CSS transforms. The array mirrors the native API: one entry per
    * box fragment, so single-fragment elements report `borderBoxSize[0]`.
+   *
+   * Undefined on browsers whose native entry lacks it (Safari < 15.4,
+   * Chrome < 84).
    */
-  borderBoxSize: readonly ResizeObserverSize[]
+  borderBoxSize?: readonly ResizeObserverSize[]
   /**
    * The element's content box — excluding padding and border — in
    * writing-mode-relative `inlineSize` / `blockSize` terms.
@@ -211,7 +214,7 @@ function measure (el: Element): ResizeObserverEntry {
  *
  * ```ts
  * useResizeObserver(el, ([entry]) => {
- *   height.value = entry.borderBoxSize[0].blockSize
+ *   height.value = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height
  * }, { box: 'border-box' })
  * ```
  */
