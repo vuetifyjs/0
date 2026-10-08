@@ -34,7 +34,8 @@ describe('createOverflow', () => {
     }
 
     globalThis.ResizeObserver = vi.fn(function (this: unknown, cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
-      resizeCallback = cb
+      // Native entries always carry the box sizes; without them the mapper measures the target
+      resizeCallback = entries => cb(entries.map(entry => ({ borderBoxSize: [], contentBoxSize: [], ...entry })))
       return mockObserver
     }) as unknown as typeof ResizeObserver
 
