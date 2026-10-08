@@ -26,7 +26,6 @@ Nightly builds are automated daily snapshots of the `@vuetify/v0` package built 
 
 - **Bug fixes** that haven't been released yet
 - **New features** in development on the `dev` branch
-- **Breaking changes** you want to prepare for ahead of a major release
 
 > [!WARNING]
 > Nightly builds are **unstable** and **not for production**. They may contain bugs, incomplete features, or breaking changes that haven't been documented yet. Use them for testing and development only.
@@ -143,13 +142,3 @@ bun add @vuetify/v0@latest
 ## Semver and Lock Files
 
 Nightly versions are prereleases. A `^1.2.3` range in your `package.json` will **not** automatically upgrade to a nightly — you must explicitly request the dist-tag. This is intentional: nightlies are opt-in, and your lock file keeps you on the version you chose until you update it.
-
-## Vuetify CLI
-
-The [Vuetify CLI](/guide/tooling/vuetify-cli) can update to nightly builds:
-
-```bash
-pnpm dlx @vuetify/cli update --nightly
-```
-
-See the [CLI guide](/guide/tooling/vuetify-cli#update) for more options.
