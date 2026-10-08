@@ -692,6 +692,11 @@ export function createVirtual<T = unknown> (
   }
 
   onScopeDispose(() => {
+    // A scroll event queued before unmount still reaches scroll(); with no
+    // element, update() and checkEdges() bail instead of firing edge callbacks
+    element.value = undefined
+    pin = false
+
     if (!IN_BROWSER) return
 
     cancelAnimationFrame(raf)
