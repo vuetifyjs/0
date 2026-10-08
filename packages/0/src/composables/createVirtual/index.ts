@@ -455,7 +455,7 @@ export function createVirtual<T = unknown> (
 
     // Spacers have no height until update() renders them, so the browser
     // would clamp an immediate scrollTop to 0; pin after the next render
-    pin = direction === 'reverse' && items.value.length > 0
+    pin = direction === 'reverse'
 
     update()
   })
@@ -555,9 +555,12 @@ export function createVirtual<T = unknown> (
     const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
     size.value = totalHeight - (offsets.value[end] || totalHeight)
 
-    if (pin) {
-      pin = false
+    // Stays armed through empty updates so a first page loaded after mount pins
+    if (pin && length > 0) {
       nextTick(() => {
+        if (!pin) return
+
+        pin = false
         bottom()
         update()
       })
@@ -631,6 +634,8 @@ export function createVirtual<T = unknown> (
   }
 
   function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
+    pin = false
+
     /* v8 ignore next -- defensive: scrollTo only invoked after element mounts */
     if (!element.value) return
 
