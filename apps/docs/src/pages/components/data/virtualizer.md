@@ -145,7 +145,7 @@ They only fire in response to scrolling — never on mount. A list shorter than 
 
 ### Scrolling to an item
 
-The default slot exposes `scrollTo(index, options)` and `reset()`. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Call them from controls inside the rows — anything else rendered inside Root sits between the spacers and throws off the row offsets.
+`scrollTo(index, options)` and `reset()` are available two ways: from Root's default slot, and from a template ref on Root. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Controls inside the list belong in the rows — anything else rendered inside Root sits between the spacers and throws off the row offsets. Controls outside the list use the template ref (see [Outside controls](#outside-controls)).
 
 ```vue
 <script setup lang="ts">
@@ -176,6 +176,53 @@ The default slot exposes `scrollTo(index, options)` and `reset()`. `options` acc
       >
         Center
       </Button.Root>
+    </Virtualizer.Item>
+  </Virtualizer.Root>
+</template>
+```
+
+### Outside controls
+
+A toolbar, search box, or "jump to" field outside the list reaches the same methods through a template ref on Root.
+
+```vue
+<script setup lang="ts">
+  import { Button, Virtualizer } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const rows = Array.from({ length: 10_000 }, (_, i) => ({ id: i, name: `Row ${i + 1}` }))
+  const list = useTemplateRef('list')
+</script>
+
+<template>
+  <div class="flex gap-2 mb-2">
+    <Button.Root @click="list?.scrollTo(0, { behavior: 'smooth' })">
+      Top
+    </Button.Root>
+
+    <Button.Root @click="list?.scrollTo(4999, { block: 'center' })">
+      Row 5,000
+    </Button.Root>
+
+    <Button.Root @click="list?.scrollTo(rows.length - 1, { block: 'end' })">
+      Bottom
+    </Button.Root>
+  </div>
+
+  <Virtualizer.Root
+    ref="list"
+    v-slot="{ items }"
+    :height="400"
+    :item-height="40"
+    :items="rows"
+  >
+    <Virtualizer.Item
+      v-for="item in items"
+      :key="item.raw.id"
+      class="flex items-center h-10 px-3"
+      :index="item.index"
+    >
+      {{ item.raw.name }}
     </Virtualizer.Item>
   </Virtualizer.Root>
 </template>
