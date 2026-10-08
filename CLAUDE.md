@@ -20,7 +20,7 @@ Before building anything, consult the `vuetify0` skill's `SKILL.md` — invoke t
 
 ## Path Alias
 
-Always use `#v0/` for package imports, never relative paths:
+Always use `#v0/` for cross-module package imports, never relative paths:
 
 ```ts
 import { ID } from '#v0/types'
@@ -82,7 +82,7 @@ For the changeset content contract, the two version domains (`@vuetify/v0` vs `@
 - With generics: `<script lang="ts" setup generic="T">` (lang before setup when using generic)
 
 ### TypeScript
-- Zero `any` types, except `defineSlots` slot return types (`default: (props: XSlotProps) => any`), the house convention in every slotted SFC
+- Zero `any` types, except `defineSlots` slot return types (`default: (props: XSlotProps) => any`), the house convention (148 of 182 `defineSlots` SFCs)
 - `unknown` over `any` for unknowns
 - Readonly tuples for trinity pattern: `as const`
 
