@@ -14,6 +14,10 @@ related:
   - /releases
 ---
 
+<script setup lang="ts">
+  import DocsNightlyVersions from '@/components/docs/DocsNightlyVersions.vue'
+</script>
+
 # Nightly Builds
 
 Nightly builds let you test unreleased changes before they ship in a stable release. They're published automatically every day at 12:00 UTC when the source branch has new commits.
@@ -142,3 +146,7 @@ bun add @vuetify/v0@latest
 ## Semver and Lock Files
 
 Nightly versions are prereleases. A `^1.2.3` range in your `package.json` will **not** automatically upgrade to a nightly — you must explicitly request the dist-tag. This is intentional: nightlies are opt-in, and your lock file keeps you on the version you chose until you update it.
+
+## Published Versions
+
+<DocsNightlyVersions />
