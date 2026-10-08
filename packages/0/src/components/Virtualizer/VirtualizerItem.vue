@@ -24,9 +24,6 @@
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
-  // Globals
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Utilities
   import { isNull, isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, onUnmounted, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
@@ -95,7 +92,6 @@
   let held = false
 
   onBeforeUnmount(() => {
-    if (!IN_BROWSER) return
     // contains() does not cross shadow boundaries; document.activeElement is
     // retargeted to the shadow host, which sits in the row's light DOM
     held = !!el.value?.contains(document.activeElement)
