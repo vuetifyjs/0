@@ -238,6 +238,8 @@ describe('useResizeObserver', () => {
         top: 0,
         left: 0,
       },
+      borderBoxSize: [{ inlineSize: 200, blockSize: 100 }],
+      contentBoxSize: [{ inlineSize: 200, blockSize: 100 }],
       target: element,
     }])
 
@@ -248,6 +250,8 @@ describe('useResizeObserver', () => {
         top: 0,
         left: 0,
       },
+      borderBoxSize: [{ inlineSize: 200, blockSize: 100 }],
+      contentBoxSize: [{ inlineSize: 200, blockSize: 100 }],
       target: element,
     }])
     expect(localMockObserver.disconnect).toHaveBeenCalled()
@@ -709,6 +713,37 @@ describe('useResizeObserver box model synthesis', () => {
 
     expect(entry.borderBoxSize).toEqual([{ inlineSize: 100, blockSize: 50 }])
     expect(entry.contentBoxSize).toEqual([{ inlineSize: 100, blockSize: 50 }])
+  })
+
+  it('should measure the box sizes when the native entry omits them', async () => {
+    vi.stubGlobal('getComputedStyle', () => ({
+      ...PADDED,
+      boxSizing: 'border-box',
+      width: '200px',
+      height: '40px',
+    }))
+
+    let observerCallback: (entries: any[]) => void
+    globalThis.ResizeObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() }
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    const callback = vi.fn()
+
+    useResizeObserver(ref<Element | undefined>(element), callback)
+    await nextTick()
+
+    observerCallback!([{
+      contentRect: { width: 166, height: 30, top: 4, left: 16 },
+      target: element,
+    }])
+
+    const entry = callback.mock.calls[0]![0][0]
+
+    expect(entry.borderBoxSize).toEqual([{ inlineSize: 200, blockSize: 40 }])
+    expect(entry.contentBoxSize).toEqual([{ inlineSize: 166, blockSize: 30 }])
   })
 
   it('should clamp the content box at zero when padding exceeds the border box', async () => {
