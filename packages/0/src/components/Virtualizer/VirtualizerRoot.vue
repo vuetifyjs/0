@@ -34,7 +34,6 @@
     VirtualContext,
     VirtualDirection,
     VirtualItem,
-    VirtualState,
   } from '#v0/composables/createVirtual'
 
   export type VirtualizerRootContext<T = unknown> = VirtualContext<T>
@@ -73,8 +72,6 @@
   export interface VirtualizerRootSlotProps<T = unknown> {
     /** The currently visible (rendered) items, with overscan applied */
     items: readonly VirtualItem<T>[]
-    /** Loading/empty/error/ok state */
-    state: VirtualState
     /** Scroll to an item by index */
     scrollTo: (index: number, options?: ScrollToOptions) => void
     /** Reset the virtualizer to its initial scroll state */
@@ -169,7 +166,6 @@
 
   const slotProps = toRef((): VirtualizerRootSlotProps<T> => ({
     items: virtual.items.value,
-    state: virtual.state.value,
     scrollTo: virtual.scrollTo,
     reset: virtual.reset,
   }))

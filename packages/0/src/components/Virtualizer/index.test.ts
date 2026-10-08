@@ -264,7 +264,7 @@ describe('virtualizer', () => {
       },
     })
 
-    expect(keys.toSorted()).toEqual(['items', 'reset', 'scrollTo', 'state'])
+    expect(keys.toSorted()).toEqual(['items', 'reset', 'scrollTo'])
   })
 
   it('should size the scroll container from the height prop', () => {
