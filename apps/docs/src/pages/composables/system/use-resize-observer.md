@@ -81,15 +81,15 @@ Each reported entry carries both box models, whichever `box` you observe:
 | - | - | - |
 | `contentRect` | `{ width, height, top, left }` | The content box — excludes padding and border |
 | `contentBoxSize` | `readonly ResizeObserverSize[]` | The content box on the logical axes (`inlineSize` / `blockSize`) |
-| `borderBoxSize` | `readonly ResizeObserverSize[]` | The border box — content plus padding plus border |
+| `borderBoxSize` | `readonly ResizeObserverSize[] \| undefined` | The border box — content plus padding plus border. Undefined on Safari < 15.4 and Chrome < 84 |
 | `target` | `Element` | The observed element |
 
 Both size arrays mirror the native API: one entry per box fragment, so a normal single-fragment element is `borderBoxSize[0]`.
 
 ```ts
 useResizeObserver(el, ([entry]) => {
-  entry.contentRect.height          // 30 — content box
-  entry.borderBoxSize[0].blockSize  // 40 — with 4px padding and a 1px border
+  entry.contentRect.height             // 30 — content box
+  entry.borderBoxSize?.[0]?.blockSize  // 40 — with 4px padding and a 1px border
 }, { box: 'border-box' })
 ```
 
