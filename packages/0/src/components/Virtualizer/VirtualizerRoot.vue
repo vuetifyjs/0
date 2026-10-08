@@ -73,6 +73,13 @@
     namespace?: string
   }
 
+  export interface VirtualizerRootExpose {
+    /** Scroll to an item by index */
+    scrollTo: (index: number, options?: ScrollToOptions) => void
+    /** Reset the virtualizer to its initial scroll state */
+    reset: () => void
+  }
+
   export interface VirtualizerRootSlotProps<T = unknown> {
     /** The currently visible (rendered) items, with overscan applied */
     items: readonly VirtualItem<T>[]
@@ -156,6 +163,8 @@
   })
 
   provideVirtualizerRoot(namespace, { ...virtual, closing })
+
+  defineExpose<VirtualizerRootExpose>({ scrollTo: virtual.scrollTo, reset: virtual.reset })
 
   // A unitless numeric string ("400") is pixels; anything else is CSS
   const height = toRef(() => {

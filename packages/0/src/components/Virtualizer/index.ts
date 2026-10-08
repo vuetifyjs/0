@@ -4,7 +4,7 @@ export { provideVirtualizerRoot, useVirtualizerRoot } from './VirtualizerRoot.vu
 export { default as VirtualizerRoot } from './VirtualizerRoot.vue'
 
 export type { VirtualizerItemProps } from './VirtualizerItem.vue'
-export type { VirtualizerRootContext, VirtualizerRootProps, VirtualizerRootSlotProps } from './VirtualizerRoot.vue'
+export type { VirtualizerRootContext, VirtualizerRootExpose, VirtualizerRootProps, VirtualizerRootSlotProps } from './VirtualizerRoot.vue'
 
 // Context
 import Item from './VirtualizerItem.vue'

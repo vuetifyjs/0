@@ -4,11 +4,12 @@ import { Virtualizer } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, shallowRef, Transition } from 'vue'
+import { defineComponent, h, nextTick, shallowRef, Transition, useTemplateRef } from 'vue'
 
 // Types
+import type { VirtualizerRootExpose } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-import type { Component } from 'vue'
+import type { Component, ShallowRef } from 'vue'
 
 const wrappers: VueWrapper[] = []
 
@@ -137,6 +138,27 @@ describe('virtualizer (browser)', () => {
       await settle()
 
       scrollTo!(300)
+      await settle()
+
+      expect((wrapper.element as HTMLElement).scrollTop).toBe(300 * 40)
+      expect(wrapper.find('[data-index="300"]').exists()).toBe(true)
+    })
+  })
+
+  describe('expose', () => {
+    it('should scroll to an index through a template ref', async () => {
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      let list: Readonly<ShallowRef<VirtualizerRootExpose | null>> | undefined
+      const wrapper = mount(defineComponent({
+        setup () {
+          list = useTemplateRef<VirtualizerRootExpose>('list')
+          return () => h(Virtualizer.Root as unknown as Component, { ref: 'list', items, itemHeight: 40, height: 400 }, { default: buttonRows })
+        },
+      }), { attachTo: document.body })
+      wrappers.push(wrapper)
+      await settle()
+
+      list!.value!.scrollTo(300)
       await settle()
 
       expect((wrapper.element as HTMLElement).scrollTop).toBe(300 * 40)
