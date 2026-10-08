@@ -24,7 +24,7 @@
 
   // Utilities
   import { isNull, isNumber, isUndefined } from '#v0/utilities'
-  import { mergeProps, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -35,8 +35,12 @@
     VirtualDirection,
     VirtualItem,
   } from '#v0/composables/createVirtual'
+  import type { ShallowRef } from 'vue'
 
-  export type VirtualizerRootContext<T = unknown> = VirtualContext<T>
+  export interface VirtualizerRootContext<T = unknown> extends VirtualContext<T> {
+    /** True once Root begins unmounting; Items skip their focus hand-off */
+    closing: Readonly<ShallowRef<boolean>>
+  }
 
   export interface VirtualizerRootProps<T = unknown> extends AtomProps {
     /** The items to virtualize */
@@ -143,7 +147,15 @@
     virtual.element.value = (element ?? undefined) as HTMLElement | undefined
   })
 
-  provideVirtualizerRoot(namespace, virtual)
+  // Root's beforeUnmount runs before its Items', with or without a leave
+  // transition, so this tells them the whole list is going away
+  const closing = shallowRef(false)
+
+  onBeforeUnmount(() => {
+    closing.value = true
+  })
+
+  provideVirtualizerRoot(namespace, { ...virtual, closing })
 
   // A unitless numeric string ("400") is pixels; anything else is CSS
   const height = toRef(() => {

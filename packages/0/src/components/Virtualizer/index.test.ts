@@ -117,6 +117,7 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
+          closing: shallowRef(false),
           element: shallowRef(),
           resize,
         } as any)
@@ -137,6 +138,7 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
+          closing: shallowRef(false),
           element: shallowRef(),
           resize,
         } as any)
@@ -169,6 +171,7 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
+          closing: shallowRef(false),
           element: shallowRef(),
           resize,
         } as any)
@@ -190,6 +193,7 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
+          closing: shallowRef(false),
           element: shallowRef(),
           resize,
         } as any)
@@ -221,6 +225,7 @@ describe('virtualizer', () => {
     const wrapper = mount({
       setup () {
         provideVirtualizerRoot('v0:virtualizer:root', {
+          closing: shallowRef(false),
           element: shallowRef(),
           resize,
         } as any)

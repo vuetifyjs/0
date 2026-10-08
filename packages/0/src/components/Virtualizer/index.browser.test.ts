@@ -4,7 +4,7 @@ import { Virtualizer } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, shallowRef } from 'vue'
+import { defineComponent, h, nextTick, shallowRef, Transition } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
@@ -61,6 +61,21 @@ function mountVirtualizer (options: {
 
 function spacer (wrapper: VueWrapper, edge: 'start' | 'end') {
   return (wrapper.find(`[data-spacer="${edge}"]`).element as HTMLElement).offsetHeight
+}
+
+function buttonRows (props: { items: { index: number }[] }) {
+  return props.items.map(item =>
+    h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
+      h('button', { type: 'button' }, `Item ${item.index}`),
+    ),
+  )
+}
+
+function focusLog (events: string[]) {
+  return {
+    onFocus: () => events.push('focus'),
+    onFocusin: (event: FocusEvent) => events.push(`focusin:${(event.target as HTMLElement).tagName}`),
+  }
 }
 
 describe('virtualizer (browser)', () => {
@@ -193,6 +208,13 @@ describe('virtualizer (browser)', () => {
       button.focus()
       expect(document.activeElement).toBe(button)
 
+      // Focus moves while the row is still attached, so ancestors that close
+      // when focus leaves them see the container, not a hop through <body>
+      let related: EventTarget | null | undefined
+      button.addEventListener('focusout', event => {
+        related = event.relatedTarget
+      })
+
       const el = wrapper.element as HTMLElement
       el.scrollTop = 20_000
       el.dispatchEvent(new Event('scroll'))
@@ -200,6 +222,7 @@ describe('virtualizer (browser)', () => {
 
       expect(wrapper.find('[data-index="0"]').exists()).toBe(false)
       expect(document.activeElement).toBe(el)
+      expect(related).toBe(el)
     })
 
     it('should not focus the container when the whole root unmounts', async () => {
@@ -236,6 +259,64 @@ describe('virtualizer (browser)', () => {
       await settle()
 
       expect(events).toEqual([])
+    })
+
+    it('should not focus a root that is leaving through a transition', async () => {
+      const style = document.createElement('style')
+      style.textContent = '.v-leave-active { transition: opacity 300ms linear } .v-leave-to { opacity: 0 }'
+      document.head.append(style)
+
+      const show = shallowRef(true)
+      const events: string[] = []
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h(Transition, null, () => show.value
+            ? h(Virtualizer.Root as unknown as Component, { items, itemHeight: 40, height: 400, ...focusLog(events) }, { default: buttonRows })
+            : null)
+        },
+      }), { attachTo: document.body, global: { stubs: { transition: false } } })
+      wrappers.push(wrapper)
+      await settle()
+
+      ;(wrapper.find('[data-index="1"] button').element as HTMLButtonElement).focus()
+      events.length = 0
+
+      show.value = false
+      await settle()
+
+      // The container is still in the DOM while it fades out
+      expect(document.querySelector('[data-spacer]')?.isConnected).toBe(true)
+      expect(events).toEqual([])
+      style.remove()
+    })
+
+    it('should move focus to the container when the list renders inside a shadow root', async () => {
+      const host = document.createElement('div')
+      document.body.append(host)
+      const shadow = host.attachShadow({ mode: 'open' })
+      const target = document.createElement('div')
+      shadow.append(target)
+
+      const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))
+      const wrapper = mount(Virtualizer.Root as unknown as Component, {
+        props: { items, itemHeight: 40, height: 400, overscan: 2 },
+        slots: { default: buttonRows },
+        attachTo: target,
+      })
+      wrappers.push(wrapper)
+      await settle()
+
+      ;(shadow.querySelector('[data-index="0"] button') as HTMLButtonElement).focus()
+
+      const el = wrapper.element as HTMLElement
+      el.scrollTop = 20_000
+      el.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      expect(shadow.querySelector('[data-index="0"]')).toBeNull()
+      expect(shadow.activeElement).toBe(el)
+      host.remove()
     })
 
     it('should move focus to the container when focus sat inside a shadow root', async () => {
