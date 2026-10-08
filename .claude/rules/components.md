@@ -534,9 +534,9 @@ export interface AtomExpose {
 `Atom` calls `defineExpose<AtomExpose>({ element })` at the component level. Vue auto-unwraps refs surfaced via `defineExpose`, so consumers access the element directly — *not* through a `.value` chain:
 
 ```ts
-// packages/0/src/components/Splitter/SplitterRoot.vue:125
-const rootAtom = useTemplateRef<AtomExpose>('root')
-// rootAtom.value?.element gives the HTMLElement | null directly
+// packages/0/src/components/Tabs/TabsItem.vue:95
+const rootRef = useTemplateRef<AtomExpose>('root')
+// rootRef.value?.element gives the HTMLElement | null directly
 ```
 
 ### Consuming AtomExpose in the same SFC
@@ -549,7 +549,7 @@ const atomRef = useTemplateRef<AtomExpose>('atom')
 const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 ```
 
-- **Name the `useTemplateRef` holder** `atomRef` (single Atom) or `{role}Ref` / `{role}Atom` (multiple). It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `Image/ImageRoot.vue:93` (`atomRef`), `Splitter/SplitterRoot.vue:125` (`rootAtom`), `Tabs/TabsItem.vue:88` (`rootRef`), `Snackbar/SnackbarQueue.vue:80` (`container`). **Anti-precedent**: `Carousel/CarouselNext.vue:57`, `CarouselItem.vue:79`, `CarouselLiveRegion.vue:64` use `rootEl` for the AtomExpose holder — that name belongs to the toRef-derived element, not the ref-of-wrapper.
+- **Name the `useTemplateRef` holder** `atomRef`, or `{role}Ref` when the Atom has a named role (`root`, `container`, `viewport`). Every current holder wraps a single Atom; both forms are accepted there. It holds an `AtomExpose` wrapper, not an `HTMLElement` — never suffix it with `El`. Precedents: `atomRef` in `Image/ImageRoot.vue:93`, `Overflow/OverflowIndicator.vue:70`, `Snackbar/SnackbarRoot.vue:95` (9 SFCs); `{role}Ref` in `Tabs/TabsItem.vue:95` (`rootRef`), `Overflow/OverflowRoot.vue:77` (`containerRef`), `Carousel/CarouselViewport.vue:60` (`viewportRef`) (6 SFCs). **Anti-precedents**: `rootEl` in `Carousel/CarouselNext.vue:62`, `CarouselItem.vue:81`, `CarouselLiveRegion.vue:66` (+3 more Carousel parts) — that name belongs to the toRef-derived element, not the ref-of-wrapper; also off-convention: bare `atom` (Pagination × 7), `container` (`Snackbar/SnackbarQueue.vue:79`), `rootAtom` (`Splitter/SplitterRoot.vue:125`).
 - **Always** route the access through `toElement` (`#v0/composables/toElement`). The raw `as HTMLElement | null | undefined` cast bypasses the normalization layer that handles ref-vs-direct-element variants and is the bug-family flagged in the saved-memory `toElement-template-refs.md`.
 - **Wrap in `toRef(() => ...)`** so downstream consumers (`watch`, `useResizeObserver`, `useIntersectionObserver`, popover attach) get a reactive ref instead of a snapshot.
 - **`?? null` only — no `as HTMLElement | null` cast on the ref.** `toElement` returns `Element | undefined`. The historical pattern `as HTMLElement | null ?? null` (Image / Carousel × 4) papers over both transitions with a single misleading cast — TS thinks it's `HTMLElement | null` but the runtime value is `Element | null` after the coalesce. Drop the cast: write `toElement(...) ?? null` and let the ref be `Ref<Element | null>`. If a consumer needs HTMLElement-specific properties (`offsetWidth`, `offsetHeight`), cast at the use site (`(el.value as HTMLElement).offsetWidth`) — the boundary cast is honest about what's happening.
