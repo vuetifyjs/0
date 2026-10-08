@@ -80,7 +80,7 @@ Each reported entry carries both box models, whichever `box` you observe:
 | Property | Type | Notes |
 | - | - | - |
 | `contentRect` | `{ width, height, top, left }` | The content box — excludes padding and border |
-| `contentBoxSize` | `readonly ResizeObserverSize[]` | The content box on the logical axes (`inlineSize` / `blockSize`) |
+| `contentBoxSize` | `readonly ResizeObserverSize[] \| undefined` | The content box on the logical axes (`inlineSize` / `blockSize`). Undefined on Safari < 15.4 and Chrome < 84 |
 | `borderBoxSize` | `readonly ResizeObserverSize[] \| undefined` | The border box — content plus padding plus border. Undefined on Safari < 15.4 and Chrome < 84 |
 | `target` | `Element` | The observed element |
 
