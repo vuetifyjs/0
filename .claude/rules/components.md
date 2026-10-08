@@ -519,7 +519,7 @@ When designing a new component, run this checklist:
 
 ## AtomExpose — exposing internals from compound components
 
-Compound-component sub-components expose their underlying DOM element via `defineExpose<AtomExpose>`. The `Atom` primitive itself defines the `AtomExpose` interface, and every sub-component that wraps an `Atom` propagates it upward so parent components can read `.element` when they need the real DOM node.
+The `Atom` primitive defines the `AtomExpose` interface and is the only component that exposes it. Sub-components that wrap an `Atom` read `.element` from their own Atom ref (below); they do not re-expose `AtomExpose` to their parent. Shared elements reach the Root through registry registration instead (`ticket.el`, PHILOSOPHY §6.3).
 
 ### The `AtomExpose` interface
 
@@ -564,7 +564,7 @@ Worked precedents:
 
 ### Naming conventions for exposed methods
 
-When a sub-component exposes imperative methods alongside `AtomExpose`, follow these conventions:
+When a component exposes imperative methods, follow these conventions:
 
 - **Interface name.** `{Component}Expose` (e.g., `SplitterRootExpose`, `SplitterPanelExpose`). Exported from the SFC's regular script so the parent can import and type its template ref.
 - **Method names.** Imperative verbs: `collapse()`, `expand()`, `distribute()`. Never `onCollapse()` — `on*` is for props that accept callbacks, not for methods you call on a ref.
@@ -584,7 +584,7 @@ defineExpose<SplitterPanelExpose>({ collapse, expand, size, isCollapsed })
 
 ### When to expose
 
-- **Always** expose `AtomExpose` when the sub-component wraps an `Atom` and an outer parent might need the underlying element (focus management, roving tabindex, pointer tracking, `useResizeObserver`).
+- **Expose only when a parent or consumer actually needs it.** `defineExpose` appears in exactly three SFCs: `Atom/Atom.vue` (`AtomExpose`), `Splitter/SplitterRoot.vue` (`distribute`, `dragging`), `Splitter/SplitterPanel.vue` (`collapse`, `expand`, `size`, `isCollapsed`). Sub-components that wrap an `Atom` do not forward `AtomExpose`; when a Root needs a child's element (focus management, roving tabindex, pointer tracking, `useResizeObserver`), the child registers it as `ticket.el` (`Tabs/TabsItem.vue`, `Treeview/TreeviewItem.vue`, `Radio/RadioRoot.vue`).
 - **Add** imperative methods only when they cannot reasonably be driven by a prop or a slot — e.g., trigger an animation in response to an external event, move focus programmatically, imperatively distribute percentages across Splitter panels.
 - **Never** expose the raw reactive state directly. Always wrap consumer-visible state in `Readonly<Ref<T>>` so mutating it from outside does not corrupt the component's internal contract.
 
@@ -704,7 +704,7 @@ When uncertain, don't hook up. Adding a plugin later is a non-breaking change; r
 - [ ] `onBeforeUnmount` for deregistration, not `onUnmounted`
 - [ ] Zero utility classes; all `:style` bindings structural
 - [ ] `register()` called in setup; `unregister()` called in `onBeforeUnmount`
-- [ ] Compound sub-components propagate `AtomExpose` and add their own `{Component}Expose` interface when exposing imperative methods
+- [ ] `defineExpose` only when a parent or consumer needs it, typed with a `{Component}Expose` interface; child elements reach the Root via registration, not a forwarded `AtomExpose`
 - [ ] Same-SFC Atom element access uses `toRef(() => toElement(atomRef.value?.element) ?? null)` named `el` / `rootEl`, never a raw cast or `elementRef` name (precedent: `Overflow/OverflowIndicator.vue:68`)
 - [ ] ARIA roles, keyboard handlers, and WCAG success criteria mapped for every interactive component
 - [ ] No raw `inject` / `provide` — context always via `createContext`
