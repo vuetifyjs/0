@@ -9,7 +9,9 @@ renders a keyboard-focusable scroll container with spacers for off-screen rows
 and slots only the visible window (plus `overscan`), typed from `items`. Each
 Item measures its own border box, so variable-height rows with padding or
 borders need no manual `resize()` call. `@start-reached` / `@end-reached` drive
-infinite scroll, and the slot exposes `scrollTo(index, options)` and `reset()`.
+infinite scroll. `scrollTo(index, options)` and `reset()` come from the default
+slot or a template ref on Root, which also exposes the container `element` —
+handy for scroll controls outside the list or a `useVirtualFocus` cursor.
 
 Virtualizer imposes no role — pass `role` on Root and Item, and
 `aria-posinset` / `aria-setsize` on Item, to match your content (for grids,
