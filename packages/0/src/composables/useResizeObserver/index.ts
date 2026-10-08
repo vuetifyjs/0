@@ -57,9 +57,9 @@ import type { Ref } from 'vue'
  * @example
  * ```ts
  * useResizeObserver(el, ([entry]) => {
- *   entry.contentRect.height        // content box, excludes padding + border
- *   entry.contentBoxSize[0].blockSize   // same value, writing-mode relative
- *   entry.borderBoxSize?.[0]?.blockSize // includes padding + border
+ *   entry.contentRect.height             // content box, excludes padding + border
+ *   entry.contentBoxSize?.[0]?.blockSize // same value, writing-mode relative
+ *   entry.borderBoxSize?.[0]?.blockSize  // includes padding + border
  * }, { box: 'border-box' })
  * ```
  */
@@ -88,8 +88,11 @@ export interface ResizeObserverEntry {
    *
    * Carries the same measurement as `contentRect`, expressed on the logical
    * axes. The array mirrors the native API: one entry per box fragment.
+   *
+   * Undefined on browsers whose native entry lacks it (Safari < 15.4,
+   * Chrome < 84).
    */
-  contentBoxSize: readonly ResizeObserverSize[]
+  contentBoxSize?: readonly ResizeObserverSize[]
   target: Element
 }
 

@@ -109,7 +109,7 @@ describe('useResizeObserver box model', () => {
     for (const entry of [border, content]) {
       expect(entry.contentRect.width).toBe(CONTENT.inlineSize)
       expect(entry.contentRect.height).toBe(CONTENT.blockSize)
-      expect(size(entry.contentBoxSize[0])).toEqual(CONTENT)
+      expect(size(entry.contentBoxSize![0])).toEqual(CONTENT)
       expect(size(entry.borderBoxSize![0])).toEqual(BORDER)
     }
   })
@@ -119,8 +119,8 @@ describe('useResizeObserver box model', () => {
     const entry = await next()
 
     // 16px padding + 1px border on each inline edge, 4px + 1px on each block edge
-    expect(entry.borderBoxSize![0]!.inlineSize - entry.contentBoxSize[0]!.inlineSize).toBe(34)
-    expect(entry.borderBoxSize![0]!.blockSize - entry.contentBoxSize[0]!.blockSize).toBe(10)
+    expect(entry.borderBoxSize![0]!.inlineSize - entry.contentBoxSize![0]!.inlineSize).toBe(34)
+    expect(entry.borderBoxSize![0]!.blockSize - entry.contentBoxSize![0]!.blockSize).toBe(10)
     expect(entry.contentRect.height).not.toBe(entry.borderBoxSize![0]!.blockSize)
   })
 
@@ -128,7 +128,7 @@ describe('useResizeObserver box model', () => {
     const { next } = observe(element(`${OUT_OF_FLOW} width: 120px; height: 60px;`))
     const entry = await next()
 
-    expect(size(entry.contentBoxSize[0])).toEqual({ inlineSize: 120, blockSize: 60 })
+    expect(size(entry.contentBoxSize![0])).toEqual({ inlineSize: 120, blockSize: 60 })
     expect(size(entry.borderBoxSize![0])).toEqual({ inlineSize: 120, blockSize: 60 })
   })
 
@@ -143,7 +143,7 @@ describe('useResizeObserver box model', () => {
     const entry = await next()
 
     expect(entry.borderBoxSize![0]!.blockSize).toBe(80)
-    expect(entry.contentBoxSize[0]!.blockSize).toBe(70)
+    expect(entry.contentBoxSize![0]!.blockSize).toBe(70)
   })
 
   it('should synthesize an immediate entry matching what the observer reports', async () => {
@@ -154,7 +154,7 @@ describe('useResizeObserver box model', () => {
     const observed = await next()
 
     expect(size(immediate.borderBoxSize![0])).toEqual(size(observed.borderBoxSize![0]))
-    expect(size(immediate.contentBoxSize[0])).toEqual(size(observed.contentBoxSize[0]))
+    expect(size(immediate.contentBoxSize![0])).toEqual(size(observed.contentBoxSize![0]))
     expect(immediate.contentRect).toEqual(observed.contentRect)
     expect(immediate.contentRect).toEqual({ width: 166, height: 30, top: 4, left: 16 })
   })
