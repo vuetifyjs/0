@@ -27,10 +27,10 @@
 
     <AppLink v-else class="relative block hover:bg-surface-tint transition-colors" no-suffix to="/sponsor">
       <div class="mx-auto max-w-[900px] px-4 py-4 text-center">
-        <p>
+        <p class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
           <span class="section-overline">PRIMARY SPONSOR</span>
-          <span class="ml-2 text-on-surface-variant">·</span>
-          <span class="ml-2 text-sm"><AppRainbowText :delay="3">This spot is available</AppRainbowText></span>
+          <span class="text-on-surface-variant max-sm:hidden">·</span>
+          <span class="text-sm whitespace-nowrap"><AppRainbowText :delay="3">This spot is available</AppRainbowText></span>
         </p>
       </div>
     </AppLink>

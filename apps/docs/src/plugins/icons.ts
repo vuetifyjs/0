@@ -199,6 +199,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
         'M20 4Q8.5 8.5 4 20Q15.5 15.5 20 4Z',
       ],
     },
+    // Bulma mark (simple-icons), 24×24
+    'theme-bulma': 'M11.25 0l-6 6-1.5 10.5 7.5 7.5 9-6-6-6 4.5-4.5-7.5-7.5Z',
     'arrow-left': mdiArrowLeft,
     'arrow-right': mdiArrowRight,
     'plus': mdiPlus,

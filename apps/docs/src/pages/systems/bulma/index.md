@@ -37,6 +37,8 @@ Bulma tells you to bring your own JavaScript. This package is that JavaScript.
 
 <DocsPageFeatures :frontmatter />
 
+<DocsSystemActivator palette="bulma" />
+
 Bulma is a CSS framework — it ships the `.modal`, `.dropdown` and `.navbar` styles and stops there, leaving every open, close, dismiss and keyboard interaction to you. `@paper/bulma` fills that gap: each component renders the markup Bulma documents, against the `bulma.css` you already load, with [Vuetify0](/) supplying behavior, focus management and accessibility.
 
 Nothing about your stylesheet changes. There is no theme to adopt, no class prefix to learn, and no CSS in the package.

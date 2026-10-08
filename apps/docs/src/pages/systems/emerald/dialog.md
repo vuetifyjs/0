@@ -57,7 +57,7 @@ The activator has one prop worth knowing before you write your first dialog. By 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmDialog` maps onto v0's [Dialog](/components/disclosure/dialog) compound: `Dialog.Root`, `Dialog.Activator`, `Dialog.Content`, `Dialog.Title`, `Dialog.Description` and `Dialog.Close`.
 

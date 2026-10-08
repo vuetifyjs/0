@@ -49,7 +49,7 @@ There is nothing to position in JavaScript and nothing to teleport. The panel es
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 Each part maps one-to-one onto v0's [Popover](/components/disclosure/popover) compound — `Popover.Root`, `Popover.Activator`, `Popover.Content`. v0 supplies the state, the `popovertarget` and `popover` wiring, the ARIA attributes and the anchor plumbing; Emerald supplies the panel's skin — the bordered, elevated `.emerald-popover` surface on its spacing and radius tokens — and an open transition (a fade and 4px drop into place) built on `@starting-style` and discrete transitions so the native display toggle animates.
 

@@ -15,6 +15,7 @@
   <EmPagination
     v-slot="{ items, pageStart, pageStop, size }"
     v-model="page"
+    class="emerald-docs-pagination"
     :items-per-page="8"
     :size="87"
   >
@@ -33,6 +34,15 @@
 </template>
 
 <style>
+  .emerald-docs-pagination {
+    max-width: 100%;
+  }
+
+  .emerald-docs-pagination .emerald-pagination__nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .emerald-docs-summary {
     margin-right: var(--emerald-spacing-s, 12px);
     color: var(--emerald-on-surface-variant, #757e85);

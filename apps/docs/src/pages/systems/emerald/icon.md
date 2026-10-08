@@ -2,7 +2,7 @@
 title: EmIcon - Emerald Icons for Vue
 meta:
 - name: description
-  content: Emerald's icon set, addressed by role rather than by drawing — 48 glyphs answering to 72 names, resolved through a v0 token registry, decorative by default.
+  content: Emerald's icon set, addressed by role rather than by drawing — 48 glyphs answering to 72 names, resolved through a Vuetify0 token registry, decorative by default.
 - name: keywords
   content: emerald icon, vue icons, icon roles, design system icons, svg icons vue, createTokens
 features:
@@ -45,9 +45,9 @@ The set is deliberately small. 48 drawings answer to 72 names, because 24 of tho
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-There is no v0 icon component; `EmIcon` is built on a v0 **composable** instead. The registry is a [createTokens](/composables/registration/create-tokens) instance, and resolution is `createTokens`' own alias dereferencing rather than anything Emerald wrote.
+There is no v0 icon component; `EmIcon` is built on a Vuetify0 **composable** instead. The registry is a [createTokens](/composables/registration/create-tokens) instance, and resolution is `createTokens`' own alias dereferencing rather than anything Emerald wrote.
 
 That is what makes the alias table free. `createTokens` resolves `{role}` references at read time, so an alias is stored as the literal string `{envelope}` and dereferenced when it is asked for. `mail` and `envelope` are two entries pointing at one array of path data, and adding your own is the same one-line shape.
 

@@ -6,17 +6,18 @@ Every patch is documented below with **what** it changes and **why** — patches
 
 > **These patch built `dist/` files, not source.** They are pinned to an exact version and will fail to apply the moment the dependency is bumped. On any upgrade of a patched package: re-run `pnpm patch`, re-verify each change below still applies (or is now fixed upstream and can be dropped), and update the version in `pnpm-workspace.yaml`.
 
-## `@vue/repl@4.7.1`
+## `@vue/repl@4.7.2`
 
-Powers the docs Playground. Three changes, all to embed the REPL cleanly in our docs shell:
+Powers the docs Playground. Four changes, all to embed the REPL cleanly in our docs shell:
 
-1. **Stop the editor stealing focus** (`dist/monaco-editor.js`) — removes the `editorInstance.focus()` call fired after restoring editor view state, so mounting/restoring the Playground no longer yanks focus into the code editor.
-2. **Silence a spurious inject warning** (`dist/vue-repl.js`) — `inject(injectKeyProps)` → `inject(injectKeyProps, void 0)`. The code immediately below already handles the `undefined` case; supplying an explicit default stops Vue warning "injection not found" when the REPL is used standalone.
-3. **Add a "hide output panel" capability** (`dist/vue-repl.js`) — wraps the `Output` component render in `props.store.showOutput !== false ? … : createCommentVNode()`, letting the store conditionally hide the preview/output pane. Not supported by upstream 4.7.1; drives the Playground's panel toggle.
+1. **Dispose `node_modules` Monaco models on language-tools reload** (`dist/monaco-editor.js`) — when `reloadLanguageTools` runs, drop cached `file:///node_modules` models so dts re-fetch isn't served from stale in-memory copies.
+2. **Stop the editor stealing focus** (`dist/monaco-editor.js`) — removes the `editorInstance.focus()` call fired after restoring editor view state, so mounting/restoring the Playground no longer yanks focus into the code editor.
+3. **Silence a spurious inject warning** (`dist/vue-repl.js`) — `inject(injectKeyProps)` → `inject(injectKeyProps, void 0)` on the Repl/Sandbox auto-init path. The code already handles the `undefined` case; supplying an explicit default stops Vue warning "injection not found" when the REPL is used standalone.
+4. **Add a "hide output panel" capability** (`dist/vue-repl.js`) — wraps the `Output` component render in `props.store.showOutput !== false ? … : createCommentVNode()`, letting the store conditionally hide the preview/output pane. Upstream 4.7.2 added `showOutput` on the store (default `false`) but still always renders `Output`; this wrap is what the Playground's panel toggle needs.
 
-Introduced in `886b7cde` (2026-02-22), _docs(playground): add nav entry, back button, theme toggle, and panel toggle_. The `showOutput` change backs the "panel toggle" in that commit.
+Introduced in `886b7cde` (2026-02-22), _docs(playground): add nav entry, back button, theme toggle, and panel toggle_. Re-applied on 4.7.2.
 
-**On upgrade:** check whether upstream has added a `showOutput` (or equivalent) store option and a way to suppress editor auto-focus — if so, drop the patch and use the native API.
+**On upgrade:** drop hunks that land upstream. `showOutput` exists on the store now but is still unused in the Repl render — keep hunk 4 until that changes. Same for auto-focus and the inject default.
 
 ## `vite-ssg@28.3.0`
 

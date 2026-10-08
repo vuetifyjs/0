@@ -1152,7 +1152,7 @@ async function part (name: string) {
   let el: HTMLElement | null = null
 
   await vi.waitFor(() => {
-    el = document.querySelector(`[data-part="${name}"]`) as HTMLElement | null
+    el = document.querySelector(`[data-part="${CSS.escape(name)}"]`) as HTMLElement | null
     expect(el).not.toBeNull()
   })
 

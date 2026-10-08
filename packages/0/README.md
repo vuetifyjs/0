@@ -1,9 +1,9 @@
-<div align="center">
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
     <img alt="Vuetify Zero Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
   </picture>
-</div>
+</p>
 
 <p align="center">
   <a href="https://codecov.io/github/vuetifyjs/0">
@@ -68,6 +68,35 @@ yarn add @vuetify/v0
 # or
 bun add @vuetify/v0
 ```
+
+## CLI
+
+The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
+
+### Create a Project
+
+```bash
+pnpm create vuetify0
+# or
+pnpm dlx @vuetify/cli init
+```
+
+### Seed Examples
+
+v0 is headless — importing a component gives you logic and accessibility, not a rendered UI. Use `vuetify add` to pull a styled example from the [docs registry](https://0.vuetifyjs.com/registry/index.json) into your project:
+
+```bash
+# Interactive picker
+pnpm dlx @vuetify/cli add
+
+# Seed a specific component
+pnpm dlx @vuetify/cli add dialog
+
+# Seed a composable plugin
+pnpm dlx @vuetify/cli add use-theme
+```
+
+See the [CLI guide](https://0.vuetifyjs.com/guide/tooling/vuetify-cli) for registry options, `vuetify.json` tracking, and the full command list.
 
 ## Exports
 

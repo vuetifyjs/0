@@ -61,13 +61,13 @@ The split between Link and Page is the one to get right. Every crumb except the 
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-Every part is a thin skin over the matching part of v0's [Breadcrumbs](/components/semantic/breadcrumbs) compound — `EmBreadcrumbs` renders `Breadcrumbs.Root`, `EmBreadcrumbsItem` renders `Breadcrumbs.Item`, and so on down the list. Each Emerald part adds a class and Emerald's tokens; the behavior is all v0's.
+Every part is a thin skin over the matching part of Vuetify0's [Breadcrumbs](/components/semantic/breadcrumbs) compound — `EmBreadcrumbs` renders `Breadcrumbs.Root`, `EmBreadcrumbsItem` renders `Breadcrumbs.Item`, and so on down the list. Each Emerald part adds a class and Emerald's tokens; the behavior is all v0's.
 
 That split matters most for the overflow machinery. `Breadcrumbs.Root` measures every item and divider, reserves room for the first crumb, its divider and the ellipsis, and hides middle crumbs from the start of the trail when they stop fitting — which is why the root crumb and the current page are the last things to go. A hidden crumb is not unmounted: v0 keeps it in the DOM with `display: none` and `inert`, so it stays registered and reappears the moment the container grows. Emerald writes none of that logic; it inherits it by rendering the parts.
 
-Emerald pins each part's element rather than forwarding v0's `as` and `renderless` props: the root is a `nav`, the list an `ol`, items, dividers and the ellipsis are `li`, links are real anchors and the page is a `span`. One v0 part has no Emerald wrapper: `Breadcrumbs.Activator`, the disclosure button that makes a collapsed trail expandable. The Emerald parts provide and consume the same default context as v0's, so the v0 part can be dropped inside an `EmBreadcrumbsEllipsis` directly when you need that behavior.
+Emerald pins each part's element rather than forwarding v0's `as` and `renderless` props: the root is a `nav`, the list an `ol`, items, dividers and the ellipsis are `li`, links are real anchors and the page is a `span`. One v0 part has no Emerald wrapper: `Breadcrumbs.Activator`, the disclosure button that makes a collapsed trail expandable. The Emerald parts provide and consume the same default context as v0's, so the Vuetify0 part can be dropped inside an `EmBreadcrumbsEllipsis` directly when you need that behavior.
 
 ## Examples
 
@@ -126,7 +126,7 @@ The root's default slot forwards v0's slot props — `isOverflowing`, `capacity`
 
 ## Accessibility
 
-The semantics come from v0's parts, and they follow the WAI-ARIA breadcrumb pattern.
+The semantics come from Vuetify0's parts, and they follow the WAI-ARIA breadcrumb pattern.
 
 - `EmBreadcrumbs` renders a `nav` landmark. Its `aria-label` is the `label` prop when given, then the `Breadcrumbs.label` locale key if v0's Locale plugin resolves one, then the English default.
 - `EmBreadcrumbsList` renders an `ol` with an explicit `role="list"`, so the trail is announced as a list with a length.

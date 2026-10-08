@@ -45,7 +45,7 @@ A linear progress bar for uploads, tasks and syncs — determinate or indetermin
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmProgress` renders v0's [Progress](/components/semantic/progress) compound — `Progress.Root`, `Progress.Label`, `Progress.Value`, `Progress.Track` and `Progress.Fill`.
 
@@ -72,9 +72,9 @@ Pick by prominence, not importance. `sm` belongs inside dense surfaces — a tab
 
 ### Indeterminate
 
-`indeterminate` is for waits with no measurable progress — connecting, syncing, waiting on a server. The fill becomes a fixed-width segment sweeping the track, and the percentage readout is hidden even when `show-value` is set, because there is no value to read. On a bar with no committed value — mounted indeterminate, or still at `0` — v0 reports the matching ARIA state too: `aria-busy` set, `aria-valuenow` dropped.
+`indeterminate` is for waits with no measurable progress — connecting, syncing, waiting on a server. The fill becomes a fixed-width segment sweeping the track, and the percentage readout is hidden even when `show-value` is set, because there is no value to read. On a bar with no committed value — mounted indeterminate, or still at `0` — Vuetify0 reports the matching ARIA state too: `aria-busy` set, `aria-valuenow` dropped.
 
-The prop is designed to be flipped on a bar whose `v-model` stays bound. While it is `true`, `EmProgress` withholds new values from v0 and ignores the model updates v0 echoes back, so you can leave the binding in place, turn `indeterminate` on while a request is in flight, and turn it off the moment real numbers start arriving — the bar picks up at whatever the model says. One caveat: withholding does not clear a value v0 has already committed, so a bar flipped to `indeterminate` after reporting real progress keeps its last `aria-valuenow` — the sweep there is Emerald's visual layer only. Flip the prop on before progress starts and the ARIA state is fully indeterminate as well.
+The prop is designed to be flipped on a bar whose `v-model` stays bound. While it is `true`, `EmProgress` withholds new values from Vuetify0 and ignores the model updates v0 echoes back, so you can leave the binding in place, turn `indeterminate` on while a request is in flight, and turn it off the moment real numbers start arriving — the bar picks up at whatever the model says. One caveat: withholding does not clear a value Vuetify0 has already committed, so a bar flipped to `indeterminate` after reporting real progress keeps its last `aria-valuenow` — the sweep there is Emerald's visual layer only. Flip the prop on before progress starts and the ARIA state is fully indeterminate as well.
 
 > [!NOTE]
 > Zero is indeterminate too. v0 derives the indeterminate state from its segment values, and a lone fill at exactly `0` counts as "no progress yet" — so a bar whose model is `0` reports `aria-busy`, drops `aria-valuenow`, and picks up the sweep animation just as if the prop were set. Treat `0` as "not started" rather than "0% done", and seed the model with a small value once work actually begins.
@@ -98,7 +98,7 @@ The range always starts at zero — there is no `min` prop. And the Reset button
 |------|------|---------|-------------|
 | `v-model` | `number` | — | Current value, from `0` to `max` |
 | `max` | `number` | `100` | Upper bound of the range. The lower bound is always `0` |
-| `indeterminate` | `boolean` | `false` | Unknown-duration wait. Animates the fill sweep, hides the value readout, and withholds model updates from v0 while active |
+| `indeterminate` | `boolean` | `false` | Unknown-duration wait. Animates the fill sweep, hides the value readout, and withholds model updates from Vuetify0 while active |
 | `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Track height — 4, 8 or 12px. Label and value type steps are unaffected |
 | `showValue` | `boolean` | `false` | Renders the rounded percentage in the meta row. Hidden while indeterminate |
 | `label` | `string` | — | Visible label in the meta row; becomes the accessible name via `aria-labelledby` |

@@ -28,8 +28,8 @@
   const projectCopied = shallowRef(false)
 
   const {
-    currentId: oneId,
     currentTitle: oneTitle,
+    isLinked,
     saving: oneSaving,
     autosaveEnabled,
   } = useOnePlaygrounds()
@@ -153,20 +153,20 @@
 
       <AppTooltip
         :aria-busy="oneSaving || undefined"
-        :aria-label="oneId
+        :aria-label="isLinked
           ? (oneSaving
-            ? 'Syncing to Vuetify One'
+            ? `Syncing to Vuetify One: ${oneTitle}`
             : autosaveEnabled
               ? `Auto-saving to One: ${oneTitle}`
               : `Linked to One (auto-save off): ${oneTitle}`)
-          : 'Save to Vuetify One'"
-        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="oneSaving || oneId ? 'opacity-80' : 'opacity-50'"
+          : 'Local, Save to Vuetify One'"
+        class="pa-1 inline-flex items-center gap-1 rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="oneSaving || isLinked ? 'opacity-80' : 'opacity-50'"
         :disabled="oneSaving"
         position-area="bottom"
         :text="oneSaving
           ? 'Syncing…'
-          : oneId
+          : isLinked
             ? (autosaveEnabled
               ? `Auto-save on · ${oneTitle}`
               : `Auto-save off · ${oneTitle}`)
@@ -174,11 +174,13 @@
         @click="onOneClick"
       >
         <AppIcon
-          :class="oneId && !autosaveEnabled && !oneSaving ? 'opacity-50' : ''"
-          :icon="oneId
+          :class="isLinked && !autosaveEnabled && !oneSaving ? 'opacity-50' : ''"
+          :icon="isLinked
             ? (oneSaving ? 'cloud-sync' : 'cloud-check')
             : 'save'"
         />
+
+        <span class="hidden sm:inline-block max-w-32 truncate text-xs">{{ isLinked ? oneTitle : 'Local' }}</span>
       </AppTooltip>
 
       <AppTooltip

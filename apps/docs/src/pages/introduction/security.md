@@ -91,8 +91,8 @@ flowchart LR
 | Threat | Reason |
 |--------|--------|
 | XSS from user content | Consumer's responsibility to sanitize before passing to v0 |
-| Authentication / authorization | v0 has no auth layer |
-| Server-side code execution | v0 has no dynamic code execution; SSR rendering is stateless and read-only |
+| Authentication / authorization | Vuetify0 has no auth layer |
+| Server-side code execution | Vuetify0 has no dynamic code execution; SSR rendering is stateless and read-only |
 | Issues in consumer applications | v0 controls only what it exports |
 
 ### Supply Chain Hardening
@@ -112,7 +112,7 @@ These measures protect the integrity of `@vuetify/v0` from source to consumer:
 
 These properties are verified in the codebase:
 
-- **No network requests** — v0 makes no HTTP calls; the Knock notification adapter is opt-in only
+- **No network requests** — Vuetify0 makes no HTTP calls; the Knock notification adapter is opt-in only
 - **No dynamic code evaluation** — no runtime code generation or arbitrary script execution
 - **Prototype pollution protection** — `mergeDeep` blocks `__proto__`, `constructor`, and `prototype` keys
 - **CSS injection protection** — Theme adapters validate theme names and color keys against a safe identifier pattern (`[a-zA-Z0-9_-]`), and reject color values containing dangerous CSS patterns. The browser adapter uses `adoptedStyleSheets` (no DOM parsing); SSR adapters use `innerHTML` on `<style>` tags only

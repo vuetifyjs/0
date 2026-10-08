@@ -167,6 +167,8 @@ export function useOnePlaygrounds () {
     // SSR or outside component context
   }
 
+  const isLinked = toRef(() => !isUndefined(currentId.value))
+
   const isOwner = toRef(() => {
     if (!currentId.value || !currentOwner.value) return false
     return _auth?.user?.id === currentOwner.value
@@ -565,6 +567,7 @@ export function useOnePlaygrounds () {
 
   return {
     currentId,
+    isLinked,
     currentTitle,
     currentMeta,
     currentOwner,

@@ -276,7 +276,7 @@ class WindowFeaturesAdapter extends FeaturesAdapter {
 The adapter pattern decouples feature flags from the underlying provider.
 
 ```mermaid "Adapter Data Flow"
-flowchart LR
+flowchart TD
   subgraph Setup
     plugin[createFeaturesPlugin]
     adapter[Adapter]

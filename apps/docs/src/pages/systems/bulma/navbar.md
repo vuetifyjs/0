@@ -52,7 +52,7 @@ Compose three parts: `BuNavbar` renders `nav.navbar` and owns the open state, `B
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuNavbar` owns a boolean `v-model` — the burger/menu open state — and provides it through the package context `bulma:navbar`. That is a Toggle-shaped model, not a disclosure compound.
 

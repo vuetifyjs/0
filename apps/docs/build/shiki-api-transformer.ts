@@ -21,7 +21,7 @@ import type { ShikiTransformer } from 'shiki'
 
 // Component pattern: Namespace.Part (e.g., Popover.Root, ExpansionPanel.Group)
 // Tokens come through as combined strings like "Popover.Root"
-const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.([A-Z][a-zA-Z]*))?$/
+const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.[A-Z][a-zA-Z]*)?$/
 
 // Trinity return values that map to their factory function
 // createContext returns [useContext, provideContext]

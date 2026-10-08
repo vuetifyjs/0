@@ -53,11 +53,11 @@ The prop worth reading twice is `size`. It is the total number of **items**, not
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `EmPagination` renders v0's [Pagination](/components/semantic/pagination) compound — `Pagination.Root`, `Pagination.Item`, `Pagination.Next` and `Pagination.Prev` — inside an Emerald shell.
 
-The split is clean: v0 owns everything that thinks, Emerald owns everything that shows. The page model and its clamping, the window math that decides which page numbers are visible and where the ellipses go, the boundary logic that disables Prev on page one and Next on the last page, and the localized `aria-label` on every control all come from `Pagination.Root` and its parts. Emerald contributes the wrapping element, the flex layout and gap, and a stylesheet that hangs entirely off the `data-selected` and `data-disabled` attributes v0 already emits — Emerald never writes a state class of its own.
+The split is clean: v0 owns everything that thinks, Emerald owns everything that shows. The page model and its clamping, the window math that decides which page numbers are visible and where the ellipses go, the boundary logic that disables Prev on page one and Next on the last page, and the localized `aria-label` on every control all come from `Pagination.Root` and its parts. Emerald contributes the wrapping element, the flex layout and gap, and a stylesheet that hangs entirely off the `data-selected` and `data-disabled` attributes Vuetify0 already emits — Emerald never writes a state class of its own.
 
 One consequence of that split is the responsive default. When `totalVisible` is unset, `Pagination.Root` measures its container and the rendered buttons and computes how many page buttons actually fit, subtracting the space the navigation controls occupy; during SSR and before the first measurement it falls back to seven. Set `totalVisible` and the window is capped at that count instead — the measurement still applies, so the cap never forces an overflow.
 
@@ -139,7 +139,7 @@ Everything is a native button, so activation is the platform's: Enter and Space 
 
 ### Announcing the page change
 
-Selecting a page updates `aria-current` on the buttons, but nothing announces the new content — there is no live region in the component. When the paged content replaces itself in place, pair the pagination with a visible range summary (as in the example above) or move focus to the updated region, so a screen-reader user gets confirmation that the click did something. v0 ships a `Pagination.Status` part for exactly this; Emerald has no skin for it yet.
+Selecting a page updates `aria-current` on the buttons, but nothing announces the new content — there is no live region in the component. When the paged content replaces itself in place, pair the pagination with a visible range summary (as in the example above) or move focus to the updated region, so a screen-reader user gets confirmation that the click did something. Vuetify0 ships a `Pagination.Status` part for exactly this; Emerald has no skin for it yet.
 
 ### Focus
 

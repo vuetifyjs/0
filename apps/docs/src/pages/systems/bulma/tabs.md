@@ -52,7 +52,7 @@ Bulma's `.tabs` with selection and panels — the JavaScript and the tabpanels t
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
 `BuTabs` maps onto v0's [Tabs](/components/disclosure/tabs) compound: `Tabs.Root`, `Tabs.List`, `Tabs.Item` and `Tabs.Panel`.
 

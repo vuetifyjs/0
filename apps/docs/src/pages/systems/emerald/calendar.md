@@ -61,13 +61,13 @@ Arrange the parts however the surface needs. Nothing is required except the root
 </template>
 ```
 
-## Composed on v0
+## Composed on Vuetify0
 
-This is the one pilot component that does **not** wrap a v0 compound, because v0 does not have a calendar yet.
+This is the one pilot component that does **not** wrap a Vuetify0 compound, because v0 does not have a calendar yet.
 
 Underneath `EmCalendar` is a `createCalendar` core — the cursor, the 42-cell matrix, the ISO arithmetic and the clamping — that lives inside Emerald as a private module and is not exported from any barrel. It is [incubating here ahead of graduating to v0](/composables/), where it will become a public composable; Emerald is its first consumer, and building it against a real design system first is how its API gets found before it is frozen.
 
-That does not make the component v0-free. The core is built from v0 primitives, the parts talk to each other through v0's `createContext`, `EmCalendarTitle` renders v0's `Atom` so its heading level is a prop, and `EmCalendarGrid` reads `useRtl` — which is why the horizontal arrow keys swap direction in a right-to-left locale rather than moving the wrong way.
+That does not make the component v0-free. The core is built from Vuetify0 primitives, the parts talk to each other through v0's `createContext`, `EmCalendarTitle` renders v0's `Atom` so its heading level is a prop, and `EmCalendarGrid` reads `useRtl` — which is why the horizontal arrow keys swap direction in a right-to-left locale rather than moving the wrong way.
 
 Localization is optional and pluggable: the component reads v0's date plugin if one is installed, and falls back to `Intl` when it is not. Install [useDate](/composables/plugins/use-date) and the month names, weekday names and first-day-of-week follow the adapter.
 

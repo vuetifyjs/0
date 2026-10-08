@@ -11,7 +11,7 @@ Scope-specific mechanics for `apps/docs/**`. Covers page types, frontmatter, int
 - §2.1 Headless contract — applies to example files (utility classes are allowed in examples, forbidden in source)
 - §3.5 Slot conventions (`v-bind="attrs"` double-fire hazard)
 - §3.6 Boolean data attributes (data-driven examples)
-- §5.5 Locale-first strings
+- §5.5 Locale-first strings (translatable copy through `useLocale`; ARIA role tokens stay as spec strings)
 
 Cross-cutting authoring patterns (data-attribute styling in examples, composable-instance naming, renderless toggle) are defined in `components.md` and `composables.md` — this file scopes to docs-page mechanics only.
 

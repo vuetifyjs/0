@@ -139,9 +139,9 @@ Skip `@example` only for trivial types whose example would just restate the type
 | `computed(() => ...)` | Derived state: filtering, mapping, aggregation. Only when caching matters. [intent:127] |
 | `toRef(() => ...)` | Default derivation: simple property access, ternaries, cheap composition. [intent:128] |
 | `ref(value)` | Mutable objects/arrays that need deep tracking. [intent:129] |
-| `readonly()` / `shallowReadonly()` | Plugin singletons exposed to consumers. [intent:130] |
+| `readonly()` / `shallowReadonly()` | Plugin singletons **and their fallbacks**. [intent:130] |
 
-**Rule.** Registry collections stay mutable; plugin singletons get readonly wrapping. [intent:131, PHILOSOPHY §4.2]
+**Rule.** Registry collections stay mutable; plugin singletons get readonly wrapping at runtime (`shallowReadonly`). Factory composables type `Readonly<Ref<T>>` and return the bare ref — that is the §8.3 factory shape, not a leak. Canonical wrap: `createReducedMotionFallback`. [intent:131, PHILOSOPHY §4.2 / §8.3]
 
 ## Options Reactivity (100% enforced)
 
@@ -152,6 +152,8 @@ Skip `@example` only for trivial types whose example would just restate the type
 | Reactive logic (keys, filters) | `MaybeRefOrGetter<T>` | `keys?: MaybeRefOrGetter<string[]>` [intent:134] |
 
 When destructuring the options object, the rest variable is `options`, never `modelOptions` or `registryOptions`. [intent:287]
+
+When the required input is a `Ref` that belongs with the rest of a field's config (`createInput`, `createValidation`), the bag is the signature — `createInput(options)` with `value: Ref<T>` inside. Do not split that positional-first (PHILOSOPHY §3.2).
 
 ```ts
 // Right
@@ -566,6 +568,7 @@ If you skip the calls in uniform mode (treating it as "items don't need to measu
 - [ ] Options destructured as `options` rest var with literal defaults
 - [ ] Extension via `{ ...parent, newProperty }`, never override
 - [ ] Reactive primitive matches §4.1 table (`toRef` default, `computed` for expensive)
+- [ ] Plugin singletons and fallbacks wrap consumer refs with `shallowReadonly`; factory `Readonly<Ref<T>>` returns stay type-only
 - [ ] UI-state options are `MaybeRefOrGetter<T>`, config options plain `T`
 - [ ] Error handling uses three-way split (throw/warn/return)
 - [ ] DOM observers/listeners clean up in `onScopeDispose`

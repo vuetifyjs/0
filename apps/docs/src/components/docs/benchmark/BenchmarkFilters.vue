@@ -19,9 +19,9 @@
   }>()
 
   const emit = defineEmits<{
-    'update:searchQuery': [value: string]
+    'update:search-query': [value: string]
     'toggle-tier': [tier: Tier]
-    'update:sortBy': [value: 'hz' | 'mean' | 'rme']
+    'update:sort-by': [value: 'hz' | 'mean' | 'rme']
     'clear-filters': []
     'toggle-expand': []
   }>()
@@ -55,7 +55,7 @@
           ? 'border-primary text-primary bg-primary/10 opacity-100'
           : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
         role="radio"
-        @click="emit('update:sortBy', opt.value)"
+        @click="emit('update:sort-by', opt.value)"
       >
         <AppIcon v-if="sortBy === opt.value" icon="sort" :size="12" />
         {{ opt.label }}
@@ -104,7 +104,7 @@
         class="flex-1"
         :model-value="searchQuery"
         placeholder="Search benchmarks..."
-        @update:model-value="emit('update:searchQuery', $event)"
+        @update:model-value="emit('update:search-query', $event)"
       />
 
       <button

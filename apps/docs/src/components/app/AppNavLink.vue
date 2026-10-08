@@ -145,7 +145,7 @@
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
         :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
+        class="size-5 media-[(pointer:coarse)]:size-6 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
         type="button"
         @click.stop="onToggle"
       >
@@ -157,7 +157,7 @@
       </button>
 
       <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
-      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
+      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 media-[(pointer:coarse)]:w-6 shrink-0 flex items-center justify-center text-divider">–</span>
 
       <!-- External link -->
       <Atom
@@ -220,10 +220,10 @@
 
     <!-- Children (conditional when collapsible, always visible otherwise) -->
     <Transition :name="expandTransition" @after-enter="onAfterExpand">
-      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="childrenIndent">
+      <div v-if="hasChildren && isOpen" class="grid mt-1 md:mt-2" :class="childrenIndent">
         <ul
           :id="`nav-section-${id}`"
-          class="flex flex-col gap-2 overflow-hidden"
+          class="flex flex-col gap-1 md:gap-2 overflow-hidden"
         >
           <template v-for="childId in childIds" :key="childId">
             <AppNavLink

@@ -11,7 +11,7 @@
 
   const props = defineProps<MyTabsProps>()
   const emit = defineEmits<{
-    'update:modelValue': [value: string | number | undefined]
+    'update:model-value': [value: string | number | undefined]
   }>()
 
   const uid = useId()
@@ -33,7 +33,7 @@
 
   // Emit changes
   tabs.on('select', ({ id }) => {
-    emit('update:modelValue', id)
+    emit('update:model-value', id)
   })
 
   function onKeydown (event: KeyboardEvent) {

@@ -36,7 +36,7 @@ const copy: Record<string, Copy> = {
 }
 
 function target (id: string) {
-  return document.querySelector(`[data-tour-root="sequencer"] [data-tour="${id}"]`)
+  return document.querySelector(`[data-tour-root="sequencer"] [data-tour="${CSS.escape(id)}"]`)
 }
 
 export function useOnboarding () {
