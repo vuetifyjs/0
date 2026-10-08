@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 // Context
 import { provideVirtualizerRoot, useVirtualizerRoot } from './VirtualizerRoot.vue'
@@ -267,15 +267,11 @@ describe('virtualizer', () => {
     expect(keys.toSorted()).toEqual(['items', 'reset', 'scrollTo'])
   })
 
+  // eslint-disable-next-line vitest/expect-expect -- asserted by typecheck
   it('should only accept pixel values for itemHeight', () => {
     // createVirtual parses itemHeight as a float, so a unit string like
-    // "2.5rem" would silently read as 2.5px
-    const valid: VirtualizerRootProps[] = [{ itemHeight: 40 }, { itemHeight: '40' }, { itemHeight: null }]
-    // @ts-expect-error unit strings are not pixels
-    const invalid: VirtualizerRootProps = { itemHeight: '2.5rem' }
-
-    expect(valid).toHaveLength(3)
-    expect(invalid.itemHeight).toBe('2.5rem')
+    // "2.5rem" would silently read as 2.5px. Enforced by typecheck.
+    expectTypeOf<VirtualizerRootProps['itemHeight']>().toEqualTypeOf<number | `${number}` | null | undefined>()
   })
 
   it('should size the scroll container from the height prop', () => {
