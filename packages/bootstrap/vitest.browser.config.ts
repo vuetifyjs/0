@@ -9,7 +9,19 @@ import { defineConfig } from 'vitest/config'
 // all specific to that package's interaction tests. Markup conformance needs
 // none of it; reduced motion is covered by the provider contextOptions below.
 export default defineConfig({
+  // v0 source sits outside this package root. Without a single Vue, Atom's
+  // useTemplateRef sees the other copy's frozen refs object and throws.
+  optimizeDeps: {
+    include: ['vue'],
+  },
   resolve: {
+    dedupe: [
+      'vue',
+      '@vue/runtime-core',
+      '@vue/runtime-dom',
+      '@vue/reactivity',
+      '@vue/shared',
+    ],
     alias: {
       '@paper/bootstrap': fileURLToPath(new URL('src', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../0/src', import.meta.url)),
