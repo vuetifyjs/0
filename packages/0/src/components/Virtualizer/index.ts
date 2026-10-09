@@ -4,7 +4,7 @@ export { provideVirtualizerRoot, useVirtualizerRoot } from './VirtualizerRoot.vu
 export { default as VirtualizerRoot } from './VirtualizerRoot.vue'
 
 export type { VirtualizerItemProps } from './VirtualizerItem.vue'
-export type { VirtualizerRootContext, VirtualizerRootExpose, VirtualizerRootProps, VirtualizerRootSlotProps } from './VirtualizerRoot.vue'
+export type { VirtualizerRootContext, VirtualizerRootEmits, VirtualizerRootExpose, VirtualizerRootProps, VirtualizerRootSlotProps } from './VirtualizerRoot.vue'
 
 // Context
 import Item from './VirtualizerItem.vue'
@@ -63,7 +63,7 @@ export const Virtualizer = {
    *
    *   const items = shallowRef(Array.from({ length: 100 }, (_, i) => ({ id: i, name: `Item ${i}` })))
    *
-   *   function onEndReached () {
+   *   function onBottom () {
    *     const start = items.value.length
    *     items.value = [...items.value, ...Array.from({ length: 100 }, (_, i) => ({ id: start + i, name: `Item ${start + i}` }))]
    *   }
@@ -73,10 +73,10 @@ export const Virtualizer = {
    *   <Virtualizer.Root
    *     :items
    *     :item-height="40"
-   *     :end-threshold="200"
+   *     :bottom-threshold="200"
    *     style="height: 600px"
    *     v-slot="{ items: visible }"
-   *     @end-reached="onEndReached"
+   *     @bottom="onBottom"
    *   >
    *     <Virtualizer.Item
    *       v-for="item in visible"

@@ -148,6 +148,40 @@ describe('virtualizer (browser)', () => {
     })
   })
 
+  describe('edges', () => {
+    it('should emit top within topThreshold of the top edge only', async () => {
+      const near = mountVirtualizer({ props: { topThreshold: 200 } })
+      const far = mountVirtualizer()
+      await settle()
+
+      for (const wrapper of [near, far]) {
+        const el = wrapper.element as HTMLElement
+        el.scrollTop = 100
+        el.dispatchEvent(new Event('scroll'))
+      }
+      await settle()
+
+      expect(near.emitted('top')?.at(-1)).toEqual([100])
+      expect(far.emitted('top')).toBeUndefined()
+    })
+
+    it('should emit bottom within bottomThreshold of the bottom edge only', async () => {
+      const near = mountVirtualizer({ props: { bottomThreshold: 200 } })
+      const far = mountVirtualizer()
+      await settle()
+
+      for (const wrapper of [near, far]) {
+        const el = wrapper.element as HTMLElement
+        el.scrollTop = el.scrollHeight - el.clientHeight - 100
+        el.dispatchEvent(new Event('scroll'))
+      }
+      await settle()
+
+      expect(near.emitted('bottom')?.at(-1)).toEqual([100])
+      expect(far.emitted('bottom')).toBeUndefined()
+    })
+  })
+
   describe('expose', () => {
     it('should expose the container and scrollTo through a template ref', async () => {
       const items = Array.from({ length: 1000 }, (_, i) => ({ id: i }))

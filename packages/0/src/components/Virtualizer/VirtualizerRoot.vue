@@ -57,20 +57,31 @@
     anchor?: VirtualAnchor
     /** Whether anchor restoration scrolls smoothly (default: true) */
     anchorSmooth?: boolean
-    /** Called when scrolling reaches within `startThreshold` of the start */
-    onStartReached?: (distance: number) => void | Promise<void>
-    /** Called when scrolling reaches within `endThreshold` of the end */
-    onEndReached?: (distance: number) => void | Promise<void>
-    /** Distance from the start that triggers onStartReached (default: 0) */
-    startThreshold?: number
-    /** Distance from the end that triggers onEndReached (default: 0) */
-    endThreshold?: number
+    /** Pixels from the top edge within which `top` fires (default: 0) */
+    topThreshold?: number
+    /** Pixels from the bottom edge within which `bottom` fires (default: 0) */
+    bottomThreshold?: number
     /** Enable iOS momentum scrolling (default: auto-detected) */
     momentum?: boolean
     /** Enable elastic overscroll (default: auto-detected) */
     elastic?: boolean
     /** Namespace for context provision */
     namespace?: string
+  }
+
+  export interface VirtualizerRootEmits {
+    /**
+     * Scrolled within `topThreshold` pixels of the top edge. Fires on every
+     * throttled scroll frame while inside the threshold, never on mount.
+     * Receives the distance from the top in pixels.
+     */
+    top: [distance: number]
+    /**
+     * Scrolled within `bottomThreshold` pixels of the bottom edge. Fires on
+     * every throttled scroll frame while inside the threshold, never on
+     * mount. Receives the distance from the bottom in pixels.
+     */
+    bottom: [distance: number]
   }
 
   export interface VirtualizerRootExpose extends AtomExpose {
@@ -111,14 +122,14 @@
     direction = 'forward',
     anchor = 'auto',
     anchorSmooth = true,
-    onStartReached,
-    onEndReached,
-    startThreshold = 0,
-    endThreshold = 0,
+    topThreshold = 0,
+    bottomThreshold = 0,
     momentum,
     elastic,
     namespace = 'v0:virtualizer:root',
   } = defineProps<VirtualizerRootProps<T>>()
+
+  const emit = defineEmits<VirtualizerRootEmits>()
 
   // Atom renders a null `as` without a wrapper, exactly like renderless
   const bare = toRef(() => renderless || isNull(as))
@@ -137,12 +148,10 @@
     direction,
     anchor,
     anchorSmooth,
-    // createVirtual captures options once; read the callback props at fire
-    // time so a replaced handler (inline `() => load(page)`) stays current
-    onStartReached: distance => onStartReached?.(distance),
-    onEndReached: distance => onEndReached?.(distance),
-    startThreshold,
-    endThreshold,
+    onStartReached: distance => emit('top', distance),
+    onEndReached: distance => emit('bottom', distance),
+    startThreshold: topThreshold,
+    endThreshold: bottomThreshold,
     momentum,
     elastic,
   })

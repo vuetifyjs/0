@@ -436,21 +436,36 @@ describe('virtualizer', () => {
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Virtualizer.Item'))
   })
 
-  it('should call the latest edge callback after the prop is replaced', async () => {
+  it('should emit top and bottom with the distance from each edge', async () => {
+    // happy-dom reports zero scroll metrics, so the list sits at both edges
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+    })
+    await nextTick()
+
+    await wrapper.trigger('scroll')
+    await new Promise(resolve => requestAnimationFrame(resolve))
+
+    expect(wrapper.emitted('top')).toEqual([[0]])
+    expect(wrapper.emitted('bottom')).toEqual([[0]])
+  })
+
+  it('should call the latest edge handler after it is replaced', async () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const first = vi.fn()
     const second = vi.fn()
     const wrapper = mount(Virtualizer.Root, {
-      props: { items, itemHeight: 40, height: 500, onEndReached: first },
+      props: { items, itemHeight: 40, height: 500, onBottom: first },
     })
     await nextTick()
 
-    await wrapper.setProps({ onEndReached: second })
+    await wrapper.setProps({ onBottom: second })
     await wrapper.trigger('scroll')
     await new Promise(resolve => requestAnimationFrame(resolve))
 
     expect(first).not.toHaveBeenCalled()
-    expect(second).toHaveBeenCalledTimes(1)
+    expect(second).toHaveBeenCalledExactlyOnceWith(0)
   })
 
   it('should react to items changing', async () => {
