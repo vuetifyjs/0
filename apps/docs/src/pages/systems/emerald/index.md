@@ -59,9 +59,6 @@ Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emer
 
 ## Installation
 
-> [!IMPORTANT]
-> `@paper/emerald` is MIT: the package, the components, and the dashboard. It is not on npm yet. The command below is what install will look like once it publishes. The [Official Emerald UI Kit for Figma](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma) is a separate Store product.
-
 ```bash
 pnpm add @paper/emerald
 ```
