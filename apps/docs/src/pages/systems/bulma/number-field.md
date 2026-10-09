@@ -116,7 +116,7 @@ Each part renders its own `.control` wrapper rather than leaving it to you, beca
 
 Reach for it whenever the number means something to a reader in a particular shape: currency, percentages, a fixed number of decimal places. Typing is unaffected, so a reader can enter `12.5` into a currency field and get `$12.50` back on blur without learning the format.
 
-`color` is worth noting here too. It lands on the steppers only, never on the input, because Bulma's `.input` color modifier paints the border — which is the same surface `is-danger` uses to signal a failing value. Leaving the input uncolored keeps the validation state legible no matter which color the field carries.
+`color` lands on the steppers only, never on the input, because Bulma's `.input` color modifier paints the border — which is the same surface `is-danger` uses to signal a failing value. Leaving the input uncolored keeps the validation state legible no matter which color the field carries.
 :::
 
 ::: ds-example

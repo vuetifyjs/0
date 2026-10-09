@@ -76,11 +76,11 @@ v0's contribution is the wiring around it: the `aria-haspopup` / `aria-expanded`
 
 The case dialogs exist for: an action that cannot be undone, where the cost of an accidental click is high enough to justify interrupting the reader.
 
-Two deliberate choices here. `closeOnClickOutside` is off, and there is no `EmDialogClose`, so the only ways out are the two buttons — the reader has to make a decision rather than dismiss the question. Reserve that for genuinely destructive confirmations; using it for routine dialogs is how modals become the thing people complain about.
+`closeOnClickOutside` is off, and there is no `EmDialogClose`, so the only ways out are the two buttons — the reader has to make a decision rather than dismiss the question. Reserve that for destructive confirmations.
 
-The other is what the buttons say. "Keep project" and "Delete" name their outcomes, so each one can be read on its own; "Cancel" and "OK" force the reader back to the title to work out which is which. The destructive action takes the `destructive` variant and, notably, is *not* the primary — the safe choice should be the easy one.
+"Keep project" and "Delete" name their outcomes, so each one can be read on its own; "Cancel" and "OK" force the reader back to the title to work out which is which. The destructive action takes the `destructive` variant and, notably, is *not* the primary — the safe choice should be the easy one.
 
-Note that Escape still closes this dialog. That is the browser's own behavior on a modal `<dialog>` and it is not worth fighting: a reader who presses Escape has clearly not confirmed anything, so the outcome is the safe one anyway.
+Note that Escape still closes this dialog. That is the browser's own behavior on a modal `<dialog>`. A reader who presses Escape has not confirmed anything.
 :::
 
 ::: ds-example
@@ -90,7 +90,7 @@ Note that Escape still closes this dialog. That is the browser's own behavior on
 
 Dialog content is an ordinary slot, so form controls compose into it directly — `EmTextField` here, but any Emerald control works the same way.
 
-Focus is the thing to get right. The browser moves focus into the dialog when it opens and restores it to the activator on close, so a reader who opens the dialog, cancels, and carries on tabbing lands exactly where they were. That only holds if the trigger is still in the DOM when the dialog closes, which is one more reason to leave the activator mounted rather than swapping it out on open.
+The browser moves focus into the dialog when it opens and restores it to the activator on close, so a reader who opens the dialog, cancels, and carries on tabbing lands exactly where they were. That only holds if the trigger is still in the DOM when the dialog closes, which is one more reason to leave the activator mounted rather than swapping it out on open.
 
 `EmDialogFooter`'s `variant` handles the layout. `one-button` is the right shape for a single confirming action, `buttons` for the usual cancel-and-confirm pair, and `pagination` for a multi-step flow with navigation on both sides. It is layout only; nothing about the variant changes behavior.
 

@@ -294,7 +294,7 @@ This powers:
 - `DocsApiHover` — inline type hints in code blocks
 - `virtual:api` — importable API data
 
-## Patterns Worth Stealing
+## Patterns from this site
 
 ### 1. Composable-First Components
 

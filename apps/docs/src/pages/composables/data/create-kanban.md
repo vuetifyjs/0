@@ -109,7 +109,7 @@ The composable adds the following on top of two `createSortable` instances:
 
 A complete kanban board driven entirely by `kanban.transfer(id, toColumnId, toIndex)` — no drag-and-drop, no keyboard navigation. The board is the registry; the UI is a reactive projection of it. Any input modality (button click, keyboard shortcut, pointer event, scheduled job) drives it through the same call.
 
-Three files make up the example. `types.ts` declares the domain: a `Card` extends `SortableTicketInput` with `{ title, assignee }`, a `Column` extends `KanbanColumnTicketInput<Card>` with `{ title, tone }`. Splitting types out is a small thing that pays off the moment a second component on the page needs to reference them.
+Three files make up the example. `types.ts` declares the domain: a `Card` extends `SortableTicketInput` with `{ title, assignee }`, a `Column` extends `KanbanColumnTicketInput<Card>` with `{ title, tone }`. `types.ts` is separate so another component can import `Card` and `Column`.
 
 `useKanbanView.ts` is the reusable bit. It allocates one `useProxyRegistry` per column up front and caches it in a `Map<ID, ProxyRegistryContext<Card>>` — much cheaper than computing a fresh proxy inside every `v-for` render. Column register/unregister events keep the map in sync. Drop the file into your own app verbatim; nothing in it is kanban-specific beyond the `Card`/`Column` types it references.
 

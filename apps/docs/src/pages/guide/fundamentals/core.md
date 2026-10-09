@@ -35,7 +35,7 @@ flowchart TD
 
 ## The Trinity Pattern
 
-The signature pattern of Vuetify0. Every composable returns a readonly 3-tuple:
+A context factory returns a readonly 3-tuple:
 
 ```ts
 const [useTheme, provideTheme, theme] = createThemeContext()

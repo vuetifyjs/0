@@ -470,7 +470,7 @@ After analyzing your project, the CLI generates a **personalized documentation U
 https://0.vuetifyjs.com/?features=Dialog,Avatar,useBreakpoints,...
 ```
 
-This URL filters the Vuetify0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
+This URL filters the docs to the components and composables `vuetify analyze` found.
 
 #### JSON Output
 

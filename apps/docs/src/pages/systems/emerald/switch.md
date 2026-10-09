@@ -86,7 +86,7 @@ Keep the `label` text identical to the visible text it stands in for. A reader u
 
 The state is preserved, not erased. A disabled switch keeps showing on or off exactly as it was, just without the color that invites interaction — which is what you want when a setting is locked by a precondition rather than discarded by one.
 
-One behavior to know: a disabled `EmSwitch` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot flip it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
+A disabled `EmSwitch` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot flip it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
 :::
 
 ## Props

@@ -199,9 +199,9 @@ In renderless mode, the component provides state and behavior through its slot p
 
 ### Polymorphic Button
 
-The same `AppButton` component used two ways. In rendered mode, it outputs a `<button>` and applies attrs automatically — you just drop it in. In renderless mode, it outputs nothing — you provide your own element and bind the attrs from the slot.
+The same `AppButton` component used two ways. In rendered mode, it outputs a `<button>` and applies attrs on it. In renderless mode, it outputs nothing — you provide your own element and bind the attrs from the slot.
 
-This is the core value of building on Atom: one component definition, two consumption patterns.
+One component definition, two consumption patterns.
 
 | File | Role |
 |------|------|

@@ -78,7 +78,7 @@ The timer tracks three internal values: `startedAt` (timestamp when the current 
 
 A 10-second countdown timer that exercises all four controls — start, stop, pause, resume — and displays the reactive `remaining` value as both a seconds readout and a progress bar. `toRef(() => Math.ceil(remaining.value / 1000))` converts the millisecond ref to a human-readable ceiling count; `toRef(() => (remaining.value / duration) * 100)` drives the bar width. Three state badges at the bottom reflect `isActive`, `isPaused`, and the raw `remaining` ms so you can watch all three change as you operate the controls.
 
-The pause/resume behavior is the main teaching point: pausing captures the remaining budget so resume continues from exactly where it left off. Stopping resets the timer so start begins a fresh 10-second run. Reach for this pattern for user-facing delays (auto-dismiss dialogs, OTP expiry, resend-code cooldowns) where the user may need to pause and resume. For auto-dismissing queued notifications, see the Toast Notifications example below; for interval-based work (polling, animation ticks), use `repeat: true`.
+Pausing captures the remaining budget so resume continues from exactly where it left off. Stopping resets the timer so start begins a fresh 10-second run. Reach for this pattern for user-facing delays (auto-dismiss dialogs, OTP expiry, resend-code cooldowns) where the user may need to pause and resume. For auto-dismissing queued notifications, see the Toast Notifications example below; for interval-based work (polling, animation ticks), use `repeat: true`.
 
 :::
 

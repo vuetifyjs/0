@@ -92,7 +92,7 @@ Note what `mandatory` does not do: it does not open anything by itself. A group 
 
 `disabled` on a panel disables just that panel; `disabled` on the group disables every panel at once and dims the whole surface. The two compose — a panel is inert if either flag is set.
 
-A disabled panel's activator is a native disabled button: it cannot be clicked, it is removed from the tab order, and a keyboard user tabbing through the accordion skips it entirely. That silence is the thing to design around. The header text is still visible, so put the reason a section is unavailable into the title itself — as this example does — rather than relying on a tooltip or a hover state a keyboard user will never reach.
+A disabled panel's activator is a native disabled button: it cannot be clicked, it is removed from the tab order, and a keyboard user tabbing through the accordion skips it entirely. The header text is still visible, so put the reason a section is unavailable into the title itself — as this example does — rather than relying on a tooltip or a hover state a keyboard user will never reach.
 
 A disabled panel that was already open stays open; disabling prevents interaction, it does not collapse state.
 :::
