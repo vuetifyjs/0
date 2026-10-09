@@ -1,5 +1,17 @@
 # @vuetify/v0
 
+## 1.2.4
+
+### Patch Changes
+
+- [#1026](https://github.com/vuetifyjs/0/pull/1026) [`c9e9fa4`](https://github.com/vuetifyjs/0/commit/c9e9fa439a44c32b0d4aa5a001305969526c741a) Thanks [@johnleider](https://github.com/johnleider)! - fix(useResizeObserver): entries always include `borderBoxSize` and `contentBoxSize` ([#1026](https://github.com/vuetifyjs/0/issues/1026))
+
+  Browsers that omit them from native entries (Safari < 15.4, Chrome < 84) previously passed `undefined` through despite the types; they are now measured from the element's computed style.
+
+- [#1026](https://github.com/vuetifyjs/0/pull/1026) [`c9e9fa4`](https://github.com/vuetifyjs/0/commit/c9e9fa439a44c32b0d4aa5a001305969526c741a) Thanks [@johnleider](https://github.com/johnleider)! - fix(createVirtual): reverse lists start at the bottom, and edge callbacks stop after unmount ([#1026](https://github.com/vuetifyjs/0/issues/1026))
+
+  With `direction: 'reverse'`, the list now opens scrolled to its last item in the browser instead of at the top, including when the first items load after mount or the scroll element is remounted. A `scrollTo()` made right after mount takes precedence over that initial pin. A scroll in flight when the list unmounts no longer calls `onStartReached` or `onEndReached`.
+
 ## 1.2.3
 
 ### Patch Changes
