@@ -144,6 +144,19 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Button](https://0.vuetifyjs.com/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
 | [Toggle](https://0.vuetifyjs.com/components/actions/toggle) | Pressable on/off button with standalone and group modes |
 
+#### Disclosure
+
+| Component | Description |
+|-----------|-------------|
+| [AlertDialog](https://0.vuetifyjs.com/components/disclosure/alert-dialog) | Confirmation dialog with deferred close and `wait()`/`close()` pattern |
+| [Collapsible](https://0.vuetifyjs.com/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
+| [Dialog](https://0.vuetifyjs.com/components/disclosure/dialog) | Modal dialog using native `<dialog>` with focus management |
+| [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
+| [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
+| [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
+
 #### Forms
 
 | Component | Description |
@@ -159,18 +172,12 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Slider](https://0.vuetifyjs.com/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](https://0.vuetifyjs.com/components/forms/switch) | Toggle switch with on/off states and label association |
 
-#### Disclosure
+#### Data
 
 | Component | Description |
 |-----------|-------------|
-| [AlertDialog](https://0.vuetifyjs.com/components/disclosure/alert-dialog) | Confirmation dialog with deferred close and `wait()`/`close()` pattern |
-| [Collapsible](https://0.vuetifyjs.com/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
-| [Dialog](https://0.vuetifyjs.com/components/disclosure/dialog) | Modal dialog using native `<dialog>` with focus management |
-| [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
-| [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
-| [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
-| [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
-| [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
+| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
+| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 #### Semantic
 
@@ -186,13 +193,6 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
-
-#### Data
-
-| Component | Description |
-|-----------|-------------|
-| [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
-| [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
 
 ### Composables
 
@@ -212,16 +212,6 @@ Base data structures that most other composables build upon:
 - [`createQueue`](https://0.vuetifyjs.com/composables/registration/create-queue) - FIFO queue with timeout management (notifications/toasts)
 - [`createTimeline`](https://0.vuetifyjs.com/composables/registration/create-timeline) - Bounded undo/redo history
 - [`createTokens`](https://0.vuetifyjs.com/composables/registration/create-tokens) - Design token registry with alias resolution
-
-#### Data
-
-- [`createDataGrid`](https://0.vuetifyjs.com/composables/data/create-data-grid) - Headless data grid layering column layout, cell editing, row ordering, and row spanning on top of createDataTable
-- [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
-- [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
-- [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
-- [`createPagination`](https://0.vuetifyjs.com/composables/data/create-pagination) - Lightweight page navigation
-- [`createSortable`](https://0.vuetifyjs.com/composables/data/create-sortable) - Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate
-- [`createVirtual`](https://0.vuetifyjs.com/composables/data/create-virtual) - Virtual scrolling for large lists
 
 #### Selection
 
@@ -246,10 +236,15 @@ Selection management composables built on `createRegistry`:
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
 - [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
 
-#### Reactivity
+#### Data
 
-- [`useProxyModel`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model) - Bridge selection context to component v-model
-- [`useProxyRegistry`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry) - Convert registry Map to reactive object
+- [`createDataGrid`](https://0.vuetifyjs.com/composables/data/create-data-grid) - Headless data grid layering column layout, cell editing, row ordering, and row spanning on top of createDataTable
+- [`createDataTable`](https://0.vuetifyjs.com/composables/data/create-data-table) - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
+- [`createFilter`](https://0.vuetifyjs.com/composables/data/create-filter) - Reactive array filtering with multiple modes
+- [`createKanban`](https://0.vuetifyjs.com/composables/data/create-kanban) - Two-level sortable orchestrator (columns + items)
+- [`createPagination`](https://0.vuetifyjs.com/composables/data/create-pagination) - Lightweight page navigation
+- [`createSortable`](https://0.vuetifyjs.com/composables/data/create-sortable) - Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate
+- [`createVirtual`](https://0.vuetifyjs.com/composables/data/create-virtual) - Virtual scrolling for large lists
 
 #### Semantic
 
@@ -257,12 +252,10 @@ Selection management composables built on `createRegistry`:
 - [`createOverflow`](https://0.vuetifyjs.com/composables/semantic/create-overflow) - Container overflow measurement for item capacity
 - [`createProgress`](https://0.vuetifyjs.com/composables/semantic/create-progress) - Progress state with multi-segment and buffer tracking
 
-#### Transformers
+#### Reactivity
 
-- [`toArray`](https://0.vuetifyjs.com/composables/transformers/to-array) - Array transformation utilities
-- [`toElement`](https://0.vuetifyjs.com/composables/transformers/to-element) - Normalize refs, selectors, and elements to DOM elements
-- [`toHighlight`](https://0.vuetifyjs.com/composables/transformers/to-highlight) - Split text into matched and unmatched chunks for query highlighting
-- [`toReactive`](https://0.vuetifyjs.com/composables/transformers/to-reactive) - Reactive object conversion
+- [`useProxyModel`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model) - Bridge selection context to component v-model
+- [`useProxyRegistry`](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry) - Convert registry Map to reactive object
 
 #### System
 
@@ -304,6 +297,13 @@ Plugin-capable composables following the trinity pattern:
 - [`useStorage`](https://0.vuetifyjs.com/composables/plugins/use-storage) - Storage adapter (localStorage/sessionStorage/memory)
 - [`useTheme`](https://0.vuetifyjs.com/composables/plugins/use-theme) - Theme management with CSS variable injection
 - [`useTooltip`](https://0.vuetifyjs.com/composables/plugins/use-tooltip) - Region-scoped tooltip delay coordination
+
+#### Transformers
+
+- [`toArray`](https://0.vuetifyjs.com/composables/transformers/to-array) - Array transformation utilities
+- [`toElement`](https://0.vuetifyjs.com/composables/transformers/to-element) - Normalize refs, selectors, and elements to DOM elements
+- [`toHighlight`](https://0.vuetifyjs.com/composables/transformers/to-highlight) - Split text into matched and unmatched chunks for query highlighting
+- [`toReactive`](https://0.vuetifyjs.com/composables/transformers/to-reactive) - Reactive object conversion
 
 ## Design Principles
 
