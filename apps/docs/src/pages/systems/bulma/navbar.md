@@ -2,7 +2,7 @@
 title: BuNavbar - Bulma Navbar for Vue
 meta:
 - name: description
-  content: Bulma's navbar markup with Vuetify0 behavior — burger toggle, is-active on both ends, and the aria wiring between burger and menu.
+  content: Bulma navbar markup. The burger toggle sets is-active on the burger and the menu, with the ARIA link between them. Behavior from Vuetify0.
 - name: keywords
   content: bulma navbar, vue navbar, navbar-burger, navbar-menu, is-hoverable, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.navbar` with the JavaScript it never shipped: the burger toggle, `is-active` on both ends, and the aria wiring between them.
+Bulma's `.navbar`: the burger toggle, `is-active` on both ends, and the ARIA link between them.
 
 > [!NOTE]
 > Reference: [Navbar on bulma.io](https://bulma.io/documentation/components/navbar/) — classes and visual variants. This page is the JavaScript.

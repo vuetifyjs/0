@@ -2,7 +2,7 @@
 title: EmRadio - Emerald Radio for Vue
 meta:
 - name: description
-  content: Emerald's radio — a group and its radios over Vuetify0's headless Radio compound, with roving focus, arrow-key selection, and three control sizes.
+  content: A single-selection radio group. The group owns the value, each radio is one choice, and arrow keys move between them. Built on Vuetify0's Radio.
 - name: keywords
   content: emerald radio, vue radio group, radio button vue, design system radio, vuetify0 radio, paper emerald
 features:

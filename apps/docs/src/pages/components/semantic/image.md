@@ -100,7 +100,7 @@ flowchart LR
   Scroll --> Observer --> Status --> Load --> DS --> Fade
 ```
 
-Reach for this pattern when you have many below-the-fold images and want both perceived performance (something visible instantly) and actual bandwidth savings (only load what's seen). It shines on photo galleries, article covers, and image-heavy marketing pages where the blur-up effect is part of the aesthetic, not just a loading trick.
+Use this when many images sit below the fold. A placeholder is visible immediately, and the full image loads only as it nears the viewport. Galleries and article covers are the usual case.
 
 Three pieces make it work:
 
@@ -127,7 +127,7 @@ Use `renderless` mode on both `Image.Root` and `Image.Img` to drop their wrapper
 
 Reach for this pattern when you're serving modern image formats for bandwidth or quality gains while keeping a universal fallback, or when you need full control over DOM structure (e.g., embedding inside a `<figure>` with a `<figcaption>`). It's the only way to use `Image.Root`'s state machine with a native `<picture>` without losing either the format negotiation or the state-driven placeholder/fallback pattern.
 
-Two details worth knowing:
+Two details:
 
 - **`renderless` on both** — `Image.Root` must go renderless to avoid wrapping `<picture>` in an extra `<div>`, and `Image.Img` must go renderless so you can place the inner `<img>` as `<picture>`'s last child (where the browser expects it).
 - **`lazy` doesn't work here** — observer-driven lazy loading relies on a wrapper element to measure against. Combine native `loading="lazy"` on the inner `<img>` with `fetchpriority` hints for equivalent deferred loading, or wrap the whole composition in an outer element you observe manually.

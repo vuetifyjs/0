@@ -2,7 +2,7 @@
 title: BuMenu - Bulma Menu for Vue
 meta:
 - name: description
-  content: Bulma's menu markup with Vuetify0 behavior — exclusive active tracking across nested lists, with is-active on the anchor, not the li.
+  content: Bulma menu markup with exclusive active tracking across nested lists, driven by v-model. The active class sits on the anchor.
 - name: keywords
   content: bulma menu, vue menu, menu-list, menu-label, sidebar nav, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.menu` with the JavaScript it never shipped: exclusive active tracking across nested lists, driven by `v-model`.
+Bulma's `.menu`, with exclusive active tracking across nested lists, driven by `v-model`.
 
 > [!NOTE]
 > Reference: [Menu on bulma.io](https://bulma.io/documentation/components/menu/) — classes and visual variants. This page is the JavaScript.

@@ -2,7 +2,7 @@
 title: EmDialog - Emerald Dialog for Vue
 meta:
 - name: description
-  content: Emerald's modal dialog — a compound over Vuetify0's headless Dialog, rendering a native dialog element with focus trapping, top-layer painting and Escape dismissal.
+  content: A modal dialog on the native dialog element. The browser handles focus trapping, top-layer stacking, and Escape. Built on Vuetify0's Dialog.
 - name: keywords
   content: emerald dialog, vue modal, native dialog element, focus trap vue, design system modal, vuetify0 dialog
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A modal dialog built on the platform's own `<dialog>` element — focus trapping, top-layer painting and Escape dismissal come from the browser rather than from JavaScript.
+A modal dialog on the platform `<dialog>` element. The browser handles focus trapping, top-layer stacking, and Escape dismissal.
 
 ## Usage
 
-`EmDialog` owns the open state through `v-model`; everything else is an express part. `EmDialogActivator` is the trigger, `EmDialogContent` is the modal surface, and `EmDialogTitle`, `EmDialogDescription`, `EmDialogFooter` and `EmDialogClose` are the regions inside it.
+`EmDialog` owns the open state through `v-model`. The other pieces are separate components. `EmDialogActivator` is the trigger, `EmDialogContent` is the modal surface, and `EmDialogTitle`, `EmDialogDescription`, `EmDialogFooter` and `EmDialogClose` are the regions inside it.
 
-The activator has one prop worth knowing before you write your first dialog. By default it renders its own element; pass `renderless` and it becomes a pure slot host, handing you an `attrs` object to spread onto your own trigger. Use `renderless` whenever the trigger is an `EmButton` — otherwise you get a button inside a button, which is invalid markup and confuses assistive technology about what is actually clickable.
+`EmDialogActivator` renders its own element by default. Pass `renderless` and it becomes a slot host, with an `attrs` object to spread onto your own trigger. Use `renderless` when the trigger is an `EmButton`. A button inside a button is invalid markup, and assistive technology cannot tell which element is the click target.
 
 ::: ds-example
 /systems/emerald/dialog/basic

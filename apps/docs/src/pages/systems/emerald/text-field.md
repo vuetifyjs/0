@@ -2,7 +2,7 @@
 title: EmTextField - Emerald Text Field for Vue
 meta:
 - name: description
-  content: Emerald's text field — label, help text, and error messages as props, with validation, timing and aria wiring supplied by Vuetify0's headless Input.
+  content: A single-line text input. Label, help text, and error messages are props, wired to the control for you. The value stays a string. Built on Vuetify0's Input.
 - name: keywords
   content: emerald text field, vue input, form validation vue, design system input, vuetify0 input, paper emerald
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A single-line text input with its label, help text and error messages attached — all of them props, with the association between them handled for you.
+A single-line text input. Label, help text, and error messages are props, and the field wires them to the control.
 
 ## Usage
 
 Everything around the input is a prop. `label` renders the visible label and wires it to the control, `description` is the help text below it, and `errorMessages` is the error region that appears alongside it — the two coexist (`aria-describedby` + `aria-errormessage`), they do not replace one another. There are **no named slots** — this is a shell component with fixed anatomy, which is the convention across every Emerald control whose shape does not vary.
 
-`v-model` is a `string` and defaults to `''`. It stays a string for every `type`, including `number` — the DOM gives you a string, and quietly coercing it is how forms end up with `NaN` in a payload.
+`v-model` is a `string` and defaults to `''`. It stays a string for every `type`, including `number`. The DOM returns a string. Coercing that string is how a form submits `NaN`.
 
 ::: ds-example
 /systems/emerald/text-field/basic
@@ -51,7 +51,7 @@ Everything around the input is a prop. `label` renders the visible label and wir
 
 Most of what is hard about a text field lives in that compound rather than in Emerald. `Input.Root` wires each message region to the control by its own attribute and runs the validation pipeline — Vuetify0's `createValidation` under the hood, so the rule contract and the `validateOn` timing are the same ones documented on the Input page.
 
-The label is the exception, and it is worth knowing which layer owns it. Emerald generates the field id itself with `useId()` when you do not pass one, renders its own `<label for="…">`, and hands the id down to `Input.Root` — which then uses it for the control and derives the description and error ids from it. So the `for`/`id` pair is the skin's, and the attribute wiring beneath it is v0's.
+Emerald generates the field id with `useId()` when you do not pass one, renders its own `<label for="…">`, and passes the id to `Input.Root`. The root uses that id for the control and derives the description and error ids from it. Emerald owns the `for`/`id` pair. v0 owns the attribute wiring under it.
 
 Emerald supplies the CSS and one structural decision: `Input.Error` is always rendered rather than conditionally mounted. That matters for announcements rather than for layout — the region carries `aria-live="polite"`, and a live region has to already be in the document when its content arrives, or the insertion is not announced at all.
 
@@ -82,7 +82,7 @@ Note that `required` is a separate prop from a required *rule*. The prop sets th
 
 Three states that all stop normal editing and mean entirely different things.
 
-`readonly` shows a real value that cannot be edited here. The control stays focusable and its text stays selectable and copyable, which is the whole point for something like a generated account id. It is still submitted with the form.
+`readonly` shows a value that cannot be edited here. The control stays focusable, and its text stays selectable and copyable. Use that for a value someone needs to copy, such as a generated account id. The value is still submitted with the form.
 
 `disabled` takes the field out of play — unfocusable, greyed to the neutral tokens, and not submitted. Reach for it when a field is irrelevant given other answers, and prefer removing it entirely when it will never become relevant. As with buttons, a disabled control with no visible explanation is a frequent accessibility complaint; put the reason where a keyboard user will find it, because they will never land on the field itself.
 
@@ -139,7 +139,7 @@ So a field that is both described and invalid exposes both: the help text stays 
 
 `Input.Error` additionally carries `aria-live="polite"`, so a message that appears while the reader is already past the field is announced without stealing focus. This is the reason the region is always mounted: a live region has to be in the document before its content changes, or the browser has nothing to observe and the first message is silently missed.
 
-The practical consequence is the opposite of what a swap would imply — help text does not disappear when validation fails, so `description` is a safe place for the format requirement rather than a risky one.
+Help text stays visible when validation fails. Put the format requirement in `description`. The error message does not replace it.
 
 ### Required
 

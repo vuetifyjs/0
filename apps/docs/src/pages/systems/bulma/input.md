@@ -28,7 +28,7 @@ Bulma's `.input` as a native text control, with `v-model`, the color and size mo
 
 ## Usage
 
-`v-model` is a `string` and defaults to `''`. It stays a string for every `type`, including `number` — the DOM gives you a string, and quietly coercing it is how forms end up with `NaN` in a payload.
+`v-model` is a `string` and defaults to `''`. It stays a string for every `type`, including `number`. The DOM returns a string. Coercing that string is how a form submits `NaN`.
 
 A wrapper is optional. Bulma's `.input` is bare-capable, so `BuInput` renders the native control and nothing around it. Put it in a [BuField](/systems/bulma/field) when you need a label or help text; put it in a `BuControl` when you need icons, a loading spinner, or `is-expanded`.
 

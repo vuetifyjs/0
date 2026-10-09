@@ -18,7 +18,7 @@ related:
 
 # useProxyModel
 
-A composable for syncing refs bidirectionally with selection contexts, enabling seamless v-model integration with selection state.
+Syncs a ref with a selection context in both directions, so a v-model and the selection stay on the same value.
 
 <DocsPageFeatures :frontmatter />
 

@@ -2,7 +2,7 @@
 title: EmAlert - Emerald Alert for Vue
 meta:
 - name: description
-  content: Emerald's alert — four status variants whose live-region role follows severity, so errors interrupt and everything else waits its turn. Composed on Vuetify0's Atom.
+  content: A status message in four severity variants. Errors interrupt. The other variants wait. Title and description are separate parts. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald alert, vue alert, status message vue, live region vue, aria alert role, design system alert
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A status message with four severity variants. The live-region role follows the severity — errors interrupt, everything else waits — and the title and description are parts you compose.
+A status message with four severity variants. Errors use an interrupting live region. The other variants wait. Title and description are separate parts.
 
 ## Usage
 
 `EmAlert` is the container; `EmAlertTitle` and `EmAlertDescription` are the two parts that go inside it. Both are optional and both are plain slots, so an alert can be a single line of text, a title over a description, or anything else the message needs.
 
-`variant` picks the severity, and severity does almost all the work: it sets the border and background from Emerald's status palette *and* decides how assistive technology hears the message. The default is `error` — an alert you render without thinking about it is treated as the urgent kind, which is the safe wrong guess.
+`variant` sets the severity. It picks the border and background from Emerald's status palette, and it picks how assistive technology hears the message. The default is `error`, so an alert with no variant is announced as urgent.
 
 ::: ds-example
 /systems/emerald/alert/basic

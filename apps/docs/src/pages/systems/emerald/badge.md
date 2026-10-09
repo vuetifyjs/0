@@ -2,7 +2,7 @@
 title: EmBadge - Emerald Badge for Vue
 meta:
 - name: description
-  content: Emerald's badge — a count, label, or status dot in six variants, with numeric capping like 99+. A single-span presentational shell over Vuetify0's Atom.
+  content: A pill for a count, a short label, or a status dot. Six variants on Emerald's status palette, with numeric capping such as 99+. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald badge, vue badge, notification badge, status dot, count badge, vuetify0 atom
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A small pill for a count, a short label, or a bare status dot — six variants over Emerald's status palette, with numeric capping like 99+.
+A small pill for a count, a short label, or a status dot. Six variants use Emerald's status palette, and numbers can cap at a value such as 99+.
 
 ## Usage
 

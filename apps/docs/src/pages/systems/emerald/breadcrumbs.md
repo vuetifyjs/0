@@ -2,7 +2,7 @@
 title: EmBreadcrumbs - Emerald Breadcrumbs for Vue
 meta:
 - name: description
-  content: Emerald's breadcrumb trail — a nav landmark with links, a current-page marker, custom dividers, and automatic collapse behind an ellipsis when space runs out. Composed on Vuetify0's headless Breadcrumbs.
+  content: A navigation trail for where the current page sits. Middle crumbs collapse behind an ellipsis when the row runs out of room. Built on Vuetify0 Breadcrumbs.
 - name: keywords
   content: emerald breadcrumbs, vue breadcrumbs, breadcrumb navigation, overflow breadcrumbs, vuetify0 breadcrumbs, paper emerald
 features:

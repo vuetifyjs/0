@@ -2,7 +2,7 @@
 title: EmStep - Emerald Stepper for Vue
 meta:
 - name: description
-  content: Emerald's stepper — numbered markers, one active step, and sequential navigation that skips disabled steps. Composed on Vuetify0's headless Step compound.
+  content: The header for a multi-step flow: numbered markers, one active step, and next/previous navigation that skips disabled steps. Built on Vuetify0's Step.
 - name: keywords
   content: emerald step, vue stepper, wizard steps, multi-step form vue, vuetify0 step, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The progress header for a multi-step flow — numbered markers, one active step, and navigation methods that walk the sequence and skip disabled steps.
+The header for a multi-step flow. Numbered markers, one active step, and navigation that walks the sequence and skips disabled steps.
 
 ## Usage
 

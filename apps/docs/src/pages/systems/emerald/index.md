@@ -1,8 +1,8 @@
 ---
-title: Emerald - A Rich Design System on Vuetify0
+title: Emerald - Vue design system on Vuetify0
 meta:
 - name: description
-  content: Emerald is a complete design system built on Vuetify0 — Figma-derived tokens, an icon set addressed by role, and Em* components that compose v0's headless compounds.
+  content: Emerald is a Vue design system built on Vuetify0. It includes CSS tokens, a role-based icon set, and Em* components that wrap v0's headless compounds.
 - name: keywords
   content: emerald, design system, vuetify0, paper, vue design system, design tokens, emerald components, figma, ui kit
 features:
@@ -20,7 +20,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em*` components that wrap v0's headless compounds. v0 supplies the behavior and the accessibility; Emerald decides what it looks like.
+Emerald is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Em*` components. v0 handles behavior and accessibility. Emerald handles appearance.
 
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
   <DocsCard href="https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma" hoverable>
@@ -28,14 +28,14 @@ Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em
       <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/vstore.svg" alt="" class="size-8 object-contain shrink-0 hue-rotate-[-58deg] saturate-[1.25]">
       <div class="text-lg font-semibold">Official Emerald UI Kit for Figma</div>
     </div>
-    <div class="text-sm text-on-surface-variant">The companion Figma library — tokens, icons, components, and dashboard patterns that match this package. The code stays MIT.</div>
+    <div class="text-sm text-on-surface-variant">The Figma library for this package: tokens, icons, components, and dashboard layouts. The Vue package is MIT.</div>
   </DocsCard>
   <DocsCard href="/demo/emerald/" hoverable>
     <div class="flex items-center gap-3 mb-2">
       <img src="https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png" alt="" class="size-8 object-contain shrink-0">
       <div class="text-lg font-semibold">Dashboard</div>
     </div>
-    <div class="text-sm text-on-surface-variant">The MIT showcase app — calendar, kanban, and the rest of the inventory, built on these components.</div>
+    <div class="text-sm text-on-surface-variant">A demo of these components, including the calendar and the kanban board.</div>
   </DocsCard>
 </div>
 
@@ -43,30 +43,30 @@ Emerald is a design system built on [Vuetify0](/): tokens, CSS, and a set of `Em
 
 ## What Emerald is
 
-A design system here is a **complete framework**, not a theme. Emerald does not restyle someone else's components — it brings its own tokens, its own icon set, and its own component vocabulary, and it reaches down to v0 for every piece of logic underneath. Selection, focus management, popover positioning, validation, keyboard interaction: none of that is reimplemented, and none of it is Emerald's to get wrong.
+Emerald has its own tokens, its own icon set, and its own component names. Selection, focus, popovers, validation, and keyboard behavior come from v0.
 
-That split is the whole point of the layering. An `EmSelect` is a few dozen lines of template and CSS over v0's `Select` compound. When v0 fixes a listbox keyboard bug, Emerald inherits the fix without a release of its own.
+`EmSelect` is a short template and stylesheet on v0's `Select`. A keyboard fix in v0 reaches `EmSelect` without a separate Emerald release.
 
-The practical consequence for you: everything you learn about a Vuetify0 compound applies to the Emerald component that wraps it, and anything Emerald does not expose is still reachable by dropping to the Vuetify0 component underneath.
+The Emerald component behaves like the Vuetify0 compound it wraps. Where Emerald has no prop for something, use the Vuetify0 component.
 
 ## Figma UI Kit
 
-The Vue package is MIT. The Figma file is the paid companion — same `--emerald-*` tokens, same `Em*` anatomy, same `emerald-light` / `emerald-dark` themes. You can ship from this documentation and the source without it.
+The Vue package is MIT. The Figma file is sold separately, and it uses the same `--emerald-*` token names, the same `Em*` parts, and the same `emerald-light` and `emerald-dark` themes. You can build from these docs and the source without the file.
 
-The kit is the design-side mirror of `@paper/emerald`: Figma variables wired to the token names this package emits, every shipped `Em*` family with variants and compound parts, the role-based icon set (48 glyphs, 72 names), and layout scaffolding from the [dashboard](/demo/emerald/).
+The kit includes Figma variables named like the CSS tokens, every shipped `Em*` family with its variants and parts, the icon set (48 glyphs, 72 names), and layouts from the [dashboard](/demo/emerald/).
 
-Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma). Personal, Commercial, and Unlimited licenses; the Vue package is not behind any of them.
+Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma). Licenses are Personal, Commercial, and Unlimited. They cover the Figma file. The Vue package stays MIT.
 
 ## Installation
 
 > [!IMPORTANT]
-> `@paper/emerald` is MIT — the package, the components, and the dashboard. It is not on npm yet; the install below is the shape that will resolve when it publishes. The [Official Emerald UI Kit for Figma](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma) is a separate Store listing.
+> `@paper/emerald` is MIT: the package, the components, and the dashboard. It is not on npm yet. The command below is what install will look like once it publishes. The [Official Emerald UI Kit for Figma](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma) is a separate Store product.
 
 ```bash
 pnpm add @paper/emerald
 ```
 
-The plugin wires the theme adapter, registers the two shipped themes, and installs the icon set:
+The plugin registers the theme adapter, the two themes, and the icon set:
 
 ```ts main.ts
 import { createApp } from 'vue'
@@ -82,31 +82,31 @@ createApp(App)
   .mount('#app')
 ```
 
-That is the entire install. Do not construct `EmeraldStyleSheetAdapter` yourself — the plugin owns it.
+Use `createEmeraldPlugin()`. It constructs `EmeraldStyleSheetAdapter` for you.
 
-Both halves of the install are independently optional:
+Two options turn parts of that setup off:
 
 | Option | Effect |
 |--------|--------|
-| `{ theme: false }` | Skips the theme plugin. For hosts that already run `createThemePlugin` and will attach `EmeraldStyleSheetAdapter` and `emeraldColors` themselves |
-| `{ icons: false }` | Skips the app-level icon registry. `EmIcon` still draws — it falls back to the built-in set on its own[^icons-bundle] |
+| `{ theme: false }` | Skips the theme plugin. Use this when the app already calls `createThemePlugin` and will attach `EmeraldStyleSheetAdapter` and `emeraldColors` itself |
+| `{ icons: false }` | Skips installing the icon registry on the app. `EmIcon` still draws from the built-in set[^icons-bundle] |
 
-[^icons-bundle]: `{ icons: false }` skips the *install*, not the bundle. Static imports cannot be conditional, so composing the icon plugin in the entry pins the glyph map either way. In practice nothing is lost: every `Em*` component that draws a glyph imports `EmIcon`, so any app using Emerald's controls already carries it. To leave the map out entirely, install `createEmeraldIconsPlugin` yourself and skip `createEmeraldPlugin`.
+[^icons-bundle]: `{ icons: false }` skips installation. It does not remove the glyph map from the bundle, because the plugin entry imports that map statically. Components that draw a glyph import `EmIcon`, so an app using Emerald controls already includes the map. To leave the map out, call `createEmeraldIconsPlugin` yourself and skip `createEmeraldPlugin`.
 
 ### Without the plugin
 
-`theme.css` carries the light palette on `:root` as well as on `[data-theme="emerald-light"]`, so a bare CSS import is a complete install for a single-theme app — no plugin, no JavaScript:
+`theme.css` sets the light palette on `:root` and on `[data-theme="emerald-light"]`. Importing the stylesheets is enough for an app that only uses the light theme:
 
 ```ts main.ts
 import '@paper/emerald/theme.css'
 import '@paper/emerald/style.css'
 ```
 
-Dark is opt-in on either path. Set `data-theme="emerald-dark"` on any element and every `--emerald-*` color and shadow flips beneath it; light stays the default. That is a plain attribute, so it scopes to a subtree as happily as to `<html>` — a dark sidebar over a light page needs no second theme instance.
+Dark mode is opt-in either way. Set `data-theme="emerald-dark"` on an element and the `--emerald-*` colors and shadows inside it switch. Light stays the default. The attribute works on `<html>` or on a smaller subtree, such as a sidebar.
 
 ## Tokens
 
-Every visual decision is a CSS custom property under `--emerald-*`, generated from the same `colors.ts` and `design-system.ts` the Figma library exports to. Colors live on the theme attribute; everything dimensional lives on `:root`, because a spacing scale does not have a dark variant.
+Visual values are CSS custom properties named `--emerald-*`, generated from the same `colors.ts` and `design-system.ts` the Figma library exports. Colors sit on the theme attribute. Spacing, radius, type, icon, and motion sit on `:root`. Light shadows sit on `:root` too, and `data-theme="emerald-dark"` replaces them.
 
 | Family | Examples |
 |--------|----------|
@@ -116,19 +116,19 @@ Every visual decision is a CSS custom property under `--emerald-*`, generated fr
 | Type | `--emerald-text-b2-size`, `--emerald-text-b2-height`, `--emerald-text-b2-weight` |
 | Icon, shadow, motion | `--emerald-icon-m`, `--emerald-shadow-m`, `--emerald-motion-duration-fast` |
 
-Colors are emitted twice: as the hex value and as space-separated RGB channels, so `--emerald-primary-600-channels` can be dropped into an `rgb(… / 0.4)` for a translucent overlay without a second token.
+Each color is emitted as a hex value and as space-separated RGB channels. Use `--emerald-primary-600-channels` in `rgb(… / 0.4)` when you need a translucent overlay.
 
 ### The v0 bridge
 
-Alongside its own namespace, Emerald mirrors its color roles onto the `--v0-*` names that Vuetify0 kits read. Anything built against the generic kit vocabulary picks up Emerald's brand colors with no adapter of its own.
+Emerald also writes its color roles onto the `--v0-*` names that Vuetify0 kits read, so a kit written against those names picks up Emerald's colors.
 
-The mapping is mostly one-to-one (`--v0-primary` ← `--emerald-primary`), with a few renames where the two vocabularies disagree about severity: `--v0-error` reads Emerald's `danger`, `--v0-warning` reads `alert`, and `--v0-accent` reads `primary`. Each is emitted with its paired foreground, so a kit never gets a background without the `on-` color that is legible against it.
+Most names match: `--v0-primary` copies `--emerald-primary`. A few names differ: `--v0-error` reads `danger`, `--v0-warning` reads `alert`, and `--v0-accent` reads `primary`. Each of those is emitted with its foreground color.
 
-Pass `{ v0Aliases: false }` to the adapter to suppress the mirror entirely.
+Pass `{ v0Aliases: false }` to the adapter to skip the `--v0-*` names.
 
 ## Icons
 
-Emerald's icon set is addressed by **role**, not by drawing. You ask for `calendar` or `envelope`; you never name a file, and there is no icon font or sprite sheet to load. 48 glyphs answer to 72 names, because 24 of those names are aliases pointing at a shared drawing — `mail` resolves to the `envelope` glyph, `finance` and `payments` both resolve to `card`.
+Icons are named by role. Ask for `calendar` or `envelope`. The glyph is inline SVG, so there is no icon font and no sprite sheet to load. The set has 48 glyphs and 72 names. 24 names are aliases: `mail` uses the `envelope` glyph, and `finance` and `payments` both use `card`.
 
 ```vue
 <template>
@@ -138,11 +138,11 @@ Emerald's icon set is addressed by **role**, not by drawing. You ask for `calend
 </template>
 ```
 
-Icons are decorative by default and hidden from assistive technology; passing `label` is what promotes one to a labelled image. The full role list, the alias table, and the accessibility contract are on the [EmIcon page](/systems/emerald/icon).
+Icons are decorative by default and hidden from assistive technology. Pass `label` when an icon should be announced. Roles, aliases, and the accessibility rules are on the [EmIcon page](/systems/emerald/icon).
 
 ## Components
 
-This is the full component inventory — every family below is exported from `@paper/emerald` today, and every one has a documented page. The two conventions after the table hold across all of them.
+Every component below is exported from `@paper/emerald` and has its own page. Two rules apply to all of them.
 
 | Component | What it wraps | Page |
 |-----------|---------------|------|
@@ -176,11 +176,9 @@ This is the full component inventory — every family below is exported from `@p
 | `EmTextarea` | v0 `Input` | [Textarea](/systems/emerald/textarea) |
 | `EmTooltip` | v0 `Tooltip` | [Tooltip](/systems/emerald/tooltip) |
 
-Two conventions hold across all of them, and knowing them removes most of the guesswork about an undocumented component:
+**No named slots.** `EmButton`, `EmTextField`, and `EmCheckbox` have a fixed shape: props, and one default slot. Components whose tree changes are compounds of parts, such as `EmDialogTitle`, `EmSelectItem`, and `EmCalendarHeader`. A label is a prop or a part.
 
-**No named slots.** A component with fixed anatomy — `EmButton`, `EmTextField`, `EmCheckbox` — takes props and one default slot. A component with a variable tree ships as a compound of express parts instead: `EmDialogTitle`, `EmSelectItem`, `EmCalendarHeader`. If you are looking for a `#label` slot, the answer is either a prop or a part.
-
-**Nearly every part takes `namespace`.** It selects which instance a part talks to, and you only need it when two of the same compound are nested. Otherwise leave it alone. The exceptions are the parts that hold no state of their own — `EmDialogFooter` is pure layout and takes no `namespace` at all.
+**Most parts take `namespace`.** It chooses which parent a part belongs to when two of the same compound are nested. Leave it off otherwise. Parts with no state of their own, such as `EmDialogFooter`, do not take `namespace`.
 
 > [!NOTE]
-> Emerald is in preview. Component APIs may change between minor versions, and the prop tables on these pages are hand-authored ahead of generated API reference.
+> Emerald is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.

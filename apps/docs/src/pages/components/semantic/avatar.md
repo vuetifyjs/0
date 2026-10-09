@@ -25,7 +25,7 @@ Headless image component with automatic fallback to icon or text content.
 
 ## Usage
 
-The Avatar component provides a robust image loading system with automatic fallback handling. It manages multiple image sources with priority ordering and only displays the highest-priority loaded image or fallback content.
+The avatar loads image sources in priority order and shows the highest-priority image that loads. If none load, it shows the fallback.
 
 ::: gn-example
 /components/avatar/basic

@@ -117,7 +117,7 @@ app.use(
 
 ### Consola
 
-[Consola](https://github.com/unjs/consola) is an elegant console logger by UnJS. Requires the `consola` package.
+[Consola](https://github.com/unjs/consola) is a console logger by UnJS. Requires the `consola` package.
 
 ::: code-group no-filename
 

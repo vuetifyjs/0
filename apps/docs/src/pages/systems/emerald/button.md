@@ -2,7 +2,7 @@
 title: EmButton - Emerald Button for Vue
 meta:
 - name: description
-  content: Emerald's button — four variants, three sizes, and a loading state that keeps the button's width while it spins. Composed on Vuetify0's headless Button.
+  content: The main action control, in four variants and three sizes. The loading spinner keeps the button's width. Built on Vuetify0's Button.
 - name: keywords
   content: emerald button, vue button, design system button, loading button, vuetify0 button, paper emerald
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The primary action control — four variants, three sizes, and a loading state that spins in place without the button changing size.
+The main action control. Four variants, three sizes, and a loading state that spins in place without changing the button's width.
 
 ## Usage
 
 `EmButton` is a shell component: fixed anatomy, so everything is a prop and the default slot is the label. `variant` picks the role the button plays in a layout, and `size` picks the type scale it sits on.
 
-The four variants are a hierarchy, not a palette. Use exactly one `primary` per view — it is the thing you want the reader to do. `secondary` is the outlined alternative for a second, equally valid action; `tertiary` is text-only, for actions that should stay out of the way; `destructive` is for the ones that delete something.
+Use one `primary` per view. `secondary` is the outlined second action. `tertiary` is text only. `destructive` is for deleting something.
 
 ::: ds-example
 /systems/emerald/button/basic
@@ -49,7 +49,7 @@ The four variants are a hierarchy, not a palette. Use exactly one `primary` per 
 
 `EmButton` renders v0's [Button](/components/actions/button) compound — `Button.Root`, `Button.Content` and `Button.Loading` — and adds nothing to its behavior.
 
-The division is worth knowing because it explains the loading state. `Button.Loading` is a slot-only shell that renders no element of its own, so Emerald owns the absolutely-positioned wrapper inside it and the spinner within that. `Button.Content` stays in the flow the whole time. The result is that a loading button keeps the exact width its label gave it — the label is still laid out, just covered — so a toolbar does not reflow the moment someone clicks Save.
+`Button.Loading` is a slot-only shell that renders no element of its own, so Emerald owns the absolutely-positioned wrapper inside it and the spinner within that. `Button.Content` stays in the flow the whole time. A loading button keeps the width its label gave it, because the label stays laid out and the spinner covers it. A toolbar does not reflow when someone clicks Save.
 
 `Button.Root` is also what emits the `data-disabled` and `data-loading` attributes that every rule in Emerald's stylesheet hangs off. Emerald never writes a state class; it styles the attributes Vuetify0 already publishes.
 

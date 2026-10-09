@@ -2,7 +2,7 @@
 title: EmCalendar - Emerald Calendar for Vue
 meta:
 - name: description
-  content: Emerald's month calendar — an APG-conformant date grid with full keyboard navigation, an event layer, and a compact variant, over a calendar core incubating for Vuetify0.
+  content: A month calendar with day selection, an event layer, and the APG date-grid keyboard map. Header, title, navigation, and the grid are separate parts.
 - name: keywords
   content: emerald calendar, vue calendar, date grid vue, apg calendar, accessible calendar, event calendar vue
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A month calendar with day selection, an event layer, and the full APG date-grid keyboard map. The compound is yours to arrange — header, title, navigation and grid are each their own part.
+A month calendar with day selection, an event layer, and the APG date-grid keyboard map. Header, title, navigation, and grid are separate parts.
 
 ## Usage
 
