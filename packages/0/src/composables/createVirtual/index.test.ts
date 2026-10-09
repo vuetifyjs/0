@@ -343,6 +343,8 @@ describe('createVirtual', () => {
 
       virtual.element.value = mockContainer
 
+      // Element watcher renders the window, then pins after that render
+      await nextTick()
       await nextTick()
 
       expect(mockContainer.scrollTop).toBe(5000)

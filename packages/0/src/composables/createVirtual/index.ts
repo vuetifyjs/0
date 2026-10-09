@@ -40,7 +40,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
 import { clamp, isFunction, isNumber } from '#v0/utilities'
-import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -411,6 +411,7 @@ export function createVirtual<T = unknown> (
 
   let anchorIndex = -1
   let anchorOffset = 0
+  let pin = false
 
   const computedItems = computed(() =>
     items.value.slice(first.value, last.value).map((item, i) => ({
@@ -452,11 +453,9 @@ export function createVirtual<T = unknown> (
     /* v8 ignore next -- defensive: watch fires only when element is present */
     if (!element.value) return
 
-    if (direction === 'reverse' && items.value.length > 0) {
-      const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
-      element.value.scrollTop = totalHeight
-    }
+    // Spacers have no height until update() renders them, so the browser
+    // would clamp an immediate scrollTop to 0; pin after the next render
+    pin = direction === 'reverse'
 
     update()
   })
@@ -555,6 +554,25 @@ export function createVirtual<T = unknown> (
     const lastIndex = length - 1
     const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
     size.value = totalHeight - (offsets.value[end] || totalHeight)
+
+    // Stays armed through empty updates so a first page loaded after mount pins
+    if (pin && length > 0) {
+      nextTick(() => {
+        if (!pin) return
+
+        pin = false
+        bottom()
+        update()
+      })
+    }
+  }
+
+  function bottom () {
+    if (!element.value || items.value.length === 0) return
+
+    const lastIndex = items.value.length - 1
+    const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
+    element.value.scrollTop = totalHeight
   }
 
   function checkEdges () {
@@ -616,6 +634,8 @@ export function createVirtual<T = unknown> (
   }
 
   function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
+    pin = false
+
     /* v8 ignore next -- defensive: scrollTo only invoked after element mounts */
     if (!element.value) return
 
@@ -673,14 +693,15 @@ export function createVirtual<T = unknown> (
     state.value = 'ok'
     anchorIndex = -1
     anchorOffset = 0
-    if (element.value && direction === 'reverse' && items.value.length > 0) {
-      const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
-      element.value.scrollTop = totalHeight
-    }
+    if (direction === 'reverse') bottom()
   }
 
   onScopeDispose(() => {
+    // A scroll event queued before unmount still reaches scroll(); with no
+    // element, update() and checkEdges() bail instead of firing edge callbacks
+    element.value = undefined
+    pin = false
+
     if (!IN_BROWSER) return
 
     cancelAnimationFrame(raf)
