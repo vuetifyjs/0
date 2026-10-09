@@ -93,11 +93,11 @@ The measurement is the row's border box, so margins are not counted. Space rows 
 
 ### Infinite scroll
 
-`@end-reached` fires when the scroll position comes within `end-threshold` pixels of the end. Replace the array with one that includes the new page — `items.value = [...items.value, ...page]` — and the window extends. Pushing onto the existing array in place is not detected. `@start-reached` mirrors it for the top.
+`@bottom` fires when the scroll position comes within `bottom-threshold` pixels of the bottom edge, with the remaining distance in pixels. Replace the array with one that includes the new page — `items.value = [...items.value, ...page]` — and the window extends. Pushing onto the existing array in place is not detected. `@top` and `top-threshold` mirror it for the top edge.
 
-The callbacks fire on every animation frame of scrolling while the position stays inside the threshold, not once per crossing. An async loader needs an in-flight guard so a slow request is not started several times.
+The events fire on every animation frame of scrolling while the position stays inside the threshold, not once per crossing. An async loader needs an in-flight guard so a slow request is not started several times.
 
-They only fire in response to scrolling — never on mount. A list shorter than the viewport plus `end-threshold` cannot scroll, so `@end-reached` never fires for it. Load the first page yourself before handing `items` to Root.
+They only fire in response to scrolling — never on mount. A list shorter than the viewport plus `bottom-threshold` cannot scroll, so `@bottom` never fires for it. Load the first page yourself before handing `items` to Root.
 
 ```vue
 <script setup lang="ts">
@@ -112,7 +112,7 @@ They only fire in response to scrolling — never on mount. A list shorter than 
     return Array.from({ length: 100 }, (_, i) => start + i)
   }
 
-  async function onEndReached () {
+  async function onBottom () {
     if (loading.value) return
     loading.value = true
     try {
@@ -126,11 +126,11 @@ They only fire in response to scrolling — never on mount. A list shorter than 
 <template>
   <Virtualizer.Root
     v-slot="{ items }"
-    :end-threshold="200"
+    :bottom-threshold="200"
     :height="400"
     :item-height="40"
     :items="rows"
-    @end-reached="onEndReached"
+    @bottom="onBottom"
   >
     <Virtualizer.Item
       v-for="item in items"
@@ -335,11 +335,11 @@ A template ref on Root provides both halves: `element` is the container that kee
 
 ??? Which props are reactive?
 
-`items`, `height`, `onStartReached`, and `onEndReached` are read live. `itemHeight`, `overscan`, `direction`, `anchor`, `anchorSmooth`, the thresholds, `momentum`, and `elastic` are read once when Root mounts — key the Root to apply a new value.
+`items` and `height` are read live, and `@top` / `@bottom` handlers can be swapped at any time. `itemHeight`, `overscan`, `direction`, `anchor`, `anchorSmooth`, the thresholds, `momentum`, and `elastic` are read once when Root mounts — key the Root to apply a new value.
 
-??? Why doesn't end-reached fire for my first page?
+??? Why doesn't @bottom fire for my first page?
 
-Edge callbacks run from scroll events only, never on mount. If the initial `items` are shorter than the viewport plus `end-threshold`, nothing can scroll and the callback never fires. Fetch the first page before rendering, or keep loading until the list overflows the container.
+`@top` and `@bottom` fire from scroll events only, never on mount. If the initial `items` are shorter than the viewport plus `bottom-threshold`, nothing can scroll and the event never fires. Fetch the first page before rendering, or keep loading until the list overflows the container.
 
 ??? Does Virtualizer support renderless mode?
 
