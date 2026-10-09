@@ -50,10 +50,10 @@
   const snoozed = storage.get<Record<string, number>>('v0-docs-banner-snooze', {})
   const cooldown = storage.get<number>('v0-docs-banner-cooldown', 0)
 
-  // '*' and 'docs' belong to the other properties. This strip only mounts a banner
-  // whose site list contains the literal tag.
+  // v0 docs mounts a banner tagged for this site or for every site. 'docs' is
+  // vuetifyjs.com and stays off this strip.
   function targetsDocs (site: unknown) {
-    return isArray(site) && site.includes(SITE)
+    return isArray(site) && (site.includes(SITE) || site.includes('*'))
   }
 
   function dismissedSlugs () {
@@ -179,9 +179,14 @@
   async function fetchBanners () {
     const targeted = await fetch(`${API}/one/banners/site/${SITE}`)
 
-    if (targeted.ok) return parseBanners(await targeted.json())
-    // Until the site route is deployed, the public list is the same payload.
-    if (targeted.status !== 404) return []
+    if (targeted.ok) {
+      const banners = parseBanners(await targeted.json())
+      // A process that predates wildcard membership returns 200 and an empty
+      // list. The public list still has the '*' banners.
+      if (banners.length > 0) return banners
+    } else if (targeted.status !== 404) {
+      return []
+    }
 
     const response = await fetch(`${API}/one/banners`)
     if (!response.ok) return []
