@@ -2,7 +2,7 @@
 title: EmPagination - Emerald Pagination for Vue
 meta:
 - name: description
-  content: Page navigation for long lists: numbered buttons, previous and next, and an ellipsis for pages away from the current one. Built on Vuetify0's Pagination.
+  content: Page navigation for long lists. Numbered buttons, previous and next, and an ellipsis for pages away from the current one. Built on Vuetify0's Pagination.
 - name: keywords
   content: emerald pagination, vue pagination, design system pagination, page navigation vue, vuetify0 pagination, paper emerald
 features:
