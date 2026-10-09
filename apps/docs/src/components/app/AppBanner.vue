@@ -24,10 +24,12 @@
 
   interface RemoteBanner {
     slug: string
+    created_at?: string
     metadata: {
       closable?: boolean | null
       color?: string | null
       height?: number | null
+      priority?: string | number | null
       text?: string | null
       subtext?: string | null
       link?: string | null
@@ -50,10 +52,23 @@
   const snoozed = storage.get<Record<string, number>>('v0-docs-banner-snooze', {})
   const cooldown = storage.get<number>('v0-docs-banner-cooldown', 0)
 
-  // '*' and 'docs' belong to the other properties. This strip only mounts a banner
-  // whose site list contains the literal tag.
+  // Same membership test as the One properties: '*' is every site, otherwise
+  // the banner's own tags have to include this one. 'docs' is vuetifyjs.com.
   function targetsDocs (site: unknown) {
-    return isArray(site) && site.includes(SITE)
+    return isArray(site) && (site.includes('*') || site.includes(SITE))
+  }
+
+  function priorityOf (value: unknown) {
+    if (isNumber(value)) return value
+    if (!isString(value)) return 0
+    const parsed = Number(value)
+    return isNaN(parsed) ? 0 : parsed
+  }
+
+  function createdAt (value: string | undefined) {
+    if (!isString(value)) return 0
+    const time = new Date(value).getTime()
+    return isNaN(time) ? 0 : time
   }
 
   function dismissedSlugs () {
@@ -80,12 +95,20 @@
 
     const hidden = dismissedSlugs()
 
-    return all.value.find(item => {
+    const eligible = all.value.filter(item => {
       if (!targetsDocs(item.metadata.site)) return false
       if (!isString(item.metadata.text) || item.metadata.text.length === 0) return false
       if (hidden.includes(item.slug)) return false
       return snoozeUntil(item.slug) <= now
     })
+
+    // One sorts priority descending, then newest first. The public payload
+    // order is not that sequence.
+    return eligible.toSorted((a, b) => {
+      const priority = priorityOf(b.metadata.priority) - priorityOf(a.metadata.priority)
+      if (priority !== 0) return priority
+      return createdAt(b.created_at) - createdAt(a.created_at)
+    })[0]
   })
 
   const text = toRef(() => banner.value?.metadata.text ?? '')
@@ -177,12 +200,6 @@
   }
 
   async function fetchBanners () {
-    const targeted = await fetch(`${API}/one/banners/site/${SITE}`)
-
-    if (targeted.ok) return parseBanners(await targeted.json())
-    // Until the site route is deployed, the public list is the same payload.
-    if (targeted.status !== 404) return []
-
     const response = await fetch(`${API}/one/banners`)
     if (!response.ok) return []
     return parseBanners(await response.json())
