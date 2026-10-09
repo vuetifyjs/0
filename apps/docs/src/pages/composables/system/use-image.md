@@ -84,7 +84,7 @@ stateDiagram-v2
 
 Wrap `useImage` in a small composable to build a self-contained image card that drives the full state machine — `idle → loading → loaded | error` — and surfaces it as UI: a placeholder while loading, the photo when it arrives, a broken-image affordance on hard failure, and a status badge that reflects the live `status` ref. This is the "build your own smart image" pattern when the `Image` compound's DOM isn't what you need.
 
-The interesting work happens in the wrapper. Rather than reaching for a `watch` on `isError`, the composable intercepts `onError`: when the primary source fails and a fallback URL exists, it swaps the *gated* `source` instead of reporting the error. Because `useImage` resets its state machine whenever `src` changes, that single assignment re-runs `idle → loading → loaded | error` against the fallback for free — no imperative re-fetch, no second `useImage` instance. A `reload()` method rewinds the active source back to the primary so the entire lifecycle replays on demand, demonstrating how `retry()` and reactive `src` changes compose.
+The wrapper intercepts `onError` instead of watching `isError`: when the primary source fails and a fallback URL exists, it swaps the *gated* `source` instead of reporting the error. Because `useImage` resets its state machine whenever `src` changes, that single assignment re-runs `idle → loading → loaded | error` against the fallback for free — no imperative re-fetch, no second `useImage` instance. A `reload()` method rewinds the active source back to the primary so the entire lifecycle replays on demand.
 
 Reach for this when you want consistent placeholder and fallback behavior across many images without the `Image` component — a gallery, a card grid, an avatar wall. The gallery wires three cards that exercise every branch: one that loads directly, one whose primary fails but recovers via fallback, and one where neither source resolves. For viewport-gated loading, compose it with [useIntersectionObserver](/composables/system/use-intersection-observer) (see the next example) or defer the whole card with [useLazy](/composables/system/use-lazy); for a batteries-included version, [Image](/components/semantic/image) and [Avatar](/components/semantic/avatar) package the same machine with built-in slots.
 
@@ -144,7 +144,7 @@ Build a reusable image component that surfaces a retry button when loading fails
 
 Reach for this pattern anywhere a failed image shouldn't be a dead end: user-uploaded content that might take a moment to propagate through a CDN, photos behind a request-signed URL that can expire, or any UX where a "try again" button is friendlier than leaving a broken-image icon on screen. Track an `attempts` counter alongside `retry` when you want to cap retries or show progress ("Attempt 3 of 3") — `useImage` doesn't manage retry bookkeeping itself, which keeps it headless.
 
-A few details worth knowing:
+A few details:
 
 - **`retry()` is idempotent relative to `src`** — it doesn't change the source, just rewinds the state machine. If the image fails deterministically (404, CORS error), retry loops without progress; a fallback source or a cap is the caller's responsibility.
 - **Works with reactive `src` changes** — swapping `src` also resets the state machine automatically, so you typically call `retry()` only when you want to re-attempt the *same* URL. Set a new URL via the reactive ref if you want to try a different source.

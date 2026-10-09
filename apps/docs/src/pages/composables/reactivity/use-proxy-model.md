@@ -50,7 +50,7 @@ console.log(model.value) // 'Banana'
 
 ### Multiple mode
 
-Pass `multiple: true` to sync an array model with a multi-select context. This **must be explicit** — `multiple` is never inferred from the context:
+Pass `multiple: true` to sync an array model with a multi-select context. Omit it and the proxy follows `context.multiple`, then `false`:
 
 ```ts no-filename
 const model = ref<string[]>([])
@@ -142,7 +142,7 @@ Reach for `useProxyModel` when you need to expose a selection context through a 
 
 ??? Why isn't my array model syncing with a multi-select context?
 
-`multiple` is never inferred from the context — you must pass `{ multiple: true }` explicitly and back it with a `ref<string[]>`. It accepts `MaybeRefOrGetter<boolean>`, so you can also drive it from a prop or computed.
+Omit `multiple` and the proxy follows `context.multiple`, then `false`. Pass `{ multiple: true }` to sync an array model with a multi-select context, and back it with a `ref<string[]>`. It accepts `MaybeRefOrGetter<boolean>`, so you can also drive it from a prop or computed.
 
 ??? Why isn't a disabled item selected when the model already holds its value?
 

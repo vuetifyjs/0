@@ -89,7 +89,7 @@ flowchart LR
 
 Hover the target to schedule a 2000 ms open; leave it to schedule a 1500 ms close. The progress bar reflects `remaining` against the active direction, the badges surface every reactive flag, and the controls demonstrate `pause`, `resume`, and `stop` against the in-flight delay.
 
-Reach for this pattern when you want a tooltip or popover that respects hover intent without flickering. Pause/Resume is the differentiator — without it, briefly leaving the target to interact with adjacent UI would restart the close countdown. The promise returned by `start()` lets you sequence side effects after the delay elapses without a second `watch`.
+Reach for this pattern when you want a tooltip or popover that respects hover intent without flickering. Without pause, briefly leaving the target to interact with adjacent UI restarts the close countdown. The promise returned by `start()` lets you sequence side effects after the delay elapses without a second `watch`.
 
 :::
 

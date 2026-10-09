@@ -130,7 +130,7 @@ Click and drag across the waveform to scrub through the track.
 A before/after theme comparison tool — the same `fromPercent` → `set` pointer math as the scrubber, applied to a completely different visual metaphor. The slider never renders as a traditional slider control.
 
 > [!TIP] Same math, different metaphor
-> This uses the exact same `fromPercent` → `set` → `fromValue` loop as the scrubber above, proving `createSlider` is a reusable math primitive — not a UI widget.
+> This uses the same `fromPercent` → `set` → `fromValue` loop as the scrubber above. No `Slider` component is required.
 
 Two identical UI panels are stacked with `position: absolute`. The bottom layer has `data-theme="light"`, the top has `data-theme="dark"` with `clip-path: inset(0 0 0 X%)` where X comes from `slider.fromValue()`. Dragging the handle clips the dark panel from the left, revealing the light panel underneath.
 
@@ -144,7 +144,7 @@ Two identical UI panels are stacked with `position: absolute`. The bottom layer 
 
 - `createSlider` as a math primitive — no form input, no `Slider.*` components
 - `data-theme` scoping — two theme contexts coexist in the same DOM tree
-- Same pointer math pattern as the scrubber, proving the composable is reusable across visual metaphors
+- Same pointer loop as the scrubber: `fromPercent`, then `set`, then `fromValue`
 
 Drag the divider handle left and right to compare themes.
 :::

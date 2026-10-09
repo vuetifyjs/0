@@ -24,7 +24,7 @@ A headless provider for exclusive single-selection — selecting an item automat
 <DocsPageFeatures :frontmatter />
 
 > [!NOTE]
-> Single is a headless single-selection *state provider* — it tracks the selected item but ships no `role`, keyboard navigation, or focus management. For an accessible radio group with `role="radio"` and arrow-key navigation, use [Radio](/components/forms/radio), which is built on the same single-selection logic.
+> Single is a headless single-selection state provider. Item `attrs` include `role="option"`, a tabindex, and Enter/Space. Arrow-key roving and `role="radio"` stay on [Radio](/components/forms/radio), which is built on the same selection logic.
 
 ## Usage
 
@@ -59,7 +59,7 @@ The Single component is a specialization of Selection that enforces single-selec
 
 A Monthly/Yearly segmented control built on `Single.Root` with `mandatory`. Each `Single.Item` is a billing period; selecting one auto-deselects the other, and `mandatory` blocks clicking the active segment off, so a period is always chosen. The selected value flows straight through the Root's `v-model`, and the live price card below it reacts to that one value — switching to Yearly drops the per-month price and reveals the savings badge.
 
-Single ships no roles, keyboard handling, or focus management — it is a pure selection-state provider, so both `Single.Root` and `Single.Item` are renderless. That is why the segment binds the item's slot `attrs` directly onto its own `<button>`: `attrs` carries the `onClick` toggle plus the `data-selected` / `aria-selected` state. Styling keys off `data-selected` (the active label darkens) and a sliding indicator is positioned with a `translateX` derived from the selected index — the example owns its own semantics and visuals on top of the provider's state.
+`Single.Root` and `Single.Item` are renderless. The segment binds the item's slot `attrs` onto its own `<button>`: `attrs` already include `role="option"`, a tabindex, Enter/Space, the click handler, and `data-selected` / `aria-selected`. Styling keys off `data-selected` (the active label darkens) and a sliding indicator is positioned with a `translateX` derived from the selected index — the example owns its own semantics and visuals on top of the provider's state.
 
 Reach for Single when you are building an exclusive-choice control you want to style yourself — segmented toggles, theme pickers, view switchers. If you need an accessible, form-ready radio group with `role="radiogroup"`, arrow-key navigation, and a hidden input, use [Radio](/components/forms/radio) instead; for multi-select, use [Selection](/components/providers/selection). The underlying logic is [createSingle](/composables/selection/create-single).
 
@@ -72,12 +72,12 @@ Reach for Single when you are building an exclusive-choice control you want to s
 
 ## Accessibility
 
-Single is a headless **state provider**, not a complete interactive widget. It manages which item is selected and exposes that state on each item's slot `attrs`; it does not ship a role, keyboard navigation, or focus management.
+Single is a headless **state provider**, not a complete listbox. It manages which item is selected. Slot `attrs` already include `role="option"`, a tabindex, and Enter/Space.
 
 - `Single.Root` exposes `aria-multiselectable="false"`.
 - `Single.Item` exposes `aria-selected` and `aria-disabled`, plus `data-selected` and `data-disabled` for styling.
 
-This is listbox/tab-style selection state. For an accessible radio group — `role="radiogroup"`, `role="radio"`, arrow-key navigation, and roving `tabindex` — use [Radio](/components/forms/radio), which composes the same single-selection logic. When you bind `attrs` to your own element, you are responsible for supplying the appropriate `role` and keyboard handlers for the pattern you are building.
+This is listbox-style selection state. Binding `attrs` already applies `role="option"` and Enter/Space. Add arrow-key roving yourself if the pattern needs it. For `role="radiogroup"`, `role="radio"`, and arrow keys, use [Radio](/components/forms/radio), which composes the same single-selection logic.
 
 ## FAQ
 
@@ -85,11 +85,11 @@ This is listbox/tab-style selection state. For an accessible radio group — `ro
 
 ??? How is Single different from Radio?
 
-`Single` is a headless single-selection state provider — it tracks the selected item and exposes selection state, but ships no `role`, keyboard navigation, or focus management. `Radio` is a complete, accessible radio group built on the same logic, adding `role="radiogroup"` / `role="radio"`, arrow-key navigation, roving `tabindex`, and native form integration. Reach for `Radio` when you want radio buttons; reach for `Single` when you are building your own exclusive-choice UI — tabs, segmented controls, theme pickers — and will supply your own semantics.
+`Single` tracks the selected item and already puts `role="option"`, a tabindex, and Enter/Space on item `attrs`. `Radio` is a complete radio group on the same logic, adding `role="radiogroup"` / `role="radio"`, arrow keys, roving tabindex, and a hidden input. Reach for `Radio` when you want radio buttons; reach for `Single` when you are building your own exclusive-choice UI and will add whatever keys `option` does not cover.
 
 ??? How is Single different from Selection?
 
-`Single` enforces exactly one selected item — selecting a new item automatically deselects the previous one — and exposes singular computed state (`selectedId`, `selectedValue`, `selectedItem`, `selectedIndex`). `Selection` is the multi-select parent: its model holds an array of values. Use `Single` for exclusive choice, `Selection` for multi-choice.
+`Single` enforces exactly one selected item — selecting a new item automatically deselects the previous one — and exposes singular computed state (`selectedId`, `selectedValue`, `selectedItem`, `selectedIndex`). `Selection` is single-select by default. Its model is an array only when `multiple` is set. Use `Single` for exclusive choice, `Selection` with `multiple` for multi-choice.
 
 ??? What is the difference between enroll and mandatory?
 

@@ -103,7 +103,7 @@ useResizeObserver(el, ([entry]) => {
 | `isActive` | <AppSuccessIcon /> | Computed from observer ref |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
-| `pause()` | — | Temporarily stop observing without disconnecting |
+| `pause()` | — | Disconnects the observer. `resume()` creates a new one |
 | `resume()` | — | Resume after `pause()` |
 | `stop()` | — | Disconnect the observer permanently |
 
@@ -137,7 +137,7 @@ Use it for component (container) queries — when an element's layout depends on
 
 ??? How do I pause observing without tearing the observer down?
 
-Call `pause()` to stop receiving callbacks and `resume()` to continue with the same observer. Use `stop()` only when you want to disconnect permanently.
+`pause()` disconnects the observer. `resume()` creates a new one and observes again. `stop()` disconnects and drops the hydration watch.
 
 ??? Can I read width and height without writing a callback?
 

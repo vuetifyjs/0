@@ -110,7 +110,7 @@ tabs.onboard([
 ])
 
 // ✅ Reactive - templates update automatically
-tabs.selectedId  // Ref<string | null>
+tabs.selectedId  // Readonly<Ref<ID | undefined>> — nothing selected is undefined
 ```
 
 ```vue playground collapse
@@ -354,8 +354,6 @@ const hasItems = computed(() => proxy.size > 0)
 
 ## Performance Implications
 
-Minimal reactivity isn't just a design choice—it has measurable impact.
-
 ### Benchmark: Bulk Registration
 
 Registering items in batch is measurably slower with `reactive: true` than with the default non-reactive registry — every write goes through Vue's change-tracking machinery instead of a plain `Map` mutation. The exact slowdown depends on dataset size, browser, and hardware, so rather than quoting fixed numbers here, run the comparison live:
@@ -401,7 +399,7 @@ Registering items in batch is measurably slower with `reactive: true` than with 
 </template>
 ```
 
-For most apps (<1,000 items), either approach works fine. For large datasets or frequent updates (>60/s), the minimal approach shines.
+For most apps (<1,000 items), either approach works fine. For large datasets or frequent updates (>60/s), leave the registry non-reactive.
 
 See [Benchmarks](/guide/fundamentals/benchmarks) for detailed measurements and methodology.
 

@@ -88,7 +88,7 @@ Note the parent binds `model-value` and listens for the update rather than using
 
 The state is preserved, not erased. A disabled checkbox keeps showing checked or mixed exactly as it was, just without the color that invites interaction — which is what you want when a selection is locked by a precondition rather than discarded by one.
 
-One behavior to know: a disabled `EmCheckbox` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot change it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
+A disabled `EmCheckbox` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot change it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
 :::
 
 ## Props

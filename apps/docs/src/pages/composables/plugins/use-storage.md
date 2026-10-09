@@ -82,7 +82,7 @@ Adapters let you swap the underlying storage backend without changing your appli
 flowchart LR
   createStoragePlugin --> createContext
   createContext --> StorageContext
-  StorageContext --> Adapter[LocalStorageAdapter/SessionStorageAdapter/MemoryStorageAdapter]
+  StorageContext --> Adapter[window.localStorage or MemoryStorageAdapter]
   Adapter --> storage[browser storage/memory]
 ```
 
@@ -112,7 +112,7 @@ The `get()` method returns reactive refs that sync with storage automatically.
 
 A settings panel built directly on `createStorage` — the standalone factory behind the plugin. The `name` and `theme` fields are reactive refs returned from `storage.get()` with a default; writing to either ref is enough to persist it, because `get()` watches the value with `{ deep: true }` internally. There is no explicit `set()` call for these — editing the input or picking a theme writes through automatically. A separate "draft note" demonstrates the explicit lifecycle: `set()` to persist, `has()` to check presence, and `remove()` to drop the key.
 
-The draft is the interesting part. It is held in a local `shallowRef` buffer and only copied into storage when you click Save, so `has('note')` honestly reports whether a draft has been persisted rather than merely cached. Because `has()` returns a plain boolean snapshot — it is not reactive, per the Reactivity table above — the composable re-reads it into a reactive `saved` flag after every `set()` and `remove()`. Forget calls `remove()` to delete the key and clears the buffer, flipping `saved` back to `false`.
+The draft is held in a local `shallowRef` buffer and only copied into storage when you click Save, so `has('note')` honestly reports whether a draft has been persisted rather than merely cached. Because `has()` returns a plain boolean snapshot — it is not reactive, per the Reactivity table above — the composable re-reads it into a reactive `saved` flag after every `set()` and `remove()`. Forget calls `remove()` to delete the key and clears the buffer, flipping `saved` back to `false`.
 
 The example uses `MemoryStorageAdapter` for isolation; swapping in `localStorage` or `sessionStorage` is a one-line adapter change and makes the panel survive page refreshes. Reach for the storage layer over raw `localStorage` calls whenever you want reactive refs, a shared key prefix, TTL expiration, or SSR safety without hand-writing serialization. With the plugin installed you would call [useStorage](/composables/plugins/use-storage) instead of `createStorage` to share one instance app-wide; see [useHydration](/composables/plugins/use-hydration) and the [plugins guide](/guide/fundamentals/plugins) for coordinating storage reads with SSR hydration.
 

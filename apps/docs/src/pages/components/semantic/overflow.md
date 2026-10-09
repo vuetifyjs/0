@@ -71,9 +71,9 @@ Headless responsive truncation primitive. Children render until the container ru
 
 ### Responsive toolbar
 
-A horizontal action bar is the textbook case for measured truncation: there are more buttons than the row can hold on a narrow screen, and stacking or wrapping them looks broken. `Overflow.Root` measures the available width, keeps as many leading actions visible as fit, and surfaces the rest through a single `Overflow.Indicator`. Because measurement runs through a `ResizeObserver`, the split between visible and collapsed actions recomputes live as the container resizes — no breakpoints, no manual width math.
+A horizontal action bar has more buttons than a narrow row can show. `Overflow.Root` measures the available width, keeps as many leading actions visible as fit, and surfaces the rest through a single `Overflow.Indicator`. Because measurement runs through a `ResizeObserver`, the split between visible and collapsed actions recomputes live as the container resizes — no breakpoints, no manual width math.
 
-The interesting detail is what lives inside the indicator. Its slot exposes `count` and the array of currently `hidden` tickets, so the overflow affordance here is a real menu rather than a dead label: the indicator wraps a [Popover](/components/disclosure/popover), the hidden tickets are mapped back to their actions, and each renders as a menu button. Selecting one runs the same handler a visible button would, then calls the popover's `toggle` to dismiss the menu. Each `Overflow.Item` carries its action id as its `value`, which is the key the indicator reads back out of `hidden`.
+Its slot exposes `count` and the array of currently `hidden` tickets, so the overflow affordance here is a real menu rather than a dead label: the indicator wraps a [Popover](/components/disclosure/popover), the hidden tickets are mapped back to their actions, and each renders as a menu button. Selecting one runs the same handler a visible button would, then calls the popover's `toggle` to dismiss the menu. Each `Overflow.Item` carries its action id as its `value`, which is the key the indicator reads back out of `hidden`.
 
 Reach for this whenever a command surface must stay on one line across viewports — document toolbars, table row actions, editor controls. Keep `priority="start"` (the default) so the most-used leading actions never collapse; flip to `priority="end"` only when the newest items matter most. For first-plus-last "show the ends, hide the middle" trails, use [Breadcrumbs](/components/semantic/breadcrumbs) instead — `Overflow` is deliberately one-sided.
 
@@ -90,9 +90,9 @@ Reach for this whenever a command surface must stay on one line across viewports
 
 ### Avatar group
 
-The classic "user roster" use case — a stack of overlapping avatars that collapse into a `+N` chip when the row gets tight. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The overlap comes from per-avatar `marginInlineStart: -8px`, which `createOverflow` picks up automatically through `getComputedStyle().marginLeft` — the `Overflow.Root` doesn't need to set the `gap` prop because the container has no CSS gap and the visual overlap is already in each item's measured width.
+Overlapping avatars collapse into a `+N` chip when the row runs out of width. The data lives in a separate `users.ts` module to keep the markup focused on the visual composition. The overlap comes from per-avatar `marginInlineStart: -8px`, which `createOverflow` picks up automatically through `getComputedStyle().marginLeft` — the `Overflow.Root` doesn't need to set the `gap` prop because the container has no CSS gap and the visual overlap is already in each item's measured width.
 
-Because each avatar has the same width, the trailing avatars drop in predictable order — no special configuration needed beyond the default `priority="start"`. The indicator inherits the same circular shape and ring so it visually slots into the stack rather than calling attention to itself.
+Because each avatar has the same width, the trailing avatars drop in predictable order — no special configuration needed beyond the default `priority="start"`. The indicator uses the same circular shape and ring as the avatars.
 
 | File | Role |
 |------|------|

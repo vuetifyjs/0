@@ -177,6 +177,6 @@ DOM order is previous, next, then the list — CSS puts the list in the middle v
 
 ## Accessibility
 
-The root is a `nav` whose accessible name comes from the locale key `Pagination.label`. Page links, previous and next are anchors, not buttons: `disabled` is omitted (it is not valid on `<a>`), and the inert state is `is-disabled` plus `aria-disabled` and `tabindex="-1"`. The current page is `is-current` with `aria-current="page"`.
+The root is a `nav` whose accessible name comes from the locale key `Pagination.label`. Page links, previous and next are `<a>` elements with `role="button"`: `disabled` is omitted (it is not valid on `<a>`), and the inert state is `is-disabled` plus `aria-disabled` and `tabindex="-1"`. The current page is `is-current` with `aria-current="page"`.
 
 Enter and Space activate those anchors. Ellipses are `aria-hidden`. Page-link names come from the locale keys `Pagination.goToPage` and `Pagination.currentPage` — do not copy the fixture's "Goto page N" strings; they are documentation placeholders, and the conformance suite ignores the difference on purpose.

@@ -116,7 +116,7 @@ Each part renders its own `.control` wrapper rather than leaving it to you, beca
 
 Reach for it whenever the number means something to a reader in a particular shape: currency, percentages, a fixed number of decimal places. Typing is unaffected, so a reader can enter `12.5` into a currency field and get `$12.50` back on blur without learning the format.
 
-`color` is worth noting here too. It lands on the steppers only, never on the input, because Bulma's `.input` color modifier paints the border — which is the same surface `is-danger` uses to signal a failing value. Leaving the input uncolored keeps the validation state legible no matter which color the field carries.
+`color` lands on the steppers only, never on the input, because Bulma's `.input` color modifier paints the border — which is the same surface `is-danger` uses to signal a failing value. Leaving the input uncolored keeps the validation state legible no matter which color the field carries.
 :::
 
 ::: ds-example
@@ -126,7 +126,7 @@ Reach for it whenever the number means something to a reader in a particular sha
 
 Rules and error text come from an ambient `NumberFieldRoot` rather than from props on `BuNumberField`, and that is deliberate rather than incidental. `BuLabel` and `BuHelp` resolve their wiring by injection — the label's `for`, the help text's id, the input's `aria-errormessage` — so all three need to see the same context. A `BuNumberField` that creates its own root scopes that context to its own subtree, where a sibling label and help cannot reach it.
 
-Wrapping the field in `<NumberFieldRoot renderless>` puts the context one level up, where every sibling can inject it. `BuNumberField` detects the ambient root and renders a plain `.field.has-addons` instead of creating a second one, so nothing is shadowed. The label and the help both need `namespace="v0:number-field:root"`: their default namespace is the plain input one, and a mismatched namespace injects nothing and renders unwired — no `for`, no error text, and no complaint at runtime.
+Wrapping the field in `<NumberFieldRoot renderless>` puts the context one level up, where every sibling can inject it. `BuNumberField` detects the ambient root and renders a plain `.field.has-addons` instead of creating a second one, so nothing is shadowed. The label and the help both need `namespace="v0:number-field:root"`: their default namespace is the plain input one, and a mismatched namespace injects nothing — no `for` and no error text. In development `BuHelp` warns that no Input context arrived.
 
 The failing state itself is component-owned. `BuNumberFieldInput` puts `is-danger` on the input when validation fails; there is no prop for it, and `error` on `BuNumberField` forces the state rather than styling it. Validation runs on blur by default — `validateOn` changes that.
 
@@ -197,7 +197,7 @@ The steppers are deliberately not focusable. Both carry `tabindex="-1"` and a lo
 | Key | Behavior |
 |-----|----------|
 | Up / Down | Step by `step` |
-| Shift + Up / Down | Step by `leap` |
+| Shift + Up / Down | Step by `10 * step` |
 | PageUp / PageDown | Step by `leap` |
 | Home / End | Jump to `min` / `max` |
 | Enter | Commit the typed text |

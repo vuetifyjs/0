@@ -103,6 +103,6 @@ Each of the three shapes says something different to assistive technology, and e
 | Vertical, no label | `div` | Explicit `role="separator"` with `aria-orientation="vertical"` |
 | Labeled | `div` | No role. Lines are `aria-hidden`; the label reads as plain text |
 
-The labeled shape carrying no role is the part worth understanding rather than "fixing". A `separator` is children-presentational — assistive technology discards everything inside it — so a labeled divider marked as a separator would announce as an anonymous rule and swallow its own words. Emerald keeps the words and gives up the role, which is the better half of that trade: the lines are decoration, the label is content.
+A labeled divider has no separator role. A `separator` is children-presentational — assistive technology discards everything inside it — so a labeled divider marked as a separator would announce as an anonymous rule and swallow its own words. Emerald keeps the words and gives up the role, which is the better half of that trade: the lines are decoration, the label is content.
 
 The divider is never focusable and has no keyboard behavior in any shape. ARIA's focusable-separator variant is a window splitter — a control that moves — and a divider that only draws a line must not take a tab stop. If you need a draggable divider between panes, that is [Splitter](/components/semantic/splitter), not this component.

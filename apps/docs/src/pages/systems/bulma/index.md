@@ -100,7 +100,7 @@ Every region Bulma documents is its own component, such as `BuModalContent`, `Bu
 
 ## What conformance means
 
-Every component is diffed against the markup [published on bulma.io](https://bulma.io/documentation/). The fixtures live beside the source in `packages/bulma/harness/fixtures/`, captured verbatim from the documentation, and the conformance suite asserts that the rendered DOM matches — element for element, class for class.
+Every component but the number field is diffed against markup [published on bulma.io](https://bulma.io/documentation/). The fixtures live beside the source in `packages/bulma/harness/fixtures/`. All but the number field are captured verbatim from the documentation — Bulma ships no number input, so that fixture is composed from the addons docs — and the conformance suite asserts that the rendered DOM matches element for element and class for class.
 
 Where the two differ, the difference is deliberate and declared:
 
@@ -109,7 +109,7 @@ Where the two differ, the difference is deliberate and declared:
 | No owned token namespace | `--bulma-*` belongs to upstream; the package owns no prefix |
 | Upstream state classes, unprefixed | `is-active` and `is-hoverable` instead of data-attribute hooks — Bulma's CSS selects on them |
 | Native form controls | Bulma styles native `select`, `input[type=checkbox]` and friends; a non-native control gets none of your CSS |
-| Added aria | `BuDropdownMenu` emits `role="menu"` only when its items really are menu items[^dropdown-menu]; `BuNotificationDelete` labels its delete button |
+| Added aria | `BuDropdown`'s `menu` prop opts `.dropdown-menu` into `role="menu"`; the component does not inspect the items[^dropdown-menu]. `BuNotificationDelete` labels its delete button |
 
 ## Components
 

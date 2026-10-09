@@ -169,7 +169,7 @@ the built-in set when neither is installed. `EmIcon` renders against the
 `--emerald-icon-*` scale, and every Em* glyph draws through it, so one override restyles
 the system's chrome. See [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md) "Icons".
 
-Maturity: **preview**. Not published (`private: true` until first release cut).
+Maturity: **preview**. Published on npm as `@paper/emerald` (0.1.1). The package is public; it is not `private`.
 
 Dev showcase routes (Figma product examples; inventory in [FIGMA_INVENTORY.md](./FIGMA_INVENTORY.md)):
 - Product: `/emerald` · `/contact` · `/sign-in` · `/faqs` · `/features` · `/settings` · `/pricing` · `/modals` · `/about` (all under `/emerald/…`)

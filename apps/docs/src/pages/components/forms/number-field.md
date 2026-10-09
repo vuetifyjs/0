@@ -94,7 +94,7 @@ flowchart TD
 
 A shopping-cart editor where every line item is a quantity `NumberField` that drives a live order summary. Each field is bound with `:min="0"`, `:max="item.stock"`, `:step="1"`, and `clamp`, so a shopper can never order more than what's in stock and typing an out-of-range value snaps back to the boundary on blur. The out-of-stock line has a stock of zero, so the component sets `:disabled` on its `NumberField.Root` — the increment, decrement, and control all read the Root's `data-disabled` and dim accordingly.
 
-The interesting part is how the totals stay in sync. Quantities live as numbers on the cart items in the composable, and `subtotal`, `tax`, and `total` are `computed` reductions over those quantities — touch any stepper and every dependent figure recomputes. Each `NumberField.Root` carries a `name` (`qty-{id}`), which lands directly on the underlying `NumberField.Control` input, so the quantities post with native form submission — NumberField has no separate hidden-input sub-component. The whole thing is wrapped in a [Form](/components/forms/form), whose `@submit` is pass-through, so the handler guards on `payload.valid` before committing the order — and because `total` can be zero, the submit button disables itself rather than placing an empty order.
+The totals stay in sync. Quantities live as numbers on the cart items in the composable, and `subtotal`, `tax`, and `total` are `computed` reductions over those quantities — touch any stepper and every dependent figure recomputes. Each `NumberField.Root` carries a `name` (`qty-{id}`), which lands directly on the underlying `NumberField.Control` input, so the quantities post with native form submission — NumberField has no separate hidden-input sub-component. The whole thing is wrapped in a [Form](/components/forms/form), whose `@submit` is pass-through, so the handler guards on `payload.valid` before committing the order — and because `total` can be zero, the submit button disables itself rather than placing an empty order.
 
 Reach for this triad shape whenever numeric inputs feed a derived calculation: keep the line data and the `computed` totals in a `use*` composable, render the compound surface plus its UnoCSS styling in a reusable component, and let a thin entry wire them together and swap in a confirmation panel. For the underlying numeric math and formatting primitive, see [createNumberField](/composables/forms/create-number-field); for the field's keyboard and ARIA contract, see the Accessibility section below.
 
@@ -176,7 +176,7 @@ NumberField.Control renders with `role="spinbutton"` and full ARIA attributes pe
 | `aria-errormessage` | Error ID | When Error is mounted with messages |
 | `aria-required` | `true` | When Root has `required` |
 
-Increment and Decrement buttons use `tabindex="-1"` to keep them out of the tab sequence — only the Input is focusable.
+Increment and Decrement use `tabindex="-1"`. The tab stop is `NumberField.Control`.
 
 ### Keyboard Navigation
 
@@ -214,7 +214,7 @@ On blur, the Input parses the text via `parse()`. If the result is `NaN`, the va
 
 ??? Can I use NumberField without increment/decrement buttons?
 
-Yes. Only `Root` and `Input` are required. Buttons, Scrub, Description, and Error are all optional.
+Yes. Only `Root` and `Control` are required. Buttons, Scrub, Description, and Error are all optional.
 
 :::
 

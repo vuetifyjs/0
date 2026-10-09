@@ -80,7 +80,7 @@ Pick by the surface's density, the same way you would for [EmButton](/systems/em
 
 Neither is the native `disabled` attribute. The radio is a `<button>` that Vuetify0 marks with `aria-disabled` and `tabindex="-1"` and whose activation is guarded in the handler, so assistive technology still perceives the option and announces it as unavailable — which is the point of showing a disabled choice at all. A choice that should not be perceived should be removed, not disabled.
 
-One asymmetry to know: a radio disabled by its own prop dims both its control and its label text, while a group-wide disable dims the controls only. When the reason for the lock matters, put it in the group's name rather than relying on the dimming — this example bakes it into the `label` prop, which screen readers announce; to show the same words to sighted readers, render a visible heading and point `ariaLabelledby` at it instead.
+A radio disabled by its own prop dims both its control and its label text, while a group-wide disable dims the controls only. When the reason for the lock matters, put it in the group's name rather than relying on the dimming — this example bakes it into the `label` prop, which screen readers announce; to show the same words to sighted readers, render a visible heading and point `ariaLabelledby` at it instead.
 :::
 
 ## Props

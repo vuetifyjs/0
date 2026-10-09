@@ -90,7 +90,7 @@ See [Core](/guide/fundamentals/core).
 
 An app-level singleton installed with `app.use(...)`. Built with `createPlugin` or `createPluginContext`, a plugin wires an install hook, optional adapters, and optional persist/restore lifecycle hooks.
 
-Why it exists: some state is genuinely global — theme, locale, breakpoints, feature flags. A plugin provides it once at the app root so any component can inject it, instead of threading it through every tree. Plugins are order-independent and degrade gracefully when a dependency is missing.
+Why it exists: some state is genuinely global — theme, locale, breakpoints, feature flags. A plugin provides it once at the app root so any component can inject it, instead of threading it through every tree. Several plugins return a fallback when they are absent. `useDate()` throws instead. Theme persistence reads `useStorage` and throws if that plugin was not installed first.
 
 See [createPlugin](/composables/foundation/create-plugin) and [Plugins](/guide/fundamentals/plugins).
 
