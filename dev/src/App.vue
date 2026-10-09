@@ -6,7 +6,7 @@
   import { useRoute } from 'vue-router'
 
   const TITLE = 'Emerald'
-  const DESCRIPTION = 'Emerald is a complete design system built on Vuetify0 — Figma-derived tokens, an icon set addressed by role, and Em* components that compose v0\'s headless compounds.'
+  const DESCRIPTION = 'Emerald is a Vue design system built on Vuetify0. It includes CSS tokens, a role-based icon set, and Em* components that wrap v0\'s headless compounds.'
   const IMAGE = 'https://cdn.vuetifyjs.com/docs/images/one/logos/emerald.png'
 
   const route = useRoute()

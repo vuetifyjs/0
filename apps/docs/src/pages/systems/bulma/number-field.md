@@ -2,7 +2,7 @@
 title: BuNumberField - Bulma Number Input for Vue
 meta:
 - name: description
-  content: A number field composed from Bulma's own has-addons markup — stepper buttons around an input — with Vuetify0 spinbutton behavior, bounds, formatting and validation.
+  content: A number field from Bulma's has-addons markup. Stepper buttons sit around an input, with bounds, formatting, and validation from Vuetify0.
 - name: keywords
   content: bulma number field, vue number input, spinbutton, has-addons, stepper, bulma vue, paper bulma
 features:
@@ -19,7 +19,7 @@ related:
 
 # BuNumberField
 
-A number field Bulma never documented, built entirely from parts it did: stepper buttons attached to an input, with stepping, bounds, formatting and validation supplied by Vuetify0.
+Stepper buttons attached to an input, using Bulma's form-addon markup, with stepping, bounds, formatting, and validation from Vuetify0.
 
 <DocsPageFeatures :frontmatter />
 

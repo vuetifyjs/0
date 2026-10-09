@@ -2,7 +2,7 @@
 title: BuModal - Bulma Modal for Vue
 meta:
 - name: description
-  content: Bulma's modal markup with Vuetify0 behavior — Escape to close, backdrop dismissal, focus trapping and focus return, in both the modal-content and modal-card variants.
+  content: Bulma modal markup in both modal variants. Open state, Escape, backdrop dismissal, focus trapping, and focus return come from Vuetify0.
 - name: keywords
   content: bulma modal, vue modal, modal-card, dialog, focus trap, bulma vue, paper bulma
 features:
@@ -19,7 +19,7 @@ related:
 
 # BuModal
 
-Bulma's `.modal` with the JavaScript it never shipped: open state, backdrop dismissal, Escape, focus trapping and focus return.
+Bulma's `.modal`: open state, backdrop dismissal, Escape, focus trapping, and focus return.
 
 <DocsPageFeatures :frontmatter />
 

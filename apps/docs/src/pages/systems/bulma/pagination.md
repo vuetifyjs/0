@@ -2,7 +2,7 @@
 title: BuPagination - Bulma Pagination for Vue
 meta:
 - name: description
-  content: Bulma's pagination markup with Vuetify0 behavior — 1-indexed v-model, composed Prev/Next/List/Item/Ellipsis parts, anchors in the documented DOM order.
+  content: Bulma pagination markup with a 1-indexed current page, ellipses, and disabled previous and next controls. The parts follow Bulma's documented DOM order.
 - name: keywords
   content: bulma pagination, vue pagination, pagination-list, is-current, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.pagination` with the JavaScript it never shipped: current page, ellipses, and disabled previous and next.
+Bulma's `.pagination`: current page, ellipses, and disabled previous and next.
 
 > [!NOTE]
 > Reference: [Pagination on bulma.io](https://bulma.io/documentation/components/pagination/) — classes and visual variants. This page is the JavaScript.

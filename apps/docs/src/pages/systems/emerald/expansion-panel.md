@@ -2,7 +2,7 @@
 title: EmExpansionPanel - Emerald Expansion Panel for Vue
 meta:
 - name: description
-  content: Emerald's accordion — single or multi-expand panels with mandatory mode and the WAI-ARIA accordion shape, composed on Vuetify0's headless ExpansionPanel.
+  content: Coordinated accordion panels. One panel is open at a time by default, and several can be open when you allow it. Built on Vuetify0's ExpansionPanel.
 - name: keywords
   content: emerald expansion panel, vue accordion, expansion panel vue, accessible accordion, vuetify0 expansion panel, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-An accordion of coordinated panels — one open at a time by default, several at once when asked — with the WAI-ARIA accordion shape built in.
+An accordion of coordinated panels. One panel is open at a time by default. The group can allow several. The WAI-ARIA accordion pattern is included.
 
 ## Usage
 
@@ -59,7 +59,7 @@ Give every panel an explicit `value`. A panel without one falls back to its regi
 
 Each part is a one-to-one wrapper over v0's [ExpansionPanel](/components/disclosure/expansion-panel) compound: `EmExpansionPanelGroup` renders `ExpansionPanel.Group`, `EmExpansionPanel` renders `ExpansionPanel.Root`, and the header, activator, content and cue map the same way. v0 owns all of the behavior — the selection model behind the group, the registration of panels, every ARIA attribute, and the `hidden` toggling of content. Emerald owns only the classes and tokens on top, plus the default chevron: `EmExpansionPanelCue` fills v0's `ExpansionPanel.Cue` with an [EmIcon](/systems/emerald/icon) `chevron-down` glyph that rotates on the `data-state="open"` attribute v0 publishes.
 
-Two details of the split are worth knowing. First, v0's Group emits no disabled attribute on its own element, so `EmExpansionPanelGroup` binds its own `data-disabled` — that attribute is what Emerald's stylesheet dims the panels off when the whole group is disabled. Second, collapsed content is hidden, not removed: v0 sets the native `hidden` attribute and the element stays in the DOM, so anything stateful inside a panel survives closing it.
+v0's Group emits no disabled attribute on its own element, so `EmExpansionPanelGroup` binds its own `data-disabled`. Emerald's stylesheet uses that attribute to dim the panels when the whole group is disabled. Collapsed content stays in the DOM with the native `hidden` attribute, so state inside a panel survives closing it.
 
 The wrappers forward v0's slot props selectively. The group's default slot receives `isDisabled` and the `select` / `unselect` / `toggle` functions, the panel's receives `isSelected`, `isDisabled` and its `attrs`, and the cue's receives `isSelected` and `attrs` — useful when replacing the default chevron. `EmExpansionPanelHeader`, `EmExpansionPanelActivator` and `EmExpansionPanelContent` render plain slots with no slot props.
 

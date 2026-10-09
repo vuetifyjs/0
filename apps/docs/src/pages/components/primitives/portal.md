@@ -89,7 +89,7 @@ Content renders inline at its original position in the DOM tree instead of being
 
 ??? Do I need useStack installed for Portal to work?
 
-Portal always calls `useStack()`, which provides a singleton fallback if no explicit stack plugin is installed. This matches how Dialog and Snackbar work. You don't need to install anything extra — it works out of the box.
+Portal always calls `useStack()`, which provides a singleton fallback if no explicit stack plugin is installed. This matches how Dialog and Snackbar work. You do not need to install a stack plugin.
 :::
 
 <DocsApi />

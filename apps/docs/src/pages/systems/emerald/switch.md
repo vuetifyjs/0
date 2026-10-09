@@ -2,7 +2,7 @@
 title: EmSwitch - Emerald Switch for Vue
 meta:
 - name: description
-  content: Emerald's switch — a two-state toggle with three sizes and a click-anywhere label, composed on Vuetify0's headless Switch compound.
+  content: An on/off sliding toggle in three sizes. The label is part of the control, so clicking the text flips the switch. Built on Vuetify0's Switch.
 - name: keywords
   content: emerald switch, vue switch, design system switch, toggle switch, vuetify0 switch, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The on/off control — a sliding toggle in three sizes with a label that is part of the control, so clicking the text flips the switch.
+An on/off toggle in three sizes. The label is part of the control, so clicking the text flips the switch.
 
 ## Usage
 

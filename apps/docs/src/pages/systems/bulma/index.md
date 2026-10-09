@@ -93,7 +93,7 @@ There is no plugin to install and no provider to mount. Import a component and u
 </template>
 ```
 
-Every region Bulma documents is an express part component — `BuModalContent`, `BuModalHead`, `BuDropdownMenu` — never a named slot. You compose the markup you already know.
+Every region Bulma documents is its own component, such as `BuModalContent`, `BuModalHead`, and `BuDropdownMenu`. There are no named slots. You compose the markup you already know.
 
 > [!NOTE]
 > Bulma **1.0+** only. The 0.9.x line predates Bulma's CSS variables and is explicitly unsupported. Latest verified: 1.0.4.

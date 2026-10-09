@@ -2,7 +2,7 @@
 title: BuDropdown - Bulma Dropdown for Vue
 meta:
 - name: description
-  content: Bulma's dropdown markup with Vuetify0 behavior — toggle, outside-click and Escape dismissal, and the aria wiring between trigger and menu.
+  content: Bulma dropdown markup with toggle, outside-click and Escape dismissal, and the ARIA link between the trigger and the menu. Behavior from Vuetify0.
 - name: keywords
   content: bulma dropdown, vue dropdown, dropdown-menu, is-hoverable, bulma vue, paper bulma
 features:
@@ -19,7 +19,7 @@ related:
 
 # BuDropdown
 
-Bulma's `.dropdown` with the JavaScript it never shipped: toggle, outside-click and Escape dismissal, and the aria wiring between trigger and menu.
+Bulma's `.dropdown`: toggle, outside-click and Escape dismissal, and the ARIA link between trigger and menu.
 
 <DocsPageFeatures :frontmatter />
 
@@ -122,7 +122,7 @@ You write no `is-active` and no `id`/`aria-controls` pair. The component owns th
 
 `hoverable` is the one modifier that changes behavior rather than looks. Bulma's `is-hoverable` opens the menu on hover in pure CSS, so the component deliberately steps back: the toggle becomes a no-op, and neither the click-outside listener nor the Escape handler is attached. Nothing about the open state reaches JavaScript, which is exactly why there is no `v-model` in this example.
 
-That trade has an accessibility cost worth knowing before you reach for it. With no JavaScript running, the trigger's `aria-expanded` never flips — a hover menu reads to assistive technology as a collapsed control whose contents happen to be reachable. Use it for the light, decorative case Bulma designed it for, and use the default click mode whenever the menu is a real navigation surface.
+Hover mode has an accessibility cost. With no JavaScript running, the trigger's `aria-expanded` never flips — a hover menu reads to assistive technology as a collapsed control whose contents happen to be reachable. Use it for the light, decorative case Bulma designed it for, and use the default click mode whenever the menu is a real navigation surface.
 :::
 
 ::: ds-example

@@ -2,7 +2,7 @@
 title: EmTooltip - Emerald Tooltip for Vue
 meta:
 - name: description
-  content: Emerald's tooltip — a hover and focus description bubble with delay warmup, CSS anchor positioning, and an interactive mode, composed on Vuetify0's headless Tooltip.
+  content: A description bubble on hover or keyboard focus, with delay and warmup. Dismissal comes from Vuetify0, and Emerald supplies the compact surface.
 - name: keywords
   content: emerald tooltip, vue tooltip, hover tooltip, accessible tooltip, anchor positioning tooltip, vuetify0 tooltip
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A description bubble that opens on hover or keyboard focus — delays, warmup and dismissal come from Vuetify0; Emerald supplies the dark, compact surface.
+A description bubble that opens on hover or keyboard focus. Delay, warmup, and dismissal come from Vuetify0. Emerald styles the surface.
 
 ## Usage
 

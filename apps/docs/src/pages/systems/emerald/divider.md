@@ -2,7 +2,7 @@
 title: EmDivider - Emerald Divider for Vue
 meta:
 - name: description
-  content: Emerald's divider — a horizontal rule, a vertical separator, or a labeled break, choosing the right element and ARIA for each shape. Composed on Vuetify0's Atom.
+  content: A horizontal or vertical rule, with an optional center label. The component picks the element and the ARIA for each shape. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald divider, vue divider, separator vue, labeled divider, horizontal rule, design system divider
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A rule between things — horizontal or vertical, with an optional center label. The component picks the element and the ARIA for each shape so you never have to.
+A horizontal or vertical rule, with an optional center label. The component picks the element and the ARIA for each shape.
 
 ## Usage
 

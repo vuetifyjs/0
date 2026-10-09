@@ -2,7 +2,7 @@
 title: EmAvatar - Emerald Avatar for Vue
 meta:
 - name: description
-  content: Emerald's avatar — a circular identity mark in three sizes that shows an image when it loads and initials when it does not. Composed on Vuetify0's headless Avatar.
+  content: A circular identity mark in three sizes. It shows a photo when the image loads and initials when it does not. The circle does not resize. Built on Vuetify0's Avatar.
 - name: keywords
   content: emerald avatar, vue avatar, avatar fallback, user avatar vue, vuetify0 avatar, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A circular identity mark in three sizes — a photo when it loads, initials when it does not. The swap is automatic and the circle never changes size while it happens.
+A circular identity mark in three sizes. It shows a photo when the image loads, and initials when it does not. The swap is automatic, and the circle stays the same size.
 
 ## Usage
 

@@ -93,7 +93,7 @@ shape to feed the transformer. Pulling the per-row work into a child also means 
 row component drops into any list with a query in scope.
 
 - **Single query** — type into the search box with no chips active. `terms` is a
-  one-element `string[]`. `toHighlight` accepts that just as happily as a bare string,
+  one-element `string[]`. `toHighlight` accepts that array the same way it accepts a bare string,
   so this and "Multiple" share a code path. `ignoreCase: true, matchAll: true` are the
   typical defaults for search UIs; drop either flag when stricter behavior is warranted
   (legal text, identifier lookups).

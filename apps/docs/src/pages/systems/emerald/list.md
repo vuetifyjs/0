@@ -2,7 +2,7 @@
 title: EmList - Emerald List for Vue
 meta:
 - name: description
-  content: Emerald's selectable list — media, content and meta parts on a native-button row, single selection through v-model, composed on Vuetify0's headless Single provider.
+  content: A single-select list of button rows, with media, content, and meta parts. The selected value is a v-model. Built on Vuetify0's Single provider.
 - name: keywords
   content: emerald list, vue list, selectable list, master detail list, list item vue, vuetify0 single, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A single-select list of structured rows — media, content and meta parts on a real button, with the selection flowing through `v-model`.
+A single-select list of rows. Each row is a button with media, content, and meta parts. Selection goes through `v-model`.
 
 ## Usage
 
@@ -61,7 +61,7 @@ The parts inside a row are free-form. `EmListItemMedia`, `EmListItemContent` wit
 
 `EmList` renders v0's [Single](/components/providers/single) compound. `Single.Root` and `Single.Item` are both renderless, so the elements are all Emerald's: the root provides the selection context around a real `<ul>`, and each item resolves its state inside an `<li>` and binds it onto the row host. The split is clean — Vuetify0 owns registration, the exclusive-selection rule, `mandatory` enforcement and the disabled resolution (a row is disabled when either it or the list is); Emerald owns the markup, the data attributes and every pixel.
 
-One deliberate deviation is worth knowing. `Single.Item` offers listbox-flavored `attrs` — `role="option"`, `aria-selected`, a tabindex — and `EmListItem` binds only the click handler and the state attributes, not the role. The list is not a listbox: there is no roving focus and no typeahead, and a bare `option` outside a `listbox` misleads assistive technology worse than an honest button. Each row is a plain button that marks its selection with `aria-current` instead.
+`Single.Item` offers listbox attributes: `role="option"`, `aria-selected`, and a tabindex. `EmListItem` does not bind those. It binds the click handler, `data-selected`, `data-disabled`, and `aria-current`. There is no roving focus and no typeahead. A bare `option` outside a `listbox` tells assistive technology to expect keyboard behavior this list does not have. Each row is a button.
 
 The underlying logic, if you want it without the styling, is [createSingle](/composables/selection/create-single).
 
@@ -144,9 +144,9 @@ The default row is a native `<button type="button">`, so focusability, the impli
 
 ### Not a listbox
 
-`EmList` deliberately ships no `role="listbox"` and no `role="option"`: there is no roving focus and no typeahead, and option semantics without a managed listbox around them promise keyboard behavior that does not exist. The honest shape is a `<ul>` of buttons — which is what this is.
+`EmList` ships no `role="listbox"` and no `role="option"`. There is no roving focus and no typeahead. Option semantics without a listbox promise keyboard behavior this list does not have. The list is a `<ul>` of buttons.
 
-The practical consequence is that every row is its own tab stop and there is no arrow-key navigation; Tab and Shift+Tab walk the rows. That is fine for the short-to-moderate lists this component is for. A very long list is better paired with a filter above it than navigated by key, and a true keyboard-operated selection surface (a combobox's panel, a select menu) belongs to components that implement the full pattern, like [EmSelect](/systems/emerald/select).
+Every row is its own tab stop. There is no arrow-key navigation. Tab and Shift+Tab walk the rows. That suits short and medium lists. Put a filter above a very long list. For a keyboard-operated selection surface, use a combobox panel or [EmSelect](/systems/emerald/select).
 
 ### Selection state
 

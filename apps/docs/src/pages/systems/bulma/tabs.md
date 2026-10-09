@@ -2,7 +2,7 @@
 title: BuTabs - Bulma Tabs for Vue
 meta:
 - name: description
-  content: Bulma's tabs markup with Vuetify0 selection — is-active, tabpanels and keyboard selection owned by the compound, with boxed and toggle modifiers living on the list.
+  content: Bulma tabs markup with selection, tabpanels, and keyboard support. Boxed and toggle modifiers stay classes on the list. Behavior from Vuetify0.
 - name: keywords
   content: bulma tabs, vue tabs, is-boxed, is-toggle, tabpanel, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.tabs` with selection and panels — the JavaScript and the tabpanels the CSS framework never documented.
+Bulma's `.tabs`, with selection and panels. Bulma's CSS does not include tabpanels. This component adds them, and the selection behavior.
 
 > [!NOTE]
 > Reference: [Tabs on bulma.io](https://bulma.io/documentation/components/tabs/) — classes and visual variants. This page is the JavaScript.

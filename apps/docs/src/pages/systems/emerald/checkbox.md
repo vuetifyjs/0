@@ -2,7 +2,7 @@
 title: EmCheckbox - Emerald Checkbox for Vue
 meta:
 - name: description
-  content: Emerald's checkbox — three sizes, an indeterminate state, and a click-anywhere label, composed on Vuetify0's headless Checkbox compound.
+  content: A boolean control in three sizes, with a mixed state for partial selections. Clicking the label toggles the box. Built on Vuetify0's Checkbox.
 - name: keywords
   content: emerald checkbox, vue checkbox, design system checkbox, indeterminate checkbox, vuetify0 checkbox, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The boolean control — three sizes, a mixed state for partial selections, and a label that is part of the control, so clicking the text toggles the box.
+A boolean control in three sizes, with a mixed state for partial selections. The label is part of the control, so clicking the text toggles the box.
 
 ## Usage
 
@@ -53,7 +53,7 @@ The split is clean. `Checkbox.Root` owns the state machine: `role="checkbox"` on
 
 The mark is where `Checkbox.Indicator` earns its place. The indicator exposes `isMixed` to its slot, and Emerald renders a single [EmIcon](/systems/emerald/icon) that swaps between the `check` and `minus` glyphs off that flag. The indicator hides itself with `visibility` rather than unmounting, so the box never reflows when the state flips — the glyph is simply invisible until there is something to show.
 
-One inherited capability worth knowing about: `Checkbox.Root` is dual-mode, and `EmCheckbox` leaves the group namespace at its default. Rendered inside a Vuetify0 `Checkbox.Group`, it registers with the group and defers its checked state to it — the `v-model` is ignored in that mode. Emerald does not ship a group part yet, so treat that as a Vuetify0 escape hatch rather than a documented Emerald surface.
+`Checkbox.Root` is dual-mode, and `EmCheckbox` leaves the group namespace at its default. Inside a Vuetify0 `Checkbox.Group`, the checkbox registers with the group and takes its checked state from the group. Its own `v-model` is ignored in that mode. Emerald has no group part. Use Vuetify0's `Checkbox.Group` when you need one.
 
 ## Examples
 

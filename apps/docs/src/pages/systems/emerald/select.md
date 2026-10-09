@@ -2,7 +2,7 @@
 title: EmSelect - Emerald Select for Vue
 meta:
 - name: description
-  content: Emerald's select — a compound of express parts over Vuetify0's headless Select, with listbox keyboard navigation, virtual focus and popover placement supplied by v0.
+  content: A single- or multi-select listbox. You compose the trigger and each option. Listbox keyboard behavior comes from Vuetify0's Select.
 - name: keywords
   content: emerald select, vue select, listbox vue, multiple select, design system select, vuetify0 select
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A single- or multi-select listbox, composed from express parts so the trigger and the options are yours to shape.
+A single- or multi-select listbox. The trigger and the options are separate parts, so you choose what each one shows.
 
 ## Usage
 

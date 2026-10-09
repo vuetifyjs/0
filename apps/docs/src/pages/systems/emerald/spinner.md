@@ -2,7 +2,7 @@
 title: EmSpinner - Emerald Spinner for Vue
 meta:
 - name: description
-  content: Emerald's loading spinner — a currentcolor ring in three sizes with a visually hidden label announced by assistive tech. A single-span shell over Vuetify0's Atom.
+  content: An indeterminate loading ring in three sizes, colored with currentColor, and a visually hidden label for assistive technology. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald spinner, vue spinner, loading indicator, loading spinner vue, aria status, vuetify0 atom
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-An indeterminate loading ring in three sizes, with a visually hidden label so assistive technology hears what sighted readers see spinning.
+An indeterminate loading ring in three sizes. A visually hidden label tells assistive technology what is loading.
 
 ## Usage
 
@@ -55,7 +55,7 @@ What the Atom base contributes is attribute fallthrough. Anything you put on `Em
 
 The rest is the usual Emerald split: the component publishes `data-size` and the stylesheet hangs every dimension off it, while the ring's color is simply `currentcolor` against a root that defaults to Emerald's primary green. There is no context, no `namespace`, and no Vuetify0 composable underneath — this is the smallest kind of Emerald component there is.
 
-One relative worth knowing about: [EmButton](/systems/emerald/button)'s loading state draws its own ring rather than nesting `EmSpinner`, so it can sit inside the button's layout and inherit the variant's text color. Use the button's `loading` prop there; `EmSpinner` is for everywhere that is not a button.
+[EmButton](/systems/emerald/button) draws its own ring for the loading state, so the spinner sits in the button layout and uses the variant's text color. Use the button's `loading` prop there. Use `EmSpinner` everywhere else.
 
 ## Examples
 

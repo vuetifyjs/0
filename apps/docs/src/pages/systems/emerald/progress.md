@@ -2,7 +2,7 @@
 title: EmProgress - Emerald Progress for Vue
 meta:
 - name: description
-  content: Emerald's linear progress bar — determinate and indeterminate modes, three track sizes, and an optional label and value readout. Composed on Vuetify0's headless Progress.
+  content: A linear progress bar for uploads, tasks, and syncs. Determinate or indeterminate, with an optional label and a live percentage. Built on Vuetify0's Progress.
 - name: keywords
   content: emerald progress, vue progress bar, linear progress, indeterminate progress, vuetify0 progress, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A linear progress bar for uploads, tasks and syncs — determinate or indeterminate, with an optional label row and a live percentage readout.
+A linear progress bar for uploads, tasks, and syncs. It can be determinate or indeterminate, with an optional label and a live percentage.
 
 ## Usage
 
@@ -51,7 +51,7 @@ A linear progress bar for uploads, tasks and syncs — determinate or indetermin
 
 The division of labor: v0 owns everything semantic — the `role="progressbar"` and its `aria-valuemin` / `aria-valuemax` / `aria-valuenow` / `aria-valuetext` attributes, `aria-busy` while indeterminate, the v-model bridge, the hidden input when `name` is set, and the `data-state` attributes on track and fill. Emerald owns everything visual — the meta row layout, the three track heights, the fill color and width transition, and the indeterminate sweep animation.
 
-v0's Progress is segment-based underneath ([createProgress](/composables/semantic/create-progress) can sum multiple fills, plus a buffer). Emerald deliberately flattens that: it renders exactly one `Progress.Fill` and no `Progress.Buffer`, so the component is a single-value bar, and its model handler unwraps the array shape v0 can emit back into a plain number.
+v0's Progress can sum multiple fills, plus a buffer, through [createProgress](/composables/semantic/create-progress). Emerald renders exactly one `Progress.Fill` and no `Progress.Buffer`. The component is a single-value bar, and its model handler turns the array shape v0 can emit back into a plain number.
 
 The naming logic is also split. When `label` is set, `Progress.Label` mounts and v0 points `aria-labelledby` at it; when it is not, `EmProgress` passes `ariaLabel` through — falling back to `'Progress'` — so the progressbar always has an accessible name.
 
@@ -64,7 +64,7 @@ The naming logic is also split. When `label` is set, `Progress.Label` mounts and
 
 `size` changes only the track height — `sm` is 4px, `md` 8px, `lg` 12px. The label and value keep their type steps (`b2` and `b3`) across all three, so the meta row does not scale with the bar.
 
-Pick by prominence, not importance. `sm` belongs inside dense surfaces — a table cell, a card footer, a list row — where the bar is one signal among many. `md` is the default for forms and panels. `lg` is for a surface whose whole point is the progress: an upload screen, an onboarding checklist, an installer.
+Choose the size by how much of the page the bar should occupy. `sm` fits a table cell, a card footer, or a list row. `md` is the default for forms and panels. `lg` is for a page that is mainly the progress, such as an upload screen, an onboarding checklist, or an installer.
 :::
 
 ::: ds-example

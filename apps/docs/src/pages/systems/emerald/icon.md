@@ -2,7 +2,7 @@
 title: EmIcon - Emerald Icons for Vue
 meta:
 - name: description
-  content: Emerald's icon set, addressed by role rather than by drawing — 48 glyphs answering to 72 names, resolved through a Vuetify0 token registry, decorative by default.
+  content: Icons addressed by role, such as calendar or mail. 48 glyphs cover 72 names through a Vuetify0 token registry. Decorative unless you pass a label.
 - name: keywords
   content: emerald icon, vue icons, icon roles, design system icons, svg icons vue, createTokens
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Draws a named glyph from Emerald's icon set. Icons are addressed by the role they play, not by the picture they show, and are decorative unless you say otherwise.
+Draws a glyph from Emerald's icon set. You ask for a role, such as `calendar` or `mail`. The icon is decorative unless you pass `label`.
 
 ## Usage
 
-`name` is a **role**: what the icon is for, not what it depicts. You ask for `settings` and get the sliders drawing; you ask for `mail` and get the envelope. There is no file to import, no icon font to load, and no sprite sheet — the glyph is inline SVG drawn from a registry the plugin installs.
+`name` is a role. `settings` draws the sliders, and `mail` draws the envelope. The glyph is inline SVG from the registry the plugin installs.
 
-The set is deliberately small. 48 drawings answer to 72 names, because 24 of those names are aliases onto a shared drawing. That is a design decision rather than an economy: `finance` and `payments` point at the same card because they are the same concept in two dashboards, and giving them separate art would make the product look less coherent, not more.
+48 drawings cover 72 names. 24 names are aliases of a shared drawing. `finance` and `payments` both use the card glyph.
 
 ::: ds-example
 /systems/emerald/icon/basic

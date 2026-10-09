@@ -2,7 +2,7 @@
 title: EmTabs - Emerald Tabs for Vue
 meta:
 - name: description
-  content: Emerald's segmented tabs — automatic or manual activation, horizontal or vertical orientation, and full APG tablist keyboard support over Vuetify0's headless Tabs.
+  content: Tabs that show one panel at a time, horizontal or vertical, with automatic or manual activation and the tablist keyboard map. Built on Vuetify0's Tabs.
 - name: keywords
   content: emerald tabs, vue tabs, design system tabs, tablist vue, accessible tabs, vuetify0 tabs, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Segmented tabs that show one panel at a time — a bordered tab strip with automatic or manual activation, horizontal or vertical orientation, and the full tablist keyboard map.
+Tabs that show one panel at a time. The strip can be horizontal or vertical, with automatic or manual activation and the tablist keyboard map.
 
 ## Usage
 
