@@ -72,15 +72,11 @@ Vuetify0 provides the ARIA plumbing. You must provide:
 
 ### Focus Trapping
 
-v0 does **not** provide focus trapping. Use external solutions:
-
-- [focus-trap](https://github.com/focus-trap/focus-trap)
-- Native `inert` attribute for siblings
-- [vue-final-modal](https://vue-final-modal.org/)
+Dialog and AlertDialog trap focus by calling `showModal()` on a native `<dialog>`. v0 does not ship a standalone focus-trap composable. For a trap outside a modal dialog, use the platform (`showModal`, `inert`) or a dedicated library.
 
 ### Roving Tabindex
 
-v0 does **not** provide roving tabindex. This keeps the library headless - implement in your design system layer if needed for arrow key navigation between items.
+Roving tabindex is [useRovingFocus](/composables/system/use-roving-focus). Treeview uses it. Tabs implements the same pattern inline.
 
 ### Teleported Content and Landmarks
 

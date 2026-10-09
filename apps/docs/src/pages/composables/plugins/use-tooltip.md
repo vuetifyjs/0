@@ -71,7 +71,7 @@ flowchart LR
   T1[Tooltip 1 opens] -- "register()" --> Registry
   T2[Tooltip 2 hovers] -- "shouldSkipOpenDelay?" --> Registry
   Registry -- "any registered → true" --> Skip[Open instantly]
-  T1 -- "close()" --> LastClosed[lastClosedAt = now]
+  T1 -- "unregister()" --> LastClosed[lastClosedAt = now]
   T3[Tooltip 3 hovers within skipDelay] -- "shouldSkipOpenDelay?" --> LastClosed
   LastClosed -- "now - lastClosedAt < skipDelay" --> Skip
 ```
@@ -122,7 +122,7 @@ Reach for `useTooltip()` directly only when you are wiring a tooltip surface tha
 
 ??? Why is the registry global instead of per-region?
 
-Skip-window coordination is most useful when neighbors across UI regions cooperate — once any tooltip in the app is open, you want toolbar tooltips and content tooltips to all skip their delay. Splintering the registry into per-subtree scopes would force consumers to choose between scoped defaults and shared coordination; one global registry gives you coordination everywhere.
+Skip-window coordination is most useful when neighbors across UI regions cooperate. An installed plugin shares one registry, so tooltips that inject it share the skip window. `useTooltip()` without the plugin gets a fresh registry on each call, and those tooltips do not coordinate with each other.
 
 ??? Can I install useTooltip without using `<Tooltip.Root>`?
 

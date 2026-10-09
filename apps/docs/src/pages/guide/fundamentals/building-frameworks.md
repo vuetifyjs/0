@@ -260,7 +260,7 @@ Reading and toggling theme and breakpoint state anywhere in the component tree v
 :::
 
 > [!TIP]
-> Vuetify0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
+> Several plugins return a fallback when they are absent. `useDate()` throws instead. A plugin that persists state needs `createStoragePlugin()` installed first, or the storage lookup throws.
 
 ### Creating Custom Plugins
 
@@ -315,7 +315,7 @@ const { isHydrated } = useHydration()
 // In templates: v-if="isHydrated"
 ```
 
-The `isHydrated` shallowRef is `false` during SSR and becomes `true` after the root component mounts. This prevents hydration mismatches when rendering browser-dependent content.
+With `createHydrationPlugin()` installed, `isHydrated` is `false` during SSR and becomes `true` after the root component mounts. Without the plugin, `useHydration()` returns a fallback that is `true` immediately, including on the server.
 
 ::: gn-example
 /guide/building-frameworks/ssr/hydration-guard

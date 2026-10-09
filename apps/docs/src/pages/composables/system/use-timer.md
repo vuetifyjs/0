@@ -45,7 +45,7 @@ timer.isPaused.value   // true when paused
 ```
 
 > [!TIP] Replaces debounce
-> `useTimer` replaces the deprecated `debounce` utility. It provides the same delay behavior with pause/resume, repeat support, and automatic cleanup on scope disposal.
+> `debounce` was removed. `useTimer` is a pause/resume timer. `start()` restarts the full duration. It does not collect arguments from repeated calls the way `debounce` did.
 
 ## Architecture
 
@@ -175,7 +175,7 @@ Pass `repeat: true`. By default the timer is one-shot — it fires once and `isA
 
 ??? What replaced the old debounce utility?
 
-`useTimer` did. It provides the same delay behavior plus pause/resume, repeat support, and automatic cleanup on scope disposal.
+Nothing with the same call shape. `useTimer` is a pause/resume timer. `start()` restarts the full duration and the handler is the one you passed in. It does not collect arguments from repeated calls.
 
 :::
 

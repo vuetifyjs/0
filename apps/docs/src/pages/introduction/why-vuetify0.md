@@ -23,7 +23,7 @@ The meta-framework for building UI libraries.
 
 <DocsPageFeatures :frontmatter />
 
-Vuetify0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **39 components, 70 composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics).
+Vuetify0 provides headless composables, unstyled components, and reactive primitives — the foundation layer that UI frameworks are built on. **43 components, 71 composables** — all unstyled, all accessible, built on standard Vue SFCs using the latest macros (`defineModel`, `defineSlots`, generics).
 
 No custom compiler, no proprietary patterns. Use it to build a full design system shared across projects, or import a single composable to solve one problem in your app. Vuetify0 scales to your ambition.
 
@@ -238,13 +238,13 @@ Vuetify0 is MIT licensed — every component, composable, and utility. No pro ti
 
 ### Vuetify Convergence
 
-Vuetify0 is already being merged into Vuetify's next major release. The first PR has landed. Investing in Vuetify0 now means your foundation aligns with where the entire Vuetify ecosystem is actively heading.
+Vuetify takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the utility layer. Investing in Vuetify0 now means your foundation aligns with where the Vuetify ecosystem is heading.
 
 ### Road to v1
 
 **Alpha → Beta → Release Candidate → v1.0** — stable, shipped July 22, 2026. [See the full roadmap](/roadmap).
 
-What comes after v1: **Vuetify Paper** — a styled layer built on Vuetify0 that provides opinionated design system primitives. Emerald is in-repo as the first commercial design system; Bulma is the first compat DS. Onyx is not shipped. Build on Vuetify0 today; Paper gives you a head start on the styled layer when you're ready.
+`@vuetify/paper` is private and unpublished. Emerald and Bulma are the design-system packages in this repo and are on npm. Onyx is not shipped. Build on Vuetify0 today.
 
 ### For Your Leadership
 
@@ -252,7 +252,7 @@ Need to justify the choice to management? Here's what matters to them:
 
 - **Proven track record:** 10+ years, 41K+ stars, 324K+ dependents — not a gamble
 - **Active development:** Weekly releases, thousands of PRs merged, public roadmap
-- **Ecosystem convergence:** Vuetify0 is already being merged into Vuetify's next major release
+- **Ecosystem convergence:** Vuetify takes `@vuetify/v0` as a runtime dependency from 4.2.0
 - **Enterprise adoption:** Production use across industries
 - **Community health:** Active Discord, dedicated maintainer team, massive documentation investment
 - **Enterprise support:** [Dedicated support options available](https://vuetifyjs.com/introduction/enterprise-support/) for teams that need SLA guarantees
@@ -284,7 +284,6 @@ The documentation isn't just reference — it's a training ground. Vuetify0 Skil
 
 **Coming soon:**
 
-- Tests and challenges to prove mastery
 - Skill-based progression that improves how you work with Vuetify0 and with AI tools
 
 ## Beyond a Component Library

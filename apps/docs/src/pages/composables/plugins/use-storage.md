@@ -82,7 +82,7 @@ Adapters let you swap the underlying storage backend without changing your appli
 flowchart LR
   createStoragePlugin --> createContext
   createContext --> StorageContext
-  StorageContext --> Adapter[LocalStorageAdapter/SessionStorageAdapter/MemoryStorageAdapter]
+  StorageContext --> Adapter[window.localStorage or MemoryStorageAdapter]
   Adapter --> storage[browser storage/memory]
 ```
 

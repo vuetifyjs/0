@@ -101,7 +101,7 @@ Each event carries a `title`, an optional `time`, an `allDay` flag and a `tone`.
 
 `EmCalendarGrid` shows two chips per day before collapsing the rest into a `+N more` row; `overflow` changes the cut-off. The chips are inert spans rather than buttons, and that is a correctness constraint rather than a limitation: a day cell is a `<button>`, and a button cannot contain interactive children. Selecting a day and then rendering its events beside the calendar is the pattern to reach for when events need to be clickable.
 
-The chips are also `aria-hidden`, with the count folded into the day's accessible name instead — a cell announces as "14 March 2026, 3 events" rather than reading out three titles a reader did not ask for. The titles are visual; the count is the semantic summary.
+The chips are also `aria-hidden`, with the count folded into the day's accessible name instead. The name is the full date, including the weekday, then `, N event` or `, N events`. The titles are visual; the count is the semantic summary.
 :::
 
 ::: ds-example
@@ -129,7 +129,7 @@ Dots are capped at three per day by the `dots` prop, and titles and times are no
 | `v-model` | `string` | — | Selected day as ISO `YYYY-MM-DD` |
 | `v-model:month` | `Date` | current month | Visible-month cursor |
 | `events` | `EmCalendarEvent[]` | `[]` | Events to lay over the month |
-| `firstDayOfWeek` | `number` | date adapter's value | 0 is Sunday |
+| `firstDayOfWeek` | `number` | `0` (Sunday) with no date plugin; the adapter's first day when one is installed | 0 is Sunday |
 | `disabled` | `boolean` | `false` | Freezes selection and navigation |
 | `id` | `string` | — | Root element id |
 | `namespace` | `string` | `'emerald:calendar'` | Context the parts resolve against |
@@ -183,10 +183,10 @@ Turn `live` off when a second title renders over the same state; two live region
 
 ### Cell naming
 
-Each day is named by its full date, with the event count appended when there are any — "14 March 2026, 3 events". Event chips are `aria-hidden`, so the titles are not read out; the count tells the reader there is something there and the day is what they act on.
+Each day is named by its full date, including the weekday. When the day has events, the name appends `, N event` or `, N events`. Event chips are `aria-hidden`, so the titles are not read out; the count tells the reader there is something there and the day is what they act on.
 
 Today carries `aria-current="date"`, and the selected day `aria-selected`. Days outside the visible month are rendered but `aria-disabled` and unselectable, so the grid keeps its shape without offering dates the reader did not navigate to.
 
 ### The mini variant
 
-`EmCalendarMini` is `role="group"` with plain buttons — no grid semantics and no roving focus, by design, so it never competes with the real grid for the arrow keys. The cost is that every day is a tab stop; that is the trade you accept for a widget meant to be glanced at and clicked rather than operated by keyboard.
+`EmCalendarMini` is `role="group"` with plain buttons — no grid semantics and no roving focus, by design, so it never competes with the real grid for the arrow keys. In-month days are each a tab stop. Days outside the visible month are `disabled`, so they are not. That is the trade for a widget meant to be glanced at and clicked rather than operated by keyboard.

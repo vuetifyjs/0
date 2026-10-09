@@ -53,7 +53,7 @@ Subpath imports narrow the module scope, giving bundlers less work to analyze. T
 Composables with optional adapters have dedicated subpaths that isolate their dependencies. Prefer these over root imports when you need a hard boundary around peer-heavy entry points:
 
 ```ts
-import { useDate } from '@vuetify/v0/date'
+import { V0DateAdapter } from '@vuetify/v0/date'
 import { useFeatures } from '@vuetify/v0/features'
 import { useStorage } from '@vuetify/v0/storage'
 import { useTheme } from '@vuetify/v0/theme'
@@ -66,7 +66,7 @@ import { createDataTable } from '@vuetify/v0/data-table'
 import { material } from '@vuetify/v0/palettes/material/generate'
 ```
 
-Nested adapter packages (e.g. `@vuetify/v0/features/adapters/flagsmith`, `@vuetify/v0/locale/adapters/vue-i18n`) hang off these entry points. These subpaths are primarily useful for **framework authors** who want to guarantee that adapter peer dependencies (like `date-fns` or `flagsmith`) don't leak into consumer bundles.
+Nested adapter packages (e.g. `@vuetify/v0/features/adapters/flagsmith`, `@vuetify/v0/locale/adapters/vue-i18n`) hang off these entry points. These subpaths are primarily useful for **framework authors** who want to guarantee that optional adapter peers (such as `@flagsmith/flagsmith` or `@js-temporal/polyfill`) don't leak into consumer bundles.
 
 ## Bundle Size
 
@@ -120,7 +120,7 @@ import {
   createTokens,    // dead code
 } from '@vuetify/v0'
 
-const [use, provide, ctx] = createSelection()
+const selection = createSelection()
 ```
 
 This produces the same bundle size as importing only `createSelection`.

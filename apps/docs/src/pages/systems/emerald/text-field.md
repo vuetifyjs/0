@@ -72,7 +72,7 @@ Each of those combines with `lazy` or `eager`, and the two are not opposites. `l
 
 `blur lazy`, as in this example, is the combination most forms want. Reach for `blur eager` when the correction itself is fiddly enough that per-keystroke feedback earns its keep.
 
-Note that `required` is a separate prop from a required *rule*. The prop sets the aria state and the visual marker; the rule is what actually rejects an empty value. Both, as in this example — the prop is the promise, the rule is the enforcement.
+`required` sets the aria state, the visual marker, and a required rule. That rule fails an empty value the next time validation runs, which defaults to blur. Extra entries in `rules` run after it.
 :::
 
 ::: ds-example
@@ -86,7 +86,7 @@ Three states that all stop normal editing and mean entirely different things.
 
 `disabled` takes the field out of play — unfocusable, greyed to the neutral tokens, and not submitted. Reach for it when a field is irrelevant given other answers, and prefer removing it entirely when it will never become relevant. As with buttons, a disabled control with no visible explanation is a frequent accessibility complaint; put the reason where a keyboard user will find it, because they will never land on the field itself.
 
-`error` and `errorMessages` are the manual override for validation state you compute elsewhere — a server rejection, a cross-field constraint that no single field's rules can see. Setting `error` flips the field to `data-state="invalid"` and shows the messages in the error region — the description stays put. When the field's own `rules` can express the constraint, use those instead; these two props are for the cases they cannot reach.
+`error` and `errorMessages` are the manual override for validation state you compute elsewhere — a server rejection, a cross-field constraint that no single field's rules can see. `error` forces `data-state="invalid"`. `errorMessages` shows in the error region and also marks the field invalid on its own, listed ahead of rule errors. The description stays put. When the field's own `rules` can express the constraint, use those instead.
 :::
 
 ## Props
@@ -105,13 +105,13 @@ Three states that all stop normal editing and mean entirely different things.
 | `autocomplete` | `string` | — | Native autocomplete token |
 | `name` | `string` | — | Form field name |
 | `id` | `ID` | generated | Field id. Falls back to `useId()` |
-| `required` | `boolean` | `false` | Marks the field required. Does not itself reject an empty value |
+| `required` | `boolean` | `false` | Sets the required attribute and adds a required rule that fails an empty value when validation runs (default: blur) |
 | `disabled` | `boolean` | `false` | Field unavailable and not submitted |
 | `readonly` | `boolean` | `false` | Value shown but not editable; still focusable and submitted |
 | `rules` | `FormValidationRule[]` | — | Validators — `(value) => true \| string`, optionally async |
 | `validateOn` | `ValidateOn` | `'blur'` | When rules run: `blur`, `input` or `submit`, each combinable with `lazy` or `eager` |
 | `error` | `boolean` | `false` | Force the invalid state from outside the rule pipeline |
-| `errorMessages` | `string \| string[]` | — | Messages to show while `error` is set |
+| `errorMessages` | `string \| string[]` | — | Manual messages, merged ahead of rule errors. A non-empty list marks the field invalid even when `error` is false |
 | `namespace` | `string` | — | Which v0 `Input` instance to bind to. Only needed when nesting |
 
 `FormValidationRule` and `ValidateOn` are v0 types, re-exported from `@vuetify/v0`. There are no slots.
@@ -143,7 +143,7 @@ Help text stays visible when validation fails. Put the format requirement in `de
 
 ### Required
 
-`required` sets the native attribute and the aria state, so the field is announced as required on focus rather than only failing at submit. Pair it with a rule that actually rejects the empty value; the attribute is a promise to the reader, and the rule is what keeps it.
+`required` sets the native attribute, the aria state, and a required rule that fails an empty value when validation runs (default: blur). The field is announced as required on focus. The failure appears when validation runs.
 
 ### States
 

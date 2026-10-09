@@ -49,7 +49,7 @@ Alpha opened on April 7, 2026 for feedback; beta hardened the APIs; the release 
 
 This isn't a proof of concept. Vuetify0 is feature-complete for v1 and ready to build with.
 
-- **The stable set is locked.** 16 composables and 17 utilities are marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
+- **The stable set is locked.** 19 composables and 17 utilities are marked stable — breaking changes require a major version. See the [maturity matrix](#maturity-matrix) below for the full breakdown.
 - **Vuetify0 is being built directly into Vuetify.** The composables and patterns here are the same ones powering Vuetify's next generation — `vuetify` takes `@vuetify/v0` as a runtime dependency from 4.2.0, starting with the utility layer, and adopts more of the surface each minor. This isn't a side project — it's the core.
 - **Development continues.** v1.3 and beyond are on the roadmap above, and preview APIs graduate to stable release by release. Every regression, gap, or rough edge you report still gets priority — if something feels wrong, say so.
 

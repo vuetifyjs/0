@@ -110,7 +110,7 @@ tabs.onboard([
 ])
 
 // ✅ Reactive - templates update automatically
-tabs.selectedId  // Ref<string | null>
+tabs.selectedId  // Readonly<Ref<ID | undefined>> — nothing selected is undefined
 ```
 
 ```vue playground collapse

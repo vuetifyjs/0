@@ -81,7 +81,7 @@ Reach for this triad when a rating is one part of a larger form rather than a st
 
 ### ARIA
 
-Rating.Root provides `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext` (e.g. "3 out of 5"). When disabled or readonly, the corresponding `aria-disabled` and `aria-readonly` attributes are set.
+Rating.Root provides `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext` (for example "3 of 5 stars"). When disabled or readonly, the corresponding `aria-disabled` and `aria-readonly` attributes are set.
 
 ### Data Attributes
 

@@ -197,7 +197,7 @@ Each `Slider.Thumb` manages its own ARIA attributes automatically.
 | `aria-orientation` | `horizontal` / `vertical` | Reflects Root orientation |
 | `aria-disabled` | `true` | When slider is disabled |
 | `aria-readonly` | `true` | When slider is readonly |
-| `tabindex` | `0` / removed | Removed when disabled |
+| `tabindex` | `0` / `-1` | `-1` when disabled |
 
 ### Keyboard Navigation
 

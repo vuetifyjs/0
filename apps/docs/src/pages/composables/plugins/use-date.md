@@ -46,7 +46,7 @@ bun add @js-temporal/polyfill
 :::
 
 > [!TIP]
-> The Temporal API reached [Stage 4](https://github.com/tc39/proposal-temporal) (finished) at TC39 in January 2026 and is part of ECMAScript 2026. The adapter prefers native Temporal and only falls back to the polyfill — once every runtime you target ships native support, the polyfill is no longer required.
+> The Temporal API reached [Stage 4](https://github.com/tc39/proposal-temporal) (finished) at TC39 in January 2026 and is part of ECMAScript 2026. The adapter prefers native `globalThis.Temporal` and falls back to the polyfill. Loading `V0DateAdapter` always resolves the static polyfill import, so the package stays installed even when the runtime has native Temporal.
 
 Then install the date plugin with an adapter:
 
@@ -203,12 +203,16 @@ The `format()` method accepts these preset format strings:
 | `hours24h` | 10 |
 | `minutes` | 30 |
 | `seconds` | 45 |
-| `fullTime` | 10:30:45 AM |
-| `fullTime12h` | 10:30:45 AM |
-| `fullTime24h` | 10:30:45 |
+| `fullTime` | 10:30 AM |
+| `fullTime12h` | 10:30 AM |
+| `fullTime24h` | 10:30 |
 | `fullDateTime` | Saturday, June 15, 2024 at 10:30 AM |
+| `fullDateTime12h` | Saturday, June 15, 2024 at 10:30 AM |
+| `fullDateTime24h` | Saturday, June 15, 2024 at 10:30 |
 | `keyboardDate` | 06/15/2024 |
 | `keyboardDateTime` | 06/15/2024 10:30 AM |
+| `keyboardDateTime12h` | 06/15/2024, 10:30 AM |
+| `keyboardDateTime24h` | 06/15/2024, 10:30 |
 
 ### Format Tokens
 
@@ -491,7 +495,7 @@ export function createRequestPlugins () {
 
 ??? Do I need to install the Temporal polyfill?
 
-Only if a runtime you target lacks native Temporal. `V0DateAdapter` prefers the runtime's native implementation and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when it's missing — once every target ships native Temporal, the polyfill is no longer required.
+The adapter prefers `globalThis.Temporal` at runtime and falls back to [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) when that is missing. Loading `V0DateAdapter` always resolves the static polyfill import, so the package stays installed even when every target has native Temporal.
 
 ??? Can I use date-fns, luxon, or dayjs instead of Temporal?
 

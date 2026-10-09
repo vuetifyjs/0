@@ -95,14 +95,14 @@ flowchart LR
     createBreakpointsPlugin --> createBreakpointsContext
   end
 
-  createBreakpointsContext --> useResizeObserver
-  useResizeObserver --> viewport[width/height]
-  viewport --> breakpoint[name/flags]
+  createBreakpointsContext --> resizeListener[window resize listener]
+  resizeListener --> viewport[width and height]
+  viewport --> breakpoint[name and flags via matchMedia]
 ```
 
 ## Reactivity
 
-All breakpoint properties are `Readonly<ShallowRef>` and automatically update when the viewport size changes. Use `.value` in script; destructure for template auto-unwrapping.
+The viewport flags are `Readonly<ShallowRef>` and update when the viewport size changes. `breakpoints`, `mobileBreakpoint`, and `ssr` are plain values. Use `.value` in script; destructure for template auto-unwrapping.
 
 Breakpoints are **range-based**, not exact pixel matches. The `name` is the **highest** breakpoint whose threshold the viewport meets or exceeds. For example, at `1200px` with default thresholds, `name` is `lg` because `1200 >= 1145` (the `lg` threshold) but `1200 < 1545` (the `xl` threshold). The individual flags like `lg` mean "the current breakpoint **is** lg", while `lgAndUp` means "the viewport is **at least** lg" (i.e., `lg`, `xl`, or `xxl`).
 
@@ -117,7 +117,7 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 | `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 | `mobileBreakpoint` | `BreakpointName \| number` | The threshold used to compute `isMobile` (static) |
-| `ssr` | `boolean` | `true` when running server-side with SSR options |
+| `ssr` | `boolean` | `true` whenever an `ssr` option was passed, including on the client |
 | `update()` | — | Manually trigger viewport dimension and breakpoint recalculation |
 
 > [!TIP]

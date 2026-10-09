@@ -112,7 +112,7 @@ tree.select('child-1')
 tree.unselect('child-1') // no-op — would deselect the only selected item
 ```
 
-`unselectAll()` with `mandatory: true` keeps the first selected item rather than clearing.
+`unselectAll()` with `mandatory: true` clears the selection, then selects `seek('first')`.
 
 ### multiple
 

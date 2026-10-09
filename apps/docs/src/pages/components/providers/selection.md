@@ -47,12 +47,12 @@ The Selection component provides a wrapper and item pattern for managing selecti
 
 ## Accessibility
 
-Selection is a headless **state provider**, not a complete interactive widget. It tracks which items are selected and exposes that state on each slot's `attrs`; it ships pointer activation (a click handler) but no `role`, keyboard navigation, or focus management.
+Selection is a headless **state provider**, not a complete listbox. Item `attrs` include `role="option"`, a tabindex, Enter/Space, and the click handler.
 
 - `Selection.Root` exposes `aria-multiselectable`, reflecting the `multiple` prop — `true` in multi-select mode, `false` otherwise.
 - `Selection.Item` exposes `aria-selected` and `aria-disabled`, plus `data-selected` and `data-disabled` for styling.
 
-For fully accessible widgets built on this selection state, reach for the specialized providers and form components that compose it — [Single](/components/providers/single) and [Group](/components/providers/group), or [Radio](/components/forms/radio) and [Checkbox](/components/forms/checkbox), which add native inputs, label association, and keyboard handling. When you bind `attrs` to your own element, you are responsible for supplying the appropriate `role` and keyboard handlers for the pattern you are building.
+Binding `attrs` already supplies `role="option"` and Enter/Space. Add arrow-key roving yourself if the pattern needs it. For a finished widget, use [Radio](/components/forms/radio) or [Checkbox](/components/forms/checkbox), which add native inputs and label association.
 
 ## FAQ
 

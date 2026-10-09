@@ -176,7 +176,7 @@ NumberField.Control renders with `role="spinbutton"` and full ARIA attributes pe
 | `aria-errormessage` | Error ID | When Error is mounted with messages |
 | `aria-required` | `true` | When Root has `required` |
 
-Increment and Decrement buttons use `tabindex="-1"` to keep them out of the tab sequence — only the Input is focusable.
+Increment and Decrement use `tabindex="-1"`. The tab stop is `NumberField.Control`.
 
 ### Keyboard Navigation
 
@@ -214,7 +214,7 @@ On blur, the Input parses the text via `parse()`. If the result is `NaN`, the va
 
 ??? Can I use NumberField without increment/decrement buttons?
 
-Yes. Only `Root` and `Input` are required. Buttons, Scrub, Description, and Error are all optional.
+Yes. Only `Root` and `Control` are required. Buttons, Scrub, Description, and Error are all optional.
 
 :::
 

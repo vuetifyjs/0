@@ -92,7 +92,7 @@ AlertDialog uses `role="alertdialog"` instead of `role="dialog"`, signaling to a
 
 ### Focus management
 
-Focus is handled by the native dialog: `showModal()` moves focus to the **first focusable** control inside Content. AlertDialog does not retarget focus to Cancel on its own.
+`showModal()` opens the dialog, then AlertDialog moves focus to the Cancel element.
 
 For the WAI-ARIA alertdialog pattern — safe action first, destructive confirm not initially focused — put Cancel (or another non-destructive control) **first among focusables** in DOM order. The shipped examples do this. If something focusable must appear before Cancel, put `autofocus` on Cancel (or call `.focus()` yourself after open).
 

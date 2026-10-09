@@ -173,8 +173,8 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Element | Role / Attribute |
 | - | - |
 | Root | `role="region"`, `aria-roledescription="carousel"`, `aria-label`, `aria-disabled` |
-| Viewport | `aria-live="polite"` |
-| Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label="N of M"` |
+| Viewport | No ARIA of its own |
+| Slide | `role="group"`, `aria-roledescription="slide"`, `aria-label` from the `Carousel.slide` locale string (`Slide {current} of {size}`) |
 | Previous | `aria-label` defaults to `"Previous slide"` (`Carousel.prev` key, localizable), `aria-controls` links to viewport |
 | Next | `aria-label` defaults to `"Next slide"` (`Carousel.next` key, localizable), `aria-controls` links to viewport |
 | Indicator | `role="tablist"` container with `aria-orientation`, `role="tab"` per dot, `aria-selected` |

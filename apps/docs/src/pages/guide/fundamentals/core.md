@@ -213,8 +213,9 @@ checkboxes.onboard([
 ])
 
 checkboxes.select(['a', 'b'])
+checkboxes.isMixed.value  // true — some, not all
 checkboxes.selectAll()
-checkboxes.isMixed.value  // true when some (not all) selected
+checkboxes.isMixed.value  // false — every selectable item is selected
 ```
 
 ### createStep
@@ -274,7 +275,8 @@ wizard.last()   // Jump to end
 const theme = inject('theme') // undefined if not provided, no error
 
 // createContext - explicit failure
-const theme = useTheme() // throws: "Injection 'v0:theme' not found"
+const [useExample] = createContext<string>('v0:example')
+const example = useExample() // throws: Context "v0:example" not found. Ensure it's provided by an ancestor.
 ```
 
 ??? Can I nest contexts? What happens with the same key?
@@ -310,12 +312,18 @@ Use the trinity pattern's third element—the default context instance:
 ```ts
 import { createThemeContext } from '@vuetify/v0'
 
-const [useTheme, provideTheme, defaultTheme] = createThemeContext()
+const [useTheme, provideTheme, defaultTheme] = createThemeContext({
+  default: 'light',
+  themes: {
+    light: { colors: { primary: '#fff' } },
+    dark: { colors: { primary: '#111' } },
+  },
+})
 
 // Unit test without Vue
 test('theme cycling', () => {
   defaultTheme.cycle()
-  expect(defaultTheme.current.value).toBe('dark')
+  expect(defaultTheme.selectedId.value).toBe('dark')
 })
 ```
 

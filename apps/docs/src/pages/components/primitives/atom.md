@@ -287,7 +287,7 @@ The `as` prop determines the accessibility baseline. Using `as="button"` gives y
 | `button` | Focus, keyboard activation, implicit role |
 | `a` | Focus, Enter activation, link semantics |
 | `nav` | Landmark region |
-| `dialog` | Focus trapping (native), Escape to close |
+| `dialog` | Renders a `<dialog>` element. Focus trap and Escape-to-close come from `showModal()`, which Dialog and AlertDialog call |
 | `img` | Alt text support, image semantics |
 
 ### ARIA Passthrough
