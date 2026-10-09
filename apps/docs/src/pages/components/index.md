@@ -54,6 +54,21 @@ Interactive controls for user-initiated actions.
 | [Button](/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
 | [Toggle](/components/actions/toggle) | Pressable on/off button with standalone and group modes |
 
+## Disclosure
+
+Components for showing/hiding content.
+
+| Name | Description |
+| - | - |
+| [AlertDialog](/components/disclosure/alert-dialog) | Confirmation dialog with deferred close for async actions |
+| [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
+| [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
+| [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
+| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
+| [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
+
 ## Forms
 
 Form control components with accessibility and validation support.
@@ -96,19 +111,4 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
-
-## Disclosure
-
-Components for showing/hiding content.
-
-| Name | Description |
-| - | - |
-| [AlertDialog](/components/disclosure/alert-dialog) | Confirmation dialog with deferred close for async actions |
-| [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
-| [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
-| [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
-| [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
-| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
-| [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
-| [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

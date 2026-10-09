@@ -42,11 +42,12 @@ const COMPOSABLE_CATEGORIES: Record<string, { name: string, order: number }> = {
   registration: { name: 'Registration', order: 1 },
   selection: { name: 'Selection', order: 2 },
   forms: { name: 'Forms', order: 3 },
-  reactivity: { name: 'Reactivity', order: 4 },
-  plugins: { name: 'Plugins', order: 5 },
-  system: { name: 'System', order: 6 },
-  utilities: { name: 'Utilities', order: 7 },
-  transformers: { name: 'Transformers', order: 8 },
+  data: { name: 'Data', order: 4 },
+  semantic: { name: 'Semantic', order: 5 },
+  reactivity: { name: 'Reactivity', order: 6 },
+  system: { name: 'System', order: 7 },
+  plugins: { name: 'Plugins', order: 8 },
+  transformers: { name: 'Transformers', order: 9 },
 }
 
 interface PageInfo {

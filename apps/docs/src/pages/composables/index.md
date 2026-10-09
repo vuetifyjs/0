@@ -253,6 +253,30 @@ Form state management and model binding utilities.
 | [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 
+## Data
+
+Composables for filtering, sorting, paginating, and virtualizing collections.
+
+| Name | Description |
+| - | - |
+| [createDataGrid](/composables/data/create-data-grid) | Headless data grid: column layout, cell editing, row ordering, and row spanning over createDataTable |
+| [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
+| [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
+| [createKanban](/composables/data/create-kanban) | Two-level sortable orchestrator (columns + items) |
+| [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
+| [createSortable](/composables/data/create-sortable) | Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate |
+| [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
+
+## Semantic
+
+Composables for presentational and semantic components.
+
+| Name | Description |
+| - | - |
+| [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
+| [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
+| [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
+
 ## Reactivity
 
 Reactive proxy utilities for bridging state.
@@ -308,30 +332,6 @@ Application-level features installable via Vue plugins.
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 | [useTooltip](/composables/plugins/use-tooltip) | Region-scoped tooltip delay coordination plugin |
-
-## Data
-
-Composables for filtering, sorting, paginating, and virtualizing collections.
-
-| Name | Description |
-| - | - |
-| [createDataGrid](/composables/data/create-data-grid) | Headless data grid: column layout, cell editing, row ordering, and row spanning over createDataTable |
-| [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
-| [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
-| [createKanban](/composables/data/create-kanban) | Two-level sortable orchestrator (columns + items) |
-| [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
-| [createSortable](/composables/data/create-sortable) | Ordered-list state with `move` / `swap` / `reorder` and a `disabled` mutation gate |
-| [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
-
-## Semantic
-
-Composables for presentational and semantic components.
-
-| Name | Description |
-| - | - |
-| [createBreadcrumbs](/composables/semantic/create-breadcrumbs) | Breadcrumb navigation with path truncation |
-| [createOverflow](/composables/semantic/create-overflow) | Compute item capacity for responsive truncation |
-| [createProgress](/composables/semantic/create-progress) | Progress tracking with multi-segment registration |
 
 ## Transformers
 
