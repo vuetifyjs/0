@@ -162,7 +162,17 @@
 
   export const [useInputRoot, provideInputRoot] = createContext<InputRootContext>()
 
-  function parseValidateOn (value: ValidateOn) {
+  /** Parsed form of a `validateOn` expression */
+  export interface ParsedValidateOn {
+    event: ValidateEvent
+    modifier?: 'lazy' | 'eager'
+  }
+
+  /**
+   * Parse a `validateOn` expression into its event and modifier parts.
+   * Unknown tokens are ignored; the event defaults to `'blur'`.
+   */
+  export function parseValidateOn (value: ValidateOn): ParsedValidateOn {
     const parts = String(value).split(' ')
     let event: ValidateEvent = 'blur'
     let modifier: 'lazy' | 'eager' | undefined
