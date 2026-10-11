@@ -55,6 +55,9 @@ export default {
   Input: {
     required: 'Required',
   },
+  Menu: {
+    label: 'Menu',
+  },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
