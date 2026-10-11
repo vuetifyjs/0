@@ -122,6 +122,19 @@ export const Menu = {
    */
   Activator,
   /**
+   * Right-click target. Opens the menu at the pointer.
+   *
+   * @see https://0.vuetifyjs.com/components/disclosure/menu
+   *
+   * @example
+   * ```vue
+   * <template>
+   *   <Menu.Context>Right-click</Menu.Context>
+   * </template>
+   * ```
+   */
+  Context,
+  /**
    * Popup list for one top-level activator.
    *
    * @see https://0.vuetifyjs.com/components/disclosure/menu
@@ -249,17 +262,4 @@ export const Menu = {
    * ```
    */
   SubContent,
-  /**
-   * Right-click target. Opens the menu at the pointer.
-   *
-   * @see https://0.vuetifyjs.com/components/disclosure/menu
-   *
-   * @example
-   * ```vue
-   * <template>
-   *   <Menu.Context>Right-click</Menu.Context>
-   * </template>
-   * ```
-   */
-  Context,
 }

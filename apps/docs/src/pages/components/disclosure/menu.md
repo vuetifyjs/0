@@ -22,6 +22,16 @@ Menu opens a list of actions from a button, a right-click, or a horizontal bar. 
 
 <DocsPageFeatures :frontmatter />
 
+<DocsBrowserSupport
+  feature="CSS Anchor Positioning"
+  :versions="{ chrome: '125+', edge: '125+', firefox: '147+', safari: '26+' }"
+  anchor="css-anchor-positioning"
+>
+
+The menu works in every browser. Automatic placement needs CSS Anchor Positioning. Without it, install the popover plugin with the shipped [FloatingUIPopoverAdapter](/composables/system/use-popover#adapters) (`@vuetify/v0/popover/adapters/floating-ui`).
+
+</DocsBrowserSupport>
+
 ## Usage
 
 ::: gn-example
@@ -77,10 +87,6 @@ Place `Menu.Sub` inside `Menu.Content`. The submenu renders in the parent menu, 
 
 Resting on `Menu.SubActivator` opens that submenu after `open-delay` (default 100ms), even when `open-on-hover` is off. That open does not start `close-delay`. `open-on-hover` applies only to a top-level `Menu.Activator` and is off by default. When it is on, pointer rest opens after `open-delay`, and pointer leave closes after `close-delay` (default 250ms). `open-delay` covers both `open-on-hover` and submenu pointer-rest. `close-delay` runs only after a hover open, when the pointer leaves. A menu opened by click, keyboard, or right-click stays open when the pointer leaves.
 
-| File | Role |
-| --- | --- |
-| `submenu.vue` | Dropdown with one nested menu |
-
 :::
 
 ::: gn-example
@@ -91,10 +97,6 @@ Resting on `Menu.SubActivator` opens that submenu after `open-delay` (default 10
 `Menu.Context` listens for a right-click and opens the menu at that point. Put `Menu.Content` next to it, not inside it, so a right-click on an item does not open the menu again.
 
 The opened menu takes keyboard focus. Escape closes every layer and returns focus to the `Menu.Context` element. There is no long-press behavior.
-
-| File | Role |
-| --- | --- |
-| `context.vue` | Right-click target and its menu |
 
 :::
 
@@ -107,10 +109,6 @@ Give each `Menu.Activator` and its `Menu.Content` the same `value`. Arrow keys m
 
 Menubar hover is the same rule, not a special case. With `open-on-hover` left off, hovering an activator does nothing until a menu is already open. After one is open, hovering another activator switches to it immediately, with no `open-delay`. If `open-on-hover` is set, a resting pointer opens that activator after `open-delay`. Enter or Space toggles the focused menu.
 
-| File | Role |
-| --- | --- |
-| `menubar.vue` | File and Edit menus on one bar |
-
 :::
 
 ::: gn-example
@@ -121,10 +119,6 @@ Menubar hover is the same rule, not a special case. With `open-on-hover` left of
 `Menu.CheckboxItem` uses `v-model:checked`. `Menu.RadioGroup` uses `v-model`, and each `Menu.RadioItem` writes its `value`. Activating either kind leaves the menu open. An action item still closes it.
 
 Disabled items ignore the pointer and the keyboard. The model can still be changed from outside.
-
-| File | Role |
-| --- | --- |
-| `selection.vue` | Bold checkbox and an alignment radio group |
 
 :::
 
@@ -167,7 +161,7 @@ A nav item that opens a short list of actions is a dropdown. A panel of links, a
 
 ??? How do I control where the menu opens?
 
-`position-area` on `Menu.Content` defaults to `bottom`. `Menu.SubContent` defaults to `inline-end span-block-start`, so the submenu sits on the inline-end side and lines up with the block start of the item. `position-try` on `Menu.SubContent` defaults to `flip-inline`. Both props take the CSS value directly.
+`position-area` on `Menu.Content` defaults to `bottom`. `Menu.SubContent` defaults to `inline-end span-block-start`, so the submenu sits on the inline-end side and lines up with the block start of the item. `position-try` on `Menu.SubContent` defaults to `flip-inline`. When `position-try` is omitted on `Menu.Content`, it falls back to `most-width bottom`. Both props take the CSS value directly.
 
 :::
 

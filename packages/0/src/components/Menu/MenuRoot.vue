@@ -93,6 +93,8 @@
     parentOf: (id: ID) => ID | null
     isTop: (id: ID) => boolean
     bindAnchor: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
+    /** Drop the anchor registered for `id` when it is still `el`. */
+    unbindAnchor: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
     /** Focus target used on dismiss when it differs from the positioning anchor. */
     bindReturn: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
     anchor: (id: ID) => Element | null
@@ -259,6 +261,9 @@
     closeTimer.stop()
     scheduled = null
 
+    buffer = ''
+    typeTimer.stop()
+
     if (source === 'hover') openedByHover.value = true
     else if (source !== 'pointer') openedByHover.value = false
 
@@ -285,6 +290,8 @@
       ? layerItems(parent).find(ticket => ticket.submenuId === closed)
       : undefined
 
+    buffer = ''
+    typeTimer.stop()
     pendingFocus.value = parent ?? null
     pendingItem.value = item?.id ?? null
     pendingEdge.value = 'first'
@@ -301,6 +308,7 @@
     pendingFocus.value = null
     pendingItem.value = null
     buffer = ''
+    typeTimer.stop()
     assign([])
     if (!restore) return
     nextTick(() => {
@@ -350,6 +358,8 @@
     if (index === -1 || index === path.value.length - 1) return
     openTimer.stop()
     scheduled = null
+    buffer = ''
+    typeTimer.stop()
     assign(path.value.slice(0, index + 1))
   }
 
@@ -482,6 +492,10 @@
     anchors.set(id, el)
   }
 
+  function unbindAnchor (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) {
+    if (anchors.get(id) === el) anchors.delete(id)
+  }
+
   function bindReturn (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) {
     if (isNullOrUndefined(el)) {
       returns.delete(id)
@@ -520,6 +534,7 @@
     parentOf: id => parents.get(id) ?? null,
     isTop,
     bindAnchor,
+    unbindAnchor,
     bindReturn,
     anchor: anchorOf,
     anchorName,

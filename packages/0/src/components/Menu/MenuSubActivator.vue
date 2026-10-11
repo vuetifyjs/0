@@ -126,6 +126,7 @@
     layer.roving.focus(ticket.id)
     if (isNullOrUndefined(ticket.submenuId)) return
     if (menu.path.value.includes(ticket.submenuId)) return
+    menu.collapseTo(layer.id)
     menu.schedule(ticket.submenuId, 'pointer')
   }
 

@@ -101,6 +101,7 @@
   })
 
   onBeforeUnmount(() => {
+    menu.unbindAnchor(layerId, el)
     menu.unregisterActivator(ticket.id)
   })
 

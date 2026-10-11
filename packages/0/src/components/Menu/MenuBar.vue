@@ -95,6 +95,7 @@
     const aimed = host(event)
     if (!isNullOrUndefined(aimed)) roving.focusedId.value = aimed.id
 
+    const before = roving.focusedId.value
     roving.onKeydown(event)
 
     const ticket = menu.activators().find(item => item.id === roving.focusedId.value)
@@ -112,11 +113,16 @@
       return
     }
 
-    if (event.key !== 'Enter' && event.key !== ' ') return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      if (menu.path.value[0] === ticket.layerId) menu.dismiss()
+      else menu.reveal(ticket.layerId, 'keyboard')
+      return
+    }
 
-    event.preventDefault()
-    if (menu.path.value[0] === ticket.layerId) menu.dismiss()
-    else menu.reveal(ticket.layerId, 'keyboard')
+    if (menu.path.value.length === 0 || ticket.id === before) return
+    if (menu.path.value[0] === ticket.layerId) return
+    menu.reveal(ticket.layerId, 'keyboard')
   }
 
   const slotProps = toRef((): MenuBarSlotProps => ({

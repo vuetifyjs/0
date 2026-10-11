@@ -48,6 +48,13 @@ function openMenus (wrapper: VueWrapper) {
   return wrapper.findAll('[role="menu"][data-open="true"]')
 }
 
+function submenuOpen (wrapper: VueWrapper, label: string) {
+  return openMenus(wrapper).some(node => {
+    const text = node.text()
+    return text.includes(label) && !text.includes('Share') && !text.includes('Export') && !text.includes('Copy')
+  })
+}
+
 describe('menu', () => {
   function dropdown (extra?: () => VNode[]) {
     return defineComponent({
@@ -808,5 +815,171 @@ describe('menu', () => {
     expect(openMenus(wrapper)).toHaveLength(1)
     expect(openMenus(wrapper)[0]?.text()).toContain('New')
     expect(item(wrapper, 'menuitem', 'New').attributes('data-highlighted')).toBeUndefined()
+  })
+
+  it('should close a sibling submenu before the next one opens', async () => {
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, { openDelay: 80, closeDelay: 0 }, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Actions'),
+            h(Menu.Content, null, () => [
+              h(Menu.Sub, null, () => [
+                h(Menu.SubActivator, null, () => 'Share'),
+                h(Menu.SubContent, null, () => [
+                  h(Menu.Item, null, () => 'Email'),
+                ]),
+              ]),
+              h(Menu.Sub, null, () => [
+                h(Menu.SubActivator, null, () => 'Export'),
+                h(Menu.SubContent, null, () => [
+                  h(Menu.Item, null, () => 'PDF'),
+                ]),
+              ]),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await wrapper.get('button').trigger('click')
+    await settle()
+    await item(wrapper, 'menuitem', 'Share').trigger('click')
+    await settle()
+    expect(submenuOpen(wrapper, 'Email')).toBe(true)
+
+    await item(wrapper, 'menuitem', 'Export').trigger('pointerenter')
+    await settle()
+
+    expect(submenuOpen(wrapper, 'Email')).toBe(false)
+    expect(submenuOpen(wrapper, 'PDF')).toBe(false)
+    expect(openMenus(wrapper)).toHaveLength(1)
+
+    await new Promise(resolve => setTimeout(resolve, 120))
+    expect(submenuOpen(wrapper, 'PDF')).toBe(true)
+    expect(submenuOpen(wrapper, 'Email')).toBe(false)
+  })
+
+  it('should open the next menubar menu when arrow keys move off a hover-opened activator', async () => {
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, { openOnHover: true, openDelay: 0, closeDelay: 0 }, {
+          default: () => [
+            h(Menu.Bar, null, () => [
+              h(Menu.Activator, { value: 'file' }, () => 'File'),
+              h(Menu.Activator, { value: 'edit' }, () => 'Edit'),
+            ]),
+            h(Menu.Content, { value: 'file' }, () => [
+              h(Menu.Item, null, () => 'New'),
+            ]),
+            h(Menu.Content, { value: 'edit' }, () => [
+              h(Menu.Item, null, () => 'Undo'),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    const file = item(wrapper, 'menuitem', 'File')
+    await file.trigger('pointerenter')
+    await settle()
+
+    expect(openMenus(wrapper)).toHaveLength(1)
+    expect(openMenus(wrapper)[0]?.text()).toContain('New')
+    expect(item(wrapper, 'menuitem', 'New').attributes('data-highlighted')).toBeUndefined()
+
+    await file.trigger('keydown', { key: 'ArrowRight' })
+    await settle()
+
+    expect(openMenus(wrapper)).toHaveLength(1)
+    expect(openMenus(wrapper)[0]?.text()).toContain('Undo')
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Undo').element)
+  })
+
+  it('should forget the parent typeahead when a submenu opens', async () => {
+    const wrapper = mount(dropdown(() => [
+      h(Menu.Sub, null, () => [
+        h(Menu.SubActivator, null, () => 'Share'),
+        h(Menu.SubContent, null, () => [
+          h(Menu.Item, null, () => 'Email'),
+          h(Menu.Item, null, () => 'Link'),
+        ]),
+      ]),
+    ]))
+
+    await wrapper.get('button').trigger('click')
+    await settle()
+
+    const menu = openMenus(wrapper)[0]
+    await menu?.trigger('keydown', { key: 'x' })
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowRight' })
+    await settle()
+
+    const submenu = openMenus(wrapper).find(node => node.text().includes('Email') && !node.text().includes('Copy'))
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Email').element)
+
+    await submenu?.trigger('keydown', { key: 'l' })
+    await settle()
+
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Link').element)
+  })
+
+  it('should clear typeahead when a pointer closes a submenu before the next one opens', async () => {
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, { openDelay: 80, closeDelay: 0 }, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Actions'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item, null, () => 'Copy'),
+              h(Menu.Item, null, () => 'Paste'),
+              h(Menu.Sub, null, () => [
+                h(Menu.SubActivator, null, () => 'Share'),
+                h(Menu.SubContent, null, () => [
+                  h(Menu.Item, null, () => 'Email'),
+                ]),
+              ]),
+              h(Menu.Sub, null, () => [
+                h(Menu.SubActivator, null, () => 'Export'),
+                h(Menu.SubContent, null, () => [
+                  h(Menu.Item, null, () => 'PDF'),
+                ]),
+              ]),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await wrapper.get('button').trigger('click')
+    await settle()
+
+    const menu = openMenus(wrapper)[0]
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowDown' })
+    await menu?.trigger('keydown', { key: 'ArrowRight' })
+    await settle()
+
+    const submenu = openMenus(wrapper).find(node => node.text().includes('Email') && !node.text().includes('Copy'))
+    await submenu?.trigger('keydown', { key: 'x' })
+
+    const exportItem = item(wrapper, 'menuitem', 'Export')
+    await exportItem.trigger('pointerenter')
+    await exportItem.trigger('pointerleave')
+    await settle()
+
+    expect(submenuOpen(wrapper, 'Email')).toBe(false)
+    expect(submenuOpen(wrapper, 'PDF')).toBe(false)
+
+    await menu?.trigger('keydown', { key: 'p' })
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Paste').element)
+
+    await new Promise(resolve => setTimeout(resolve, 120))
+    expect(submenuOpen(wrapper, 'PDF')).toBe(false)
   })
 })

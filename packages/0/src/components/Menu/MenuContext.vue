@@ -64,10 +64,15 @@
   const point = shallowRef({ x: 0, y: 0 })
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
-  menu.bindAnchor(menu.defaultLayer, () => sentinel.value)
+  function anchor () {
+    return sentinel.value
+  }
+
+  menu.bindAnchor(menu.defaultLayer, anchor)
   menu.bindReturn(menu.defaultLayer, el)
 
   onBeforeUnmount(() => {
+    menu.unbindAnchor(menu.defaultLayer, anchor)
     menu.bindReturn(menu.defaultLayer, null)
   })
 
