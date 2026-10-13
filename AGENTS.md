@@ -83,3 +83,11 @@ Path-scoped standards. Read the ones matching the touched paths before reviewing
 `@vuetify/v0` (headless logic, incl. styling primitives) → design systems → Vuetify 4.
 Keep concerns at their layer: styling questions are design-system questions, not v0 questions.
 `apps/playground` is a v0 consumer.
+
+## Cursor Cloud specific instructions
+
+- Node must be 26 (`.nvmrc`). `/exec-daemon/node` is an older binary that appears earlier on the default PATH. Login shells and `~/.bashrc` prepend the nvm Node 26 install. Node 26.0.0 does not ship corepack; pnpm 11.16.0 is installed with `npm install -g pnpm@11.16.0`.
+- Boot starts three Vite servers: docs at `http://127.0.0.1:8000`, playground at `http://127.0.0.1:5173`, and the Emerald dev app at `http://127.0.0.1:5174`. On that app, `/` is the v0 playground and `/emerald` is the design-system shell.
+- Pass Vite flags with `pnpm exec vite`. `pnpm <script> -- --host` forwards the `--` into Vite, which then ignores `--host` and `--port`.
+- `*:browser` tests need Playwright Chromium (`pnpm exec playwright install chromium` and `pnpm exec playwright install-deps chromium`).
+- Checks used in CI: `pnpm lint`, `pnpm typecheck`, `pnpm test:run --project '!*:browser'`. Package build: `pnpm build:0`.
