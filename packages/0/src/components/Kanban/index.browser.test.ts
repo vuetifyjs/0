@@ -99,7 +99,7 @@ function mountBoard (options: {
     await nextTick()
   }
 
-  return { wrapper, board, moves, el, center, drag }
+  return { wrapper, board, moves, el, center, drag, pointer }
 }
 
 describe('kanban (browser)', () => {
@@ -188,6 +188,71 @@ describe('kanban (browser)', () => {
       await nextTick()
 
       expect(list.dataset.over).toBeUndefined()
+    })
+
+    it('should not mark a list whose column refuses the item', async () => {
+      const { el, center, pointer } = mountBoard({
+        columns: { doing: { accept: () => false } },
+      })
+      const source = el('[data-item="a"]')
+      const from = center(source)
+      const list = el('[data-list="doing"]')
+      const rect = list.getBoundingClientRect()
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y })
+      await nextTick()
+      pointer(document, 'pointermove', { x: rect.left + 20, y: rect.top + 20 })
+      await nextTick()
+
+      expect(list.dataset.over).toBeUndefined()
+      expect(source.dataset.state).toBe('dragging')
+
+      pointer(document, 'pointercancel', { x: rect.left + 20, y: rect.top + 20 })
+    })
+
+    it('should mark a column only over a slot its accept allows', async () => {
+      const { el, center, pointer } = mountBoard({
+        columns: { doing: { accept: (_value: unknown, _from: unknown, index: number) => index > 0 } },
+      })
+      const source = el('[data-item="a"]')
+      const from = center(source)
+      const list = el('[data-list="doing"]')
+      const item = el('[data-item="d"]').getBoundingClientRect()
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y })
+      await nextTick()
+
+      pointer(document, 'pointermove', { x: item.left + 8, y: item.top + 4 })
+      await nextTick()
+      expect(list.dataset.over).toBeUndefined()
+
+      pointer(document, 'pointermove', { x: item.left + 8, y: item.bottom - 4 })
+      await nextTick()
+      expect(list.dataset.over).toBeDefined()
+
+      pointer(document, 'pointercancel', { x: item.left + 8, y: item.bottom - 4 })
+    })
+
+    it('should mark the source list when that column refuses incoming items', async () => {
+      const { el, center, pointer } = mountBoard({
+        columns: { todo: { accept: () => false } },
+      })
+      const source = el('[data-item="a"]')
+      const from = center(source)
+      const list = el('[data-list="todo"]')
+      const rect = list.getBoundingClientRect()
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y })
+      await nextTick()
+      pointer(document, 'pointermove', { x: rect.left + 20, y: rect.bottom - 20 })
+      await nextTick()
+
+      expect(list.dataset.over).toBeDefined()
+
+      pointer(document, 'pointercancel', { x: rect.left + 20, y: rect.bottom - 20 })
     })
   })
 

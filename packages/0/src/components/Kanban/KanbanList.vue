@@ -21,10 +21,12 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { ActiveDrag, DropZoneTicket } from '#v0/composables/useDragDrop'
   import type { KanbanDrag, KanbanOrientation } from './KanbanRoot.vue'
 
   export interface KanbanListProps extends AtomProps {
@@ -33,7 +35,7 @@
   }
 
   export interface KanbanListSlotProps {
-    /** Whether a pointer drag is over this list */
+    /** Whether an accepted pointer drag is over this list */
     isOver: boolean
     /** Whether the column is disabled */
     isDisabled: boolean
@@ -84,9 +86,28 @@
     root.place(drag.value, column.ticket.id, target, drag.label)
   }
 
-  const zone = root.dnd.zones.register({
+  // admits reads this once a drag is active, after register returns.
+  // eslint-disable-next-line prefer-const -- single assignment, but admits closes over it
+  let zone!: DropZoneTicket
+
+  // Column accept vetoes incoming transfers only. Same-column reorders skip
+  // it, matching transfer. The indicator is the slot a drop would ask for.
+  function admits (drag: ActiveDrag<KanbanDrag>) {
+    if (drag.type !== 'item') return false
+
+    const at = root.locate(drag.value.value)
+    if (!at) return false
+    if (at.column.id === column.ticket.id) return true
+
+    const accept = column.ticket.accept
+    if (isUndefined(accept)) return true
+
+    return accept(at.ticket, at.column.id, zone.indicator.value?.index ?? 0)
+  }
+
+  zone = root.dnd.zones.register({
     el: () => el.value as HTMLElement | null,
-    accept: ['item'],
+    accept: admits,
     orientation: column.orientation.value,
     disabled: column.isDisabled,
     onDrop: (drag, position) => onDrop(drag.value, position.index),
