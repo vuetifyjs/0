@@ -130,7 +130,7 @@ When multiple images are present, the `priority` prop determines display order. 
 
 ### Team roster
 
-A realistic project-members panel — the kind of header you'd find on a Slack channel, GitHub team page, or Jira project view. The row fills the available chrome width and collapses into a `+N` chip when there isn't enough room. The chip's `title` lists everyone who's currently hidden, so the truncation never costs the reader information.
+The row fills the available chrome width and collapses into a `+N` chip when there isn't enough room. The chip's `title` lists everyone who's currently hidden, so the truncation never costs the reader information.
 
 The data lives in a separate module so the component stays focused on composition and ARIA. Each member is registered with `:value="member"` rather than just an id, which makes `Avatar.Indicator`'s `hidden` slot prop directly useful — the tooltip resolves names without a separate lookup. The negative `marginInlineStart` is skipped on the first child via the `(member, index)` form so the leading avatar doesn't hang off the container's left edge.
 
@@ -138,7 +138,7 @@ The data lives in a separate module so the component stays focused on compositio
 
 | File | Role |
 |------|------|
-| `members.ts` | Member type + sample data; the kind of array your API would return |
+| `members.ts` | Member type and sample data |
 | `team.vue` | Panel UI — labelled `Avatar.Group` with hover tooltips on every avatar and the `+N` chip |
 
 :::

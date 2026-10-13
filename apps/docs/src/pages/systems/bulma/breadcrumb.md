@@ -146,6 +146,6 @@ The item's default slot is the anchor children — text, icons, or both.
 
 ## Accessibility
 
-The root is a `nav` labelled by `label`. The current crumb keeps its `<a>` — Bulma's CSS styles that anchor inert — and carries `aria-current="page"` when you set `current`. Earlier crumbs are ordinary links.
+The root is a `nav` labelled by `label`. The current crumb keeps its `<a>`. Bulma sets `pointer-events: none` and `cursor: default` on it, which does not remove it from tab order, and it carries `aria-current="page"` when you set `current`. Earlier crumbs are ordinary links.
 
 The trail wraps when it is wider than its container. Nothing is hidden, and there is no ellipsis control to announce.

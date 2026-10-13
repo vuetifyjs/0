@@ -39,10 +39,12 @@ Vuetify0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:
 | Area | What it proves |
 | - | - |
 | Instance detection | `getCurrentInstance()` is `null` in a Vapor component, yet v0 still resolves the active instance[^instance-shim] — so composables that depend on component context keep working. |
+| Context | `createContext` carries a value from a Vapor ancestor to a Vapor descendant. |
+| Plugin injection | `hasInjectionContext()` resolves inside a Vapor setup. An installed plugin context resolves; the fallback resolves when the plugin is absent. |
 | Composables | `createSelection` registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
 | Component interop | A classic (vdom) Vuetify0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
 
-[^rc-pin]: Pinned to `vue@3.6.0-rc.2`. The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships.
+[^rc-pin]: Pinned to `vue@3.6.0-rc.5` (`tests/vapor/package.json`). The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships. The interop numbers below were measured on `3.6.0-rc.2` and have not been re-run on the current pin.
 [^instance-shim]: Vapor exposes the active instance on Vue 3.6's `currentInstance` export; `getCurrentInstance()` returns `null` inside a Vapor component by design ([vuejs/core discussion #13629](https://github.com/orgs/vuejs/discussions/13629)). v0 reads `currentInstance` when present and falls back to `getCurrentInstance()` on Vue 3.5 — see `utilities/instance.ts`.
 [^interop-slots]: Interop is directional. A vdom component rendering inside a Vapor parent (the tested path) works; passing Vapor slots *into* a vdom component needs `renderSlot` rather than `slots.default()`, per [Vue's Vapor notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1). Keep a region in one rendering mode where you can.
 
@@ -142,7 +144,7 @@ The wrapper is a parity workaround, not a win: everything inside the boundary st
 ## Current limitations
 
 - **Vue 3.6 is a release candidate.** Vapor is feature-complete as of rc.1; APIs are unlikely to shift, but nothing is guaranteed until 3.6.0 ships.
-- **Coverage is representative, not exhaustive.** The suite proves the instance-context substrate, a registry composable, and component interop. It does not yet mount every component under Vapor.
+- **Coverage is representative, not exhaustive.** The suite proves instance detection, `createContext`, plugin injection, `createSelection`, and classic-component interop. It does not yet mount every component under Vapor.
 - **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can — and mind the [boundary rule](#the-interop-boundary-rule) when mixing.
 
 ## Verifying it yourself

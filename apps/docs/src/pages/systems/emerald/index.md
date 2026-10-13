@@ -59,9 +59,6 @@ Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emer
 
 ## Installation
 
-> [!IMPORTANT]
-> `@paper/emerald` is MIT: the package, the components, and the dashboard. It is not on npm yet. The command below is what install will look like once it publishes. The [Official Emerald UI Kit for Figma](https://store.vuetifyjs.com/products/official-emerald-ui-kit-for-figma) is a separate Store product.
-
 ```bash
 pnpm add @paper/emerald
 ```
@@ -106,7 +103,7 @@ Dark mode is opt-in either way. Set `data-theme="emerald-dark"` on an element an
 
 ## Tokens
 
-Visual values are CSS custom properties named `--emerald-*`, generated from the same `colors.ts` and `design-system.ts` the Figma library exports. Colors sit on the theme attribute. Spacing, radius, type, icon, and motion sit on `:root`. Light shadows sit on `:root` too, and `data-theme="emerald-dark"` replaces them.
+Visual values are CSS custom properties named `--emerald-*`, generated from `colors.ts` and `design-system.ts`, which mirror the Figma variables. Colors sit on the theme attribute. Spacing, radius, type, icon, and motion sit on `:root`. Light shadows sit on `:root` too, and `data-theme="emerald-dark"` replaces them.
 
 | Family | Examples |
 |--------|----------|
@@ -151,7 +148,7 @@ Every component below is exported from `@paper/emerald` and has its own page. Tw
 | `EmBadge` | v0 `Atom` | [Badge](/systems/emerald/badge) |
 | `EmBreadcrumbs` | v0 `Breadcrumbs` | [Breadcrumbs](/systems/emerald/breadcrumbs) |
 | `EmButton` | v0 `Button` | [Button](/systems/emerald/button) |
-| `EmCalendar` | an incubating v0 calendar core | [Calendar](/systems/emerald/calendar) |
+| `EmCalendar` | a private calendar core inside Emerald, ahead of a v0 graduation | [Calendar](/systems/emerald/calendar) |
 | `EmCard` | v0 `Atom` | [Card](/systems/emerald/card) |
 | `EmCheckbox` | v0 `Checkbox` | [Checkbox](/systems/emerald/checkbox) |
 | `EmDialog` | v0 `Dialog` | [Dialog](/systems/emerald/dialog) |

@@ -56,6 +56,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
 
-View the [LICENSE.md](https://github.com/vuetifyjs/0/blob/master/packages/0/README.md) on GitHub.
+View the [LICENSE.md](https://github.com/vuetifyjs/0/blob/master/LICENSE.md) on GitHub.
 
 > [!DISCORD]

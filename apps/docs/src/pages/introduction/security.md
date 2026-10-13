@@ -50,7 +50,7 @@ Internally, security incidents are handled according to a formal Incident Respon
 
 ## Threat Model
 
-`@vuetify/v0` is a **client-side UI composables library**. It processes no secrets, manages no authentication, and communicates with no external services. This threat model uses the [STRIDE framework](https://en.wikipedia.org/wiki/STRIDE_(security)) to identify and mitigate threats across the project lifecycle.
+`@vuetify/v0` is a **client-side UI composables library**. It processes no secrets and manages no authentication. The core makes no network calls. Opt-in adapters do: Knock notifications, and the Flagsmith, LaunchDarkly, and PostHog feature adapters. This threat model uses the [STRIDE framework](https://en.wikipedia.org/wiki/STRIDE_(security)) to identify and mitigate threats across the project lifecycle.
 
 ### Assets
 
@@ -58,7 +58,7 @@ Internally, security incidents are handled according to a formal Incident Respon
 |-------|----------------------|
 | npm package (`@vuetify/v0`) | Supply chain attack on all downstream consumers |
 | GitHub repository | Tampered source leads to tampered package |
-| CI/CD secrets (npm token, deploy tokens) | Unauthorized publish or deployment |
+| CI/CD credentials (npm OIDC, `COOLIFY_TOKEN`) | Unauthorized publish or docs deploy |
 | Documentation site | Defacement, phishing, malicious examples |
 | Consumer app security | Apps trust v0 to not introduce XSS or injection |
 
@@ -112,7 +112,7 @@ These measures protect the integrity of `@vuetify/v0` from source to consumer:
 
 These properties are verified in the codebase:
 
-- **No network requests** — Vuetify0 makes no HTTP calls; the Knock notification adapter is opt-in only
+- **No network requests in the core** — HTTP calls happen only in opt-in adapters: Knock notifications, and the Flagsmith, LaunchDarkly, and PostHog feature adapters
 - **No dynamic code evaluation** — no runtime code generation or arbitrary script execution
 - **Prototype pollution protection** — `mergeDeep` blocks `__proto__`, `constructor`, and `prototype` keys
 - **CSS injection protection** — Theme adapters validate theme names and color keys against a safe identifier pattern (`[a-zA-Z0-9_-]`), and reject color values containing dangerous CSS patterns. The browser adapter uses `adoptedStyleSheets` (no DOM parsing); SSR adapters use `innerHTML` on `<style>` tags only

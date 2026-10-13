@@ -23,7 +23,7 @@ v0 maintains performance benchmarks for all core composables. This page explains
 
 Headless UI libraries must be fast—they're foundational infrastructure. v0 benchmarks exist to:
 
-1. **Catch regressions** — CI fails if performance drops
+1. **Catch regressions** — compare a reference-host run against the last one. CI does not bench on pull requests. The metrics job fails if `benchmarks.json` changes on the runner, because those numbers belong to the reference host.
 2. **Guide optimization** — Data-driven decisions, not guesses
 3. **Set expectations** — Users know what to expect at scale
 4. **Validate minimal reactivity** — Prove the tradeoffs are worth it
@@ -55,14 +55,14 @@ Each benchmark file covers multiple operation types:
 | - | - | - |
 | Initialization | Fresh | Setup/creation cost |
 | Lookup operations | Shared | Single item access (O(1) expected) |
-| Mutation operations | Fresh | Updates and modifications |
-| Batch operations | Fresh | Bulk actions (onboard, offboard) |
+| Mutation operations | Warm | Updates on a populated collection, after a cheap reset |
+| Batch operations | Fresh | Bulk actions that consume the collection (onboard, then clear or offboard) |
 | Computed access | Shared | Cached/derived value reads |
 | Seek operations | Shared | Directional search |
 
 **Shared fixtures** reuse the same data structure across iterations—safe for read-only operations.
 
-**Fresh fixtures** create new data per iteration—required for mutations to get accurate measurements.
+**Warm fixtures** share one populated collection and reset the operation's own state each iteration. **Fresh fixtures** build new data per iteration. Use them when construction is the operation, or when the operation consumes the collection. A mutation bench that onboards inside the timed block measures construction.
 
 ## Performance Tiers
 

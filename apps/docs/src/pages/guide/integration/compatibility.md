@@ -21,7 +21,7 @@ Almost anywhere you already write Vue. Vuetify0 is **headless** — it ships rea
 
 <DocsPageFeatures :frontmatter />
 
-## The one thing that answers most questions
+## No global install and no CSS
 
 v0 registers nothing globally and paints no pixels. You import what you need (`import { createSelection } from '@vuetify/v0'`) and it tree-shakes. Because it emits no styles and installs no plugin, there is nothing for it to collide with:
 
@@ -51,7 +51,7 @@ Libraries like **Vuetify**, **PrimeVue**, **Quasar**, **Element Plus**, and **Nu
 The only recurring caveat is **redundancy, not conflict**. Every styled library ships its own services for theme, locale, RTL, breakpoints, and z-index — the same concerns v0's optional plugin composables (`useTheme`, `useRtl`, `useLocale`, `useBreakpoints`, `useStack`) also cover. Don't run both for one concern. Pick a single owner, and in a styled-library app that owner is normally the styled library.
 
 - **Vuetify** — a special case: Vuetify0 is Vuetify's own substrate, adopted incrementally through minor releases. In a Vuetify app today, use Vuetify0 for headless logic Vuetify doesn't yet surface directly, and let Vuetify own theming and display. Vuetify is not fully reimplemented on Vuetify0 — treat v0 as the shared foundation underneath, not a drop-in replacement for Vuetify's components.
-- **Quasar** — the one styling gotcha worth naming: Quasar's stylesheet includes a global reset that restyles base elements app-wide. It won't touch v0's logic, but v0's *unstyled* elements will inherit Quasar's base styling. Scope or override where you don't want it.
+- **Quasar** — Quasar's stylesheet includes a global reset that restyles base elements app-wide. It won't touch v0's logic, but v0's *unstyled* elements will inherit Quasar's base styling. Scope or override where you don't want it.
 - **PrimeVue / Element Plus** — component-scoped CSS, no aggressive reset; both support SSR and plugin-free auto-import. Use v0 for what they lack, not to re-solve their built-in toast/dialog/config providers.
 
 ## Headless libraries

@@ -187,30 +187,30 @@ The first config runs the package locally over stdio. The second and third use t
 
 ### Vuetify CLI
 
-Add Vuetify AI rules and context to your project with the [Vuetify CLI](/guide/tooling/vuetify-cli):
+Write the MCP server connection into your editor with the [Vuetify CLI](/guide/tooling/vuetify-cli):
 
 ::: code-group no-filename
 
 ```bash pnpm
-pnpm dlx @vuetify/cli add mcp
+pnpm dlx @vuetify/cli mcp install
 ```
 
 ```bash npm
-npx @vuetify/cli add mcp
+npx @vuetify/cli mcp install
 ```
 
 ```bash yarn
-yarn dlx @vuetify/cli add mcp
+yarn dlx @vuetify/cli mcp install
 ```
 
 ```bash bun
-bunx @vuetify/cli add mcp
+bunx @vuetify/cli mcp install
 ```
 
 :::
 
 > [!NOTE]
-> The CLI `add mcp` command sets up [Ruler](https://github.com/intellectronica/ruler) project rules for AI context — it does not configure the MCP server connection. Use the interactive setup above to connect your IDE to the Vuetify MCP server.
+> `vuetify add mcp` is deprecated. It redirects to `vuetify mcp install`, which writes the server connection. The JSON blocks above are that same connection, written by hand.
 
 ### Local Server
 

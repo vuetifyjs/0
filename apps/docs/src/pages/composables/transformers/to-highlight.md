@@ -84,11 +84,10 @@ A mail-style search pane that exercises every input shape `toHighlight` accepts.
 search `Input.Root` drives a single-term query, the saved-filter `Toggle.Root` chips
 extend that into a multi-term array, and the **Server snippets** `Switch.Root` swaps the
 body-text path from client-side substring matching to caller-supplied `MatchRange[]`
-returned by a mock backend. Every option is a real-world button you'd find on a working
-inbox, not a "demo mode" toggle.
+returned by a mock backend.
 
-The `MessageRow` sub-component owns its `toHighlight` calls so the parent list stays
-dumb — pass it the resolved `terms` array and the `serverMode` flag and it decides which
+The `MessageRow` sub-component owns its `toHighlight` calls, so the parent list does not
+call `toHighlight`. Pass it the resolved `terms` array and the `serverMode` flag and it decides which
 shape to feed the transformer. Pulling the per-row work into a child also means the same
 row component drops into any list with a query in scope.
 
@@ -108,9 +107,8 @@ row component drops into any list with a query in scope.
   `messages.ts` — a stand-in for a real search backend (Algolia, Elasticsearch, your
   own indexer) that returns character offsets alongside matched documents. The
   whole-word matcher used by `snippets()` highlights different spans than client-side
-  substring matching, so the visual difference between the two modes is real, not
-  cosmetic. The matched chunks render with an underline so the source of truth is
-  obvious at a glance.
+  substring matching, so the two modes highlight different spans. The matched chunks
+  render with an underline.
 
 `MatchRange` is exported as `readonly [number, number]` where `end` is exclusive — the
 same convention as `String.prototype.slice`. Caller-supplied ranges are sorted and merged

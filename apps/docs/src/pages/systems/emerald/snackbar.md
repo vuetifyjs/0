@@ -59,7 +59,7 @@ Each part is a thin skin over the matching part of Vuetify0's [Snackbar](/compon
 
 The split is clean. v0 owns everything that moves: the portal's teleport and z-index coordination through the stack, the queue's connection to `useNotifications` with its FIFO auto-dismiss and its hover/focus pause, the dismiss context that wires a Close button to its Root, and the live-region plumbing that makes a freshly mounted toast actually get announced. Emerald owns everything you see: the card — border, radius, shadow, status-token tint keyed off the `data-variant` attribute the root writes — the fixed bottom-right region capped at `min(360px, 100vw - 32px)`, and the close button's hit area and default glyph.
 
-Inside a queue, `EmSnackbarClose` removes the ticket from the notifications instance. Outside a queue, `Snackbar.Root` emits `dismiss`, which is why the basic example hides its toast with `@dismiss` on `EmSnackbar`. Each Emerald part renders one Vuetify0 component at its root, so a prop the wrapper does not declare still reaches that component through Vue fallthrough. Examples are `namespace` on the portal and `urgent` on the root. The prop tables below are Emerald's contract.
+Inside a queue, `EmSnackbarClose` removes the ticket from the notifications instance. Outside a queue, `Snackbar.Root` emits `dismiss`, which is why the basic example hides its toast with `@dismiss` on `EmSnackbar`. Each Emerald part renders one Vuetify0 component at its root, so a prop the wrapper does not declare still reaches that component through Vue fallthrough. `namespace` on the portal is one of those — the portal only declares `teleport`. `urgent` is a declared `EmSnackbar` prop. The prop tables below are Emerald's contract.
 
 ## Examples
 
@@ -68,7 +68,7 @@ Inside a queue, `EmSnackbarClose` removes the ticket from the notifications inst
 
 ### Variants
 
-`variant` maps the toast onto Emerald's status palette: a tinted background and a matching accent border for `success`, `error`, `info` and `warning`, and a grey pairing for `neutral`, the default. The prop is purely visual — it sets the `data-variant` attribute the stylesheet keys off and changes nothing about behavior or announcement.
+`variant` maps the toast onto Emerald's status palette: a tinted background and a matching accent border for `success`, `error`, `info` and `warning`, and a grey pairing for `neutral`, the default. It sets the `data-variant` attribute the stylesheet keys off. `error` also defaults `urgent` to true, so that toast is `role="alert"`. The other variants stay `role="status"` unless you pass `urgent`.
 
 Match the variant to what the message means, not to how much attention you want. `success` confirms an action completed; `error` reports one that failed; `info` and `warning` carry status the reader did not ask for; `neutral` is for the rest — undoable actions, ambient notices, anything without a severity. These are the same status tokens [EmAlert](/systems/emerald/alert) uses, so a toast and an inline alert about the same event read as the same color.
 
@@ -102,6 +102,7 @@ Defaults marked *v0* are inherited from the wrapped v0 part — Emerald passes t
 | `variant` | `'success' \| 'error' \| 'info' \| 'warning' \| 'neutral'` | `'neutral'` | Status tint and accent border |
 | `id` | `ID` | auto-generated (*v0*) | Ticket identity. Pass the notification's id inside a queue so Close dismisses the right ticket |
 | `namespace` | `string` | `'v0:notifications'` (*v0*) | Which notifications instance to bind to |
+| `urgent` | `boolean` | `true` for `variant="error"`, otherwise `false` | `role="alert"` when true, `role="status"` otherwise. Pass it to override the variant default |
 
 Outside a queue, the underlying root emits `dismiss` with the snackbar's id when its Close button is pressed — listen for it on `EmSnackbar` to hide a static toast. Inside a queue the dismissal goes to the queue instead and no event fires.
 
@@ -124,9 +125,9 @@ The behavior below belongs to the wrapped v0 parts; Emerald only styles it.
 
 ### Announcements
 
-A snackbar appears without the reader asking for it, so the compound does the announcing. Each root renders `role="status"` — a polite live region that does not interrupt. Because screen readers are unreliable about announcing live regions injected after page load, `EmSnackbarPortal` also renders a persistent, visually hidden announcer pair from mount, and every snackbar that appears under it mirrors its text there — which is what makes the *first* toast reliably heard. The announcer clears before it fills, so sending the same message twice announces twice.
+A snackbar appears without the reader asking for it, so the compound does the announcing. Each root renders `role="alert"` when it is urgent, which is the default for `variant="error"`, and `role="status"` otherwise. `status` waits for a pause. `alert` interrupts. Because screen readers are unreliable about announcing live regions injected after page load, `EmSnackbarPortal` also renders a persistent, visually hidden announcer pair from mount, and every snackbar that appears under it mirrors its text there — which is what makes the *first* toast reliably heard. The announcer clears before it fills, so sending the same message twice announces twice.
 
-Emerald does not expose the underlying `urgent` prop; toasts announce politely. Passing `urgent` through to the root switches it to `role="alert"` and routes the mirror to the assertive region, but reserve that for messages that justify interrupting.
+`urgent` is an `EmSnackbar` prop. It defaults to true for `variant="error"` and false otherwise. Pass it to override that default. `true` switches the root to `role="alert"` and routes the mirror to the assertive region.
 
 ### Timing
 

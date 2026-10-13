@@ -56,7 +56,7 @@ Positioning stays Bulma's. The menu is placed by CSS against the trigger, so the
 
 Skips v0's [Popover](/components/disclosure/popover) entirely. `Popover.Content` hardwires `popover=""`, which promotes the menu to the top layer and sets UA `margin: unset` — both fight Bulma's in-flow `.dropdown-menu { position: absolute }`. Open state is a boolean `v-model` plus `useClickOutside` and a local Escape handler bound to the dropdown subtree, not the document: a dropdown inside `BuModal` must not close the modal on the first Escape.
 
-Trigger aria is hand-bound (`aria-haspopup`, `aria-expanded`, `aria-controls`) because v0's Toggle only emits `aria-pressed`. `hoverable` is CSS-only — `is-hoverable` on `.dropdown`, no JS listeners.
+Trigger aria is hand-bound (`aria-haspopup`, `aria-expanded`, `aria-controls`) because v0's Toggle only emits `aria-pressed`. `hoverable` adds `is-hoverable` and makes `toggle()` and Escape no-ops; the root keydown listener and the trigger click handler stay bound.
 
 Collision-aware placement is [Popover](/components/disclosure/popover), and it will not give you Bulma's markup.
 
@@ -120,9 +120,9 @@ You write no `is-active` and no `id`/`aria-controls` pair. The component owns th
 
 ### Hover to open
 
-`hoverable` is the one modifier that changes behavior rather than looks. Bulma's `is-hoverable` opens the menu on hover in pure CSS, so the component deliberately steps back: the toggle becomes a no-op, and neither the click-outside listener nor the Escape handler is attached. Nothing about the open state reaches JavaScript, which is exactly why there is no `v-model` in this example.
+`hoverable` is the one modifier that changes behavior rather than looks. Bulma's `is-hoverable` opens the menu on hover in CSS. The toggle becomes a no-op and click-outside is not engaged; the Escape listener stays bound and returns immediately. Hover never writes the open model, which is why this example has no `v-model`.
 
-Hover mode has an accessibility cost. With no JavaScript running, the trigger's `aria-expanded` never flips — a hover menu reads to assistive technology as a collapsed control whose contents happen to be reachable. Use it for the light, decorative case Bulma designed it for, and use the default click mode whenever the menu is a real navigation surface.
+Hover mode has an accessibility cost. `aria-expanded` tracks that model, so a hover menu reads to assistive technology as a collapsed control whose contents happen to be reachable. Use it for the light, decorative case Bulma designed it for, and use the default click mode whenever the menu is a real navigation surface.
 :::
 
 ::: ds-example
@@ -162,7 +162,7 @@ The `item` slot prop is still handed out in this mode — it is simply an empty 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `v-model` | `boolean` | `false` | Open state |
-| `hoverable` | `boolean` | `false` | `is-hoverable` — Bulma's CSS-only hover mode; wires no JavaScript |
+| `hoverable` | `boolean` | `false` | `is-hoverable` — hover is Bulma CSS; toggle and Escape are no-ops, but the keydown listener and trigger click stay bound |
 | `right` | `boolean` | `false` | `is-right` — align the menu to the right edge |
 | `up` | `boolean` | `false` | `is-up` — open the menu upwards |
 | `menu` | `boolean` | `false` | Emit `role="menu"`; only for dropdowns whose items are all actionable |

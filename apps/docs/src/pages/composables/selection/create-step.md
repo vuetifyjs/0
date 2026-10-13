@@ -102,7 +102,7 @@ Step navigation state is **always reactive**. Use `selectedIndex` to derive disa
 | `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
 | `step(count)` | <AppErrorIcon /> | Move by `count` positions — positive forward, negative backward[^step-wrap-clamp] |
 
-[^step-wrap-clamp]: `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends; in bounded mode it clamps at the first and last steps. Disabled steps are skipped automatically.
+[^step-wrap-clamp]: `step(-2)` moves back two positions; `step(3)` skips ahead three. In circular mode it wraps at both ends. In bounded mode a step that would leave the list does nothing. Disabled steps are skipped automatically.
 
 > [!TIP] Navigation button state
 > Derive boundary checks from `selectedIndex` and registry size:
@@ -125,7 +125,7 @@ A five-step checkout flow that puts the whole navigation contract in one composa
 
 The Gift wrap step is registered with `disabled: true`, so `next()` and `prev()` step right over it with no manual guard in the template; `step(count)` does the boundary math and skips disabled tickets automatically. The composable also projects the tickets into a `rows` view-model that tags each step as done, active, upcoming, or off, which is the only thing the wizard component reads to style its circles. Clicking a circle calls `select(id)` for non-linear jumps, and `select` is a no-op on a disabled ticket, so the skipped step stays unreachable from every entry point.
 
-This is the composable-only shape: `useCheckout` owns the state and exposes a flat object of refs and methods, `CheckoutWizard` renders the Vuetify0 `Button` surface against that object, and the entry wires them together. Switch the instance to `createStep({ circular: true })` and `next()`/`prev()` wrap at the ends instead of clamping — the carousel behavior. The Prev/Next buttons won't wrap on their own, though: `isFirst`/`isLast` are derived from the index alone (`0` and `size - 1`), so their `:disabled` guards stay true at the boundaries regardless of `circular`. To let the buttons wrap too, drop the `isFirst`/`isLast` guards in circular mode — gate them on a non-circular flag instead. For single selection without navigation methods, reach for [createSingle](/composables/selection/create-single); for the provided component version, see [Step](/components/providers/step).
+This is the composable-only shape: `useCheckout` owns the state and exposes a flat object of refs and methods, `CheckoutWizard` renders the Vuetify0 `Button` surface against that object, and the entry wires them together. Switch the instance to `createStep({ circular: true })` and `next()`/`prev()` wrap at the ends. Bounded mode does nothing when the next index would leave the list. The Prev/Next buttons won't wrap on their own, though: `isFirst`/`isLast` are derived from the index alone (`0` and `size - 1`), so their `:disabled` guards stay true at the boundaries regardless of `circular`. To let the buttons wrap too, drop the `isFirst`/`isLast` guards in circular mode — gate them on a non-circular flag instead. For single selection without navigation methods, reach for [createSingle](/composables/selection/create-single); for the provided component version, see [Step](/components/providers/step).
 
 | File | Role |
 |------|------|

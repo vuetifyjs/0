@@ -110,7 +110,7 @@ The same three states as the text field, with one textarea-specific wrinkle each
 | `rows` | `number` | `3` | Visible text rows — sets the native attribute and the control's minimum height |
 | `name` | `string` | — | Form field name |
 | `id` | `ID` | generated | Field id. Falls back to `useId()` |
-| `required` | `boolean` | `false` | Marks the field required. Does not itself reject an empty value |
+| `required` | `boolean` | `false` | Sets the required attribute and adds a required rule that fails an empty value when validation runs (default: blur) |
 | `disabled` | `boolean` | `false` | Field unavailable and not submitted; also disables resize |
 | `readonly` | `boolean` | `false` | Value shown but not editable; still focusable and submitted |
 | `rules` | `FormValidationRule[]` | — | Validators — `(value) => true \| string`, optionally async |
@@ -144,7 +144,7 @@ A field that is both described and invalid exposes both: the help text stays ass
 
 ### Required
 
-`required` sets the native attribute and the aria state, so the field is announced as required on focus rather than only failing at submit. Pair it with a rule that actually rejects the empty value — the attribute is the promise, the rule is the enforcement.
+`required` sets the native attribute, the aria state, and a required rule that fails an empty value when validation runs (default: blur). The field is announced as required on focus. The failure appears when validation runs.
 
 ### States
 

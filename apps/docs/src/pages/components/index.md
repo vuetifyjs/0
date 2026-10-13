@@ -33,11 +33,11 @@ Foundation components for building higher-level abstractions.
 
 ## Providers
 
-Pure context providers for state management. Always renderless—they provide logic without rendering DOM elements.
+Context providers for shared state. Selection, Single, Group, and Step render no element. Locale, Scrim, and Theme default to a `div`.
 
 | Name | Description |
 | - | - |
-| [Selection](/components/providers/selection) | Multi-selection state with v-model binding |
+| [Selection](/components/providers/selection) | Selection state with v-model binding. Single-select unless `multiple` is set |
 | [Single](/components/providers/single) | Single-selection with automatic deselection |
 | [Group](/components/providers/group) | Multi-selection with tri-state support |
 | [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
@@ -65,7 +65,7 @@ Components for showing/hiding content.
 | [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
-| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
+| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support. Inactive panels stay mounted and hidden |
 | [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
 | [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

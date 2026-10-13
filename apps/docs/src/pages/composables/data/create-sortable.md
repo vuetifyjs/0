@@ -127,7 +127,7 @@ Reach for this pattern for any user-ordered list where drag is unnecessary: prio
 
 ### Drag-and-drop reorder
 
-The natural use case. Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call. `createSortable` owns the order; `useDragDrop` owns the input modality.
+Pair `createSortable` with `useDragDrop`: each item registers as a draggable, the list registers as a drop zone, and the zone's `onDrop` callback maps the drop position to a `sortable.move` call. `createSortable` owns the order; `useDragDrop` owns the input modality.
 
 The split is intentional — it keeps the two primitives independently testable and lets you swap the DnD layer (mouse, touch, keyboard) without touching the order state. `DraggableItem.vue` calls `dnd.draggables.register` per item; `DnDSortable.vue` calls `dnd.zones.register` on the container with an `onDrop` handler that calls `sortable.move(drag.id, position.index ?? 0)`. The drop position is provided by `useDragDrop` — `sortable` never touches the pointer event.
 

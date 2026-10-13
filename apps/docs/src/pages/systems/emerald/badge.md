@@ -90,7 +90,7 @@ This example is live so you can push the count across the boundary: it starts at
 
 A dot is pure signal: presence, state, activity. The canonical placements are beside a status word, as this example does, or pinned to the corner of an avatar or icon — Emerald's shell does the latter with a `primary` dot on the current user's avatar.
 
-The thing to remember is that a dot is invisible to assistive technology — it is an empty span with no name and no role. Never let it be the only carrier of a state. Beside visible text, as here, the text is the state and the dot is reinforcement; on an avatar corner, put the state in the host's label (`aria-label="John Doe, online"`) and the dot is free to stay decorative.
+A dot is invisible to assistive technology — it is an empty span with no name and no role. Never let it be the only carrier of a state. Beside visible text, as here, the text is the state and the dot is reinforcement; on an avatar corner, put the state in the host's label (`aria-label="John Doe, online"`) and the dot is free to stay decorative.
 :::
 
 ## Props

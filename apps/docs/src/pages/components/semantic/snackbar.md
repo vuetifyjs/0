@@ -60,7 +60,7 @@ A single snackbar — render directly when you control the lifecycle yourself.
 
 ### Toast notifications with undo
 
-`Snackbar.Queue` connects to `useNotifications` by namespace and exposes its items newest-first through the default slot. A single `ToastHost` is mounted once near the root; anywhere else in the app, `useToasts().notify()` or `remove()` pushes a notification and the host renders it. Each toast auto-dismisses on the `timeout` passed to `send`, the stack pauses while hovered or focused (WCAG 2.2.1) for free, and `Snackbar.Close` dismisses without any `@click` wiring.
+`Snackbar.Queue` connects to `useNotifications` by namespace and exposes its items newest-first through the default slot. A single `ToastHost` is mounted once near the root; anywhere else in the app, `useToasts().notify()` or `remove()` pushes a notification and the host renders it. Each toast auto-dismisses on the `timeout` passed to `send`, the stack pauses while hovered or focused (WCAG 2.2.1). `Snackbar.Close` dismisses on its own click.
 
 The undo affordance rides along on the notification's `data` payload: `remove()` deletes a file, then sends a toast carrying `data.undo` — a closure that splices the file back at its original index. The host reads that closure off the ticket and renders an Undo button beside Close. Undo restores the file and calls `ticket.dismiss()`, which removes the toast from the display queue only, whereas `Snackbar.Close` inside a queue permanently unregisters the notification from both the queue and the registry. Reach for `dismiss()` when the item should survive in an inbox.
 
@@ -80,7 +80,7 @@ Reach for the queue whenever notifications flow through [useNotifications](/comp
 
 Newer toasts collapse into a peeked stack — each card offset, scaled, and faded by depth — and fan out into a full column while the pointer rests on the surface. The stacking geometry is pure consumer CSS applied per index via `style(i)`; `Snackbar.Queue` stays layout-agnostic and only supplies items newest-first, making index 0 the front card. Container height animates between the collapsed and expanded layouts, so surrounding content never jumps.
 
-Hover intent runs through [useDelay](/composables/system/use-delay): entering the surface expands immediately, leaving collapses after a 150ms grace period so the stack doesn't flicker while the pointer crosses gaps between cards. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1), which you get for free from [useNotifications](/composables/plugins/use-notifications).
+Hover intent runs through [useDelay](/composables/system/use-delay): entering the surface expands immediately, leaving collapses after a 150ms grace period so the stack doesn't flicker while the pointer crosses gaps between cards. Auto-dismiss pauses while any item is hovered or focused (WCAG 2.2.1). The pause comes from [useNotifications](/composables/plugins/use-notifications).
 
 The surface owns its notifications instance: `createNotificationsContext` provides a fresh context under a dedicated namespace, and every Snackbar sub-component receives that namespace so the queue stays isolated from the app-level `v0:notifications` instance. Use this pattern whenever a toast surface shouldn't mix with the rest of the app — or, as here, with other examples on the same page.
 

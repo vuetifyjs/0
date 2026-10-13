@@ -78,7 +78,7 @@ With no `label`, the icon renders `aria-hidden="true"` and no role — it is inv
 
 With a `label`, the icon becomes `role="img"` with that string as its accessible name, and the `aria-hidden` is dropped. Reach for it only when the icon is carrying meaning nothing else on screen carries — a status glyph in a table cell, a bare trend arrow beside a figure.
 
-The third case in the example is the one that trips people up. For an icon-only button, the name belongs on the **button**, not the icon: the button is what gets focused and activated, so it is the thing that needs a name. Labelling the glyph instead leaves the control anonymous and produces a nested, doubly-announced name — pass `ariaLabel` to `EmButton` and leave the icon decorative.
+For an icon-only button, the name belongs on the **button**, not the icon: the button is what gets focused and activated, so it is the thing that needs a name. Labelling the glyph instead leaves the control anonymous and produces a nested, doubly-announced name — pass `ariaLabel` to `EmButton` and leave the icon decorative.
 :::
 
 ::: ds-example

@@ -71,7 +71,7 @@ const proxy = useProxyRegistry(registry)
 ```
 
 > [!TIP]
-> This is intentional! Most apps only need selection reactivity.
+> Most apps only need selection reactivity.
 > For the full picture, see the [Reactivity Guide](/guide/fundamentals/reactivity).
 
 ## Categories

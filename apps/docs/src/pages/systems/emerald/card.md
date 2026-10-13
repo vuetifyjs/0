@@ -61,7 +61,7 @@ A surface for grouping related content. It has a header, title, subtitle, body, 
 
 The five parts do not even need Atom. They are plain `div`s with a class each, because there is no behavior to share between them — no context, no namespace, no state flowing from root to part. The compound shape exists purely so the stylesheet can give each region its spacing and type scale.
 
-That also makes `EmCard` the inverse of `EmButton` on one point worth noticing. On the button, v0 publishes state attributes (`data-loading`, `data-disabled`) and Emerald styles them; the card has no state, so the `data-variant` and `data-hoverable` attributes on its root are Emerald's own props reflected to the DOM. The convention is the same — the stylesheet targets data attributes, never state classes — but here Emerald is both the writer and the reader.
+That also makes `EmCard` the inverse of `EmButton`. On the button, v0 publishes state attributes (`data-loading`, `data-disabled`) and Emerald styles them; the card has no state, so the `data-variant` and `data-hoverable` attributes on its root are Emerald's own props reflected to the DOM. The convention is the same — the stylesheet targets data attributes, never state classes — but here Emerald is both the writer and the reader.
 
 ## Examples
 
