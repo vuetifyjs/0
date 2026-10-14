@@ -32,6 +32,7 @@ import FormFixture from './fixtures/Form.vue'
 import GroupFixture from './fixtures/Group.vue'
 import ImageFixture from './fixtures/Image.vue'
 import InputFixture from './fixtures/Input.vue'
+import KanbanFixture from './fixtures/Kanban.vue'
 import LocaleFixture from './fixtures/Locale.vue'
 import NumberFieldFixture from './fixtures/NumberField.vue'
 import OtpFixture from './fixtures/Otp.vue'
@@ -141,6 +142,7 @@ const FIXTURES = {
   Group: GroupFixture,
   Image: ImageFixture,
   Input: InputFixture,
+  Kanban: KanbanFixture,
   Locale: LocaleFixture,
   NumberField: NumberFieldFixture,
   Otp: OtpFixture,
