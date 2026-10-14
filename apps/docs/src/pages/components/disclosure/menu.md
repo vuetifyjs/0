@@ -128,7 +128,7 @@ Disabled items ignore the pointer and the keyboard. The model can still be chang
 
 A menu opened from an activator is named by that activator. A context menu with no activator uses the locale string `Menu.label`.
 
-A click, a right-click, or a pointer switch opens the menu with no item highlighted. Moving the pointer onto an item highlights that item. Arrow Down then highlights the first item, and Arrow Up highlights the last. Arrow keys on a closed activator still open straight onto the first or last item.
+A click, a right-click, or a pointer switch opens the menu with no item highlighted. Moving the pointer onto an item highlights that item. Arrow Down then highlights the first item, and Arrow Up highlights the last. Arrow keys on a closed activator still open straight onto the first or last item, and Enter or Space opens onto the first item.
 
 | Key | Menu | Menubar |
 | --- | --- | --- |
@@ -136,7 +136,7 @@ A click, a right-click, or a pointer switch opens the menu with no item highligh
 | Home / End | Moves to the first or last item | Moves to the first or last activator |
 | Arrow Right | Opens a submenu, or moves to the next menu when more than one activator is registered. It does not close the top menu | Opens a submenu, or moves to the next menu when more than one activator is registered. It does not close the top menu |
 | Arrow Left | Closes one submenu, or moves to the previous menu when more than one activator is registered. It does not close the top menu | Closes one submenu, or moves to the previous menu when more than one activator is registered. It does not close the top menu |
-| Enter / Space | On a submenu item, opens that submenu and leaves the menu open. On an action item, runs the action and closes. On a checkbox or radio, changes the value and stays open | Toggles the focused menu. On an item, same as Menu |
+| Enter / Space | On a closed activator, opens the first item. On a submenu item, opens that submenu and leaves the menu open. On an action item, runs the action and closes. On a checkbox or radio, changes the value and stays open | Toggles the focused menu. On an item, same as Menu |
 | Escape | Closes every layer and returns focus to the activator. A context menu has no activator. Focus returns to the `Menu.Context` element | Closes every layer and returns focus to the activator |
 | Tab | Closes every layer and moves focus to the next control. It does not return focus to the activator, and it does not prevent the browser's default Tab | Closes every layer and moves focus to the next control. It does not return focus to the activator, and it does not prevent the browser's default Tab |
 | Typeahead | Focuses the item whose label starts with the typed text | Same, on the open menu |

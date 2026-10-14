@@ -7,8 +7,9 @@
  * Root for a menu opened from a button, a right-click, or a menubar.
  * One open path covers the top menu and its nested submenus. Checkbox and
  * radio items keep the menu open; an action item, Escape, or a light dismiss
- * closes it and returns focus to the opener. Tab closes it and leaves focus
- * where the browser moved it.
+ * closes it and returns focus to the opener, unless focus already moved to
+ * an element outside the menu. Tab closes it and leaves focus where the
+ * browser moved it.
  *
  */
 
@@ -28,7 +29,7 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNull, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
+  import { getActiveElement, isNull, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
   import { nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
   // Types
@@ -104,7 +105,7 @@
     hasActivator: (id: ID) => boolean
     reveal: (id: ID, source: MenuSource, edge?: MenuEdge) => void
     pop: () => void
-    /** Close every layer. Restores focus unless `restore` is false. */
+    /** Close every layer. Restores focus unless `restore` is false or focus left the menu. */
     dismiss: (restore?: boolean) => void
     poke: () => void
     /** Drop a scheduled open. Does not start the close timer. */
@@ -116,7 +117,8 @@
     collapseTo: (layerId: ID) => void
     shift: (direction: 1 | -1) => void
     canShift: () => boolean
-    typeahead: (layerId: ID, key: string) => ID | undefined
+    /** Match `key` against the layer's labels, searching after `from` and wrapping. */
+    typeahead: (layerId: ID, key: string, from?: ID) => ID | undefined
     claimFocus: (layerId: ID) => ID | null | undefined
     onKeydown: (layerId: ID, event: KeyboardEvent, roving: RovingFocusReturn) => void
   }
@@ -141,7 +143,7 @@
     isOpen: boolean
     /** Top layer id while open */
     layer: ID | null
-    /** Close every layer. Restores focus unless `restore` is false. */
+    /** Close every layer. Restores focus unless `restore` is false or focus left the menu. */
     dismiss: (restore?: boolean) => void
   }
 
@@ -298,9 +300,17 @@
     assign(next)
   }
 
+  function inside (layers: ID[]) {
+    const active = getActiveElement()
+    if (isNull(active) || active === document.body) return true
+    const owner = active.closest('[role="menu"]')
+    return !isNull(owner) && layers.some(id => contentId(id) === owner.id)
+  }
+
   function dismiss (restore = true) {
     const top = path.value[0]
     const target = isNullOrUndefined(top) ? null : (returnOf(top) ?? anchorOf(top))
+    const layers = path.value.slice()
     openTimer.stop()
     closeTimer.stop()
     scheduled = null
@@ -312,7 +322,9 @@
     assign([])
     if (!restore) return
     nextTick(() => {
-      if (target instanceof HTMLElement) target.focus()
+      if (!(target instanceof HTMLElement)) return
+      if (!inside(layers)) return
+      target.focus()
     })
   }
 
@@ -376,12 +388,20 @@
     reveal(next.layerId, 'keyboard')
   }
 
-  function typeahead (layerId: ID, key: string) {
-    buffer = `${buffer}${key.toLowerCase()}`
+  function typeahead (layerId: ID, key: string, from?: ID) {
+    const char = key.toLowerCase()
+    buffer = `${buffer}${char}`
     typeTimer.start()
 
+    const repeated = [...buffer].every(letter => letter === char)
+    const query = repeated ? char : buffer
     const list = layerItems(layerId).filter(ticket => !toValue(ticket.disabled))
-    const match = list.find(ticket => ticket.label().trim().toLowerCase().startsWith(buffer))
+    const start = list.findIndex(ticket => ticket.id === from)
+    const offset = repeated ? 1 : 0
+    const ordered = start === -1
+      ? list
+      : [...list.slice(start + offset), ...list.slice(0, start + offset)]
+    const match = ordered.find(ticket => ticket.label().trim().toLowerCase().startsWith(query))
     return match?.id
   }
 
@@ -471,7 +491,7 @@
 
     if (event.key.length !== 1 || event.altKey || event.ctrlKey || event.metaKey) return
 
-    const match = typeahead(layerId, event.key)
+    const match = typeahead(layerId, event.key, roving.focusedId.value)
     if (!isNullOrUndefined(match)) roving.focus(match)
   }
 

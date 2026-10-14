@@ -120,6 +120,7 @@
     }
 
     if (isOpen.value) menu.dismiss()
+    else if (event.detail === 0) menu.reveal(layerId, 'keyboard', 'first')
     else menu.reveal(layerId, 'click')
   }
 

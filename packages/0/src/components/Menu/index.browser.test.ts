@@ -43,6 +43,11 @@ async function settle () {
   await new Promise(resolve => setTimeout(resolve, 0))
 }
 
+async function click (target: { element: Element }) {
+  target.element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }))
+  await nextTick()
+}
+
 function wait (ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -107,7 +112,7 @@ describe('menu', () => {
 
     expect(openMenus(wrapper)).toHaveLength(0)
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
 
     const menus = openMenus(wrapper)
@@ -121,7 +126,7 @@ describe('menu', () => {
     const wrapper = mount(dropdown())
     const trigger = wrapper.get('button')
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     await openMenus(wrapper)[0]?.trigger('keydown', { key: 'Escape' })
     await settle()
@@ -140,7 +145,7 @@ describe('menu', () => {
       ]),
     ]))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
 
     const menu = openMenus(wrapper)[0]
@@ -172,7 +177,7 @@ describe('menu', () => {
       ]),
     ]))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Share').trigger('click')
     await settle()
@@ -249,12 +254,108 @@ describe('menu', () => {
   it('should focus a matching item from typeahead', async () => {
     const wrapper = mount(dropdown())
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await openMenus(wrapper)[0]?.trigger('keydown', { key: 'p' })
     await settle()
 
     expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Paste').element)
+  })
+
+  it('should cycle typeahead through items sharing a repeated letter', async () => {
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, null, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Fruit'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item, null, () => 'Apple'),
+              h(Menu.Item, null, () => 'Banana'),
+              h(Menu.Item, null, () => 'Avocado'),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await click(wrapper.get('button'))
+    await settle()
+
+    await userEvent.keyboard('a')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Apple').element)
+
+    await userEvent.keyboard('a')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Avocado').element)
+
+    await userEvent.keyboard('a')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Apple').element)
+  })
+
+  it('should open on the first item from enter or space on the activator', async () => {
+    const wrapper = mount(dropdown())
+    const trigger = wrapper.get('button')
+
+    for (const key of ['{Enter}', '{ }']) {
+      ;(trigger.element as HTMLElement).focus()
+      await userEvent.keyboard(key)
+      await settle()
+
+      expect(openMenus(wrapper)).toHaveLength(1)
+      expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Copy').element)
+      expect(item(wrapper, 'menuitem', 'Copy').attributes('data-highlighted')).toBe('true')
+
+      await userEvent.keyboard('{Escape}')
+      await settle()
+      expect(openMenus(wrapper)).toHaveLength(0)
+    }
+  })
+
+  it('should keep focus on an outside input after a light dismiss', async () => {
+    const dropdownMenu = dropdown()
+    const contextMenu = defineComponent({
+      setup () {
+        return () => h(Menu.Root, null, {
+          default: () => [
+            h(Menu.Context, null, () => 'Surface'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item, null, () => 'Copy'),
+            ]),
+          ],
+        })
+      },
+    })
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h('div', [
+          h('input', { 'aria-label': 'Outside' }),
+          h(dropdownMenu),
+          h(contextMenu),
+        ])
+      },
+    }))
+    const input = wrapper.get('input').element
+
+    await click(wrapper.get('button'))
+    await settle()
+    expect(openMenus(wrapper)).toHaveLength(1)
+
+    await userEvent.click(input)
+    await settle()
+    expect(openMenus(wrapper)).toHaveLength(0)
+    expect(document.activeElement).toBe(input)
+
+    const host = wrapper.findAll('div').find(node => node.text() === 'Surface')
+    await host?.trigger('contextmenu', { clientX: 12, clientY: 24 })
+    await settle()
+    expect(openMenus(wrapper)).toHaveLength(1)
+
+    await userEvent.click(input)
+    await settle()
+    expect(openMenus(wrapper)).toHaveLength(0)
+    expect(document.activeElement).toBe(input)
   })
 
   it('should toggle a checkbox without closing', async () => {
@@ -277,7 +378,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitemcheckbox', 'Bold').trigger('click')
     await settle()
@@ -310,7 +411,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitemradio', 'Right').trigger('click')
     await settle()
@@ -332,7 +433,7 @@ describe('menu', () => {
       ]),
     ]))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Share').trigger('click')
     await settle()
@@ -375,7 +476,7 @@ describe('menu', () => {
       },
     }))
 
-    await item(wrapper, 'menuitem', 'File').trigger('click')
+    await click(item(wrapper, 'menuitem', 'File'))
     await settle()
     expect(document.activeElement).toBe(openMenus(wrapper)[0]?.element)
     expect(item(wrapper, 'menuitem', 'New').attributes('data-highlighted')).toBeUndefined()
@@ -462,7 +563,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
 
     const menu = openMenus(wrapper)[0]
@@ -489,11 +590,11 @@ describe('menu', () => {
     const wrapper = mount(dropdown())
     const trigger = wrapper.get('button')
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     expect(openMenus(wrapper)).toHaveLength(1)
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     expect(openMenus(wrapper)).toHaveLength(0)
   })
@@ -501,7 +602,7 @@ describe('menu', () => {
   it('should close when an action item is clicked', async () => {
     const wrapper = mount(dropdown())
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Copy').trigger('click')
     await settle()
@@ -542,7 +643,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Copy').trigger('click')
     await settle()
@@ -583,7 +684,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitemcheckbox', 'Bold').trigger('click')
     await item(wrapper, 'menuitemradio', 'One').trigger('click')
@@ -598,7 +699,7 @@ describe('menu', () => {
   it('should highlight the item under the pointer', async () => {
     const wrapper = mount(dropdown())
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Paste').trigger('pointerenter')
     await settle()
@@ -611,7 +712,7 @@ describe('menu', () => {
   it('should prevent space and enter when no item is highlighted', async () => {
     const wrapper = mount(dropdown())
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     const menu = openMenus(wrapper)[0]
     expect(menu).toBeTruthy()
@@ -635,7 +736,7 @@ describe('menu', () => {
       ]),
     ]))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Share').trigger('click')
     await settle()
@@ -674,7 +775,7 @@ describe('menu', () => {
     await settle()
     expect(openMenus(wrapper)).toHaveLength(0)
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     expect(openMenus(wrapper)).toHaveLength(1)
 
@@ -729,7 +830,7 @@ describe('menu', () => {
     }))
 
     const trigger = wrapper.get('button')
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     expect(openMenus(wrapper)).toHaveLength(1)
     expect(trigger.attributes('aria-expanded')).toBe('true')
@@ -769,7 +870,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     expect(open.value).toBe('actions')
 
@@ -787,7 +888,7 @@ describe('menu', () => {
     const wrapper = mount(dropdown())
     const trigger = wrapper.get('button')
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
 
     const menu = openMenus(wrapper)[0]
@@ -803,7 +904,7 @@ describe('menu', () => {
     await menu?.trigger('keydown', { key: 'Escape' })
     await settle()
 
-    await trigger.trigger('click')
+    await click(trigger)
     await settle()
     await openMenus(wrapper)[0]?.trigger('keydown', { key: 'ArrowUp' })
     await settle()
@@ -831,7 +932,7 @@ describe('menu', () => {
       },
     }))
 
-    await item(wrapper, 'menuitem', 'Edit').trigger('click')
+    await click(item(wrapper, 'menuitem', 'Edit'))
     await settle()
     expect(item(wrapper, 'menuitem', 'Edit').attributes('data-highlighted')).toBe('true')
     expect(item(wrapper, 'menuitem', 'Undo').attributes('data-highlighted')).toBeUndefined()
@@ -871,7 +972,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
     await item(wrapper, 'menuitem', 'Share').trigger('click')
     await settle()
@@ -936,7 +1037,7 @@ describe('menu', () => {
       ]),
     ]))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
 
     const menu = openMenus(wrapper)[0]
@@ -983,7 +1084,7 @@ describe('menu', () => {
       },
     }))
 
-    await wrapper.get('button').trigger('click')
+    await click(wrapper.get('button'))
     await settle()
 
     const menu = openMenus(wrapper)[0]
@@ -1259,7 +1360,7 @@ describe('menu', () => {
         },
       }))
 
-      await item(wrapper, 'menuitem', 'File').trigger('click')
+      await click(item(wrapper, 'menuitem', 'File'))
       await settle()
       expect(openMenus(wrapper)).toHaveLength(1)
 
@@ -1308,7 +1409,7 @@ describe('menu', () => {
         },
       }))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       const menu = openMenus(wrapper)[0]
       await menu?.trigger('keydown', { key: 'z' })
@@ -1355,7 +1456,7 @@ describe('menu', () => {
         },
       }))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
 
       const bold = item(wrapper, 'menuitemcheckbox', 'Bold')
@@ -1446,7 +1547,7 @@ describe('menu', () => {
         },
       }))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       await item(wrapper, 'menuitemcheckbox', 'Bold').trigger('click')
       await item(wrapper, 'menuitemradio', 'Left').trigger('click')
@@ -1472,7 +1573,7 @@ describe('menu', () => {
     it('should dismiss when the top menu popover light-dismisses', async () => {
       const wrapper = mount(dropdown())
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       const menu = openMenus(wrapper)[0]
       expect(menu).toBeTruthy()
@@ -1571,7 +1672,7 @@ describe('menu', () => {
         ]),
       ]))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       const menu = openMenus(wrapper)[0]
       await menu?.trigger('keydown', { key: 'ArrowDown' })
@@ -1617,7 +1718,7 @@ describe('menu', () => {
         ]),
       ]))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       const menu = openMenus(wrapper)[0]
       await menu?.trigger('keydown', { key: 'ArrowDown' })
@@ -1694,7 +1795,7 @@ describe('menu', () => {
         },
       }))
 
-      await wrapper.get('button').trigger('click')
+      await click(wrapper.get('button'))
       await settle()
       await item(wrapper, 'menuitem', 'Share').trigger('click')
       await settle()
