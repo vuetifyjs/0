@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { Kanban } from '@vuetify/v0'
   import { ref, shallowRef } from 'vue'
+  import { formatMove } from './format'
 
   import type { KanbanMovePayload } from '@vuetify/v0'
 
@@ -9,12 +10,8 @@
 
   const log = shallowRef<string[]>([])
 
-  function onMove ({ value, from, to, fromIndex, toIndex }: KanbanMovePayload) {
-    const entry = from === to
-      ? `"${value}" reordered in ${to}: ${fromIndex + 1} → ${toIndex + 1}`
-      : `"${value}" moved ${from} → ${to} at ${toIndex + 1}`
-
-    log.value = [entry, ...log.value].slice(0, 4)
+  function onMove (payload: KanbanMovePayload) {
+    log.value = [formatMove(payload), ...log.value].slice(0, 4)
   }
 </script>
 

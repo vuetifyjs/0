@@ -62,23 +62,45 @@ Bind each column's item array with `v-model` and render items from the column's 
 | `Kanban.Instructions` | Keyboard instructions every item references with `aria-describedby` |
 | `Kanban.LiveRegion` | Polite live region for move announcements |
 
-## Recipes
+## Examples
+
+::: gn-example
+/components/kanban/columns.ts 1
+/components/kanban/wip-limit.vue 2
 
 ### WIP limit and locked column
 
-`accept(value, from, index)` vetoes incoming cross-column moves and must be synchronous; `disabled` freezes a column. Doing refuses a third item and Shipped is locked. A pointer drop on either is rejected and announced; the keyboard target skips them — once Doing is full, ArrowRight from Backlog lands on Review. The pending target is styled from `data-target` on the column and list and `data-drop` on the neighbouring item.
+`accept(value, from, index)` vetoes a card coming in from another column. It has to return synchronously. Doing uses it to cap the column at two cards. `disabled` freezes a column. Shipped is locked, so nothing moves in, out, or within it.
+
+A pointer drop on a refusing column is rejected and announced. ArrowLeft and ArrowRight skip it. Once Doing is full, ArrowRight from Backlog lands on Review. A reorder inside Doing still works. The veto only runs on the way in.
+
+Style the pending keyboard target from `data-target` on the column and the list, and from `data-drop` on the neighbouring item. Column policy lives in `columns.ts`. The Vue file is the board. The same `accept` option exists on a column ticket in [createKanban](/composables/data/create-kanban). Pointer drags come from [useDragDrop](/composables/system/use-drag-drop).
+
+| File | Role |
+|------|------|
+| `columns.ts` | Column policy. Doing caps at two cards. Shipped is locked |
+| `wip-limit.vue` | Board layout. Each column binds its items with `v-model` |
+:::
 
 ::: gn-example
-/components/kanban/wip-limit
-:::
+/components/kanban/format.ts 1
+/components/kanban/move-log.vue 2
 
 ### Observing moves
 
-`@move` fires once per drop with `{ value, from, to, fromIndex, toIndex }` — pointer or keyboard, same-column reorder or cross-column transfer. Arrow keys only move a preview, and Escape discards it, so neither emits.
+`@move` fires once each time a drop commits. The payload is `{ value, from, to, fromIndex, toIndex }`. A pointer drop and a keyboard commit emit the same object. That covers a reorder inside one column and a transfer between columns.
 
-::: gn-example
-/components/kanban/move-log
+Arrow keys only move the preview. Escape discards it. Neither emits. A listener can treat `@move` as the moment the board changed. Use it to record history, sync a server, or show a log.
+
+`format.ts` turns the payload into the line under the board. The log keeps the four newest lines. [createKanban](/composables/data/create-kanban) splits that moment into `transfer:ticket` for a cross-column move and `move:ticket` on a column's items for a reorder. `@move` on `Kanban.Root` is the one event for both.
+
+| File | Role |
+|------|------|
+| `format.ts` | Turns a `KanbanMovePayload` into one log line |
+| `move-log.vue` | Two-column board that records each committed move |
 :::
+
+## Recipes
 
 ### Item identity
 

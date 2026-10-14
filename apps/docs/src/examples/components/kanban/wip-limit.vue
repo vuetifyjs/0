@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { Kanban } from '@vuetify/v0'
   import { ref } from 'vue'
-
-  const limit = 2
+  import { createColumns, limit } from './columns'
 
   const board = ref<Record<string, string[]>>({
     backlog: ['Audit routes', 'Update deps', 'Write tests'],
@@ -11,12 +10,7 @@
     shipped: ['Release 1.2'],
   })
 
-  const columns = [
-    { id: 'backlog', label: 'Backlog' },
-    { id: 'doing', label: 'Doing', accept: () => board.value.doing.length < limit },
-    { id: 'review', label: 'Review' },
-    { id: 'shipped', label: 'Shipped', disabled: true },
-  ]
+  const columns = createColumns(() => board.value.doing.length)
 </script>
 
 <template>
