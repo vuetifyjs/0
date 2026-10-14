@@ -12,7 +12,7 @@ feature-complete as of rc.1). The rest of the monorepo is pinned to Vue 3.5 via
 the catalog, and we don't want a pre-release Vue in the default test run. So
 this package:
 
-- Declares its **own** `vue@3.6.0-rc.5` + `@vue/runtime-vapor@3.6.0-rc.5`
+- Declares its **own** `vue@3.6.0-rc.11` + `@vue/runtime-vapor@3.6.0-rc.11`
   devDependencies. pnpm installs them alongside the 3.5 copy; `packages/0`
   is untouched.
 - Lives under `tests/*`, which the root `vitest.config.ts`
@@ -55,11 +55,14 @@ Two toolchain traps, both handled in `vitest.config.ts`:
 
 ## RC pin
 
-`3.6.0-rc.5` is the newest 3.6 release candidate. RCs land faster than the
-workspace's `minimumReleaseAge` (14 days) clears them, so `vue` and `@vue/*`
-sit in `minimumReleaseAgeExclude` — safe because both are exact-pinned
-everywhere (default catalog + this package), so no floating range can pull an
-un-aged release. Bump the pin to `3.6.0` when stable ships and drop the
-exclusions once it clears the age window; the Vapor API (`vapor` attribute,
-`createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC
-lines.
+`3.6.0-rc.11` is the newest 3.6 release candidate (2026-10-10). RCs land faster
+than the workspace's `minimumReleaseAge` (14 days) clears them, so `vue` and
+`@vue/*` sit in `minimumReleaseAgeExclude`. `@vitejs/plugin-vue@6.0.10` is
+excluded the same way: that release is what first accepts a Vue 3.6 RC as a
+peer (`vue@^3.2.25 || ^3.6.0-rc.10`), and it is only four days old. All three
+are exact-pinned here (the catalog `vue` pin is exact too), so no floating
+range can pull an un-aged release. Bump the pin to `3.6.0` when stable ships
+and drop the exclusions once it clears the age window; the Vapor API (`vapor`
+attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the
+beta and RC lines. The only breaking change since rc.1 is rc.2's opt-in event
+delegation (`.delegate`); rc.6 through rc.11 are compiler and runtime fixes.

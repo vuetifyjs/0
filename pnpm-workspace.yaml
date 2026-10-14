@@ -108,6 +108,7 @@ minimumReleaseAge: 20160
 minimumReleaseAgeExclude:
   - vue
   - '@vue/*'
+  - '@vitejs/plugin-vue'
   - '@vuetify/auth'
   - vite
   - brace-expansion
