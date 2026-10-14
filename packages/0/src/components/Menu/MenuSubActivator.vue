@@ -88,7 +88,11 @@
   const sub = useMenuSub()
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
-  menu.bindAnchor(sub.id, el)
+  function anchor () {
+    return el.value
+  }
+
+  menu.content.upsert(sub.id, { anchor })
 
   const ticket = menu.register({
     id,
@@ -104,6 +108,8 @@
   })
 
   onBeforeUnmount(() => {
+    const layer = menu.content.get(sub.id)
+    if (!isNullOrUndefined(layer) && layer.anchor === anchor) menu.content.upsert(sub.id, { anchor: undefined })
     menu.unregister(ticket.id)
   })
 

@@ -70,7 +70,7 @@
   const menu = useMenuRoot(namespace)
 
   const roving = useRovingFocus(() => {
-    return menu.activators().map(ticket => ({
+    return menu.activators.values().map(ticket => ({
       id: ticket.id,
       disabled: ticket.disabled,
       el: ticket.el,
@@ -83,7 +83,7 @@
     const target = event.target
     if (!isElement(target)) return
 
-    return menu.activators().find(item => {
+    return menu.activators.values().find(item => {
       const el = toValue(item.el)
       return isElement(el) && (el === target || el.contains(target))
     })
@@ -98,7 +98,7 @@
     const before = roving.focusedId.value
     roving.onKeydown(event)
 
-    const ticket = menu.activators().find(item => item.id === roving.focusedId.value)
+    const ticket = menu.activators.values().find(item => item.id === roving.focusedId.value)
     if (isNullOrUndefined(ticket)) return
 
     if (event.key === 'ArrowDown') {

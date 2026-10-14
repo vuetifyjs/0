@@ -21,6 +21,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
@@ -68,12 +69,12 @@
     return sentinel.value
   }
 
-  menu.bindAnchor(menu.defaultLayer, anchor)
-  menu.bindReturn(menu.defaultLayer, el)
+  menu.content.upsert(menu.defaultLayer, { anchor, returnTo: el })
 
   onBeforeUnmount(() => {
-    menu.unbindAnchor(menu.defaultLayer, anchor)
-    menu.bindReturn(menu.defaultLayer, null)
+    const layer = menu.content.get(menu.defaultLayer)
+    if (!isNullOrUndefined(layer) && layer.anchor === anchor) menu.content.upsert(menu.defaultLayer, { anchor: undefined })
+    menu.content.upsert(menu.defaultLayer, { returnTo: undefined })
   })
 
   function onContextmenu (event: MouseEvent) {

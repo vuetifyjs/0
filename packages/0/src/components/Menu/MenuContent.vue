@@ -95,10 +95,10 @@
   const isOpen = shallowRef(false)
   let suppress = false
 
-  menu.registerLayer(layerId, null)
+  const ticket = menu.content.upsert(layerId, { parentId: null })
 
   onBeforeUnmount(() => {
-    menu.unregisterLayer(layerId)
+    menu.content.unregister(ticket.id)
   })
 
   const popover = usePopover({

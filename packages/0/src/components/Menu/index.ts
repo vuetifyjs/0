@@ -23,6 +23,8 @@ export type { MenuRadioItemProps, MenuRadioItemSlotProps } from './MenuRadioItem
 export type {
   MenuActivatorInput,
   MenuActivatorTicket,
+  MenuContentInput,
+  MenuContentTicket,
   MenuEdge,
   MenuItemInput,
   MenuItemTicket,

@@ -1842,12 +1842,14 @@ describe('menu', () => {
       const Probe = captureMenu(slot)
       const off = shallowRef(false)
       const ran = vi.fn()
+      const extra = shallowRef(true)
       const wrapper = mount(defineComponent({
         setup () {
           return () => h('div', [
             h(Menu.Root, { disabled: off.value, openDelay: 0, closeDelay: 0 }, {
               default: () => [
                 h(Probe),
+                extra.value ? h(Menu.Activator, null, () => 'Extra') : null,
                 h(Menu.Activator, null, () => 'Actions'),
                 h(Menu.Content, null, () => [
                   h(Menu.Item, { disabled: true }, () => 'Copy'),
@@ -1879,6 +1881,8 @@ describe('menu', () => {
 
       const api = slot.api
       expect(api).toBeTruthy()
+      extra.value = false
+      await settle()
       expect(api?.canShift()).toBe(false)
       expect(api?.parentOf(api.defaultLayer)).toBeNull()
       expect(api?.claimFocus('missing')).toBeUndefined()
@@ -1888,7 +1892,6 @@ describe('menu', () => {
       await settle()
       expect(api?.path.value).toHaveLength(0)
 
-      api?.unbindAnchor(api.defaultLayer, () => null)
       const actions = wrapper.findAll('button').find(node => node.text() === 'Actions')
       expect(actions).toBeTruthy()
       await actions?.trigger('click')
@@ -1944,13 +1947,51 @@ describe('menu', () => {
       expect(ran).toHaveBeenCalledTimes(0)
       expect(api?.path.value.at(-1)).toBe(leaf)
 
-      api?.registerLayer('ghost', api.defaultLayer)
+      api?.content.register({ id: 'ghost', parentId: api.defaultLayer })
       api?.reveal('ghost', 'click')
       await settle()
       expect(api?.path.value).toEqual([api?.defaultLayer, 'ghost'])
       api?.pop()
       await settle()
       expect(api?.path.value).toEqual([api?.defaultLayer])
+    })
+
+    it('should keep content size live and unregister through the ticket', async () => {
+      const slot: { api?: MenuRootContext } = {}
+      const Probe = captureMenu(slot)
+
+      mount(defineComponent({
+        setup () {
+          return () => h(Menu.Root, { openDelay: 0, closeDelay: 0 }, {
+            default: () => [
+              h(Probe),
+              h(Menu.Activator, null, () => 'Actions'),
+              h(Menu.Content, null, () => [
+                h(Menu.Item, null, () => 'Copy'),
+              ]),
+            ],
+          })
+        },
+      }))
+
+      const api = slot.api
+      expect(api).toBeTruthy()
+      if (!api) return
+
+      expect(api.content.size).toBe(1)
+      api.content.get(api.defaultLayer)?.unregister()
+      expect(api.content.has(api.defaultLayer)).toBe(true)
+
+      api.content.register({ id: 'ghost', parentId: api.defaultLayer })
+      expect(api.content.size).toBe(2)
+      api.reveal('ghost', 'click')
+      await settle()
+      expect(api.path.value).toEqual([api.defaultLayer, 'ghost'])
+
+      api.content.get('ghost')?.unregister()
+      await settle()
+      expect(api.content.has('ghost')).toBe(false)
+      expect(api.path.value).toEqual([api.defaultLayer])
     })
 
     it('should shift across a menubar and report each parent layer', async () => {

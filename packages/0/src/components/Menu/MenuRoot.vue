@@ -34,7 +34,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { RegistryTicket } from '#v0/composables/createRegistry'
+  import type { RegistryContext, RegistryTicket } from '#v0/composables/createRegistry'
   import type { RovingFocusReturn } from '#v0/composables/useRovingFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
@@ -75,6 +75,20 @@
     layerId: ID
   }
 
+  export interface MenuContentInput {
+    id?: ID
+    /** Parent layer. `null` is a top menu. Absent means the content is not mounted. */
+    parentId?: ID | null
+    /** Element the layer positions against. */
+    anchor?: MaybeRefOrGetter<Element | null | undefined>
+    /** Focus target on dismiss when it differs from the positioning anchor. */
+    returnTo?: MaybeRefOrGetter<Element | null | undefined>
+  }
+
+  export interface MenuContentTicket extends RegistryTicket, MenuContentInput {
+    id: ID
+  }
+
   export interface MenuRootContext {
     id: string
     defaultLayer: ID
@@ -86,18 +100,10 @@
     register: (input: MenuItemInput) => MenuItemTicket
     unregister: (id: ID) => void
     items: (layerId: ID) => MenuItemTicket[]
-    registerActivator: (input: MenuActivatorInput) => MenuActivatorTicket
-    unregisterActivator: (id: ID) => void
-    activators: () => MenuActivatorTicket[]
-    registerLayer: (id: ID, parentId: ID | null) => void
-    unregisterLayer: (id: ID) => void
+    activators: RegistryContext<MenuActivatorInput, MenuActivatorTicket>
+    content: RegistryContext<MenuContentInput, MenuContentTicket>
     parentOf: (id: ID) => ID | null
     isTop: (id: ID) => boolean
-    bindAnchor: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
-    /** Drop the anchor registered for `id` when it is still `el`. */
-    unbindAnchor: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
-    /** Focus target used on dismiss when it differs from the positioning anchor. */
-    bindReturn: (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) => void
     anchor: (id: ID) => Element | null
     anchorName: (id: ID) => string
     contentId: (id: ID) => string
@@ -187,11 +193,9 @@
   const defaultLayer = _value ?? useId()
   const items = createRegistry<MenuItemInput, MenuItemTicket>()
   const activators = createRegistry<MenuActivatorInput, MenuActivatorTicket>()
-  const parents = new Map<ID, ID | null>()
-  const anchors = new Map<ID, MaybeRefOrGetter<Element | null | undefined>>()
-  const returns = new Map<ID, MaybeRefOrGetter<Element | null | undefined>>()
+  const store = createRegistry<MenuContentInput, MenuContentTicket>()
 
-  parents.set(defaultLayer, null)
+  store.register({ id: defaultLayer, parentId: null })
 
   const path = shallowRef<ID[]>([])
   const openedByHover = shallowRef(false)
@@ -224,7 +228,7 @@
     while (!isNull(current) && !seen.has(current)) {
       seen.add(current)
       chain.push(current)
-      const parent = parents.get(current)
+      const parent: ID | null | undefined = store.get(current)?.parentId
       current = isNullOrUndefined(parent) ? null : parent
     }
 
@@ -417,7 +421,7 @@
   }
 
   function isTop (id: ID) {
-    return isNull(parents.get(id) ?? null)
+    return isNullOrUndefined(store.get(id)?.parentId)
   }
 
   function isRtl (event: KeyboardEvent) {
@@ -504,38 +508,52 @@
   }
 
   function anchorOf (id: ID) {
-    return readElement(anchors.get(id))
+    return readElement(store.get(id)?.anchor)
   }
 
   function returnOf (id: ID) {
-    return readElement(returns.get(id))
+    return readElement(store.get(id)?.returnTo)
   }
 
-  function bindAnchor (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) {
-    anchors.set(id, el)
-  }
+  // Content teardown drops the parent link and closes an open layer. The
+  // activator's anchor stays, so remounting the content still positions.
+  // The default layer is the root record and is never removed.
+  function unregister (id: ID) {
+    const ticket = store.get(id)
 
-  function unbindAnchor (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) {
-    if (anchors.get(id) === el) anchors.delete(id)
-  }
-
-  function bindReturn (id: ID, el: MaybeRefOrGetter<Element | null | undefined>) {
-    if (isNullOrUndefined(el)) {
-      returns.delete(id)
-      return
+    if (!isNullOrUndefined(ticket) && id !== defaultLayer) {
+      if (isNullOrUndefined(ticket.anchor) && isNullOrUndefined(ticket.returnTo)) store.unregister(id)
+      else store.upsert(id, { parentId: undefined })
     }
-    returns.set(id, el)
-  }
 
-  function registerLayer (id: ID, parentId: ID | null) {
-    parents.set(id, parentId)
-  }
-
-  function unregisterLayer (id: ID) {
-    if (id !== defaultLayer) parents.delete(id)
     if (!path.value.includes(id)) return
     if (path.value[0] === id) dismiss(false)
     else assign(path.value.slice(0, path.value.indexOf(id)))
+  }
+
+  function bind (ticket: MenuContentTicket) {
+    ticket.unregister = () => unregister(ticket.id)
+    return ticket
+  }
+
+  const seeded = store.get(defaultLayer)
+  if (!isNullOrUndefined(seeded)) bind(seeded)
+
+  const content: RegistryContext<MenuContentInput, MenuContentTicket> = {
+    ...store,
+    get size () {
+      return store.size
+    },
+    register (registration?: Partial<MenuContentInput & RegistryTicket>) {
+      return bind(store.register(registration))
+    },
+    upsert (id: ID, patch?: Partial<MenuContentInput>, event?: string) {
+      return bind(store.upsert(id, patch, event))
+    },
+    onboard (registrations: Partial<MenuContentInput & RegistryTicket>[]) {
+      return store.onboard(registrations).map(bind)
+    },
+    unregister,
   }
 
   const context: MenuRootContext = {
@@ -549,16 +567,10 @@
     register: input => items.register(input),
     unregister: id => items.unregister(id),
     items: layerItems,
-    registerActivator: input => activators.register(input),
-    unregisterActivator: id => activators.unregister(id),
-    activators: () => activators.values().slice(),
-    registerLayer,
-    unregisterLayer,
-    parentOf: id => parents.get(id) ?? null,
+    activators,
+    content,
+    parentOf: id => store.get(id)?.parentId ?? null,
     isTop,
-    bindAnchor,
-    unbindAnchor,
-    bindReturn,
     anchor: anchorOf,
     anchorName,
     contentId,

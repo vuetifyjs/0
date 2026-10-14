@@ -92,17 +92,22 @@
   const layerId = value ?? menu.defaultLayer
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
-  menu.bindAnchor(layerId, el)
+  function anchor () {
+    return el.value
+  }
 
-  const ticket = menu.registerActivator({
+  menu.content.upsert(layerId, { anchor })
+
+  const ticket = menu.activators.register({
     layerId,
     disabled: () => Boolean(toValue(disabled)) || menu.disabled.value,
     el,
   })
 
   onBeforeUnmount(() => {
-    menu.unbindAnchor(layerId, el)
-    menu.unregisterActivator(ticket.id)
+    const layer = menu.content.get(layerId)
+    if (!isNullOrUndefined(layer) && layer.anchor === anchor) menu.content.upsert(layerId, { anchor: undefined })
+    menu.activators.unregister(ticket.id)
   })
 
   const isDisabled = toRef(() => Boolean(toValue(ticket.disabled)))
