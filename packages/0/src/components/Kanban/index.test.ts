@@ -3,11 +3,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Kanban, useKanbanRoot } from './index'
 
 // Utilities
+import { isFunction } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
-import type { KanbanMovePayload, KanbanRootContext } from './index'
+import type { ActiveDrag, DropPosition } from '#v0/composables/useDragDrop'
+import type { KanbanDrag, KanbanMovePayload, KanbanRootContext } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 import type { Component } from 'vue'
 
@@ -95,6 +97,58 @@ function mountBoard (options: {
     live: () => wrapper.find('[data-live]').text(),
   }
 }
+
+function bindContext () {
+  let context: KanbanRootContext | undefined
+
+  const Probe = defineComponent({
+    setup () {
+      context = useKanbanRoot('v0:kanban')
+      return () => null
+    },
+  })
+
+  return {
+    Probe,
+    context: () => {
+      if (!context) throw new Error('kanban context was not provided')
+      return context
+    },
+  }
+}
+
+function drag (value: unknown, type = 'item'): ActiveDrag<KanbanDrag> {
+  return {
+    id: 'drag',
+    type: type as ActiveDrag<KanbanDrag>['type'],
+    value: { value, label: `Card ${String(value)}` },
+    origin: { x: 0, y: 0 },
+    current: { x: 0, y: 0 },
+    delta: { x: 0, y: 0 },
+    over: null,
+    willAccept: false,
+    via: 'pointer',
+  }
+}
+
+function zoneFor (context: KanbanRootContext, wrapper: VueWrapper, key: string) {
+  const element = wrapper.get(`[data-list="${key}"]`).element
+  const zone = context.dnd.zones.values().find(candidate => {
+    const el = candidate.el as { value?: Element | null }
+    return el.value === element
+  })
+
+  if (!zone || !isFunction(zone.accept) || !isFunction(zone.onDrop)) {
+    throw new Error(`missing drop zone for ${key}`)
+  }
+
+  return {
+    accept: zone.accept,
+    onDrop: zone.onDrop,
+  }
+}
+
+const nowhere: DropPosition = { pointer: { x: 0, y: 0 } }
 
 describe('kanban', () => {
   describe('rendering', () => {
@@ -824,6 +878,199 @@ describe('kanban', () => {
 
       expect(board.value.todo).toEqual(['a', 'b', 'c'])
       expect(moves).toHaveLength(0)
+    })
+  })
+
+  describe('fallbacks', () => {
+    it('should ignore a drop of an item that is not on the board', () => {
+      const bound = bindContext()
+      const { wrapper, board, moves } = mountBoard({ extra: bound.Probe })
+      const done = zoneFor(bound.context(), wrapper, 'done')
+
+      done.onDrop(drag('ghost'), { ...nowhere, index: 0 })
+
+      expect(board.value.todo).toEqual(['a', 'b', 'c'])
+      expect(board.value.done).toEqual([])
+      expect(moves).toHaveLength(0)
+    })
+
+    it('should append when a drop does not name an index', () => {
+      const bound = bindContext()
+      const { wrapper, board, moves } = mountBoard({ extra: bound.Probe })
+      const done = zoneFor(bound.context(), wrapper, 'done')
+
+      done.onDrop(drag('a'), nowhere)
+
+      expect(board.value.todo).toEqual(['b', 'c'])
+      expect(board.value.done).toEqual(['a'])
+      expect(moves).toEqual([{
+        value: 'a',
+        from: 'todo',
+        to: 'done',
+        fromIndex: 0,
+        toIndex: 0,
+      }])
+    })
+
+    it('should refuse a drag that is not a board item', () => {
+      const bound = bindContext()
+      const { wrapper } = mountBoard({ extra: bound.Probe })
+      const todo = zoneFor(bound.context(), wrapper, 'todo')
+
+      expect(todo.accept(drag('a', 'column'))).toBe(false)
+      expect(todo.accept(drag('ghost'))).toBe(false)
+      expect(todo.accept(drag('d'))).toBe(true)
+    })
+
+    it('should admit a cross-column drag when the column has no accept predicate', async () => {
+      const bound = bindContext()
+      const { wrapper, press } = mountBoard({ extra: bound.Probe })
+      const context = bound.context()
+      const doing = context.kanban.columns.get('doing')!
+
+      doing.accept = undefined
+
+      expect(zoneFor(context, wrapper, 'doing').accept(drag('a'))).toBe(true)
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      expect(wrapper.find('[data-list="doing"]').attributes('data-target')).toBeDefined()
+    })
+
+    it('should not write the model when a reindex leaves the column unchanged', () => {
+      const bound = bindContext()
+      const { board } = mountBoard({ extra: bound.Probe })
+      const before = board.value.todo
+
+      bound.context().locate('a')!.column.items.reindex()
+
+      expect(board.value.todo).toBe(before)
+    })
+
+    it('should keep the other instructions when one unmounts', async () => {
+      let context: KanbanRootContext | undefined
+
+      function stay () {}
+
+      let hide = stay
+
+      const Pair = defineComponent({
+        setup () {
+          context = useKanbanRoot('v0:kanban')
+          const shown = ref(true)
+
+          function onHide () {
+            shown.value = false
+          }
+
+          hide = onHide
+
+          return () => [
+            shown.value ? h(Kanban.Instructions as Component, { 'data-first': '' }) : null,
+            h(Kanban.Instructions as Component, { 'data-second': '' }),
+          ]
+        },
+      })
+
+      const { wrapper, flush } = mountBoard({ instructions: false, extra: Pair })
+      const first = wrapper.get('[data-first]').attributes('id')
+      const second = wrapper.get('[data-second]').attributes('id')
+
+      expect(first).toBeDefined()
+      expect(second).toBeDefined()
+      expect(first).not.toBe(second)
+      expect(context!.instructions.value).toBe(second)
+
+      hide()
+      await flush()
+
+      expect(wrapper.find('[data-first]').exists()).toBe(false)
+      expect(context!.instructions.value).toBe(second)
+    })
+
+    it('should render an item that has no element', () => {
+      const bound = bindContext()
+      const { wrapper } = mountBoard({
+        items: { a: { renderless: true } },
+        extra: bound.Probe,
+      })
+
+      const hosts = bound.context().dnd.draggables.values().map(ticket => {
+        const el = ticket.el as { value: HTMLElement | null }
+        return el.value
+      })
+
+      expect(hosts).toContain(null)
+      expect(wrapper.get('[data-list="todo"]').text()).toContain('a')
+    })
+
+    it('should announce a drop after the item has left the board', async () => {
+      const bound = bindContext()
+      const { press, moves, live, flush } = mountBoard({ extra: bound.Probe })
+      const context = bound.context()
+
+      await press('a', ' ')
+
+      const at = context.locate('a')!
+      at.column.items.unregister(at.ticket.id)
+      context.drop()
+      await flush()
+
+      expect(moves).toHaveLength(0)
+      expect(live()).toContain('Card a dropped in , position 1 of 0')
+      expect(context.grabbed.value).toBeNull()
+    })
+
+    it('should ignore a grab of a missing item', () => {
+      const bound = bindContext()
+      mountBoard({ extra: bound.Probe })
+
+      bound.context().grab('missing')
+
+      expect(bound.context().grabbed.value).toBeNull()
+    })
+
+    it('should ignore a grab while the board is disabled', () => {
+      const bound = bindContext()
+      mountBoard({ root: { disabled: true }, extra: bound.Probe })
+
+      bound.context().grab('a')
+
+      expect(bound.context().grabbed.value).toBeNull()
+    })
+
+    it('should move within the home column when the target column is gone', async () => {
+      const bound = bindContext()
+      const { press, item, flush } = mountBoard({ extra: bound.Probe })
+      const context = bound.context()
+
+      await press('a', ' ')
+      await press('a', 'ArrowRight')
+
+      context.kanban.columns.unregister('doing')
+      context.shift('down')
+      await flush()
+
+      expect(context.grabbed.value?.target).toEqual({ column: 'todo', index: 1 })
+      expect(item('c').attributes('data-drop')).toBe('before')
+    })
+
+    it('should miss an item whose id no longer resolves', () => {
+      const bound = bindContext()
+      mountBoard({ extra: bound.Probe })
+      const context = bound.context()
+      const at = context.locate('a')!
+      const items = at.column.items
+      const original = items.get.bind(items)
+
+      using spy = vi.spyOn(items, 'get').mockImplementation(id => {
+        if (id === at.ticket.id) return undefined
+        return original(id)
+      })
+
+      expect(context.locate('a')).toBeUndefined()
+      expect(spy).toHaveBeenCalled()
     })
   })
 })
