@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createOverflow, createOverflowContext, useOverflow } from './index'
 
@@ -52,6 +52,7 @@ describe('createOverflow', () => {
       isOverflowing: expect.any(Object),
       measure: expect.any(Function),
       reset: expect.any(Function),
+      settle: expect.any(Function),
     })
   })
 
@@ -863,6 +864,205 @@ describe('createOverflow', () => {
       expect(result.capacity.value).toBe(4)
     })
   })
+
+  describe('probe mode', () => {
+    beforeEach(() => {
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    function box (width: number): HTMLElement {
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: width })
+      return el
+    }
+
+    function render (widths: number[], options: Parameters<typeof createOverflow>[0] = {}) {
+      const ctx = createOverflow({ probe: true, gap: 0, reserved: 0, budget: 200, ...options })
+      ctx.reset()
+      for (const [index, width] of widths.entries()) {
+        ctx.measure(index, box(width))
+      }
+      ctx.settle()
+      return ctx
+    }
+
+    it('should ask for more slots when the rendered row has room', () => {
+      const overflow = render([40, 40, 40, 40], { budget: 200 })
+
+      // 160 used, one more 40 still fits, so the guess steps up and waits to be checked.
+      expect(overflow.capacity.value).toBe(5)
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should drop back when that guess overflows', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      overflow.reset()
+      for (const [index, width] of [40, 40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      overflow.reset()
+      for (const [index, width] of [50, 50, 50, 50, 50].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+
+      // 5×50 does not fit. 4 was already shown to fit, and 5 is the first failure, so the bracket is closed.
+      expect(overflow.capacity.value).toBe(4)
+    })
+
+    it('should grow back when the same count gets narrower', () => {
+      const overflow = createOverflow({ probe: true, budget: 300, gap: 0, reserved: 0 })
+      overflow.reset()
+      for (const [index, width] of [100, 100, 100].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(3)
+
+      overflow.reset()
+      for (const [index, width] of [50, 50, 50].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(6)
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should shrink when the same count gets wider', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      overflow.reset()
+      for (const [index, width] of [40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      overflow.reset()
+      for (const [index, width] of [80, 80, 80].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+
+      // 240 overflows. Bounds were forgotten because these are different labels, so the search starts over under the failure.
+      expect(overflow.capacity.value).toBe(1)
+      expect(overflow.isOverflowing.value).toBe(true)
+    })
+
+    it('should stop instead of oscillating when a larger count is a wider set', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      function widthsFor (count: number): number[] {
+        const width = count >= 6 ? 80 : 30
+        return Array.from({ length: count }, () => width)
+      }
+
+      let guard = 0
+      let cap = overflow.capacity.value
+      while (guard++ < 30) {
+        const count = cap === Infinity ? 4 : cap
+        overflow.reset()
+        for (const [index, width] of widthsFor(count).entries()) overflow.measure(index, box(width))
+        overflow.settle()
+        if (overflow.capacity.value === count) break
+        cap = overflow.capacity.value
+      }
+
+      expect(guard).toBeLessThan(30)
+      const count = overflow.capacity.value
+      const used = widthsFor(count).reduce((acc, width) => acc + width, 0)
+      expect(used).toBeLessThanOrEqual(200)
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should not ask past max', () => {
+      const overflow = render([40, 40], { budget: 500, max: 3 })
+
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should scale a settled row to the new budget in one step', () => {
+      const budget = shallowRef(200)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0 })
+      overflow.reset()
+      for (const [index, width] of [40, 40, 40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      // 5×40 no longer fits. A fresh search would halve to 2. The settled pitch scales straight to 3.
+      budget.value = 120
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(3)
+
+      // And a budget that fits one button does not stop at the halfway guess.
+      budget.value = 40
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(1)
+    })
+
+    it('should accumulate a sub-pitch resize before adding a slot', () => {
+      const budget = shallowRef(200)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0 })
+      overflow.reset()
+      for (const [index, width] of [40, 40, 40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      // Half a slot. Spending this slack would leave the next step with nothing to add.
+      budget.value = 220
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      budget.value = 240
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(6)
+
+      // The caller paints the ask, as Pagination does before its committed settle.
+      overflow.reset()
+      for (const [index, width] of [40, 40, 40, 40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(6)
+
+      // The 40px that bought the sixth slot must not also consume the change past it.
+      budget.value = 250
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(6)
+
+      budget.value = 280
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(7)
+    })
+
+    it('should spend reserved pixels before counting slots', () => {
+      const overflow = render([40, 40, 40], { budget: 200, reserved: 80 })
+
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should step past a count the caller cannot render', () => {
+      const overflow = createOverflow({ probe: true, budget: 500, gap: 0, reserved: 0 })
+      for (const [index, width] of [40, 40, 40, 40].entries()) overflow.measure(index, box(width))
+      overflow.settle()
+      const asked = overflow.capacity.value
+      expect(asked).toBeGreaterThan(4)
+
+      // The automatic observer settles uncommitted. A row that has not
+      // mounted the ask yet must not be recorded as a count the caller refused.
+      overflow.settle(false)
+      expect(overflow.capacity.value).toBe(asked)
+
+      overflow.reset()
+      overflow.measure(0, box(40))
+      overflow.settle(true)
+
+      expect(overflow.capacity.value).toBeGreaterThan(1)
+      expect(overflow.capacity.value).not.toBe(asked)
+    })
+
+    it('should do nothing when probe is off', () => {
+      const overflow = createOverflow({ budget: 200 })
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(Infinity)
+    })
+  })
 })
 
 describe('createOverflowContext', () => {
@@ -880,6 +1080,7 @@ describe('createOverflowContext', () => {
       isOverflowing: expect.any(Object),
       measure: expect.any(Function),
       reset: expect.any(Function),
+      settle: expect.any(Function),
     })
   })
 
