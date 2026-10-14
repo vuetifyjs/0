@@ -122,6 +122,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/menu': RouteRecordInfo<
+      '/components/disclosure/menu',
+      '/components/disclosure/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/popover': RouteRecordInfo<
       '/components/disclosure/popover',
       '/components/disclosure/popover',
@@ -1669,6 +1676,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/expansion-panel.md': {
       routes:
         | '/components/disclosure/expansion-panel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/disclosure/menu.md': {
+      routes:
+        | '/components/disclosure/menu'
       views:
         | never
       pathParamNames:

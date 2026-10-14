@@ -33,6 +33,7 @@ import GroupFixture from './fixtures/Group.vue'
 import ImageFixture from './fixtures/Image.vue'
 import InputFixture from './fixtures/Input.vue'
 import LocaleFixture from './fixtures/Locale.vue'
+import MenuFixture from './fixtures/Menu.vue'
 import NumberFieldFixture from './fixtures/NumberField.vue'
 import OtpFixture from './fixtures/Otp.vue'
 import OverflowFixture from './fixtures/Overflow.vue'
@@ -142,6 +143,7 @@ const FIXTURES = {
   Image: ImageFixture,
   Input: InputFixture,
   Locale: LocaleFixture,
+  Menu: MenuFixture,
   NumberField: NumberFieldFixture,
   Otp: OtpFixture,
   Overflow: OverflowFixture,
