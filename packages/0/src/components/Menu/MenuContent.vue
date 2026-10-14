@@ -35,7 +35,7 @@
   import type { ID } from '#v0/types'
 
   export interface MenuContentProps extends AtomProps {
-    /** Layer this popup belongs to. Matches Menu.Activator `value`. */
+    /** Layer this popup belongs to. Omit it to use Menu.Root's `value`. */
     value?: ID
     /** Render items before the first open */
     eager?: boolean

@@ -126,6 +126,8 @@
   export interface MenuRootProps extends AtomProps {
     /** DOM id prefix for the menu and the controls that open it */
     id?: string
+    /** Layer id used when an activator or content omits `value` */
+    value?: ID
     /** Disables every activator and item in this menu */
     disabled?: boolean
     /** Delay before a hover or pointer open. Keyboard, click, and right-click skip it. */
@@ -171,6 +173,7 @@
   const {
     as = null,
     id: _id,
+    value: _value,
     disabled = false,
     openDelay = 100,
     closeDelay = 250,
@@ -181,7 +184,7 @@
   const model = defineModel<ID | null>({ default: null })
 
   const rootId = _id ?? useId()
-  const defaultLayer = useId()
+  const defaultLayer = _value ?? useId()
   const items = createRegistry<MenuItemInput, MenuItemTicket>()
   const activators = createRegistry<MenuActivatorInput, MenuActivatorTicket>()
   const parents = new Map<ID, ID | null>()

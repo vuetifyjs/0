@@ -31,7 +31,7 @@
   import type { MaybeRefOrGetter } from 'vue'
 
   export interface MenuActivatorProps extends AtomProps {
-    /** Layer this activator opens. Required when more than one menu shares the root. */
+    /** Layer this activator opens. Omit it to use Menu.Root's `value`. */
     value?: ID
     /** Disables this activator */
     disabled?: MaybeRefOrGetter<boolean>

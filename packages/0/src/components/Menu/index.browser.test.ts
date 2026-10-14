@@ -518,6 +518,35 @@ describe('menu', () => {
     expect(item(wrapper, 'menuitem', 'Copy').attributes('data-highlighted')).toBeUndefined()
   })
 
+  it('should open the root value when the children omit value', async () => {
+    const open = shallowRef<string | null>('actions')
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, {
+          'value': 'actions',
+          'modelValue': open.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            open.value = isString(value) ? value : null
+          },
+        }, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Actions'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item, null, () => 'Copy'),
+              h(Menu.Item, null, () => 'Paste'),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await settle()
+
+    expect(openMenus(wrapper)).toHaveLength(1)
+    expect(document.activeElement).toBe(openMenus(wrapper)[0]?.element)
+    expect(item(wrapper, 'menuitem', 'Copy').attributes('data-highlighted')).toBeUndefined()
+  })
+
   it('should return focus to the context host on escape', async () => {
     const wrapper = mount(defineComponent({
       setup () {

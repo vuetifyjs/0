@@ -8,10 +8,10 @@
 </script>
 
 <template>
-  <Menu.Root v-model="open">
-    <Menu.Activator value="actions">Actions</Menu.Activator>
+  <Menu.Root v-model="open" value="actions">
+    <Menu.Activator>Actions</Menu.Activator>
 
-    <Menu.Content value="actions">
+    <Menu.Content>
       <Menu.Item>Copy</Menu.Item>
       <Menu.Item>Paste</Menu.Item>
     </Menu.Content>

@@ -105,7 +105,7 @@ The opened menu takes keyboard focus. Escape closes every layer and returns focu
 
 ### Menubar
 
-Give each `Menu.Activator` and its `Menu.Content` the same `value`. Arrow keys move across the bar. Arrow Down opens the focused menu on its first item, and Arrow Up opens it on its last item.
+`value` names a layer. `v-model` is which layer is open. A single menu sets `value` on `Menu.Root` when the page opens that menu by id, and the activator and content omit it. A menubar sets the same `value` on each `Menu.Activator` and its `Menu.Content`. Arrow keys move across the bar. Arrow Down opens the focused menu on its first item, and Arrow Up opens it on its last item.
 
 Menubar hover is the same rule, not a special case. With `open-on-hover` left off, hovering an activator does nothing until a menu is already open. After one is open, hovering another activator switches to it immediately, with no `open-delay`. If `open-on-hover` is set, a resting pointer opens that activator after `open-delay`. Enter or Space toggles the focused menu.
 
