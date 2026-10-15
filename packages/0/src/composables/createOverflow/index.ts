@@ -395,8 +395,7 @@ export function createOverflow<
       high = high === null ? count : Math.min(high, count)
       if (low >= count) low = 0
       if (count <= 1) return assign(1)
-      const next = Math.max(low, Math.floor((low + count) / 2))
-      assign(next < count ? next : count - 1)
+      assign(Math.min(count - 1, Math.max(low, Math.floor((low + count) / 2))))
     }
 
     function search () {
@@ -450,7 +449,7 @@ export function createOverflow<
 
   let frame = 0
   function schedule () {
-    if (!probe || !IN_BROWSER) return
+    if (!IN_BROWSER) return
     const id = ++frame
     requestAnimationFrame(() => {
       if (id !== frame) return

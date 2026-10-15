@@ -893,6 +893,11 @@ describe('createOverflow', () => {
       return ctx
     }
 
+    function paint (ctx: ReturnType<typeof createOverflow>, widths: number[]) {
+      ctx.reset()
+      for (const [index, width] of widths.entries()) ctx.measure(index, box(width))
+    }
+
     it('should ask for more slots when the rendered row has room', () => {
       const overflow = render([40, 40, 40, 40], { budget: 200 })
 
@@ -1058,6 +1063,486 @@ describe('createOverflow', () => {
 
       expect(overflow.capacity.value).toBe(Infinity)
     })
+
+    it('should do nothing when nothing is measured', () => {
+      const overflow = createOverflow({ probe: true, budget: 200 })
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(Infinity)
+    })
+
+    it('should clear the ask when the budget drops to nothing', () => {
+      const budget = shallowRef(200)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      budget.value = 0
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(Infinity)
+    })
+
+    it('should stay open when the budget starts empty', () => {
+      const overflow = createOverflow({ probe: true, budget: 0, gap: 0, reserved: 0 })
+      paint(overflow, [40])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(Infinity)
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should not call a zero-width row a pitch', () => {
+      const budget = shallowRef(100)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0 })
+      paint(overflow, [0, 0])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(2)
+
+      budget.value = 500
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(2)
+    })
+
+    it('should report not overflowing before a budget or a width exists', () => {
+      const overflow = createOverflow({ probe: true })
+
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should ask for one when the only item does not fit', () => {
+      const overflow = render([100], { budget: 50 })
+
+      expect(overflow.capacity.value).toBe(1)
+      expect(overflow.isOverflowing.value).toBe(true)
+    })
+
+    it('should stay when the rendered count is already the max', () => {
+      const overflow = render([10, 10, 10], { budget: 1000, max: 3 })
+
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should pull back when more than max is rendered', () => {
+      const overflow = render([10, 10, 10, 10, 10], { budget: 1000, max: 3 })
+
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should stop after the same shortfall twice', () => {
+      const overflow = createOverflow({ probe: true, budget: 1000, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(12)
+
+      paint(overflow, [40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBeGreaterThan(1)
+
+      paint(overflow, [40])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(1)
+    })
+
+    it('should freeze when the search asks again for a count it already tried', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      paint(overflow, [50, 50, 50, 50, 50])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(4)
+
+      paint(overflow, [50, 50, 50, 50, 50, 50, 50, 50])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(6)
+
+      paint(overflow, [50, 50, 50, 50, 50, 50])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(4)
+      expect(overflow.isOverflowing.value).toBe(true)
+    })
+
+    it('should freeze at the repeated count when no row has fit yet', () => {
+      const overflow = createOverflow({ probe: true, budget: 50, gap: 0, reserved: 0 })
+      paint(overflow, [100, 100, 100, 100])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(2)
+
+      paint(overflow, [100, 100])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(1)
+
+      paint(overflow, [100, 100, 100, 100, 100, 100])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(3)
+
+      paint(overflow, [100, 100, 100, 100])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(2)
+    })
+
+    it('should stop asking once the search has stepped too many times', () => {
+      const overflow = createOverflow({ probe: true, budget: 100_000, gap: 0, reserved: 0 })
+      let count = 1
+      for (let guard = 0; guard < 40; guard++) {
+        paint(overflow, Array.from({ length: count }, () => 1))
+        overflow.settle()
+        if (overflow.capacity.value === count) break
+        count = overflow.capacity.value
+      }
+
+      expect(overflow.capacity.value).toBe(193)
+    })
+
+    it('should drop its lower bound when a shorter row overflows', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      paint(overflow, [50, 50, 50, 50, 50])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(4)
+
+      paint(overflow, [30, 30, 30, 30])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(4)
+
+      paint(overflow, [80, 80, 80])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(1)
+    })
+
+    it('should leave an uncommitted overflowing row where it is', () => {
+      const overflow = createOverflow({ probe: true, budget: 200, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      const asked = overflow.capacity.value
+      expect(asked).toBe(5)
+
+      paint(overflow, [50, 50, 50, 50, 50])
+      overflow.settle(false)
+
+      expect(overflow.capacity.value).toBe(asked)
+    })
+
+    it('should keep a settled max when the budget grows further', () => {
+      const budget = shallowRef(50)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0, max: 5 })
+      paint(overflow, [10, 10, 10, 10, 10])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      budget.value = 200
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(5)
+    })
+
+    it('should step over a count the caller already refused', () => {
+      const budget = shallowRef(80)
+      const overflow = createOverflow({ probe: true, budget, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(2)
+
+      paint(overflow, [40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(3)
+
+      paint(overflow, [40, 40, 40])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should stop a shortfall at a count that already overflowed', () => {
+      const overflow = createOverflow({ probe: true, budget: 20, gap: 0, reserved: 0 })
+      paint(overflow, [10])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(2)
+
+      paint(overflow, [15])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(3)
+
+      paint(overflow, [10, 10])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(4)
+
+      paint(overflow, [20, 20, 20])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(2)
+
+      paint(overflow, [10])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(1)
+      expect(overflow.isOverflowing.value).toBe(false)
+    })
+
+    it('should drop one slot when the nav scrolls but the sum still fits', () => {
+      let scroll = 100
+      const nav = document.createElement('div')
+      Object.defineProperty(nav, 'clientWidth', { configurable: true, get: () => 100 })
+      Object.defineProperty(nav, 'scrollWidth', { configurable: true, get: () => scroll })
+      const overflow = createOverflow({
+        probe: true,
+        container: nav,
+        budget: 160,
+        gap: 0,
+        reserved: 0,
+      })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(4)
+
+      scroll = 300
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(3)
+      expect(overflow.isOverflowing.value).toBe(true)
+    })
+
+    it('should ignore scroll until the nav has a client width', () => {
+      const nav = document.createElement('div')
+      Object.defineProperty(nav, 'clientWidth', { configurable: true, value: 0 })
+      Object.defineProperty(nav, 'scrollWidth', { configurable: true, value: 500 })
+      const overflow = createOverflow({
+        probe: true,
+        container: nav,
+        budget: 200,
+        gap: 0,
+        reserved: 0,
+      })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(5)
+    })
+
+    it('should claim free space beside the nav when no budget is passed', () => {
+      const parent = document.createElement('div')
+      const nav = document.createElement('nav')
+      const hidden = document.createElement('div')
+      const floating = document.createElement('div')
+      const pinned = document.createElement('div')
+      const fixedMin = document.createElement('div')
+      const flexible = document.createElement('div')
+      const rigid = document.createElement('div')
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      parent.append(svg, hidden, floating, pinned, nav, fixedMin, flexible, rigid)
+      Object.defineProperty(parent, 'clientWidth', { configurable: true, value: 400 })
+      Object.defineProperty(rigid, 'getBoundingClientRect', {
+        value: () => ({ width: 30, height: 0, top: 0, left: 0, right: 30, bottom: 0, x: 0, y: 0, toJSON () {} }),
+      })
+
+      const styles = new Map<Element, Record<string, string>>([
+        [parent, { paddingLeft: '10px', paddingRight: '10px', columnGap: '8px' }],
+        [hidden, { display: 'none' }],
+        [floating, { position: 'absolute' }],
+        [pinned, { position: 'fixed' }],
+        [nav, {
+          marginLeft: '2px',
+          marginRight: '2px',
+          paddingLeft: '3px',
+          paddingRight: '3px',
+          borderLeftWidth: '1px',
+          borderRightWidth: '1px',
+        }],
+        [fixedMin, { minWidth: '20px', marginLeft: '4px', marginRight: '4px', flexGrow: '1' }],
+        [flexible, { flexGrow: '1', minWidth: 'auto' }],
+        [rigid, { flexGrow: '0', minWidth: 'auto' }],
+      ])
+      vi.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return {
+          marginLeft: '0px',
+          marginRight: '0px',
+          marginTop: '0px',
+          marginBottom: '0px',
+          paddingLeft: '0px',
+          paddingRight: '0px',
+          paddingTop: '0px',
+          paddingBottom: '0px',
+          borderLeftWidth: '0px',
+          borderRightWidth: '0px',
+          borderTopWidth: '0px',
+          borderBottomWidth: '0px',
+          minWidth: 'auto',
+          flexGrow: '0',
+          display: 'block',
+          position: 'static',
+          columnGap: '0px',
+          gap: '0px',
+          width: '0px',
+          height: '0px',
+          boxSizing: 'content-box',
+          ...styles.get(el as Element),
+        } as CSSStyleDeclaration
+      })
+
+      const overflow = createOverflow({
+        probe: true,
+        container: nav,
+        gap: 0,
+        reserved: 0,
+      })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(7)
+
+      paint(overflow, [40, 40, 40, 40, 40, 40, 40])
+      overflow.settle()
+
+      // 286px claimed. Seven 40px buttons fit, eight do not.
+      expect(overflow.capacity.value).toBe(7)
+    })
+
+    it('should read the parent gap when column-gap does not resolve', () => {
+      const parent = document.createElement('div')
+      const nav = document.createElement('nav')
+      const sibling = document.createElement('div')
+      parent.append(nav, sibling)
+      Object.defineProperty(parent, 'clientWidth', { configurable: true, value: 200 })
+      Object.defineProperty(sibling, 'getBoundingClientRect', {
+        value: () => ({ width: 40, height: 0, top: 0, left: 0, right: 40, bottom: 0, x: 0, y: 0, toJSON () {} }),
+      })
+      vi.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        const gap = el === parent ? { columnGap: '0px', gap: '10px' } : {}
+        return {
+          marginLeft: '0px',
+          marginRight: '0px',
+          paddingLeft: '0px',
+          paddingRight: '0px',
+          paddingTop: '0px',
+          paddingBottom: '0px',
+          borderLeftWidth: '0px',
+          borderRightWidth: '0px',
+          borderTopWidth: '0px',
+          borderBottomWidth: '0px',
+          minWidth: 'auto',
+          flexGrow: '0',
+          display: 'block',
+          position: 'static',
+          columnGap: '0px',
+          gap: '0px',
+          width: '0px',
+          height: '0px',
+          boxSizing: 'content-box',
+          ...gap,
+        } as CSSStyleDeclaration
+      })
+
+      const overflow = createOverflow({ probe: true, container: nav, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40])
+      overflow.settle()
+
+      // 200 - 40 sibling - 10 gap = 150. Three 40px buttons fit and do not ask for a fourth.
+      expect(overflow.capacity.value).toBe(3)
+    })
+
+    it('should not charge a gap when the nav is the only child', () => {
+      const parent = document.createElement('div')
+      const nav = document.createElement('nav')
+      parent.append(nav)
+      Object.defineProperty(parent, 'clientWidth', { configurable: true, value: 200 })
+      vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({
+        marginLeft: '0px',
+        marginRight: '0px',
+        paddingLeft: '0px',
+        paddingRight: '0px',
+        paddingTop: '0px',
+        paddingBottom: '0px',
+        borderLeftWidth: '0px',
+        borderRightWidth: '0px',
+        borderTopWidth: '0px',
+        borderBottomWidth: '0px',
+        minWidth: 'auto',
+        flexGrow: '0',
+        display: 'block',
+        position: 'static',
+        columnGap: '0px',
+        gap: '0px',
+        width: '0px',
+        height: '0px',
+        boxSizing: 'content-box',
+      }) as CSSStyleDeclaration)
+
+      const overflow = createOverflow({ probe: true, container: nav, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+
+      paint(overflow, [40, 40, 40, 40, 40])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(5)
+    })
+
+    it('should binary search between a fit and a later overflow', () => {
+      const overflow = createOverflow({ probe: true, budget: 300, gap: 0, reserved: 0 })
+      paint(overflow, [30, 30, 30])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(10)
+
+      paint(overflow, Array.from({ length: 10 }, () => 40))
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(6)
+
+      paint(overflow, [30, 30, 30, 30, 30, 30])
+      overflow.settle()
+      expect(overflow.capacity.value).toBe(8)
+    })
+
+    it('should use the nav width when the nav has no parent', () => {
+      const nav = document.createElement('nav')
+      const overflow = createOverflow({ probe: true, container: nav, gap: 0, reserved: 0 })
+      paint(overflow, [40, 40, 40, 40])
+      overflow.settle()
+
+      expect(overflow.capacity.value).toBe(Infinity)
+    })
+
+    it('should coalesce probe resizes onto one settle', async () => {
+      const queued: FrameRequestCallback[] = []
+      vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+        queued.push(cb)
+        return queued.length
+      })
+      const callbacks: Array<(entries: Array<{ contentRect: { width: number, height: number } }>) => void> = []
+      globalThis.ResizeObserver = vi.fn(function (cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
+        callbacks.push(cb)
+        return { observe: vi.fn(), disconnect: vi.fn() }
+      }) as unknown as typeof ResizeObserver
+
+      try {
+        const parent = document.createElement('div')
+        const nav = document.createElement('nav')
+        parent.append(nav)
+        createOverflow({
+          probe: true,
+          container: nav,
+          budget: 200,
+          gap: 0,
+          reserved: 0,
+        })
+        await nextTick()
+
+        const parentCallback = callbacks.at(-1)
+        parentCallback?.([{ contentRect: { width: 100, height: 20 } }])
+        parentCallback?.([{ contentRect: { width: 140, height: 20 } }])
+
+        expect(queued.length).toBeGreaterThan(1)
+        for (const frame of queued) frame(0)
+      } finally {
+        vi.unstubAllGlobals()
+      }
+    })
   })
 })
 
@@ -1134,5 +1619,41 @@ describe('createOverflow SSR', () => {
     expect(result.width.value).toBe(0)
     expect(result.total.value).toBe(0)
     expect(result.isOverflowing.value).toBe(false)
+  })
+
+  it('should not schedule a probe settle when not in a browser', async () => {
+    vi.doMock('#v0/constants/globals', async () => {
+      const actual = await vi.importActual('#v0/constants/globals')
+      return {
+        ...actual,
+        IN_BROWSER: false,
+        SUPPORTS_OBSERVER: true,
+      }
+    })
+
+    const frames = vi.fn()
+    vi.stubGlobal('requestAnimationFrame', frames)
+    const callbacks: Array<(entries: Array<{ contentRect: { width: number, height: number } }>) => void> = []
+    globalThis.ResizeObserver = vi.fn(function (cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
+      callbacks.push(cb)
+      return { observe: vi.fn(), disconnect: vi.fn() }
+    }) as unknown as typeof ResizeObserver
+
+    try {
+      const { createOverflow: createOverflowSSR } = await import('./index')
+      const parent = document.createElement('div')
+      const nav = document.createElement('nav')
+      parent.append(nav)
+      createOverflowSSR({ probe: true, container: nav, budget: 200 })
+      await nextTick()
+
+      expect(callbacks.length).toBeGreaterThan(0)
+      for (const callback of callbacks) callback([{ contentRect: { width: 80, height: 20 } }])
+      await nextTick()
+
+      expect(frames).not.toHaveBeenCalled()
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 })
