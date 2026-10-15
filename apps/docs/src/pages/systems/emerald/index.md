@@ -43,7 +43,7 @@ Emerald is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS
 
 ## What Emerald is
 
-Emerald has its own tokens, its own icon set, and its own component names. Selection, focus, popovers, validation, and keyboard behavior come from v0.
+Emerald has its own tokens, its own icon set, and its own component names. Selection, focus, popovers, and validation come from v0. Keyboard behavior does too, except EmCalendar, whose grid lives in Emerald until v0 has a calendar.
 
 `EmSelect` is a short template and stylesheet on v0's `Select`. A keyboard fix in v0 reaches `EmSelect` without a separate Emerald release.
 
