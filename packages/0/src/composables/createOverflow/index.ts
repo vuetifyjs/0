@@ -244,8 +244,6 @@ export function createOverflow<
   let pitch = 0
   let basisCount = 0
   let basisFree = 0
-  let predicted = false
-
   function signature (): string {
     return [...widths.value.entries()]
       .toSorted((a, b) => a[0] - b[0])
@@ -262,33 +260,22 @@ export function createOverflow<
     pitch = 0
     basisCount = 0
     basisFree = 0
-    predicted = false
   }
 
   function assign (next: number) {
     const clamped = Math.max(1, next)
-    if (seen.has(clamped) && clamped !== target.value) {
-      const frozen = low > 0 ? low : clamped
-      if (target.value !== frozen) target.value = frozen
-      return
+    const stuck = seen.has(clamped) && clamped !== target.value
+    if (!stuck) {
+      seen.add(clamped)
+      if (target.value === clamped) return
+      steps++
     }
-    seen.add(clamped)
-    if (target.value === clamped) return
-    steps++
-    if (steps > 24) {
+    if (stuck || steps > 24) {
       const frozen = low > 0 ? low : clamped
       if (target.value !== frozen) target.value = frozen
       return
     }
     target.value = clamped
-  }
-
-  function minOuter (child: HTMLElement, style: CSSStyleDeclaration): number {
-    const grows = Number.parseFloat(style.flexGrow) > 0
-    let min = 0
-    if (style.minWidth.endsWith('px')) min = pxToNumber(style.minWidth)
-    else if (!grows) min = child.getBoundingClientRect().width
-    return min + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
   }
 
   // A flex-grow sibling with min-width:auto is free space.
@@ -299,9 +286,6 @@ export function createOverflow<
     if (!parent) return own
 
     const parentStyle = getComputedStyle(parent)
-    const parentContent = parent.clientWidth
-      - pxToNumber(parentStyle.paddingLeft)
-      - pxToNumber(parentStyle.paddingRight)
     let others = 0
     let kids = 0
     for (const child of parent.children) {
@@ -310,17 +294,21 @@ export function createOverflow<
       if (style.display === 'none' || style.position === 'absolute' || style.position === 'fixed') continue
       kids++
       if (child === el) continue
-      others += minOuter(child, style)
+      const grows = Number.parseFloat(style.flexGrow) > 0
+      const min = style.minWidth.endsWith('px')
+        ? pxToNumber(style.minWidth)
+        : (grows ? 0 : child.getBoundingClientRect().width)
+      others += min + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     }
     const parentGap = pxToNumber(parentStyle.columnGap) || pxToNumber(parentStyle.gap)
     const gaps = kids > 1 ? parentGap * (kids - 1) : 0
     const style = getComputedStyle(el)
-    const chrome = pxToNumber(style.marginLeft)
-      + pxToNumber(style.marginRight)
-      + pxToNumber(style.paddingLeft)
-      + pxToNumber(style.paddingRight)
-      + pxToNumber(style.borderLeftWidth)
-      + pxToNumber(style.borderRightWidth)
+    const chrome = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+      + pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
+      + pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
+    const parentContent = parent.clientWidth
+      - pxToNumber(parentStyle.paddingLeft)
+      - pxToNumber(parentStyle.paddingRight)
     return Math.max(own, parentContent - others - gaps - chrome)
   }
 
@@ -329,160 +317,6 @@ export function createOverflow<
     if (isNumber(explicit) && explicit > 0) return explicit
     if (!IN_BROWSER || !container.value) return width.value
     return claimable(container.value as HTMLElement)
-  }
-
-  interface ProbeRow {
-    committed: boolean
-    live: number
-    entries: number[]
-    count: number
-    gapPx: number
-    reservedPx: number
-    sum: number
-    fits: boolean
-    contentChanged: boolean
-    ceiling: number
-    free: number
-  }
-
-  function hold (row: ProbeRow) {
-    const step = Math.min(...row.entries) + row.gapPx
-    if (!(step > 0)) return
-    pitch = step
-    basisCount = row.count
-    basisFree = row.free
-    predicted = false
-  }
-
-  function place (row: ProbeRow, next: number, priced = false) {
-    let clamped = Math.max(1, Math.floor(next))
-    if (clamped > row.ceiling) clamped = row.ceiling
-    while (collapsed.has(clamped) && clamped < row.ceiling) clamped++
-    if (clamped > row.ceiling) clamped = row.ceiling
-    // Priced steps keep the sub-pitch remainder. Spending it stops a drag one slot early.
-    if (priced && pitch > 0 && basisCount > 0) basisFree += (clamped - basisCount) * pitch
-    else basisFree = row.free
-    basisCount = clamped
-    seen.clear()
-    steps = 0
-    low = 0
-    high = null
-    lastShort = -1
-    predicted = true
-    if (!row.fits) fitting.value = false
-    if (target.value !== clamped) target.value = clamped
-  }
-
-  function rescale (row: ProbeRow): boolean {
-    if (row.contentChanged || !(pitch > 0) || !(basisCount > 0)) return false
-    const moved = Math.trunc((row.free - basisFree) / pitch)
-    const projected = basisCount + moved
-    // Caller rendered fewer slots than asked. Let seekFit climb.
-    if (row.committed && row.count < target.value) return false
-    if (!row.fits && row.committed && row.count === target.value) {
-      const drop = projected < row.count ? row.count - projected : 1
-      place(row, row.count - drop)
-      return true
-    }
-    if (projected > basisCount || (projected < basisCount && !row.fits)) {
-      place(row, projected, true)
-      return true
-    }
-    return true
-  }
-
-  // Do not add a slot here. That flashes a button on every pixel of a drag.
-  function accept (row: ProbeRow): boolean {
-    if (!predicted || row.contentChanged) return false
-    if (!row.committed || row.count > target.value) return true
-    if (row.count !== target.value) return false
-    if (!row.fits) {
-      fitting.value = false
-      const corrected = Math.max(1, row.count - 1)
-      high = row.count
-      basisCount = corrected
-      basisFree = row.free
-      predicted = true
-      assign(corrected)
-      return true
-    }
-    hold(row)
-    assign(row.count)
-    return true
-  }
-
-  function seekFit (row: ProbeRow) {
-    // Uncommitted settles run before paint. Only a row that already matches the ask and fits may move.
-    if (!row.committed && (target.value === Infinity || row.count !== target.value || !row.fits)) return
-
-    // Finished render came back short. Skip that count and try the next.
-    if (row.fits && target.value !== Infinity && row.count < target.value) {
-      collapsed.add(target.value)
-      fitting.value = true
-      low = Math.max(low, row.count)
-      if (row.count === lastShort) {
-        hold(row)
-        assign(row.count)
-        return
-      }
-      lastShort = row.count
-      let next = row.count + 1
-      if (high !== null) next = Math.max(next, Math.floor((row.count + high) / 2))
-      while (collapsed.has(next) && next < row.ceiling && (high === null || next < high)) next++
-      if (next === row.count || (high !== null && next >= high)) {
-        hold(row)
-        assign(row.count)
-        return
-      }
-      assign(Math.min(row.ceiling, next))
-      return
-    }
-
-    if (row.fits) {
-      fitting.value = true
-      low = Math.max(low, row.count)
-      if (row.count >= row.ceiling) {
-        if (row.count === row.ceiling) hold(row)
-        assign(Math.min(row.count, row.ceiling))
-        return
-      }
-      if (high !== null && high <= row.count + 1) {
-        hold(row)
-        assign(row.count)
-        return
-      }
-      if (high === null) {
-        const narrowest = Math.min(...row.entries)
-        const room = row.live - (row.sum + row.gapPx * Math.max(0, row.count - 1) + row.reservedPx)
-        const step = narrowest + row.gapPx
-        const extra = step > 0 ? Math.floor((room + row.gapPx) / step) : 0
-        if (extra <= 0) {
-          hold(row)
-          assign(row.count)
-          return
-        }
-        assign(Math.min(row.ceiling, row.count + Math.min(8, extra)))
-        return
-      }
-      const next = Math.min(row.ceiling, Math.max(row.count + 1, Math.floor((row.count + high) / 2)))
-      if (next <= row.count || next >= high) {
-        hold(row)
-        assign(row.count)
-        return
-      }
-      assign(next)
-      return
-    }
-
-    fitting.value = false
-    high = high === null ? row.count : Math.min(high, row.count)
-    if (low >= row.count) low = 0
-    if (row.count <= 1) {
-      assign(1)
-      return
-    }
-    const next = Math.max(low, Math.floor((low + row.count) / 2))
-    assign(next < row.count ? next : row.count - 1)
   }
 
   function settle (committed = true) {
@@ -502,7 +336,8 @@ export function createOverflow<
     const reservedPx = toValue(reserved)
     const sum = entries.reduce((acc, item) => acc + item, 0)
     // reserved already includes one gap per control.
-    let fits = sum + gapPx * Math.max(0, count - 1) + reservedPx <= live + 0.5
+    const cost = sum + gapPx * Math.max(0, count - 1) + reservedPx
+    let fits = cost <= live + 0.5
     const nav = container.value as HTMLElement | null
     if (fits && nav && nav.clientWidth > 0 && nav.scrollWidth > nav.clientWidth + 1) fits = false
 
@@ -514,22 +349,103 @@ export function createOverflow<
 
     const ceilingRaw = toValue(max)
     const ceiling = isNumber(ceilingRaw) && ceilingRaw > 0 ? Math.floor(ceilingRaw) : Infinity
-    const row: ProbeRow = {
-      committed,
-      live,
-      entries,
-      count,
-      gapPx,
-      reservedPx,
-      sum,
-      fits,
-      contentChanged,
-      ceiling,
-      free: live - reservedPx,
+    const free = live - reservedPx
+    const step = Math.min(...entries) + gapPx
+
+    function pin () {
+      if (!(step > 0)) return
+      pitch = step
+      basisCount = count
+      basisFree = free
     }
-    if (rescale(row)) return
-    if (accept(row)) return
-    seekFit(row)
+
+    function stay () {
+      pin()
+      assign(count)
+    }
+
+    function place (next: number, priced = false) {
+      let clamped = Math.max(1, Math.min(ceiling, Math.floor(next)))
+      while (collapsed.has(clamped) && clamped < ceiling) clamped++
+      // Priced steps keep the sub-pitch remainder. Spending it stops a drag one slot early.
+      if (priced && pitch > 0 && basisCount > 0) basisFree += (clamped - basisCount) * pitch
+      else basisFree = free
+      basisCount = clamped
+      seen.clear()
+      steps = 0
+      low = 0
+      high = null
+      lastShort = -1
+      if (!fits) fitting.value = false
+      if (target.value !== clamped) target.value = clamped
+    }
+
+    function slide (): boolean {
+      if (contentChanged || !(pitch > 0) || !(basisCount > 0)) return false
+      const projected = basisCount + Math.trunc((free - basisFree) / pitch)
+      // Caller rendered fewer slots than asked. Let the search climb.
+      if (committed && count < target.value) return false
+      if (!fits && committed && count === target.value) place(projected < count ? projected : count - 1)
+      else if (projected > basisCount || (projected < basisCount && !fits)) place(projected, true)
+      return true
+    }
+
+    function down () {
+      fitting.value = false
+      high = high === null ? count : Math.min(high, count)
+      if (low >= count) low = 0
+      if (count <= 1) return assign(1)
+      const next = Math.max(low, Math.floor((low + count) / 2))
+      assign(next < count ? next : count - 1)
+    }
+
+    function search () {
+      // Uncommitted settles run before paint. Only a row that already matches the ask and fits may move.
+      if (!committed && (target.value === Infinity || count !== target.value || !fits)) return
+
+      const short = fits && target.value !== Infinity && count < target.value
+      // Finished render came back short. Skip that count and try the next.
+      if (short) {
+        collapsed.add(target.value)
+        if (count === lastShort) {
+          fitting.value = true
+          low = Math.max(low, count)
+          return stay()
+        }
+        lastShort = count
+      }
+
+      if (!fits) return down()
+
+      fitting.value = true
+      low = Math.max(low, count)
+      if (!short) {
+        if (count >= ceiling) {
+          if (count === ceiling) return stay()
+          assign(ceiling)
+          return
+        }
+        if (high !== null && high <= count + 1) return stay()
+        if (high === null) {
+          const extra = step > 0 ? Math.floor((live - cost + gapPx) / step) : 0
+          if (extra <= 0) return stay()
+          assign(Math.min(ceiling, count + Math.min(8, extra)))
+          return
+        }
+      }
+
+      let next = count + 1
+      if (high !== null) next = Math.max(next, Math.floor((count + high) / 2))
+      if (short) {
+        while (collapsed.has(next) && next < ceiling && (high === null || next < high)) next++
+      }
+      // Asking for `high` repeats a count that already overflowed.
+      if (high !== null && next >= high) return stay()
+      assign(Math.min(ceiling, next))
+    }
+
+    if (slide()) return
+    search()
   }
 
   let frame = 0
