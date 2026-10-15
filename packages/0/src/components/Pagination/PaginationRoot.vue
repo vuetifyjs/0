@@ -133,10 +133,7 @@
   const itemGap = shallowRef(0)
   const reserved = shallowRef(0)
 
-  // Probe capacity is a page-slot count, not "everything minus N controls".
-  // Controls are pixels (reserved). Pages are measured one by one. The
-  // composable may ask for more slots than are mounted, then correct that
-  // ask after layout — including growing back once a wide page is left.
+  // capacity is page slots. Controls are reserved pixels, not slots.
   const overflow = createOverflow({
     container: () => atom.value?.element as Element | undefined,
     gap: itemGap,
@@ -190,7 +187,7 @@
       controlsWidth += outer(ticket.value as HTMLElement)
       controlCount++
     }
-    // One gap per control, plus (pages - 1) inside the probe, is every gap in the row.
+    // One gap per control. The probe adds the gaps between pages.
     reserved.value = controlsWidth + itemGap.value * controlCount
 
     overflow.reset()

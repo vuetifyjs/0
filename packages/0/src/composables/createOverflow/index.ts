@@ -15,12 +15,8 @@
  * - Supports reserved space for nav buttons, ellipsis, etc.
  *
  * Use variable mode (default) for items with different widths like Breadcrumbs.
- * Use uniform mode (itemWidth option) for items that really are one width.
- * Pagination is not that: controls are narrower than pages, and a page's
- * label changes width as the current page changes. `probe` asks the caller
- * for a count, measures the buttons that actually rendered, and only then
- * moves the count. A guess from the average oscillates, because the next
- * count is a different set of labels.
+ * Use uniform mode when every item is the `itemWidth` you pass.
+ * Set `probe` when the fitting count is not mounted yet. Render `capacity`, measure, then `settle()`.
  *
  * ## Item registration contract
  *
@@ -79,22 +75,10 @@ export interface OverflowOptions {
   gap?: MaybeRefOrGetter<number>
   /** Reserved space in pixels (for nav buttons, ellipsis, etc) */
   reserved?: MaybeRefOrGetter<number>
-  /**
-   * Uniform item width in pixels. When provided, enables uniform mode
-   * where capacity is calculated as available space / itemWidth.
-   * The items really are one width — a sampled width does not describe
-   * siblings that are wider or narrower.
-   */
+  /** Uniform item width. Every item must actually be this width. */
   itemWidth?: MaybeRefOrGetter<number>
   /**
-   * Ask for a count that can exceed the number of children mounted now,
-   * then correct it from the children that render. Off by default.
-   * Breadcrumbs, Overflow, and Avatar keep the pure sum.
-   *
-   * The caller renders `capacity` items, measures each one, and calls
-   * `settle()` after layout. Capacity moves only to a count that was
-   * rendered and checked, so a wide label can shrink the row and a narrow
-   * label can grow it back without the two chasing each other.
+   * Fit a count that is not mounted yet. Render `capacity`, measure, then call `settle()`. Off by default.
    *
    * @example
    * ```ts
@@ -108,15 +92,10 @@ export interface OverflowOptions {
    * ```
    */
   probe?: boolean
-  /**
-   * Largest count `probe` may ask for. Pagination passes `totalVisible`.
-   */
+  /** Largest count probe mode may ask for. */
   max?: MaybeRefOrGetter<number | undefined>
   /**
-   * Content-box budget in pixels. When omitted, probe mode claims the free
-   * space in the parent: the parent's content box, minus siblings' minimums
-   * and this element's margin, border, and padding. A shrink-wrapped
-   * container can then grow into space it is not yet using.
+   * Content-box budget in pixels. When omitted, probe claims free space in the parent instead of the element's own width.
    */
   budget?: MaybeRefOrGetter<number | undefined>
   /**
@@ -147,10 +126,7 @@ export interface OverflowContext {
   measure: (index: number, el: Element | undefined) => void
   /** Clear all measurements */
   reset: () => void
-  /**
-   * One step of a probe search. No-op unless `probe` is set. Call after
-   * `measure` once layout has the buttons being tested.
-   */
+  /** Probe step. No-op unless `probe` is set. Call after `measure`. */
   settle: (committed?: boolean) => void
 }
 
@@ -193,7 +169,7 @@ export interface OverflowContextOptions extends OverflowOptions {
  * </template>
  * ```
  *
- * @example Uniform-width mode (Pagination)
+ * @example Uniform-width mode
  * ```ts
  * const overflow = createOverflow({
  *   container: () => atom.value?.element,
@@ -250,14 +226,8 @@ export function createOverflow<
     widths.value = new Map()
   }
 
-  // Probe memory. `low` is the largest rendered count that fit. `high` is
-  // the smallest rendered count that overflowed. The average of the current
-  // buttons is only a guess at the next count — that count is a different
-  // set of labels — so the guess is checked on the next frame, and a count
-  // already tried is not asked for again. A page change (same count, new
-  // widths) resets the search, which is what lets a row grow back after a
-  // wide page. A resize does not: the settled row has a pitch, and painting
-  // every guess is the flicker a drag shows.
+  // low: largest count that fit. high: smallest that overflowed.
+  // Same count with new widths clears the search. A resize scales basisCount by pitch.
   const target = shallowRef(Infinity)
   const fitting = shallowRef(true)
   let low = 0
@@ -266,12 +236,11 @@ export function createOverflow<
   let lastSignature = ''
   let steps = 0
   const seen = new Set<number>()
-  // Counts the caller could not render (Pagination draws one button for
-  // `visible <= 2`). Skipping them keeps the search off that cliff.
+  // Counts the caller rendered shorter than asked. visible <= 2 is one button.
   const collapsed = new Set<number>()
   let lastShort = -1
-  // Last row that fit. `pitch` is one more slot; resizes scale `basisCount`
-  // by how the free space moved, instead of searching from scratch.
+  // Pixels per extra slot, from the narrowest measured item.
+  // The average includes the wide last page, and a later resize stops short.
   let pitch = 0
   let basisCount = 0
   let basisFree = 0
@@ -322,9 +291,8 @@ export function createOverflow<
     return min + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
   }
 
-  // Parent content box, minus siblings that will not give the space up.
-  // A flex sibling with flex-grow and no explicit min-width is leftover
-  // space; an explicit min-width (or a sibling that does not grow) is not.
+  // A flex-grow sibling with min-width:auto is free space.
+  // An explicit px min-width, or a sibling that does not grow, is not.
   function claimable (el: HTMLElement): number {
     const own = width.value
     const parent = el.parentElement
@@ -378,8 +346,6 @@ export function createOverflow<
   }
 
   function hold (row: ProbeRow) {
-    // Narrowest, not the average. The average counts the wide last page and
-    // a later resize then stops short of the row that actually fits.
     const step = Math.min(...row.entries) + row.gapPx
     if (!(step > 0)) return
     pitch = step
@@ -393,10 +359,7 @@ export function createOverflow<
     if (clamped > row.ceiling) clamped = row.ceiling
     while (collapsed.has(clamped) && clamped < row.ceiling) clamped++
     if (clamped > row.ceiling) clamped = row.ceiling
-    // A priced step keeps the sub-pitch remainder. Pinning the basis to the
-    // current free spends it, and a drag of small steps then stops one slot
-    // early. An overflow correction is not priced: that count failed, and
-    // the slack stays spent so the next pixel does not ask again.
+    // Priced steps keep the sub-pitch remainder. Spending it stops a drag one slot early.
     if (priced && pitch > 0 && basisCount > 0) basisFree += (clamped - basisCount) * pitch
     else basisFree = row.free
     basisCount = clamped
@@ -410,16 +373,11 @@ export function createOverflow<
     if (target.value !== clamped) target.value = clamped
   }
 
-  // A settled row scales with the free space. Sub-pitch motion keeps the
-  // same basis so it can accumulate; refreshing the basis here spends the
-  // slack and the row never grows. Searching here repaints every guess.
-  // Returns true when this call has finished with the row.
   function rescale (row: ProbeRow): boolean {
     if (row.contentChanged || !(pitch > 0) || !(basisCount > 0)) return false
     const moved = Math.trunc((row.free - basisFree) / pitch)
     const projected = basisCount + moved
-    // Fewer slots than asked: fall through so the shortfall handler can
-    // climb off the visible<=2 cliff.
+    // Caller rendered fewer slots than asked. Let seekFit climb.
     if (row.committed && row.count < target.value) return false
     if (!row.fits && row.committed && row.count === target.value) {
       const drop = projected < row.count ? row.count - projected : 1
@@ -433,9 +391,7 @@ export function createOverflow<
     return true
   }
 
-  // The resize guess is already on screen. If it overflows, drop one slot
-  // and remember that, so the next move does not ask for the same count.
-  // Stepping up here is what flashes a button on every pixel of a drag.
+  // Do not add a slot here. That flashes a button on every pixel of a drag.
   function accept (row: ProbeRow): boolean {
     if (!predicted || row.contentChanged) return false
     if (!row.committed || row.count > target.value) return true
@@ -456,17 +412,10 @@ export function createOverflow<
   }
 
   function seekFit (row: ProbeRow) {
-    // Width and parent observers fire while the caller is still painting the
-    // count we asked for. A short or overflowing frame there is not evidence.
-    // The only thing an uncommitted settle may do is grow a row that already
-    // matches the ask and fits — that is how a shrink-wrapped nav notices the
-    // parent got wider without a width change of its own.
+    // Uncommitted settles run before paint. Only a row that already matches the ask and fits may move.
     if (!row.committed && (target.value === Infinity || row.count !== target.value || !row.fits)) return
 
-    // Fewer children than we asked for, and the caller says this is the
-    // finished render. Pagination draws one button for `visible <= 2`, so
-    // that ask is skipped and the next count is tried. Two identical
-    // shortfalls in a row means there is no further page to mount.
+    // Finished render came back short. Skip that count and try the next.
     if (row.fits && target.value !== Infinity && row.count < target.value) {
       collapsed.add(target.value)
       fitting.value = true
@@ -503,9 +452,6 @@ export function createOverflow<
         return
       }
       if (high === null) {
-        // The narrowest measured button, not the average. The next count
-        // adds a label that may be narrower than the ones on screen, and
-        // stopping on the average is how a row gives up with room left.
         const narrowest = Math.min(...row.entries)
         const room = row.live - (row.sum + row.gapPx * Math.max(0, row.count - 1) + row.reservedPx)
         const step = narrowest + row.gapPx
@@ -555,16 +501,13 @@ export function createOverflow<
     const gapPx = toValue(gap)
     const reservedPx = toValue(reserved)
     const sum = entries.reduce((acc, item) => acc + item, 0)
-    // reserved carries one gap per control, so the page run adds count - 1.
-    // Together that is every gap in a single row, plus each item's own margin.
+    // reserved already includes one gap per control.
     let fits = sum + gapPx * Math.max(0, count - 1) + reservedPx <= live + 0.5
     const nav = container.value as HTMLElement | null
     if (fits && nav && nav.clientWidth > 0 && nav.scrollWidth > nav.clientWidth + 1) fits = false
 
     const sig = signature()
     const contentChanged = count === lastCount && sig !== lastSignature
-    // Page navigation changes the labels at the same count. That has to
-    // search again. A resize keeps the pitch of the row that already fit.
     if (contentChanged) forget()
     lastCount = count
     lastSignature = sig

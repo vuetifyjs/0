@@ -896,7 +896,6 @@ describe('createOverflow', () => {
     it('should ask for more slots when the rendered row has room', () => {
       const overflow = render([40, 40, 40, 40], { budget: 200 })
 
-      // 160 used, one more 40 still fits, so the guess steps up and waits to be checked.
       expect(overflow.capacity.value).toBe(5)
       expect(overflow.isOverflowing.value).toBe(false)
     })
@@ -912,7 +911,7 @@ describe('createOverflow', () => {
       for (const [index, width] of [50, 50, 50, 50, 50].entries()) overflow.measure(index, box(width))
       overflow.settle()
 
-      // 5×50 does not fit. 4 was already shown to fit, and 5 is the first failure, so the bracket is closed.
+      // 4 already fit, so the bracket closes on 5.
       expect(overflow.capacity.value).toBe(4)
     })
 
@@ -942,7 +941,7 @@ describe('createOverflow', () => {
       for (const [index, width] of [80, 80, 80].entries()) overflow.measure(index, box(width))
       overflow.settle()
 
-      // 240 overflows. Bounds were forgotten because these are different labels, so the search starts over under the failure.
+      // Same count, new widths. The search starts over.
       expect(overflow.capacity.value).toBe(1)
       expect(overflow.isOverflowing.value).toBe(true)
     })
@@ -986,12 +985,11 @@ describe('createOverflow', () => {
       overflow.settle()
       expect(overflow.capacity.value).toBe(5)
 
-      // 5×40 no longer fits. A fresh search would halve to 2. The settled pitch scales straight to 3.
+      // Pitch scales 5 to 3. A fresh search would halve to 2.
       budget.value = 120
       overflow.settle()
       expect(overflow.capacity.value).toBe(3)
 
-      // And a budget that fits one button does not stop at the halfway guess.
       budget.value = 40
       overflow.settle()
       expect(overflow.capacity.value).toBe(1)
@@ -1005,7 +1003,7 @@ describe('createOverflow', () => {
       overflow.settle()
       expect(overflow.capacity.value).toBe(5)
 
-      // Half a slot. Spending this slack would leave the next step with nothing to add.
+      // Half a pitch. Keep the slack.
       budget.value = 220
       overflow.settle()
       expect(overflow.capacity.value).toBe(5)
@@ -1014,13 +1012,12 @@ describe('createOverflow', () => {
       overflow.settle()
       expect(overflow.capacity.value).toBe(6)
 
-      // The caller paints the ask, as Pagination does before its committed settle.
+      // Paint the asked count before the next committed settle.
       overflow.reset()
       for (const [index, width] of [40, 40, 40, 40, 40, 40].entries()) overflow.measure(index, box(width))
       overflow.settle()
       expect(overflow.capacity.value).toBe(6)
 
-      // The 40px that bought the sixth slot must not also consume the change past it.
       budget.value = 250
       overflow.settle()
       expect(overflow.capacity.value).toBe(6)
@@ -1043,8 +1040,7 @@ describe('createOverflow', () => {
       const asked = overflow.capacity.value
       expect(asked).toBeGreaterThan(4)
 
-      // The automatic observer settles uncommitted. A row that has not
-      // mounted the ask yet must not be recorded as a count the caller refused.
+      // Uncommitted. A short row is not a refused count.
       overflow.settle(false)
       expect(overflow.capacity.value).toBe(asked)
 
