@@ -31,7 +31,7 @@
   }
 
   export const [useSnackbarQueueContext, provideSnackbarQueueContext] =
-    createContext<SnackbarQueueContext | null>({ suffix: 'queue' })
+    /* @__PURE__ */ createContext<SnackbarQueueContext | null>({ suffix: 'queue' })
 
   export interface SnackbarQueueProps extends AtomProps {
     /** Which notifications instance to connect to. @default 'v0:notifications' */

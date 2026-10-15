@@ -43,7 +43,7 @@
     unregisterColumn: (id: string) => void
   }
 
-  export const [useDataGridRow, provideDataGridRow] = createContext<DataGridRowContext | null>({ suffix: 'row' })
+  export const [useDataGridRow, provideDataGridRow] = /* @__PURE__ */ createContext<DataGridRowContext | null>({ suffix: 'row' })
 
   export interface DataGridRowProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:data-grid' */

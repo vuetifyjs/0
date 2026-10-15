@@ -57,7 +57,7 @@
   }
 
   const [usePortal, providePortal] =
-    createContext<SnackbarPortalContext | null>({ suffix: 'portal' })
+    /* @__PURE__ */ createContext<SnackbarPortalContext | null>({ suffix: 'portal' })
 
   export { usePortal as useSnackbarPortalContext }
 

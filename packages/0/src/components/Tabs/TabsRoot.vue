@@ -95,7 +95,7 @@
     rootId: string
   }
 
-  export const [useTabsRoot, provideTabsRoot] = createContext<TabsContext>()
+  export const [useTabsRoot, provideTabsRoot] = /* @__PURE__ */ createContext<TabsContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

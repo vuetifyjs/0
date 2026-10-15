@@ -30,7 +30,7 @@
     context: DataGridContext<T>
   }
 
-  const [_useDataGridRoot, provideDataGridRoot] = createContext<DataGridContext<object>>()
+  const [_useDataGridRoot, provideDataGridRoot] = /* @__PURE__ */ createContext<DataGridContext<object>>()
 
   export function useDataGridRoot<
     T extends object = object,

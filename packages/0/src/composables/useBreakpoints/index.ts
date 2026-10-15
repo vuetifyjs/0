@@ -293,7 +293,7 @@ function createBreakpointsFallback (options: BreakpointsOptions = {}): Breakpoin
 }
 
 export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints] =
-  createPluginContext<BreakpointsContextOptions, BreakpointsContext>(
+  /* @__PURE__ */ createPluginContext<BreakpointsContextOptions, BreakpointsContext>(
     'v0:breakpoints',
     options => createBreakpoints(options),
     {

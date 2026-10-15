@@ -115,7 +115,7 @@
     toggle: () => void
   }
 
-  export const [useSelectContext, provideSelectContext] = createContext<SelectContext>()
+  export const [useSelectContext, provideSelectContext] = /* @__PURE__ */ createContext<SelectContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

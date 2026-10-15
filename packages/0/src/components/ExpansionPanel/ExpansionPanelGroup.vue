@@ -68,7 +68,7 @@
     toggle: (id: ID) => void
   }
 
-  export const [useExpansionPanelGroup, provideExpansionPanelGroup] = createContext<SelectionContext<SelectionTicket>>()
+  export const [useExpansionPanelGroup, provideExpansionPanelGroup] = /* @__PURE__ */ createContext<SelectionContext<SelectionTicket>>()
 </script>
 
 /**

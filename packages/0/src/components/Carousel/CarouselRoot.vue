@@ -137,7 +137,7 @@
     resume: () => void
   }
 
-  export const [useCarouselRoot, provideCarouselRoot] = createContext<CarouselContext>()
+  export const [useCarouselRoot, provideCarouselRoot] = /* @__PURE__ */ createContext<CarouselContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

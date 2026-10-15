@@ -175,7 +175,7 @@
     }
   }
 
-  export const [useNumberFieldRoot, provideNumberFieldRoot] = createContext<NumberFieldRootContext>()
+  export const [useNumberFieldRoot, provideNumberFieldRoot] = /* @__PURE__ */ createContext<NumberFieldRootContext>()
 
   function parseValidateOn (value: ValidateOn) {
     const parts = String(value).split(' ')

@@ -208,7 +208,7 @@ export function createPopoverFallback (): PopoverPluginContext {
  * ```
  */
 const [createPopoverContext, createPopoverPlugin, usePopoverPlugin] =
-  createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
+  /* @__PURE__ */ createPluginContext<PopoverPluginOptions, PopoverPluginContext>(
     'v0:popover',
     createPopover,
     {

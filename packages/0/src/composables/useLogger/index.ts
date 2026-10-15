@@ -238,7 +238,7 @@ function createFallbackLogger (namespace = NAMESPACE): LoggerContext {
  * ```
  */
 const [createLoggerContext, createLoggerPlugin, useLoggerContext] =
-  createPluginContext<LoggerContextOptions, LoggerContext>(
+  /* @__PURE__ */ createPluginContext<LoggerContextOptions, LoggerContext>(
     NAMESPACE,
     options => createLogger(options),
     {

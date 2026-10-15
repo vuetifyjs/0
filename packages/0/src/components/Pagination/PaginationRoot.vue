@@ -44,9 +44,9 @@
   import type { PaginationContext, PaginationTicket } from '#v0/composables/createPagination'
   import type { RegistryContext } from '#v0/composables/createRegistry'
 
-  export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
-  export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
-  export const [usePaginationItems, providePaginationItems] = createContext<RegistryContext>({ suffix: 'items' })
+  export const [usePaginationRoot, providePaginationRoot] = /* @__PURE__ */ createContext<PaginationContext>()
+  export const [usePaginationControls, providePaginationControls] = /* @__PURE__ */ createContext<RegistryContext>({ suffix: 'controls' })
+  export const [usePaginationItems, providePaginationItems] = /* @__PURE__ */ createContext<RegistryContext>({ suffix: 'items' })
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */

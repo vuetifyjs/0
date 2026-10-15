@@ -210,7 +210,7 @@ export function createLocaleFallback (): LocaleContext {
 }
 
 export const [createLocaleContext, createLocalePlugin, useLocale] =
-  createPluginContext<LocalePluginOptions, LocaleContext>(
+  /* @__PURE__ */ createPluginContext<LocalePluginOptions, LocaleContext>(
     'v0:locale',
     options => createLocale(options),
     {

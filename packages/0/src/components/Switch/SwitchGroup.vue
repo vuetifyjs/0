@@ -73,7 +73,7 @@
     }
   }
 
-  export const [useSwitchGroup, provideSwitchGroup] = createContext<GroupContext<GroupTicket>>()
+  export const [useSwitchGroup, provideSwitchGroup] = /* @__PURE__ */ createContext<GroupContext<GroupTicket>>()
 </script>
 
 <script setup lang="ts" generic="T = unknown">

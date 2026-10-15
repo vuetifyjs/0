@@ -31,7 +31,7 @@
     context: DataTableContext<T>
   }
 
-  const [_useDataTableRoot, provideDataTableRoot] = createContext<DataTableContext<object>>()
+  const [_useDataTableRoot, provideDataTableRoot] = /* @__PURE__ */ createContext<DataTableContext<object>>()
 
   export function useDataTableRoot<
     T extends object = object,

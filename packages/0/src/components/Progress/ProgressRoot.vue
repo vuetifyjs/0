@@ -67,7 +67,7 @@
     }
   }
 
-  export const [useProgressRoot, provideProgressRoot] = createContext<ProgressRootContext>()
+  export const [useProgressRoot, provideProgressRoot] = /* @__PURE__ */ createContext<ProgressRootContext>()
 </script>
 
 <script setup lang="ts">
