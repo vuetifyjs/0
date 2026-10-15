@@ -52,9 +52,25 @@ Nothing about your stylesheet changes. There is no theme to adopt, no class pref
 
 ## Installation
 
-```bash
+::: code-group no-filename
+
+```bash pnpm
 pnpm add @paper/bulma bulma
 ```
+
+```bash npm
+npm install @paper/bulma bulma
+```
+
+```bash yarn
+yarn add @paper/bulma bulma
+```
+
+```bash bun
+bun add @paper/bulma bulma
+```
+
+:::
 
 Bulma itself is an **optional** peer dependency — load it from npm, from Sass, or from a CDN. The package never imports it.
 
