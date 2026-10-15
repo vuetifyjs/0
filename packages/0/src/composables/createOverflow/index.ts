@@ -79,16 +79,9 @@ export interface OverflowOptions {
   itemWidth?: MaybeRefOrGetter<number>
   /**
    * Fit a count that is not mounted yet. Render `capacity`, measure, then call `settle()`. Off by default.
-   *
    * @example
    * ```ts
-   * const overflow = createOverflow({
-   *   container,
-   *   probe: true,
-   *   gap: 4,
-   *   reserved: controlWidths,
-   *   max: () => totalVisible,
-   * })
+   * const overflow = createOverflow({ container, probe: true, max: () => totalVisible })
    * ```
    */
   probe?: boolean
@@ -226,34 +219,27 @@ export function createOverflow<
     widths.value = new Map()
   }
 
-  // low: largest count that fit. high: smallest that overflowed.
-  // Same count with new widths clears the search. A resize scales basisCount by pitch.
+  // low: largest count that fit. high: smallest that overflowed (0 = unknown).
+  // Same count with new widths clears the search. A resize scales by the narrowest item,
+  // not the average — the average includes the wide last page and the next drag stops short.
   const target = shallowRef(Infinity)
   const fitting = shallowRef(true)
   let low = 0
-  let high: number | null = null
+  let high = 0
   let lastCount = -1
   let lastSignature = ''
   let steps = 0
   const seen = new Set<number>()
-  // Counts the caller rendered shorter than asked. visible <= 2 is one button.
+  // Counts the caller rendered shorter than asked. visible <= 2 comes back as one button.
   const collapsed = new Set<number>()
   let lastShort = -1
-  // Pixels per extra slot, from the narrowest measured item.
-  // The average includes the wide last page, and a later resize stops short.
   let pitch = 0
   let basisCount = 0
   let basisFree = 0
-  function signature (): string {
-    return [...widths.value.entries()]
-      .toSorted((a, b) => a[0] - b[0])
-      .map(([index, item]) => `${index}:${Math.round(item)}`)
-      .join(',')
-  }
 
   function forget () {
     low = 0
-    high = null
+    high = 0
     steps = 0
     seen.clear()
     lastShort = -1
@@ -279,12 +265,10 @@ export function createOverflow<
   }
 
   // A flex-grow sibling with min-width:auto is free space.
-  // An explicit px min-width, or a sibling that does not grow, is not.
+  // An explicit px min, or a sibling that does not grow, is not.
   function claimable (el: HTMLElement): number {
-    const own = width.value
     const parent = el.parentElement
-    if (!parent) return own
-
+    if (!parent) return width.value
     const parentStyle = getComputedStyle(parent)
     let others = 0
     let kids = 0
@@ -300,16 +284,13 @@ export function createOverflow<
         : (grows ? 0 : child.getBoundingClientRect().width)
       others += min + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
     }
-    const parentGap = pxToNumber(parentStyle.columnGap) || pxToNumber(parentStyle.gap)
-    const gaps = kids > 1 ? parentGap * (kids - 1) : 0
+    const gapPx = pxToNumber(parentStyle.columnGap) || pxToNumber(parentStyle.gap)
     const style = getComputedStyle(el)
     const chrome = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
       + pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
       + pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
-    const parentContent = parent.clientWidth
-      - pxToNumber(parentStyle.paddingLeft)
-      - pxToNumber(parentStyle.paddingRight)
-    return Math.max(own, parentContent - others - gaps - chrome)
+    const inner = parent.clientWidth - pxToNumber(parentStyle.paddingLeft) - pxToNumber(parentStyle.paddingRight)
+    return Math.max(width.value, inner - others - Math.max(0, kids - 1) * gapPx - chrome)
   }
 
   function liveBudget (): number {
@@ -321,46 +302,40 @@ export function createOverflow<
 
   function settle (committed = true) {
     if (!probe) return
-
     const live = liveBudget()
     if (!(live > 0)) {
       if (target.value !== Infinity) target.value = Infinity
       return
     }
-
     const entries = [...widths.value.values()]
     const count = entries.length
     if (count === 0) return
 
     const gapPx = toValue(gap)
     const reservedPx = toValue(reserved)
-    const sum = entries.reduce((acc, item) => acc + item, 0)
     // reserved already includes one gap per control.
-    const cost = sum + gapPx * Math.max(0, count - 1) + reservedPx
-    let fits = cost <= live + 0.5
+    const cost = entries.reduce((acc, item) => acc + item, 0) + gapPx * Math.max(0, count - 1) + reservedPx
     const nav = container.value as HTMLElement | null
-    if (fits && nav && nav.clientWidth > 0 && nav.scrollWidth > nav.clientWidth + 1) fits = false
-
-    const sig = signature()
-    const contentChanged = count === lastCount && sig !== lastSignature
-    if (contentChanged) forget()
+    const fits = cost <= live + 0.5 && !(nav && nav.clientWidth > 0 && nav.scrollWidth > nav.clientWidth + 1)
+    const sig = [...widths.value.entries()]
+      .toSorted((a, b) => a[0] - b[0])
+      .map(([index, item]) => `${index}:${Math.round(item)}`)
+      .join(',')
+    if (count === lastCount && sig !== lastSignature) forget()
     lastCount = count
     lastSignature = sig
 
-    const ceilingRaw = toValue(max)
-    const ceiling = isNumber(ceilingRaw) && ceilingRaw > 0 ? Math.floor(ceilingRaw) : Infinity
+    const raw = toValue(max)
+    const ceiling = isNumber(raw) && raw > 0 ? Math.floor(raw) : Infinity
     const free = live - reservedPx
     const step = Math.min(...entries) + gapPx
 
-    function pin () {
-      if (!(step > 0)) return
-      pitch = step
-      basisCount = count
-      basisFree = free
-    }
-
     function stay () {
-      pin()
+      if (step > 0) {
+        pitch = step
+        basisCount = count
+        basisFree = free
+      }
       assign(count)
     }
 
@@ -368,22 +343,23 @@ export function createOverflow<
       let clamped = Math.max(1, Math.min(ceiling, Math.floor(next)))
       while (collapsed.has(clamped) && clamped < ceiling) clamped++
       // Priced steps keep the sub-pitch remainder. Spending it stops a drag one slot early.
-      if (priced && pitch > 0 && basisCount > 0) basisFree += (clamped - basisCount) * pitch
+      if (priced) basisFree += (clamped - basisCount) * pitch
       else basisFree = free
       basisCount = clamped
       seen.clear()
       steps = 0
       low = 0
-      high = null
+      high = 0
       lastShort = -1
       if (!fits) fitting.value = false
       if (target.value !== clamped) target.value = clamped
     }
 
     function slide (): boolean {
-      if (contentChanged || !(pitch > 0) || !(basisCount > 0)) return false
+      // forget() already dropped the pitch, so a width change cannot take this path.
+      if (!(pitch > 0)) return false
       const projected = basisCount + Math.trunc((free - basisFree) / pitch)
-      // Caller rendered fewer slots than asked. Let the search climb.
+      // Fewer slots than asked. Let the search climb past the refused count.
       if (committed && count < target.value) return false
       if (!fits && committed && count === target.value) place(projected < count ? projected : count - 1)
       else if (projected > basisCount || (projected < basisCount && !fits)) place(projected, true)
@@ -392,18 +368,16 @@ export function createOverflow<
 
     function down () {
       fitting.value = false
-      high = high === null ? count : Math.min(high, count)
+      high = high > 0 ? Math.min(high, count) : count
       if (low >= count) low = 0
       if (count <= 1) return assign(1)
       assign(Math.min(count - 1, Math.max(low, Math.floor((low + count) / 2))))
     }
 
     function search () {
-      // Uncommitted settles run before paint. Only a row that already matches the ask and fits may move.
+      // Uncommitted settles run before paint. A half row is not a refused count.
       if (!committed && (target.value === Infinity || count !== target.value || !fits)) return
-
       const short = fits && target.value !== Infinity && count < target.value
-      // Finished render came back short. Skip that count and try the next.
       if (short) {
         collapsed.add(target.value)
         if (count === lastShort) {
@@ -413,33 +387,22 @@ export function createOverflow<
         }
         lastShort = count
       }
-
       if (!fits) return down()
 
       fitting.value = true
       low = Math.max(low, count)
-      if (!short) {
-        if (count >= ceiling) {
-          if (count === ceiling) return stay()
-          assign(ceiling)
-          return
-        }
-        if (high !== null && high <= count + 1) return stay()
-        if (high === null) {
-          const extra = step > 0 ? Math.floor((live - cost + gapPx) / step) : 0
-          if (extra <= 0) return stay()
-          assign(Math.min(ceiling, count + Math.min(8, extra)))
-          return
-        }
+      if (!short && count >= ceiling) return count === ceiling ? stay() : assign(ceiling)
+      if (!short && high > 0 && high <= count + 1) return stay()
+      if (!short && high === 0) {
+        const extra = step > 0 ? Math.floor((live - cost + gapPx) / step) : 0
+        if (extra <= 0) return stay()
+        return assign(Math.min(ceiling, count + Math.min(8, extra)))
       }
-
       let next = count + 1
-      if (high !== null) next = Math.max(next, Math.floor((count + high) / 2))
-      if (short) {
-        while (collapsed.has(next) && next < ceiling && (high === null || next < high)) next++
-      }
-      // Asking for `high` repeats a count that already overflowed.
-      if (high !== null && next >= high) return stay()
+      if (high > 0) next = Math.max(next, Math.floor((count + high) / 2))
+      if (short) while (collapsed.has(next) && next < ceiling && (high === 0 || next < high)) next++
+      // Asking for high repeats a count that already overflowed.
+      if (high > 0 && next >= high) return stay()
       assign(Math.min(ceiling, next))
     }
 
