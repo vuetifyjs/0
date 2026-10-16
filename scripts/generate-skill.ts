@@ -26,6 +26,7 @@ interface Entry {
   level: 'stable' | 'preview' | 'draft'
   since?: string
   category: string
+  description?: string
   notes?: string
 }
 
@@ -204,16 +205,27 @@ function jsdoc (content: string, name: string): string | undefined {
   return sentence(paragraph)
 }
 
-/** Gloss priority: maturity notes → module/export JSDoc → none. Never fabricates. */
+/**
+ * Public blurb. `description` in maturity.json is the sentence written for
+ * readers. JSDoc is the fallback when that field is empty. `notes` is a
+ * maintainer comment and is never shown.
+ */
+function published (entry: Entry): string | undefined {
+  const text = entry.description?.replace(/\s+/g, ' ').trim()
+  return text || undefined
+}
+
 async function composableGloss (name: string, entry: Entry): Promise<string | undefined> {
-  if (entry.notes) return entry.notes
+  const description = published(entry)
+  if (description) return description
   const content = await readFile(resolve(SRC, `composables/${name}/index.ts`), 'utf8').catch(() => '')
   if (!content) return undefined
   return remarks(content) ?? jsdoc(content, name)
 }
 
 function utilityGloss (name: string, entry: Entry, modules: Map<string, string>): string | undefined {
-  if (entry.notes) return entry.notes
+  const description = published(entry)
+  if (description) return description
   const content = modules.get(name)
   if (!content) return undefined
   return jsdoc(content, name)
@@ -252,14 +264,8 @@ function grouped (tracked: Section): Map<string, [string, Entry][]> {
   return groups
 }
 
-function counts (maturity: Maturity, components: number, composables: number, utilityCount: number): string {
-  const categories = new Set<string>()
-  for (const section of [maturity.composables, maturity.components, maturity.utilities]) {
-    for (const entry of Object.values(section)) {
-      categories.add(entry.category)
-    }
-  }
-  return `**${components} components, ${composables} composables, ${utilityCount} utilities** across ${categories.size} categories. Compound-component APIs with WAI-ARIA semantics.`
+function counts (components: number, composables: number, utilityCount: number): string {
+  return `**${components} components, ${composables} composables, ${utilityCount} utilities.**`
 }
 
 /**
@@ -294,12 +300,13 @@ function surface (maturity: Maturity, glosses: Map<string, string | undefined>):
   const lines = [
     '## Full API surface',
     '',
-    'Every public composable and utility, grouped by category. `(stable)` and `(draft)` are marked; unmarked entries are preview.',
+    'Public composables and utilities. `(stable)` and `(draft)` are marked. Unmarked entries are preview.',
   ]
   for (const [title, section] of [['Composables', maturity.composables], ['Utilities', maturity.utilities]] as const) {
     lines.push('', `### ${title}`)
     for (const [category, group] of grouped(section)) {
-      lines.push('', `**${capitalize(category)}:**`, '')
+      const label = capitalize(category)
+      lines.push('', ...(label === title ? [] : [`**${label}:**`, '']))
       for (const [name, entry] of group) {
         const gloss = glosses.get(name)
         lines.push(`- \`${name}\`${gloss ? ` — ${gloss}` : ''}${mark(entry.level)}`)
@@ -376,7 +383,7 @@ async function main (): Promise<void> {
 
   const current = await readFile(SKILL, 'utf8')
   let content = current
-  content = inject(content, 'counts', counts(maturity, components.length, composables.length, modules.size))
+  content = inject(content, 'counts', counts(components.length, composables.length, modules.size))
   content = inject(content, 'components', list(maturity.components))
   content = inject(content, 'api', surface(maturity, glosses))
 
