@@ -8,8 +8,8 @@ Real-world examples of v0 headless components. All styling uses UnoCSS utility c
 ## Contents
 
 - Tabs Component — compound root/list/item/panel pattern
-- Dialog Component — modal with scrim, focus trap, and portal
-- Popover Component — floating UI with anchor positioning
+- Dialog Component — native dialog (focus trap, backdrop, escape)
+- Popover Component — anchored overlay
 - Checkbox Component — controlled + uncontrolled variants
 - Radio Component — grouped single-selection
 
@@ -131,28 +131,26 @@ function onDelete() {
       </button>
     </Dialog.Activator>
 
-    <Dialog.Content class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-xl">
-        <Dialog.Title class="text-xl font-semibold mb-4">
-          Confirm Deletion
-        </Dialog.Title>
+    <Dialog.Content class="w-[90%] max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <Dialog.Title class="text-xl font-semibold mb-4">
+        Confirm Deletion
+      </Dialog.Title>
 
-        <Dialog.Description class="text-gray-500 mb-6 leading-relaxed">
-          This action cannot be undone. Are you sure you want to delete this item?
-        </Dialog.Description>
+      <Dialog.Description class="text-gray-500 mb-6 leading-relaxed">
+        This action cannot be undone. Are you sure you want to delete this item?
+      </Dialog.Description>
 
-        <div class="flex gap-3 justify-end">
-          <Dialog.Close class="px-4 py-2 bg-gray-100 text-gray-800 rounded cursor-pointer hover:bg-gray-200">
-            Cancel
-          </Dialog.Close>
+      <div class="flex gap-3 justify-end">
+        <Dialog.Close class="px-4 py-2 bg-gray-100 text-gray-800 rounded cursor-pointer hover:bg-gray-200">
+          Cancel
+        </Dialog.Close>
 
-          <button
-            class="px-4 py-2 bg-red-600 text-white rounded cursor-pointer hover:bg-red-700"
-            @click="onDelete"
-          >
-            Delete
-          </button>
-        </div>
+        <button
+          class="px-4 py-2 bg-red-600 text-white rounded cursor-pointer hover:bg-red-700"
+          @click="onDelete"
+        >
+          Delete
+        </button>
       </div>
     </Dialog.Content>
   </Dialog.Root>
@@ -233,9 +231,9 @@ const options = reactive([
     >
       <Checkbox.Root v-model="option.checked">
         <Checkbox.Indicator
-          class="size-4.5 border-2 border-gray-300 rounded flex items-center justify-center transition-colors data-[checked]:bg-blue-600 data-[checked]:border-blue-600"
+          class="size-4.5 border-2 border-gray-300 rounded flex items-center justify-center transition-colors data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:[&>span]:opacity-100"
         >
-          <span class="i-mdi-check text-white text-xs opacity-0 data-[checked]:opacity-100 transition-opacity" />
+          <span class="i-mdi-check text-white text-xs opacity-0 transition-opacity" />
         </Checkbox.Indicator>
       </Checkbox.Root>
 
@@ -271,12 +269,12 @@ const themes = [
       v-for="theme in themes"
       :key="theme.value"
       :value="theme.value"
-      class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 data-[checked]:border-blue-600 data-[checked]:bg-blue-50"
+      class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border border-gray-200 transition-colors hover:bg-gray-50 data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-50"
     >
       <Radio.Indicator
-        class="mt-0.5 size-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-colors data-[checked]:border-blue-600"
+        class="mt-0.5 size-5 border-2 border-gray-300 rounded-full flex items-center justify-center transition-colors data-[state=checked]:border-blue-600 data-[state=checked]:[&>div]:opacity-100"
       >
-        <div class="size-2 bg-blue-600 rounded-full opacity-0 data-[checked]:opacity-100 transition-opacity" />
+        <div class="size-2 bg-blue-600 rounded-full opacity-0 transition-opacity" />
       </Radio.Indicator>
 
       <span class="flex-1">

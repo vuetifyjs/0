@@ -116,7 +116,7 @@ const theme = inject('theme') // Could be undefined!
 
 ```ts
 // GOOD - Type-safe context
-const [useTheme, provideTheme] = createContext<ThemeState>('Theme')
+const [useTheme, provideTheme] = createContext<ThemeState>('v0:theme')
 
 // Provider
 provideTheme(themeState)
@@ -139,7 +139,7 @@ const globalTheme = reactive({ mode: 'light' })
 
 ```ts
 // GOOD - Proper context hierarchy
-const [useTheme, provideTheme] = createContext<Theme>('Theme')
+const [useTheme, provideTheme] = createContext<Theme>('v0:theme')
 // Each provider creates isolated scope
 ```
 
@@ -174,17 +174,17 @@ const validateEmail = () => {
 
 ```ts
 // GOOD - Use createForm
-const form = createForm()
+import { shallowRef } from 'vue'
+import { createForm, createValidation } from '@vuetify/v0'
 
-form.register({
-  id: 'email',
-  value: '',
-  rules: [
-    v => !!v || 'Required',
-    v => v.includes('@') || 'Invalid email',
-    async v => await checkAvailable(v) || 'Email taken'
-  ]
+const form = createForm()
+const email = shallowRef('')
+const validation = createValidation({
+  value: email,
+  rules: ['required', 'email'],
 })
+
+form.register({ value: validation })
 ```
 
 ## Browser Anti-Patterns
@@ -296,8 +296,8 @@ const unregister = (id: string) => {
 // GOOD - Use registry
 const registry = createRegistry<Item>()
 
-// Auto-cleanup on component unmount
-registry.register({ id: 'item1', value: item })
+const ticket = registry.register({ id: 'item1', value: item })
+onBeforeUnmount(() => ticket.unregister())
 ```
 
 ## Performance Anti-Patterns
@@ -307,7 +307,7 @@ registry.register({ id: 'item1', value: item })
 // BAD - Creating composables inside computed/watch
 const count = computed(() => {
   const selection = createSelection() // New instance every time!
-  return selection.selected.value.size
+  return selection.selectedIds.size
 })
 
 // Problems:
@@ -320,7 +320,7 @@ const count = computed(() => {
 ```ts
 // GOOD - Create once, use many times
 const selection = createSelection()
-const selectedCount = computed(() => selection.selected.value.size)
+const selectedCount = computed(() => selection.selectedIds.size)
 ```
 
 ### ❌ Not Using Provided Utilities
@@ -353,29 +353,23 @@ const result = mergeDeep(target, source) // Safe & optimized
 
 ## Component Anti-Patterns
 
-### ❌ Overriding Component Structure
-```ts
-// BAD - Breaking compound component patterns
+### ❌ Replacing compound parts with plain elements
+```vue
+<!-- BAD - a div and a button are not a tablist -->
 <Tabs.Root>
-  <div class="my-custom-wrapper">
-    <Tabs.List>
-      <!-- This breaks the component relationship -->
-    </Tabs.List>
+  <div>
+    <button>Overview</button>
   </div>
 </Tabs.Root>
-
-// Problems:
-// - Breaks ARIA relationships
-// - Loses keyboard navigation
-// - Breaks focus management
-// - Accessibility issues
 ```
 
-```ts
-// GOOD - Follow component structure
+A wrapper between `Tabs.Root` and `Tabs.List` does not break this. Context is provide/inject, and `aria-controls` links by id. Dropping `Tabs.List` and `Tabs.Item` does: no `tablist` or `tab` role, no arrow-key navigation.
+
+```vue
+<!-- GOOD -->
 <Tabs.Root>
   <Tabs.List class="my-custom-styles">
-    <!-- Keep proper structure, add styling -->
+    <Tabs.Item value="overview">Overview</Tabs.Item>
   </Tabs.List>
 </Tabs.Root>
 ```
@@ -391,10 +385,9 @@ const result = mergeDeep(target, source) // Safe & optimized
 </div>
 
 // Problems:
+// - No dialog role
 // - No focus trap
-// - No ARIA attributes
-// - No keyboard handling
-// - No portal rendering
+// - No backdrop or escape-to-close
 // - Accessibility issues
 ```
 
@@ -474,7 +467,7 @@ export const [useRoot, provideRoot] = createContext('accordion')
 export const [useRoot, provideRoot] = createContext('v0:accordion')
 ```
 
-Keys without `:` violate v0's §9.3 contract and will throw in strict mode.
+A key without `:` warns in development. It does not throw.
 
 ---
 
