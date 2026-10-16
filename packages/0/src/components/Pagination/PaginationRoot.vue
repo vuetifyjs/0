@@ -31,6 +31,7 @@
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useRaf } from '#v0/composables/useRaf'
 
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
@@ -201,15 +202,7 @@
     overflow.settle(index >= asked && asked > 0)
   }
 
-  let frame = 0
-  function schedule () {
-    if (!IN_BROWSER) return
-    const id = ++frame
-    requestAnimationFrame(() => {
-      if (id !== frame) return
-      sync()
-    })
-  }
+  const schedule = useRaf(sync)
 
   watch(
     () => [pagination.items.value, controls.size, overflow.width.value] as const,
