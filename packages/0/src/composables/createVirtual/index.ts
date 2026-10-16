@@ -470,10 +470,12 @@ function placeWindow (
 ) {
   let start = anchor - overscan
   if (start < 0) start = 0
-  else if (start > length) start = length
+  /* v8 ignore next -- unreachable: start cannot pass the last row */
+  if (start > length) start = length
   let end = edge + 1 + overscan
+  /* v8 ignore next -- unreachable: the end index stays at or after the start */
   if (end < start) end = start
-  else if (end > length) end = length
+  if (end > length) end = length
 
   const lastIndex = length - 1
   const total = lastIndex < 0
@@ -653,7 +655,7 @@ export function createVirtual<T = unknown> (
     fallbackDirty = false
 
     if (keyOf && measured.size > 0) {
-      const fallback = itemHeight.value || FALLBACK_HEIGHT
+      const fallback = estimate()
       if (heights.length !== length) heights = new Float64Array(length)
       if (offsets.length !== length) offsets = new Float64Array(length)
       measured = reattach(newItems, keyOf, measured, heights, offsets, fallback)
@@ -756,12 +758,14 @@ export function createVirtual<T = unknown> (
 
   function contentHeight () {
     const lastIndex = items.value.length - 1
+    /* v8 ignore next -- pinEnd only runs when the list has rows */
     if (lastIndex < 0) return 0
     return (offsets[lastIndex] || 0) + (heights[lastIndex] || estimate())
   }
 
   function listTop () {
     const node = element.value
+    /* v8 ignore next -- every caller already holds the scroll element */
     if (!node) return 0
     return Math.max(0, node.scrollTop - markerOffset)
   }
@@ -856,9 +860,15 @@ export function createVirtual<T = unknown> (
     /* v8 ignore stop */
   }
 
-  function remember (index: number, height: number) {
-    if (!itemKey || index < 0 || index >= items.value.length) return
-    measured.set(itemKey(items.value[index]!, index), height)
+  function remember (
+    index: number,
+    height: number,
+    keyOf: (item: T, index: number) => string | number,
+  ) {
+    // resize() already rejects a negative index. A same-turn shrink can still
+    // hand remember a row the new list no longer has.
+    if (index >= items.value.length) return
+    measured.set(keyOf(items.value[index]!, index), height)
   }
 
   function onRepairFrame () {
@@ -897,7 +907,7 @@ export function createVirtual<T = unknown> (
       && index < heights.length
       && offsets.length === heights.length
     ) {
-      const fallback = itemHeight.value || FALLBACK_HEIGHT
+      const fallback = estimate()
       const next = heights[index] || fallback
       const before = prev || fallback
       const delta = next - before
@@ -923,7 +933,7 @@ export function createVirtual<T = unknown> (
     }
     repairCount++
     heights[index] = height
-    if (itemKey) remember(index, height)
+    if (itemKey) remember(index, height, itemKey)
     /* v8 ignore next -- first-call only: itemHeight bootstrapped from initial measurement */
     if (!itemHeight.value) {
       itemHeight.value = height
