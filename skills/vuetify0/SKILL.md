@@ -160,12 +160,6 @@ Root owns the state. Children are named sub-components and read it through `crea
 
 More compound examples: [references/component-examples.md](references/component-examples.md).
 
-## Styling
-
-Emerald and Bulma are the design systems in this repo. They style v0. Genesis is the docs kit.
-
-From 4.2.0, Vuetify core depends on `@vuetify/v0` and re-exports type guards, `range`, and `findMatchRanges`. That adoption is the utility layer. Composables and components stay in v0.
-
 ## Vuetify MCP
 
 When the Vuetify MCP server is connected, use it for a guide or a release note:
