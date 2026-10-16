@@ -55,6 +55,17 @@ export default {
   Input: {
     required: 'Required',
   },
+  Kanban: {
+    cancelled: 'Move cancelled. {item} stays in {column}',
+    dropped: '{item} dropped in {column}, position {position} of {size}',
+    grabbed: '{item} picked up in {column}, position {position} of {size}. Use the arrow keys to move, Space or Enter to drop, Escape to cancel.',
+    instructions: 'Press Space or Enter to pick up an item. Use the arrow keys to choose where it goes, Space or Enter to drop it, and Escape to cancel.',
+    item: 'Item',
+    label: 'Board',
+    over: '{item} over {column}, position {position} of {size}',
+    rejected: '{item} cannot move there',
+    roledescription: 'draggable item',
+  },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',
