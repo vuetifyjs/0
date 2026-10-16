@@ -294,7 +294,7 @@ export function createOverflow<
     return Math.max(width.value, inner - others - Math.max(0, kids - 1) * gapPx - chrome)
   }
 
-  function liveBudget (): number {
+  function room (): number {
     const explicit = toValue(budget)
     if (isNumber(explicit) && explicit > 0) return explicit
     if (!IN_BROWSER || !container.value) return width.value
@@ -303,7 +303,7 @@ export function createOverflow<
 
   function settle (committed = true) {
     if (!probe) return
-    const live = liveBudget()
+    const live = room()
     if (!(live > 0)) {
       if (target.value !== Infinity) target.value = Infinity
       return
