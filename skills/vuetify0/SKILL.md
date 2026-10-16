@@ -27,6 +27,25 @@ In this repo, import internals from `#v0/` (`#v0/composables`, `#v0/utilities`, 
 
 Most `use*` composables run without a plugin and fall back to defaults. `useDate` does not: install `createDatePlugin` with an adapter, or the call throws. For app-wide theme, locale, storage, or breakpoints, install `createThemePlugin`, `createLocalePlugin`, `createStoragePlugin`, or `createBreakpointsPlugin`.
 
+Selection and a button. Neither needs a plugin.
+
+```vue
+<script setup lang="ts">
+  import { createSelection } from '@vuetify/v0'
+  import { Button } from '@vuetify/v0/components'
+
+  const filters = createSelection({ multiple: true })
+
+  filters.register({ id: 'open' })
+</script>
+
+<template>
+  <Button.Root @click="filters.toggle('open')">
+    {{ filters.selectedIds.has('open') ? 'Open' : 'Closed' }}
+  </Button.Root>
+</template>
+```
+
 ## Decision table
 
 Match the first column. If a row fits, use that API. The rows are the usual cases. The rest of the components, composables, and utilities are listed at the end of this skill.
