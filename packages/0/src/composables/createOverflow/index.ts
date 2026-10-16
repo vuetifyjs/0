@@ -46,6 +46,7 @@
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+import { useRaf } from '#v0/composables/useRaf'
 import { useElementSize, useResizeObserver } from '#v0/composables/useResizeObserver'
 
 // Transformers
@@ -410,17 +411,10 @@ export function createOverflow<
     search()
   }
 
-  let frame = 0
-  function schedule () {
-    if (!IN_BROWSER) return
-    const id = ++frame
-    requestAnimationFrame(() => {
-      if (id !== frame) return
+  if (probe) {
+    const schedule = useRaf(() => {
       settle(false)
     })
-  }
-
-  if (probe) {
     watch(width, () => schedule(), { flush: 'post' })
     useResizeObserver(
       () => container.value?.parentElement,
