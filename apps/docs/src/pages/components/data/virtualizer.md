@@ -24,7 +24,7 @@ Headless virtualized list that mounts only the rows inside (and slightly beyond)
 
 ## Usage
 
-`Virtualizer.Root` renders the scroll container and the spacers that stand in for off-screen rows. Its default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. The container needs a definite height — the `height` prop, an `h-*` class, or a flex or grid parent that sizes it. `max-height` alone is not enough: the container starts at zero height, so no rows render to grow it.
+`Virtualizer.Root` renders the scroll container. Place `Virtualizer.Spacer` before the rows and `Virtualizer.Spacer` with `edge="end"` after them; those reserve the height of the rows that are not mounted. The default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. Set `as` when the container cannot hold a `div`: `as="ul"` on Root, `as="li"` on Spacer and Item. The container needs a definite height — the `height` prop, an `h-*` class, or a flex or grid parent that sizes it. `max-height` alone is not enough: the container starts at zero height, so no rows render to grow it.
 
 ::: gn-example
 /components/virtualizer/basic
@@ -39,14 +39,18 @@ Headless virtualized list that mounts only the rows inside (and slightly beyond)
 
 <template>
   <Virtualizer.Root>
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item />
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
 
 ## Architecture
 
-Root wraps [createVirtual](/composables/data/create-virtual) and provides it to every Item. Root owns the scroll container, the leading and trailing spacers, and the visible window; each Item measures its own border box with a `ResizeObserver` and reports it back through `resize(index, height)`.
+Root wraps [createVirtual](/composables/data/create-virtual) and provides it to every Item and Spacer. Root owns the scroll container and the visible window. Each Spacer paints the reserved height for its edge (`offset` above the window, `size` below it). Each Item measures its own border box with a `ResizeObserver` and reports it back through `resize(index, height)`.
 
 ```mermaid "Virtualizer data flow"
 flowchart LR
@@ -54,7 +58,7 @@ flowchart LR
   Root -- "visible window" --> slot["default slot"]
   slot --> Item["Virtualizer.Item"]
   Item -- "resize(index, height)" --> Root
-  Root -- "offset / size" --> spacers["start / end spacers"]
+  Root -- "offset / size" --> Spacer["Virtualizer.Spacer"]
 ```
 
 `itemHeight` is the estimate for rows that have not rendered yet. Omit it and the first measured row becomes the estimate. Rows with padding or borders are measured by their border box, so they do not drift.
@@ -79,6 +83,8 @@ The measurement is the row's border box, so margins are not counted. Space rows 
 
 <template>
   <Virtualizer.Root v-slot="{ items }" :height="480" :items="messages">
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in items"
       :key="item.raw.id"
@@ -87,6 +93,8 @@ The measurement is the row's border box, so margins are not counted. Space rows 
     >
       {{ item.raw.body }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
@@ -132,6 +140,8 @@ They only fire in response to scrolling — never on mount. A list shorter than 
     :items="rows"
     @bottom="onBottom"
   >
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in items"
       :key="item.raw"
@@ -139,13 +149,15 @@ They only fire in response to scrolling — never on mount. A list shorter than 
     >
       Row {{ item.raw }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
 
 ### Scrolling to an item
 
-`scrollTo(index, options)` and `reset()` are available two ways: from Root's default slot, and from a template ref on Root. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Controls inside the list belong in the rows — anything else rendered inside Root sits between the spacers and throws off the row offsets. Controls outside the list use the template ref (see [Outside controls](#outside-controls)).
+`scrollTo(index, options)` and `reset()` are available two ways: from Root's default slot, and from a template ref on Root. `options` accepts `behavior`, `block` (`'start' | 'center' | 'end' | 'nearest'`), and a pixel `offset`. Place the two Spacers as the first and last children. Controls inside the list belong in the rows — anything else between the Spacers throws off the row offsets. Controls outside the list use the template ref (see [Outside controls](#outside-controls)).
 
 ```vue
 <script setup lang="ts">
@@ -162,6 +174,8 @@ They only fire in response to scrolling — never on mount. A list shorter than 
     :items="rows"
     tabindex="-1"
   >
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in items"
       :key="item.raw.id"
@@ -177,6 +191,8 @@ They only fire in response to scrolling — never on mount. A list shorter than 
         Center
       </Button.Root>
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
@@ -216,6 +232,8 @@ A toolbar, search box, or "jump to" field outside the list reaches the same meth
     :item-height="40"
     :items="rows"
   >
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in items"
       :key="item.raw.id"
@@ -224,6 +242,8 @@ A toolbar, search box, or "jump to" field outside the list reaches the same meth
     >
       {{ item.raw.name }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
@@ -232,7 +252,7 @@ A toolbar, search box, or "jump to" field outside the list reaches the same meth
 
 The scroll container gets `tabindex="0"` so keyboard users can focus it and scroll with the arrow, Page Up/Down, Home, and End keys (axe `scrollable-region-focusable`). It is a default — pass your own `tabindex` (for example `-1` when focus lives on the rows) and it wins. The same goes for `overflow-y` in your own `style`.
 
-Virtualizer imposes no role. A bare row has no semantics, and the right role depends on the content — a feed, a listbox, a grid. Pass the role and its position attributes yourself; they reach the rendered element through attribute passthrough. Because only the visible window is in the DOM, `aria-setsize` and `aria-posinset` are how assistive tech learns the true list length — for `list`, `listbox`, and `feed` rows.
+Virtualizer imposes no role. A bare row has no semantics, and the right role depends on the content — a feed, a listbox, a grid. Pass the role and its position attributes yourself; they reach the rendered element through attribute passthrough. Because only the visible window is in the DOM, `aria-setsize` and `aria-posinset` are how assistive tech learns the true list length — for `list`, `listbox`, and `feed` rows. A native list is `as="ul"` on Root and `as="li"` on Spacer and Item; those elements already carry the list roles.
 
 ```vue
 <script setup lang="ts">
@@ -245,21 +265,26 @@ Virtualizer imposes no role. A bare row has no semantics, and the right role dep
   <Virtualizer.Root
     v-slot="{ items: visible }"
     aria-label="Contacts"
+    as="ul"
+    class="list-none p-0"
     :height="320"
     :item-height="40"
     :items="contacts"
-    role="list"
   >
+    <Virtualizer.Spacer as="li" />
+
     <Virtualizer.Item
       v-for="item in visible"
       :key="item.raw.id"
+      as="li"
       :aria-posinset="item.index + 1"
       :aria-setsize="contacts.length"
       :index="item.index"
-      role="listitem"
     >
       {{ item.raw.name }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer as="li" edge="end" />
   </Virtualizer.Root>
 </template>
 ```
@@ -304,6 +329,8 @@ A template ref on Root provides both halves: `element` is the container that kee
     :items="fruits"
     role="listbox"
   >
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in items"
       :id="item.raw.id"
@@ -316,6 +343,8 @@ A template ref on Root provides both halves: `element` is the container that kee
     >
       {{ item.raw.name }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>
 ```
@@ -327,7 +356,7 @@ A template ref on Root provides both halves: `element` is the container that kee
 | Element | Attribute | Description |
 |---------|-----------|-------------|
 | Item | `data-index` | The item's index in the full list |
-| Spacer | `data-spacer` | `start` or `end` — the placeholders for rows above and below the window |
+| Spacer | `data-spacer` | `start` or `end` — which off-screen range this `Virtualizer.Spacer` reserves |
 
 ## FAQ
 
@@ -343,11 +372,11 @@ A template ref on Root provides both halves: `element` is the container that kee
 
 ??? Does Virtualizer support renderless mode?
 
-No. The spacers and scroll measurement need the wrapper element, so Root warns and renders no spacers when `renderless` is set or `as` is `null`. Item warns too — without its element it cannot measure, so the row stops reporting its height. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
+No. Scroll measurement needs Root's wrapper element, so Root warns when `renderless` is set or `as` is `null`. Item and Spacer warn too — without an element, Item cannot measure and Spacer cannot reserve its height. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
 
 ??? What does Virtualizer render on the server?
 
-No rows. The visible window is measured from the scroll container, which only exists in the browser, so the server HTML holds the empty container and its spacers. Hydration stays consistent — the client mounts, measures, and then renders the window — but server-rendered HTML carries no row content for crawlers or no-JS readers.
+No rows. The visible window is measured from the scroll container, which only exists in the browser, so the server HTML holds the empty container. A Spacer in that tree renders at height 0 until the client measures. Hydration stays consistent — the client mounts, measures, and then renders the window — but server-rendered HTML carries no row content for crawlers or no-JS readers.
 
 ??? Can I virtualize a DataTable with this?
 

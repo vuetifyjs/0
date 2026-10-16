@@ -18,6 +18,8 @@
       :items
       role="list"
     >
+      <Virtualizer.Spacer />
+
       <Virtualizer.Item
         v-for="item in visible"
         :key="item.raw.id"
@@ -29,6 +31,8 @@
       >
         {{ item.raw.name }}
       </Virtualizer.Item>
+
+      <Virtualizer.Spacer edge="end" />
     </Virtualizer.Root>
 
     <p class="text-sm text-on-surface-variant">

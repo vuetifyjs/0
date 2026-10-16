@@ -45,8 +45,9 @@ function mountVirtualizer (options: {
     props: { items, itemHeight: 40, height: 400, ...options.props },
     attrs: options.attrs,
     slots: {
-      default: (props: { items: { index: number }[] }) =>
-        props.items.map(item =>
+      default: (props: { items: { index: number }[] }) => [
+        h(Virtualizer.Spacer as Component),
+        ...props.items.map(item =>
           h(Virtualizer.Item as Component, {
             key: item.index,
             index: item.index,
@@ -54,6 +55,8 @@ function mountVirtualizer (options: {
             ...options.item,
           }, () => `Item ${item.index}`),
         ),
+        h(Virtualizer.Spacer as Component, { edge: 'end' }),
+      ],
     },
     attachTo: document.body,
   })
@@ -68,11 +71,15 @@ function spacer (wrapper: VueWrapper, edge: 'start' | 'end') {
 }
 
 function buttonRows (props: { items: { index: number }[] }) {
-  return props.items.map(item =>
-    h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
-      h('button', { type: 'button' }, `Item ${item.index}`),
+  return [
+    h(Virtualizer.Spacer as Component),
+    ...props.items.map(item =>
+      h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
+        h('button', { type: 'button' }, `Item ${item.index}`),
+      ),
     ),
-  )
+    h(Virtualizer.Spacer as Component, { edge: 'end' }),
+  ]
 }
 
 function focusLog (events: string[]) {
@@ -130,9 +137,13 @@ describe('virtualizer (browser)', () => {
         slots: {
           default: (props: { items: { index: number }[], scrollTo: (index: number) => void }) => {
             scrollTo = props.scrollTo
-            return props.items.map(item =>
-              h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }),
-            )
+            return [
+              h(Virtualizer.Spacer as Component),
+              ...props.items.map(item =>
+                h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }),
+              ),
+              h(Virtualizer.Spacer as Component, { edge: 'end' }),
+            ]
           },
         },
         attachTo: document.body,
@@ -254,12 +265,7 @@ describe('virtualizer (browser)', () => {
       const wrapper = mount(Virtualizer.Root as unknown as Component, {
         props: { items, itemHeight: 40, height: 400, overscan: 2 },
         slots: {
-          default: (props: { items: { index: number }[] }) =>
-            props.items.map(item =>
-              h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
-                h('button', { type: 'button' }, `Item ${item.index}`),
-              ),
-            ),
+          default: buttonRows,
         },
         attachTo: document.body,
       })
@@ -301,12 +307,7 @@ describe('virtualizer (browser)', () => {
                 onFocus: () => events.push('focus'),
                 onFocusin: (event: FocusEvent) => events.push(`focusin:${(event.target as HTMLElement).tagName}`),
               }, {
-                default: (props: { items: { index: number }[] }) =>
-                  props.items.map(item =>
-                    h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () =>
-                      h('button', { type: 'button' }, `Item ${item.index}`),
-                    ),
-                  ),
+                default: buttonRows,
               })
             : h('div')
         },
@@ -396,10 +397,13 @@ describe('virtualizer (browser)', () => {
       const wrapper = mount(Virtualizer.Root as unknown as Component, {
         props: { items, itemHeight: 40, height: 400, overscan: 2 },
         slots: {
-          default: (props: { items: { index: number }[] }) =>
-            props.items.map(item =>
+          default: (props: { items: { index: number }[] }) => [
+            h(Virtualizer.Spacer as Component),
+            ...props.items.map(item =>
               h(Virtualizer.Item as Component, { key: item.index, index: item.index, style: { height: '40px' } }, () => h(name)),
             ),
+            h(Virtualizer.Spacer as Component, { edge: 'end' }),
+          ],
         },
         attachTo: document.body,
       })

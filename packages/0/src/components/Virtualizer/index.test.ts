@@ -55,14 +55,46 @@ describe('virtualizer', () => {
     restoreResizeObserver()
   })
 
-  it('should render leading and trailing spacer elements', () => {
+  it('should render no spacers of its own', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const wrapper = mount(Virtualizer.Root, {
       props: { items, itemHeight: 40, height: 500 },
     })
 
-    expect(wrapper.find('[data-spacer="start"]').exists()).toBe(true)
-    expect(wrapper.find('[data-spacer="end"]').exists()).toBe(true)
+    expect(wrapper.find('[data-spacer]').exists()).toBe(false)
+  })
+
+  it('should reserve each edge through Virtualizer.Spacer', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: () => [
+          h(Virtualizer.Spacer),
+          h(Virtualizer.Spacer, { edge: 'end' }),
+        ],
+      },
+    })
+
+    expect(wrapper.find('[data-spacer="start"]').attributes('style')).toContain('height: 0px')
+    expect(wrapper.find('[data-spacer="end"]').attributes('style')).toContain('height:')
+    expect(wrapper.findAll('[data-spacer]')).toHaveLength(2)
+  })
+
+  it('should render a spacer as the element the caller picks', () => {
+    const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
+    const wrapper = mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500, as: 'ul' },
+      slots: {
+        default: () => [
+          h(Virtualizer.Spacer, { as: 'li' }),
+          h(Virtualizer.Spacer, { as: 'li', edge: 'end' }),
+        ],
+      },
+    })
+
+    expect(wrapper.find('li[data-spacer="start"]').exists()).toBe(true)
+    expect(wrapper.find('li[data-spacer="end"]').exists()).toBe(true)
   })
 
   it('should render only the visible items via the default slot', async () => {
@@ -328,7 +360,10 @@ describe('virtualizer', () => {
       slots: {
         default: (props: { items: readonly { index: number }[] }) => {
           visible = props.items
-          return []
+          return [
+            h(Virtualizer.Spacer),
+            h(Virtualizer.Spacer, { edge: 'end' }),
+          ]
         },
       },
     })
@@ -387,7 +422,7 @@ describe('virtualizer', () => {
     expect(context?.element.value).toBeUndefined()
   })
 
-  it('should warn and render no spacers when renderless', () => {
+  it('should warn when renderless', () => {
     using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
@@ -436,6 +471,24 @@ describe('virtualizer', () => {
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Virtualizer.Item'))
   })
 
+  it.each([
+    ['renderless', { renderless: true }],
+    ['a null as', { as: null }],
+  ])('should warn when a spacer is %s', (_, props) => {
+    using warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const items = Array.from({ length: 1 }, (_, i) => ({ id: i }))
+    mount(Virtualizer.Root, {
+      props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: () => h(Virtualizer.Spacer, props),
+      },
+    })
+
+    expect(warnSpy).toHaveBeenCalledTimes(1)
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Virtualizer.Spacer'))
+  })
+
   it('should emit top and bottom with the distance from each edge', async () => {
     // happy-dom reports zero scroll metrics, so the list sits at both edges
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
@@ -472,13 +525,19 @@ describe('virtualizer', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: i }))
     const wrapper = mount(Virtualizer.Root, {
       props: { items, itemHeight: 40, height: 500 },
+      slots: {
+        default: () => [
+          h(Virtualizer.Spacer),
+          h(Virtualizer.Spacer, { edge: 'end' }),
+        ],
+      },
     })
     await nextTick()
 
     await wrapper.setProps({ items: Array.from({ length: 20 }, (_, i) => ({ id: i })) })
     await nextTick()
 
-    // No throw, spacer elements still present after the item count changes.
     expect(wrapper.find('[data-spacer="start"]').exists()).toBe(true)
+    expect(wrapper.find('[data-spacer="end"]').exists()).toBe(true)
   })
 })

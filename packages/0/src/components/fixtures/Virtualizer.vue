@@ -11,6 +11,8 @@
     :item-height="32"
     :items
   >
+    <Virtualizer.Spacer />
+
     <Virtualizer.Item
       v-for="item in visibleItems"
       :key="item.raw.id"
@@ -18,5 +20,7 @@
     >
       {{ item.raw.name }}
     </Virtualizer.Item>
+
+    <Virtualizer.Spacer edge="end" />
   </Virtualizer.Root>
 </template>

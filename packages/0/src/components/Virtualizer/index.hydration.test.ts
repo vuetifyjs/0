@@ -14,10 +14,13 @@ const items = Array.from({ length: 1000 }, (_, i) => ({ id: i, name: `Row ${i}` 
 
 function VirtualizerFixture () {
   return h(Virtualizer.Root as unknown as Component, { items, itemHeight: 40, height: 400 }, {
-    default: (props: { items: { index: number, raw: { id: number, name: string } }[] }) =>
-      props.items.map(item =>
+    default: (props: { items: { index: number, raw: { id: number, name: string } }[] }) => [
+      h(Virtualizer.Spacer as unknown as Component),
+      ...props.items.map(item =>
         h(Virtualizer.Item as unknown as Component, { key: item.raw.id, index: item.index }, () => item.raw.name),
       ),
+      h(Virtualizer.Spacer as unknown as Component, { edge: 'end' }),
+    ],
   })
 }
 

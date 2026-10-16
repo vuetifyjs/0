@@ -5,9 +5,9 @@
  *
  * @remarks
  * Root component for virtualized lists. Creates virtual-scrolling context
- * via createVirtual, provides it to Virtualizer.Item, and renders the
- * scroll container with leading/trailing spacer elements that reserve
- * space for the items scrolled out of view.
+ * via createVirtual, provides it to Virtualizer.Item and Virtualizer.Spacer,
+ * and renders the scroll container. The caller places a Spacer before the
+ * items and a Spacer with `edge="end"` after them.
  */
 
 <script lang="ts">
@@ -136,7 +136,7 @@
 
   if (bare.value) {
     const logger = useLogger()
-    logger.warn('[v0:virtualizer] `renderless` and `as="null"` are not supported on Virtualizer.Root — the spacers and scroll measurement require the wrapper element. Remove them or use createVirtual directly.')
+    logger.warn('[v0:virtualizer] `renderless` and `as="null"` are not supported on Virtualizer.Root — scroll measurement requires the wrapper element. Remove them or use createVirtual directly.')
   }
 
   const _items = toRef(() => items)
@@ -209,10 +209,6 @@
     :as
     :renderless
   >
-    <div v-if="!bare" data-spacer="start" :style="{ height: `${virtual.offset.value}px` }" />
-
     <slot v-bind="slotProps" />
-
-    <div v-if="!bare" data-spacer="end" :style="{ height: `${virtual.size.value}px` }" />
   </Atom>
 </template>
