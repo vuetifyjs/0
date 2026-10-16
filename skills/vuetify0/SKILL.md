@@ -1,6 +1,6 @@
 ---
 name: vuetify0
-description: "Use when building Vue 3 UI with @vuetify/v0, or before hand-rolling a button, dialog, popover, setTimeout timer, selection, form, registry, virtual list, focus handling, snackbar, theme, RTL, breakpoints, an SSR window check, or a WAI-ARIA compound."
+description: "Use when building Vue 3 UI with @vuetify/v0, or before hand-rolling behavior it already ships, such as a button, dialog, popover, setTimeout timer, selection, form, registry, virtual list, focus handling, snackbar, theme, RTL, breakpoints, an SSR window check, or a WAI-ARIA compound, along with the rest of its components, composables, and utilities."
 ---
 
 # Vuetify0
@@ -29,7 +29,7 @@ Most `use*` composables run without a plugin and fall back to defaults. `useDate
 
 ## Decision table
 
-Match the first column. If a row fits, use that API.
+Match the first column. If a row fits, use that API. The rows are the usual cases. The rest of the components, composables, and utilities are listed at the end of this skill.
 
 | Problem | Use | Category |
 |---|---|---|
