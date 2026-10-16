@@ -69,6 +69,20 @@ yarn add @vuetify/v0
 bun add @vuetify/v0
 ```
 
+### Nightly Builds
+
+Test unreleased changes with daily automated builds:
+
+```bash
+# From master (bug fixes)
+pnpm add @vuetify/v0@nightly
+
+# From dev (new features)
+pnpm add @vuetify/v0@nightly-dev
+```
+
+Nightlies are **unstable** and **not for production**. See the [Nightly Builds guide](https://0.vuetifyjs.com/introduction/nightly-builds) for details.
+
 ## CLI
 
 The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
