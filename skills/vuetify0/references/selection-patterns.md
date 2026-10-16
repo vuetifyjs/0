@@ -29,16 +29,17 @@ single.select('dark')
 
 // Access selected
 single.selectedValue.value // 'Dark Theme'
-single.selected.value      // Set(['dark'])
+single.selectedId.value    // 'dark'
+single.selectedIds         // Set { 'dark' }
 ```
 
 ### Mandatory Selection
 ```ts
-// Force selection - user can't deselect all
+// 'force' selects the first non-disabled item when it registers
 const themePicker = createSingle({ mandatory: 'force' })
 
-// Keep last selection - clicking selected item does nothing
-const tabs = createSingle({ mandatory: 'keep' })
+// true keeps the last selection. Clicking the selected item does nothing.
+const tabs = createSingle({ mandatory: true })
 ```
 
 ### Theme Switcher Example
@@ -48,7 +49,7 @@ const tabs = createSingle({ mandatory: 'keep' })
     <button 
       v-for="theme in themes"
       :key="theme.id"
-      :class="{ active: single.isSelected(theme.id) }"
+      :class="{ active: single.selected(theme.id) }"
       @click="single.select(theme.id)"
     >
       {{ theme.value }}
@@ -85,13 +86,13 @@ import { createSelection } from '@vuetify/v0'
 
 const selection = createSelection({ multiple: true })
 
-// Toggle items
+selection.register({ id: 'tag1' })
+selection.register({ id: 'tag2' })
 selection.toggle('tag1')
 selection.toggle('tag2')
 
-// Check selection
-selection.isSelected('tag1') // true
-selection.selected.value     // Set(['tag1', 'tag2'])
+selection.selected('tag1') // true
+selection.selectedIds      // Set { 'tag1', 'tag2' }
 ```
 
 ### Tag Selector Example
@@ -101,11 +102,11 @@ selection.selected.value     // Set(['tag1', 'tag2'])
     <button
       v-for="tag in availableTags"
       :key="tag"
-      :class="{ selected: selection.isSelected(tag) }"
+      :class="{ selected: selection.selected(tag) }"
       @click="selection.toggle(tag)"
     >
       {{ tag }}
-      <span v-if="selection.isSelected(tag)">✓</span>
+      <span v-if="selection.selected(tag)">✓</span>
     </button>
   </div>
 </template>
@@ -139,13 +140,12 @@ users.forEach(user => {
 })
 
 // Group operations
-group.selectAll()   // Select everything
-group.unselectAll() // Clear selection
-group.toggleAll()   // Smart toggle based on current state
+group.selectAll()
+group.unselectAll()
+group.toggleAll()
 
-// Tri-state logic
-group.isAllSelected // true if everything selected
-group.isMixed       // true if partially selected
+group.isAllSelected.value // true when every item is selected
+group.isMixed.value       // true when the selection is partial
 ```
 
 ### Data Table Example
@@ -157,8 +157,8 @@ group.isMixed       // true if partially selected
         <th>
           <input 
             type="checkbox"
-            :checked="group.isAllSelected"
-            :indeterminate="group.isMixed"
+            :checked="group.isAllSelected.value"
+            :indeterminate="group.isMixed.value"
             @click="group.toggleAll()"
           />
         </th>
@@ -171,7 +171,7 @@ group.isMixed       // true if partially selected
         <td>
           <input
             type="checkbox" 
-            :checked="group.isSelected(user.id)"
+            :checked="group.selected(user.id)"
             @click="group.toggle(user.id)"
           />
         </td>
@@ -298,8 +298,8 @@ tree.register({ id: 'folder1', value: 'Folder' })
 tree.register({ id: 'file1', value: 'File 1', parentId: 'folder1' })
 tree.register({ id: 'file2', value: 'File 2', parentId: 'folder1' })
 
-// Selecting parent auto-selects children
-tree.select('folder1') // Also selects file1, file2
+// Default mode is cascade: selecting a parent selects its descendants.
+tree.select('folder1')
 ```
 
 ### Selection with Dependencies
@@ -307,9 +307,9 @@ tree.select('folder1') // Also selects file1, file2
 const selection = createSelection({ multiple: true })
 
 // Custom logic for dependent selections
-watch(() => selection.selected.value, (selected) => {
-  if (selected.has('premium') && !selected.has('basic')) {
-    selection.select('basic') // Premium requires basic
+watch(() => Array.from(selection.selectedIds), ids => {
+  if (ids.includes('premium') && !ids.includes('basic')) {
+    selection.select('basic')
   }
 })
 ```
@@ -328,7 +328,7 @@ onMounted(() => {
 })
 
 // Persist selection changes
-watch(() => selection.selected.value, selected => {
-  stored.value = Array.from(selected)
+watch(() => Array.from(selection.selectedIds), ids => {
+  stored.value = ids
 })
 ```
