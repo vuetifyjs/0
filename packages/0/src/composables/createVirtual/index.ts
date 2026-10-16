@@ -39,12 +39,12 @@ import { useResizeObserver } from '#v0/composables/useResizeObserver'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { clamp, isFunction, isNumber } from '#v0/utilities'
-import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
+import { isFunction, isNumber } from '#v0/utilities'
+import { computed, nextTick, onScopeDispose, readonly, ref, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'
@@ -65,7 +65,7 @@ export interface ScrollToOptions {
   offset?: number
 }
 
-export interface VirtualOptions {
+export interface VirtualOptions<T = unknown> {
   /**
    * The height of the item.
    */
@@ -114,11 +114,55 @@ export interface VirtualOptions {
    * Whether to enable elastic scrolling.
    */
   elastic?: boolean
+  /**
+   * Element at the top of the list inside the scroll parent.
+   *
+   * Its `offsetTop` is removed from the scroll position, so a header or
+   * padding above the list does not shift the window. Omit it when the
+   * list starts at the top of the scroller.
+   *
+   * @example
+   * ```ts
+   * const marker = ref<HTMLElement>()
+   * const virtual = createVirtual(items, { marker })
+   * ```
+   */
+  marker?: MaybeRefOrGetter<HTMLElement | null | undefined>
+  /**
+   * Identity of an item.
+   *
+   * Measured heights follow this key when items are prepended, filtered,
+   * or reordered. Omit it to keep each height on its index. Duplicate keys
+   * keep the latest measurement.
+   *
+   * @example
+   * ```ts
+   * const virtual = createVirtual(items, {
+   *   itemKey: item => item.id,
+   * })
+   * ```
+   */
+  itemKey?: (item: T, index: number) => string | number
+  /**
+   * Write momentum and overscroll styles onto the scroll element.
+   *
+   * Set this to `false` when a parent owns that element.
+   *
+   * @default true
+   *
+   * @example
+   * ```ts
+   * const virtual = createVirtual(items, { ownElement: false })
+   * ```
+   */
+  ownElement?: boolean
 }
 
 export interface VirtualItem<T = unknown> {
   raw: T
   index: number
+  /** `itemKey` result, or the index when no key function was passed. */
+  key: string | number
 }
 
 export interface VirtualContext<T = unknown> {
@@ -324,7 +368,7 @@ export interface VirtualContext<T = unknown> {
   reset: () => void
 }
 
-export interface VirtualContextOptions extends VirtualOptions {
+export interface VirtualContextOptions<T = unknown> extends VirtualOptions<T> {
   /** Namespace for dependency injection */
   namespace?: string
 }
@@ -366,9 +410,116 @@ export interface VirtualContextOptions extends VirtualOptions {
  */
 const FALLBACK_HEIGHT = 40
 
+// Small and monomorphic on purpose. Inside createVirtual these loops share a
+// closure with the rest of the engine, and V8 left the 10k walk slow.
+function findOffset (offsets: Float64Array, top: number): number {
+  let low = 0
+  let high = offsets.length - 1
+
+  while (low <= high) {
+    const mid = (low + high) >> 1
+    if (offsets[mid]! <= top) low = mid + 1
+    else high = mid - 1
+  }
+
+  return Math.max(high, 0)
+}
+
+function shiftOffsets (offsets: Float64Array, from: number, delta: number) {
+  const length = offsets.length
+  for (let index = from; index < length; index++) {
+    offsets[index] = offsets[index]! + delta
+  }
+}
+
+// A uniform add on offsets[index + 1, length) moves a search boundary by one
+// row when the delta is smaller than that row. -1 means it moved farther.
+function shiftIndex (
+  offsets: Float64Array,
+  item: number,
+  bound: number,
+  index: number,
+  delta: number,
+  length: number,
+): number {
+  if (item < index) return item
+  if (delta >= 0 && item === index) return item
+
+  if (delta >= 0) {
+    if (offsets[item]! <= bound) return item
+    const prev = item - 1
+    if (offsets[prev]! <= bound) return prev
+    return -1
+  }
+
+  const next = item + 1
+  if (next >= length || offsets[next]! > bound) return item
+  const further = next + 1
+  if (further < length && offsets[further]! <= bound) return -1
+  return next
+}
+
+function placeWindow (
+  offsets: Float64Array,
+  heights: Float64Array,
+  anchor: number,
+  edge: number,
+  length: number,
+  overscan: number,
+  fallback: number,
+) {
+  let start = anchor - overscan
+  if (start < 0) start = 0
+  else if (start > length) start = length
+  let end = edge + 1 + overscan
+  if (end < start) end = start
+  else if (end > length) end = length
+
+  const lastIndex = length - 1
+  const total = lastIndex < 0
+    ? 0
+    : (offsets[lastIndex] || 0) + (heights[lastIndex] || fallback)
+
+  return {
+    start,
+    end,
+    offset: offsets[start] || 0,
+    size: total - (offsets[end] || total),
+  }
+}
+
+function reattach<T> (
+  items: readonly T[],
+  keyOf: (item: T, index: number) => string | number,
+  prev: Map<string | number, number>,
+  rows: Float64Array,
+  offsets: Float64Array,
+  fallback: number,
+): Map<string | number, number> {
+  const next = new Map<string | number, number>()
+  const length = items.length
+  let sum = 0
+  for (let index = 0; index < length; index++) {
+    const key = keyOf(items[index]!, index)
+    const known = prev.get(key)
+    // typeof, not isNumber: the call kept this walk from optimizing.
+    if (typeof known === 'number') {
+      rows[index] = known
+      next.set(key, known)
+      offsets[index] = sum
+      sum += known || fallback
+    } else {
+      rows[index] = 0
+      offsets[index] = sum
+      sum += fallback
+    }
+  }
+  return next
+}
+
 export function createVirtual<T = unknown> (
   items: Ref<readonly T[]>,
-  _options: VirtualOptions = {},
+  _options: VirtualOptions<T> = {},
 ): VirtualContext<T> {
   const {
     itemHeight: _itemHeight,
@@ -383,6 +534,9 @@ export function createVirtual<T = unknown> (
     endThreshold = 0,
     momentum: momentumOption,
     elastic: elasticOption,
+    marker,
+    itemKey,
+    ownElement = true,
   } = _options
 
   const element = ref<HTMLElement>()
@@ -391,8 +545,17 @@ export function createVirtual<T = unknown> (
   function estimate () {
     return itemHeight.value || FALLBACK_HEIGHT
   }
-  const heights = shallowRef<(number | null)[]>([])
-  const offsets = shallowRef<number[]>([])
+  // Packed buffers. A holey array stayed slower than a packed tail add, and a
+  // ref read per row dominated the walk before that.
+  // 0 means "unmeasured" and contributes the estimate, matching `height || estimate()`.
+  let heights = new Float64Array(0)
+  let offsets = new Float64Array(0)
+  let repairEpoch = 0
+  let repairScheduled = 0
+  let repairCount = 0
+  let repairIndex = 0
+  let repairPrev = 0
+  let fallbackDirty = false
   const first = shallowRef(0)
   const last = shallowRef(0)
   const offset = shallowRef(0)
@@ -406,22 +569,46 @@ export function createVirtual<T = unknown> (
 
   let raf = -1
   let rebuildRaf = -1
+  let repairPending = false
   let edgeRaf = -1
+  let anchorItem = 0
+  let endItem = 0
+  let windowTop = 0
+  let windowReady = false
   const cachedViewport = Number.parseInt(String(height)) || 0
 
   let anchorIndex = -1
   let anchorOffset = 0
+  let markerOffset = 0
+  let lastScrollAt = 0
+  let clampHeight = 0
+  let clampToken = 0
+  let clampRaf = -1
+  let pending: { index: number, options?: ScrollToOptions } | null = null
+  let measured = new Map<string | number, number>()
+  const markerEl = toRef(() => toValue(marker) ?? undefined)
+
+  function refreshMarker () {
+    const node = markerEl.value
+    markerOffset = node ? node.offsetTop : 0
+  }
+
+  refreshMarker()
 
   const computedItems = computed(() =>
-    items.value.slice(first.value, last.value).map((item, i) => ({
-      raw: item,
-      index: i + first.value,
-    })),
+    items.value.slice(first.value, last.value).map((item, i) => {
+      const index = i + first.value
+      return {
+        raw: item,
+        index,
+        key: itemKey ? itemKey(item, index) : index,
+      }
+    }),
   )
 
-  // Apply iOS optimizations when element is assigned
+  // iOS scrolling styles belong on an element this engine owns
   watch(element, el => {
-    if (!IN_BROWSER || !el?.style) return
+    if (!ownElement || !IN_BROWSER || !el?.style) return
 
     /* v8 ignore start -- browser-only style assignments */
     if (momentum) (el.style as unknown as Record<string, string>).webkitOverflowScrolling = 'touch'
@@ -438,24 +625,71 @@ export function createVirtual<T = unknown> (
     update()
   })
 
-  watch(items, newItems => {
+  useResizeObserver(markerEl, () => {
+    refreshMarker()
+    update()
+  })
+
+  watch(markerEl, () => {
+    refreshMarker()
+    update()
+  })
+
+  function syncItems (newItems: readonly T[]) {
     captureAnchor()
     const length = newItems.length
-    // Preserve measured prefix; prepends misattribute until re-measured
-    const old = heights.value
-    const newHeights = old.length === length ? old : Array.from({ length }, (_, i) => (i < old.length ? old[i]! : null))
-    if (heights.value !== newHeights) heights.value = newHeights as (number | null)[]
-    rebuild()
-  }, { immediate: true })
+    const keyOf = itemKey
+
+    // Same length and nothing to reattach: offsets already match the heights.
+    // No itemKey keeps index-aligned measurements, so a same-length swap does not move them.
+    if (heights.length === length && offsets.length === length && (!keyOf || measured.size === 0)) {
+      restoreAnchor()
+      return
+    }
+
+    // Drop a pending resize repair. This walk writes the offsets itself.
+    repairEpoch++
+    repairCount = 0
+    fallbackDirty = false
+
+    if (keyOf && measured.size > 0) {
+      const fallback = itemHeight.value || FALLBACK_HEIGHT
+      if (heights.length !== length) heights = new Float64Array(length)
+      if (offsets.length !== length) offsets = new Float64Array(length)
+      measured = reattach(newItems, keyOf, measured, heights, offsets, fallback)
+      update()
+      restoreAnchor()
+      return
+    }
+
+    // Preserve the measured prefix. A prepend misattributes until the next resize;
+    // an append keeps the prefix and estimates the tail.
+    const prevRows = heights
+    const copy = Math.min(prevRows.length, length)
+    const nextRows = new Float64Array(length)
+    nextRows.set(prevRows.subarray(0, copy))
+    heights = nextRows
+    writeOffsets()
+    update()
+    restoreAnchor()
+  }
+
+  watch(items, syncItems, { immediate: true })
 
   watch(element, () => {
     /* v8 ignore next -- defensive: watch fires only when element is present */
     if (!element.value) return
 
+    if (pending) {
+      const next = pending
+      pending = null
+      scrollTo(next.index, next.options)
+      return
+    }
+
     if (direction === 'reverse' && items.value.length > 0) {
-      const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
-      element.value.scrollTop = totalHeight
+      pinEnd()
+      return
     }
 
     update()
@@ -475,13 +709,13 @@ export function createVirtual<T = unknown> (
       /* v8 ignore next 4 -- function-anchor: tested with valid number return; non-number rejection branch is implicit */
       if (isNumber(result)) {
         anchorIndex = result
-        anchorOffset = element.value.scrollTop - (offsets.value[result] || 0)
+        anchorOffset = listTop() - (offsets[result] || 0)
       }
     } else {
       /* v8 ignore start -- default anchor capture */
       // Default: capture first visible item
       anchorIndex = first.value
-      anchorOffset = element.value.scrollTop - (offsets.value[first.value] || 0)
+      anchorOffset = listTop() - (offsets[first.value] || 0)
       /* v8 ignore stop */
     }
   }
@@ -489,7 +723,7 @@ export function createVirtual<T = unknown> (
   function restoreAnchor () {
     if (!element.value || anchorIndex < 0) return
 
-    const newScrollTop = (offsets.value[anchorIndex] || 0) + anchorOffset
+    const newScrollTop = portTop((offsets[anchorIndex] || 0) + anchorOffset)
 
     if (anchorSmooth && direction === 'forward') {
       element.value.scrollTo({ top: newScrollTop, behavior: 'smooth' })
@@ -503,58 +737,90 @@ export function createVirtual<T = unknown> (
     anchorOffset = 0
   }
 
-  function rebuild () {
-    const length = items.value.length
-    const newOffsets = offsets.value.length === length ? offsets.value : Array.from<number>({ length })
-
-    let offset = 0
+  function writeOffsets () {
+    const fallback = itemHeight.value || FALLBACK_HEIGHT
+    const rows = heights
+    const length = rows.length
+    if (offsets.length !== length) offsets = new Float64Array(length)
+    const offs = offsets
+    let sum = 0
     for (let i = 0; i < length; i++) {
-      newOffsets[i] = offset
-      offset += heights.value[i] || estimate()
+      offs[i] = sum
+      sum += rows[i]! || fallback
     }
-
-    if (offsets.value !== newOffsets) offsets.value = newOffsets
-
-    update()
-    restoreAnchor()
   }
 
-  function findIndex (scrollTop: number) {
-    const arr = offsets.value
-    if (arr.length === 0) return 0
-
-    let low = 0
-    let high = arr.length - 1
-
-    while (low <= high) {
-      const mid = (low + high) >> 1
-      if (arr[mid]! <= scrollTop) low = mid + 1
-      else high = mid - 1
-    }
-
-    return Math.max(0, high)
+  function viewportOf () {
+    return viewportHeight.value || cachedViewport
   }
 
-  function update () {
-    if (!element.value) return
+  function contentHeight () {
+    const lastIndex = items.value.length - 1
+    if (lastIndex < 0) return 0
+    return (offsets[lastIndex] || 0) + (heights[lastIndex] || estimate())
+  }
+
+  function listTop () {
+    const node = element.value
+    if (!node) return 0
+    return Math.max(0, node.scrollTop - markerOffset)
+  }
+
+  function portTop (top: number) {
+    return top + markerOffset
+  }
+
+  function commitWindow (
+    anchor: number,
+    edge: number,
+    length: number,
+    fallback: number,
+  ) {
+    anchorItem = anchor
+    endItem = edge
+    const placed = placeWindow(offsets, heights, anchor, edge, length, overscan, fallback)
+    if (first.value !== placed.start) first.value = placed.start
+    if (last.value !== placed.end) last.value = placed.end
+    if (offset.value !== placed.offset) offset.value = placed.offset
+    if (size.value !== placed.size) size.value = placed.size
+  }
+
+  function applyWindow (top: number) {
     const viewport = viewportHeight.value || cachedViewport
     if (!viewport) return
 
-    const scrollTop = element.value.scrollTop || 0
     const length = items.value.length
+    const anchor = findOffset(offsets, top)
+    const edge = findOffset(offsets, top + viewport)
+    windowTop = top
+    windowReady = true
+    commitWindow(anchor, edge, length, itemHeight.value || FALLBACK_HEIGHT)
+  }
 
-    const visibleStart = findIndex(scrollTop)
-    const visibleEnd = findIndex(scrollTop + viewport) + 1
+  // Single-row tail add. Keeps the window when the boundary stays on the same
+  // row or its neighbor; a larger jump falls back to the search.
+  function retarget (index: number, delta: number, fallback: number) {
+    const node = element.value
+    const viewport = viewportHeight.value || cachedViewport
+    if (!node || !viewport || !windowReady) return false
 
-    const start = clamp(visibleStart - overscan, 0, length)
-    const end = clamp(visibleEnd + overscan, start, length)
+    const top = Math.max(0, node.scrollTop - markerOffset)
+    if (top !== windowTop) return false
 
-    first.value = start
-    last.value = end
-    offset.value = offsets.value[start] || 0
-    const lastIndex = length - 1
-    const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
-    size.value = totalHeight - (offsets.value[end] || totalHeight)
+    const length = items.value.length
+    const anchor = shiftIndex(offsets, anchorItem, top, index, delta, length)
+    if (anchor < 0) return false
+    const edge = shiftIndex(offsets, endItem, top + viewport, index, delta, length)
+    if (edge < 0) return false
+
+    commitWindow(anchor, edge, length, fallback)
+    return true
+  }
+
+  function update () {
+    const node = element.value
+    if (!node) return
+    applyWindow(Math.max(0, node.scrollTop - markerOffset))
   }
 
   function checkEdges () {
@@ -564,7 +830,7 @@ export function createVirtual<T = unknown> (
     const scrollHeight = element.value.scrollHeight
     const clientHeight = element.value.clientHeight
 
-    const distanceFromStart = scrollTop
+    const distanceFromStart = Math.max(0, scrollTop - markerOffset)
     const distanceFromEnd = scrollHeight - (scrollTop + clientHeight)
 
     if (IN_BROWSER) {
@@ -590,21 +856,87 @@ export function createVirtual<T = unknown> (
     /* v8 ignore stop */
   }
 
+  function remember (index: number, height: number) {
+    if (!itemKey || index < 0 || index >= items.value.length) return
+    measured.set(itemKey(items.value[index]!, index), height)
+  }
+
+  function onRepairFrame () {
+    repairPending = false
+    if (repairScheduled !== repairEpoch) return
+    flushRepair()
+  }
+
+  function scheduleRepair () {
+    if (!IN_BROWSER) {
+      flushRepair()
+      return
+    }
+
+    repairScheduled = repairEpoch
+    if (repairPending) cancelAnimationFrame(rebuildRaf)
+    repairPending = true
+    rebuildRaf = requestAnimationFrame(onRepairFrame)
+  }
+
+  function flushRepair () {
+    const count = repairCount
+    const index = repairIndex
+    const prev = repairPrev
+    const dirty = fallbackDirty
+    repairCount = 0
+    fallbackDirty = false
+    if (count === 0 && !dirty) return
+
+    // One changed row: every later offset moves by the same delta.
+    // A fallback change or a second resize in the same frame rewrites the prefix.
+    if (
+      !dirty
+      && count === 1
+      && index >= 0
+      && index < heights.length
+      && offsets.length === heights.length
+    ) {
+      const fallback = itemHeight.value || FALLBACK_HEIGHT
+      const next = heights[index] || fallback
+      const before = prev || fallback
+      const delta = next - before
+      if (delta !== 0) {
+        shiftOffsets(offsets, index + 1, delta)
+        if (!retarget(index, delta, fallback)) update()
+      }
+    } else {
+      writeOffsets()
+      update()
+    }
+
+    restoreAnchor()
+  }
+
   function resize (index: number, height: number) {
-    /* v8 ignore next -- early bail when height is already correct */
-    if (heights.value[index] === height) return
-    heights.value[index] = height
+    if (index < 0 || index >= heights.length) return
+    const current = heights[index]!
+    if (current === height) return
+    if (repairCount === 0) {
+      repairIndex = index
+      repairPrev = current
+    }
+    repairCount++
+    heights[index] = height
+    if (itemKey) remember(index, height)
     /* v8 ignore next -- first-call only: itemHeight bootstrapped from initial measurement */
-    if (!itemHeight.value) itemHeight.value = height
-    if (IN_BROWSER) {
-      cancelAnimationFrame(rebuildRaf)
-      rebuildRaf = requestAnimationFrame(rebuild)
-    /* v8 ignore start -- SSR fallback */
-    } else rebuild()
-    /* v8 ignore stop */
+    if (!itemHeight.value) {
+      itemHeight.value = height
+      fallbackDirty = true
+    }
+    scheduleRepair()
   }
 
   function scroll () {
+    const now = IN_BROWSER ? performance.now() : 0
+    if (now - lastScrollAt >= 500) refreshMarker()
+    lastScrollAt = now
+
     if (IN_BROWSER) {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(update)
@@ -615,43 +947,91 @@ export function createVirtual<T = unknown> (
     /* v8 ignore stop */
   }
 
-  function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
-    /* v8 ignore next -- defensive: scrollTo only invoked after element mounts */
-    if (!element.value) return
+  function pinEnd () {
+    const top = contentHeight()
+    applyWindow(top)
+    clampHeight = 0
+    const token = ++clampToken
+    writeTop(portTop(top), 'auto', token)
+  }
 
-    const targetOffset = offsets.value[index] || 0
+  function writeTop (top: number, behavior: ScrollToOptions['behavior'], token: number) {
+    const node = element.value
+    if (!node || token !== clampToken) return
+
+    if (behavior === 'smooth') {
+      node.scrollTo({ top, behavior: 'smooth' })
+      update()
+      return
+    }
+
+    node.scrollTop = top
+
+    // Spacers for this window are in state, but the browser clamps scrollTop
+    // until that layout exists. Retry while the scroll height is still growing.
+    // A zero target fails `scrollTop < top - 1` on its own. Item 0 still retries
+    // when a marker makes the port target positive.
+    if (node.scrollTop < top - 1 && node.scrollHeight > clampHeight) {
+      clampHeight = node.scrollHeight
+      nextTick(() => {
+        /* v8 ignore start -- SSR has no animation frame */
+        if (!IN_BROWSER) {
+          writeTop(top, behavior, token)
+          return
+        }
+        /* v8 ignore stop */
+        cancelAnimationFrame(clampRaf)
+        clampRaf = requestAnimationFrame(() => {
+          writeTop(top, behavior, token)
+        })
+      })
+      return
+    }
+
+    clampHeight = 0
+    update()
+  }
+
+  function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
+    if (!element.value) {
+      pending = { index, options: scrollOptions }
+      return
+    }
+
+    pending = null
     const behavior = scrollOptions?.behavior ?? 'auto'
     const block = scrollOptions?.block ?? 'start'
     const extraOffset = scrollOptions?.offset ?? 0
+    const targetOffset = offsets[index] || 0
 
-    let scrollTop = targetOffset + extraOffset
+    let top = targetOffset + extraOffset
 
     switch (block) {
       case 'center': {
-        const viewport = viewportHeight.value || cachedViewport
-        const itemH = heights.value[index] || estimate()
-        scrollTop = targetOffset - (viewport / 2) + (itemH / 2) + extraOffset
+        const viewport = viewportOf()
+        const itemH = heights[index] || estimate()
+        top = targetOffset - (viewport / 2) + (itemH / 2) + extraOffset
 
         break
       }
       case 'end': {
-        const viewport = viewportHeight.value || cachedViewport
-        const itemH = heights.value[index] || estimate()
-        scrollTop = targetOffset - viewport + itemH + extraOffset
+        const viewport = viewportOf()
+        const itemH = heights[index] || estimate()
+        top = targetOffset - viewport + itemH + extraOffset
 
         break
       }
       case 'nearest': {
-        const viewport = viewportHeight.value || cachedViewport
-        const currentScroll = element.value.scrollTop
-        const itemH = heights.value[index] || estimate()
+        const viewport = viewportOf()
+        const currentScroll = listTop()
+        const itemH = heights[index] || estimate()
 
         if (targetOffset < currentScroll) {
-          scrollTop = targetOffset + extraOffset
+          top = targetOffset + extraOffset
         } else if (targetOffset + itemH > currentScroll + viewport) {
-          scrollTop = targetOffset - viewport + itemH + extraOffset
+          top = targetOffset - viewport + itemH + extraOffset
         } else {
-          return // Already visible
+          return
         }
 
         break
@@ -659,25 +1039,17 @@ export function createVirtual<T = unknown> (
       // No default
     }
 
-    if (behavior === 'smooth') {
-      element.value.scrollTo({ top: scrollTop, behavior: 'smooth' })
-    } else {
-      element.value.scrollTop = scrollTop
-    }
-
-    // Update visible items immediately
-    update()
+    if (behavior !== 'smooth') applyWindow(top)
+    clampHeight = 0
+    const token = ++clampToken
+    writeTop(portTop(top), behavior, token)
   }
 
   function reset () {
     state.value = 'ok'
     anchorIndex = -1
     anchorOffset = 0
-    if (element.value && direction === 'reverse' && items.value.length > 0) {
-      const lastIndex = items.value.length - 1
-      const totalHeight = (offsets.value[lastIndex] || 0) + (heights.value[lastIndex] || estimate())
-      element.value.scrollTop = totalHeight
-    }
+    if (element.value && direction === 'reverse' && items.value.length > 0) pinEnd()
   }
 
   onScopeDispose(() => {
@@ -686,6 +1058,7 @@ export function createVirtual<T = unknown> (
     cancelAnimationFrame(raf)
     cancelAnimationFrame(rebuildRaf)
     cancelAnimationFrame(edgeRaf)
+    cancelAnimationFrame(clampRaf)
   }, true)
 
   return {
@@ -729,7 +1102,7 @@ export function createVirtual<T = unknown> (
  */
 export function createVirtualContext<T = unknown> (
   items: Ref<readonly T[]>,
-  _options: VirtualContextOptions = {},
+  _options: VirtualContextOptions<T> = {},
 ): ContextTrinity<VirtualContext<T>> {
   const {
     namespace = 'v0:virtual',

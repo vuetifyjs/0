@@ -4,7 +4,7 @@ import { createVirtual, createVirtualContext, useVirtual } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { effectScope, nextTick, shallowRef, defineComponent } from 'vue'
+import { defineComponent, effectScope, nextTick, shallowRef, watch } from 'vue'
 
 const realDocument = globalThis.document
 
@@ -35,10 +35,9 @@ describe('createVirtual', () => {
 
     mockIsHydrated.value = true
 
-    const mockObserver = {
-      observe: vi.fn((element: HTMLElement) => {
-        const callback = (globalThis.ResizeObserver as ReturnType<typeof vi.fn>).mock.calls[0]![0]
-        if (callback && element) {
+    globalThis.ResizeObserver = vi.fn(function (callback: ResizeObserverCallback) {
+      return {
+        observe: vi.fn((element: HTMLElement) => {
           const rect = element.getBoundingClientRect?.() || { width: 400, height: 500 }
           callback([{
             target: element,
@@ -46,15 +45,11 @@ describe('createVirtual', () => {
             borderBoxSize: [],
             contentBoxSize: [],
             devicePixelContentBoxSize: [],
-          }])
-        }
-      }),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }
-    globalThis.ResizeObserver = vi.fn(function (this: Record<string, unknown>, callback: unknown) {
-      this.callback = callback
-      return mockObserver
+          }] as unknown as ResizeObserverEntry[], {} as ResizeObserver)
+        }),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      }
     }) as unknown as typeof ResizeObserver
 
     mockContainer = realDocument.createElement('div')
@@ -165,6 +160,61 @@ describe('createVirtual', () => {
     expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
+  it('should keep the window aligned after a one-row resize', async () => {
+    const native = globalThis.requestAnimationFrame
+    globalThis.requestAnimationFrame = callback => {
+      queueMicrotask(() => callback(0))
+      return 1
+    }
+
+    try {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+
+      virtual.element.value = mockContainer
+
+      await nextTick()
+      await nextTick()
+
+      virtual.scrollTo(40)
+
+      expect(mockContainer.scrollTop).toBe(2_000)
+      expect(virtual.offset.value).toBe(1_750)
+      expect(virtual.size.value).toBe(2_200)
+      expect(virtual.items.value[0]!.index).toBe(35)
+      expect(virtual.items.value.at(-1)!.index).toBe(55)
+
+      // +16 crosses the visible edge by one row.
+      virtual.resize(0, 66)
+      await nextTick()
+
+      expect(virtual.offset.value).toBe(1_716)
+      expect(virtual.size.value).toBe(2_250)
+      expect(virtual.items.value[0]!.index).toBe(34)
+      expect(virtual.items.value.at(-1)!.index).toBe(54)
+
+      // -16 steps back onto the same rows.
+      virtual.resize(0, 50)
+      await nextTick()
+
+      expect(virtual.offset.value).toBe(1_750)
+      expect(virtual.size.value).toBe(2_200)
+      expect(virtual.items.value[0]!.index).toBe(35)
+      expect(virtual.items.value.at(-1)!.index).toBe(55)
+
+      // A jump of several rows still lands on the searched window.
+      virtual.resize(0, 200)
+      await nextTick()
+
+      expect(virtual.offset.value).toBe(1_750)
+      expect(virtual.size.value).toBe(2_350)
+      expect(virtual.items.value[0]!.index).toBe(32)
+      expect(virtual.items.value.at(-1)!.index).toBe(52)
+    } finally {
+      globalThis.requestAnimationFrame = native
+    }
+  })
+
   it('should handle scroll events', async () => {
     const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50 })
@@ -270,6 +320,7 @@ describe('createVirtual', () => {
     expect(firstItem).toBeDefined()
     expect(firstItem!.raw).toEqual({ id: 1 })
     expect(firstItem!.index).toBe(0)
+    expect(firstItem!.key).toBe(0)
   })
 
   it('should trigger rebuild when items change', async () => {
@@ -787,6 +838,277 @@ describe('createVirtual', () => {
       scope.stop()
 
       expect(globalThis.cancelAnimationFrame).toHaveBeenCalled()
+    })
+  })
+
+  describe('scroll parent', () => {
+    function indexes (virtual: ReturnType<typeof createVirtual<number>>) {
+      return virtual.items.value.map(item => item.index)
+    }
+
+    function clampingContainer (
+      virtual: { offset: { value: number } },
+      laidOutHeight: number,
+    ) {
+      const el = realDocument.createElement('div')
+      let assigned = 0
+      let scrollHeight = 500
+      const clientHeight = 500
+
+      Object.defineProperty(el, 'scrollTop', {
+        configurable: true,
+        get: () => Math.min(assigned, Math.max(0, scrollHeight - clientHeight)),
+        set: (value: number) => {
+          assigned = value
+        },
+      })
+      Object.defineProperty(el, 'scrollHeight', {
+        configurable: true,
+        get: () => scrollHeight,
+      })
+      Object.defineProperty(el, 'clientHeight', {
+        configurable: true,
+        get: () => clientHeight,
+      })
+      el.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        width: 400,
+        height: 500,
+        top: 0,
+        left: 0,
+        right: 400,
+        bottom: 500,
+        toJSON: () => ({}),
+      })
+
+      watch(() => virtual.offset.value, offset => {
+        if (offset <= 0) return
+        nextTick(() => {
+          scrollHeight = laidOutHeight
+        })
+      })
+
+      return el
+    }
+
+    it('should keep the window at the start when no marker is set', async () => {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+
+      virtual.element.value = mockContainer
+      await nextTick()
+
+      expect(virtual.offset.value).toBe(0)
+      expect(indexes(virtual)[0]).toBe(0)
+    })
+
+    it('should subtract the marker offset from the scroll position', async () => {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const plain = createVirtual(items, { itemHeight: 50, height: 500 })
+      const marker = realDocument.createElement('div')
+      Object.defineProperty(marker, 'offsetTop', { value: 200 })
+      const marked = createVirtual(items, { itemHeight: 50, height: 500, marker })
+      const markedContainer = realDocument.createElement('div')
+
+      plain.element.value = mockContainer
+      mockContainer.scrollTop = 700
+      plain.scroll()
+
+      marked.element.value = markedContainer
+      markedContainer.scrollTop = 900
+      marked.scroll()
+
+      await nextTick()
+
+      expect(indexes(marked)).toEqual(indexes(plain))
+
+      marked.scrollTo(0)
+      expect(markedContainer.scrollTop).toBe(200)
+    })
+
+    it('should retry a clamped scroll to the first item when a marker shifts it', async () => {
+      using frames = vi.spyOn(globalThis, 'requestAnimationFrame')
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const marker = realDocument.createElement('div')
+      Object.defineProperty(marker, 'offsetTop', { value: 200 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500, marker })
+      const el = realDocument.createElement('div')
+      let assigned = 0
+      let scrollHeight = 500
+
+      Object.defineProperty(el, 'scrollTop', {
+        configurable: true,
+        get: () => Math.min(assigned, Math.max(0, scrollHeight - 500)),
+        set: (value: number) => {
+          assigned = value
+        },
+      })
+      Object.defineProperty(el, 'scrollHeight', {
+        configurable: true,
+        get: () => scrollHeight,
+      })
+      Object.defineProperty(el, 'clientHeight', {
+        configurable: true,
+        get: () => 500,
+      })
+
+      virtual.element.value = el
+      await nextTick()
+      frames.mockClear()
+
+      virtual.scrollTo(0)
+
+      expect(el.scrollTop).toBe(0)
+
+      scrollHeight = 5_000
+
+      await vi.waitFor(() => {
+        expect(el.scrollTop).toBe(200)
+      })
+
+      expect(frames).toHaveBeenCalledTimes(1)
+    })
+
+    it('should keep the replacement target when a second scroll lands while clamped', async () => {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+      const clamped = clampingContainer(virtual, 5_000)
+
+      virtual.element.value = clamped
+      await nextTick()
+
+      virtual.scrollTo(20)
+      virtual.scrollTo(40)
+
+      expect(virtual.offset.value).toBe(1_750)
+      expect(clamped.scrollTop).toBe(0)
+
+      await vi.waitFor(() => {
+        expect(clamped.scrollTop).toBe(2_000)
+      })
+    })
+
+    it('should keep a measured height on the item key', async () => {
+      const items = shallowRef(Array.from({ length: 10 }, (_, i) => ({ id: `id-${i}` })))
+      const virtual = createVirtual(items, {
+        itemHeight: 40,
+        height: 500,
+        itemKey: item => item.id,
+      })
+
+      virtual.element.value = mockContainer
+      await nextTick()
+
+      virtual.resize(0, 200)
+      await nextTick()
+
+      items.value = [{ id: 'id-z' }, ...items.value]
+      await nextTick()
+
+      const moved = virtual.items.value.find(item => item.raw.id === 'id-0')
+      expect(moved?.key).toBe('id-0')
+
+      // The prepended row is unmeasured. Index storage would still report 200.
+      virtual.scrollTo(1)
+      expect(mockContainer.scrollTop).toBe(40)
+
+      virtual.scrollTo(2)
+      expect(mockContainer.scrollTop).toBe(240)
+    })
+
+    it('should drop a measured height when its key leaves the list', async () => {
+      const items = shallowRef([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      const virtual = createVirtual(items, {
+        itemHeight: 40,
+        height: 500,
+        itemKey: item => item.id,
+      })
+
+      virtual.element.value = mockContainer
+      await nextTick()
+
+      virtual.resize(0, 200)
+      await nextTick()
+
+      items.value = [{ id: 'q' }, { id: 'r' }, { id: 's' }]
+      await nextTick()
+
+      virtual.scrollTo(1)
+      expect(mockContainer.scrollTop).toBe(40)
+    })
+
+    it('should place the window before a clamped scroll and retry', async () => {
+      using frames = vi.spyOn(globalThis, 'requestAnimationFrame')
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+      const clamped = clampingContainer(virtual, 5_000)
+
+      virtual.element.value = clamped
+      await nextTick()
+
+      frames.mockClear()
+      virtual.scrollTo(20)
+
+      expect(virtual.offset.value).toBeGreaterThan(0)
+      expect(clamped.scrollTop).toBe(0)
+
+      await vi.waitFor(() => {
+        expect(clamped.scrollTop).toBe(1_000)
+      })
+
+      expect(frames).toHaveBeenCalledTimes(1)
+
+      await nextTick()
+      expect(frames).toHaveBeenCalledTimes(1)
+    })
+
+    it('should pin a reverse list to the bottom when the first write is clamped', async () => {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, {
+        itemHeight: 50,
+        height: 500,
+        direction: 'reverse',
+      })
+      const clamped = clampingContainer(virtual, 5_000)
+
+      virtual.element.value = clamped
+
+      await vi.waitFor(() => {
+        expect(clamped.scrollTop).toBe(4_500)
+      })
+    })
+
+    it('should run a scrollTo queued before the element exists', async () => {
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+
+      virtual.scrollTo(10)
+      expect(mockContainer.scrollTop).toBe(0)
+
+      virtual.element.value = mockContainer
+      await nextTick()
+
+      expect(mockContainer.scrollTop).toBe(500)
+    })
+
+    it('should skip scroll styles when the element is not owned', async () => {
+      const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+      const owned = createVirtual(items, { itemHeight: 50, height: 500, elastic: false })
+      const borrowed = createVirtual(items, {
+        itemHeight: 50,
+        height: 500,
+        elastic: false,
+        ownElement: false,
+      })
+      const borrowedEl = realDocument.createElement('div')
+
+      owned.element.value = mockContainer
+      borrowed.element.value = borrowedEl
+      await nextTick()
+
+      expect(mockContainer.style.overscrollBehavior).toBe('none')
+      expect(borrowedEl.style.overscrollBehavior).toBe('')
     })
   })
 })
