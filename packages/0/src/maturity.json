@@ -734,8 +734,10 @@
       "description": "Headless board of movable items in columns, with v-model per column, pointer drag, keyboard pick-up and move, and live-region announcements. Built on createKanban."
     },
     "Virtualizer": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless virtualized list that renders only the items within (and slightly beyond) the visible viewport."
     },
     "Tour": {
       "level": "preview",

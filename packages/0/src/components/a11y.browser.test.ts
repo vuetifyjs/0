@@ -59,6 +59,7 @@ import ToggleFixture from './fixtures/Toggle.vue'
 import TooltipFixture from './fixtures/Tooltip.vue'
 import TourFixture from './fixtures/Tour.vue'
 import TreeviewFixture from './fixtures/Treeview.vue'
+import VirtualizerFixture from './fixtures/Virtualizer.vue'
 
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
@@ -169,6 +170,7 @@ const FIXTURES = {
   Tooltip: TooltipFixture,
   Tour: TourFixture,
   Treeview: TreeviewFixture,
+  Virtualizer: VirtualizerFixture,
 } as const satisfies Record<string, Component>
 
 /**
