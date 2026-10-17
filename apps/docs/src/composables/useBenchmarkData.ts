@@ -68,6 +68,15 @@ export interface NormalizedGroup {
   fastest: NormalizedBenchmark
 }
 
+export type BenchmarkSortField = 'hz' | 'mean' | 'rme'
+
+/** One benchmark, detached from its group, for the flat table. */
+export interface FlatBenchmark extends NormalizedBenchmark {
+  composable: string
+  /** Operation category, without the composable prefix. */
+  group: string
+}
+
 export type Tier = 'blazing' | 'fast' | 'good' | 'slow'
 
 /**
@@ -104,13 +113,17 @@ export interface UseBenchmarkDataReturn {
   isLoading: ShallowRef<boolean>
   composables: ComputedRef<NormalizedComposable[]>
   filteredGroups: ComputedRef<NormalizedGroup[]>
+  /** Benchmarks passing the current filters, sorted globally. */
+  filteredBenchmarks: ComputedRef<FlatBenchmark[]>
   summary: ComputedRef<BenchmarkSummary>
   filter: ReturnType<typeof createFilter>
   composableSelection: GroupContext
   tierSelection: GroupContext
   expandedGroups: GroupContext
-  sortBy: ShallowRef<'hz' | 'mean' | 'rme'>
+  sortBy: ShallowRef<BenchmarkSortField>
   sortDesc: ShallowRef<boolean>
+  /** Select a metric, or flip direction when that metric is already selected. */
+  setSort: (field: BenchmarkSortField) => void
   expandAll: () => void
   collapseAll: () => void
   clearFilters: () => void
@@ -177,6 +190,30 @@ export function formatHz (hz: number): string {
   if (hz >= 1_000_000) return `${(hz / 1_000_000).toFixed(1)}M ops/s`
   if (hz >= 1000) return `${(hz / 1000).toFixed(1)}k ops/s`
   return `${Math.round(hz)} ops/s`
+}
+
+function compareMetric (a: number, b: number, desc: boolean): number {
+  return desc ? b - a : a - b
+}
+
+/** Highest value of `field` in the group. Group order uses this, so the number on a collapsed row is the number it was sorted by. */
+export function groupPeak (benchmarks: readonly NormalizedBenchmark[], field: BenchmarkSortField): NormalizedBenchmark | undefined {
+  let peak: NormalizedBenchmark | undefined
+  for (const benchmark of benchmarks) {
+    if (!peak || benchmark[field] > peak[field]) peak = benchmark
+  }
+  return peak
+}
+
+export function formatPeak (benchmark: NormalizedBenchmark, field: BenchmarkSortField): string {
+  if (field === 'hz') return benchmark.hzLabel
+  if (field === 'mean') return benchmark.meanLabel
+  return `±${benchmark.rme.toFixed(1)}%`
+}
+
+/** Accessible name for a sort control. Direction is on the selected control, because the chevron is hidden from assistive tech. */
+export function sortControlName (label: string, active: boolean, desc: boolean): string {
+  return active ? `${label}, ${desc ? 'descending' : 'ascending'}` : label
 }
 
 function formatMean (mean: number): string {
@@ -298,8 +335,17 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
   // v0 filter for search
   const filter = createFilter({ mode: 'some' })
 
-  const sortBy = shallowRef<'hz' | 'mean' | 'rme'>('hz')
+  const sortBy = shallowRef<BenchmarkSortField>('hz')
   const sortDesc = shallowRef(true)
+
+  function setSort (field: BenchmarkSortField) {
+    if (sortBy.value === field) {
+      sortDesc.value = !sortDesc.value
+    } else {
+      sortBy.value = field
+      sortDesc.value = true
+    }
+  }
 
   // Fetch full benchmark data
   async function load () {
@@ -379,16 +425,49 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
       groups = groups.filter(g => tierSelection.selectedIds.has(g.tier))
     }
 
-    // Sort benchmarks within each group
+    // Sort rows inside each group, then the groups themselves, by the same metric.
+    // Collapsed rows only show the group, so a sort that never moves groups looks dead.
     const field = sortBy.value
     const desc = sortDesc.value
-    return groups.map(g => ({
-      ...g,
-      benchmarks: g.benchmarks.toSorted((a, b) => {
-        const diff = a[field] - b[field]
-        return desc ? -diff : diff
-      }),
-    }))
+    return groups
+      .map(g => ({
+        ...g,
+        benchmarks: g.benchmarks.toSorted((a, b) => compareMetric(a[field], b[field], desc)),
+      }))
+      .toSorted((a, b) => {
+        const aPeak = groupPeak(a.benchmarks, field)?.[field] ?? 0
+        const bPeak = groupPeak(b.benchmarks, field)?.[field] ?? 0
+        return compareMetric(aPeak, bPeak, desc)
+      })
+  })
+
+  // Flat list for the table view. Tier and search match the row, not its group.
+  const filteredBenchmarks = computed<FlatBenchmark[]>(() => {
+    const query = String(filter.query.value).trim().toLowerCase()
+    const field = sortBy.value
+    const desc = sortDesc.value
+    const rows: FlatBenchmark[] = []
+
+    for (const group of allGroups.value) {
+      if (composableSelection.selectedIds.size > 0 && !composableSelection.selectedIds.has(group.composable)) continue
+
+      const prefix = `${group.composable} benchmarks > `
+      const groupLabel = group.name.startsWith(prefix) ? group.name.slice(prefix.length) : group.name
+      for (const benchmark of group.benchmarks) {
+        if (tierSelection.selectedIds.size > 0 && !tierSelection.selectedIds.has(benchmark.tier)) continue
+        if (query) {
+          const haystack = `${group.composable} ${groupLabel} ${benchmark.name}`.toLowerCase()
+          if (!haystack.includes(query)) continue
+        }
+        rows.push({
+          ...benchmark,
+          composable: group.composable,
+          group: groupLabel,
+        })
+      }
+    }
+
+    return rows.toSorted((a, b) => compareMetric(a[field], b[field], desc))
   })
 
   // Summary (unfiltered)
@@ -428,6 +507,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
     isLoading,
     composables,
     filteredGroups,
+    filteredBenchmarks,
     summary,
     filter,
     composableSelection,
@@ -435,6 +515,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
     expandedGroups,
     sortBy,
     sortDesc,
+    setSort,
     expandAll,
     collapseAll,
     clearFilters,

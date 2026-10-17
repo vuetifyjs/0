@@ -3,7 +3,7 @@
   import { useBenchmarkData } from '@/composables/useBenchmarkData'
 
   // Utilities
-  import { computed, toRef, watch } from 'vue'
+  import { computed, shallowRef, toRef, watch } from 'vue'
 
   const {
     composable,
@@ -22,11 +22,14 @@
     isLoading,
     composables,
     filteredGroups,
+    filteredBenchmarks,
     summary,
     filter,
     composableSelection,
     tierSelection,
     sortBy,
+    sortDesc,
+    setSort,
     expandedGroups,
     expandAll,
     collapseAll,
@@ -72,10 +75,13 @@
   // Derive selected composable names from group selectedIds
   const selectedComposableNames = toRef(() => Array.from(composableSelection.selectedIds) as string[])
 
+  const view = shallowRef<'groups' | 'table'>('groups')
+
   // Count benchmarks currently passing all filters (for the "N of M" status)
-  const visibleBenchmarkCount = toRef(() =>
-    filteredGroups.value.reduce((sum, group) => sum + group.benchmarks.length, 0),
-  )
+  const visibleBenchmarkCount = toRef(() => {
+    if (view.value === 'table') return filteredBenchmarks.value.length
+    return filteredGroups.value.reduce((sum, group) => sum + group.benchmarks.length, 0)
+  })
 </script>
 
 <template>
@@ -110,32 +116,46 @@
         :all-expanded
         :search-query="String(filter.query.value)"
         :selected-tiers="tierSelection.selectedIds"
-        :show-expand="filteredGroups.length > 1"
+        :show-expand="view === 'groups' && filteredGroups.length > 1"
         :sort-by
+        :sort-desc
         :total-all="summary.totalBenchmarks"
         :total-visible="visibleBenchmarkCount"
+        :view
         @clear-filters="clearFilters"
         @toggle-expand="allExpanded ? collapseAll() : expandAll()"
         @toggle-tier="onTierToggle"
         @update:search-query="filter.query.value = $event"
-        @update:sort-by="sortBy = $event"
+        @update:sort-by="setSort"
+        @update:view="view = $event"
+      />
+
+      <BenchmarkTable
+        v-if="view === 'table' && filteredBenchmarks.length > 0"
+        :rows="filteredBenchmarks"
+        :sort-by
+        :sort-desc
+        @sort="setSort"
       />
 
       <!-- Groups -->
-      <div class="space-y-2">
+      <div v-else-if="view === 'groups' && filteredGroups.length > 0" class="space-y-2">
         <BenchmarkGroup
           v-for="group in filteredGroups"
           :key="group.id"
           :expanded="expandedGroups.selected(group.id)"
           :group
+          :sort-by
+          :sort-desc
           :tier="group.tier"
+          @sort="setSort"
           @update:expanded="onGroupToggle(group.id)"
         />
       </div>
 
       <!-- Empty filter state -->
       <div
-        v-if="filteredGroups.length === 0"
+        v-if="view === 'table' ? filteredBenchmarks.length === 0 : filteredGroups.length === 0"
         class="py-12 text-center"
       >
         <p class="text-sm text-on-surface-variant">No benchmarks match your filters.</p>

@@ -172,7 +172,7 @@ Compare `createRegistry` benchmarks with `useProxyRegistry` to see the reactivit
 
 ## Explorer
 
-Browse all benchmark results. Select a composable to filter, or expand groups to compare individual operations.
+Browse all benchmark results. Groups keeps each operation set together and sorts those sets by the metric you pick. Table lists every benchmark in one list. Click a metric again to reverse the order.
 
 <BenchmarkExplorer />
 
