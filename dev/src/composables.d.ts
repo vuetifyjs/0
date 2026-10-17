@@ -8,35 +8,24 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements').COMMON_ELEMENTS
-  const ClientAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ClientAdapter
   const ClientComboboxAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ClientComboboxAdapter
   const ClientDataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ClientDataTableAdapter
   const ComboboxAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ComboboxAdapter
-  const ComboboxClientAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ComboboxClientAdapter
-  const ComboboxServerAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ComboboxServerAdapter
   const ConsolaLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').ConsolaLoggerAdapter
-  const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_DARK
-  const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_LIGHT
   const DataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').DataTableAdapter
   const DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').DateAdapter
   const DragDropAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').DragDropAdapter
   const EffectScope: typeof import('vue').EffectScope
   const FeaturesAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FeaturesAdapter
-  const FlagsmithFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FlagsmithFeatureAdapter
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals').IN_BROWSER
   const KeyboardAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').KeyboardAdapter
-  const LaunchDarklyFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').LaunchDarklyFeatureAdapter
   const LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').LocaleAdapter
   const LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').LoggerAdapter
-  const MemoryAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryAdapter
   const MemoryStorageAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryStorageAdapter
-  const PermissionAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionAdapter
   const PermissionsAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionsAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
   const PointerAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').PointerAdapter
   const PopoverAdapter: typeof import('../../packages/0/src/composables/usePopover/index').PopoverAdapter
-  const PostHogFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').PostHogFeatureAdapter
   const ReducedMotionAdapter: typeof import('../../packages/0/src/composables/useReducedMotion/index').ReducedMotionAdapter
   const RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').RtlAdapter
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements').SELF_CLOSING_TAGS
@@ -45,12 +34,10 @@ declare global {
   const SUPPORTS_MUTATION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MUTATION_OBSERVER
   const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_OBSERVER
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals').SUPPORTS_TOUCH
-  const ServerAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ServerAdapter
   const ServerComboboxAdapter: typeof import('../../packages/0/src/composables/createCombobox/index').ServerComboboxAdapter
   const ServerDataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').ServerDataTableAdapter
   const ServerGridAdapter: typeof import('../../packages/0/src/composables/createDataGrid/index').ServerGridAdapter
   const StorageAdapter: typeof import('../../packages/0/src/composables/useStorage/index').StorageAdapter
-  const TemporalDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').TemporalDateAdapter
   const ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').ThemeAdapter
   const UNSAFE_KEYS: typeof import('../../packages/0/src/utilities/helpers').UNSAFE_KEYS
   const V0Error: typeof import('../../packages/0/src/utilities/errors').V0Error
@@ -62,13 +49,7 @@ declare global {
   const V0StyleSheetThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').V0StyleSheetThemeAdapter
   const V0UnheadThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').V0UnheadThemeAdapter
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index').V0_ELEVATION_KEY
-  const VirtualAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').VirtualAdapter
   const VirtualDataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').VirtualDataTableAdapter
-  const Vuetify0DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').Vuetify0DateAdapter
-  const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
-  const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
-  const Vuetify0RtlAdapter: typeof import('../../packages/0/src/composables/useRtl/index').Vuetify0RtlAdapter
-  const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').Vuetify0ThemeAdapter
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals').__LOGGER_ENABLED__
   const apca: typeof import('../../packages/0/src/utilities/apca').apca
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
@@ -89,7 +70,6 @@ declare global {
   const createDataTableContext: typeof import('../../packages/0/src/composables/createDataTable/index').createDataTableContext
   const createDate: typeof import('../../packages/0/src/composables/useDate/index').createDate
   const createDateContext: typeof import('../../packages/0/src/composables/useDate/index').createDateContext
-  const createDateFallback: typeof import('../../packages/0/src/composables/useDate/index').createDateFallback
   const createDatePlugin: typeof import('../../packages/0/src/composables/useDate/index').createDatePlugin
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index').createElevation
   const createFallbackHydration: typeof import('../../packages/0/src/composables/useHydration/index').createFallbackHydration
@@ -183,7 +163,6 @@ declare global {
   const createVirtual: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtual
   const createVirtualContext: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtualContext
   const customRef: typeof import('vue').customRef
-  const debounce: typeof import('../../packages/0/src/utilities/helpers').debounce
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index').defaultElevationGenerator
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
@@ -192,7 +171,6 @@ declare global {
   const findMatchRanges: typeof import('../../packages/0/src/utilities/diacritics').findMatchRanges
   const flatten: typeof import('../../packages/0/src/composables/createTokens/index').flatten
   const foreground: typeof import('../../packages/0/src/utilities/apca').foreground
-  const genId: typeof import('../../packages/0/src/utilities/helpers').genId
   const getActiveElement: typeof import('../../packages/0/src/utilities/helpers').getActiveElement
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName').getCurrentInstanceName
@@ -229,7 +207,6 @@ declare global {
   const isV0Error: typeof import('../../packages/0/src/utilities/errors').isV0Error
   const markRaw: typeof import('vue').markRaw
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers').mergeDeep
-  const multipleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').multipleOpenStrategy
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -263,7 +240,6 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
-  const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
   const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
@@ -301,7 +277,6 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/createFilter/index').useFilter
-  const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/createForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/createGroup/index').useGroup
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
@@ -385,213 +360,6 @@ declare global {
   export type { SpacingProps } from '../../packages/paper/src/composables/useSpacing/index'
   import('../../packages/paper/src/composables/useSpacing/index')
   // @ts-ignore
-  export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
-  import('../../packages/paper/src/composables/useTheme/index')
-  // @ts-ignore
-  export type { BreadcrumbTicketInput, BreadcrumbTicket, BreadcrumbsContext, BreadcrumbsOptions, BreadcrumbsContextOptions } from '../../packages/0/src/composables/createBreadcrumbs/index'
-  import('../../packages/0/src/composables/createBreadcrumbs/index')
-  // @ts-ignore
-  export type { ComboboxOptions, ComboboxContext, ClientComboboxAdapterOptions, ComboboxAdapterContext, ComboboxAdapterResult } from '../../packages/0/src/composables/createCombobox/index'
-  import('../../packages/0/src/composables/createCombobox/index')
-  // @ts-ignore
-  export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
-  import('../../packages/0/src/composables/createContext/index')
-  // @ts-ignore
-  export type { DataGridColumnTicketInput, DataGridColumnTicket, DataGridOptions, DataGridContext, DataGridContextOptions, ColumnLayout, GridColumnDef, PinnedRegion, PinPosition, ResolvedColumn, ActiveCell, CellEditing, CellEditingOptions, CellEditingRegistry, EditableColumn, RowSpanningOptions, SpanEntry, ServerGridAdapterOptions } from '../../packages/0/src/composables/createDataGrid/index'
-  import('../../packages/0/src/composables/createDataGrid/index')
-  // @ts-ignore
-  export type { SelectStrategy, DataTableTicketInput, DataTableTicket, DataTableColumnTicketInput, DataTableColumnTicket, DataTableSort, DataTableSelection, DataTableGroup, DataTableGrouping, DataTableExpansion, DataTableOptions, DataTableContext, DataTableContextOptions, DataTableAdapterContext, DataTableAdapterResult, SortDirection, SortEntry, ServerDataTableAdapterOptions, ColumnNode, InternalHeader } from '../../packages/0/src/composables/createDataTable/index'
-  import('../../packages/0/src/composables/createDataTable/index')
-  // @ts-ignore
-  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/createFilter/index'
-  import('../../packages/0/src/composables/createFilter/index')
-  // @ts-ignore
-  export type { FormValidationResult, FormValidationRule, FormValue, FormTicketInput, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/createForm/index'
-  import('../../packages/0/src/composables/createForm/index')
-  // @ts-ignore
-  export type { GroupTicketInput, GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
-  import('../../packages/0/src/composables/createGroup/index')
-  // @ts-ignore
-  export type { InputState, InputOptions, InputContext } from '../../packages/0/src/composables/createInput/index'
-  import('../../packages/0/src/composables/createInput/index')
-  // @ts-ignore
-  export type { KanbanOptions, KanbanColumnTicketInput, KanbanColumnTicket, KanbanTransferPayload, KanbanEventListener, KanbanContext } from '../../packages/0/src/composables/createKanban/index'
-  import('../../packages/0/src/composables/createKanban/index')
-  // @ts-ignore
-  export type { ModelTicketInput, ModelTicket, ModelContext, ModelOptions } from '../../packages/0/src/composables/createModel/index'
-  import('../../packages/0/src/composables/createModel/index')
-  // @ts-ignore
-  export type { NumberFieldOptions, NumberFieldContext } from '../../packages/0/src/composables/createNumberField/index'
-  import('../../packages/0/src/composables/createNumberField/index')
-  // @ts-ignore
-  export type { NumericOptions, NumericContext } from '../../packages/0/src/composables/createNumeric/index'
-  import('../../packages/0/src/composables/createNumeric/index')
-  // @ts-ignore
-  export type { OtpPattern, OtpOptions, OtpContext } from '../../packages/0/src/composables/createOtp/index'
-  import('../../packages/0/src/composables/createOtp/index')
-  // @ts-ignore
-  export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/createOverflow/index'
-  import('../../packages/0/src/composables/createOverflow/index')
-  // @ts-ignore
-  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/createPagination/index'
-  import('../../packages/0/src/composables/createPagination/index')
-  // @ts-ignore
-  export type { PluginOptions, Plugin, PluginContextConfig } from '../../packages/0/src/composables/createPlugin/index'
-  import('../../packages/0/src/composables/createPlugin/index')
-  // @ts-ignore
-  export type { ProgressTicketInput, ProgressTicket, ProgressOptions, ProgressContext, ProgressContextOptions } from '../../packages/0/src/composables/createProgress/index'
-  import('../../packages/0/src/composables/createProgress/index')
-  // @ts-ignore
-  export type { QueueTicketInput, QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/createQueue/index'
-  import('../../packages/0/src/composables/createQueue/index')
-  // @ts-ignore
-  export type { RatingItemState, RatingItemDescriptor, RatingContext, RatingOptions, RatingContextOptions } from '../../packages/0/src/composables/createRating/index'
-  import('../../packages/0/src/composables/createRating/index')
-  // @ts-ignore
-  export type { RegistryTicketInput, RegistryTicket, RegistryEventName, RegistryEventMap, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
-  import('../../packages/0/src/composables/createRegistry/index')
-  // @ts-ignore
-  export type { SelectionTicketInput, SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
-  import('../../packages/0/src/composables/createSelection/index')
-  // @ts-ignore
-  export type { SingleTicketInput, SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
-  import('../../packages/0/src/composables/createSingle/index')
-  // @ts-ignore
-  export type { SliderTicketInput, SliderTicket, SliderOptions, SliderContext } from '../../packages/0/src/composables/createSlider/index'
-  import('../../packages/0/src/composables/createSlider/index')
-  // @ts-ignore
-  export type { SortableTicketInput, SortableTicket, SortableOptions, SortableMovePayload, SortableEventListener, SortableContext } from '../../packages/0/src/composables/createSortable/index'
-  import('../../packages/0/src/composables/createSortable/index')
-  // @ts-ignore
-  export type { StepTicketInput, StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/createStep/index'
-  import('../../packages/0/src/composables/createStep/index')
-  // @ts-ignore
-  export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/createTimeline/index'
-  import('../../packages/0/src/composables/createTimeline/index')
-  // @ts-ignore
-  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/createTokens/index'
-  import('../../packages/0/src/composables/createTokens/index')
-  // @ts-ignore
-  export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
-  import('../../packages/0/src/composables/createTrinity/index')
-  // @ts-ignore
-  export type { ValidationTicketInput, ValidationTicket, ValidationContext, ValidationOptions } from '../../packages/0/src/composables/createValidation/index'
-  import('../../packages/0/src/composables/createValidation/index')
-  // @ts-ignore
-  export type { VirtualDirection, VirtualState, VirtualAnchor, ScrollToOptions, VirtualOptions, VirtualItem, VirtualContext, VirtualContextOptions } from '../../packages/0/src/composables/createVirtual/index'
-  import('../../packages/0/src/composables/createVirtual/index')
-  // @ts-ignore
-  export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
-  import('../../packages/0/src/composables/toElement/index')
-  // @ts-ignore
-  export type { HighlightChunk, ToHighlightOptions } from '../../packages/0/src/composables/toHighlight/index'
-  import('../../packages/0/src/composables/toHighlight/index')
-  // @ts-ignore
-  export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
-  import('../../packages/0/src/composables/useBreakpoints/index')
-  // @ts-ignore
-  export type { ClickOutsideElement, ClickOutsideTarget, ClickOutsideIgnoreTarget, UseClickOutsideOptions, UseClickOutsideReturn } from '../../packages/0/src/composables/useClickOutside/index'
-  import('../../packages/0/src/composables/useClickOutside/index')
-  // @ts-ignore
-  export type { DateContext, DateOptions, DateContextOptions, DatePluginOptions } from '../../packages/0/src/composables/useDate/index'
-  import('../../packages/0/src/composables/useDate/index')
-  // @ts-ignore
-  export type { UseDelayOptions, UseDelayStartOptions, UseDelayReturn } from '../../packages/0/src/composables/useDelay/index'
-  import('../../packages/0/src/composables/useDelay/index')
-  // @ts-ignore
-  export type { Orientation, DragType, DropIndicator, DropPosition, DragVia, ActiveDrag, DraggableTicketInput, DraggableTicket, DropZoneTicketInput, DropZoneTicket, DragDropPlugin, DragDropOptions, DraggablesContext, ZonesContext, DragDropContext, DragDropAdapterContext, DragDropAdapterEmit, KeyboardAdapterOptions, PointerAdapterOptions } from '../../packages/0/src/composables/useDragDrop/index'
-  import('../../packages/0/src/composables/useDragDrop/index')
-  // @ts-ignore
-  export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
-  import('../../packages/0/src/composables/useEventListener/index')
-  // @ts-ignore
-  export type { FeatureTicketInput, FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions, FeaturesAdapterFlags, FeaturesAdapterValue } from '../../packages/0/src/composables/useFeatures/index'
-  import('../../packages/0/src/composables/useFeatures/index')
-  // @ts-ignore
-  export type { UseHotkeyOptions, UseHotkeyReturn, PlatformContext } from '../../packages/0/src/composables/useHotkey/index'
-  import('../../packages/0/src/composables/useHotkey/index')
-  // @ts-ignore
-  export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
-  import('../../packages/0/src/composables/useHydration/index')
-  // @ts-ignore
-  export type { ImageStatus, UseImageOptions, UseImageReturn } from '../../packages/0/src/composables/useImage/index'
-  import('../../packages/0/src/composables/useImage/index')
-  // @ts-ignore
-  export type { IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
-  import('../../packages/0/src/composables/useIntersectionObserver/index')
-  // @ts-ignore
-  export type { LazyOptions, LazyContext } from '../../packages/0/src/composables/useLazy/index'
-  import('../../packages/0/src/composables/useLazy/index')
-  // @ts-ignore
-  export type { LocaleRecord, LocaleTicketInput, LocaleTicket, LocaleContext, LocaleOptions, LocaleContextOptions, LocalePluginOptions, LocaleAdapterContext } from '../../packages/0/src/composables/useLocale/index'
-  import('../../packages/0/src/composables/useLocale/index')
-  // @ts-ignore
-  export type { LoggerContext, LoggerOptions, LoggerContextOptions, LoggerPluginOptions, LogLevel } from '../../packages/0/src/composables/useLogger/index'
-  import('../../packages/0/src/composables/useLogger/index')
-  // @ts-ignore
-  export type { MediaQueryContext } from '../../packages/0/src/composables/useMediaQuery/index'
-  import('../../packages/0/src/composables/useMediaQuery/index')
-  // @ts-ignore
-  export type { ObservableNodeList, MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
-  import('../../packages/0/src/composables/useMutationObserver/index')
-  // @ts-ignore
-  export type { NotificationSeverity, NotificationInput, NotificationTicketInput, NotificationTicket, NotificationsAdapterContext, NotificationsOptions, NotificationsContext, NotificationsPluginOptions } from '../../packages/0/src/composables/useNotifications/index'
-  import('../../packages/0/src/composables/useNotifications/index')
-  // @ts-ignore
-  export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions } from '../../packages/0/src/composables/usePermissions/index'
-  import('../../packages/0/src/composables/usePermissions/index')
-  // @ts-ignore
-  export type { PopoverOptions, PopoverReturn, PopoverPluginContext, PopoverPluginContextOptions, PopoverPluginOptions, PopoverAdapterContext, PopoverAlign, PopoverPlacement, PopoverSide } from '../../packages/0/src/composables/usePopover/index'
-  import('../../packages/0/src/composables/usePopover/index')
-  // @ts-ignore
-  export type { PresenceState, UsePresenceOptions, UsePresenceReturn } from '../../packages/0/src/composables/usePresence/index'
-  import('../../packages/0/src/composables/usePresence/index')
-  // @ts-ignore
-  export type { ProxyModelOptions, ProxyModelTarget } from '../../packages/0/src/composables/useProxyModel/index'
-  import('../../packages/0/src/composables/useProxyModel/index')
-  // @ts-ignore
-  export type { ProxyRegistryOptions, ProxyRegistryContext } from '../../packages/0/src/composables/useProxyRegistry/index'
-  import('../../packages/0/src/composables/useProxyRegistry/index')
-  // @ts-ignore
-  export type { UseRafReturn } from '../../packages/0/src/composables/useRaf/index'
-  import('../../packages/0/src/composables/useRaf/index')
-  // @ts-ignore
-  export type { ReducedMotionMode, ReducedMotionContext, ReducedMotionOptions, ReducedMotionContextOptions, ReducedMotionPluginOptions, ReducedMotionAdapterSetupContext } from '../../packages/0/src/composables/useReducedMotion/index'
-  import('../../packages/0/src/composables/useReducedMotion/index')
-  // @ts-ignore
-  export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
-  import('../../packages/0/src/composables/useResizeObserver/index')
-  // @ts-ignore
-  export type { RovingItem, RovingFocusOptions, RovingFocusReturn } from '../../packages/0/src/composables/useRovingFocus/index'
-  import('../../packages/0/src/composables/useRovingFocus/index')
-  // @ts-ignore
-  export type { RtlContext, RtlOptions, RtlContextOptions, RtlPluginOptions, RtlAdapterSetupContext } from '../../packages/0/src/composables/useRtl/index'
-  import('../../packages/0/src/composables/useRtl/index')
-  // @ts-ignore
-  export type { RuleAlias, RuleInput, RuleAliases, RulesContext, RulesOptions, RulesContextOptions, StandardSchemaV1 } from '../../packages/0/src/composables/useRules/index'
-  import('../../packages/0/src/composables/useRules/index')
-  // @ts-ignore
-  export type { StackTicketInput, StackTicket, StackContext, StackOptions, StackContextOptions, StackPluginOptions } from '../../packages/0/src/composables/useStack/index'
-  import('../../packages/0/src/composables/useStack/index')
-  // @ts-ignore
-  export type { StorageContext, StorageOptions, StorageContextOptions, StoragePluginOptions, StorageType } from '../../packages/0/src/composables/useStorage/index'
-  import('../../packages/0/src/composables/useStorage/index')
-  // @ts-ignore
-  export type { Colors, ThemeColors, ThemeRecord, ThemeTicketInput, ThemeTicket, ThemeContext, ThemeSystemPair, ThemeOptions, ThemeContextOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
-  import('../../packages/0/src/composables/useTheme/index')
-  // @ts-ignore
-  export type { TimerOptions, TimerContext } from '../../packages/0/src/composables/useTimer/index'
-  import('../../packages/0/src/composables/useTimer/index')
-  // @ts-ignore
-  export type { ToggleScopeControls } from '../../packages/0/src/composables/useToggleScope/index'
-  import('../../packages/0/src/composables/useToggleScope/index')
-  // @ts-ignore
-  export type { TooltipOptions, TooltipContext, TooltipContextOptions, TooltipPluginOptions } from '../../packages/0/src/composables/useTooltip/index'
-  import('../../packages/0/src/composables/useTooltip/index')
-  // @ts-ignore
-  export type { VirtualFocusItem, VirtualFocusOptions, VirtualFocusReturn } from '../../packages/0/src/composables/useVirtualFocus/index'
-  import('../../packages/0/src/composables/useVirtualFocus/index')
-  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
   // @ts-ignore
@@ -614,8 +382,6 @@ declare module 'vue' {
     readonly ClientDataTableAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['ClientDataTableAdapter']>
     readonly ComboboxAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createCombobox/index')['ComboboxAdapter']>
     readonly ConsolaLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']>
-    readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
-    readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly DataTableAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['DataTableAdapter']>
     readonly DateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['DateAdapter']>
     readonly DragDropAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDragDrop/index')['DragDropAdapter']>

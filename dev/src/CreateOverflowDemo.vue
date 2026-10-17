@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow } from '@vuetify/v0'
+  import { IN_BROWSER, createOverflow } from '@vuetify/v0'
 
   // Utilities
   import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
@@ -32,12 +32,15 @@
   const items = computed(() => Array.from({ length: count.value }, (_, i) => i))
 
   // Register every item with the "with measure" context only.
-  watch(items, (now, prev = []) => {
-    const fakeEl = document.createElement('div')
-    Object.defineProperty(fakeEl, 'offsetWidth', { value: ITEM_WIDTH })
-    for (const i of now) withMeasure.measure(i, fakeEl)
-    for (const i of prev) if (!now.includes(i)) withMeasure.measure(i, undefined)
-  }, { immediate: true })
+  // The fake element is a layout stand-in; skip it during prerender.
+  if (IN_BROWSER) {
+    watch(items, (now, prev = []) => {
+      const fakeEl = document.createElement('div')
+      Object.defineProperty(fakeEl, 'offsetWidth', { value: ITEM_WIDTH })
+      for (const i of now) withMeasure.measure(i, fakeEl)
+      for (const i of prev) if (!now.includes(i)) withMeasure.measure(i, undefined)
+    }, { immediate: true })
+  }
 
   // Drive containerWidth into the actual element so ResizeObserver picks it up.
   onMounted(() => {

@@ -3,15 +3,11 @@ import { useContrast } from '#paper/composables/useContrast'
 
 // Utilities
 import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
-import { inject, shallowRef, toRef } from 'vue'
-
-// Types
-import type { ThemeProvider } from '#paper/composables/useTheme'
+import { shallowRef, toRef } from 'vue'
 
 export interface ColorProps {
   bgColor?: string
   color?: string
-  theme?: string
 }
 
 export function rgbToRgba (rgb: string): string {
@@ -69,8 +65,6 @@ export function parseColor (color?: string, contrast = false) {
     return undefined
   }
 
-  const theme = inject<ThemeProvider>('theme')
-
   const rgba = shallowRef<string | undefined>('')
 
   if (color.startsWith('#')) {
@@ -78,16 +72,9 @@ export function parseColor (color?: string, contrast = false) {
   } else if (color.startsWith('rgb')) {
     rgba.value = rgbToRgba(color)
   } else {
-    const currentTheme = theme?.get()
-    const themeColor = currentTheme?.colors[color as keyof typeof currentTheme.colors]
+    rgba.value = color
 
-    if (!themeColor) {
-      rgba.value = color
-
-      return rgba
-    }
-
-    rgba.value = color.length === 9 ? hexaToRgba(themeColor) : hexToRgba(themeColor)
+    return rgba
   }
 
   if (contrast) {
