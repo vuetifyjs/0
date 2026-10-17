@@ -73,7 +73,7 @@
   interface AtomPrivateProps extends AtomProps {}
 </script>
 
-<script setup lang="ts" generic="T extends Record<string, any> = {}">
+<script lang="ts" setup generic="T extends Record<string, any> = {}">
   defineOptions({ name: 'Atom' })
 
   defineSlots<AtomSlots<T>>()
