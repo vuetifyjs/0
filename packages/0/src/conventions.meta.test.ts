@@ -181,7 +181,6 @@ function kebab (name: string): string {
 
 function stripComments (source: string): string {
   return source
-    .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/(^|[^:])\/\/.*$/gm, '$1')
 }
@@ -189,7 +188,7 @@ function stripComments (source: string): string {
 function scriptsOf (source: string, file: string): string[] {
   if (!file.endsWith('.vue')) return [source]
 
-  return [...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match => match[1] ?? '')
+  return [...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1] ?? '')
 }
 
 function maturity (): {
@@ -417,7 +416,7 @@ describe('written conventions', () => {
     const files = walk(path.join(SRC, 'components'), file => file.endsWith('.vue') && !file.includes(`${path.sep}fixtures${path.sep}`))
 
     for (const file of files) {
-      for (const tag of read(file).match(/<script\b[^>]*>/g) ?? []) {
+      for (const tag of read(file).match(/<script\b[^>]*>/gi) ?? []) {
         const hasSetup = /\bsetup\b/.test(tag)
         const hasLang = /\blang=/.test(tag)
         if (!hasSetup || !hasLang) continue
