@@ -148,6 +148,7 @@ export function useEventListener (
     listener: EventHandler,
     options?: boolean | AddEventListenerOptions,
   ) {
+    // eslint-disable-next-line no-restricted-syntax -- useEventListener is the listener primitive (PHILOSOPHY §2.5)
     el.addEventListener(event, listener, options)
     return () => el.removeEventListener(event, listener, options)
   }
