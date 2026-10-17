@@ -188,7 +188,7 @@ function stripComments (source: string): string {
 function scriptsOf (source: string, file: string): string[] {
   if (!file.endsWith('.vue')) return [source]
 
-  return [...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1] ?? '')
+  return [...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map(match => match[1] ?? '')
 }
 
 function maturity (): {
