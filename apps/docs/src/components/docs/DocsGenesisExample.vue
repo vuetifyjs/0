@@ -7,10 +7,12 @@
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
   import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
+  import DocsGenesisExamplePane from './DocsGenesisExamplePane.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
+  import { useCollapseAnchor } from '@/composables/useCollapseAnchor'
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
@@ -25,12 +27,13 @@
   import { PALETTE_THEMES, createThemeToggle, provideThemeToggle, useThemeToggleContext } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, onMounted, toRef } from 'vue'
+  import { computed, onMounted, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { PlaygroundHashData } from '@/composables/usePlayground'
   import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
+  import type { ComponentPublicInstance } from 'vue'
 
   export interface DocsGenesisExampleProps {
     /** Display filename for single-file mode (when not auto-resolved) */
@@ -68,6 +71,12 @@
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  const exampleRef = useTemplateRef<ComponentPublicInstance>('example')
+  useCollapseAnchor(() => {
+    const el = exampleRef.value?.$el
+    return el instanceof HTMLElement ? el : undefined
+  })
 
   const inherited = useThemeToggleContext()
   const example = inherited ?? createThemeToggle({ palette: props.palette })
@@ -166,6 +175,7 @@
 <template>
   <GnDocsExample
     :id
+    ref="example"
     class="mb-6"
     :code="resolvedCode"
     :collapse
@@ -227,14 +237,10 @@
     </template>
 
     <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
-      <div
-        class="docs-genesis-example-pane"
-        :class="lineWrap && 'docs-genesis-example-pane--wrap'"
-        data-tour="example-code"
-      >
+      <DocsGenesisExamplePane :label="paneFile?.name ?? fileName" :wrap="lineWrap">
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
-        <div class="docs-genesis-example-pane__actions" data-tour="example-toolbar">
+        <template #actions>
           <DocsCodeActions
             v-model:size="size"
             v-model:wrap="lineWrap"
@@ -248,8 +254,8 @@
             show-wrap
             :title="paneFile?.name ?? fileName"
           />
-        </div>
-      </div>
+        </template>
+      </DocsGenesisExamplePane>
     </template>
   </GnDocsExample>
 </template>
@@ -271,37 +277,5 @@
      it. Re-point the fade at the surface the glass resolves over. */
   :deep(.genesis-docs-example-description__fade) {
     background: linear-gradient(transparent, var(--v0-surface));
-  }
-
-  .docs-genesis-example-pane {
-    position: relative;
-  }
-
-  .docs-genesis-example-pane__actions {
-    position: absolute;
-    top: 0.5rem;
-    inset-inline-end: 0.5rem;
-    z-index: 10;
-    display: flex;
-    gap: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,
-  .docs-genesis-example-pane:focus-within .docs-genesis-example-pane__actions {
-    opacity: 1;
-  }
-
-  @media (max-width: 767px) {
-    .docs-genesis-example-pane__actions {
-      opacity: 1;
-    }
-  }
-
-  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre),
-  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre code) {
-    white-space: pre-wrap;
-    word-break: break-word;
   }
 </style>
