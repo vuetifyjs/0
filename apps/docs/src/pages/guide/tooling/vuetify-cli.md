@@ -238,7 +238,7 @@ vuetify add use-locale --yes
 vuetify add eslint
 ```
 
-Configure the MCP server with [`vuetify mcp install`](/guide/tooling/vuetify-mcp) (not `add mcp` — that path is deprecated).
+Configure the MCP server with [vuetify mcp install](/guide/tooling/vuetify-mcp) (not `add mcp` — that path is deprecated).
 
 ### list and status
 
