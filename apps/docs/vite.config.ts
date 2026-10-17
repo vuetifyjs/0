@@ -106,7 +106,11 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    VueDevTools(),
+    // appendTo skips transformIndexHtml. Without it the client is injected into
+    // every HTML input, including sandbox/*.html, so each example iframe gets
+    // its own panel and inspector. The shell entry is the only document that
+    // should load them.
+    VueDevTools({ appendTo: 'src/main.ts' }),
     await Markdown(),
     Components({
       dirs: ['src/components'],
