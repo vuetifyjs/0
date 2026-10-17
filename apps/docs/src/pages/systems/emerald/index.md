@@ -59,9 +59,25 @@ Buy it on the [Vuetify Store](https://store.vuetifyjs.com/products/official-emer
 
 ## Installation
 
-```bash
+::: code-group no-filename
+
+```bash pnpm
 pnpm add @paper/emerald
 ```
+
+```bash npm
+npm install @paper/emerald
+```
+
+```bash yarn
+yarn add @paper/emerald
+```
+
+```bash bun
+bun add @paper/emerald
+```
+
+:::
 
 The plugin registers the theme adapter, the two themes, and the icon set:
 
