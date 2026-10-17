@@ -185,10 +185,32 @@ function stripComments (source: string): string {
     .replace(/(^|[^:])\/\/.*$/gm, '$1')
 }
 
+function scriptRegions (source: string): { tag: string, body: string }[] {
+  const regions: { tag: string, body: string }[] = []
+  const lower = source.toLowerCase()
+  let from = 0
+
+  while (from < lower.length) {
+    const open = lower.indexOf('<script', from)
+    if (open === -1) break
+    const openEnd = source.indexOf('>', open)
+    if (openEnd === -1) break
+    const close = lower.indexOf('</script', openEnd)
+    if (close === -1) break
+    const closeEnd = source.indexOf('>', close)
+    regions.push({
+      tag: source.slice(open, openEnd + 1),
+      body: source.slice(openEnd + 1, close),
+    })
+    from = closeEnd === -1 ? close + '</script'.length : closeEnd + 1
+  }
+
+  return regions
+}
+
 function scriptsOf (source: string, file: string): string[] {
   if (!file.endsWith('.vue')) return [source]
-
-  return [...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].map(match => match[1] ?? '')
+  return scriptRegions(source).map(region => region.body)
 }
 
 function maturity (): {
@@ -416,7 +438,7 @@ describe('written conventions', () => {
     const files = walk(path.join(SRC, 'components'), file => file.endsWith('.vue') && !file.includes(`${path.sep}fixtures${path.sep}`))
 
     for (const file of files) {
-      for (const tag of read(file).match(/<script\b[^>]*>/gi) ?? []) {
+      for (const tag of scriptRegions(read(file)).map(region => region.tag)) {
         const hasSetup = /\bsetup\b/.test(tag)
         const hasLang = /\blang=/.test(tag)
         if (!hasSetup || !hasLang) continue
