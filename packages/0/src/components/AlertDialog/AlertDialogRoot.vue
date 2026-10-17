@@ -52,7 +52,7 @@
     close: () => void
   }
 
-  export const [useAlertDialogContext, provideAlertDialogContext] = createContext<AlertDialogContext>()
+  export const [useAlertDialogContext, provideAlertDialogContext] = /* @__PURE__ */ createContext<AlertDialogContext>()
 </script>
 
 <script setup lang="ts">

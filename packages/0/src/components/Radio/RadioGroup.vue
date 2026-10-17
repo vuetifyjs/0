@@ -142,7 +142,7 @@
     }
   }
 
-  export const [useRadioGroup, provideRadioGroup] = createContext<RadioGroupContext>()
+  export const [useRadioGroup, provideRadioGroup] = /* @__PURE__ */ createContext<RadioGroupContext>()
 </script>
 
 <script setup lang="ts" generic="T = unknown">

@@ -73,7 +73,7 @@
     }
   }
 
-  export const [useCheckboxGroup, provideCheckboxGroup] = createContext<GroupContext<GroupTicket>>()
+  export const [useCheckboxGroup, provideCheckboxGroup] = /* @__PURE__ */ createContext<GroupContext<GroupTicket>>()
 </script>
 
 <script setup lang="ts" generic="T = unknown">

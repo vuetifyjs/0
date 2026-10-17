@@ -91,7 +91,7 @@
     clear: () => void
   }
 
-  export const [useComboboxContext, provideComboboxContext] = createContext<ComboboxContext>()
+  export const [useComboboxContext, provideComboboxContext] = /* @__PURE__ */ createContext<ComboboxContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

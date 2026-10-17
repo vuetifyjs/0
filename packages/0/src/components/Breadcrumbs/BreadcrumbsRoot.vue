@@ -74,7 +74,7 @@
     }
   }
 
-  export const [useBreadcrumbsRoot, provideBreadcrumbsRoot] = createContext<BreadcrumbsRootContext>()
+  export const [useBreadcrumbsRoot, provideBreadcrumbsRoot] = /* @__PURE__ */ createContext<BreadcrumbsRootContext>()
 </script>
 
 <script setup lang="ts">

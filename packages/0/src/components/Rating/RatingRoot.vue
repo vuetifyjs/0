@@ -95,7 +95,7 @@
     }
   }
 
-  export const [useRatingRoot, provideRatingRoot] = createContext<RatingRootContext>()
+  export const [useRatingRoot, provideRatingRoot] = /* @__PURE__ */ createContext<RatingRootContext>()
 </script>
 
 <script setup lang="ts">

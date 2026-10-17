@@ -63,7 +63,7 @@
     index: number
   }
 
-  export const [useAvatarRoot, provideAvatarRoot] = createContext<AvatarContext>()
+  export const [useAvatarRoot, provideAvatarRoot] = /* @__PURE__ */ createContext<AvatarContext>()
 </script>
 
 <script setup lang="ts">

@@ -60,7 +60,7 @@
     }
   }
 
-  export const [useGroupRoot, provideGroupRoot] = createContext<GroupContext<GroupTicket>>()
+  export const [useGroupRoot, provideGroupRoot] = /* @__PURE__ */ createContext<GroupContext<GroupTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

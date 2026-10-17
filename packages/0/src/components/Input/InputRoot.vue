@@ -160,7 +160,7 @@
     }
   }
 
-  export const [useInputRoot, provideInputRoot] = createContext<InputRootContext>()
+  export const [useInputRoot, provideInputRoot] = /* @__PURE__ */ createContext<InputRootContext>()
 
   function parseValidateOn (value: ValidateOn) {
     const parts = String(value).split(' ')

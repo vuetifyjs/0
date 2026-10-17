@@ -441,7 +441,7 @@ function createFeaturesFallback (): FeatureContext {
 }
 
 export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
-  createPluginContext<FeaturePluginOptions, FeatureContext>(
+  /* @__PURE__ */ createPluginContext<FeaturePluginOptions, FeatureContext>(
     'v0:features',
     options => createFeatures(options),
     {

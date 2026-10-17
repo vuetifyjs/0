@@ -47,7 +47,7 @@
   }
 
   export const [useSnackbarRootContext, provideSnackbarRootContext] =
-    createContext<SnackbarRootContext>({ suffix: 'root' })
+    /* @__PURE__ */ createContext<SnackbarRootContext>({ suffix: 'root' })
 
   export interface SnackbarRootProps extends AtomProps {
     /** Namespace for dependency injection. @default 'v0:notifications' */

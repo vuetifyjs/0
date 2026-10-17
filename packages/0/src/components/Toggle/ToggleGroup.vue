@@ -67,7 +67,7 @@
     }
   }
 
-  export const [useToggleGroup, provideToggleGroup] = createContext<ToggleGroupContext>()
+  export const [useToggleGroup, provideToggleGroup] = /* @__PURE__ */ createContext<ToggleGroupContext>()
 </script>
 
 <script setup lang="ts" generic="T = unknown">

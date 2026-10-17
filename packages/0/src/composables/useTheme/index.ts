@@ -516,7 +516,7 @@ function createThemeFallback (): ThemeContext {
 }
 
 export const [createThemeContext, createThemePlugin, useTheme] =
-  createPluginContext<ThemePluginOptions, ThemeContext>(
+  /* @__PURE__ */ createPluginContext<ThemePluginOptions, ThemeContext>(
     'v0:theme',
     options => createTheme(options),
     {

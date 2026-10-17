@@ -99,7 +99,7 @@
     }
   }
 
-  export const [useSplitterRoot, provideSplitterRoot] = createContext<SplitterContext>('v0:splitter')
+  export const [useSplitterRoot, provideSplitterRoot] = /* @__PURE__ */ createContext<SplitterContext>('v0:splitter')
 </script>
 
 <script setup lang="ts">

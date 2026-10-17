@@ -147,7 +147,7 @@
     }
   }
 
-  export const [useRadioRoot, provideRadioRoot] = createContext<RadioRootContext>()
+  export const [useRadioRoot, provideRadioRoot] = /* @__PURE__ */ createContext<RadioRootContext>()
 </script>
 
 <script setup lang="ts" generic="V = unknown">

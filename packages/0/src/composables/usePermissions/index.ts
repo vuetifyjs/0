@@ -150,7 +150,7 @@ function createPermissionsFallback (): PermissionContext {
 }
 
 export const [createPermissionsContext, createPermissionsPlugin, usePermissions] =
-  createPluginContext<PermissionContextOptions, PermissionContext>(
+  /* @__PURE__ */ createPluginContext<PermissionContextOptions, PermissionContext>(
     'v0:permissions',
     options => createPermissions(options),
     { fallback: () => createPermissionsFallback() },
