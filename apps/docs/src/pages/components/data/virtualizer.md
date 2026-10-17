@@ -24,7 +24,7 @@ Headless virtualized list that mounts only the rows inside (and slightly beyond)
 
 ## Usage
 
-`Virtualizer.Root` renders the scroll container. Place `Virtualizer.Spacer` before the rows and `Virtualizer.Spacer` with `edge="end"` after them; those reserve the height of the rows that are not mounted. The default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. Set `as` when the container cannot hold a `div`: `as="ul"` on Root, `as="li"` on Spacer and Item. The container needs a definite height — the `height` prop, an `h-*` class, or a flex or grid parent that sizes it. `max-height` alone is not enough: the container starts at zero height, so no rows render to grow it.
+`Virtualizer.Root` renders the scroll container. Place `Virtualizer.Spacer` before the rows and `Virtualizer.Spacer` with `edge="end"` after them; those reserve the height of the rows that are not mounted. The default slot receives only the visible window — iterate it with `Virtualizer.Item`, passing each item's `index` from the full list. Set `as` when the container cannot hold a `div`: `as="ul"` on Root, `as="li"` on Spacer and Item. `renderless` and `as="null"` do not replace `as`. Root, Item, and Spacer each require the element they render. The container needs a definite height — the `height` prop, an `h-*` class, or a flex or grid parent that sizes it. `max-height` alone is not enough: the container starts at zero height, so no rows render to grow it.
 
 ::: gn-example
 /components/virtualizer/basic
@@ -372,7 +372,13 @@ A template ref on Root provides both halves: `element` is the container that kee
 
 ??? Does Virtualizer support renderless mode?
 
-No. Scroll measurement needs Root's wrapper element, so Root warns when `renderless` is set or `as` is `null`. Item and Spacer warn too — without an element, Item cannot measure and Spacer cannot reserve its height. For full control over the markup, use [createVirtual](/composables/data/create-virtual) directly.
+No. `renderless` and `as="null"` warn on Root, Item, and Spacer. Each one still mounts, without the element its behavior needs. Change the tag with `as` (`as="ul"` on Root, `as="li"` on Spacer and Item). To render the nodes yourself, use [createVirtual](/composables/data/create-virtual).
+
+- **Root.** The window is `scrollTop` plus the viewport height measured on that same element (its content box, or the `height` prop until that measurement lands). `@top` and `@bottom` read `scrollHeight` and `clientHeight`. `scrollTo` and anchor restoration write the scroll position back. Each of those returns immediately when the element is missing. Root takes the element from the node it renders. The default slot exposes `items`, `scrollTo`, and `reset` only. It has no `attrs` object and no ref, so an element you render never becomes the scroll parent.
+- **Item.** The row height is that element's border box, from a `ResizeObserver`. With no element, the row stays at the estimate.
+- **Spacer.** The reserved height is an inline style on the element Spacer renders. `renderless` skips that element. Copying the slot's height onto an element you render is unsupported.
+
+Progress can be renderless because its slot `attrs` are the behavior, and the caller spreads those attrs onto an element they render. Virtualizer's behavior is the element itself.
 
 ??? What does Virtualizer render on the server?
 
