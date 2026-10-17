@@ -657,6 +657,8 @@
      bound to the codeSize setting. */
   .app-shell {
     --docs-code-size: 0.8125rem;
+    /* Long example files scroll inside this cap. Shorter files never reach it. */
+    --docs-code-window-max: min(28rem, 70vh);
   }
 
   .app-shell[data-code-size='medium'] {
@@ -753,5 +755,65 @@
   .shiki:focus-visible {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--v0-primary);
+  }
+
+  /* Code windows opt into a thin scrollbar. Overlay scrollbars stay invisible
+     until the pointer is over them, which hides that a long file continues, so
+     a scrollable window also reserves a gutter and fades its trailing edge.
+     The thumb follows the surface token so light and dark both read. */
+  .docs-code-window {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 40%, transparent) transparent;
+  }
+
+  .docs-code-window--active {
+    scrollbar-gutter: stable;
+  }
+
+  .docs-code-window::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: block;
+    height: 2.5rem;
+    margin-top: -2.5rem;
+    pointer-events: none;
+    background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
+    opacity: 0;
+  }
+
+  @supports (animation-timeline: scroll(nearest block)) {
+    .docs-code-window--active::after {
+      animation: docs-code-window-fade linear both;
+      animation-timeline: scroll(nearest block);
+    }
+  }
+
+  .docs-code-window::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .docs-code-window::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 40%, transparent);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+
+  .docs-code-window::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  .docs-code-window:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--v0-primary);
+  }
+
+  @keyframes docs-code-window-fade {
+    0% { opacity: 1; }
+    78% { opacity: 1; }
+    100% { opacity: 0; }
   }
 </style>
