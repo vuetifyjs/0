@@ -150,7 +150,7 @@
   export const [useRadioRoot, provideRadioRoot] = /* @__PURE__ */ createContext<RadioRootContext>()
 </script>
 
-<script setup lang="ts" generic="V = unknown">
+<script lang="ts" setup generic="V = unknown">
   // Context
   import { useRadioGroup } from './RadioGroup.vue'
   import RadioHiddenInput from './RadioHiddenInput.vue'

@@ -61,6 +61,7 @@ export interface CreateContextOptions {
  * ```
  */
 export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
+  // eslint-disable-next-line no-restricted-syntax -- createContext is the inject wrapper (PHILOSOPHY §6.5)
   const context = inject<Z>(key, defaultValue as Z)
 
   if (isUndefined(context)) {
@@ -103,6 +104,7 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
   if (app) {
     app.provide(key, context)
   } else {
+    // eslint-disable-next-line no-restricted-syntax -- createContext is the provide wrapper (PHILOSOPHY §6.5)
     provide(key, context)
   }
 

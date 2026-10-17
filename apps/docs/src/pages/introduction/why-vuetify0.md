@@ -155,7 +155,7 @@ Don't have a built-in? Implement the adapter interface in ~10 lines and swap it 
 
 Performance at the foundation layer compounds for everything built on top. Every composable is independently importable and tree-shakeable — only what you use ships. Zero runtime CSS. Published [benchmarks](/guide/fundamentals/benchmarks) back the claims.
 
-Lazy rendering is built in: [`usePresence`](/composables/system/use-presence) delays mounting until needed, [`useLazy`](/composables/system/use-lazy) defers content until it enters the viewport. Performance is a feature, not an afterthought.
+Lazy rendering is built in: [usePresence](/composables/system/use-presence) delays mounting until needed, [useLazy](/composables/system/use-lazy) defers content until it enters the viewport. Performance is a feature, not an afterthought.
 
 ### Progressive Enhancement
 

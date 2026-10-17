@@ -194,7 +194,7 @@ describe('createRtl', () => {
 
       adapter.dispose!()
 
-      expect(entryDispose).toHaveBeenCalledOnce()
+      expect(entryDispose).toHaveBeenCalledTimes(1)
 
       scope.stop()
     })

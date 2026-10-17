@@ -55,7 +55,7 @@
   }
 </script>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   defineOptions({ name: 'TabsList', inheritAttrs: false })
 
   const attrs = useAttrs()

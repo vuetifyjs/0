@@ -76,7 +76,7 @@
   export const [useSwitchGroup, provideSwitchGroup] = /* @__PURE__ */ createContext<GroupContext<GroupTicket>>()
 </script>
 
-<script setup lang="ts" generic="T = unknown">
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'SwitchGroup' })
 
   defineSlots<{

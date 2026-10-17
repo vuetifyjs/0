@@ -217,7 +217,7 @@ describe('v0StyleSheetThemeAdapter', () => {
 
       adapter.dispose!()
 
-      expect(entryDispose).toHaveBeenCalledOnce()
+      expect(entryDispose).toHaveBeenCalledTimes(1)
 
       scope.stop()
     })
