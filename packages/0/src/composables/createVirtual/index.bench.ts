@@ -10,7 +10,11 @@
  *   index-driven and recomputes on every call, so it needs no reset.
  * - FRESH fixtures only where the populate IS the measured op (initialization)
  * - Tests both 1,000 and 10,000 item datasets
- * - Categories: initialization, scroll operations, resize operations, scrollTo operations, computed access
+ * - Categories: initialization, scroll operations, resize operations, scrollTo operations, computed access, offset repair, item replacement
+ *
+ * Goal (10,000 items), mean of the engine bench divided by the reference bench:
+ * - Repair offsets after resize <= 1.25 × Tail add reference
+ * - Replace keyed items <= 1.35 × Keyed reattach reference
  */
 
 import { bench, describe, vi } from 'vitest'
@@ -19,11 +23,11 @@ import { bench, describe, vi } from 'vitest'
 import { createVirtual } from '@vuetify/v0/composables'
 
 // Utilities
-import { ref } from 'vue'
+import { nextTick, ref, shallowRef, watch } from 'vue'
 
 // Types
 import type { VirtualContext } from '@vuetify/v0/composables'
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 
 // =============================================================================
 // MOCKS - Required for lifecycle-dependent code
@@ -341,5 +345,176 @@ describe('createVirtual benchmarks', () => {
         void virtual10k.size.value
       }
     })
+  })
+
+  // ===========================================================================
+  // OFFSET REPAIR - one measured row forces a 10,000-wide offset update
+  // WARM: shared instance. resize() early-bails on an unchanged height, so the
+  // height toggles between two values. A synchronous animation frame is
+  // installed per task (setup/teardown), so the tail add runs inside resize()
+  // and the other benches keep the native scheduler.
+  // The drift check runs on the first warmup call, outside the measured samples.
+  // Goal: Repair offsets after resize <= 1.25 × Tail add reference.
+  // ===========================================================================
+  describe('offset repair', () => {
+    const nativeFrame = globalThis.requestAnimationFrame
+    const nativeCancel = globalThis.cancelAnimationFrame
+    const nativeWindowFrame = globalThis.window?.requestAnimationFrame
+    function syncFrame (callback: FrameRequestCallback) {
+      callback(0)
+      return 1
+    }
+
+    const repair = createVirtualInstance(10_000)
+    const repairEl = repair.element.value as HTMLElement
+    let nextHeight = 80
+    let proved = false
+
+    const tail = Array.from({ length: 10_000 }, (_, index) => index * 50)
+    let tailNext = 80
+    let tailPrev = 50
+    let sink = 0
+
+    bench('Repair offsets after resize (10,000 items)', () => {
+      const written = nextHeight
+      repair.resize(0, written)
+      if (!proved) {
+        proved = true
+        repair.scrollTo(1)
+        const head = repairEl.scrollTop
+        repair.scrollTo(5_000)
+        const mid = repairEl.scrollTop
+        if (head !== written || mid !== head + 4_999 * 50) {
+          throw new Error(`resize repair drifted: head ${head}, mid ${mid}, written ${written}`)
+        }
+      }
+      nextHeight = nextHeight === 80 ? 64 : 80
+    }, {
+      setup () {
+        globalThis.requestAnimationFrame = syncFrame
+        globalThis.cancelAnimationFrame = () => {}
+        if (globalThis.window) globalThis.window.requestAnimationFrame = syncFrame
+      },
+      teardown () {
+        globalThis.requestAnimationFrame = nativeFrame
+        globalThis.cancelAnimationFrame = nativeCancel
+        if (globalThis.window && nativeWindowFrame) {
+          globalThis.window.requestAnimationFrame = nativeWindowFrame
+        }
+      },
+    })
+
+    bench('Tail add reference (10,000 items)', () => {
+      const delta = tailNext - tailPrev
+      tailPrev = tailNext
+
+      for (let i = 1; i < 10_000; i++) tail[i] = tail[i]! + delta
+      tailNext = tailNext === 80 ? 64 : 80
+      sink = tail[9_999]!
+    })
+
+    void sink
+  })
+
+  // ===========================================================================
+  // ITEM REPLACEMENT - keyed reattach of stored heights, one pass
+  // WARM: lists are built once. The timed region is the assignment plus the
+  // pre-flush watch (nextTick), which is where the walk runs. Same length so
+  // the cost is the walk, not an allocation of a longer list. Departed keys
+  // are dropped. The map is primed here, at collection, with a no-op frame so
+  // the prime stays O(n) and no bench inherits that frame.
+  // The drift check runs on the first warmup call, outside the measured samples.
+  // Goal: Replace keyed items <= 1.35 × Keyed reattach reference.
+  // ===========================================================================
+  describe('item replacement', () => {
+    const shifted: BenchmarkItem[] = Array.from({ length: 10_000 }, (_, i) => ({
+      id: i + 1,
+      value: i + 1,
+    }))
+    const lists = [ITEMS_10K, shifted]
+    const keyedItems = shallowRef(ITEMS_10K) as ShallowRef<readonly BenchmarkItem[]>
+    const keyed = createVirtual(keyedItems, {
+      itemHeight: 50,
+      height: 600,
+      itemKey: (item: BenchmarkItem) => item.id,
+    })
+    const keyedEl = createMockContainer()
+    keyed.element.value = keyedEl
+
+    const primeFrame = globalThis.requestAnimationFrame
+    const primeCancel = globalThis.cancelAnimationFrame
+    const primeWindowFrame = globalThis.window?.requestAnimationFrame
+    function ignoreFrame () {
+      return 1
+    }
+    function ignoreCancel () {}
+    globalThis.requestAnimationFrame = ignoreFrame
+    globalThis.cancelAnimationFrame = ignoreCancel
+    if (globalThis.window) globalThis.window.requestAnimationFrame = ignoreFrame
+    try {
+      for (let i = 0; i < 10_000; i++) keyed.resize(i, 40 + (i % 17))
+    } finally {
+      globalThis.requestAnimationFrame = primeFrame
+      globalThis.cancelAnimationFrame = primeCancel
+      if (globalThis.window && primeWindowFrame) {
+        globalThis.window.requestAnimationFrame = primeWindowFrame
+      }
+    }
+
+    let which = 1
+    let proved = false
+    const probe = shallowRef(0)
+    let live = new Map<number, number>()
+    const refHeights = Array.from({ length: 10_000 }, () => 0)
+    const refOffsets = Array.from({ length: 10_000 }, () => 0)
+    let sink = 0
+
+    for (let i = 0; i < 10_000; i++) live.set(i, 40 + (i % 17))
+
+    watch(probe, () => {
+      const rows = lists[probe.value & 1]!
+      const next = new Map<number, number>()
+      const fallback = 50
+      let sum = 0
+      const length = rows.length
+
+      for (let i = 0; i < length; i++) {
+        const id = rows[i]!.id
+        const known = live.get(id)
+        if (typeof known === 'number') {
+          refHeights[i] = known
+          next.set(id, known)
+          refOffsets[i] = sum
+          sum += known || fallback
+        } else {
+          refHeights[i] = 0
+          refOffsets[i] = sum
+          sum += fallback
+        }
+      }
+      live = next
+      sink = sum
+    })
+
+    bench('Replace keyed items (10,000 items)', async () => {
+      keyedItems.value = lists[which]!
+      which ^= 1
+      await nextTick()
+      if (!proved) {
+        proved = true
+        // First assignment is `shifted`: index 0 is id 1, primed at 41.
+        keyed.scrollTo(1)
+        if (keyedEl.scrollTop !== 41) {
+          throw new Error(`keyed reattach drifted: head ${keyedEl.scrollTop}`)
+        }
+      }
+    })
+
+    bench('Keyed reattach reference (10,000 items)', async () => {
+      probe.value++
+      await nextTick()
+    })
+
+    void sink
   })
 })

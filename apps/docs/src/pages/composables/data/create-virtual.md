@@ -105,12 +105,22 @@ flowchart LR
   F --> H
 ```
 
+## Options
+
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `marker` | `MaybeRefOrGetter<HTMLElement \| null>` | — | Element at the top of the list. Its offset is removed from the scroll position, so a header or padding above the list does not shift the window. |
+| `itemKey` | `(item, index) => string \| number` | — | Keeps a measured height on that item when the array is prepended, filtered, or reordered. Without it, heights stay on the index. |
+| `ownElement` | `boolean` | `true` | Set to `false` when a parent owns the scroll element. The engine then skips its momentum and overscroll styles. |
+
+`scrollTo` places the visible window before it writes the scroll position, and retries if the browser clamps that write. A `scrollTo` made before `element` is assigned runs once the element is set. Each visible item includes `key`, which is the `itemKey` result, or the index when no key function was passed.
+
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
 | - | :-: | - |
 | `element` | <AppSuccessIcon /> | Ref, assign scroll container |
-| `items` | <AppSuccessIcon /> | Computed, visible items with index |
+| `items` | <AppSuccessIcon /> | Computed, visible items with index and key |
 | `offset` | <AppSuccessIcon /> | ShallowRef, readonly (top spacer height) |
 | `size` | <AppSuccessIcon /> | ShallowRef, readonly (bottom spacer height) |
 | `state` | <AppSuccessIcon /> | ShallowRef (`'loading'` \| `'empty'` \| `'error'` \| `'ok'`) |
