@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { TIER_CONFIG, type Tier } from '@/composables/useBenchmarkData'
+  import { sortControlName, TIER_CONFIG, type BenchmarkSortField, type Tier } from '@/composables/useBenchmarkData'
 
   // Utilities
   import { toRef } from 'vue'
@@ -11,7 +11,9 @@
   const props = defineProps<{
     searchQuery: string
     selectedTiers: Set<ID>
-    sortBy: 'hz' | 'mean' | 'rme'
+    sortBy: BenchmarkSortField
+    sortDesc: boolean
+    view: 'groups' | 'table'
     totalVisible: number
     totalAll: number
     allExpanded: boolean
@@ -21,17 +23,23 @@
   const emit = defineEmits<{
     'update:search-query': [value: string]
     'toggle-tier': [tier: Tier]
-    'update:sort-by': [value: 'hz' | 'mean' | 'rme']
+    'update:sort-by': [value: BenchmarkSortField]
+    'update:view': [value: 'groups' | 'table']
     'clear-filters': []
     'toggle-expand': []
   }>()
 
   const tiers: Tier[] = ['blazing', 'fast', 'good', 'slow']
 
-  const sortOptions: { value: 'hz' | 'mean' | 'rme', label: string }[] = [
+  const sortOptions: { value: BenchmarkSortField, label: string }[] = [
     { value: 'hz', label: 'Throughput' },
     { value: 'mean', label: 'Latency' },
     { value: 'rme', label: 'Margin' },
+  ]
+
+  const views: { value: 'groups' | 'table', label: string }[] = [
+    { value: 'groups', label: 'Groups' },
+    { value: 'table', label: 'Table' },
   ]
 
   const hasActiveFilters = toRef(() =>
@@ -39,27 +47,59 @@
     || props.selectedTiers.size > 0,
   )
 
+  const sortAnnouncement = toRef(() => {
+    const label = sortOptions.find(opt => opt.value === props.sortBy)?.label ?? props.sortBy
+    return `Sorted by ${sortControlName(label, true, props.sortDesc)}`
+  })
+
   const isFiltered = toRef(() => props.totalVisible < props.totalAll)
 </script>
 
 <template>
   <div>
-    <!-- Sort toggles -->
-    <div aria-label="Sort by" class="flex flex-wrap items-center gap-2 mt-2 mb-3" role="radiogroup">
-      <button
-        v-for="opt in sortOptions"
-        :key="opt.value"
-        :aria-checked="sortBy === opt.value"
-        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
-        :class="sortBy === opt.value
-          ? 'border-primary text-primary bg-primary/10 opacity-100'
-          : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
-        role="radio"
-        @click="emit('update:sort-by', opt.value)"
-      >
-        <AppIcon v-if="sortBy === opt.value" icon="sort" :size="12" />
-        {{ opt.label }}
-      </button>
+    <!-- Sort + view -->
+    <div class="flex flex-wrap items-center gap-2 mt-2 mb-3">
+      <div aria-label="Sort by" class="flex flex-wrap items-center gap-2" role="group">
+        <span aria-live="polite" class="sr-only">{{ sortAnnouncement }}</span>
+
+        <button
+          v-for="opt in sortOptions"
+          :key="opt.value"
+          :aria-label="sortControlName(opt.label, sortBy === opt.value, sortDesc)"
+          :aria-pressed="sortBy === opt.value"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
+          :class="sortBy === opt.value
+            ? 'border-primary text-primary bg-primary/10 opacity-100'
+            : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
+          type="button"
+          @click="emit('update:sort-by', opt.value)"
+        >
+          <AppIcon
+            v-if="sortBy === opt.value"
+            class="transition-transform"
+            :class="sortDesc ? 'rotate-90' : '-rotate-90'"
+            icon="chevron-right"
+            :size="12"
+          />
+          {{ opt.label }}
+        </button>
+      </div>
+
+      <div aria-label="Layout" class="ml-auto flex items-center gap-1" role="radiogroup">
+        <button
+          v-for="opt in views"
+          :key="opt.value"
+          :aria-checked="view === opt.value"
+          class="px-2 py-0.5 rounded-full text-[11px] font-medium border cursor-pointer transition-all"
+          :class="view === opt.value
+            ? 'border-primary text-primary bg-primary/10'
+            : 'border-divider text-on-surface-variant opacity-70 hover:opacity-100'"
+          role="radio"
+          @click="emit('update:view', opt.value)"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
     </div>
 
     <!-- Tier chips -->
