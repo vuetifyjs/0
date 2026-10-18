@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createFilter, createFilterContext, useFilter } from './index'
 
 // Utilities
-import { inject, provide, ref, shallowRef } from 'vue'
+import { inject, provide, ref, shallowRef, watchSyncEffect } from 'vue'
 
 // Types
 import type { Primitive } from './index'
@@ -188,6 +188,86 @@ describe('createFilter.apply', () => {
 
     expect(filtered.value).toHaveLength(3)
     expect(filtered.value.every(i => i.name.startsWith('app'))).toBe(true)
+  })
+
+  it('should pass a custom filter the original query text', () => {
+    let seen: Primitive | Primitive[] | undefined
+    const filter = createFilter({
+      customFilter: query => {
+        seen = query
+        return true
+      },
+    })
+
+    const { items: filtered } = filter.apply('  Apple  ', items)
+    expect(filtered.value).toHaveLength(5)
+    expect(seen).toBe('  Apple  ')
+  })
+
+  it('should drop blank query parts and keep the rest untrimmed', () => {
+    let seen: Primitive | Primitive[] | undefined
+    const filter = createFilter({
+      customFilter: query => {
+        seen = query
+        return true
+      },
+    })
+
+    const { items: filtered } = filter.apply(['  ', '  Foo  ', '  Bar  '], items)
+    expect(filtered.value).toHaveLength(5)
+    expect(seen).toEqual(['  Foo  ', '  Bar  '])
+  })
+
+  it('should ignore keys when a custom filter is set', () => {
+    const keys = shallowRef(['name'])
+    let calls = 0
+    const filter = createFilter({
+      keys,
+      customFilter: (query, item) => {
+        calls++
+        return (item as { name: string }).name.includes(String(query))
+      },
+    })
+    const { items: filtered } = filter.apply('apple', items)
+
+    expect(filtered.value).toHaveLength(3)
+    const before = calls
+
+    keys.value = ['color']
+
+    expect(filtered.value).toHaveLength(3)
+    expect(calls).toBe(before)
+  })
+
+  it('should return the same item objects it was given', () => {
+    const row = { name: 'apple', color: 'red', type: 'fruit' }
+    const filter = createFilter()
+    const { items: filtered } = filter.apply('apple', [row])
+
+    expect(filtered.value[0]).toBe(row)
+  })
+
+  it('should re-filter when a later field on a deep ref changes', () => {
+    const rows = ref([
+      { name: 'apple', email: 'a@example.com' },
+      { name: 'berry', email: 'apple@example.com' },
+    ])
+    const filter = createFilter()
+    const { items: filtered } = filter.apply('apple', rows)
+    let runs = 0
+    const stop = watchSyncEffect(() => {
+      void filtered.value
+      runs++
+    })
+
+    expect(filtered.value).toHaveLength(2)
+
+    rows.value[0]!.email = 'changed@example.com'
+
+    expect(runs).toBe(2)
+    expect(filtered.value).toHaveLength(2)
+    expect(filtered.value[0]).toBe(rows.value[0])
+    stop()
   })
 
   it('should handle objects without specified keys', () => {

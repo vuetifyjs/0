@@ -81,19 +81,19 @@ export interface FilterContextOptions extends FilterOptions {
 }
 
 function defaultFilter (
-  query: Primitive | Primitive[],
+  queries: readonly string[],
   item: FilterItem,
   keys?: readonly string[],
   mode: FilterMode = 'some',
 ): boolean {
-  const queries = toArray(query).map(q => String(q).toLowerCase())
-
   const values = isObject(item)
     ? (keys?.length
         ? keys.map(k => item[k])
         : Object.values(item))
     : [item]
 
+  // Materialize every field. A deep ref subscribes to each read, and stopping
+  // at the first match would drop later fields from that subscription.
   const stringValues = values.map(v => String(v).toLowerCase())
 
   if (mode === 'some') {
@@ -145,7 +145,6 @@ export function createFilter<
   E extends FilterContext<Z> = FilterContext<Z>,
 > (options: FilterOptions = {}): E {
   const { customFilter, keys, mode = 'some' } = options
-  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, toValue(keys), mode))
   const query = shallowRef<Primitive | Primitive[]>('')
 
   function apply<T extends Z> (
@@ -155,14 +154,18 @@ export function createFilter<
     const filteredItems = computed(() => {
       const q = toValue(_query)
       query.value = q
-      const queries = toArray(q).filter(q => String(q).trim())
+      const queries = toArray(q).filter(part => String(part).trim())
 
       if (queries.length === 0) return toValue(items)
 
       const queryParam = queries.length === 1 ? queries[0]! : queries
-      return toValue(items).filter(item =>
-        filterFunction(queryParam, item),
-      )
+      const list = toValue(items)
+
+      if (customFilter) return list.filter(item => customFilter(queryParam, item))
+
+      const lowered = queries.map(part => String(part).toLowerCase())
+      const selected = toValue(keys)
+      return list.filter(item => defaultFilter(lowered, item, selected, mode))
     })
 
     return { items: filteredItems }
