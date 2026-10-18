@@ -145,7 +145,7 @@
   export const [useRadioGroup, provideRadioGroup] = /* @__PURE__ */ createContext<RadioGroupContext>()
 </script>
 
-<script setup lang="ts" generic="T = unknown">
+<script lang="ts" setup generic="T = unknown">
   // Composables
   import { createSingle } from '#v0/composables/createSingle'
   import { useProxyModel } from '#v0/composables/useProxyModel'

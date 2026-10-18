@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   prepare:
@@ -199,6 +200,8 @@ jobs:
         run: pnpm repo:knip
       - name: Run sherif check
         run: pnpm repo:sherif
+      - name: Check generated skill
+        run: pnpm skill --check
       - name: Guard benchmark artifacts
         if: github.event_name == 'pull_request'
         env:
@@ -206,6 +209,26 @@ jobs:
         run: |
           git fetch origin "$GITHUB_BASE_REF" --depth=1
           pnpm metrics:check
+
+  changeset:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Require a changeset for package source
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/changeset-required.js
+
+  semantic-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Vapor parity tests run on a pre-release Vue (tests/vapor, vue@3.6.0-rc),
   # pinned separately from the rest of the repo. Non-blocking: a Vapor

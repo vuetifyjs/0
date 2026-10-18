@@ -1,5 +1,72 @@
 import vuetify from 'eslint-config-vuetify'
 
+// Shared selectors. `ts` applies to packages/0/src non-test TypeScript.
+// `vue` applies to packages/0/src Vue SFCs. `both` applies to each.
+// Line-level eslint-disable comments are the allowlist for the few legal sites
+// (guard implementations, IN_BROWSER, the listener primitives, createContext).
+const nullGuardMessage = 'Use #v0/utilities guards (isNull, isUndefined, isNullOrUndefined) instead of a raw null or undefined comparison (PHILOSOPHY §2.3).'
+
+const syntaxSelectors = [
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="==="][right.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!=="][right.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="=="][right.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!="][right.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="==="][left.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!=="][left.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="=="][left.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!="][left.raw=/^null$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="==="][left.name=/^undefined$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="==="][right.name=/^undefined$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!=="][left.name=/^undefined$/]', message: nullGuardMessage },
+  { appliesTo: 'both', selector: 'BinaryExpression[operator="!=="][right.name=/^undefined$/]', message: nullGuardMessage },
+  {
+    appliesTo: 'both',
+    selector: 'UnaryExpression[operator="typeof"][argument.name=/^(?:window|document)$/]',
+    message: 'Use IN_BROWSER and SUPPORTS_* from #v0/constants/globals instead of typeof window/document (PHILOSOPHY §2.10).',
+  },
+  {
+    appliesTo: 'both',
+    selector: 'UnaryExpression[operator="typeof"][argument.object.name=/^(?:window|document)$/]',
+    message: 'Use IN_BROWSER and SUPPORTS_* from #v0/constants/globals instead of typeof window/document (PHILOSOPHY §2.10).',
+  },
+  {
+    appliesTo: 'both',
+    selector: 'CallExpression[callee.object.name="Math"][callee.property.name="random"]',
+    message: 'Do not use Math.random() for ids. Use useId() from #v0/utilities (PHILOSOPHY §2.8).',
+  },
+  {
+    appliesTo: 'both',
+    selector: 'CallExpression[callee.name=/^(?:inject|provide)$/]',
+    message: 'Do not call Vue inject/provide directly. Use createContext (PHILOSOPHY §6.5).',
+  },
+  {
+    appliesTo: 'ts',
+    selector: 'CallExpression[callee.property.name="addEventListener"]',
+    message: 'Composables do not bind DOM events. The listener primitives are useEventListener, useHotkey, useClickOutside, and useMediaQuery (PHILOSOPHY §2.5).',
+  },
+  {
+    appliesTo: 'ts',
+    selector: 'CallExpression[callee.property.name="querySelector"]',
+    message: 'Composables must not querySelector. Pass an element in, or look it up from a component (PHILOSOPHY §2.5).',
+  },
+  {
+    appliesTo: 'ts',
+    selector: 'CallExpression[callee.property.name="querySelectorAll"]',
+    message: 'Composables must not querySelector. Pass an element in, or look it up from a component (PHILOSOPHY §2.5).',
+  },
+  {
+    appliesTo: 'ts',
+    selector: String.raw`ExportAllDeclaration[source.value=/\.vue$/]`,
+    message: 'Never export * from a .vue file. It breaks Volar slot inference (PHILOSOPHY §8.8).',
+  },
+]
+
+function syntaxRules (appliesTo) {
+  return syntaxSelectors
+    .filter(entry => entry.appliesTo === appliesTo || entry.appliesTo === 'both')
+    .map(({ selector, message }) => ({ selector, message }))
+}
+
 export default vuetify({
   vue: true,
   perfectionist: {
@@ -41,7 +108,7 @@ export default vuetify({
 {
   files: ['**/*.ts', '**/*.vue'],
   rules: {
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'error',
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
@@ -179,12 +246,13 @@ export default vuetify({
         selector: 'ThrowStatement > NewExpression[callee.name="Error"]',
         message: 'Use V0Error with a code from V0ErrorDetails instead of bare Error. See packages/0/src/utilities/errors.ts.',
       },
+      ...syntaxRules('ts'),
     ],
   },
 },
 {
   name: 'vuetify/locale-ti-requires-fallback',
-  files: ['packages/0/src/components/**/*.vue'],
+  files: ['packages/0/src/**/*.vue'],
   rules: {
     'no-restricted-syntax': ['error',
       {
@@ -195,6 +263,38 @@ export default vuetify({
         selector: 'CallExpression[callee.property.name="ti"]:not(LogicalExpression[operator="??"] > CallExpression[callee.property.name="ti"])',
         message: 'locale.ti() must be guarded with a `?? \'<inline English default>\'` so unconfigured apps get an accessible name. See packages/0/src/locale/messages/en for canonical strings.',
       },
+      {
+        selector: 'CallExpression[callee.name="onUnmounted"]',
+        message: 'Use onBeforeUnmount for cleanup. onUnmounted runs after the context is gone (PHILOSOPHY §7.3).',
+      },
+      {
+        selector: 'TSAsExpression > TSAnyKeyword',
+        message: 'Do not use `as any`. defineSlots `=> any` and Atom\'s Record<string, any> generic are the only allowed any (PHILOSOPHY §2.2).',
+      },
+      {
+        selector: 'TSTypeAnnotation:not(TSFunctionType > TSTypeAnnotation) > TSAnyKeyword',
+        message: 'Do not annotate a value as any. Slot return `=> any` is the allowed form (PHILOSOPHY §2.2).',
+      },
+      ...syntaxRules('vue'),
+    ],
+  },
+},
+{
+  // Adapter DOM lookup and the known createCombobox option-node getter.
+  // TODO(ops#74): remove createCombobox/index.ts once that getter moves to the component.
+  name: 'vuetify/query-selector-allowlist',
+  files: [
+    'packages/0/src/composables/**/adapters/**/*.ts',
+    'packages/0/src/composables/createCombobox/index.ts',
+  ],
+  ignores: ['packages/0/src/**/*.test.ts', 'packages/0/src/**/*.bench.ts'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'ThrowStatement > NewExpression[callee.name="Error"]',
+        message: 'Use V0Error with a code from V0ErrorDetails instead of bare Error. See packages/0/src/utilities/errors.ts.',
+      },
+      ...syntaxRules('ts').filter(entry => !entry.selector.includes('querySelector')),
     ],
   },
 },
@@ -208,6 +308,135 @@ export default vuetify({
         message: 'Use @vuetify/v0 import',
       }],
     }],
+  },
+},
+{
+  // PHILOSOPHY §9.2. Ignored files are the console implementation, not callers:
+  // createFallbackLogger, V0LoggerAdapter, the Layer-0 context warning, and useId's SSR warning.
+  name: 'vuetify/no-console',
+  files: ['packages/0/src/**/*.{ts,vue}'],
+  ignores: [
+    'packages/0/src/**/*.test.ts',
+    'packages/0/src/**/*.browser.test.ts',
+    'packages/0/src/**/*.bench.ts',
+    'packages/0/src/composables/useLogger/index.ts',
+    'packages/0/src/composables/useLogger/adapters/v0.ts',
+    'packages/0/src/composables/createContext/index.ts',
+    'packages/0/src/utilities/helpers.ts',
+  ],
+  rules: {
+    'no-console': 'error',
+  },
+},
+{
+  name: 'vuetify/no-cross-feature-relative',
+  files: ['packages/0/src/**/*.{ts,vue}'],
+  ignores: [
+    'packages/0/src/**/adapters/**',
+    'packages/0/src/components/fixtures/**',
+    'packages/0/src/**/*.bench.ts',
+  ],
+  rules: {
+    'no-restricted-imports': ['error', {
+      patterns: [{
+        group: ['..', '../*', '../**'],
+        message: 'Cross-feature relative imports are banned. Use #v0/. Sibling ./ imports stay legal. Adapters may import their parent with ../ (PHILOSOPHY §2.4).',
+      }],
+    }],
+  },
+},
+{
+  name: 'vuetify/adapter-relative-depth',
+  files: ['packages/0/src/**/adapters/**/*.{ts,vue}'],
+  rules: {
+    'no-restricted-imports': ['error', {
+      patterns: [{
+        group: ['../..', '../../*', '../../**'],
+        message: 'Adapter files may import their parent feature (../) only. Use #v0/ past that (PHILOSOPHY §2.4).',
+      }],
+    }],
+  },
+},
+{
+  name: 'vuetify/fixture-relative-depth',
+  files: ['packages/0/src/components/fixtures/**/*.{ts,vue}'],
+  rules: {
+    'no-restricted-imports': ['error', {
+      patterns: [{
+        group: ['../../..', '../../../*', '../../../**'],
+        message: 'Fixture imports may reach a component barrel (../ or ../../) but not higher. Use #v0/ past that (PHILOSOPHY §2.4).',
+      }],
+    }],
+  },
+},
+{
+  name: 'vuetify/bench-public-imports',
+  files: ['packages/0/src/**/*.bench.ts'],
+  rules: {
+    'no-restricted-imports': ['error', {
+      patterns: [
+        {
+          group: ['#v0', '#v0/*', '#v0/**'],
+          message: 'Benchmarks import the public @vuetify/v0 surface so the history harness measures installed versions, not source (benchmarks.md).',
+        },
+        {
+          group: ['./index', './index.ts', './index.js'],
+          message: 'Do not import ./index from a bench file. Use @vuetify/v0. Fixture imports (./fixtures) stay relative.',
+        },
+      ],
+    }],
+  },
+},
+{
+  name: 'vuetify/sort-barrels',
+  files: [
+    'packages/0/src/components/index.ts',
+    'packages/0/src/composables/index.ts',
+  ],
+  rules: {
+    'perfectionist/sort-exports': ['error', {
+      type: 'natural',
+      order: 'asc',
+      ignoreCase: true,
+    }],
+  },
+},
+{
+  // Keeps the withDefaults ban from the shared TS/Vue block. A later
+  // no-restricted-syntax override replaces the whole selector list.
+  name: 'vuetify/test-assertions',
+  files: ['**/*.test.ts'],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'CallExpression[callee.name="withDefaults"]',
+        message: 'Use destructuring with defaults instead of withDefaults.',
+      },
+      {
+        selector: 'CallExpression[callee.property.name="toHaveBeenCalledOnce"]',
+        message: 'Use toHaveBeenCalledTimes(1) (testing.md).',
+      },
+    ],
+  },
+},
+{
+  name: 'vuetify/no-marked-outside-pipeline',
+  files: ['apps/docs/**/*.{ts,vue}'],
+  ignores: [
+    'apps/docs/src/composables/useMarkdown.ts',
+    'apps/docs/src/utilities/markdown.ts',
+  ],
+  rules: {
+    'no-restricted-syntax': ['error',
+      {
+        selector: 'CallExpression[callee.name="withDefaults"]',
+        message: 'Use destructuring with defaults instead of withDefaults.',
+      },
+      {
+        selector: 'NewExpression[callee.name="Marked"]',
+        message: 'Instantiate Marked only inside useMarkdown (docs.md). Extend that pipeline instead of constructing another one.',
+      },
+    ],
   },
 },
 )

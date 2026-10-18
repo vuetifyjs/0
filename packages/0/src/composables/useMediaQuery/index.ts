@@ -101,6 +101,7 @@ export function useMediaQuery (query: MaybeRefOrGetter<string>): MediaQueryConte
       matches.value = e.matches
     }
 
+    // eslint-disable-next-line no-restricted-syntax -- useMediaQuery is a listener primitive (PHILOSOPHY §2.5)
     mql.addEventListener('change', handler)
     cleanup = () => mql.removeEventListener('change', handler)
   }

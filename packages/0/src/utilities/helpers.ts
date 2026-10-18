@@ -118,6 +118,7 @@ export function isBoolean (item: unknown): item is boolean {
 /* #__NO_SIDE_EFFECTS__ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional: Record<string, unknown> breaks interface narrowing (#723)
 export function isObject (item: unknown): item is Record<string, any> {
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   return typeof item === 'object' && item !== null && !Array.isArray(item)
 }
 
@@ -244,6 +245,7 @@ export function getActiveElement (): Element | null {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isNull (item: unknown): item is null {
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   return item === null
 }
 
@@ -269,6 +271,7 @@ export function isNull (item: unknown): item is null {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isNullOrUndefined (item: unknown): item is null | undefined {
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   return item == null
 }
 
@@ -289,6 +292,7 @@ export function isNullOrUndefined (item: unknown): item is null | undefined {
  */
 /* #__NO_SIDE_EFFECTS__ */
 export function isUndefined (item: unknown): item is undefined {
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   return item === undefined
 }
 
@@ -363,8 +367,10 @@ export function isNaN (item: unknown): item is number {
 export const UNSAFE_KEYS = /* @__PURE__ */ new Set(['__proto__', 'constructor', 'prototype'])
 
 function isPlainObject (value: unknown): value is Record<string, unknown> {
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const proto = Object.getPrototypeOf(value)
+  // eslint-disable-next-line no-restricted-syntax -- guard implementation (PHILOSOPHY §2.3)
   return proto === Object.prototype || proto === null
 }
 

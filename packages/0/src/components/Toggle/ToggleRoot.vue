@@ -69,7 +69,7 @@
   export const [useToggleRoot, provideToggleRoot] = /* @__PURE__ */ createContext<ToggleRootContext>()
 </script>
 
-<script setup lang="ts" generic="V = unknown">
+<script lang="ts" setup generic="V = unknown">
   // Context
   import { useToggleGroup } from './ToggleGroup.vue'
 
