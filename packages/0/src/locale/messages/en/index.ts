@@ -66,6 +66,9 @@ export default {
     rejected: '{item} cannot move there',
     roledescription: 'draggable item',
   },
+  Menu: {
+    label: 'Menu',
+  },
   NumberField: {
     decrement: 'Decrement',
     increment: 'Increment',

@@ -631,6 +631,12 @@
       "category": "disclosure",
       "description": "A component for creating accordion-style expansion panels with proper ARIA support."
     },
+    "Menu": {
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "A headless menu for a button, a right-click, or a menubar, including submenus."
+    },
     "Popover": {
       "level": "preview",
       "since": "0.1.0",
