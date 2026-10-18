@@ -5,8 +5,10 @@
  * - WARM filter benches build the filter and its computed once over a plain array.
  *   Each iteration assigns a different query, then reads items.value. The timed
  *   region is the filter, never createFilter() or apply().
- * - WARM update benches do the same read. The deep ref(array) pair is the
- *   per-field subscription path. The plain-array pair is the same update without it.
+ * - WARM update benches flip between two queries and read once. One pass per
+ *   iteration, so ops/s and the tier describe the same operation. The deep
+ *   ref(array) pair is the per-field subscription path. The plain-array pair
+ *   is the same update without it.
  * - "Access … cached" reads a constant query, so only the first read filters.
  * - FRESH fixtures only where construction IS the op (initialization)
  * - Tests both 1,000 and 10,000 item datasets
@@ -225,10 +227,12 @@ describe('createFilter benchmarks', () => {
   // ===========================================================================
   // REACTIVE UPDATES - Same filter, two item containers
   // WARM: the filter and its computed are built once. "Access … cached" reads a
-  //   constant query. "Update query" resets to a base query, then performs 10
-  //   distinct updates so each read re-runs the filter. The unnamed pair passes
-  //   ref(array), which subscribes to every field. The plain-array pair passes
-  //   the shared fixture directly. Reset is O(1). Identical sequence each iteration.
+  //   constant query. "Update query" flips to the other query and reads once, so
+  //   the timed region is one recompute. The name has no "N times": that suffix
+  //   is the tier's repeat divisor, and a loop of 10 would grade the whole loop
+  //   as a tenth of its latency while ops/s still counted every pass. The unnamed
+  //   pair passes ref(array), which subscribes to every field. The plain-array
+  //   pair passes the shared fixture directly. The flip always changes the query.
   // ===========================================================================
   describe('mutation operations', () => {
     // Copies, so ref() does not turn the shared plain fixtures into proxies.
@@ -265,36 +269,24 @@ describe('createFilter benchmarks', () => {
       }
     })
 
-    bench('Update query 10 times (1,000 items)', () => {
-      updateQuery1k.value = LOOKUP_USER_1K
-      for (let i = 0; i < 10; i++) {
-        updateQuery1k.value = `User ${500 + i}`
-        void updateFiltered1k.value
-      }
+    bench('Update query (1,000 items)', () => {
+      updateQuery1k.value = updateQuery1k.value === LOOKUP_USER_1K ? 'User 501' : LOOKUP_USER_1K
+      void updateFiltered1k.value
     })
 
-    bench('Update query 10 times (10,000 items)', () => {
-      updateQuery10k.value = LOOKUP_USER_10K
-      for (let i = 0; i < 10; i++) {
-        updateQuery10k.value = `User ${5000 + i}`
-        void updateFiltered10k.value
-      }
+    bench('Update query (10,000 items)', () => {
+      updateQuery10k.value = updateQuery10k.value === LOOKUP_USER_10K ? 'User 5001' : LOOKUP_USER_10K
+      void updateFiltered10k.value
     })
 
-    bench('Update query 10 times (1,000 items, plain array)', () => {
-      plainQuery1k.value = LOOKUP_USER_1K
-      for (let i = 0; i < 10; i++) {
-        plainQuery1k.value = `User ${500 + i}`
-        void plainFiltered1k.value
-      }
+    bench('Update query (1,000 items, plain array)', () => {
+      plainQuery1k.value = plainQuery1k.value === LOOKUP_USER_1K ? 'User 501' : LOOKUP_USER_1K
+      void plainFiltered1k.value
     })
 
-    bench('Update query 10 times (10,000 items, plain array)', () => {
-      plainQuery10k.value = LOOKUP_USER_10K
-      for (let i = 0; i < 10; i++) {
-        plainQuery10k.value = `User ${5000 + i}`
-        void plainFiltered10k.value
-      }
+    bench('Update query (10,000 items, plain array)', () => {
+      plainQuery10k.value = plainQuery10k.value === LOOKUP_USER_10K ? 'User 5001' : LOOKUP_USER_10K
+      void plainFiltered10k.value
     })
   })
 
