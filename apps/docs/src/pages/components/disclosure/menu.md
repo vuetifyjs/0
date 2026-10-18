@@ -161,7 +161,7 @@ Disabled items ignore the pointer and the keyboard. The page can still change th
 /components/menu/PlacementControls.vue 2
 /components/menu/ShareMenu.vue 3
 /components/menu/ActionsMenu.vue 4
-/components/menu/options.vue 5
+/components/menu/placement/options.vue 5
 
 ### Placement and options
 

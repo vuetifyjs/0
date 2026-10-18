@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import ActionsMenu from './ActionsMenu.vue'
-  import PlacementControls from './PlacementControls.vue'
-  import { subs, tries, usePlacement } from './usePlacement'
+  import ActionsMenu from '../ActionsMenu.vue'
+  import PlacementControls from '../PlacementControls.vue'
+  import { subs, tries, usePlacement } from '../usePlacement'
 
   const {
     area,
