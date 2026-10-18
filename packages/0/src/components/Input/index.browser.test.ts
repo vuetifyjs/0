@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
-import { Input } from './index'
+import { Input, parseValidateOn } from './index'
 
 // Utilities
 import { flushPromises, mount } from '@vue/test-utils'
@@ -792,6 +792,21 @@ describe('input', () => {
       await wait()
 
       expect(props().isValid).toBeNull()
+    })
+  })
+
+  describe('parseValidateOn', () => {
+    it('should parse a bare event', () => {
+      expect(parseValidateOn('input')).toEqual({ event: 'input', modifier: undefined })
+    })
+
+    it('should default the event to blur for a bare modifier', () => {
+      expect(parseValidateOn('lazy')).toEqual({ event: 'blur', modifier: 'lazy' })
+    })
+
+    it('should parse event and modifier in either order', () => {
+      expect(parseValidateOn('submit eager')).toEqual({ event: 'submit', modifier: 'eager' })
+      expect(parseValidateOn('eager submit')).toEqual({ event: 'submit', modifier: 'eager' })
     })
   })
 

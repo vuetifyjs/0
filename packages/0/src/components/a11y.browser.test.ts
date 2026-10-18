@@ -32,6 +32,7 @@ import FormFixture from './fixtures/Form.vue'
 import GroupFixture from './fixtures/Group.vue'
 import ImageFixture from './fixtures/Image.vue'
 import InputFixture from './fixtures/Input.vue'
+import KanbanFixture from './fixtures/Kanban.vue'
 import LocaleFixture from './fixtures/Locale.vue'
 import MenuFixture from './fixtures/Menu.vue'
 import NumberFieldFixture from './fixtures/NumberField.vue'
@@ -59,6 +60,7 @@ import ToggleFixture from './fixtures/Toggle.vue'
 import TooltipFixture from './fixtures/Tooltip.vue'
 import TourFixture from './fixtures/Tour.vue'
 import TreeviewFixture from './fixtures/Treeview.vue'
+import VirtualizerFixture from './fixtures/Virtualizer.vue'
 
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
@@ -142,6 +144,7 @@ const FIXTURES = {
   Group: GroupFixture,
   Image: ImageFixture,
   Input: InputFixture,
+  Kanban: KanbanFixture,
   Locale: LocaleFixture,
   Menu: MenuFixture,
   NumberField: NumberFieldFixture,
@@ -169,6 +172,7 @@ const FIXTURES = {
   Tooltip: TooltipFixture,
   Tour: TourFixture,
   Treeview: TreeviewFixture,
+  Virtualizer: VirtualizerFixture,
 } as const satisfies Record<string, Component>
 
 /**

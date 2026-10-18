@@ -31,12 +31,13 @@
   import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useRaf } from '#v0/composables/useRaf'
 
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNullOrUndefined, pxToNumber } from '#v0/utilities'
+  import { isElement, isNullOrUndefined, pxToNumber } from '#v0/utilities'
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -130,45 +131,25 @@
   const items = createRegistry()
 
   const atom = useTemplateRef<AtomExpose>('atom')
-  const itemWidth = shallowRef(0)
   const itemGap = shallowRef(0)
+  const reserved = shallowRef(0)
 
+  // capacity is page slots. Controls are reserved pixels, not slots.
   const overflow = createOverflow({
     container: () => atom.value?.element as Element | undefined,
-    itemWidth,
     gap: itemGap,
+    reserved,
+    probe: true,
+    max: () => totalVisible,
   })
 
-  /* v8 ignore start -- browser-only measurement code */
-  watch([() => items.size, () => overflow.width.value], () => {
-    if (!IN_BROWSER) return
-
-    const el = items.seek('first')?.value as HTMLElement | undefined
-    const root = overflow.container.value
-    if (!el || !root) return
-
-    // Use rAF to ensure layout has settled after DOM updates
-    requestAnimationFrame(() => {
-      const rootStyle = getComputedStyle(root)
-      const style = getComputedStyle(el)
-      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
-      const gapX = pxToNumber(rootStyle.gap)
-
-      itemWidth.value = (el.offsetWidth || 0) + marginX
-      itemGap.value = gapX
-    })
-  }, { flush: 'post' })
-  /* v8 ignore stop */
-
   const visible = computed(() => {
-    const totalCap = overflow.capacity.value
+    const pageCap = overflow.capacity.value
 
     // SSR or not measured yet
-    if (totalCap === Infinity) return totalVisible ?? 7
+    if (pageCap === Infinity) return totalVisible ?? 7
 
     /* v8 ignore start -- branches require browser measurement */
-    // Subtract nav buttons from total capacity to get page item capacity
-    const pageCap = Math.max(0, totalCap - controls.size)
     const noVisible = isNullOrUndefined(totalVisible)
 
     if (pageCap > 0) return noVisible ? pageCap : Math.min(totalVisible, pageCap)
@@ -184,6 +165,51 @@
     size: () => size,
     itemsPerPage: () => itemsPerPage,
   })
+
+  /* v8 ignore start -- browser-only measurement code */
+  function outer (el: HTMLElement): number {
+    const style = getComputedStyle(el)
+    return (el.offsetWidth || 0) + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+  }
+
+  function sync () {
+    if (!IN_BROWSER) return
+
+    const root = overflow.container.value as HTMLElement | null
+    if (!root) return
+
+    const rootStyle = getComputedStyle(root)
+    itemGap.value = pxToNumber(rootStyle.columnGap) || pxToNumber(rootStyle.gap)
+
+    let controlsWidth = 0
+    let controlCount = 0
+    for (const ticket of controls.values()) {
+      if (!isElement(ticket.value)) continue
+      controlsWidth += outer(ticket.value as HTMLElement)
+      controlCount++
+    }
+    // One gap per control. The probe adds the gaps between pages.
+    reserved.value = controlsWidth + itemGap.value * controlCount
+
+    overflow.reset()
+    let index = 0
+    for (const ticket of items.values()) {
+      if (!isElement(ticket.value)) continue
+      overflow.measure(index, ticket.value)
+      index++
+    }
+    const asked = pagination.items.value.length
+    overflow.settle(index >= asked && asked > 0)
+  }
+
+  const schedule = useRaf(sync)
+
+  watch(
+    () => [pagination.items.value, controls.size, overflow.width.value] as const,
+    () => schedule(),
+    { flush: 'post' },
+  )
+  /* v8 ignore stop */
 
   const slotProps = toRef((): PaginationRootSlotProps => ({
     page: pagination.page.value,

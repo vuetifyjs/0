@@ -25,7 +25,7 @@ A composable for computing how many items fit in a container based on available 
 
 ## Usage
 
-The `createOverflow` composable provides reactive container width tracking and capacity calculation. It supports two modes: variable-width (for items with different widths like breadcrumbs) and uniform-width (for same-width items like pagination buttons).
+The `createOverflow` composable provides reactive container width tracking and capacity calculation. Variable-width mode measures each mounted item. Uniform-width mode uses one `itemWidth` when every item really is that width. Probe mode asks for a count that is not mounted yet, then checks the row that renders.
 
 ```vue collapse
 <script setup lang="ts">
@@ -98,6 +98,9 @@ flowchart LR
 | `gap` | `MaybeRefOrGetter<number>` | `0` | Gap between items in pixels |
 | `reserved` | `MaybeRefOrGetter<number>` | `0` | Reserved space in pixels (nav buttons, ellipsis, etc.) |
 | `itemWidth` | `MaybeRefOrGetter<number>` | — | Uniform item width; enables uniform mode |
+| `probe` | `boolean` | `false` | Ask for a count beyond the mounted children, then correct it with `settle()` |
+| `max` | `MaybeRefOrGetter<number>` | — | Largest count probe mode may ask for |
+| `budget` | `MaybeRefOrGetter<number>` | — | Content-box width in pixels. When omitted, probe mode claims free space in the parent |
 
 ## Reactivity
 
@@ -108,6 +111,7 @@ flowchart LR
 | `capacity` | <AppSuccessIcon /> | Computed from width and measurements |
 | `total` | <AppSuccessIcon /> | Computed, sum of all item widths |
 | `isOverflowing` | <AppSuccessIcon /> | Computed from total vs available width |
+| `settle()` | — | Probe mode only. Call after measuring the row you were asked to render |
 
 ## Examples
 
@@ -147,7 +151,7 @@ Items must keep their measured widths. If you unmount overflowing items (e.g. `s
 
 ??? What's the difference between variable-width and uniform-width mode?
 
-Variable-width measures each item individually (breadcrumbs, nav links of different sizes); uniform-width uses a single `itemWidth` for same-size items like pagination buttons, skipping per-item measurement. Use `reserved` to keep room for an overflow trigger.
+Variable-width measures each mounted item, such as breadcrumbs and nav links. Uniform-width uses one `itemWidth` when every item is that width. Probe mode is for a fitting count that is not mounted yet: render `capacity`, measure the row, and call `settle()`. Pagination uses probe mode so a wide page number can shrink the row and a narrower page can grow it back. Use `reserved` to keep room for controls that are not part of the counted items.
 
 ??? When should I use createOverflow instead of the Overflow component?
 
