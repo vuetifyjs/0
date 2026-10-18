@@ -21,6 +21,7 @@ export default defineConfig({
       dirs: [
         '../packages/paper/src/components/',
         '../packages/0/src/components/',
+        '!../packages/0/src/components/fixtures',
         '../packages/emerald/src/components/',
       ],
       dts: 'src/components.d.ts',
@@ -28,14 +29,22 @@ export default defineConfig({
     AutoImport({
       imports: [
         'vue',
+        {
+          from: fileURLToPath(new URL('../packages/0/src/utilities/helpers.ts', import.meta.url)),
+          imports: [{ name: 'useId', priority: 2 }],
+        },
       ],
       dirs: [
         '../packages/paper/src/composables',
         '../packages/paper/src/utilities',
-        '../packages/0/src/composables',
+        // types: false — the barrel's `export type { MatchRange }` collides
+        // with the definition in utilities/diacritics.ts. Value exports stay.
+        { glob: '../packages/0/src/composables', types: false },
         '../packages/0/src/constants',
         '../packages/0/src/utilities',
       ],
+      // Drop names whose source file is gone. The default `append` keeps them.
+      dtsMode: 'overwrite',
       dts: 'src/composables.d.ts',
       eslintrc: {
         enabled: false,
@@ -65,6 +74,12 @@ export default defineConfig({
       '#bulma': fileURLToPath(new URL('../packages/bulma/src', import.meta.url)),
       '#emerald': fileURLToPath(new URL('../packages/emerald/src', import.meta.url)),
     },
+  },
+  // Beasties joins the `/demo/emerald/` base onto `dev/dist` and looks for
+  // CSS that Vite wrote at `dev/dist/assets/`. Docs turns this off for the
+  // same reason: inlining UnoCSS utilities is inconsistent and shifts layout.
+  ssgOptions: {
+    beastiesOptions: false,
   },
   build: {
     minify: false,
