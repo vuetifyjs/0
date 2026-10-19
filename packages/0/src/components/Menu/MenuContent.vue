@@ -182,16 +182,14 @@
       },
     }
   })
-
-  const merged = toRef(() => mergeProps(attrs, slotProps.value.attrs))
 </script>
 
 <template>
   <Atom
     ref="atom"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    v-bind="merged"
   >
     <slot
       v-if="hasContent"
