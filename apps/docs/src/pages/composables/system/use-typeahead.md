@@ -12,7 +12,8 @@ features:
   level: 2
 related:
   - /composables/system/use-timer
-  - /composables/registration/create-registry
+  - /composables/reactivity/use-proxy-registry
+  - /composables/reactivity/use-proxy-model
   - /components/forms/select
 ---
 
@@ -83,11 +84,9 @@ The composable only reports the match. This example writes the matched string in
 
 ### Registry items
 
-The items getter runs on every character, so the search sees the tickets registered at that moment. This example stores the states in a [createRegistry](/composables/registration/create-registry) and passes `() => available.values()`. Select reads its options the same way: the getter returns the tickets currently in the list.
+The items getter runs on every character and reads whatever is registered then. This example stores the states in a [createSelection](/composables/selection/create-selection) opened with `events: true`. [useProxyRegistry](/composables/reactivity/use-proxy-registry) exposes those tickets as `items.values`, which the list renders and the getter returns. [useProxyModel](/composables/reactivity/use-proxy-model) keeps a ref on that same selection: assigning the ref selects the matching ticket, and selecting a ticket assigns the ref.
 
-The four states start registered. Click a name to remove it or put it back. The list under the buttons is registry order, which is the order a repeated letter cycles through. Remove Alabama and type `a`. The match is Alaska. Add Alabama again and it is registered last. After the buffer clears, typing `a` four times walks Alaska, American Samoa, Arizona, then Alabama.
-
-`reactive: true` redraws the buttons and the list when a state is added or removed. The getter reads `values()` on the keypress, so the search uses those same tickets. Removing the state shown as the match clears that label. The buffer stays, and the next character continues the prefix against the tickets that remain.
+Click the button and type. A hit calls `select`. The ref updates from the selection, and that row is marked selected. Remove the selected state and the selection drops its id, so the ref clears through the same proxy. Add Alabama again and it registers last. After the buffer clears, typing `a` four times walks Alaska, American Samoa, Arizona, then Alabama.
 
 :::
 
