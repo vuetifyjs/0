@@ -11,7 +11,7 @@ export type { SelectContentProps, SelectContentSlotProps } from './SelectContent
 export type { SelectCueProps, SelectCueSlotProps } from './SelectCue.vue'
 export type { SelectItemProps, SelectItemSlotProps } from './SelectItem.vue'
 export type { SelectPlaceholderProps, SelectPlaceholderSlotProps } from './SelectPlaceholder.vue'
-export type { SelectContext, SelectRootProps, SelectRootSlotProps } from './SelectRoot.vue'
+export type { SelectContext, SelectRootProps, SelectRootSlotProps, SelectTicketInput } from './SelectRoot.vue'
 export type { SelectValueProps, SelectValueSlotProps } from './SelectValue.vue'
 
 // Context

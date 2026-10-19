@@ -34,11 +34,16 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionContext } from '#v0/composables/createSelection'
+  import type { SelectionContext, SelectionTicketInput } from '#v0/composables/createSelection'
   import type { PopoverAdapter, PopoverReturn } from '#v0/composables/usePopover'
   import type { VirtualFocusReturn } from '#v0/composables/useVirtualFocus'
   import type { ID } from '#v0/types'
   import type { MaybeRefOrGetter, Ref } from 'vue'
+
+  export interface SelectTicketInput<V = unknown> extends SelectionTicketInput<V> {
+    /** Option text read on each typeahead key */
+    text: () => string
+  }
 
   export interface SelectContext {
     /** Whether the dropdown is open */
@@ -60,7 +65,7 @@
     /** Reference to the activator DOM element */
     activatorEl: Ref<HTMLElement | null>
     /** Selection context for managing selected items */
-    selection: SelectionContext
+    selection: SelectionContext<SelectTicketInput>
     /** Virtual focus for keyboard navigation */
     virtualFocus: VirtualFocusReturn
     /** Popover for dropdown positioning */
@@ -73,10 +78,6 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
-    /** Register option text for typeahead matching */
-    registerText: (id: ID, text: () => string) => void
-    /** Drop option text when an item unmounts */
-    unregisterText: (id: ID) => void
     /** Handle one typed character */
     onTypeahead: (char: string) => void
     /** Raw model value for fallback display before items register. Carries ticket values (type-erased at the compound boundary) */
@@ -154,7 +155,7 @@
   const listboxId = `${id}-listbox`
   const activatorId = `${id}-activator`
 
-  const selection = createSelection({
+  const selection = createSelection<SelectTicketInput>({
     multiple: toRef(() => multiple),
     mandatory: toRef(() => mandatory),
     disabled: toRef(() => disabled),
@@ -184,20 +185,10 @@
     },
   )
 
-  const texts = new Map<ID, () => string>()
-
-  function registerText (itemId: ID, text: () => string) {
-    texts.set(itemId, text)
-  }
-
-  function unregisterText (id: ID) {
-    texts.delete(id)
-  }
-
   const lookup = useTypeahead(
     () => selection.values(),
     {
-      text: item => texts.get(item.id)?.() ?? '',
+      text: item => item.text(),
     },
   )
 
@@ -285,8 +276,6 @@
     close,
     toggle,
     select,
-    registerText,
-    unregisterText,
     onTypeahead,
     modelValue: model,
   })

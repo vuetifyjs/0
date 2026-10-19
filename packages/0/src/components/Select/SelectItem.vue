@@ -84,9 +84,12 @@
   const atomRef = useTemplateRef<AtomExpose>('atom')
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
-  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
-
-  context.registerText(ticket.id, () => el.value?.textContent?.trim() ?? '')
+  const ticket = context.selection.register({
+    id,
+    value,
+    disabled: () => toValue(disabled) ?? false,
+    text: () => el.value?.textContent?.trim() ?? '',
+  })
 
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -98,7 +101,6 @@
   }
 
   onBeforeUnmount(() => {
-    context.unregisterText(ticket.id)
     context.selection.unregister(ticket.id)
   })
 
