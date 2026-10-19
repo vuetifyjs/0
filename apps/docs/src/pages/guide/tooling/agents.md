@@ -96,6 +96,14 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
+```bash Codex
+codex mcp add vuetify-mcp --url https://mcp.vuetifyjs.com/mcp
+```
+
+```bash Gemini
+gemini mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
+
 :::
 
 Docs-only. Add `https://mcp.vuetifyjs.com/one` to authenticate with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp).

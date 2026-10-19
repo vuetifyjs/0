@@ -3,12 +3,17 @@ import { createContext, createPlugin, usePrefersReducedMotion, useStorage } from
 import { IN_BROWSER } from '@vuetify/v0/constants'
 import { isNullOrUndefined } from '@vuetify/v0/utilities'
 
+import { isCodingCli } from '@/constants/codingCli'
+
 // Utilities
 import { nextTick, shallowRef, toRef, watch } from 'vue'
 
 // Types
+import type { CodingCli } from '@/constants/codingCli'
 import type { StorageContext } from '@vuetify/v0'
 import type { Ref, ShallowRef } from 'vue'
+
+export type { CodingCli } from '@/constants/codingCli'
 
 export type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun'
 
@@ -21,6 +26,7 @@ export interface DocSettings {
   codeSize: CodeSize
   reduceMotion: 'system' | 'on' | 'off'
   packageManager: PackageManager
+  codingCli: CodingCli
   showInlineApi: boolean
   showSkillFilter: boolean
   showThemeToggle: boolean
@@ -42,6 +48,7 @@ export interface SettingsContext {
   codeSize: ShallowRef<CodeSize>
   reduceMotion: ShallowRef<DocSettings['reduceMotion']>
   packageManager: ShallowRef<DocSettings['packageManager']>
+  codingCli: ShallowRef<DocSettings['codingCli']>
   prefersReducedMotion: Ref<boolean>
   /** User's actual reduced motion preference (ignores tour override) */
   userPrefersReducedMotion: Ref<boolean>
@@ -74,6 +81,7 @@ const DEFAULTS: DocSettings = {
   codeSize: 'medium',
   reduceMotion: 'system',
   packageManager: 'pnpm',
+  codingCli: 'grok',
   showInlineApi: false,
   showSkillFilter: true,
   showThemeToggle: true,
@@ -136,6 +144,7 @@ export function createSettingsContext (): SettingsContext {
   const codeSize = shallowRef<CodeSize>(DEFAULTS.codeSize)
   const reduceMotion = shallowRef<DocSettings['reduceMotion']>(DEFAULTS.reduceMotion)
   const packageManager = shallowRef<DocSettings['packageManager']>(DEFAULTS.packageManager)
+  const codingCli = shallowRef<DocSettings['codingCli']>(DEFAULTS.codingCli)
   const showInlineApi = shallowRef(DEFAULTS.showInlineApi)
   const showSkillFilter = shallowRef(DEFAULTS.showSkillFilter)
   const showThemeToggle = shallowRef(DEFAULTS.showThemeToggle)
@@ -155,6 +164,8 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'codeSize', codeSize)
   loadSetting(storage, 'reduceMotion', reduceMotion)
   loadSetting(storage, 'packageManager', packageManager)
+  const storedCli = storage.get<unknown>('codingCli')
+  if (isCodingCli(storedCli.value)) codingCli.value = storedCli.value
   loadSetting(storage, 'showInlineApi', showInlineApi)
   loadSetting(storage, 'showSkillFilter', showSkillFilter)
   loadSetting(storage, 'showThemeToggle', showThemeToggle)
@@ -170,7 +181,7 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'styledScrollbars', styledScrollbars)
 
   // Persist on change
-  const settings = { lineWrap, codeSize, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, dotGridCoverage, showMeshGrid, showMeshTransition, showBgGlass, styledScrollbars }
+  const settings = { lineWrap, codeSize, reduceMotion, packageManager, codingCli, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, dotGridIntensity, dotGridCoverage, showMeshGrid, showMeshTransition, showBgGlass, styledScrollbars }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -195,6 +206,7 @@ export function createSettingsContext (): SettingsContext {
     codeSize.value !== DEFAULTS.codeSize ||
     reduceMotion.value !== DEFAULTS.reduceMotion ||
     packageManager.value !== DEFAULTS.packageManager ||
+    codingCli.value !== DEFAULTS.codingCli ||
     showInlineApi.value !== DEFAULTS.showInlineApi ||
     showSkillFilter.value !== DEFAULTS.showSkillFilter ||
     showThemeToggle.value !== DEFAULTS.showThemeToggle ||
@@ -240,6 +252,7 @@ export function createSettingsContext (): SettingsContext {
     codeSize.value = DEFAULTS.codeSize
     reduceMotion.value = DEFAULTS.reduceMotion
     packageManager.value = DEFAULTS.packageManager
+    codingCli.value = DEFAULTS.codingCli
     showInlineApi.value = DEFAULTS.showInlineApi
     showSkillFilter.value = DEFAULTS.showSkillFilter
     showThemeToggle.value = DEFAULTS.showThemeToggle
@@ -261,6 +274,7 @@ export function createSettingsContext (): SettingsContext {
     codeSize,
     reduceMotion,
     packageManager,
+    codingCli,
     prefersReducedMotion,
     userPrefersReducedMotion,
     showInlineApi,

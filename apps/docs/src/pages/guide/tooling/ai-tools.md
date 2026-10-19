@@ -93,7 +93,7 @@ bunx skills add vuetifyjs/0
 
 ### Editors and CLIs
 
-**Claude Code / Grok Build** — add Vuetify MCP for structured API access (`/mcp` is public docs; `/one` authenticates with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp)):
+**Coding CLIs** — add Vuetify MCP for structured API access (`/mcp` is public docs; `/one` authenticates with Vuetify One — see [Vuetify MCP](/guide/tooling/vuetify-mcp)). The tab follows the Coding CLI setting.
 
 ::: code-group no-filename
 
@@ -103,6 +103,14 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 ```bash Grok Build
 grok mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
+
+```bash Codex
+codex mcp add vuetify-mcp --url https://mcp.vuetifyjs.com/mcp
+```
+
+```bash Gemini
+gemini mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
 :::

@@ -17,9 +17,9 @@
     <HomeHero />
     <HomePrimarySponsor />
     <HomeArchitecture />
+    <HomeAiFirst />
     <HomeEcosystem />
     <HomeBenchmarks />
-    <HomeAiFirst />
     <HomeFoundation />
     <HomeCta />
   </div>

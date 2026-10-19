@@ -575,6 +575,14 @@ Set your default for installation code examples:
   <AppSettingsPackageManager />
 </div>
 
+### Coding CLI
+
+Pick the coding CLI used for MCP install commands. Groups of those commands open on this choice.
+
+<div class="max-w-xs mb-6">
+  <AppSettingsCodingCli />
+</div>
+
 ### Header Buttons
 
 Toggle visibility of header controls to reduce clutter:
