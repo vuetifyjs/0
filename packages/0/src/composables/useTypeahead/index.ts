@@ -38,7 +38,11 @@ import type { MaybeRefOrGetter } from 'vue'
  *
  * @example
  * ```ts
- * const lookup = useTypeahead(items, {
+ * import { useTypeahead } from '@vuetify/v0'
+ *
+ * const items = [{ title: 'Alabama' }, { title: 'Alaska' }]
+ *
+ * const lookup = useTypeahead(() => items, {
  *   text: item => item.title,
  *   duration: 1000,
  * })
@@ -50,7 +54,13 @@ export interface TypeaheadOptions<T> {
    *
    * @example
    * ```ts
-   * useTypeahead(items, { text: item => item.title })
+   * import { useTypeahead } from '@vuetify/v0'
+   *
+   * const items = [{ title: 'Alabama' }]
+   *
+   * useTypeahead(() => items, {
+   *   text: item => item.title,
+   * })
    * ```
    */
   text: (item: T) => string
@@ -62,7 +72,16 @@ export interface TypeaheadOptions<T> {
    *
    * @example
    * ```ts
-   * useTypeahead(items, { text: item => item.title, duration: 700 })
+   * import { useTypeahead } from '@vuetify/v0'
+   * import { shallowRef } from 'vue'
+   *
+   * const items = ['Alabama', 'Alaska']
+   * const duration = shallowRef(700)
+   *
+   * useTypeahead(() => items, {
+   *   text: item => item,
+   *   duration,
+   * })
    * ```
    */
   duration?: MaybeRefOrGetter<number>
@@ -73,6 +92,8 @@ export interface TypeaheadOptions<T> {
  *
  * @example
  * ```ts
+ * import type { TypeaheadMatch } from '@vuetify/v0'
+ *
  * const match: TypeaheadMatch<string> = { item: 'Alaska', index: 1 }
  * ```
  */
@@ -90,6 +111,14 @@ export interface TypeaheadReturn<T> {
    *
    * @example
    * ```ts
+   * import { useTypeahead } from '@vuetify/v0'
+   *
+   * const states = ['Alabama', 'Alaska', 'American Samoa']
+   *
+   * const { typeahead } = useTypeahead(() => states, {
+   *   text: state => state,
+   * })
+   *
    * const match = typeahead('a')
    * ```
    */
@@ -99,6 +128,14 @@ export interface TypeaheadReturn<T> {
    *
    * @example
    * ```ts
+   * import { useTypeahead } from '@vuetify/v0'
+   *
+   * const states = ['Alabama', 'Alaska']
+   *
+   * const { reset } = useTypeahead(() => states, {
+   *   text: state => state,
+   * })
+   *
    * reset()
    * ```
    */
@@ -120,6 +157,14 @@ export interface TypeaheadReturn<T> {
  *
  * @example
  * ```ts
+ * import { useTypeahead } from '@vuetify/v0'
+ * import { shallowRef } from 'vue'
+ *
+ * const tickets = shallowRef([
+ *   { label: 'Banana' },
+ *   { label: 'Blueberry' },
+ * ])
+ *
  * const { typeahead, reset } = useTypeahead(
  *   () => tickets.value,
  *   { text: ticket => ticket.label, duration: 1000 },
@@ -165,6 +210,14 @@ export function useTypeahead<T> (
    *
    * @example
    * ```ts
+   * import { useTypeahead } from '@vuetify/v0'
+   *
+   * const states = ['Alabama', 'Alaska', 'American Samoa']
+   *
+   * const { typeahead } = useTypeahead(() => states, {
+   *   text: state => state,
+   * })
+   *
    * const match = typeahead('a')
    * ```
    */
@@ -206,6 +259,14 @@ export function useTypeahead<T> (
    *
    * @example
    * ```ts
+   * import { useTypeahead } from '@vuetify/v0'
+   *
+   * const states = ['Alabama', 'Alaska']
+   *
+   * const { reset } = useTypeahead(() => states, {
+   *   text: state => state,
+   * })
+   *
    * reset()
    * ```
    */
