@@ -443,6 +443,12 @@
       "category": "system",
       "description": "A reactive timer composable with pause/resume support and remaining time tracking."
     },
+    "useTypeahead": {
+      "level": "preview",
+      "since": null,
+      "category": "system",
+      "description": "Prefix-matches typed characters against a list, accumulates them for one second, and cycles on a repeated letter."
+    },
     "useVirtualFocus": {
       "level": "preview",
       "since": "0.1.8",

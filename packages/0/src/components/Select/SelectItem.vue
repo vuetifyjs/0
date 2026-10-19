@@ -16,11 +16,14 @@
   // Context
   import { useSelectContext } from './SelectRoot.vue'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { onBeforeUnmount, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { MaybeRefOrGetter } from 'vue'
 
   export interface SelectItemProps<V = unknown> extends AtomProps {
@@ -78,7 +81,15 @@
 
   const context = useSelectContext(namespace)
 
-  const ticket = context.selection.register({ id, value, disabled: () => toValue(disabled) ?? false })
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
+
+  const ticket = context.selection.register({
+    id,
+    value,
+    disabled: () => toValue(disabled) ?? false,
+    text: () => el.value?.textContent?.trim() ?? '',
+  })
 
   const elementId = `${context.id}-option-${ticket.id}`
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -115,6 +126,7 @@
 
 <template>
   <Atom
+    ref="atom"
     :as
     :renderless
     v-bind="slotProps.attrs"

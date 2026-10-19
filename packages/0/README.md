@@ -289,6 +289,7 @@ Selection management composables built on `createRegistry`:
 - [`usePresence`](https://0.vuetifyjs.com/composables/system/use-presence) - Animation-agnostic mount lifecycle with lazy mounting and exit timing
 - [`useTimer`](https://0.vuetifyjs.com/composables/system/use-timer) - Countdown and interval timer with pause/resume
 - [`useToggleScope`](https://0.vuetifyjs.com/composables/system/use-toggle-scope) - Conditional effect scope management
+- [`useTypeahead`](https://0.vuetifyjs.com/composables/system/use-typeahead) - Prefix matching for typed characters with a one-second buffer
 - [`useVirtualFocus`](https://0.vuetifyjs.com/composables/system/use-virtual-focus) - Virtual focus management via aria-activedescendant
 
 #### Plugins

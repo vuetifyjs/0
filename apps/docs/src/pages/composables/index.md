@@ -286,6 +286,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useRovingFocus](/composables/system/use-roving-focus) | Roving tabindex keyboard navigation for composite widgets |
 | [useTimer](/composables/system/use-timer) | Reactive timer with pause/resume controls and remaining time tracking |
 | [useToggleScope](/composables/system/use-toggle-scope) | Conditional effect scope management |
+| [useTypeahead](/composables/system/use-typeahead) | Prefix matching for typed characters, with a one-second buffer and repeated-letter cycling |
 | [useVirtualFocus](/composables/system/use-virtual-focus) | Virtual focus for aria-activedescendant keyboard navigation patterns |
 
 ## Plugins

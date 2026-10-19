@@ -83,7 +83,22 @@
     context.toggle()
   }
 
+  function printable (e: KeyboardEvent) {
+    return e.key.length === 1
+      && e.key !== ' '
+      && !e.ctrlKey
+      && !e.metaKey
+      && !e.altKey
+      && !e.isComposing
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    if (printable(e)) {
+      e.preventDefault()
+      context.onTypeahead(e.key)
+      return
+    }
+
     if (context.isOpen.value) {
       switch (e.key) {
         case ' ':
