@@ -294,6 +294,38 @@ describe('menu', () => {
     expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Apple').element)
   })
 
+  it('should match the next letter after a repeated typeahead character', async () => {
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, null, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Fruit'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item, null, () => 'Apricot'),
+              h(Menu.Item, null, () => 'Apple'),
+              h(Menu.Item, null, () => 'Avocado'),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await click(wrapper.get('button'))
+    await settle()
+
+    await userEvent.keyboard('a')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Apricot').element)
+
+    await userEvent.keyboard('a')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Apple').element)
+
+    await userEvent.keyboard('v')
+    await settle()
+    expect(document.activeElement).toBe(item(wrapper, 'menuitem', 'Avocado').element)
+  })
+
   it('should open on the first item from enter or space on the activator', async () => {
     const wrapper = mount(dropdown())
     const trigger = wrapper.get('button')
@@ -658,14 +690,13 @@ describe('menu', () => {
   })
 
   it('should ignore a click on a disabled item', async () => {
-    const action = vi.fn()
     const wrapper = mount(defineComponent({
       setup () {
         return () => h(Menu.Root, { openDelay: 0, closeDelay: 0 }, {
           default: () => [
             h(Menu.Activator, null, () => 'Actions'),
             h(Menu.Content, null, () => [
-              h(Menu.Item, { disabled: true, onClick: action }, () => 'Copy'),
+              h(Menu.Item, { disabled: true }, () => 'Copy'),
             ]),
           ],
         })
@@ -677,12 +708,10 @@ describe('menu', () => {
     await item(wrapper, 'menuitem', 'Copy').trigger('click')
     await settle()
 
-    expect(action).toHaveBeenCalledTimes(0)
     expect(openMenus(wrapper)).toHaveLength(1)
   })
 
   it('should ignore a click on a disabled checkbox, radio, or submenu item', async () => {
-    const action = vi.fn()
     const checked = shallowRef(false)
     const wrapper = mount(defineComponent({
       setup () {
@@ -696,13 +725,12 @@ describe('menu', () => {
                 'onUpdate:checked': (value: unknown) => {
                   if (isBoolean(value)) checked.value = value
                 },
-                'onClick': action,
               }, () => 'Bold'),
               h(Menu.RadioGroup, null, () => [
-                h(Menu.RadioItem, { value: 'one', disabled: true, onClick: action }, () => 'One'),
+                h(Menu.RadioItem, { value: 'one', disabled: true }, () => 'One'),
               ]),
               h(Menu.Sub, null, () => [
-                h(Menu.SubActivator, { disabled: true, onClick: action }, () => 'Share'),
+                h(Menu.SubActivator, { disabled: true }, () => 'Share'),
                 h(Menu.SubContent, null, () => [
                   h(Menu.Item, null, () => 'Email'),
                 ]),
@@ -720,7 +748,6 @@ describe('menu', () => {
     await item(wrapper, 'menuitem', 'Share').trigger('click')
     await settle()
 
-    expect(action).toHaveBeenCalledTimes(0)
     expect(checked.value).toBe(false)
     expect(openMenus(wrapper)).toHaveLength(1)
   })

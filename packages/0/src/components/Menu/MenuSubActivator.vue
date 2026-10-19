@@ -21,7 +21,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { isArray, isFunction, isNullOrUndefined, isString } from '#v0/utilities'
+  import { isNullOrUndefined, isString } from '#v0/utilities'
   import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
@@ -120,7 +120,6 @@
   function onClick (event: MouseEvent) {
     if (isDisabled.value) {
       event.preventDefault()
-      event.stopImmediatePropagation()
       return
     }
     menu.activate(ticket)
@@ -166,23 +165,14 @@
       },
     }
   })
-
-  const merged = toRef(() => {
-    const own = slotProps.value.attrs
-    const user = attrs.onClick
-    const combined = mergeProps(attrs, own)
-    if (isArray(user)) combined.onClick = [own.onClick, ...user]
-    else if (isFunction(user)) combined.onClick = [own.onClick, user]
-    return combined
-  })
 </script>
 
 <template>
   <Atom
     ref="atom"
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    v-bind="merged"
   >
     <slot v-bind="slotProps" />
   </Atom>

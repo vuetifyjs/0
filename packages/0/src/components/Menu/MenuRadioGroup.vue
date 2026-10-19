@@ -85,15 +85,13 @@
       'data-disabled': disabled || undefined,
     },
   }))
-
-  const merged = toRef(() => mergeProps(attrs, slotProps.value.attrs))
 </script>
 
 <template>
   <Atom
+    v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless
-    v-bind="merged"
   >
     <slot v-bind="slotProps" />
   </Atom>

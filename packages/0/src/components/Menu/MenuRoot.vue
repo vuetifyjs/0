@@ -401,6 +401,7 @@
     typeTimer.start()
 
     const repeated = [...buffer].every(letter => letter === char)
+    if (repeated) buffer = char
     const query = repeated ? char : buffer
     const list = layerItems(layerId).filter(ticket => !toValue(ticket.disabled))
     const start = list.findIndex(ticket => ticket.id === from)
