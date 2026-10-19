@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { createSelection, useProxyModel, useProxyRegistry, useTypeahead } from '@vuetify/v0'
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
   import FruitList from './FruitList.vue'
   import { fruits } from './fruits'
 
@@ -10,9 +10,11 @@
   const items = useProxyRegistry(selection)
   const selected = shallowRef<string | undefined>()
 
-  selection.onboard(fruits.map(name => ({ id: name, value: name })))
+  selection.onboard(fruits.map(fruit => ({ id: fruit.name, value: fruit.name })))
 
   useProxyModel(selection, selected)
+
+  const tint = toRef(() => fruits.find(fruit => fruit.name === selected.value)?.tint)
 
   const { typeahead } = useTypeahead(
     () => items.values,
@@ -42,32 +44,52 @@
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 max-w-sm">
-    <button
-      class="cursor-pointer rounded border border-divider px-3 py-2 text-left outline-none focus:border-primary focus:ring-2 focus:ring-primary"
-      type="button"
-      @keydown="onKeydown"
-    >
-      Focus and type a fruit
-    </button>
+  <div class="flex max-w-lg flex-col gap-4">
+    <div class="flex items-center gap-3 rounded-lg border border-divider bg-surface-variant/30 p-4">
+      <span
+        class="size-8 rounded-full border border-divider"
+        :style="tint ? { backgroundColor: tint } : undefined"
+      />
 
-    <p class="text-sm">
-      Selected: {{ selected || 'none' }}
-    </p>
-
-    <div class="flex flex-wrap gap-2">
-      <button
-        v-for="name in fruits"
-        :key="name"
-        :aria-pressed="items.keys.includes(name)"
-        class="rounded border border-divider px-2 py-1 text-sm aria-pressed:bg-surface-variant"
-        type="button"
-        @click="toggle(name)"
-      >
-        {{ name }}
-      </button>
+      <div>
+        <p class="text-xs uppercase tracking-wider text-on-surface-variant">Selected</p>
+        <p class="text-2xl font-medium">{{ selected || 'None' }}</p>
+      </div>
     </div>
 
-    <FruitList :tickets="items.values" />
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <p class="mb-2 text-xs uppercase tracking-wider text-on-surface-variant">Catalog</p>
+
+        <div class="flex flex-col gap-2">
+          <button
+            v-for="fruit in fruits"
+            :key="fruit.name"
+            :aria-pressed="items.keys.includes(fruit.name)"
+            class="flex items-center gap-2 rounded-full border border-divider px-3 py-1.5 text-left text-sm aria-pressed:bg-surface-variant"
+            type="button"
+            @click="toggle(fruit.name)"
+          >
+            <span
+              class="size-2.5 rounded-full"
+              :style="{ backgroundColor: fruit.tint }"
+            />
+            {{ fruit.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-hidden rounded-lg border border-divider">
+        <button
+          class="w-full cursor-pointer border-b border-divider px-3 py-2 text-left text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary"
+          type="button"
+          @keydown="onKeydown"
+        >
+          Jump
+        </button>
+
+        <FruitList :tickets="items.values" />
+      </div>
+    </div>
   </div>
 </template>

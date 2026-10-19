@@ -75,14 +75,14 @@ Each call restarts a one-second timer. When the timer fires, the buffer is clear
 
 ### Prefix matching
 
-Click the button and type. `a` lands on Alabama. A second letter within one second extends the prefix, so `m` moves to American Samoa. The same letter again, with no longer prefix to honor, cycles to the next item that starts with that letter. Alabama, then Alaska, then American Samoa, then Arizona, then back to Alabama.
+Click the list and type. `a` lands on Alabama. A second letter within one second extends the prefix, so `m` moves to American Samoa. The same letter again, with no longer prefix to honor, cycles to the next item that starts with that letter. Alabama, then Alaska, then American Samoa, then Arizona, then back to Alabama.
 
 The composable only reports the match. This example writes that string into a `shallowRef` and marks the row. It does not filter the list, skip entries, or open anything. A static array is enough when the rows do not change. Pass `text` that reads the field you want to match, and decide in the key handler what a hit means: highlight a row, update a value, or ignore it. The buffer lives until the window from [useTimer](/composables/system/use-timer) elapses, or until you call `reset()`.
 
 | File | Role |
 | --- | --- |
-| `states.ts` | The four names the matcher searches |
-| `StateList.vue` | Renders the names and marks the current match |
+| `states.ts` | Name and postal code for each state |
+| `StateList.vue` | Renders the listbox rows and marks the current match |
 | `prefix.vue` | Owns `useTypeahead`, the key handler, and the match ref |
 
 :::
@@ -96,12 +96,12 @@ The composable only reports the match. This example writes that string into a `s
 
 The items getter runs on every character and reads whatever is registered then. This example stores fruit in a [createSelection](/composables/selection/create-selection) opened with `events: true`. [useProxyRegistry](/composables/reactivity/use-proxy-registry) exposes those tickets as `items.values`, which the list renders and the getter returns. [useProxyModel](/composables/reactivity/use-proxy-model) keeps a ref on that same selection: assigning the ref selects the matching ticket, and selecting a ticket assigns the ref.
 
-Click the button and type. A hit calls `select`. The ref updates from the selection, and that row is marked selected. Remove the selected fruit and the selection drops its id, so the ref clears through the same proxy. Add Apricot again and it registers last. After the buffer clears, typing `a` walks Avocado, then Apricot.
+Click Jump and type. A hit calls `select`. The ref updates from the selection, the banner shows that fruit, and its row is marked. Remove the selected fruit and the selection drops its id, so the ref clears through the same proxy. Add Apricot again and it registers last, which the numbered list shows. After the buffer clears, typing `a` walks Avocado, then Apricot.
 
 | File | Role |
 | --- | --- |
 | `fruits.ts` | Names onboarded into the selection |
-| `FruitList.vue` | Renders `items.values` and marks the selected ticket |
+| `FruitList.vue` | Renders registration order and marks the selected ticket |
 | `roster.vue` | Selection, both proxies, membership toggles, and the typeahead handler |
 
 :::

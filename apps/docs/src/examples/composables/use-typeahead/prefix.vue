@@ -7,7 +7,7 @@
   const match = shallowRef('')
 
   const { typeahead } = useTypeahead(() => states, {
-    text: state => state,
+    text: state => state.name,
   })
 
   function onKeydown (event: KeyboardEvent) {
@@ -17,24 +17,27 @@
     event.preventDefault()
 
     const result = typeahead(event.key)
-    match.value = result?.item ?? ''
+    match.value = result?.item.name ?? ''
   }
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 max-w-80">
-    <button
-      class="cursor-pointer rounded border border-divider px-3 py-2 text-left outline-none focus:border-primary focus:ring-2 focus:ring-primary"
-      type="button"
-      @keydown="onKeydown"
-    >
-      Focus and type a state
-    </button>
-
-    <p class="text-sm">
-      Match: {{ match || 'none' }}
-    </p>
+  <div
+    aria-label="States"
+    class="max-w-xs cursor-pointer overflow-hidden rounded-lg border border-divider bg-surface outline-none focus:border-primary focus:ring-2 focus:ring-primary"
+    tabindex="0"
+    @keydown="onKeydown"
+  >
+    <div class="flex items-center justify-between border-b border-divider bg-surface-variant/40 px-3 py-2">
+      <span class="text-sm font-medium">States</span>
+      <span class="rounded border border-divider bg-surface px-1.5 py-0.5 font-mono text-xs text-on-surface-variant">type</span>
+    </div>
 
     <StateList :match :states />
+
+    <p class="border-t border-divider px-3 py-2 text-xs text-on-surface-variant">
+      Match
+      <span class="font-medium text-on-surface">{{ match || 'none' }}</span>
+    </p>
   </div>
 </template>
