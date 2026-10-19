@@ -6,6 +6,8 @@
   import { provideCodeGroupExpand } from '@/composables/useCodeGroupExpand'
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
+  import { codingCliOf } from '@/constants/codingCli'
+
   // Utilities
   import { cloneVNode, computed, shallowRef, toRef, toValue, useId, useSlots, type VNode, watch } from 'vue'
 
@@ -43,16 +45,17 @@
     single.onboard(items.map(item => ({ id: item.label, value: item.label })))
   }, { immediate: true })
 
-  // Select user's preferred package manager when preference or children change
-  watch([children, () => settings.packageManager.value], ([items, pm]) => {
-    // Validate package manager preference
-    if (!PACKAGE_MANAGERS.includes(pm)) return
-
-    const labels = new Set(items.map(i => i.label.toLowerCase()))
-    const hasPackageManagers = PACKAGE_MANAGERS.some(p => labels.has(p))
-    if (hasPackageManagers && labels.has(pm)) {
-      single.select(pm)
+  // Select the saved package manager or coding CLI when the group is one of those sets.
+  watch([children, () => settings.packageManager.value, () => settings.codingCli.value], ([items, pm, cli]) => {
+    const labels = new Set(items.map(item => item.label.toLowerCase()))
+    const hasPackageManagers = PACKAGE_MANAGERS.some(name => labels.has(name))
+    if (hasPackageManagers) {
+      if (PACKAGE_MANAGERS.includes(pm) && labels.has(pm)) single.select(pm)
+      return
     }
+
+    const match = items.find(item => codingCliOf(item.label) === cli)
+    if (match) single.select(match.label)
   }, { immediate: true })
 
   const selectedId = toRef(() => toValue(single.selectedId))

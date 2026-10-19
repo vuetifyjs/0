@@ -115,7 +115,13 @@ url = "https://mcp.vuetifyjs.com/one"
 
 ### Codex
 
-[OpenAI Codex](https://developers.openai.com/codex/mcp) CLI, ChatGPT desktop, and the IDE extension share `~/.codex/config.toml` (project: `.codex/config.toml`, trusted projects only):
+[OpenAI Codex](https://developers.openai.com/codex/mcp) CLI, ChatGPT desktop, and the IDE extension share one config. Add the server from the CLI:
+
+```bash
+codex mcp add vuetify-mcp --url https://mcp.vuetifyjs.com/mcp
+```
+
+That writes `~/.codex/config.toml` (project: `.codex/config.toml`, trusted projects only):
 
 ```toml
 [mcp_servers.vuetify-mcp]
@@ -125,6 +131,14 @@ url = "https://mcp.vuetifyjs.com/mcp"
 Or in ChatGPT / the IDE: **Settings → MCP servers → Add server → Streamable HTTP** and the URL above.
 
 Documentation and API tools on `/mcp` need no login. To authenticate with Vuetify One, add `https://mcp.vuetifyjs.com/one` and run `codex mcp login vuetify-one`.
+
+### Gemini CLI
+
+[Gemini CLI](https://github.com/google-gemini/gemini-cli) adds the hosted server from the terminal:
+
+```bash
+gemini mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
 
 ### Kimi CLI
 

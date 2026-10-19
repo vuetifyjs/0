@@ -148,6 +148,9 @@
         <!-- Package Manager -->
         <AppSettingsPackageManager />
 
+        <!-- Coding CLI -->
+        <AppSettingsCodingCli />
+
         <!-- API Reference -->
         <AppSettingsToggleSection
           v-model="settings.showInlineApi.value"
