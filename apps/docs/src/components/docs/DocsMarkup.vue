@@ -2,14 +2,18 @@
   // Components
   import { GnPeek } from '@paper/genesis'
 
+  // Framework
+  import { useResizeObserver } from '@vuetify/v0'
+
   // Composables
   import { useCodeGroupExpand } from '@/composables/useCodeGroupExpand'
+  import { useCollapseAnchor } from '@/composables/useCollapseAnchor'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { shallowRef, toRef } from 'vue'
+  import { nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   const {
     code,
@@ -41,10 +45,48 @@
   const lineCount = toRef(() => decodedCode.value.split('\n').length)
   const shouldCollapse = toRef(() => collapse && lineCount.value > collapseLines)
   const collapsedHeight = toRef(() => `${collapseLines * 1.5 + 2.5}rem`)
+  const capped = toRef(() => shouldCollapse.value && expanded.value)
+
+  const rootRef = useTemplateRef<HTMLElement>('root')
+  const scrollerRef = useTemplateRef<HTMLElement>('scroller')
+  useCollapseAnchor(rootRef)
+
+  const scrollable = shallowRef(false)
+  const scrollLabel = toRef(() => {
+    const name = hideFilename ? language : title ?? language
+    return name ? `Scrollable code, ${name}` : 'Scrollable code'
+  })
+
+  const windowStyle = toRef(() => {
+    if (!shouldCollapse.value) return undefined
+    if (!expanded.value) return { maxHeight: collapsedHeight.value, overflow: 'hidden' }
+    return {
+      maxHeight: 'var(--docs-code-window-max, min(42rem, 105vh))',
+      overflow: 'auto',
+      overscrollBehavior: 'contain',
+    }
+  })
+
+  function syncScrollable (): void {
+    const el = scrollerRef.value
+    if (!el || !capped.value) {
+      scrollable.value = false
+      return
+    }
+    scrollable.value = el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2
+  }
+
+  useResizeObserver(scrollerRef, syncScrollable)
+
+  // The cap is an inline max-height, so the first measurement has to wait
+  // until that style is on the element.
+  watch(capped, () => {
+    nextTick(syncScrollable)
+  })
 </script>
 
 <template>
-  <div class="relative my-4" :class="shouldCollapse && 'mb-8'">
+  <div ref="root" class="relative my-4" :class="shouldCollapse && 'mb-8'">
     <div
       class="docs-markup relative group"
       :class="[
@@ -60,7 +102,9 @@
         {{ hideFilename ? language : title ?? language }}
       </span>
 
-      <div class="absolute top-2 end-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100">
+      <div
+        class="absolute top-2 end-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
+      >
         <DocsCodeActions
           v-model:size="size"
           v-model:wrap="lineWrap"
@@ -77,8 +121,16 @@
       </div>
 
       <div
-        class="transition-[max-height] duration-300 ease-out"
-        :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
+        ref="scroller"
+        :aria-label="scrollable ? scrollLabel : undefined"
+        class="docs-markup__window transition-[max-height] duration-300 ease-out"
+        :class="[
+          capped && 'docs-markup__window--capped docs-code-window',
+          scrollable && 'docs-code-window--active',
+        ]"
+        :role="scrollable ? 'region' : undefined"
+        :style="windowStyle"
+        :tabindex="scrollable ? 0 : undefined"
       >
         <slot />
       </div>
@@ -102,5 +154,14 @@
   .docs-markup-fade {
     background: var(--v0-pre);
     mask: linear-gradient(transparent, var(--v0-primary));
+  }
+
+  .docs-markup__window {
+    --docs-code-window-fade: var(--v0-surface);
+  }
+
+  .docs-markup .docs-markup__window--capped .shiki,
+  .docs-markup .docs-markup__window--capped .shiki code {
+    overflow: visible;
   }
 </style>
