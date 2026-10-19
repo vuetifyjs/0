@@ -47,6 +47,8 @@
   // storage.get() watch created there dies on close and stops persisting.
   const openRail = storage.get<OpenRail>('playground-open-rail', DEFAULT_OPEN_RAIL)
   openRail.value = normalizeOpenRail(openRail.value)
+  storage.get<number | undefined>('playground-open-play-count')
+  storage.get<number | undefined>('playground-open-bin-count')
 
   const menu = shallowRef(false)
   const file = shallowRef(false)
