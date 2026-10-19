@@ -118,6 +118,17 @@ describe('useTypeahead', () => {
     expect(typeahead('a')).toBeUndefined()
   })
 
+  it('should skip an empty slot in the list', () => {
+    const items = ['Alabama', 'Alaska']
+    delete items[0]
+
+    const { typeahead } = setup(items, item => item)
+    const match = typeahead('a')
+
+    expect(match?.item).toBe('Alaska')
+    expect(match?.index).toBe(1)
+  })
+
   it('should match case-insensitively', () => {
     const { typeahead } = setup(['Alabama'], item => item)
 
