@@ -22,6 +22,7 @@
   import { createSelection } from '#v0/composables/createSelection'
   import { usePopover } from '#v0/composables/usePopover'
   import { useProxyModel } from '#v0/composables/useProxyModel'
+  import { useTypeahead } from '#v0/composables/useTypeahead'
   import { useVirtualFocus } from '#v0/composables/useVirtualFocus'
 
   // Globals
@@ -72,6 +73,12 @@
     toggle: () => void
     /** Select an item by ID, closing dropdown in single-select mode */
     select: (id: ID) => void
+    /** Register option text for typeahead matching */
+    registerText: (id: ID, text: () => string) => void
+    /** Drop option text when an item unmounts */
+    unregisterText: (id: ID) => void
+    /** Handle one typed character */
+    onTypeahead: (char: string) => void
     /** Raw model value for fallback display before items register. Carries ticket values (type-erased at the compound boundary) */
     modelValue: Ref<unknown>
   }
@@ -177,13 +184,61 @@
     },
   )
 
-  watch(isOpen, open => {
-    if (!open) {
+  const texts = new Map<ID, () => string>()
+
+  function registerText (itemId: ID, text: () => string) {
+    texts.set(itemId, text)
+  }
+
+  function unregisterText (id: ID) {
+    texts.delete(id)
+  }
+
+  const lookup = useTypeahead(
+    () => selection.values(),
+    {
+      text: item => texts.get(item.id)?.() ?? '',
+    },
+  )
+
+  let pending: string | undefined
+
+  function onTypeahead (char: string) {
+    if (toValue(disabled)) return
+
+    if (selection.size === 0) {
+      pending = char
+      open()
+      return
+    }
+
+    const result = lookup.typeahead(char)
+    if (isUndefined(result)) return
+
+    if (multiple && !isOpen.value) return
+
+    if (isOpen.value) virtualFocus.highlight(result.item.id)
+
+    if (!multiple && !toValue(result.item.disabled)) selection.select(result.item.id)
+  }
+
+  watch(isOpen, opened => {
+    if (!opened) {
       virtualFocus.clear()
+      pending = undefined
       return
     }
 
     nextTick(() => {
+      if (!isOpen.value) return
+
+      if (!isUndefined(pending)) {
+        const char = pending
+        pending = undefined
+        onTypeahead(char)
+        return
+      }
+
       const selected = selectedId.value
       if (!isUndefined(selected)) {
         virtualFocus.highlight(String(selected))
@@ -230,6 +285,9 @@
     close,
     toggle,
     select,
+    registerText,
+    unregisterText,
+    onTypeahead,
     modelValue: model,
   })
 

@@ -304,6 +304,7 @@ The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/pa
 | `End` | Move highlight to last item |
 | `Escape` | Close dropdown |
 | `Tab` | Close dropdown and move focus |
+| Printable characters | Single select updates the value and leaves the list open or closed as it was. Characters typed within one second accumulate (`al` stays on Alabama, `am` moves to American Samoa, a repeated letter cycles). The first character before the list has ever opened opens it, then matches. Multiple select only moves the highlight, and only while open. |
 
 ## FAQ
 
@@ -319,7 +320,7 @@ Add `multiple` to `Select.Root` and bind `v-model` to an array. The dropdown sta
 
 ??? When should I use Select instead of Combobox?
 
-Use Select when users pick from a fixed list without typing. For free-text entry or typeahead filtering that can create new options, reach for [Combobox](/components/forms/combobox) instead.
+Use Select when users pick from a fixed list. Typing jumps to an existing option; it does not filter the list or accept free text. For filtering or free-text entry that can create new options, reach for [Combobox](/components/forms/combobox) instead.
 
 ??? How do I keep one option always selected?
 

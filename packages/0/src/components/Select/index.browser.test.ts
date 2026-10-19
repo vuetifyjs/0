@@ -21,6 +21,8 @@ async function createSelect (options: {
   'form'?: string
   'id'?: string
   'items'?: Array<{ id?: string, value: string, disabled?: boolean }>
+  'boot'?: boolean
+  'attach'?: boolean
 } = {}) {
   const {
     items = [
@@ -28,6 +30,8 @@ async function createSelect (options: {
       { value: 'Banana' },
       { value: 'Cherry' },
     ],
+    boot = true,
+    attach = false,
     ...props
   } = options
 
@@ -67,11 +71,12 @@ async function createSelect (options: {
         })
       },
     }),
+    attach ? { attachTo: document.body } : undefined,
   )
 
   // Open dropdown to boot lazy content and register items
   await nextTick()
-  if (!props.disabled) {
+  if (boot && !props.disabled) {
     rootSlotProps.open()
     await nextTick()
     // Close again for a clean starting state
@@ -231,9 +236,9 @@ describe('select', () => {
   })
 
   describe('keyboard navigation', () => {
-    function triggerKeydown (wrapper: any, key: string) {
+    function triggerKeydown (wrapper: any, key: string, modifiers: { ctrlKey?: boolean } = {}) {
       const activator = wrapper.findComponent(Select.Activator as any)
-      return activator.trigger('keydown', { key })
+      return activator.trigger('keydown', { key, ...modifiers })
     }
 
     it('should open on ArrowDown when closed', async () => {
@@ -257,13 +262,21 @@ describe('select', () => {
     })
 
     it('should open on Space when closed', async () => {
-      const { wrapper } = await createSelect({ id: 'kb-test' })
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'id': 'kb-test',
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
 
       await triggerKeydown(wrapper, ' ')
       await nextTick()
 
       const activator = wrapper.findComponent(Select.Activator as any)
       expect(activator.attributes('aria-expanded')).toBe('true')
+      expect(selected.value).toBeUndefined()
     })
 
     it('should open on Enter when closed', async () => {
@@ -432,6 +445,177 @@ describe('select', () => {
 
       // No selection should be made when nothing is highlighted
       expect(selected.value).toBeUndefined()
+    })
+
+    it('should select a typed prefix while open and keep the list open', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+        'items': [
+          { value: 'Alabama' },
+          { value: 'Alaska' },
+          { value: 'American Samoa' },
+          { value: 'Arizona' },
+        ],
+      })
+
+      await triggerKeydown(wrapper, 'ArrowDown')
+      await nextTick()
+      await triggerKeydown(wrapper, 'a')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toBe('Alabama')
+      expect(activator.attributes('aria-expanded')).toBe('true')
+
+      await triggerKeydown(wrapper, 'm')
+      await nextTick()
+
+      expect(selected.value).toBe('American Samoa')
+      expect(activator.attributes('aria-expanded')).toBe('true')
+    })
+
+    it('should select a typed prefix while closed without opening', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toBe('Banana')
+      expect(activator.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('should open and select when a character is typed before the list has ever opened', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'boot': false,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(activator.attributes('aria-expanded')).toBe('true')
+      expect(selected.value).toBe('Banana')
+    })
+
+    it('should highlight a typed match in multiple mode without changing the model', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper } = await createSelect({
+        'attach': true,
+        'multiple': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string[]
+        },
+      })
+
+      await triggerKeydown(wrapper, 'ArrowDown')
+      await nextTick()
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      const banana = wrapper.findAllComponents(Select.Item as any).find(item => item.text() === 'Banana')
+
+      expect(selected.value).toEqual([])
+      expect(activator.attributes('aria-expanded')).toBe('true')
+      expect(banana!.attributes('data-highlighted')).toBe('')
+
+      wrapper.unmount()
+    })
+
+    it('should not open or select when multiple and the list is closed', async () => {
+      const selected = ref<string[]>([])
+      const { wrapper } = await createSelect({
+        'multiple': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string[]
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toEqual([])
+      expect(activator.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('should not select a disabled prefix match', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'attach': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+        'items': [
+          { value: 'Apple' },
+          { value: 'Banana', disabled: true },
+          { value: 'Blueberry' },
+        ],
+      })
+
+      await triggerKeydown(wrapper, 'ArrowDown')
+      await nextTick()
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const banana = wrapper.findAllComponents(Select.Item as any).find(item => item.text() === 'Banana')
+
+      expect(selected.value).toBeUndefined()
+      expect(banana!.attributes('data-highlighted')).toBe('')
+
+      wrapper.unmount()
+    })
+
+    it('should ignore a printable character when ctrl is held', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b', { ctrlKey: true })
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
+    })
+
+    it('should ignore a printable character when disabled', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'disabled': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toBeUndefined()
+      expect(activator.attributes('aria-expanded')).toBe('false')
     })
   })
 
