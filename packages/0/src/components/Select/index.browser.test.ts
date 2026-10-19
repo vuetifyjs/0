@@ -23,6 +23,8 @@ async function createSelect (options: {
   'items'?: Array<{ id?: string, value: string, disabled?: boolean }>
   'boot'?: boolean
   'attach'?: boolean
+  'activatorAs'?: string
+  'renderlessItems'?: boolean
 } = {}) {
   const {
     items = [
@@ -32,6 +34,8 @@ async function createSelect (options: {
     ],
     boot = true,
     attach = false,
+    activatorAs,
+    renderlessItems = false,
     ...props
   } = options
 
@@ -48,7 +52,7 @@ async function createSelect (options: {
           default: (sp: any) => {
             rootSlotProps = sp
             return [
-              h(Select.Activator as any, {}, {
+              h(Select.Activator as any, activatorAs ? { as: activatorAs } : {}, {
                 default: (slotProps: any) => h('span', slotProps.attrs),
               }),
               h(Select.Content as any, {}, {
@@ -58,6 +62,7 @@ async function createSelect (options: {
                     id: item.id,
                     value: item.value,
                     disabled: item.disabled,
+                    renderless: renderlessItems || undefined,
                   }, {
                     default: (slotProps: any) => {
                       this.itemSlotProps[item.value] = slotProps
@@ -616,6 +621,58 @@ describe('select', () => {
       const activator = wrapper.findComponent(Select.Activator as any)
       expect(selected.value).toBeUndefined()
       expect(activator.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('should ignore a typed character that matches nothing', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'z')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toBeUndefined()
+      expect(activator.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('should ignore a typed character when disabled on a non-button activator', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'disabled': true,
+        'activatorAs': 'div',
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      const activator = wrapper.findComponent(Select.Activator as any)
+      expect(selected.value).toBeUndefined()
+      expect(activator.attributes('aria-expanded')).toBe('false')
+    })
+
+    it('should ignore a typed character when every option is renderless', async () => {
+      const selected = ref<string>()
+      const { wrapper } = await createSelect({
+        'renderlessItems': true,
+        'modelValue': selected.value,
+        'onUpdate:modelValue': (v: unknown) => {
+          selected.value = v as string
+        },
+      })
+
+      await triggerKeydown(wrapper, 'b')
+      await nextTick()
+
+      expect(selected.value).toBeUndefined()
     })
   })
 
