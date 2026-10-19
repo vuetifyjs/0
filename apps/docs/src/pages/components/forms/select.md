@@ -127,6 +127,25 @@ Pass `label` on `Select.Activator` when there is no visible text label — it la
 </template>
 ```
 
+When a visible label already names the control, pass its id as `ariaLabelledby`. The activator text stays the selected value. If both `label` and `ariaLabelledby` are set, `aria-labelledby` wins and `aria-label` is omitted:
+
+```vue
+<script setup lang="ts">
+  import { Select } from '@vuetify/v0'
+</script>
+
+<template>
+  <label id="fruit-label">Fruit</label>
+
+  <Select.Root>
+    <Select.Activator aria-labelledby="fruit-label">
+      <Select.Value />
+      <Select.Cue />
+    </Select.Activator>
+  </Select.Root>
+</template>
+```
+
 ### Form Submission
 
 Set `name` on Root to auto-render hidden inputs for form submission — one per selected value in multi-select mode:
@@ -266,7 +285,8 @@ The Select implements the [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/pa
 | `role` | `listbox` | Content |
 | `role` | `option` | Item |
 | `aria-expanded` | `true` / `false` | Activator |
-| `aria-label` | Activator `label` prop | Activator (omitted when `label` is unset) |
+| `aria-label` | Activator `label` prop | Activator (omitted when `label` is unset or `ariaLabelledby` is set) |
+| `aria-labelledby` | Activator `ariaLabelledby` prop | Activator (omitted when unset) |
 | `aria-haspopup` | `listbox` | Activator |
 | `aria-controls` | listbox ID | Activator |
 | `aria-selected` | `true` / `false` | Item |
