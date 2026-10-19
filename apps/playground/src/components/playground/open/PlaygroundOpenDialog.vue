@@ -122,10 +122,12 @@
     rails.find(r => r.id === rail.value)?.label ?? 'Examples',
   )
 
-  /** Icon mark beside the Play / Bin title. Gallery rails stay text-only. */
+  /** Icon mark beside the content title. Hidden once a gallery item is open. */
   const railMark = computed(() => {
     if (rail.value === 'saved') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vplay.svg'
     if (rail.value === 'bins') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vbin.svg'
+    if (rail.value === 'v0') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg'
+    if (rail.value === 'vuetify') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vuetify.svg'
     return undefined
   })
 
