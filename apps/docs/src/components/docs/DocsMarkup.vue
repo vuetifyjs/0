@@ -61,7 +61,7 @@
     if (!shouldCollapse.value) return undefined
     if (!expanded.value) return { maxHeight: collapsedHeight.value, overflow: 'hidden' }
     return {
-      maxHeight: 'var(--docs-code-window-max, min(28rem, 70vh))',
+      maxHeight: 'var(--docs-code-window-max, min(42rem, 105vh))',
       overflow: 'auto',
       overscrollBehavior: 'contain',
     }
@@ -103,8 +103,7 @@
       </span>
 
       <div
-        class="absolute top-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
-        :class="scrollable ? 'end-5' : 'end-2'"
+        class="absolute top-2 end-2 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
       >
         <DocsCodeActions
           v-model:size="size"

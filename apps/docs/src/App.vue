@@ -658,7 +658,7 @@
   .app-shell {
     --docs-code-size: 0.8125rem;
     /* Long example files scroll inside this cap. Shorter files never reach it. */
-    --docs-code-window-max: min(28rem, 70vh);
+    --docs-code-window-max: min(42rem, 105vh);
   }
 
   .app-shell[data-code-size='medium'] {
@@ -757,58 +757,66 @@
     box-shadow: inset 0 0 0 2px var(--v0-primary);
   }
 
-  /* Code windows opt into a thin scrollbar. Overlay scrollbars stay invisible
-     until the pointer is over them, which hides that a long file continues, so
-     a scrollable window also reserves a gutter and fades its trailing edge.
-     The thumb follows the surface token so light and dark both read. */
+  /* The window still scrolls (wheel, trackpad, keyboard). The bar stays
+     hidden. A fade on each edge shows that the file continues that way:
+     the top fade once the start has scrolled away, the bottom fade until
+     the end arrives. */
   .docs-code-window {
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 40%, transparent) transparent;
+    scrollbar-width: none;
   }
 
-  .docs-code-window--active {
-    scrollbar-gutter: stable;
+  .docs-code-window::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
+  .docs-code-window::before,
   .docs-code-window::after {
     content: '';
     position: sticky;
-    bottom: 0;
     z-index: 2;
     display: block;
     height: 2.5rem;
-    margin-top: -2.5rem;
     pointer-events: none;
-    background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
     opacity: 0;
   }
 
+  .docs-code-window::before {
+    top: 0;
+    margin-bottom: -2.5rem;
+    background: linear-gradient(var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))), transparent);
+  }
+
+  .docs-code-window::after {
+    bottom: 0;
+    margin-top: -2.5rem;
+    background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
+  }
+
   @supports (animation-timeline: scroll(nearest block)) {
+    .docs-code-window--active::before {
+      animation: docs-code-window-fade-top linear both;
+      animation-timeline: scroll(nearest block);
+    }
+
     .docs-code-window--active::after {
       animation: docs-code-window-fade linear both;
       animation-timeline: scroll(nearest block);
     }
   }
 
-  .docs-code-window::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  .docs-code-window::-webkit-scrollbar-thumb {
-    background-color: color-mix(in srgb, var(--v0-on-surface, currentcolor) 40%, transparent);
-    border: 2px solid transparent;
-    border-radius: 999px;
-    background-clip: content-box;
-  }
-
-  .docs-code-window::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-
   .docs-code-window:focus-visible {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--v0-primary);
+  }
+
+  /* Mirror of docs-code-window-fade: the edge hint strengthens across the
+     same 22% of the scroll, measured from the start instead of the end. */
+  @keyframes docs-code-window-fade-top {
+    0% { opacity: 0; }
+    22% { opacity: 1; }
+    100% { opacity: 1; }
   }
 
   @keyframes docs-code-window-fade {

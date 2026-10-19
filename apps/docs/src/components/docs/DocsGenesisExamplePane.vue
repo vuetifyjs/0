@@ -77,7 +77,7 @@
   }
 
   .genesis-docs-example-code:not([data-truncated]) .docs-genesis-example-pane__scroll {
-    max-height: var(--docs-code-window-max, min(28rem, 70vh));
+    max-height: var(--docs-code-window-max, min(42rem, 105vh));
     overflow: auto;
     overscroll-behavior: contain;
   }
@@ -97,10 +97,6 @@
     gap: 0.25rem;
     opacity: 0;
     transition: opacity 0.15s;
-  }
-
-  .docs-genesis-example-pane--scrollable .docs-genesis-example-pane__actions {
-    inset-inline-end: 1.25rem;
   }
 
   .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,
