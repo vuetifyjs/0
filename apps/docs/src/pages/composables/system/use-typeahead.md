@@ -72,7 +72,7 @@ Each call restarts a one-second timer. When the timer fires, the buffer is clear
 
 ### Prefix matching
 
-Focus the button and type. `a` lands on Alabama. A second letter within one second extends the prefix, so `m` moves to American Samoa. The same letter again, with no longer prefix to honor, cycles to the next item that starts with that letter — Alabama, then Alaska, then American Samoa, then Arizona, then back to Alabama.
+Click the button and type. `a` lands on Alabama. A second letter within one second extends the prefix, so `m` moves to American Samoa. The same letter again, with no longer prefix to honor, cycles to the next item that starts with that letter — Alabama, then Alaska, then American Samoa, then Arizona, then back to Alabama.
 
 The composable only reports the match. This example writes the matched string into a `shallowRef` and renders it. It does not filter the list, skip entries, or open anything. Pass `text` that reads the field you want to match, and decide in the key handler what a hit means — highlight a row, update a value, or ignore it. The buffer lives until the window elapses or you call `reset()`.
 

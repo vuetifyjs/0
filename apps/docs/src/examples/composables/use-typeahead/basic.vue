@@ -23,7 +23,7 @@
 <template>
   <div class="flex flex-col gap-3 max-w-80">
     <button
-      class="px-3 py-2 rounded border border-divider text-left"
+      class="px-3 py-2 rounded border border-divider text-left outline-none cursor-pointer focus:border-primary focus:ring-2 focus:ring-primary"
       type="button"
       @keydown="onKeydown"
     >
