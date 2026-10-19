@@ -12,6 +12,7 @@ features:
   level: 2
 related:
   - /composables/system/use-timer
+  - /composables/registration/create-registry
   - /components/forms/select
 ---
 
@@ -74,6 +75,19 @@ Each call restarts a one-second timer. When the timer fires, the buffer is clear
 Focus the button and type. `a` lands on Alabama. A second letter within one second extends the prefix, so `m` moves to American Samoa. The same letter again, with no longer prefix to honor, cycles to the next item that starts with that letter — Alabama, then Alaska, then American Samoa, then Arizona, then back to Alabama.
 
 The composable only reports the match. This example writes the matched string into a `shallowRef` and renders it. It does not filter the list, skip entries, or open anything. Pass `text` that reads the field you want to match, and decide in the key handler what a hit means — highlight a row, update a value, or ignore it. The buffer lives until the window elapses or you call `reset()`.
+
+:::
+
+::: gn-example
+/composables/use-typeahead/registry
+
+### Registry items
+
+The items getter runs on every character, so the search sees the tickets registered at that moment. This example stores the states in a [createRegistry](/composables/registration/create-registry) and passes `() => available.values()`. Select reads its options the same way: the getter returns the tickets currently in the list.
+
+The four states start registered. Click a name to remove it or put it back. The list under the buttons is registry order, which is the order a repeated letter cycles through. Remove Alabama and type `a`. The match is Alaska. Add Alabama again and it is registered last. After the buffer clears, typing `a` four times walks Alaska, American Samoa, Arizona, then Alabama.
+
+`reactive: true` redraws the buttons and the list when a state is added or removed. The getter reads `values()` on the keypress, so the search uses those same tickets. Removing the state shown as the match clears that label. The buffer stays, and the next character continues the prefix against the tickets that remain.
 
 :::
 
