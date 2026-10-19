@@ -1,8 +1,9 @@
 <script setup lang="ts">
   import { useTypeahead } from '@vuetify/v0'
   import { shallowRef } from 'vue'
+  import StateList from './StateList.vue'
+  import { states } from './states'
 
-  const states = ['Alabama', 'Alaska', 'American Samoa', 'Arizona']
   const match = shallowRef('')
 
   const { typeahead } = useTypeahead(() => states, {
@@ -23,7 +24,7 @@
 <template>
   <div class="flex flex-col gap-3 max-w-80">
     <button
-      class="px-3 py-2 rounded border border-divider text-left outline-none cursor-pointer focus:border-primary focus:ring-2 focus:ring-primary"
+      class="cursor-pointer rounded border border-divider px-3 py-2 text-left outline-none focus:border-primary focus:ring-2 focus:ring-primary"
       type="button"
       @keydown="onKeydown"
     >
@@ -34,13 +35,6 @@
       Match: {{ match || 'none' }}
     </p>
 
-    <ul class="text-sm text-on-surface-variant">
-      <li
-        v-for="state in states"
-        :key="state"
-      >
-        {{ state }}
-      </li>
-    </ul>
+    <StateList :match :states />
   </div>
 </template>

@@ -1,16 +1,16 @@
 <script setup lang="ts">
   import { createSelection, useProxyModel, useProxyRegistry, useTypeahead } from '@vuetify/v0'
   import { shallowRef } from 'vue'
+  import FruitList from './FruitList.vue'
+  import { fruits } from './fruits'
 
   import type { SelectionTicketInput } from '@vuetify/v0'
-
-  const catalog = ['Alabama', 'Alaska', 'American Samoa', 'Arizona']
 
   const selection = createSelection<SelectionTicketInput<string>>({ events: true })
   const items = useProxyRegistry(selection)
   const selected = shallowRef<string | undefined>()
 
-  selection.onboard(catalog.map(name => ({ id: name, value: name })))
+  selection.onboard(fruits.map(name => ({ id: name, value: name })))
 
   useProxyModel(selection, selected)
 
@@ -48,7 +48,7 @@
       type="button"
       @keydown="onKeydown"
     >
-      Focus and type a state
+      Focus and type a fruit
     </button>
 
     <p class="text-sm">
@@ -57,7 +57,7 @@
 
     <div class="flex flex-wrap gap-2">
       <button
-        v-for="name in catalog"
+        v-for="name in fruits"
         :key="name"
         :aria-pressed="items.keys.includes(name)"
         class="rounded border border-divider px-2 py-1 text-sm aria-pressed:bg-surface-variant"
@@ -68,15 +68,6 @@
       </button>
     </div>
 
-    <ul class="text-sm text-on-surface-variant">
-      <li
-        v-for="ticket in items.values"
-        :key="ticket.id"
-        class="data-[selected]:font-medium data-[selected]:text-on-surface"
-        :data-selected="ticket.isSelected.value || undefined"
-      >
-        {{ ticket.value }}
-      </li>
-    </ul>
+    <FruitList :tickets="items.values" />
   </div>
 </template>
