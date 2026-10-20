@@ -36,6 +36,7 @@ declare module 'vue' {
     PlaygroundMarkdownHeader: typeof import('./components/playground/markdown/PlaygroundMarkdownHeader.vue')['default']
     PlaygroundMenuBar: typeof import('./components/playground/app/PlaygroundMenuBar.vue')['default']
     PlaygroundMenuItem: typeof import('./components/playground/app/PlaygroundMenuItem.vue')['default']
+    PlaygroundOpenBins: typeof import('./components/playground/open/PlaygroundOpenBins.vue')['default']
     PlaygroundOpenDialog: typeof import('./components/playground/open/PlaygroundOpenDialog.vue')['default']
     PlaygroundOpenExamples: typeof import('./components/playground/open/PlaygroundOpenExamples.vue')['default']
     PlaygroundOpenGallery: typeof import('./components/playground/open/PlaygroundOpenGallery.vue')['default']

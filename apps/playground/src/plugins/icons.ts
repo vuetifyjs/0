@@ -47,6 +47,8 @@ import {
   mdiFolderOutline,
   mdiFolderPlusOutline,
   mdiFormTextbox,
+  mdiFullscreen,
+  mdiFullscreenExit,
   mdiGestureTapButton,
   mdiImageOutline,
   mdiInformationOutline,
@@ -68,6 +70,7 @@ import {
   mdiPencilOutline,
   mdiPin,
   mdiPinOutline,
+  mdiPlus,
   mdiRadioboxMarked,
   mdiRayStartArrow,
   mdiRefresh,
@@ -102,6 +105,9 @@ import {
 
 // Framework
 import { createPlugin, createTokensContext } from '@vuetify/v0'
+
+// Data
+import { FILE_TYPE_ICONS } from '@/data/file-types'
 
 // Types
 import type { App } from 'vue'
@@ -139,9 +145,12 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'lang-css': mdiLanguageCss3,
     'lang-vue': mdiVuejs,
     'lang-json': mdiCodeJson,
+    ...FILE_TYPE_ICONS,
     'reset': mdiRefresh,
     'keyboard': mdiKeyboardOutline,
     'format': mdiCodeBraces,
+    'fullscreen': mdiFullscreen,
+    'fullscreen-exit': mdiFullscreenExit,
     'theme-light': mdiWeatherSunny,
     'theme-dark': mdiWeatherNight,
     'layers': mdiLayersOutline,
@@ -156,6 +165,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'star-outline': mdiStarOutline,
     'pin': mdiPin,
     'pin-outline': mdiPinOutline,
+    'plus': mdiPlus,
     'pencil': mdiPencilOutline,
     'lock': mdiLock,
     'lock-open': mdiLockOpenVariantOutline,

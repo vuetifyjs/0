@@ -44,6 +44,16 @@
     openPlayground: (content: string) => Promise<void>
     openRegistryExample: (ref: RegistryExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
     openVuetifyExample: (ref: VuetifyExampleRef, options?: { clearSearch?: boolean }) => Promise<void>
+    /**
+     * Copy a bin in as a new file on the open playground.
+     * Does not reset the project or write back to the bin.
+     */
+    copyBin: (bin: { title?: string, language: string, content: string }) => void
+    /**
+     * Copy several bins in as new files on the open playground.
+     * Does not reset the project or write back to the bins.
+     */
+    copyBins: (files: { title?: string, language: string, content: string }[]) => void
     /** Last Open-gallery example loaded into the editor (for highlight). */
     activeExample: ShallowRef<ActiveExample | undefined>
     /** JSON payload for Vuetify One `playground.content`. */
@@ -98,6 +108,8 @@
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    copyBin,
+    copyBins,
     activeExample,
     snapshotContent,
   } = usePlaygroundFiles()
@@ -179,6 +191,8 @@
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    copyBin,
+    copyBins,
     activeExample,
     snapshotContent,
     showConfig,

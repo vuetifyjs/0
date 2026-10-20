@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, useStorage } from '@vuetify/v0'
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
@@ -8,6 +8,7 @@
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Context
+  import PlaygroundOpenBins from './PlaygroundOpenBins.vue'
   import PlaygroundOpenExamples from './PlaygroundOpenExamples.vue'
   import PlaygroundOpenGallery from './PlaygroundOpenGallery.vue'
   import PlaygroundOpenSaved from './PlaygroundOpenSaved.vue'
@@ -32,11 +33,13 @@
     type OpenRailItem,
     type OpenSavedChip,
     type OpenSavedSort,
+    type VuetifyBin,
     type VuetifyPlayground,
   } from './types'
 
   // Utilities
-  import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
+  import { isNumber } from '#v0/utilities'
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
@@ -47,6 +50,12 @@
 
   const playground = usePlayground()
   const one = useOnePlaygrounds()
+  const storage = useStorage()
+  /** Optional larger Open card. Restore puts it back; it does not dismiss. */
+  const maximized = storage.get('playground-open-maximized', false)
+  /** Last pulled totals. Shown until this open's list request finishes. */
+  const playCount = storage.get<number | undefined>('playground-open-play-count')
+  const binCount = storage.get<number | undefined>('playground-open-bin-count')
   const restored = readOpenSession()
   if (restored?.rail) rail.value = normalizeOpenRail(restored.rail)
   const query = shallowRef(restored?.query ?? '')
@@ -71,6 +80,12 @@
   const savedError = shallowRef<string>()
   const savedLoaded = shallowRef(false)
 
+  // ── Vuetify Bins (same One session, separate product) ───────────────
+  const bins = ref<VuetifyBin[]>([])
+  const binsLoading = shallowRef(false)
+  const binsError = shallowRef<string>()
+  const binsLoaded = shallowRef(false)
+
   // ── Docs registry examples (v0) ──────────────────────────────────────
   const items = ref<RegistryIndexEntry[]>([])
   const examplesLoading = shallowRef(true)
@@ -93,16 +108,28 @@
   const itemLoading = shallowRef(false)
   const itemError = shallowRef<string>()
 
-  const savedRail: OpenRailItem = { id: 'saved', label: 'Vuetify One' }
+  const yoursRails: OpenRailItem[] = [
+    { id: 'saved', label: 'Vuetify Play' },
+    { id: 'bins', label: 'Vuetify Bin' },
+  ]
   const exampleRails: OpenRailItem[] = [
     { id: 'v0', label: 'Vuetify0' },
     { id: 'vuetify', label: 'Vuetify 4' },
   ]
-  const rails: OpenRailItem[] = [savedRail, ...exampleRails]
+  const rails: OpenRailItem[] = [...yoursRails, ...exampleRails]
 
   const railLabel = computed(() =>
     rails.find(r => r.id === rail.value)?.label ?? 'Examples',
   )
+
+  /** Icon mark beside the content title. Hidden once a gallery item is open. */
+  const railMark = computed(() => {
+    if (rail.value === 'saved') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vplay.svg'
+    if (rail.value === 'bins') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vbin.svg'
+    if (rail.value === 'v0') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg'
+    if (rail.value === 'vuetify') return 'https://cdn.vuetifyjs.com/docs/images/one/logos/vuetify.svg'
+    return undefined
+  })
 
   const kindCounts = computed(() => {
     const next = { components: 0, composables: 0, plugins: 0 }
@@ -150,6 +177,31 @@
     return sortPlaygrounds(pool, savedSort.value, savedSortDir.value)
   })
 
+  const binsCounts = computed(() => ({
+    favorite: bins.value.filter(item => item.favorite).length,
+  }))
+
+  const binsChips = computed(() => [
+    { id: 'all' as const, label: 'All', count: bins.value.length },
+    { id: 'favorite' as const, label: 'Favorites', count: binsCounts.value.favorite },
+  ].filter(chip => chip.id === 'all' || chip.count > 0))
+
+  const pinnedBins = computed(() =>
+    sortPlaygrounds(
+      bins.value.filter(item => item.pinned),
+      savedSort.value,
+      savedSortDir.value,
+    ),
+  )
+
+  const binsPool = computed(() => {
+    const unpinned = bins.value.filter(item => !item.pinned)
+    const pool = savedChip.value === 'favorite'
+      ? unpinned.filter(item => item.favorite)
+      : unpinned
+    return sortPlaygrounds(pool, savedSort.value, savedSortDir.value)
+  })
+
   // Flatten searchable text so createFilter can match example ids without a custom fn.
   const filterableV0 = computed(() =>
     kindItems.value.map(item => ({
@@ -178,6 +230,13 @@
     })),
   )
 
+  const filterableBins = computed(() =>
+    binsPool.value.map(item => ({
+      ...item,
+      title: item.title || '',
+    })),
+  )
+
   const galleryFilter = createFilter({
     keys: ['name', 'title', 'description', 'category', 'exampleSearch'],
     mode: 'some',
@@ -191,6 +250,12 @@
   const { items: filtered } = galleryFilter.apply(() => query.value, filterableV0)
   const { items: filteredVuetifyEntries } = galleryFilter.apply(() => query.value, filterableVuetify)
   const { items: filteredSaved } = savedFilter.apply(() => query.value, filterableSaved)
+
+  const binsFilter = createFilter({
+    keys: ['title', 'id'],
+    mode: 'some',
+  })
+  const { items: filteredBins } = binsFilter.apply(() => query.value, filterableBins)
 
   /** Full Vuetify component entries after search (keeps example meta for drill-in). */
   const filteredVuetify = computed(() => {
@@ -230,7 +295,8 @@
   })
 
   const searchPlaceholder = computed(() => {
-    if (rail.value === 'saved') return 'Filter Vuetify One…'
+    if (rail.value === 'saved') return 'Filter Vuetify Play…'
+    if (rail.value === 'bins') return 'Filter Vuetify Bin…'
     if (rail.value === 'vuetify') return 'Filter Vuetify 4…'
     return 'Filter Vuetify0…'
   })
@@ -239,6 +305,9 @@
     if (selected.value || selectedVuetify.value) return false
     if (rail.value === 'saved') {
       return !savedLoading.value && !savedError.value && saved.value.length > 0
+    }
+    if (rail.value === 'bins') {
+      return !binsLoading.value && !binsError.value && bins.value.length > 0
     }
     if (rail.value === 'vuetify') return vuetifyItems.length > 0
     return !examplesLoading.value && !examplesError.value && items.value.length > 0
@@ -268,6 +337,25 @@
     && saved.value.length > 0,
   )
 
+  const showBinsChips = computed(() =>
+    rail.value === 'bins'
+    && !binsLoading.value
+    && !binsError.value
+    && bins.value.length > 0
+    && binsChips.value.length > 1,
+  )
+
+  const showBinsSort = computed(() =>
+    rail.value === 'bins'
+    && !binsLoading.value
+    && !binsError.value
+    && bins.value.length > 0,
+  )
+
+  const listChips = computed(() => rail.value === 'bins' ? binsChips.value : savedChips.value)
+  const showListChips = computed(() => showSavedChips.value || showBinsChips.value)
+  const showListSort = computed(() => showSavedSort.value || showBinsSort.value)
+
   const savedSortChips = [
     { id: 'name' as const, label: 'Name' },
     { id: 'created' as const, label: 'Created' },
@@ -280,6 +368,12 @@
       if (savedError.value) return 'Could not load'
       const n = filteredSaved.value.length
       return n === 1 ? '1 playground' : `${n} playgrounds`
+    }
+    if (rail.value === 'bins') {
+      if (binsLoading.value) return 'Loading…'
+      if (binsError.value) return 'Could not load'
+      const n = filteredBins.value.length
+      return n === 1 ? '1 bin' : `${n} bins`
     }
     if (rail.value === 'vuetify') {
       const n = filteredVuetify.value.length
@@ -351,9 +445,10 @@
   onMounted(async () => {
     // Warm saved list when restoring that rail so the pane isn't empty flash.
     if (rail.value === 'saved') await loadSaved()
+    if (rail.value === 'bins') await loadBins()
     await loadExamples()
     // Re-enter the examples pane if the user closed while drilled in.
-    if (pendingSelectedName.value && rail.value !== 'saved') {
+    if (pendingSelectedName.value && rail.value !== 'saved' && rail.value !== 'bins') {
       const ok = await restoreDrillIn(pendingSelectedName.value)
       pendingSelectedName.value = undefined
       await nextTick()
@@ -538,6 +633,38 @@
     }
   }
 
+  async function loadBins () {
+    if (binsLoaded.value || binsLoading.value) return
+    binsLoading.value = true
+    binsError.value = undefined
+    try {
+      const rows = await one.listBins()
+      bins.value = rows.map(item => ({
+        id: item.id,
+        title: item.title || '',
+        content: item.content ?? '',
+        language: item.language,
+        favorite: item.favorite,
+        pinned: item.pinned,
+        createdAt: item.createdAt ?? '',
+        updatedAt: item.updatedAt ?? '',
+      }))
+      binsLoaded.value = true
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Sign in required') {
+        binsError.value = 'Session expired. Please sign in again.'
+      } else if (error instanceof Error) {
+        binsError.value = error.message
+      } else {
+        binsError.value = 'Failed to load bins'
+      }
+    } finally {
+      binsLoading.value = false
+      await nextTick()
+      restoreScroll()
+    }
+  }
+
   async function onRail (next: OpenRail) {
     if (rail.value === next && !selected.value && !selectedVuetify.value) return
     rail.value = next
@@ -553,6 +680,7 @@
     if (pane.value) pane.value.scrollTop = 0
     persistSession()
     if (next === 'saved') await loadSaved()
+    if (next === 'bins') await loadBins()
     nextTick(() => input.value?.focus())
   }
 
@@ -778,8 +906,55 @@
       return items.value.length
     }
     if (id === 'vuetify') return vuetifyItems.length
-    if (id === 'saved' && savedLoaded.value) return saved.value.length
+    if (id === 'saved') {
+      if (savedLoaded.value) return saved.value.length
+      if (isNumber(playCount.value)) return playCount.value
+    }
+    if (id === 'bins') {
+      if (binsLoaded.value) return bins.value.length
+      if (isNumber(binCount.value)) return binCount.value
+    }
     return undefined
+  }
+
+  // Persist only a finished pull (and later edits to that list). A failed
+  // request leaves the previous total in place.
+  watch(() => savedLoaded.value ? saved.value.length : undefined, count => {
+    if (isNumber(count)) playCount.value = count
+  })
+  watch(() => binsLoaded.value ? bins.value.length : undefined, count => {
+    if (isNumber(count)) binCount.value = count
+  })
+
+  function openBin (item: VuetifyBin) {
+    if (!IN_BROWSER) return
+    window.open(`https://bin.vuetifyjs.com/bins/${encodeURIComponent(item.id)}`, '_blank', 'noopener')
+  }
+
+  function toBinFile (item: VuetifyBin) {
+    return {
+      title: item.title,
+      language: item.language ?? '',
+      content: item.content,
+    }
+  }
+
+  function copyBin (item: VuetifyBin) {
+    copyBins([item])
+  }
+
+  function copyBins (items: VuetifyBin[]) {
+    if (opening.value || items.length === 0) return
+
+    opening.value = true
+    try {
+      playground.copyBins(items.map(toBinFile))
+      emit('close')
+    } catch (error) {
+      binsError.value = error instanceof Error ? error.message : String(error)
+    } finally {
+      opening.value = false
+    }
   }
 
   async function openSaved (item: VuetifyPlayground) {
@@ -832,28 +1007,37 @@
       <div
         aria-labelledby="open-title"
         aria-modal="true"
-        class="relative bg-surface border border-divider rounded-lg shadow-xl w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)] flex flex-col sm:flex-row overflow-hidden"
+        class="relative bg-surface border border-divider rounded-lg shadow-xl flex flex-col sm:flex-row overflow-hidden"
+        :class="maximized
+          ? 'w-[calc(100vw-2rem)] h-[calc(100vh-2rem)]'
+          : 'w-[900px] max-w-[calc(100vw-2rem)] h-[640px] max-h-[calc(100vh-2rem)]'"
         role="dialog"
       >
-        <!-- Left rail: Vuetify One, then example stacks -->
+        <!-- Left rail: your One content, then example stacks -->
         <nav
           aria-label="Open source"
           class="flex flex-row flex-wrap sm:flex-nowrap sm:flex-col w-full sm:w-36 shrink-0 border-b sm:border-b-0 sm:border-r border-divider gap-1 p-2 bg-surface"
         >
+          <p class="hidden sm:block mx-3 mt-1 mb-0.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+            Vuetify One
+          </p>
+
           <button
-            :aria-pressed="rail === savedRail.id"
+            v-for="item in yoursRails"
+            :key="item.id"
+            :aria-pressed="rail === item.id"
             class="flex-1 sm:flex-none min-w-0 mx-0 sm:mx-1.5 flex items-center justify-center sm:justify-between gap-2 px-2.5 py-1.5 sm:py-2 text-xs text-center sm:text-left rounded-md transition-colors"
-            :class="railActiveClass(savedRail.id)"
+            :class="railActiveClass(item.id)"
             type="button"
-            @click="onRail(savedRail.id)"
+            @click="onRail(item.id)"
           >
-            <span class="truncate">{{ savedRail.label }}</span>
+            <span class="truncate">{{ item.label }}</span>
 
             <span
-              v-if="railCount(savedRail.id) !== undefined"
+              v-if="railCount(item.id) !== undefined"
               class="tabular-nums text-[10px] text-on-surface-variant shrink-0"
             >
-              {{ railCount(savedRail.id) }}
+              {{ railCount(item.id) }}
             </span>
           </button>
 
@@ -918,12 +1102,21 @@
                   </span>
                 </div>
 
-                <h2 id="open-title" class="text-sm font-medium truncate">
-                  {{ selectedVuetify
-                    ? (selectedVuetify.title || selectedVuetify.name)
-                    : selected
-                      ? (selected.title || selected.name)
-                      : railLabel }}
+                <h2 id="open-title" class="text-sm font-medium flex items-center gap-1.5 min-w-0">
+                  <img
+                    v-if="!selected && !selectedVuetify && railMark"
+                    alt=""
+                    class="h-4 w-4 shrink-0"
+                    :src="railMark"
+                  >
+
+                  <span class="truncate">
+                    {{ selectedVuetify
+                      ? (selectedVuetify.title || selectedVuetify.name)
+                      : selected
+                        ? (selected.title || selected.name)
+                        : railLabel }}
+                  </span>
                 </h2>
 
                 <p class="text-[11px] text-on-surface-variant mt-0.5 truncate">
@@ -957,11 +1150,26 @@
               </div>
             </div>
 
-            <AppCloseButton class="relative z-10" @click="$emit('close')" />
+            <div class="relative z-10 flex items-center gap-1">
+              <div class="hidden sm:block">
+                <AppTooltip
+                  :aria-label="maximized ? 'Restore' : 'Maximize'"
+                  :aria-pressed="maximized"
+                  class="close-button"
+                  :style="{ width: '24px', height: '24px' }"
+                  :text="maximized ? 'Restore' : 'Maximize'"
+                  @click="maximized = !maximized"
+                >
+                  <AppIcon :icon="maximized ? 'fullscreen-exit' : 'fullscreen'" :size="14" />
+                </AppTooltip>
+              </div>
+
+              <AppCloseButton @click="$emit('close')" />
+            </div>
           </div>
 
           <div
-            v-if="showSearch || showKindChips || showSavedChips || showSavedSort"
+            v-if="showSearch || showKindChips || showListChips || showListSort"
             class="px-4 py-2.5 border-b border-divider shrink-0 flex flex-col gap-2"
           >
             <div
@@ -1009,17 +1217,17 @@
             </div>
 
             <div
-              v-if="showSavedChips || showSavedSort"
+              v-if="showListChips || showListSort"
               class="flex flex-wrap items-center justify-between gap-2"
             >
               <div
-                v-if="showSavedChips"
-                aria-label="Filter Vuetify One"
+                v-if="showListChips"
+                :aria-label="rail === 'bins' ? 'Filter Vuetify Bin' : 'Filter Vuetify Play'"
                 class="flex flex-wrap gap-1.5"
                 role="group"
               >
                 <button
-                  v-for="chip in savedChips"
+                  v-for="chip in listChips"
                   :key="chip.id"
                   :aria-pressed="savedChip === chip.id"
                   class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] transition-colors border"
@@ -1035,8 +1243,8 @@
               </div>
 
               <div
-                v-if="showSavedSort"
-                aria-label="Sort Vuetify One"
+                v-if="showListSort"
+                :aria-label="rail === 'bins' ? 'Sort Vuetify Bin' : 'Sort Vuetify Play'"
                 class="flex flex-wrap gap-1.5"
                 role="group"
               >
@@ -1065,7 +1273,7 @@
           <div
             ref="pane"
             class="flex-1 min-h-0"
-            :class="rail === 'saved' && !selected && !selectedVuetify
+            :class="(rail === 'saved' || rail === 'bins') && !selected && !selectedVuetify
               ? 'overflow-hidden flex flex-col'
               : 'overflow-y-auto'"
             @scroll.passive="onPaneScroll"
@@ -1091,6 +1299,20 @@
               :opening
               @open="openExample"
               @retry="onRetryFeature"
+            />
+
+            <PlaygroundOpenBins
+              v-else-if="rail === 'bins'"
+              :catalog="bins"
+              :error="binsError"
+              :items="filteredBins"
+              :loading="binsLoading"
+              :pinned="pinnedBins"
+              :query
+              :total="bins.length"
+              @copy="copyBin"
+              @copy-many="copyBins"
+              @open="openBin"
             />
 
             <PlaygroundOpenSaved

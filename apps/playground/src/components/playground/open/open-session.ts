@@ -9,7 +9,7 @@ import { DEFAULT_OPEN_RAIL, normalizeOpenRail, type OpenKind, type OpenRail, typ
 
 const TTL_MS = 2 * 60 * 1000
 
-const RAILS: OpenRail[] = ['v0', 'vuetify', 'saved']
+const RAILS: OpenRail[] = ['v0', 'vuetify', 'saved', 'bins']
 const KINDS: Array<OpenKind | 'all'> = ['all', 'components', 'composables', 'plugins']
 const SAVED_CHIPS: OpenSavedChip[] = ['all', 'favorite']
 const SAVED_SORTS: OpenSavedSort[] = ['name', 'created', 'updated']
