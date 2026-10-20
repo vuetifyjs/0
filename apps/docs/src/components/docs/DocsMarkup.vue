@@ -52,6 +52,8 @@
   useCollapseAnchor(rootRef)
 
   const scrollable = shallowRef(false)
+  // A wide line leaves progress at 0, which would paint the bottom veil over lines already in view.
+  const overflowsY = shallowRef(false)
   const scrollLabel = toRef(() => {
     const name = hideFilename ? language : title ?? language
     return name ? `Scrollable code, ${name}` : 'Scrollable code'
@@ -79,10 +81,14 @@
     const el = scrollerRef.value
     if (!el || !capped.value) {
       scrollable.value = false
+      overflowsY.value = false
       syncProgress()
       return
     }
-    scrollable.value = el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2
+    const vertical = el.scrollHeight - el.clientHeight > 2
+    const horizontal = el.scrollWidth - el.clientWidth > 2
+    overflowsY.value = vertical
+    scrollable.value = vertical || horizontal
     syncProgress()
   }
 
@@ -138,7 +144,7 @@
         class="docs-markup__window transition-[max-height] duration-300 ease-out"
         :class="[
           capped && 'docs-markup__window--capped docs-code-window',
-          scrollable && 'docs-code-window--active',
+          overflowsY && 'docs-code-window--active',
         ]"
         :role="scrollable ? 'region' : undefined"
         :style="windowStyle"

@@ -800,7 +800,9 @@
      while the fade is held at either end. The ramp matches that timeline: the
      top fade strengthens over the first 22% of the range, the bottom fade
      lets go over the last 22%. Opacity only — a translate on these sticky
-     pseudos shifts the bottom veil off the last lines as the end arrives. */
+     pseudos shifts the bottom veil off the last lines as the end arrives.
+     --active means the window overflows vertically. A wide line must not add
+     it: progress stays 0, and the bottom veil would cover lines in view. */
   .docs-code-window--active::before {
     opacity: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
   }
