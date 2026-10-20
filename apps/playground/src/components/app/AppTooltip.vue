@@ -19,13 +19,32 @@
     openDelay,
     closeDelay,
     positionArea = 'top',
+    positionTry,
     disabled = false,
+    nowrap = false,
   } = defineProps<{
     /** Tooltip text. When empty the trigger renders on its own, no tooltip. */
     text?: string
     /** Element the trigger renders as; forwarded to Tooltip.Activator. */
     as?: AtomProps['as']
-  } & Pick<TooltipRootProps, 'closeDelay' | 'disabled' | 'openDelay' | 'positionArea'>>()
+    /** Keep the tooltip on one line. */
+    nowrap?: boolean
+  } & Pick<TooltipRootProps, 'closeDelay' | 'disabled' | 'openDelay' | 'positionArea' | 'positionTry'>>()
+
+  function tipMargin (area: string): string {
+    const token = area.trim().split(/\s+/)[0] ?? ''
+    if (
+      token === 'left'
+      || token === 'right'
+      || token === 'start'
+      || token === 'end'
+      || token === 'inline-start'
+      || token === 'inline-end'
+      || token === 'x-start'
+      || token === 'x-end'
+    ) return '0 6px'
+    return '6px 0'
+  }
 </script>
 
 <template>
@@ -35,14 +54,16 @@
     :disabled
     :open-delay
     :position-area
+    :position-try
   >
     <Tooltip.Activator :as v-bind="$attrs">
       <slot />
     </Tooltip.Activator>
 
     <Tooltip.Content
-      class="max-w-64 whitespace-normal rounded border border-divider bg-surface px-2 py-1 text-xs text-on-surface shadow-lg"
-      :style="{ margin: '6px 0' }"
+      class="rounded border border-divider bg-surface px-2 py-1 text-xs text-on-surface shadow-lg"
+      :class="nowrap ? 'whitespace-nowrap' : 'max-w-64 whitespace-normal'"
+      :style="{ margin: tipMargin(positionArea) }"
     >
       {{ text }}
     </Tooltip.Content>
