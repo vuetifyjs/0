@@ -762,6 +762,7 @@
      the top fade once the start has scrolled away, the bottom fade until
      the end arrives. */
   .docs-code-window {
+    --docs-code-progress: 0;
     scrollbar-width: none;
   }
 
@@ -794,34 +795,30 @@
     background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
   }
 
-  @supports (animation-timeline: scroll(nearest block)) {
-    .docs-code-window--active::before {
-      animation: docs-code-window-fade-top linear both;
-      animation-timeline: scroll(nearest block);
-    }
+  /* --docs-code-progress is written on scroll (0 at the top, 1 at the bottom).
+     A scroll-timeline animation here makes Chrome drop a single wheel detent
+     while the fade is held at either end. The ramp matches that timeline: the
+     top fade strengthens over the first 22% of the range, the bottom fade
+     lets go over the last 22%. Each fade also slides in across that same
+     stretch — opacity alone reads as a veil sitting on the edge. */
+  .docs-code-window--active::before,
+  .docs-code-window--active::after {
+    --docs-code-enter: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
+  }
 
-    .docs-code-window--active::after {
-      animation: docs-code-window-fade linear both;
-      animation-timeline: scroll(nearest block);
-    }
+  .docs-code-window--active::before {
+    opacity: var(--docs-code-enter);
+    transform: translateY(calc((var(--docs-code-enter) - 1) * 100%));
+  }
+
+  .docs-code-window--active::after {
+    --docs-code-enter: clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1);
+    opacity: var(--docs-code-enter);
+    transform: translateY(calc((1 - var(--docs-code-enter)) * 100%));
   }
 
   .docs-code-window:focus-visible {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--v0-primary);
-  }
-
-  /* Mirror of docs-code-window-fade: the edge hint strengthens across the
-     same 22% of the scroll, measured from the start instead of the end. */
-  @keyframes docs-code-window-fade-top {
-    0% { opacity: 0; }
-    22% { opacity: 1; }
-    100% { opacity: 1; }
-  }
-
-  @keyframes docs-code-window-fade {
-    0% { opacity: 1; }
-    78% { opacity: 1; }
-    100% { opacity: 0; }
   }
 </style>
