@@ -72,9 +72,11 @@
 
   const props = defineProps<DocsGenesisExampleProps>()
 
-  const exampleRef = useTemplateRef<ComponentPublicInstance>('example')
+  // `example` is the theme toggle below. A template ref of the same name is
+  // inlined onto that object in production and Vue crashes reading `refs`.
+  const anchor = useTemplateRef<ComponentPublicInstance>('anchor')
   useCollapseAnchor(() => {
-    const el = exampleRef.value?.$el
+    const el = anchor.value?.$el
     return el instanceof HTMLElement ? el : undefined
   })
 
@@ -175,7 +177,7 @@
 <template>
   <GnDocsExample
     :id
-    ref="example"
+    ref="anchor"
     class="mb-6"
     :code="resolvedCode"
     :collapse
