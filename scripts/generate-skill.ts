@@ -23,7 +23,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 interface Entry {
-  level: 'stable' | 'preview' | 'draft'
+  level: 'draft' | 'preview' | 'stable' | 'mature'
   since?: string
   category: string
   description?: string
@@ -300,7 +300,7 @@ function surface (maturity: Maturity, glosses: Map<string, string | undefined>):
   const lines = [
     '## Full API surface',
     '',
-    'Public composables and utilities. `(stable)` and `(draft)` are marked. Unmarked entries are preview.',
+    'Public composables and utilities. `(mature)`, `(stable)`, and `(draft)` are marked. Unmarked entries are preview.',
   ]
   for (const [title, section] of [['Composables', maturity.composables], ['Utilities', maturity.utilities]] as const) {
     lines.push('', `### ${title}`)
