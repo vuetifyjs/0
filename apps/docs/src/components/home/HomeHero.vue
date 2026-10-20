@@ -120,7 +120,7 @@
     </div>
 
     <div class="relative grid grid-cols-2 md:flex gap-4 md:gap-12 justify-center text-center">
-      <a href="https://github.com/vuetifyjs/0/stargazers" rel="noopener" target="_blank">
+      <a href="https://github.com/vuetifyjs/0" rel="noopener" target="_blank">
         <div class="stat-number min-w-[4ch]">{{ stats.stars }}</div>
         <div class="stat-label">GitHub Stars</div>
       </a>
