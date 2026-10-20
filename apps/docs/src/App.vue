@@ -799,22 +799,14 @@
      A scroll-timeline animation here makes Chrome drop a single wheel detent
      while the fade is held at either end. The ramp matches that timeline: the
      top fade strengthens over the first 22% of the range, the bottom fade
-     lets go over the last 22%. Each fade also slides in across that same
-     stretch — opacity alone reads as a veil sitting on the edge. */
-  .docs-code-window--active::before,
-  .docs-code-window--active::after {
-    --docs-code-enter: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
-  }
-
+     lets go over the last 22%. Opacity only — a translate on these sticky
+     pseudos shifts the bottom veil off the last lines as the end arrives. */
   .docs-code-window--active::before {
-    opacity: var(--docs-code-enter);
-    transform: translateY(calc((var(--docs-code-enter) - 1) * 100%));
+    opacity: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
   }
 
   .docs-code-window--active::after {
-    --docs-code-enter: clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1);
-    opacity: var(--docs-code-enter);
-    transform: translateY(calc((1 - var(--docs-code-enter)) * 100%));
+    opacity: clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1);
   }
 
   .docs-code-window:focus-visible {
