@@ -69,6 +69,21 @@ yarn add @vuetify/v0
 bun add @vuetify/v0
 ```
 
+### Nightly Builds
+
+Daily snapshots publish as `@vuetify/v0-nightly`. Alias the package so imports stay `@vuetify/v0`:
+
+```bash
+# Pin a build (<version>-<branch>.<date>). Example:
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@1.3.0-master.2026-10-20
+
+# Or track master / dev
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@nightly
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@nightly-dev
+```
+
+Nightlies are unstable and not for production. See the [Nightly Builds guide](https://0.vuetifyjs.com/introduction/nightly-builds).
+
 ## CLI
 
 The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
