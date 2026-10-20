@@ -3,7 +3,7 @@
   import { GnPeek } from '@paper/genesis'
 
   // Framework
-  import { useResizeObserver } from '@vuetify/v0'
+  import { useEventListener, useResizeObserver } from '@vuetify/v0'
 
   // Composables
   import { useCodeGroupExpand } from '@/composables/useCodeGroupExpand'
@@ -67,14 +67,26 @@
     }
   })
 
+  function syncProgress (): void {
+    const el = scrollerRef.value
+    if (!el) return
+    const range = el.scrollHeight - el.clientHeight
+    const progress = range > 0 ? el.scrollTop / range : 0
+    el.style.setProperty('--docs-code-progress', String(progress))
+  }
+
   function syncScrollable (): void {
     const el = scrollerRef.value
     if (!el || !capped.value) {
       scrollable.value = false
+      syncProgress()
       return
     }
     scrollable.value = el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2
+    syncProgress()
   }
+
+  useEventListener(scrollerRef, 'scroll', syncProgress, { passive: true })
 
   useResizeObserver(scrollerRef, syncScrollable)
 

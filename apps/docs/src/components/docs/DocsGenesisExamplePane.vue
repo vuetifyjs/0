@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useResizeObserver } from '@vuetify/v0'
+  import { useEventListener, useResizeObserver } from '@vuetify/v0'
 
   // Utilities
   import { shallowRef, useTemplateRef } from 'vue'
@@ -23,6 +23,14 @@
   // Peek mode clips the code on an ancestor. That clip is not this element's
   // scrollport, so a tall file stays out of the tab order until it is expanded
   // and the cap below actually scrolls.
+  function syncProgress (): void {
+    const el = scrollRef.value
+    if (!el) return
+    const range = el.scrollHeight - el.clientHeight
+    const progress = range > 0 ? el.scrollTop / range : 0
+    el.style.setProperty('--docs-code-progress', String(progress))
+  }
+
   function syncScrollable (): void {
     const el = scrollRef.value
     if (!el) {
@@ -31,8 +39,10 @@
     }
     const capped = !el.closest('.genesis-docs-example-code')?.hasAttribute('data-truncated')
     scrollable.value = capped && overflows(el)
+    syncProgress()
   }
 
+  useEventListener(scrollRef, 'scroll', syncProgress, { passive: true })
   useResizeObserver(scrollRef, syncScrollable)
   useResizeObserver(contentRef, syncScrollable)
 </script>
