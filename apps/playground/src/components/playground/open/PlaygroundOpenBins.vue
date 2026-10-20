@@ -8,7 +8,7 @@
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
   // Local
-  import { binLanguageLabel, formatDate } from './types'
+  import { binFileType, binLanguageLabel, formatDate } from './types'
 
   // Utilities
   import { computed, shallowRef, toRef, watch } from 'vue'
@@ -114,6 +114,8 @@
     if (count === 0) selecting.value = false
   })
 
+  const typeClass = 'inline-flex items-center justify-start gap-1.5 w-28 shrink-0 overflow-hidden text-xs text-on-surface-variant'
+  const dateClass = 'w-24 shrink-0 whitespace-nowrap text-xs text-on-surface-variant tabular-nums'
   const addTip = 'Make copy and add to current Playground'
   const addClass = 'inline-flex items-center justify-center size-6 shrink-0 rounded border-0 bg-transparent text-primary hover:bg-primary/10 cursor-pointer'
   const menuItemClass = 'w-full flex items-center px-3 py-1.5 text-xs text-left text-on-surface hover:bg-surface-tint border-0 bg-transparent cursor-pointer'
@@ -248,15 +250,22 @@
         </Button.Root>
 
         <div class="flex items-center gap-2 shrink-0">
-          <span class="text-xs text-on-surface-variant">
-            {{ binLanguageLabel(entry.raw.language) }}
+          <span :class="typeClass">
+            <AppIcon
+              class="shrink-0"
+              :icon="binFileType(entry.raw.language)?.icon ?? 'file'"
+              :size="14"
+              :style="{ color: binFileType(entry.raw.language)?.color }"
+            />
+
+            <span class="truncate text-left">{{ binLanguageLabel(entry.raw.language) }}</span>
           </span>
 
-          <span class="text-xs text-on-surface-variant tabular-nums">
+          <span :class="dateClass">
             {{ entry.raw.updatedAt || entry.raw.createdAt ? formatDate(entry.raw.updatedAt || entry.raw.createdAt) : '' }}
           </span>
 
-          <Popover.Root v-slot="{ toggle }">
+          <Popover.Root v-if="!selecting" v-slot="{ toggle }">
             <Popover.Activator
               aria-label="Add options"
               :class="addClass"

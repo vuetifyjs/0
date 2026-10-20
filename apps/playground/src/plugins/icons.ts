@@ -106,6 +106,9 @@ import {
 // Framework
 import { createPlugin, createTokensContext } from '@vuetify/v0'
 
+// Data
+import { FILE_TYPE_ICONS } from '@/data/file-types'
+
 // Types
 import type { App } from 'vue'
 
@@ -142,6 +145,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'lang-css': mdiLanguageCss3,
     'lang-vue': mdiVuejs,
     'lang-json': mdiCodeJson,
+    ...FILE_TYPE_ICONS,
     'reset': mdiRefresh,
     'keyboard': mdiKeyboardOutline,
     'format': mdiCodeBraces,

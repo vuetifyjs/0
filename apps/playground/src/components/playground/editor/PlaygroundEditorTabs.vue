@@ -72,16 +72,15 @@
 
   function onClickClose (id: string) {
     const list = tabs.value
-    const index = list.findIndex(t => t.id === id)
-    const nextTab = list[index + 1] ?? list[index - 1] ?? list[0]
+    const index = list.findIndex(tab => tab.id === id)
+    const nextId = (list[index + 1] ?? list[index - 1])?.id ?? 'src/App.vue'
 
-    const next = new Set(closedTabs.value)
-    next.add(id)
-    closedTabs.value = next
+    const closed = new Set(closedTabs.value)
+    closed.add(id)
+    closedTabs.value = closed
 
-    if (id === model.value && nextTab) {
-      playground.store.setActive(nextTab.id)
-    }
+    if (playground.store.activeFile?.filename !== id) return
+    playground.store.setActive(nextId)
   }
 </script>
 

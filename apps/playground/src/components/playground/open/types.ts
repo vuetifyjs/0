@@ -1,3 +1,6 @@
+// Data
+import { fileType } from '@/data/file-types'
+
 // Utilities
 import { isString } from '#v0/utilities'
 
@@ -118,6 +121,11 @@ export function binLanguageLabel (language: string | null | undefined) {
   if (!isString(language) || language.length === 0) return 'Text'
   const key = language.toLowerCase()
   return BIN_LANGUAGE_LABEL[key] ?? language
+}
+
+/** File-tree icon for a bin language. Unknown languages use the text-file mark. */
+export function binFileType (language: string | null | undefined) {
+  return fileType(`file.${binFileExt(language)}`)
 }
 
 /** Map legacy session rails (components/composables/plugins) → `v0`. */

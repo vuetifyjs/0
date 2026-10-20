@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Local
-import { binCopyPath, binFileExt, binLanguageLabel, binReplExt, DEFAULT_OPEN_RAIL, normalizeOpenRail } from './types'
+import { binCopyPath, binFileExt, binFileType, binLanguageLabel, binReplExt, DEFAULT_OPEN_RAIL, normalizeOpenRail } from './types'
 
 describe('normalizeOpenRail', () => {
   it('should default to Vuetify One', () => {
@@ -32,6 +32,11 @@ describe('normalizeOpenRail', () => {
     expect(binFileExt('nope')).toBe('txt')
     expect(binLanguageLabel('markdown')).toBe('Markdown')
     expect(binLanguageLabel(null)).toBe('Text')
+    expect(binFileType('vue')).toEqual({ icon: 'lang-vue', color: '#4FC08D' })
+    expect(binFileType('markdown')?.icon).toBe('lang-md')
+    expect(binFileType('python')?.icon).toBe('lang-py')
+    expect(binFileType('JavaScript')?.icon).toBe('lang-js')
+    expect(binFileType(null)?.icon).toBe('file-document')
   })
 
   it('should name a copied bin without clobbering a file', () => {

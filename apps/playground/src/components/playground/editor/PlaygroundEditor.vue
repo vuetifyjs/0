@@ -4,6 +4,7 @@
 
   // Composables
   import { attachFormatOnBlur, readMonaco, registerVueFormatter } from '@/composables/formatActiveFile'
+  import { highlightBinFiles } from '@/composables/highlightBinFiles'
 
   // Utilities
   import { defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
@@ -88,6 +89,8 @@
     if (!listening) {
       listening = true
       registerVueFormatter(monaco)
+      const painted = highlightBinFiles(monaco)
+      if (painted) disposables.push(painted)
       for (const editor of monaco.editor.getEditors()) bindEditor(editor)
       const created = monaco.editor.onDidCreateEditor?.(bindEditor)
       if (created) disposables.push(created)
