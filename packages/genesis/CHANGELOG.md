@@ -1,5 +1,24 @@
 # @paper/genesis
 
+## 1.1.0
+
+### Minor Changes
+
+- [#593](https://github.com/vuetifyjs/0/pull/593) [`c8ee5fa`](https://github.com/vuetifyjs/0/commit/c8ee5fa9b222c8143d6225453921a77f1d060d99) Thanks [@johnleider](https://github.com/johnleider)! - feat(genesis): add GnDocsCallout and an optional host icon renderer ([#593](https://github.com/vuetifyjs/0/issues/593))
+
+  A presentational admonition for `tip`, `note`, `warning`, `caution`, and `important`. Colors follow the active v0 theme (`--v0-success` / `--v0-info` / `--v0-warning` / `--v0-error` / `--v0-accent`) with hex fallbacks; the `icon` and `title` slots override the defaults.
+
+  Chrome icons (callout, peek, example actions) resolve through optional `provideGnIcons` — a host renderer keyed by genesis roles — then a component-local inline SVG. Named slots still win. No genesis icon plugin or glyph registry.
+
+- [#463](https://github.com/vuetifyjs/0/pull/463) [`1efd273`](https://github.com/vuetifyjs/0/commit/1efd273d06b41f5f0cb04eac0990ed207cfb324d) Thanks [@johnleider](https://github.com/johnleider)! - feat(GnDocsBadge): add a static label/tag primitive ([#463](https://github.com/vuetifyjs/0/issues/463))
+
+  Non-interactive span for skill levels, modes, and similar docs chrome. Optional `color` tints the background via `color-mix`; text is the raw color. `shape` is `rounded` | `pill`. Label is the default slot; `icon` is decorative.
+
+### Patch Changes
+
+- Updated dependencies [[`ff80dd2`](https://github.com/vuetifyjs/0/commit/ff80dd2d5ae05e9b3c3452c2ee4c4ff6a4c77d4c), [`0184058`](https://github.com/vuetifyjs/0/commit/018405893e702bba2eb6d30e390b2008ee49506a), [`8302695`](https://github.com/vuetifyjs/0/commit/830269534d890fb56d05e10fcec27bbe91063235), [`1a5cbce`](https://github.com/vuetifyjs/0/commit/1a5cbce149ca1b08301ce3f76b8783af70c8c106), [`3b3734e`](https://github.com/vuetifyjs/0/commit/3b3734e3572d24bfcdc5d45af9358254b5574f80), [`bec776d`](https://github.com/vuetifyjs/0/commit/bec776dee57cbb0812278b6c9cd5e5953942c2b2), [`18eb798`](https://github.com/vuetifyjs/0/commit/18eb7981f29613afebb968573abc8556abceabee), [`f990bbb`](https://github.com/vuetifyjs/0/commit/f990bbbb14e3b87122f77be021cac400e55704cb), [`8670f30`](https://github.com/vuetifyjs/0/commit/8670f30730b9a4404e2fe5430e8e530767178a14), [`edf2af9`](https://github.com/vuetifyjs/0/commit/edf2af977bcc852f52f0084268421048b74c9e09), [`0621413`](https://github.com/vuetifyjs/0/commit/06214134009198669346b5ad16f127d3c73fe25d), [`ede941e`](https://github.com/vuetifyjs/0/commit/ede941eb9fbb91228838a2b539cc1ad3fefd585d), [`09e971d`](https://github.com/vuetifyjs/0/commit/09e971d4a017ecacd3eeed3b67c79a29ad4da7df), [`4047a65`](https://github.com/vuetifyjs/0/commit/4047a65d354f9e11e93584194d8009d1ce343509), [`1f5719c`](https://github.com/vuetifyjs/0/commit/1f5719ccf8af9bc8cb0c2afd4dc25c63b5ecbb20), [`2f59b6b`](https://github.com/vuetifyjs/0/commit/2f59b6be45ace1dc7f1551fdbd5144526be6eaf4), [`3cf3360`](https://github.com/vuetifyjs/0/commit/3cf3360603d4c30fef16da5fc00527c51e08d35e), [`0184058`](https://github.com/vuetifyjs/0/commit/018405893e702bba2eb6d30e390b2008ee49506a)]:
+  - @vuetify/v0@1.3.0
+
 ## 1.0.3
 
 ### Patch Changes
