@@ -792,47 +792,47 @@
       "category": "utilities"
     },
     "isArray": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isBoolean": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isElement": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isFunction": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isNaN": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isNull": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isNullOrUndefined": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isNumber": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isObject": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
@@ -842,12 +842,12 @@
       "category": "utilities"
     },
     "isString": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
     "isSymbol": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
@@ -857,7 +857,7 @@
       "category": "utilities"
     },
     "isUndefined": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.1.0",
       "category": "utilities"
     },
@@ -878,7 +878,7 @@
       "description": "Parses a CSS pixel length into a number, returning a caller-supplied fallback when the length does not parse."
     },
     "range": {
-      "level": "stable",
+      "level": "mature",
       "since": "0.0.15",
       "category": "utilities"
     },
