@@ -1,5 +1,27 @@
 # @vuetify/v0
 
+## 1.2.4
+
+### Patch Changes
+
+- [#1052](https://github.com/vuetifyjs/0/pull/1052) [`8a29058`](https://github.com/vuetifyjs/0/commit/8a290585b4f4f77f386cd8ecaff277ecc9c3f071) Thanks [@johnleider](https://github.com/johnleider)! - fix(AlertDialog): clear the cancel element before the dialog unmounts
+
+- [#1053](https://github.com/vuetifyjs/0/pull/1053) [`70103dd`](https://github.com/vuetifyjs/0/commit/70103dd083ff400691652bda92f34855f739d30e) Thanks [@johnleider](https://github.com/johnleider)! - fix(createFilter): a plain list filters with less repeated work per search
+
+  The default matcher prepares the query once per pass. Which edits re-run the filter is unchanged. A deep `ref` still tracks every field, so a large list should be a `shallowRef` or a plain array.
+
+- [#1043](https://github.com/vuetifyjs/0/pull/1043) [`2a6e016`](https://github.com/vuetifyjs/0/commit/2a6e0168872f2883ba8f6b46737736bd943b4d64) Thanks [@araishi](https://github.com/araishi)! - fix: smaller Vite 8 bundles when only part of v0 is used ([#1043](https://github.com/vuetifyjs/0/issues/1043))
+
+  A Vite 8 production build no longer pulls unused v0 contexts into the bundle. In an app that uses Vuetify's `VSelect`, `VAutocomplete`, `VCombobox` or `VDataTable`, this saves about 23 kB of gzipped JS on Vue 3.5 and about 73 kB on Vue 3.6, independent of app size.
+
+- [#1026](https://github.com/vuetifyjs/0/pull/1026) [`c9e9fa4`](https://github.com/vuetifyjs/0/commit/c9e9fa439a44c32b0d4aa5a001305969526c741a) Thanks [@johnleider](https://github.com/johnleider)! - fix(useResizeObserver): entries always include `borderBoxSize` and `contentBoxSize` ([#1026](https://github.com/vuetifyjs/0/issues/1026))
+
+  Browsers that omit them from native entries (Safari < 15.4, Chrome < 84) previously passed `undefined` through despite the types; they are now measured from the element's computed style.
+
+- [#1026](https://github.com/vuetifyjs/0/pull/1026) [`c9e9fa4`](https://github.com/vuetifyjs/0/commit/c9e9fa439a44c32b0d4aa5a001305969526c741a) Thanks [@johnleider](https://github.com/johnleider)! - fix(createVirtual): reverse lists start at the bottom, and edge callbacks stop after unmount ([#1026](https://github.com/vuetifyjs/0/issues/1026))
+
+  With `direction: 'reverse'`, the list now opens scrolled to its last item in the browser instead of at the top, including when the first items load after mount or the scroll element is remounted. A `scrollTo()` made right after mount takes precedence over that initial pin. A scroll in flight when the list unmounts no longer calls `onStartReached` or `onEndReached`.
+
 ## 1.2.3
 
 ### Patch Changes
