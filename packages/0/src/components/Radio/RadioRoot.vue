@@ -308,6 +308,12 @@
       'onKeydown': onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (rootRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>

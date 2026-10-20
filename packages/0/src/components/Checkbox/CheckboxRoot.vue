@@ -19,9 +19,13 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
+  import type { CheckboxTicket } from './CheckboxGroup.vue'
   import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Visual state of the checkbox for styling purposes */
@@ -134,10 +138,10 @@
 
   // Utilities
   import { useId } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs } from 'vue'
+  import { mergeProps, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
-  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
+  import type { GroupContext } from '#v0/composables/createGroup'
 
   defineOptions({ name: 'CheckboxRoot', inheritAttrs: false })
 
@@ -169,7 +173,7 @@
   } = defineProps<CheckboxRootProps<V>>()
 
   // Dual-mode: try to inject group context, null if standalone
-  let group: GroupContext<GroupTicket> | null = null
+  let group: GroupContext<CheckboxTicket> | null = null
   try {
     group = useCheckboxGroup(groupNamespace)
   } catch {
@@ -178,8 +182,11 @@
 
   const model = defineModel<boolean>()
 
+  const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? undefined)
+
   // Dual mode: register with parent
-  const ticket = group?.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false })
+  const ticket = group?.register({ id, value, disabled: () => toValue(disabled) ?? false, indeterminate: () => toValue(indeterminate) ?? false, el })
 
   const isChecked = toRef(() => ticket
     ? toValue(ticket.isSelected)
@@ -304,10 +311,17 @@
       'onKeydown': onKeydown,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (atomRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
   <Atom
+    ref="atom"
     v-bind="mergeProps(attrs, slotProps.attrs)"
     :as
     :renderless

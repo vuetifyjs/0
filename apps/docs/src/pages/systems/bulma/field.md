@@ -45,8 +45,6 @@ The first tree is a stacked field. The second is the horizontal layout — a fie
   import {
     BuControl,
     BuField,
-    BuFieldBody,
-    BuFieldLabel,
     BuHelp,
     BuLabel,
   } from '@paper/bulma'
@@ -62,15 +60,15 @@ The first tree is a stacked field. The second is the horizontal layout — a fie
   </BuField>
 
   <BuField>
-    <BuFieldLabel>
+    <BuField.Label>
       <BuLabel />
-    </BuFieldLabel>
+    </BuField.Label>
 
-    <BuFieldBody>
+    <BuField.Body>
       <BuField>
         <BuControl />
       </BuField>
-    </BuFieldBody>
+    </BuField.Body>
   </BuField>
 </template>
 ```

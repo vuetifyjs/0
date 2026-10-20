@@ -195,5 +195,10 @@ export const [createRulesContext, createRulesPlugin, useRules] =
   /* @__PURE__ */ createPluginContext<RulesContextOptions, RulesContext>(
     'v0:rules',
     options => createRules(options),
-    { fallback: () => createRulesFallback() },
+    {
+      fallback: () => createRulesFallback(),
+      inspect: ctx => ({
+        aliases: Object.keys(ctx.aliases),
+      }),
+    },
   )

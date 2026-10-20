@@ -1,50 +1,20 @@
 <script setup lang="ts">
   import {
     BuBreadcrumb,
-    BuBreadcrumbItem,
     BuCheckbox,
     BuControl,
     BuDropdown,
-    BuDropdownMenu,
-    BuDropdownTrigger,
     BuField,
     BuInput,
     BuLabel,
     BuMenu,
-    BuMenuItem,
-    BuMenuLabel,
-    BuMenuLink,
-    BuMenuList,
     BuModal,
-    BuModalBody,
-    BuModalCard,
-    BuModalDelete,
-    BuModalFoot,
-    BuModalHead,
-    BuModalTitle,
     BuNavbar,
-    BuNavbarBrand,
-    BuNavbarMenu,
     BuNotification,
-    BuNotificationDelete,
     BuNumberField,
-    BuNumberFieldDecrement,
-    BuNumberFieldIncrement,
-    BuNumberFieldInput,
     BuPagination,
-    BuPaginationEllipsis,
-    BuPaginationItem,
-    BuPaginationList,
-    BuPaginationNext,
-    BuPaginationPrev,
     BuPanel,
-    BuPanelBlock,
-    BuPanelHeading,
-    BuPanelIcon,
     BuSelect,
-    BuTab,
-    BuTabList,
-    BuTabPanel,
     BuTabs,
   } from '@paper/bulma'
 
@@ -65,13 +35,13 @@
 
 <template>
   <BuNavbar v-model="nav">
-    <BuNavbarBrand :burger="false">
+    <BuNavbar.Brand :burger="false">
       <a class="navbar-item" href="#">
         <strong>Paper / Bulma</strong>
       </a>
-    </BuNavbarBrand>
+    </BuNavbar.Brand>
 
-    <BuNavbarMenu>
+    <BuNavbar.Menu>
       <div class="navbar-start">
         <a class="navbar-item">Dashboard</a>
         <a class="navbar-item">Documentation</a>
@@ -86,76 +56,76 @@
           </div>
         </div>
       </div>
-    </BuNavbarMenu>
+    </BuNavbar.Menu>
   </BuNavbar>
 
   <section class="section">
     <BuBreadcrumb>
-      <BuBreadcrumbItem href="#">
+      <BuBreadcrumb.Item href="#">
         Paper
-      </BuBreadcrumbItem>
+      </BuBreadcrumb.Item>
 
-      <BuBreadcrumbItem href="#">
+      <BuBreadcrumb.Item href="#">
         Bulma
-      </BuBreadcrumbItem>
+      </BuBreadcrumb.Item>
 
-      <BuBreadcrumbItem current>
+      <BuBreadcrumb.Item current>
         Dashboard
-      </BuBreadcrumbItem>
+      </BuBreadcrumb.Item>
     </BuBreadcrumb>
 
     <div class="columns">
       <div class="column is-one-quarter">
         <BuMenu v-model="section">
-          <BuMenuLabel>General</BuMenuLabel>
+          <BuMenu.Label>General</BuMenu.Label>
 
-          <BuMenuList>
-            <BuMenuItem>
-              <BuMenuLink value="Dashboard">Dashboard</BuMenuLink>
-            </BuMenuItem>
+          <BuMenu.List>
+            <BuMenu.Item>
+              <BuMenu.Link value="Dashboard">Dashboard</BuMenu.Link>
+            </BuMenu.Item>
 
-            <BuMenuItem>
-              <BuMenuLink value="Customers">Customers</BuMenuLink>
-            </BuMenuItem>
-          </BuMenuList>
+            <BuMenu.Item>
+              <BuMenu.Link value="Customers">Customers</BuMenu.Link>
+            </BuMenu.Item>
+          </BuMenu.List>
 
-          <BuMenuLabel>Transactions</BuMenuLabel>
+          <BuMenu.Label>Transactions</BuMenu.Label>
 
-          <BuMenuList>
-            <BuMenuItem>
-              <BuMenuLink value="Payments">Payments</BuMenuLink>
-            </BuMenuItem>
+          <BuMenu.List>
+            <BuMenu.Item>
+              <BuMenu.Link value="Payments">Payments</BuMenu.Link>
+            </BuMenu.Item>
 
-            <BuMenuItem>
-              <BuMenuLink value="Transfers">Transfers</BuMenuLink>
-            </BuMenuItem>
+            <BuMenu.Item>
+              <BuMenu.Link value="Transfers">Transfers</BuMenu.Link>
+            </BuMenu.Item>
 
-            <BuMenuItem>
-              <BuMenuLink value="Balance">Balance</BuMenuLink>
-            </BuMenuItem>
-          </BuMenuList>
+            <BuMenu.Item>
+              <BuMenu.Link value="Balance">Balance</BuMenu.Link>
+            </BuMenu.Item>
+          </BuMenu.List>
         </BuMenu>
       </div>
 
       <div class="column">
         <BuNotification v-model="notice" color="info">
-          <BuNotificationDelete />
+          <BuNotification.Delete />
           Bulma ships the classes. Escape, focus return, and the burger toggle
           come from Vuetify0.
         </BuNotification>
 
         <BuTabs v-model="tab">
-          <BuTabList>
-            <BuTab value="repos">Repositories</BuTab>
-            <BuTab value="settings">Settings</BuTab>
-          </BuTabList>
+          <BuTabs.List>
+            <BuTabs.Tab value="repos">Repositories</BuTabs.Tab>
+            <BuTabs.Tab value="settings">Settings</BuTabs.Tab>
+          </BuTabs.List>
 
-          <BuTabPanel value="repos">
+          <BuTabs.Panel value="repos">
             <div class="is-flex is-justify-content-space-between is-align-items-center mb-3 mt-4">
               <p class="title is-5 mb-0">{{ section }}</p>
 
               <BuDropdown menu right>
-                <BuDropdownTrigger v-slot="{ attrs }">
+                <BuDropdown.Trigger v-slot="{ attrs }">
                   <button class="button is-small" type="button" v-bind="attrs">
                     <span>Actions</span>
 
@@ -163,52 +133,52 @@
                       <i aria-hidden="true" class="fas fa-angle-down" />
                     </span>
                   </button>
-                </BuDropdownTrigger>
+                </BuDropdown.Trigger>
 
-                <BuDropdownMenu v-slot="{ close, item }">
+                <BuDropdown.Menu v-slot="{ close, item }">
                   <a class="dropdown-item" v-bind="item" @click="close(); modal = true">New repository</a>
                   <a class="dropdown-item" v-bind="item" @click="close">Clone</a>
                   <hr class="dropdown-divider">
                   <a class="dropdown-item" v-bind="item" @click="close">Settings</a>
-                </BuDropdownMenu>
+                </BuDropdown.Menu>
               </BuDropdown>
             </div>
 
             <BuPanel v-model="repo">
-              <BuPanelHeading>Repositories</BuPanelHeading>
+              <BuPanel.Heading>Repositories</BuPanel.Heading>
 
-              <BuPanelBlock value="bulma">
-                <BuPanelIcon icon="fas fa-book" />
+              <BuPanel.Block value="bulma">
+                <BuPanel.Icon icon="fas fa-book" />
                 bulma
-              </BuPanelBlock>
+              </BuPanel.Block>
 
-              <BuPanelBlock value="paper">
-                <BuPanelIcon icon="fas fa-book" />
+              <BuPanel.Block value="paper">
+                <BuPanel.Icon icon="fas fa-book" />
                 paper
-              </BuPanelBlock>
+              </BuPanel.Block>
 
-              <BuPanelBlock value="v0">
-                <BuPanelIcon icon="fas fa-code-branch" />
+              <BuPanel.Block value="v0">
+                <BuPanel.Icon icon="fas fa-code-branch" />
                 vuetify0
-              </BuPanelBlock>
+              </BuPanel.Block>
             </BuPanel>
 
             <BuPagination v-slot="{ items }" v-model="page" class="mt-4" :pages="4">
-              <BuPaginationPrev />
+              <BuPagination.Prev />
 
-              <BuPaginationNext />
+              <BuPagination.Next />
 
-              <BuPaginationList>
+              <BuPagination.List>
                 <template v-for="(item, index) in items" :key="index">
-                  <BuPaginationItem v-if="item.type === 'page'" :value="item.value" />
+                  <BuPagination.Item v-if="item.type === 'page'" :value="item.value" />
 
-                  <BuPaginationEllipsis v-else />
+                  <BuPagination.Ellipsis v-else />
                 </template>
-              </BuPaginationList>
+              </BuPagination.List>
             </BuPagination>
-          </BuTabPanel>
+          </BuTabs.Panel>
 
-          <BuTabPanel value="settings">
+          <BuTabs.Panel value="settings">
             <div class="mt-4">
               <BuField>
                 <BuLabel>Repository name</BuLabel>
@@ -234,9 +204,9 @@
                 <BuLabel>Watchers</BuLabel>
 
                 <BuNumberField v-model="watchers" :max="99" :min="0">
-                  <BuNumberFieldDecrement />
-                  <BuNumberFieldInput expanded />
-                  <BuNumberFieldIncrement />
+                  <BuNumberField.Decrement />
+                  <BuNumberField.Input expanded />
+                  <BuNumberField.Increment />
                 </BuNumberField>
               </BuField>
 
@@ -246,20 +216,20 @@
                 </BuControl>
               </BuField>
             </div>
-          </BuTabPanel>
+          </BuTabs.Panel>
         </BuTabs>
       </div>
     </div>
   </section>
 
   <BuModal v-model="modal">
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle>New repository</BuModalTitle>
-        <BuModalDelete />
-      </BuModalHead>
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title>New repository</BuModal.Title>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody>
+      <BuModal.Body>
         <BuField>
           <BuLabel>Name</BuLabel>
 
@@ -278,9 +248,9 @@
             </BuSelect>
           </BuControl>
         </BuField>
-      </BuModalBody>
+      </BuModal.Body>
 
-      <BuModalFoot>
+      <BuModal.Foot>
         <div class="buttons">
           <button class="button is-success" type="button" @click="modal = false">
             Create
@@ -290,8 +260,8 @@
             Cancel
           </button>
         </div>
-      </BuModalFoot>
-    </BuModalCard>
+      </BuModal.Foot>
+    </BuModal.Card>
   </BuModal>
 </template>
 

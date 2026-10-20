@@ -9,6 +9,7 @@ import Markdown from 'unplugin-vue-markdown/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'vue-router/vite'
 
@@ -104,6 +105,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
+    VueDevTools(),
     await createMarkdownPlugin(),
     Components({
       dirs: ['src/components'],

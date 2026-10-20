@@ -1,10 +1,10 @@
 <script setup lang="ts">
-  import { BuBreadcrumb, BuBreadcrumbItem } from '@paper/bulma'
+  import { BuBreadcrumb } from '@paper/bulma'
 </script>
 
 <template>
   <BuBreadcrumb>
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       <span class="icon is-small">
         <i
           aria-hidden="true"
@@ -13,9 +13,9 @@
       </span>
 
       <span>Bulma</span>
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       <span class="icon is-small">
         <i
           aria-hidden="true"
@@ -24,9 +24,9 @@
       </span>
 
       <span>Documentation</span>
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem
+    <BuBreadcrumb.Item
       current
       href="#"
     >
@@ -38,6 +38,6 @@
       </span>
 
       <span>Breadcrumb</span>
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
   </BuBreadcrumb>
 </template>

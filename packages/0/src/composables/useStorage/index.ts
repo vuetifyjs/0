@@ -56,6 +56,10 @@ export interface StorageContext {
   remove: (key: string) => void
   /** Clear keys accessed through this storage instance. Keys persisted by a previous session but never read here are not removed. */
   clear: () => void
+  /** Unprefixed keys currently cached by this instance (read or written this session). */
+  keys: () => string[]
+  /** Active storage backend (`localStorage` or a `StorageAdapter`). */
+  adapter: StorageAdapter | Storage
 }
 
 export interface StorageOptions {
@@ -242,6 +246,14 @@ export function createStorage<
     cache.delete(prefixedKey)
   }
 
+  function keys (): string[] {
+    const out: string[] = []
+    for (const key of cache.keys()) {
+      out.push(key.startsWith(prefix) ? key.slice(prefix.length) : key)
+    }
+    return out
+  }
+
   function clear () {
     if (watchers.size > 0) {
       for (const stop of watchers.values()) {
@@ -287,6 +299,8 @@ export function createStorage<
     set,
     remove,
     clear,
+    keys,
+    adapter,
   } as E
 }
 
@@ -300,5 +314,19 @@ export const [createStorageContext, createStoragePlugin, useStorage] =
   /* @__PURE__ */ createPluginContext<StorageContextOptions, StorageContext>(
     'v0:storage',
     options => createStorage(options),
-    { fallback: () => createStorageFallback() },
+    {
+      fallback: () => createStorageFallback(),
+      inspect: ctx => {
+        const entries: Record<string, unknown> = {}
+        for (const key of ctx.keys()) {
+          entries[key] = ctx.get(key).value
+        }
+        const name = ctx.adapter === globalThis.localStorage
+          ? 'localStorage'
+          : (ctx.adapter === globalThis.sessionStorage
+              ? 'sessionStorage'
+              : ctx.adapter.constructor.name)
+        return { adapter: name, entries }
+      },
+    },
   )

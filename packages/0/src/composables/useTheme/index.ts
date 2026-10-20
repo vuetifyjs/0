@@ -227,6 +227,8 @@ export interface ThemeContext<
    * Call manually when using a standalone context (`createThemeContext`).
    */
   dispose: () => void
+  /** Active theme adapter. Defaults to `V0StyleSheetThemeAdapter`. */
+  adapter: ThemeAdapter
 }
 
 export interface ThemeSystemPair {
@@ -302,6 +304,8 @@ export interface ThemeContextOptions extends ThemeOptions {
 
 export interface ThemePluginOptions extends ThemeContextOptions {
   persist?: boolean
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
 }
 
 /**
@@ -337,7 +341,7 @@ export interface ThemePluginOptions extends ThemeContextOptions {
  */
 
 export function createTheme (_options: ThemeOptions = {}): ThemeContext {
-  const { themes = {}, palette = {}, foreground: genForeground, system, ...options } = _options
+  const { themes = {}, palette = {}, foreground: genForeground, system, adapter = new V0StyleSheetThemeAdapter(), ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
   const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>({ ...options, reactive: true })
   const logger = useLogger()
@@ -466,6 +470,7 @@ export function createTheme (_options: ThemeOptions = {}): ThemeContext {
     register,
     onboard,
     cycle,
+    adapter,
     dispose: () => {
       media?.stop()
     },
@@ -512,6 +517,7 @@ function createThemeFallback (): ThemeContext {
     reset: () => {},
     onboard: () => [],
     dispose: () => {},
+    adapter: new V0StyleSheetThemeAdapter(),
   } as unknown as ThemeContext
 }
 
@@ -520,11 +526,16 @@ export const [createThemeContext, createThemePlugin, useTheme] =
     'v0:theme',
     options => createTheme(options),
     {
+      inspect: ctx => ({
+        adapter: ctx.adapter.constructor.name,
+        selectedId: ctx.selectedId,
+        themes: ctx.keys(),
+      }),
       fallback: () => createThemeFallback(),
-      setup: (context, app, { adapter = new V0StyleSheetThemeAdapter(), target, rgb }) => {
-        if (rgb) adapter.rgb = true
-        adapter.setup(app, context, target)
-        app.onUnmount(() => adapter.dispose?.())
+      setup: (context, app, { target, rgb }) => {
+        if (rgb) context.adapter.rgb = true
+        context.adapter.setup(app, context, target)
+        app.onUnmount(() => context.adapter.dispose?.())
       },
       persist: ctx => ctx.isSystem.value ? null : ctx.selectedId.value,
       restore: (ctx, saved) => {

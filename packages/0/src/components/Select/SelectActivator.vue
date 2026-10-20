@@ -28,6 +28,8 @@
     namespace?: string
     /** Accessible label for the activator when no visible label is present */
     label?: string
+    /** ID of the element that labels this activator */
+    ariaLabelledby?: string
   }
 
   export interface SelectActivatorSlotProps {
@@ -42,6 +44,7 @@
       'aria-haspopup': 'listbox'
       'aria-controls': string
       'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'aria-disabled': boolean
       'disabled': true | undefined
       'tabindex': 0 | undefined
@@ -66,6 +69,7 @@
     namespace = 'v0:select',
     renderless,
     label,
+    ariaLabelledby,
   } = defineProps<SelectActivatorProps>()
 
   const context = useSelectContext(namespace)
@@ -79,7 +83,22 @@
     context.toggle()
   }
 
+  function printable (e: KeyboardEvent) {
+    return e.key.length === 1
+      && e.key !== ' '
+      && !e.ctrlKey
+      && !e.metaKey
+      && !e.altKey
+      && !e.isComposing
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    if (printable(e)) {
+      e.preventDefault()
+      context.onTypeahead(e.key)
+      return
+    }
+
     if (context.isOpen.value) {
       switch (e.key) {
         case ' ':
@@ -130,7 +149,8 @@
       'aria-expanded': context.isOpen.value,
       'aria-haspopup': 'listbox',
       'aria-controls': context.listboxId,
-      'aria-label': label || undefined,
+      'aria-label': ariaLabelledby ? undefined : (label || undefined),
+      'aria-labelledby': ariaLabelledby || undefined,
       'aria-disabled': toValue(context.disabled),
       'disabled': toValue(context.disabled) || undefined,
       'tabindex': as === 'button' ? undefined : 0,

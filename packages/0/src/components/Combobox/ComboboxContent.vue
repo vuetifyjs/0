@@ -7,7 +7,9 @@
  * Dropdown content for the combobox. Uses the popover composable from Root
  * context for native popover API and CSS anchor positioning. Uses manual
  * popover mode to prevent light-dismiss from closing the dropdown when the
- * user clicks the input/activator area. Dismiss is handled via useClickOutside.
+ * user clicks the input/activator area. Pointer dismiss is handled via
+ * useClickOutside as commit-then-close of the query (ignores leftover
+ * virtual focus); Escape still cancels via close() only.
  *
  * Uses `useLazy` to defer slot rendering until the dropdown is first opened.
  */
@@ -17,17 +19,20 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Composables
   import { useClickOutside } from '#v0/composables/useClickOutside'
   import { useLazy } from '#v0/composables/useLazy'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface ComboboxContentProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -40,7 +45,15 @@
     /** Whether the dropdown is open */
     isOpen: boolean
     /** Attributes to bind to the content element */
-    attrs: Record<string, unknown>
+    attrs: {
+      'id': string
+      'role': 'listbox'
+      'aria-labelledby': string
+      'aria-multiselectable': true | undefined
+      'popover': 'manual'
+      'tabindex': -1
+      'style': Record<string, string>
+    }
   }
 </script>
 
@@ -58,34 +71,50 @@
     renderless,
   } = defineProps<ComboboxContentProps>()
 
-  const context = useComboboxContext(namespace)
-  const content = useTemplateRef('content')
+  const root = useComboboxRoot(namespace)
+  const content = useTemplateRef<AtomExpose>('content')
+  const el = toRef(() => {
+    const node = toElement(content.value?.element)
+    return node instanceof HTMLElement ? node : null
+  })
 
-  context.popover.attach(() => content.value?.element)
+  root.popover.attach(el)
+  watch(el, node => {
+    root.listEl.value = node
+  }, { immediate: true })
+  onBeforeUnmount(() => {
+    root.listEl.value = null
+  })
 
-  const { hasContent } = useLazy(context.isOpen, { eager })
+  const { hasContent } = useLazy(root.isOpen, { eager })
 
   // Manual popover mode — dismiss on click outside both content and activator
-  const activator = toRef(() => context.inputEl.value?.closest('[data-state]') as HTMLElement | null)
+  const activator = toRef(() => {
+    const node = root.inputEl.value?.closest('[data-state]')
+    return node instanceof HTMLElement ? node : null
+  })
 
   useClickOutside(
-    [() => content.value?.element, activator],
+    [el, activator],
     () => {
-      if (context.isOpen.value) context.close()
+      if (root.isOpen.value) {
+        root.commit()
+        root.close()
+      }
     },
   )
 
   const slotProps = toRef((): ComboboxContentSlotProps => ({
-    isOpen: context.isOpen.value,
+    isOpen: root.isOpen.value,
     attrs: {
-      ...context.popover.contentAttrs.value,
-      'id': context.listboxId,
+      ...root.popover.contentAttrs.value,
+      'id': root.listboxId,
       'role': 'listbox',
-      'aria-labelledby': context.inputId,
-      'aria-multiselectable': context.multiple || undefined,
+      'aria-labelledby': root.inputId,
+      'aria-multiselectable': toValue(root.multiple) || undefined,
       'popover': 'manual',
       'tabindex': -1,
-      'style': context.popover.contentStyles.value,
+      'style': root.popover.contentStyles.value,
     },
   }))
 </script>

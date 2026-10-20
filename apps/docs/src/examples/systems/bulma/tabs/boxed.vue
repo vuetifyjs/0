@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuTab, BuTabList, BuTabPanel, BuTabs } from '@paper/bulma'
+  import { BuTabs } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -8,39 +8,39 @@
 
 <template>
   <BuTabs v-model="tab">
-    <BuTabList boxed>
-      <BuTab value="pictures">
+    <BuTabs.List boxed>
+      <BuTabs.Tab value="pictures">
         <span class="icon is-small"><i aria-hidden="true" class="fas fa-image" /></span>
         <span>Pictures</span>
-      </BuTab>
+      </BuTabs.Tab>
 
-      <BuTab value="music">
+      <BuTabs.Tab value="music">
         <span class="icon is-small"><i aria-hidden="true" class="fas fa-music" /></span>
         <span>Music</span>
-      </BuTab>
+      </BuTabs.Tab>
 
-      <BuTab value="videos">
+      <BuTabs.Tab value="videos">
         <span class="icon is-small"><i aria-hidden="true" class="fas fa-film" /></span>
         <span>Videos</span>
-      </BuTab>
-    </BuTabList>
+      </BuTabs.Tab>
+    </BuTabs.List>
 
-    <BuTabPanel value="pictures">
+    <BuTabs.Panel value="pictures">
       <div class="content mt-4">
         <p>Pictures panel.</p>
       </div>
-    </BuTabPanel>
+    </BuTabs.Panel>
 
-    <BuTabPanel value="music">
+    <BuTabs.Panel value="music">
       <div class="content mt-4">
         <p>Music panel.</p>
       </div>
-    </BuTabPanel>
+    </BuTabs.Panel>
 
-    <BuTabPanel value="videos">
+    <BuTabs.Panel value="videos">
       <div class="content mt-4">
         <p>Videos panel.</p>
       </div>
-    </BuTabPanel>
+    </BuTabs.Panel>
   </BuTabs>
 </template>

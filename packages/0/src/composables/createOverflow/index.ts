@@ -15,7 +15,8 @@
  * - Supports reserved space for nav buttons, ellipsis, etc.
  *
  * Use variable mode (default) for items with different widths like Breadcrumbs.
- * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
+ * Use uniform mode when every item is the `itemWidth` you pass.
+ * Set `probe` when the fitting count is not mounted yet. Render `capacity`, measure, then `settle()`.
  *
  * ## Item registration contract
  *
@@ -45,7 +46,8 @@
 // Composables
 import { useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
-import { useElementSize } from '#v0/composables/useResizeObserver'
+import { useRaf } from '#v0/composables/useRaf'
+import { useElementSize, useResizeObserver } from '#v0/composables/useResizeObserver'
 
 // Transformers
 import { toElement } from '#v0/composables/toElement'
@@ -54,8 +56,8 @@ import { toElement } from '#v0/composables/toElement'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isUndefined, pxToNumber } from '#v0/utilities'
-import { computed, shallowRef, toRef, toValue } from 'vue'
+import { isNumber, isUndefined, pxToNumber } from '#v0/utilities'
+import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -74,12 +76,22 @@ export interface OverflowOptions {
   gap?: MaybeRefOrGetter<number>
   /** Reserved space in pixels (for nav buttons, ellipsis, etc) */
   reserved?: MaybeRefOrGetter<number>
-  /**
-   * Uniform item width in pixels. When provided, enables uniform mode
-   * where capacity is calculated as available space / itemWidth.
-   * Use this for same-width items like pagination buttons.
-   */
+  /** Uniform item width. Every item must actually be this width. */
   itemWidth?: MaybeRefOrGetter<number>
+  /**
+   * Fit a count that is not mounted yet. Render `capacity`, measure, then call `settle()`. Off by default.
+   * @example
+   * ```ts
+   * const overflow = createOverflow({ container, probe: true, max: () => totalVisible })
+   * ```
+   */
+  probe?: boolean
+  /** Largest count probe mode may ask for. */
+  max?: MaybeRefOrGetter<number | undefined>
+  /**
+   * Content-box budget in pixels. When omitted, probe claims free space in the parent instead of the element's own width.
+   */
+  budget?: MaybeRefOrGetter<number | undefined>
   /**
    * Calculate capacity from end instead of start.
    * Useful for breadcrumbs where trailing items take priority.
@@ -108,6 +120,8 @@ export interface OverflowContext {
   measure: (index: number, el: Element | undefined) => void
   /** Clear all measurements */
   reset: () => void
+  /** Probe step. No-op unless `probe` is set. Call after `measure`. */
+  settle: (committed?: boolean) => void
 }
 
 export interface OverflowContextOptions extends OverflowOptions {
@@ -149,7 +163,7 @@ export interface OverflowContextOptions extends OverflowOptions {
  * </template>
  * ```
  *
- * @example Uniform-width mode (Pagination)
+ * @example Uniform-width mode
  * ```ts
  * const overflow = createOverflow({
  *   container: () => atom.value?.element,
@@ -167,6 +181,9 @@ export function createOverflow<
     reserved = 0,
     itemWidth,
     reverse,
+    probe = false,
+    max,
+    budget,
   } = options
 
   const container = isUndefined(_container)
@@ -203,6 +220,208 @@ export function createOverflow<
     widths.value = new Map()
   }
 
+  // low: largest count that fit. high: smallest that overflowed (0 = unknown).
+  // Same count with new widths clears the search. A resize scales by the narrowest item,
+  // not the average — the average includes the wide last page and the next drag stops short.
+  const target = shallowRef(Infinity)
+  const fitting = shallowRef(true)
+  let low = 0
+  let high = 0
+  let lastCount = -1
+  let lastSignature = ''
+  let steps = 0
+  const seen = new Set<number>()
+  // Counts the caller rendered shorter than asked. visible <= 2 comes back as one button.
+  const collapsed = new Set<number>()
+  let lastShort = -1
+  let pitch = 0
+  let basisCount = 0
+  let basisFree = 0
+
+  function forget () {
+    low = 0
+    high = 0
+    steps = 0
+    seen.clear()
+    lastShort = -1
+    pitch = 0
+    basisCount = 0
+    basisFree = 0
+  }
+
+  function assign (next: number) {
+    const clamped = Math.max(1, next)
+    const stuck = seen.has(clamped) && clamped !== target.value
+    if (!stuck) {
+      seen.add(clamped)
+      if (target.value === clamped) return
+      steps++
+    }
+    if (stuck || steps > 24) {
+      const frozen = low > 0 ? low : clamped
+      if (target.value !== frozen) target.value = frozen
+      return
+    }
+    target.value = clamped
+  }
+
+  // A flex-grow sibling with min-width:auto is free space.
+  // An explicit px min, or a sibling that does not grow, is not.
+  function claimable (el: HTMLElement): number {
+    const parent = el.parentElement
+    if (!parent) return width.value
+    const parentStyle = getComputedStyle(parent)
+    let others = 0
+    let kids = 0
+    for (const child of parent.children) {
+      if (!(child instanceof HTMLElement)) continue
+      const style = getComputedStyle(child)
+      if (style.display === 'none' || style.position === 'absolute' || style.position === 'fixed') continue
+      kids++
+      if (child === el) continue
+      const grows = Number.parseFloat(style.flexGrow) > 0
+      const min = style.minWidth.endsWith('px')
+        ? pxToNumber(style.minWidth)
+        : (grows ? 0 : child.getBoundingClientRect().width)
+      others += min + pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+    }
+    const gapPx = pxToNumber(parentStyle.columnGap) || pxToNumber(parentStyle.gap)
+    const style = getComputedStyle(el)
+    const chrome = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+      + pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
+      + pxToNumber(style.borderLeftWidth) + pxToNumber(style.borderRightWidth)
+    const inner = parent.clientWidth - pxToNumber(parentStyle.paddingLeft) - pxToNumber(parentStyle.paddingRight)
+    return Math.max(width.value, inner - others - Math.max(0, kids - 1) * gapPx - chrome)
+  }
+
+  function room (): number {
+    const explicit = toValue(budget)
+    if (isNumber(explicit) && explicit > 0) return explicit
+    if (!IN_BROWSER || !container.value) return width.value
+    return claimable(container.value as HTMLElement)
+  }
+
+  function settle (committed = true) {
+    if (!probe) return
+    const live = room()
+    if (!(live > 0)) {
+      if (target.value !== Infinity) target.value = Infinity
+      return
+    }
+    const entries = [...widths.value.values()]
+    const count = entries.length
+    if (count === 0) return
+
+    const gapPx = toValue(gap)
+    const reservedPx = toValue(reserved)
+    // reserved already includes one gap per control.
+    const cost = entries.reduce((acc, item) => acc + item, 0) + gapPx * Math.max(0, count - 1) + reservedPx
+    const nav = container.value as HTMLElement | null
+    const fits = cost <= live + 0.5 && !(nav && nav.clientWidth > 0 && nav.scrollWidth > nav.clientWidth + 1)
+    const sig = [...widths.value.entries()]
+      .toSorted((a, b) => a[0] - b[0])
+      .map(([index, item]) => `${index}:${Math.round(item)}`)
+      .join(',')
+    if (count === lastCount && sig !== lastSignature) forget()
+    lastCount = count
+    lastSignature = sig
+
+    const raw = toValue(max)
+    const ceiling = isNumber(raw) && raw > 0 ? Math.floor(raw) : Infinity
+    const free = live - reservedPx
+    const step = Math.min(...entries) + gapPx
+
+    function stay () {
+      if (step > 0) {
+        pitch = step
+        basisCount = count
+        basisFree = free
+      }
+      assign(count)
+    }
+
+    function place (next: number, priced = false) {
+      let clamped = Math.max(1, Math.min(ceiling, Math.floor(next)))
+      while (collapsed.has(clamped) && clamped < ceiling) clamped++
+      // Priced steps keep the sub-pitch remainder. Spending it stops a drag one slot early.
+      if (priced) basisFree += (clamped - basisCount) * pitch
+      else basisFree = free
+      basisCount = clamped
+      seen.clear()
+      steps = 0
+      low = 0
+      high = 0
+      lastShort = -1
+      if (!fits) fitting.value = false
+      if (target.value !== clamped) target.value = clamped
+    }
+
+    function slide (): boolean {
+      // forget() already dropped the pitch, so a width change cannot take this path.
+      if (!(pitch > 0)) return false
+      const projected = basisCount + Math.trunc((free - basisFree) / pitch)
+      // Fewer slots than asked. Let the search climb past the refused count.
+      if (committed && count < target.value) return false
+      if (!fits && committed && count === target.value) place(projected < count ? projected : count - 1)
+      else if (projected > basisCount || (projected < basisCount && !fits)) place(projected, true)
+      return true
+    }
+
+    function down () {
+      fitting.value = false
+      high = high > 0 ? Math.min(high, count) : count
+      if (low >= count) low = 0
+      if (count <= 1) return assign(1)
+      assign(Math.min(count - 1, Math.max(low, Math.floor((low + count) / 2))))
+    }
+
+    function search () {
+      // Uncommitted settles run before paint. A half row is not a refused count.
+      if (!committed && (target.value === Infinity || count !== target.value || !fits)) return
+      const short = fits && target.value !== Infinity && count < target.value
+      if (short) {
+        collapsed.add(target.value)
+        if (count === lastShort) {
+          fitting.value = true
+          low = Math.max(low, count)
+          return stay()
+        }
+        lastShort = count
+      }
+      if (!fits) return down()
+
+      fitting.value = true
+      low = Math.max(low, count)
+      if (!short && count >= ceiling) return count === ceiling ? stay() : assign(ceiling)
+      if (!short && high > 0 && high <= count + 1) return stay()
+      if (!short && high === 0) {
+        const extra = step > 0 ? Math.floor((live - cost + gapPx) / step) : 0
+        if (extra <= 0) return stay()
+        return assign(Math.min(ceiling, count + Math.min(8, extra)))
+      }
+      let next = count + 1
+      if (high > 0) next = Math.max(next, Math.floor((count + high) / 2))
+      if (short) while (collapsed.has(next) && next < ceiling && (high === 0 || next < high)) next++
+      // Asking for high repeats a count that already overflowed.
+      if (high > 0 && next >= high) return stay()
+      assign(Math.min(ceiling, next))
+    }
+
+    if (slide()) return
+    search()
+  }
+
+  if (probe) {
+    const schedule = useRaf(() => {
+      settle(false)
+    })
+    watch(width, () => schedule(), { flush: 'post' })
+    useResizeObserver(
+      () => container.value?.parentElement,
+      () => schedule(),
+    )
+  }
+
   const total = computed(() => {
     const g = toValue(gap)
     let sum = 0
@@ -217,6 +436,8 @@ export function createOverflow<
   })
 
   const capacity = computed(() => {
+    if (probe) return target.value
+
     const available = width.value - toValue(reserved)
 
     // SSR or not measured yet - show all
@@ -255,6 +476,12 @@ export function createOverflow<
   })
 
   const isOverflowing = toRef(() => {
+    if (probe) {
+      const explicit = toValue(budget)
+      if (width.value === 0 && !(isNumber(explicit) && explicit > 0)) return false
+      return !fitting.value
+    }
+
     if (width.value === 0) return false
 
     // Uniform mode (itemWidth set): registered count vs capacity drives the
@@ -279,6 +506,7 @@ export function createOverflow<
     isOverflowing,
     measure,
     reset,
+    settle,
   } as E
 }
 

@@ -38,16 +38,16 @@ Bulma's `.message` with a dismissible header and a headerless body-only variant.
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuMessage, BuMessageBody, BuMessageDelete, BuMessageHeader } from '@paper/bulma'
+  import { BuMessage } from '@paper/bulma'
 </script>
 
 <template>
   <BuMessage>
-    <BuMessageHeader>
-      <BuMessageDelete />
-    </BuMessageHeader>
+    <BuMessage.Header>
+      <BuMessage.Delete />
+    </BuMessage.Header>
 
-    <BuMessageBody />
+    <BuMessage.Body />
   </BuMessage>
 </template>
 ```
@@ -86,17 +86,17 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuMessage>
-    <BuMessageHeader>
+    <BuMessage.Header>
       <p>Hello World</p>
-      <BuMessageDelete />
-    </BuMessageHeader>
+      <BuMessage.Delete />
+    </BuMessage.Header>
 
-    <BuMessageBody>
+    <BuMessage.Body>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec
       nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus
       diam, et dictum <a>felis venenatis</a> efficitur.
-    </BuMessageBody>
+    </BuMessage.Body>
   </BuMessage>
 </template>
 ```

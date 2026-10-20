@@ -280,12 +280,14 @@ export default vuetify({
   },
 },
 {
-  // Adapter DOM lookup and the known createCombobox option-node getter.
+  // Adapter DOM lookup, the createCombobox option-node getter, and useFocusTrap
+  // scanning descendants of a root the caller already passed in.
   // TODO(ops#74): remove createCombobox/index.ts once that getter moves to the component.
   name: 'vuetify/query-selector-allowlist',
   files: [
     'packages/0/src/composables/**/adapters/**/*.ts',
     'packages/0/src/composables/createCombobox/index.ts',
+    'packages/0/src/composables/useFocusTrap/**/*.ts',
   ],
   ignores: ['packages/0/src/**/*.test.ts', 'packages/0/src/**/*.bench.ts'],
   rules: {

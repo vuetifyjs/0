@@ -13,7 +13,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Context
-  import { useComboboxContext } from './ComboboxRoot.vue'
+  import { useComboboxRoot } from './ComboboxRoot.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -50,13 +50,13 @@
     renderless,
   } = defineProps<ComboboxActivatorProps>()
 
-  const context = useComboboxContext(namespace)
+  const root = useComboboxRoot(namespace)
 
   const slotProps = toRef((): ComboboxActivatorSlotProps => ({
-    isOpen: context.isOpen.value,
+    isOpen: root.isOpen.value,
     attrs: {
-      'data-state': context.isOpen.value ? 'open' : 'closed',
-      'style': context.popover.anchorStyles.value,
+      'data-state': root.isOpen.value ? 'open' : 'closed',
+      'style': root.popover.anchorStyles.value,
     },
   }))
 </script>

@@ -257,7 +257,7 @@ Parts: `Radio.Group` (`div`, `role='radiogroup'`), `Radio.Root` (`button`, `role
 - No type-guard raw comparisons: `isNull/isUndefined/isNullOrUndefined/isString/...` from `@vuetify/v0` (`#v0/utilities` re-exports through the main barrel).
 
 **Package/barrel (genesis precedent, `packages/genesis/src/components/*/index.ts`)**
-- Per-component dir `BuThing/BuThing.vue` + `index.ts`: `export type { BuThingProps } from './BuThing.vue'` + `export { default as BuThing } from './BuThing.vue'`. Never `export *` from a `.vue`. Compound Bu components follow the v0 compound barrel (`components/Dialog/index.ts`): named default re-exports, one `export type` block, then a plain object literal compound with JSDoc per member — never `Object.assign`.
+- Per-component dir `BuThing/BuThing.vue` + `index.ts`: `export type { BuThingProps } from './BuThing.vue'` + `export { default as BuThing } from './BuThing.vue'`. Never `export *` from a `.vue`. Compound families follow Emerald: keep the part's own folder and flat export, then `Object.assign` the parts onto the parent (`BuModal.Head` is `BuModalHead`). The parent *is* the root — not `BuModal.Root`.
 - Package deps: `@vuetify/v0` as `workspace:^` dependency, `vue >=3.5.0` peer (see `packages/genesis/package.json`); `bulma@^1.0` is a peer, never a dependency.
 
 ---

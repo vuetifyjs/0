@@ -152,9 +152,11 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Collapsible](https://0.vuetifyjs.com/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
 | [Dialog](https://0.vuetifyjs.com/components/disclosure/dialog) | Modal dialog using native `<dialog>` with focus management |
 | [ExpansionPanel](https://0.vuetifyjs.com/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Menu](https://0.vuetifyjs.com/components/disclosure/menu) | Actions from a button, a right-click, or a menubar |
 | [Popover](https://0.vuetifyjs.com/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](https://0.vuetifyjs.com/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
 | [Tooltip](https://0.vuetifyjs.com/components/disclosure/tooltip) | Description tooltip with hover/focus triggers |
+| [Tour](https://0.vuetifyjs.com/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
 | [Treeview](https://0.vuetifyjs.com/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
 #### Forms
@@ -166,6 +168,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Form](https://0.vuetifyjs.com/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](https://0.vuetifyjs.com/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [NumberField](https://0.vuetifyjs.com/components/forms/number-field) | Numeric input with increment/decrement, scrub, and Intl formatting |
+| [Otp](https://0.vuetifyjs.com/components/forms/otp) | One-time-password / verification-code boxes with auto-advance, paste, and completion |
 | [Radio](https://0.vuetifyjs.com/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](https://0.vuetifyjs.com/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
@@ -178,6 +181,8 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 |-----------|-------------|
 | [DataGrid](https://0.vuetifyjs.com/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
 | [DataTable](https://0.vuetifyjs.com/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+| [Kanban](https://0.vuetifyjs.com/components/data/kanban) | Board of movable items in columns with pointer drag, keyboard moves, and per-column v-model |
+| [Virtualizer](https://0.vuetifyjs.com/components/data/virtualizer) | Virtualized list that renders only the visible window, with automatic row measurement |
 
 #### Semantic
 
@@ -263,6 +268,7 @@ Selection management composables built on `createRegistry`:
 - [`useDelay`](https://0.vuetifyjs.com/composables/system/use-delay) - Schedule open and close transitions with configurable delays
 - [`useDragDrop`](https://0.vuetifyjs.com/composables/system/use-drag-drop) - Headless drag-and-drop primitive with two registries, pluggable adapters, and accessibility-first defaults
 - [`useEventListener`](https://0.vuetifyjs.com/composables/system/use-event-listener) - Lifecycle-managed event listeners
+- [`useFocusTrap`](https://0.vuetifyjs.com/composables/system/use-focus-trap) - Confine Tab and Shift+Tab to a root element
 - [`useHotkey`](https://0.vuetifyjs.com/composables/system/use-hotkey) - Hotkey combinations and sequences
 - [`useImage`](https://0.vuetifyjs.com/composables/system/use-image) - Image loading state machine with deferred loading and retry
 - [`useIntersectionObserver`](https://0.vuetifyjs.com/composables/system/use-intersection-observer) - Intersection observer with auto-cleanup
@@ -276,6 +282,7 @@ Selection management composables built on `createRegistry`:
 - [`usePresence`](https://0.vuetifyjs.com/composables/system/use-presence) - Animation-agnostic mount lifecycle with lazy mounting and exit timing
 - [`useTimer`](https://0.vuetifyjs.com/composables/system/use-timer) - Countdown and interval timer with pause/resume
 - [`useToggleScope`](https://0.vuetifyjs.com/composables/system/use-toggle-scope) - Conditional effect scope management
+- [`useTypeahead`](https://0.vuetifyjs.com/composables/system/use-typeahead) - Prefix matching for typed characters with a one-second buffer
 - [`useVirtualFocus`](https://0.vuetifyjs.com/composables/system/use-virtual-focus) - Virtual focus management via aria-activedescendant
 
 #### Plugins
@@ -297,6 +304,7 @@ Plugin-capable composables following the trinity pattern:
 - [`useStorage`](https://0.vuetifyjs.com/composables/plugins/use-storage) - Storage adapter (localStorage/sessionStorage/memory)
 - [`useTheme`](https://0.vuetifyjs.com/composables/plugins/use-theme) - Theme management with CSS variable injection
 - [`useTooltip`](https://0.vuetifyjs.com/composables/plugins/use-tooltip) - Region-scoped tooltip delay coordination
+- [`useTour`](https://0.vuetifyjs.com/composables/plugins/use-tour) - Headless guided-tour sequencer with step collection, activators, form-gated navigation, and an app-level plugin
 
 #### Transformers
 

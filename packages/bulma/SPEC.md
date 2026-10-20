@@ -63,8 +63,9 @@ markup against bulma.io's documented fixtures.
   since Scrim is global/per-ticket and cannot serve as an in-flow per-modal element).
   Candidate v0-core follow-up alongside a reusable `useFocusTrap`
   ([#910](https://github.com/vuetifyjs/0/issues/910),
-  [#909](https://github.com/vuetifyjs/0/issues/909)) — BuModal currently
-  hand-rolls focus containment because v0 ships no focus-trap composable.
+  [#909](https://github.com/vuetifyjs/0/issues/909)) — BuModal still hand-rolls
+  focus containment; `useFocusTrap` has since landed in v0, so the hand-roll is
+  now a pending migration rather than a missing primitive.
 - **`label[disabled]` (BuCheckbox/BuRadio):** Bulma documents the non-standard `disabled`
   attribute on the wrapping `<label>` and its CSS selects on it; the components reproduce
   it (alongside the input's real `disabled`). Expect axe/validator discussion — deliberate
@@ -122,6 +123,9 @@ markup against bulma.io's documented fixtures.
   shows `is-danger` — deceptively half-wired). Compose validation fields as
   `<InputRoot renderless v-model :rules>` wrapping the whole field; BuHelp warns in
   dev when `validation` is set with no ambient root.
+- **Part components attach to the parent export:** `import { BuModal } from '@paper/bulma'`
+  reaches the whole family (`<BuModal.Head />`, `<BuModal.Title />`). Flat names
+  (`BuModalHead`) remain exported and resolve to the same component.
 - **Part components are composed, not enforced:** region parts (BuMessageDelete,
   BuNotificationDelete, BuDropdownMenu, BuNavbarBrand, …) read their parent's state through an optional context
   and warn in dev when it is missing, so a part rendered outside its parent still emits

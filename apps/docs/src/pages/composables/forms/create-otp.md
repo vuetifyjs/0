@@ -13,6 +13,7 @@ features:
 related:
   - /composables/forms/create-input
   - /composables/forms/create-validation
+  - /components/forms/otp
 ---
 
 # createOtp
@@ -79,10 +80,12 @@ Layer 2 orchestrator. Aggregates createInput for validation, dirty tracking, and
 | - | - | :-: | - |
 | `value` | `Readonly<Ref<string>>` | <AppSuccessIcon /> | Joined OTP string. Readonly — mutate via the helpers below. |
 | `length` | `Readonly<Ref<number>>` | <AppSuccessIcon /> | Target character count from the `length` option. |
+| `items` | `ComputedRef<OtpItemDescriptor[]>` | <AppSuccessIcon /> | One descriptor per box (`index`, `value`, `state`). Iterate this instead of `v-for="i in length"`. |
 | `input` | `InputContext<string>` | <AppSuccessIcon /> | Underlying `createInput` surface — ARIA IDs, errors, validation, focus/touched. |
-| `isComplete` | `Readonly<Ref<boolean>>` | <AppSuccessIcon /> | `true` when value reaches `length` and every character passes `accepts`. Fires `onComplete` on the false → true edge. |
+| `isComplete` | `Readonly<Ref<boolean>>` | <AppSuccessIcon /> | `true` when value reaches `length` and every character passes `accepts`. |
+| `isValidating` | `Readonly<Ref<boolean>>` | <AppSuccessIcon /> | `true` while an async `onComplete` is in flight. Mutations no-op until it settles. |
 | `write(index, char)` | `(index: number, char: string) => void` | — | Writes one character at `index`. Empty `char` truncates to `value.slice(0, index)` (Backspace mental model). Multi-character `char` is reduced to the first character — use `distribute` for multi-character input. |
-| `distribute(text, index?)` | `(text: string, index?: number) => number` | — | Filters `text` through `accepts`, splices at `index` (default `0`), clips to `length`. Returns the count consumed so consumers can advance focus. |
+| `distribute(text, index?)` | `(text: string, index?: number) => number` | — | Filters `text` through `accepts`, overwrites from `index` (default `0`) through the end, clips to `length`. Returns the count consumed so consumers can advance focus. |
 | `clear()` | `() => void` | — | Empties the joined value. |
 | `fill(text)` | `(text: string) => void` | — | Replaces the joined value (filtered + clipped). |
 | `accepts(char)` | `(char: string) => boolean` | — | Pattern test, exposed so consumers can guard `beforeinput`. |
@@ -126,7 +129,7 @@ The dominant flow is "user finished typing → verify → wrong, clear it." Fold
 
 ??? When does onComplete fire?
 
-Exactly once on the false → true edge of `isComplete` — when the value first reaches `length` with every character passing `accepts`. Mutations after completion don't re-fire it; clearing and re-completing does. The watcher dedupes via an internal sentinel that resets whenever the value drops back below complete (or on rejection), so a clear-and-refill cycle still re-fires `onComplete`.
+Whenever the joined value becomes a **new** complete string. The same complete string is deduped until the value goes incomplete (or reject clears it). Overwriting one digit of a complete code (`1234` → `1235`) re-fires so the new code can be verified. Clearing and re-completing also re-fires.
 
 ??? What happens during async verification?
 

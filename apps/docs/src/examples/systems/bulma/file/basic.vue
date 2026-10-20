@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  import { BuFile, BuFileCta, BuFileIcon } from '@paper/bulma'
+  import { BuFile } from '@paper/bulma'
 </script>
 
 <template>
   <BuFile name="resume">
-    <BuFileCta>
-      <BuFileIcon>
+    <BuFile.Cta>
+      <BuFile.Icon>
         <i class="fas fa-upload" />
-      </BuFileIcon>
+      </BuFile.Icon>
 
       <span class="file-label">Choose a file…</span>
-    </BuFileCta>
+    </BuFile.Cta>
   </BuFile>
 </template>

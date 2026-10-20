@@ -324,6 +324,32 @@ describe('portal', () => {
     })
   })
 
+  describe('promote', () => {
+    it('should stay above an overlay that opens later', async () => {
+      let zIndex = 0
+      const wrapper = mount(Portal, {
+        props: { promote: 1, scrim: false },
+        slots: {
+          default: (props: { zIndex: number }) => {
+            zIndex = props.zIndex
+            return h('div', { class: 'promoted' })
+          },
+        },
+        attachTo: document.body,
+      })
+
+      const stack = useStack()
+      const later = stack.register({ scrim: false })
+      later.select()
+      await nextTick()
+
+      expect(zIndex).toBeGreaterThan(later.zIndex.value)
+
+      later.unselect()
+      wrapper.unmount()
+    })
+  })
+
   describe('blocking prop', () => {
     it('should register with blocking when blocking prop is true', () => {
       const wrapper = mount(Portal, {

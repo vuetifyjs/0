@@ -197,11 +197,6 @@
       "category": "semantic",
       "description": "Computes how many items fit in a container based on available width, for responsive truncation in pagination, breadcrumbs, and similar UIs."
     },
-    "createTour": {
-      "level": "draft",
-      "category": "semantic",
-      "description": "Headless state for guided product tours and feature discovery: step sequencing, target-element tracking, mask cutout geometry, and per-step focus management. Built on `createStep`, `usePopover`, and `useRovingFocus`."
-    },
     "useBreakpoints": {
       "level": "stable",
       "since": "0.1.0",
@@ -268,6 +263,12 @@
       "category": "plugins",
       "description": "Shares tooltip open/close/skip delay defaults across a region, so nearby tooltips open instantly once one is already open."
     },
+    "useTour": {
+      "level": "preview",
+      "since": null,
+      "category": "plugins",
+      "description": "Headless guided-tour sequencer: step collection, activator registry, form-gated navigation, programmatic activate/deactivate, and per-step enter/leave/completed handlers plus events. Built on `createStep`, `createRegistry`, and `createForm`."
+    },
     "useClickOutside": {
       "level": "preview",
       "since": "0.1.0",
@@ -291,6 +292,12 @@
       "since": "0.1.0",
       "category": "system",
       "description": "A composable for handling DOM events with automatic cleanup on component unmount."
+    },
+    "useFocusTrap": {
+      "level": "preview",
+      "since": null,
+      "category": "system",
+      "description": "Confines Tab and Shift+Tab to a root element, focuses into it on activate, and restores the previously focused element on deactivate."
     },
     "useHotkey": {
       "level": "preview",
@@ -436,6 +443,12 @@
       "category": "system",
       "description": "A reactive timer composable with pause/resume support and remaining time tracking."
     },
+    "useTypeahead": {
+      "level": "preview",
+      "since": null,
+      "category": "system",
+      "description": "Prefix-matches typed characters against a list, accumulates them for one second, and cycles on a repeated letter."
+    },
     "useVirtualFocus": {
       "level": "preview",
       "since": "0.1.8",
@@ -561,8 +574,10 @@
       "description": "Numeric input with increment/decrement buttons, drag-to-scrub, and locale-aware formatting via `Intl.NumberFormat` for currency, percent, and units."
     },
     "Otp": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "since": null,
+      "category": "forms",
+      "description": "Headless one-time-password / verification-code input with auto-advance, backspace-back navigation, and paste distribution across boxes."
     },
     "Radio": {
       "level": "stable",
@@ -621,6 +636,12 @@
       "since": "0.1.0",
       "category": "disclosure",
       "description": "A component for creating accordion-style expansion panels with proper ARIA support."
+    },
+    "Menu": {
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "A headless menu for a button, a right-click, or a menubar, including submenus."
     },
     "Popover": {
       "level": "preview",
@@ -719,16 +740,22 @@
       "description": "Headless compound component for rendering tabular data with sorting, pagination, selection, and expansion support."
     },
     "Kanban": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless board of movable items in columns, with v-model per column, pointer drag, keyboard pick-up and move, and live-region announcements. Built on createKanban."
     },
     "Virtualizer": {
-      "level": "draft",
-      "category": "data"
+      "level": "preview",
+      "since": null,
+      "category": "data",
+      "description": "Headless virtualized list that renders only the items within (and slightly beyond) the visible viewport."
     },
     "Tour": {
-      "level": "draft",
-      "category": "disclosure"
+      "level": "preview",
+      "since": null,
+      "category": "disclosure",
+      "description": "Headless guided-tour compound: per-step Root context, activator registry, portaled content with CSS-anchor positioning, SVG highlight cutout, and keyboard chrome on top of createTour."
     }
   },
   "utilities": {

@@ -1,30 +1,30 @@
 <script setup lang="ts">
-  import { BuNotification, BuNotificationDelete } from '@paper/bulma'
+  import { BuNotification } from '@paper/bulma'
 </script>
 
 <template>
   <BuNotification class="mb-4" color="primary">
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Primary — the brand color, for context with no action attached.
   </BuNotification>
 
   <BuNotification class="mb-4" color="info">
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Info — supporting context. Put the meaning in the words, not the tint.
   </BuNotification>
 
   <BuNotification class="mb-4" color="success">
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Success — a completed action. Dismisses the same way as the others.
   </BuNotification>
 
   <BuNotification class="mb-4" color="warning">
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Warning — something will go wrong if ignored.
   </BuNotification>
 
   <BuNotification color="danger">
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Danger — something failed and needs action.
   </BuNotification>
 </template>

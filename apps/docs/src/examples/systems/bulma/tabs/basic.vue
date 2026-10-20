@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuTab, BuTabList, BuTabPanel, BuTabs } from '@paper/bulma'
+  import { BuTabs } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -8,22 +8,22 @@
 
 <template>
   <BuTabs v-model="tab">
-    <BuTabList>
-      <BuTab value="pictures">Pictures</BuTab>
+    <BuTabs.List>
+      <BuTabs.Tab value="pictures">Pictures</BuTabs.Tab>
 
-      <BuTab value="music">Music</BuTab>
-    </BuTabList>
+      <BuTabs.Tab value="music">Music</BuTabs.Tab>
+    </BuTabs.List>
 
-    <BuTabPanel value="pictures">
+    <BuTabs.Panel value="pictures">
       <div class="content mt-4">
         <p>Pictures panel.</p>
       </div>
-    </BuTabPanel>
+    </BuTabs.Panel>
 
-    <BuTabPanel value="music">
+    <BuTabs.Panel value="music">
       <div class="content mt-4">
         <p>Music panel.</p>
       </div>
-    </BuTabPanel>
+    </BuTabs.Panel>
   </BuTabs>
 </template>

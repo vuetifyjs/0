@@ -94,6 +94,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/kanban': RouteRecordInfo<
+      '/components/data/kanban',
+      '/components/data/kanban',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -122,6 +129,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/menu': RouteRecordInfo<
+      '/components/disclosure/menu',
+      '/components/disclosure/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/popover': RouteRecordInfo<
       '/components/disclosure/popover',
       '/components/disclosure/popover',
@@ -139,6 +153,13 @@ declare module 'vue-router/auto-routes' {
     '/components/disclosure/tooltip': RouteRecordInfo<
       '/components/disclosure/tooltip',
       '/components/disclosure/tooltip',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/disclosure/tour': RouteRecordInfo<
+      '/components/disclosure/tour',
+      '/components/disclosure/tour',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -181,6 +202,13 @@ declare module 'vue-router/auto-routes' {
     '/components/forms/number-field': RouteRecordInfo<
       '/components/forms/number-field',
       '/components/forms/number-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/otp': RouteRecordInfo<
+      '/components/forms/otp',
+      '/components/forms/otp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -612,6 +640,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-tour': RouteRecordInfo<
+      '/composables/plugins/use-tour',
+      '/composables/plugins/use-tour',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/reactivity/use-proxy-model': RouteRecordInfo<
       '/composables/reactivity/use-proxy-model',
       '/composables/reactivity/use-proxy-model',
@@ -741,6 +776,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-event-listener': RouteRecordInfo<
       '/composables/system/use-event-listener',
       '/composables/system/use-event-listener',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-focus-trap': RouteRecordInfo<
+      '/composables/system/use-focus-trap',
+      '/composables/system/use-focus-trap',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1614,6 +1656,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/data/kanban.md': {
+      routes:
+        | '/components/data/kanban'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/components/disclosure/alert-dialog.md': {
       routes:
         | '/components/disclosure/alert-dialog'
@@ -1646,6 +1696,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/disclosure/menu.md': {
+      routes:
+        | '/components/disclosure/menu'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/components/disclosure/popover.md': {
       routes:
         | '/components/disclosure/popover'
@@ -1665,6 +1723,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/tooltip.md': {
       routes:
         | '/components/disclosure/tooltip'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/disclosure/tour.md': {
+      routes:
+        | '/components/disclosure/tour'
       views:
         | never
       pathParamNames:
@@ -1713,6 +1779,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/number-field.md': {
       routes:
         | '/components/forms/number-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/forms/otp.md': {
+      routes:
+        | '/components/forms/otp'
       views:
         | never
       pathParamNames:
@@ -2206,6 +2280,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/composables/plugins/use-tour.md': {
+      routes:
+        | '/composables/plugins/use-tour'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/composables/reactivity/use-proxy-model.md': {
       routes:
         | '/composables/reactivity/use-proxy-model'
@@ -2353,6 +2435,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-event-listener.md': {
       routes:
         | '/composables/system/use-event-listener'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/system/use-focus-trap.md': {
+      routes:
+        | '/composables/system/use-focus-trap'
       views:
         | never
       pathParamNames:

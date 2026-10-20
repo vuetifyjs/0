@@ -1,9 +1,5 @@
-import type { ComboboxContext } from '@vuetify/v0'
-import type { InjectionKey } from 'vue'
-import { createCombobox } from '@vuetify/v0'
+import { createComboboxContext, useCombobox } from '@vuetify/v0'
 import { toRef } from 'vue'
-
-export const COMBOBOX_KEY: InjectionKey<ComboboxContext> = Symbol('country-combobox')
 
 export interface Country {
   id: string
@@ -11,6 +7,8 @@ export interface Country {
   code: string
   region: string
 }
+
+const NAMESPACE = 'v0:country-combobox'
 
 const countries: Country[] = [
   { id: 'us', value: 'United States', code: 'US', region: 'Americas' },
@@ -27,8 +25,15 @@ const countries: Country[] = [
   { id: 'au', value: 'Australia', code: 'AU', region: 'Oceania' },
 ]
 
+export function useCountryCombobox () {
+  return useCombobox(NAMESPACE)
+}
+
 export function useCountrySearch () {
-  const combobox = createCombobox()
+  const [, provideCountryCombobox, combobox] = createComboboxContext({
+    namespace: NAMESPACE,
+    strict: true,
+  })
 
   for (const country of countries) {
     combobox.selection.register({ id: country.id, value: country.value })
@@ -39,5 +44,5 @@ export function useCountrySearch () {
     return id ? countries.find(country => country.id === id) ?? null : null
   })
 
-  return { combobox, countries, selected }
+  return { combobox, countries, selected, provideCountryCombobox }
 }

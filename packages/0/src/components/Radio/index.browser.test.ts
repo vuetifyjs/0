@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
 import { Radio } from './index'
@@ -1128,6 +1128,131 @@ describe('radio', () => {
 
         expect(formData.get('choice')).toBe(expected)
         wrapper.unmount()
+      })
+    })
+  })
+
+  describe('expose', () => {
+    describe('root', () => {
+      function mountRoot (renderless = false) {
+        using _warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        return mount({
+          components: {
+            RadioGroup: Radio.Group,
+            RadioRoot: Radio.Root,
+            RadioIndicator: Radio.Indicator,
+          },
+          template: renderless
+            ? `
+              <RadioGroup>
+                <RadioRoot ref="root" value="a" renderless v-slot="{ attrs }">
+                  <div class="custom" v-bind="attrs">Custom</div>
+                </RadioRoot>
+              </RadioGroup>
+            `
+            : `
+              <RadioGroup>
+                <RadioRoot ref="root" value="a">
+                  <RadioIndicator>●</RadioIndicator>
+                </RadioRoot>
+              </RadioGroup>
+            `,
+        }, { attachTo: document.body })
+      }
+
+      it('should expose the rendered host as element', async () => {
+        const wrapper = mountRoot()
+        await nextTick()
+
+        expect((wrapper.vm.$refs.root as any).element).toBe(wrapper.find('button').element)
+        wrapper.unmount()
+      })
+
+      it('should focus the host via the exposed element', async () => {
+        const wrapper = mountRoot()
+        await nextTick()
+
+        const el = (wrapper.vm.$refs.root as any).element as HTMLElement
+        el.focus()
+        expect(document.activeElement).toBe(el)
+        wrapper.unmount()
+      })
+
+      it('should expose null element when renderless', async () => {
+        const wrapper = mountRoot(true)
+        await nextTick()
+
+        expect((wrapper.vm.$refs.root as any).element).toBeNull()
+        wrapper.unmount()
+      })
+    })
+
+    describe('group', () => {
+      it('should focus the selected item', async () => {
+        const wrapper = mount(Radio.Group, {
+          props: { modelValue: 'item-2' },
+          slots: {
+            default: () => [
+              h(Radio.Root as any, { value: 'item-1' }, () => h(Radio.Indicator as any, {}, () => '1')),
+              h(Radio.Root as any, { value: 'item-2' }, () => h(Radio.Indicator as any, {}, () => '2')),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[1]!.element)
+        wrapper.unmount()
+      })
+
+      it('should focus the selected item when its id is 0', async () => {
+        const wrapper = mount(Radio.Group, {
+          props: { modelValue: 'item-2' },
+          slots: {
+            default: () => [
+              h(Radio.Root as any, { id: 1, value: 'item-1' }, () => h(Radio.Indicator as any, {}, () => '1')),
+              h(Radio.Root as any, { id: 0, value: 'item-2' }, () => h(Radio.Indicator as any, {}, () => '2')),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[1]!.element)
+        wrapper.unmount()
+      })
+
+      it('should focus the first item when none is selected', async () => {
+        const wrapper = mount(Radio.Group, {
+          slots: {
+            default: () => [
+              h(Radio.Root as any, { value: 'item-1' }, () => h(Radio.Indicator as any, {}, () => '1')),
+              h(Radio.Root as any, { value: 'item-2' }, () => h(Radio.Indicator as any, {}, () => '2')),
+            ],
+          },
+          attachTo: document.body,
+        })
+        await nextTick()
+
+        ;(wrapper.vm as any).focus()
+        expect(document.activeElement).toBe(wrapper.findAll('button')[0]!.element)
+        wrapper.unmount()
+      })
+
+      it('should not throw when the group is empty', async () => {
+        const { wrapper, wait } = mountGroup({ items: [] })
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus()).not.toThrow()
+      })
+
+      it('should accept preventScroll in FocusOptions', async () => {
+        const { wrapper, wait } = mountGroup()
+        await wait()
+
+        expect(() => (wrapper.vm as any).focus({ preventScroll: true })).not.toThrow()
       })
     })
   })

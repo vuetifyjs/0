@@ -29,6 +29,14 @@
      * @default false
      */
     blocking?: boolean
+    /**
+     * Whether the global Scrim should paint a backdrop for this dialog
+     *
+     * @default true
+     * @remarks When false, this dialog still stacks for z-index but `Scrim` skips it.
+     * Use when the consumer owns its own backdrop (e.g. a design-system modal background).
+     */
+    scrim?: boolean
   }
 
   export interface AlertDialogContentEmits {
@@ -84,6 +92,7 @@
     closeOnClickOutside = false,
     closeOnEscape = false,
     blocking = false,
+    scrim = true,
     renderless,
   } = defineProps<AlertDialogContentProps>()
 
@@ -98,6 +107,7 @@
   const ticket = stack.register({
     onDismiss: () => context.close(),
     blocking: () => blocking,
+    scrim: () => scrim,
     el: () => contentRef.value?.element,
   })
 

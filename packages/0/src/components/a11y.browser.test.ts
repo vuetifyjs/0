@@ -25,14 +25,18 @@ import InputDegenerate from './fixtures/degenerate/Input.vue'
 import RadioDegenerate from './fixtures/degenerate/Radio.vue'
 import SwitchDegenerate from './fixtures/degenerate/Switch.vue'
 import ToggleDegenerate from './fixtures/degenerate/Toggle.vue'
+import TourDegenerate from './fixtures/degenerate/Tour.vue'
 import DialogFixture from './fixtures/Dialog.vue'
 import ExpansionPanelFixture from './fixtures/ExpansionPanel.vue'
 import FormFixture from './fixtures/Form.vue'
 import GroupFixture from './fixtures/Group.vue'
 import ImageFixture from './fixtures/Image.vue'
 import InputFixture from './fixtures/Input.vue'
+import KanbanFixture from './fixtures/Kanban.vue'
 import LocaleFixture from './fixtures/Locale.vue'
+import MenuFixture from './fixtures/Menu.vue'
 import NumberFieldFixture from './fixtures/NumberField.vue'
+import OtpFixture from './fixtures/Otp.vue'
 import OverflowFixture from './fixtures/Overflow.vue'
 import PaginationFixture from './fixtures/Pagination.vue'
 import PopoverFixture from './fixtures/Popover.vue'
@@ -54,7 +58,9 @@ import TabsFixture from './fixtures/Tabs.vue'
 import ThemeFixture from './fixtures/Theme.vue'
 import ToggleFixture from './fixtures/Toggle.vue'
 import TooltipFixture from './fixtures/Tooltip.vue'
+import TourFixture from './fixtures/Tour.vue'
 import TreeviewFixture from './fixtures/Treeview.vue'
+import VirtualizerFixture from './fixtures/Virtualizer.vue'
 
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
@@ -138,8 +144,11 @@ const FIXTURES = {
   Group: GroupFixture,
   Image: ImageFixture,
   Input: InputFixture,
+  Kanban: KanbanFixture,
   Locale: LocaleFixture,
+  Menu: MenuFixture,
   NumberField: NumberFieldFixture,
+  Otp: OtpFixture,
   Overflow: OverflowFixture,
   Pagination: PaginationFixture,
   Popover: PopoverFixture,
@@ -161,7 +170,9 @@ const FIXTURES = {
   Theme: ThemeFixture,
   Toggle: ToggleFixture,
   Tooltip: TooltipFixture,
+  Tour: TourFixture,
   Treeview: TreeviewFixture,
+  Virtualizer: VirtualizerFixture,
 } as const satisfies Record<string, Component>
 
 /**
@@ -207,6 +218,7 @@ const DEGENERATE = {
   Radio: RadioDegenerate,
   Switch: SwitchDegenerate,
   Toggle: ToggleDegenerate,
+  Tour: TourDegenerate,
 } as const satisfies Partial<Record<keyof typeof FIXTURES, Component>>
 
 /** Distinguishes the two passes in the report; `summarize` groups by subject. */

@@ -88,6 +88,20 @@ The `blocking` prop stops scrim click-dismiss. Click-outside still closes unless
 </template>
 ```
 
+### Opting Out of the Global Scrim
+
+`closeOnClickOutside` stops click-outside from closing. `blocking` keeps the global Scrim but ignores scrim clicks. `scrim` (default `true`) controls whether the global `<Scrim>` paints a layer at all — pass `false` when you own the backdrop.
+
+```vue
+<template>
+  <Dialog.Content :scrim="false">
+    <!-- Consumer-owned backdrop; global Scrim skips this dialog -->
+  </Dialog.Content>
+</template>
+```
+
+The dialog still participates in z-index stacking. `scrim: false` is not a modal host for `top-layer` teleports (Snackbar-in-dialog).
+
 ## Accessibility
 
 Dialog renders its panel through the native `<dialog>` element opened with `showModal()`, so focus trapping, backdrop rendering, inerting of the page behind it, and Escape-to-close all come from the browser.
@@ -145,7 +159,11 @@ To opt out, set `teleport="body"` (always body) or `:teleport="false"` (render i
 
 ??? What's the difference between `closeOnClickOutside` and `blocking`?
 
-`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` only disables scrim dismissal. Escape and the default click-outside handler still close it.
+`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` only disables scrim dismissal. Escape and the default click-outside handler still close it. Neither opts the dialog out of the global `<Scrim>` — use `:scrim="false"` for that.
+
+??? How do I opt a dialog out of the global Scrim?
+
+Pass `:scrim="false"` on `Dialog.Content` when you own the backdrop. Default is `true`. The dialog still stacks for z-index, but is not a modal host for `top-layer` teleports (Snackbar-in-dialog).
 
 :::
 

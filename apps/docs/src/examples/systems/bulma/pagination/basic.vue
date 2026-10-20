@@ -1,12 +1,5 @@
 <script setup lang="ts">
-  import {
-    BuPagination,
-    BuPaginationEllipsis,
-    BuPaginationItem,
-    BuPaginationList,
-    BuPaginationNext,
-    BuPaginationPrev,
-  } from '@paper/bulma'
+  import { BuPagination } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -17,16 +10,16 @@
   <p class="is-size-7 has-text-grey mb-3">Page {{ page }} of 5</p>
 
   <BuPagination v-slot="{ items }" v-model="page" :pages="5">
-    <BuPaginationPrev>Previous</BuPaginationPrev>
+    <BuPagination.Prev>Previous</BuPagination.Prev>
 
-    <BuPaginationNext>Next page</BuPaginationNext>
+    <BuPagination.Next>Next page</BuPagination.Next>
 
-    <BuPaginationList>
+    <BuPagination.List>
       <template v-for="(item, index) in items" :key="index">
-        <BuPaginationItem v-if="item.type === 'page'" :value="item.value" />
+        <BuPagination.Item v-if="item.type === 'page'" :value="item.value" />
 
-        <BuPaginationEllipsis v-else />
+        <BuPagination.Ellipsis v-else />
       </template>
-    </BuPaginationList>
+    </BuPagination.List>
   </BuPagination>
 </template>

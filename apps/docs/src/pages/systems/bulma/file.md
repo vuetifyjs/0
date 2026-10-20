@@ -42,16 +42,16 @@ Boxed, centered, right, fullwidth, color and size all land on the root `.file`. 
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuFile, BuFileCta, BuFileIcon, BuFileName } from '@paper/bulma'
+  import { BuFile } from '@paper/bulma'
 </script>
 
 <template>
   <BuFile>
-    <BuFileCta>
-      <BuFileIcon />
-    </BuFileCta>
+    <BuFile.Cta>
+      <BuFile.Icon />
+    </BuFile.Cta>
 
-    <BuFileName />
+    <BuFile.Name />
   </BuFile>
 </template>
 ```
@@ -87,12 +87,12 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuFile name="resume">
-    <BuFileCta>
-      <BuFileIcon>
+    <BuFile.Cta>
+      <BuFile.Icon>
         <i class="fas fa-upload" />
-      </BuFileIcon>
+      </BuFile.Icon>
       <span class="file-label">Choose a file…</span>
-    </BuFileCta>
+    </BuFile.Cta>
   </BuFile>
 </template>
 ```

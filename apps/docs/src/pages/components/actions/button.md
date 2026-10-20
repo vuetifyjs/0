@@ -209,6 +209,28 @@ Set the `grace` prop (milliseconds, default `0`) to delay the indicator. If the 
 
 Put a `Button.HiddenInput` inside each `Button.Root`. It renders a visually hidden checkbox that reflects the button's selected state, so the group's value posts with the form.
 
+??? How do I focus this control programmatically?
+
+Hold a template ref on `Button.Root` typed as `AtomExpose` — `ref.value?.element` is the host; call `.focus()` on it. On `Button.Group`, type the ref as `ButtonGroupExpose` and call `ref.value?.focus()` — that focuses the selected item, or the first if none is selected. Pass DOM `FocusOptions` (`preventScroll`, `focusVisible`); `focusVisible` is pass-through only, not emulated. Renderless roots expose `element: null` — there is no host to focus.
+
+```vue
+<script setup lang="ts">
+  import { Button } from '@vuetify/v0'
+  import type { AtomExpose, ButtonGroupExpose } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef<AtomExpose>('root')
+  const group = useTemplateRef<ButtonGroupExpose>('group')
+</script>
+
+<template>
+  <Button.Root ref="root">Click</Button.Root>
+  <Button.Group ref="group">
+    <Button.Root value="a">A</Button.Root>
+  </Button.Group>
+</template>
+```
+
 :::
 
 <DocsApi />

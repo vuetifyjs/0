@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuBreadcrumb, BuBreadcrumbItem } from '@paper/bulma'
+  import { BuBreadcrumb } from '@paper/bulma'
 </script>
 
 <template>
@@ -9,46 +9,46 @@
     class="mb-5"
     separator="arrow"
   >
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Bulma
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Documentation
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Components
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem
+    <BuBreadcrumb.Item
       current
       href="#"
     >
       Breadcrumb
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
   </BuBreadcrumb>
 
   <p class="is-size-7 has-text-grey mb-2">bullet</p>
 
   <BuBreadcrumb separator="bullet">
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Bulma
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Documentation
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem href="#">
+    <BuBreadcrumb.Item href="#">
       Components
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
 
-    <BuBreadcrumbItem
+    <BuBreadcrumb.Item
       current
       href="#"
     >
       Breadcrumb
-    </BuBreadcrumbItem>
+    </BuBreadcrumb.Item>
   </BuBreadcrumb>
 </template>

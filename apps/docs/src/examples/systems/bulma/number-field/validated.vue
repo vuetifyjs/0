@@ -4,9 +4,6 @@
     BuHelp,
     BuLabel,
     BuNumberField,
-    BuNumberFieldDecrement,
-    BuNumberFieldIncrement,
-    BuNumberFieldInput,
   } from '@paper/bulma'
 
   import { isNumber, NumberFieldRoot } from '@vuetify/v0'
@@ -30,9 +27,9 @@
       <BuLabel namespace="v0:number-field:root">Seats</BuLabel>
 
       <BuNumberField>
-        <BuNumberFieldDecrement />
-        <BuNumberFieldInput expanded />
-        <BuNumberFieldIncrement />
+        <BuNumberField.Decrement />
+        <BuNumberField.Input expanded />
+        <BuNumberField.Increment />
       </BuNumberField>
 
       <BuHelp namespace="v0:number-field:root" validation />

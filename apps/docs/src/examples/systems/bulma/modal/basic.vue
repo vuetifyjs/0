@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuModal, BuModalClose, BuModalContent } from '@paper/bulma'
+  import { BuModal } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -12,7 +12,7 @@
   </button>
 
   <BuModal v-model="open">
-    <BuModalContent>
+    <BuModal.Content>
       <div class="box">
         <h3 class="title is-5">Bring your own JS</h3>
 
@@ -21,8 +21,8 @@
           return and the backdrop click come from Vuetify0.
         </p>
       </div>
-    </BuModalContent>
+    </BuModal.Content>
 
-    <BuModalClose />
+    <BuModal.Close />
   </BuModal>
 </template>

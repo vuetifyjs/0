@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuNavbar, BuNavbarBrand, BuNavbarMenu } from '@paper/bulma'
+  import { BuNavbar } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -8,13 +8,13 @@
 
 <template>
   <BuNavbar v-model="open" color="primary">
-    <BuNavbarBrand>
+    <BuNavbar.Brand>
       <a class="navbar-item" href="https://bulma.io">
         <strong>Bulma</strong>
       </a>
-    </BuNavbarBrand>
+    </BuNavbar.Brand>
 
-    <BuNavbarMenu>
+    <BuNavbar.Menu>
       <div class="navbar-start">
         <a class="navbar-item">Home</a>
         <a class="navbar-item">Documentation</a>
@@ -31,6 +31,6 @@
           </div>
         </div>
       </div>
-    </BuNavbarMenu>
+    </BuNavbar.Menu>
   </BuNavbar>
 </template>

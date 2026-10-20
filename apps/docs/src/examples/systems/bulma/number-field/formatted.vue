@@ -4,9 +4,6 @@
     BuHelp,
     BuLabel,
     BuNumberField,
-    BuNumberFieldDecrement,
-    BuNumberFieldIncrement,
-    BuNumberFieldInput,
   } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
@@ -27,9 +24,9 @@
       :min="0"
       :step="0.5"
     >
-      <BuNumberFieldDecrement />
-      <BuNumberFieldInput expanded />
-      <BuNumberFieldIncrement />
+      <BuNumberField.Decrement />
+      <BuNumberField.Input expanded />
+      <BuNumberField.Increment />
     </BuNumberField>
 
     <BuHelp>Focus the input to edit the raw number; blur it to see the currency.</BuHelp>

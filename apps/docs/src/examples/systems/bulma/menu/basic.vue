@@ -1,11 +1,5 @@
 <script setup lang="ts">
-  import {
-    BuMenu,
-    BuMenuItem,
-    BuMenuLabel,
-    BuMenuLink,
-    BuMenuList,
-  } from '@paper/bulma'
+  import { BuMenu } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -14,32 +8,32 @@
 
 <template>
   <BuMenu v-model="active">
-    <BuMenuLabel>General</BuMenuLabel>
+    <BuMenu.Label>General</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Dashboard">Dashboard</BuMenuLink>
-      </BuMenuItem>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Dashboard">Dashboard</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Customers">Customers</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Customers">Customers</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
 
-    <BuMenuLabel>Transactions</BuMenuLabel>
+    <BuMenu.Label>Transactions</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Payments">Payments</BuMenuLink>
-      </BuMenuItem>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Payments">Payments</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Transfers">Transfers</BuMenuLink>
-      </BuMenuItem>
+      <BuMenu.Item>
+        <BuMenu.Link value="Transfers">Transfers</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Balance">Balance</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Balance">Balance</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
   </BuMenu>
 </template>

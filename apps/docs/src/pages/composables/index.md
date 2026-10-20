@@ -296,6 +296,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useDelay](/composables/system/use-delay) | Schedule open and close transitions with configurable delays |
 | [useDragDrop](/composables/system/use-drag-drop) | Headless drag-and-drop with two registries and pluggable pointer / keyboard adapters |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
+| [useFocusTrap](/composables/system/use-focus-trap) | Confine Tab and Shift+Tab to a root element |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useImage](/composables/system/use-image) | Image loading state machine with deferred loading and retry |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
@@ -309,6 +310,7 @@ Browser API wrappers with automatic lifecycle cleanup.
 | [useRovingFocus](/composables/system/use-roving-focus) | Roving tabindex keyboard navigation for composite widgets |
 | [useTimer](/composables/system/use-timer) | Reactive timer with pause/resume controls and remaining time tracking |
 | [useToggleScope](/composables/system/use-toggle-scope) | Conditional effect scope management |
+| [useTypeahead](/composables/system/use-typeahead) | Prefix matching for typed characters, with a one-second buffer and repeated-letter cycling |
 | [useVirtualFocus](/composables/system/use-virtual-focus) | Virtual focus for aria-activedescendant keyboard navigation patterns |
 
 ## Plugins
@@ -332,6 +334,7 @@ Application-level features installable via Vue plugins.
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 | [useTooltip](/composables/plugins/use-tooltip) | Region-scoped tooltip delay coordination plugin |
+| [useTour](/composables/plugins/use-tour) | Headless guided-tour sequencer with step collection, activators, and form-gated navigation |
 
 ## Transformers
 

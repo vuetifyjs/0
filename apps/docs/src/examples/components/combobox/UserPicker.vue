@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Combobox, ServerComboboxAdapter, useComboboxContext } from '@vuetify/v0'
+  import { Combobox, ServerComboboxAdapter, useComboboxRoot } from '@vuetify/v0'
   import { defineComponent, watch } from 'vue'
   import type { User } from './useUserSearch'
 
@@ -18,8 +18,8 @@
   // Renderless watcher — observes the combobox query and forwards it upward
   const SearchWatcher = defineComponent({
     setup () {
-      const ctx = useComboboxContext('v0:combobox')
-      watch(ctx.query, query => emit('search', query))
+      const root = useComboboxRoot('v0:combobox')
+      watch(root.query, query => emit('search', query))
     },
     render: () => null,
   })
@@ -63,20 +63,20 @@
         v-for="user in results"
         :id="user.id"
         :key="user.id"
-        v-slot="{ isSelected }"
-        class="flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface data-[selected]:font-medium data-[highlighted]:bg-primary data-[highlighted]:text-on-primary"
+        class="group flex items-center gap-2 px-3 py-2 rounded-md cursor-default select-none text-sm text-on-surface hover:bg-surface-variant data-[selected]:font-medium data-[highlighted]:bg-primary data-[highlighted]:text-on-primary data-[highlighted]:hover:bg-primary"
         :value="user.handle"
       >
-        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-surface-variant text-on-surface-variant text-xs font-medium">
+        <span class="flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium bg-surface-variant text-on-surface-variant group-data-[highlighted]:bg-on-primary/20 group-data-[highlighted]:text-on-primary">
           {{ user.avatar }}
         </span>
 
         <span class="flex flex-col leading-tight">
           <span>{{ user.name }}</span>
-          <span class="text-xs text-on-surface-variant">@{{ user.handle }}</span>
+
+          <span class="text-xs text-on-surface-variant group-data-[highlighted]:text-on-primary group-data-[highlighted]:opacity-80">@{{ user.handle }}</span>
         </span>
 
-        <span class="w-4 ms-auto text-xs" :class="isSelected ? 'visible' : 'invisible'">&#x2713;</span>
+        <span class="w-4 ms-auto text-xs invisible group-data-[selected]:visible">&#x2713;</span>
       </Combobox.Item>
 
       <Combobox.Empty v-slot="{ query }" class="px-3 py-2 text-sm text-on-surface-variant">

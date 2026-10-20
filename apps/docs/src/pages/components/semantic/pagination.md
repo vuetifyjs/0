@@ -68,8 +68,8 @@ The two core props are `size` (total item count) and `items-per-page` (items per
 </template>
 ```
 
-> [!WARNING]
-> For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
+> [!NOTE]
+> Page buttons can have different widths. Pagination measures the buttons on screen, drops a slot when the row overflows, and adds one when the container has room. A wide page number shrinks the row. Leaving that page, or widening the container, grows it back. `total-visible` caps how many slots it may show.
 
 ## Accessibility
 
@@ -102,7 +102,7 @@ From `size` (total item count) divided by `items-per-page` (default `10`) — fo
 
 ??? Why is my responsive pagination overflowing or miscounting buttons?
 
-Responsive sizing measures one sample button's width, so variable-width buttons (single-digit "1" vs double-digit "50") throw off the fit calculation. Give every page button the same width.
+The row measures the buttons it rendered, including a wider last page. It shrinks when that row does not fit and grows when the container widens or the current page is shorter. Set `total-visible` to cap the number of slots.
 
 ??? How do I keep the ARIA attributes when rendering custom controls?
 

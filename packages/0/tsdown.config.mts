@@ -59,4 +59,8 @@ export default defineConfig([{
     '@': at,
     '#v0': v0,
   },
+  // One file per module. A shared chunk keeps an unused createPluginContext()
+  // destructure alive, and esbuild will not drop it, so a useStack import was
+  // shipping the theme stylesheet.
+  unbundle: true,
 }])

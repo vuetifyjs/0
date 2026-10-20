@@ -348,6 +348,6 @@ No. Selection lives on `context.selection`. A parallel group `v-model` will drif
 
 [^collapse]: `v-show` sets `display: none` on the `<tr>`. In a `border-collapse` table those rows still participate in the border model, so page 1 shows a phantom line under the last visible record. `border-separate border-spacing-0` takes them out of that model.
 
-[^virtualizer]: A [Virtualizer](/roadmap) compound is planned as a scroll viewport over `createVirtual`. It is not required to virtualize a table today — `createVirtual` is the render layer.
+[^virtualizer]: The [Virtualizer](/components/data/virtualizer) compound is a scroll viewport over `createVirtual` for plain lists. A table still wires `createVirtual` directly — it is the render layer.
 
 <DocsApi />

@@ -40,27 +40,20 @@ Tabs have a second `v-model` of their own. The two selections never share.
 
 ```vue Anatomy no-filename collapse
 <script setup lang="ts">
-  import {
-    BuPanel,
-    BuPanelBlock,
-    BuPanelHeading,
-    BuPanelIcon,
-    BuPanelTab,
-    BuPanelTabs,
-  } from '@paper/bulma'
+  import { BuPanel } from '@paper/bulma'
 </script>
 
 <template>
   <BuPanel>
-    <BuPanelHeading />
+    <BuPanel.Heading />
 
-    <BuPanelTabs>
-      <BuPanelTab />
-    </BuPanelTabs>
+    <BuPanel.Tabs>
+      <BuPanel.Tab />
+    </BuPanel.Tabs>
 
-    <BuPanelBlock>
-      <BuPanelIcon />
-    </BuPanelBlock>
+    <BuPanel.Block>
+      <BuPanel.Icon />
+    </BuPanel.Block>
   </BuPanel>
 </template>
 ```
@@ -148,7 +141,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue collapse
 <template>
   <BuPanel v-model="selected">
-    <BuPanelHeading>Repositories</BuPanelHeading>
+    <BuPanel.Heading>Repositories</BuPanel.Heading>
 
     <div class="panel-block">
       <p class="control has-icons-left">
@@ -159,43 +152,43 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
       </p>
     </div>
 
-    <BuPanelTabs v-model="tab">
-      <BuPanelTab value="All">All</BuPanelTab>
-      <BuPanelTab value="Public">Public</BuPanelTab>
-      <BuPanelTab value="Private">Private</BuPanelTab>
-      <BuPanelTab value="Sources">Sources</BuPanelTab>
-      <BuPanelTab value="Forks">Forks</BuPanelTab>
-    </BuPanelTabs>
+    <BuPanel.Tabs v-model="tab">
+      <BuPanel.Tab value="All">All</BuPanel.Tab>
+      <BuPanel.Tab value="Public">Public</BuPanel.Tab>
+      <BuPanel.Tab value="Private">Private</BuPanel.Tab>
+      <BuPanel.Tab value="Sources">Sources</BuPanel.Tab>
+      <BuPanel.Tab value="Forks">Forks</BuPanel.Tab>
+    </BuPanel.Tabs>
 
-    <BuPanelBlock value="bulma">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="bulma">
+      <BuPanel.Icon icon="fas fa-book" />
       bulma
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="marksheet">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="marksheet">
+      <BuPanel.Icon icon="fas fa-book" />
       marksheet
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="minireset.css">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="minireset.css">
+      <BuPanel.Icon icon="fas fa-book" />
       minireset.css
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="jgthms.github.io">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="jgthms.github.io">
+      <BuPanel.Icon icon="fas fa-book" />
       jgthms.github.io
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="daniellowtw/infboard">
-      <BuPanelIcon icon="fas fa-code-branch" />
+    <BuPanel.Block value="daniellowtw/infboard">
+      <BuPanel.Icon icon="fas fa-code-branch" />
       daniellowtw/infboard
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="mojs">
-      <BuPanelIcon icon="fas fa-code-branch" />
+    <BuPanel.Block value="mojs">
+      <BuPanel.Icon icon="fas fa-code-branch" />
       mojs
-    </BuPanelBlock>
+    </BuPanel.Block>
 
     <label class="panel-block">
       <input type="checkbox">

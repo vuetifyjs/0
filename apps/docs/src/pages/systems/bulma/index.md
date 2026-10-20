@@ -87,7 +87,7 @@ There is no plugin to install and no provider to mount. Import a component and u
 
 ```vue collapse
 <script setup lang="ts">
-  import { BuModal, BuModalClose, BuModalContent } from '@paper/bulma'
+  import { BuModal } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -100,16 +100,16 @@ There is no plugin to install and no provider to mount. Import a component and u
   </button>
 
   <BuModal v-model="open">
-    <BuModalContent>
+    <BuModal.Content>
       <div class="box">Your content</div>
-    </BuModalContent>
+    </BuModal.Content>
 
-    <BuModalClose />
+    <BuModal.Close />
   </BuModal>
 </template>
 ```
 
-Every region Bulma documents is its own component, such as `BuModalContent`, `BuModalHead`, and `BuDropdownMenu`. There are no named slots. You compose the markup you already know.
+Every region Bulma documents is an express part component — `BuModal.Content`, `BuModal.Head`, `BuDropdown.Menu` — never a named slot. Import the parent; the parts hang off it. The flat names (`BuModalContent`) remain exported and valid.
 
 > [!NOTE]
 > Bulma **1.0+** only. The 0.9.x line predates Bulma's CSS variables and is explicitly unsupported. Latest verified: 1.0.4.

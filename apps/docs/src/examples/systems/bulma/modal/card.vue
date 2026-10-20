@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuModal, BuModalBody, BuModalCard, BuModalDelete, BuModalFoot, BuModalHead, BuModalTitle } from '@paper/bulma'
+  import { BuModal } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -12,21 +12,21 @@
   </button>
 
   <BuModal v-model="open">
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle>Modal title</BuModalTitle>
-        <BuModalDelete />
-      </BuModalHead>
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title>Modal title</BuModal.Title>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody>
+      <BuModal.Body>
         <p>
-          Composing <code>BuModalCard</code> renders the <code>.modal-card</code>
-          variant: head, body and foot regions. Compose <code>BuModalDelete</code>
+          Composing <code>BuModal.Card</code> renders the <code>.modal-card</code>
+          variant: head, body and foot regions. Compose <code>BuModal.Delete</code>
           in the head for the card-head X.
         </p>
-      </BuModalBody>
+      </BuModal.Body>
 
-      <BuModalFoot>
+      <BuModal.Foot>
         <div class="buttons">
           <button class="button is-success" type="button" @click="open = false">
             Save changes
@@ -36,7 +36,7 @@
             Cancel
           </button>
         </div>
-      </BuModalFoot>
-    </BuModalCard>
+      </BuModal.Foot>
+    </BuModal.Card>
   </BuModal>
 </template>

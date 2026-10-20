@@ -47,7 +47,10 @@ export interface EmeraldIconsContextOptions extends EmeraldIconsOptions {
  * built from static artwork and never mutates, so there is no session state a
  * reload could lose.
  */
-export interface EmeraldIconsPluginOptions extends EmeraldIconsContextOptions {}
+export interface EmeraldIconsPluginOptions extends EmeraldIconsContextOptions {
+  /** When true, this plugin appears in the Vue DevTools v0 inspector. @default false */
+  devtools?: boolean
+}
 
 /**
  * `createTokens` stores each glyph behind `$value` rather than as a bare array:

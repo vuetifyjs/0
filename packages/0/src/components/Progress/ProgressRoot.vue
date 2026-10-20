@@ -79,6 +79,10 @@
     default: (props: ProgressRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: number | number[]]
+  }>()
+
   const {
     as = 'div',
     renderless,

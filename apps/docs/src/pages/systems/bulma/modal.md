@@ -40,36 +40,26 @@ Both panels are shown here for completeness — a modal composes one or the othe
 
 ```vue Anatomy no-filename collapse
 <script setup lang="ts">
-  import {
-    BuModal,
-    BuModalBody,
-    BuModalCard,
-    BuModalClose,
-    BuModalContent,
-    BuModalDelete,
-    BuModalFoot,
-    BuModalHead,
-    BuModalTitle,
-  } from '@paper/bulma'
+  import { BuModal } from '@paper/bulma'
 </script>
 
 <template>
   <BuModal>
-    <BuModalContent />
+    <BuModal.Content />
 
-    <BuModalClose />
+    <BuModal.Close />
 
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle />
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title />
 
-        <BuModalDelete />
-      </BuModalHead>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody />
+      <BuModal.Body />
 
-      <BuModalFoot />
-    </BuModalCard>
+      <BuModal.Foot />
+    </BuModal.Card>
   </BuModal>
 </template>
 ```
@@ -78,7 +68,7 @@ Both panels are shown here for completeness — a modal composes one or the othe
 
 Wraps v0's [Dialog](/components/disclosure/dialog). `Dialog.Root` owns `v-model`. `Dialog.Content` is renderless so the host can stay a `<div class="modal">` — the fixture demands that, never a native `<dialog>`. `BuModalContent` and `BuModalCard` take the identity Dialog would have bound (`id`, `role`, `aria-modal`, and on the card `aria-labelledby`) off the dialog context; the stack `z-index` lands on `.modal`.
 
-Two things Vuetify0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And Vuetify0 has no `useFocusTrap`: Tab and Shift+Tab wrap inside `.modal`, and focus returns to the trigger on close, including when the modal unmounts while open.
+Two things Vuetify0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And Tab / Shift+Tab wrapping inside `.modal` is still hand-rolled — [useFocusTrap](/composables/system/use-focus-trap) now exists in Vuetify0, but BuModal's migration onto it is pending.
 
 The parts that do map through: `BuModalTitle` is `Dialog.Title as="p"`. `BuModalClose` is `Dialog.Close` with class `modal-close` (the content-variant large X). `BuModalDelete` is `Dialog.Close` with class `delete` (the card-head X). They are not interchangeable.
 
@@ -114,23 +104,23 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue collapse
 <template>
   <BuModal v-model="open">
-    <BuModalCard>
-      <BuModalHead>
-        <BuModalTitle>Modal title</BuModalTitle>
-        <BuModalDelete />
-      </BuModalHead>
+    <BuModal.Card>
+      <BuModal.Head>
+        <BuModal.Title>Modal title</BuModal.Title>
+        <BuModal.Delete />
+      </BuModal.Head>
 
-      <BuModalBody>
+      <BuModal.Body>
         Content ...
-      </BuModalBody>
+      </BuModal.Body>
 
-      <BuModalFoot>
+      <BuModal.Foot>
         <div class="buttons">
           <button class="button is-success">Save changes</button>
           <button class="button">Cancel</button>
         </div>
-      </BuModalFoot>
-    </BuModalCard>
+      </BuModal.Foot>
+    </BuModal.Card>
   </BuModal>
 </template>
 ```

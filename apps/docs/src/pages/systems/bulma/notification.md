@@ -38,12 +38,12 @@ Bulma's `.notification` with a dismiss that unmounts the block.
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import { BuNotification, BuNotificationDelete } from '@paper/bulma'
+  import { BuNotification } from '@paper/bulma'
 </script>
 
 <template>
   <BuNotification>
-    <BuNotificationDelete />
+    <BuNotification.Delete />
   </BuNotification>
 </template>
 ```
@@ -75,7 +75,7 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuNotification>
-    <BuNotificationDelete />
+    <BuNotification.Delete />
     Lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor.
     <strong>Pellentesque risus mi</strong>, tempus quis placerat ut, porta nec
     nulla. Vestibulum rhoncus ac ex sit amet fringilla. Nullam gravida purus diam,

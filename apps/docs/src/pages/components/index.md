@@ -64,9 +64,11 @@ Components for showing/hiding content.
 | [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
 | [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Menu](/components/disclosure/menu) | Actions from a button, a right-click, or a menubar |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 | [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support. Inactive panels stay mounted and hidden |
 | [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
+| [Tour](/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
 | [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
 ## Forms
@@ -80,6 +82,7 @@ Form control components with accessibility and validation support.
 | [Form](/components/forms/form) | Form validation coordinator with submit handling and error aggregation |
 | [Input](/components/forms/input) | Text input with label, description, error messages, and character counting |
 | [NumberField](/components/forms/number-field) | Numeric input with increment/decrement, formatting, and scrub |
+| [Otp](/components/forms/otp) | One-time-password / verification-code boxes with auto-advance, paste, and completion |
 | [Radio](/components/forms/radio) | Radio group with single-selection and keyboard navigation |
 | [Select](/components/forms/select) | Dropdown selection with virtual focus and multi-select support |
 | [Rating](/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
@@ -94,6 +97,8 @@ Components for displaying and interacting with data collections.
 | - | - |
 | [DataGrid](/components/data/data-grid) | Headless data grid with column layout, cell editing, row ordering, and row spanning |
 | [DataTable](/components/data/data-table) | Headless table with sorting, pagination, selection, and expansion |
+| [Kanban](/components/data/kanban) | Board of movable items in columns with pointer drag, keyboard moves, and per-column v-model |
+| [Virtualizer](/components/data/virtualizer) | Virtualized list that renders only the visible window, with automatic row measurement |
 
 ## Semantic
 

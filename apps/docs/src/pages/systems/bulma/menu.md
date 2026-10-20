@@ -38,24 +38,18 @@ Compose `BuMenuLabel`, `BuMenuList`, `BuMenuItem`, and `BuMenuLink`. `v-model` i
 
 ```vue Anatomy no-filename
 <script setup lang="ts">
-  import {
-    BuMenu,
-    BuMenuItem,
-    BuMenuLabel,
-    BuMenuLink,
-    BuMenuList,
-  } from '@paper/bulma'
+  import { BuMenu } from '@paper/bulma'
 </script>
 
 <template>
   <BuMenu>
-    <BuMenuLabel />
+    <BuMenu.Label />
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink />
-      </BuMenuItem>
-    </BuMenuList>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link />
+      </BuMenu.Item>
+    </BuMenu.List>
   </BuMenu>
 </template>
 ```
@@ -108,73 +102,73 @@ The Bulma tab is the markup [published on bulma.io](https://bulma.io/documentati
 ```vue Vue
 <template>
   <BuMenu v-model="active">
-    <BuMenuLabel>General</BuMenuLabel>
+    <BuMenu.Label>General</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Dashboard">Dashboard</BuMenuLink>
-      </BuMenuItem>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Dashboard">Dashboard</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Customers">Customers</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Customers">Customers</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
 
-    <BuMenuLabel>Administration</BuMenuLabel>
+    <BuMenu.Label>Administration</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Team Settings">Team Settings</BuMenuLink>
-      </BuMenuItem>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Team Settings">Team Settings</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Manage Your Team">Manage Your Team</BuMenuLink>
+      <BuMenu.Item>
+        <BuMenu.Link value="Manage Your Team">Manage Your Team</BuMenu.Link>
 
-        <BuMenuList nested>
-          <BuMenuItem>
-            <BuMenuLink value="Members">Members</BuMenuLink>
-          </BuMenuItem>
+        <BuMenu.List nested>
+          <BuMenu.Item>
+            <BuMenu.Link value="Members">Members</BuMenu.Link>
+          </BuMenu.Item>
 
-          <BuMenuItem>
-            <BuMenuLink value="Plugins">Plugins</BuMenuLink>
-          </BuMenuItem>
+          <BuMenu.Item>
+            <BuMenu.Link value="Plugins">Plugins</BuMenu.Link>
+          </BuMenu.Item>
 
-          <BuMenuItem>
-            <BuMenuLink value="Add a member">Add a member</BuMenuLink>
-          </BuMenuItem>
-        </BuMenuList>
-      </BuMenuItem>
+          <BuMenu.Item>
+            <BuMenu.Link value="Add a member">Add a member</BuMenu.Link>
+          </BuMenu.Item>
+        </BuMenu.List>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Invitations">Invitations</BuMenuLink>
-      </BuMenuItem>
+      <BuMenu.Item>
+        <BuMenu.Link value="Invitations">Invitations</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Cloud Storage Environment Settings">
+      <BuMenu.Item>
+        <BuMenu.Link value="Cloud Storage Environment Settings">
           Cloud Storage Environment Settings
-        </BuMenuLink>
-      </BuMenuItem>
+        </BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Authentication">Authentication</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Authentication">Authentication</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
 
-    <BuMenuLabel>Transactions</BuMenuLabel>
+    <BuMenu.Label>Transactions</BuMenu.Label>
 
-    <BuMenuList>
-      <BuMenuItem>
-        <BuMenuLink value="Payments">Payments</BuMenuLink>
-      </BuMenuItem>
+    <BuMenu.List>
+      <BuMenu.Item>
+        <BuMenu.Link value="Payments">Payments</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Transfers">Transfers</BuMenuLink>
-      </BuMenuItem>
+      <BuMenu.Item>
+        <BuMenu.Link value="Transfers">Transfers</BuMenu.Link>
+      </BuMenu.Item>
 
-      <BuMenuItem>
-        <BuMenuLink value="Balance">Balance</BuMenuLink>
-      </BuMenuItem>
-    </BuMenuList>
+      <BuMenu.Item>
+        <BuMenu.Link value="Balance">Balance</BuMenu.Link>
+      </BuMenu.Item>
+    </BuMenu.List>
   </BuMenu>
 </template>
 ```

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-  import { BuDropdown, BuDropdownMenu, BuDropdownTrigger } from '@paper/bulma'
+  import { BuDropdown } from '@paper/bulma'
 </script>
 
 <template>
   <BuDropdown hoverable>
-    <BuDropdownTrigger v-slot="{ attrs }">
+    <BuDropdown.Trigger v-slot="{ attrs }">
       <button class="button" type="button" v-bind="attrs">
         <span>Hover me</span>
 
@@ -12,12 +12,12 @@
           <i aria-hidden="true" class="fas fa-angle-down" />
         </span>
       </button>
-    </BuDropdownTrigger>
+    </BuDropdown.Trigger>
 
-    <BuDropdownMenu>
+    <BuDropdown.Menu>
       <a class="dropdown-item">Overview</a>
 
       <a class="dropdown-item">Modifiers</a>
-    </BuDropdownMenu>
+    </BuDropdown.Menu>
   </BuDropdown>
 </template>

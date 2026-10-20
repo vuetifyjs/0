@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BuPanel, BuPanelBlock, BuPanelHeading, BuPanelIcon } from '@paper/bulma'
+  import { BuPanel } from '@paper/bulma'
 
   import { shallowRef } from 'vue'
 
@@ -8,26 +8,26 @@
 
 <template>
   <BuPanel v-model="selected">
-    <BuPanelHeading>Repositories</BuPanelHeading>
+    <BuPanel.Heading>Repositories</BuPanel.Heading>
 
-    <BuPanelBlock value="bulma">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="bulma">
+      <BuPanel.Icon icon="fas fa-book" />
       bulma
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="marksheet">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="marksheet">
+      <BuPanel.Icon icon="fas fa-book" />
       marksheet
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="minireset.css">
-      <BuPanelIcon icon="fas fa-book" />
+    <BuPanel.Block value="minireset.css">
+      <BuPanel.Icon icon="fas fa-book" />
       minireset.css
-    </BuPanelBlock>
+    </BuPanel.Block>
 
-    <BuPanelBlock value="mojs">
-      <BuPanelIcon icon="fas fa-code-branch" />
+    <BuPanel.Block value="mojs">
+      <BuPanel.Icon icon="fas fa-code-branch" />
       mojs
-    </BuPanelBlock>
+    </BuPanel.Block>
   </BuPanel>
 </template>
