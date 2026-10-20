@@ -108,5 +108,15 @@
         </div>
       </div>
     </div>
+
+    <div class="flex items-center justify-center mt-8">
+      <router-link
+        class="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
+        to="/guide/tooling/ai-tools"
+      >
+        Learn more about AI tools
+        <AppIcon icon="right" :size="12" />
+      </router-link>
+    </div>
   </section>
 </template>
