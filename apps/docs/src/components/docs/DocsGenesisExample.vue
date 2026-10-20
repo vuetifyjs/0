@@ -264,13 +264,24 @@
 
 <style scoped>
   /* Skin the example surfaces with the AppBar's glass treatment so the
-     description and the sticky toolbars read as continuous page chrome. */
+     description and the sticky toolbars read as continuous page chrome.
+     The multifile file bar is excluded: it sticks over scrolling code, and
+     a translucent backdrop-filter lets that code paint across the tabs. */
   :deep(.genesis-docs-example-description),
   :deep(.genesis-docs-example__toggle-bar),
-  :deep(.genesis-docs-example__code-bar),
-  :deep(.genesis-docs-example-tabs__bar) {
+  :deep(.genesis-docs-example__code-bar) {
     background: var(--v0-glass-surface);
     backdrop-filter: blur(12px);
+  }
+
+  :deep(.genesis-docs-example-tabs__bar) {
+    background: var(--v0-surface);
+  }
+
+  /* Code-window fades and hover actions carry their own z-index. Keep them
+     inside the panel so they cannot paint over the sticky file bar. */
+  :deep(.genesis-docs-example-panel) {
+    isolation: isolate;
   }
 
   /* The glass skin above replaces the description's surface-tint background,
