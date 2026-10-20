@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createNested, isString, isUndefined, useBreakpoints } from '@vuetify/v0'
+  import { createNested, isString, isUndefined, useBreakpoints, useResizeObserver } from '@vuetify/v0'
 
   // Data
   import { fileType } from '@/data/file-types'
@@ -273,6 +273,45 @@
   })
 
   const treeEl = useTemplateRef<HTMLElement>('tree-el')
+  const clipped = shallowRef(new Set<string>())
+
+  function fileLabel (id: string): string {
+    const value = tree.get(id)?.value
+    return isString(value) ? value : ''
+  }
+
+  function labelClass (id: string): string {
+    if (current(id)) return 'font-medium opacity-100'
+    if (isFile(id)) return 'opacity-80'
+    return 'font-medium opacity-60'
+  }
+
+  function syncClipped () {
+    const root = treeEl.value
+    if (!root) return
+    const next = new Set<string>()
+    for (const el of root.querySelectorAll<HTMLElement>('[data-label]')) {
+      const id = el.dataset.label
+      if (id && el.scrollWidth > el.clientWidth + 1) next.add(id)
+    }
+    const prev = clipped.value
+    if (prev.size === next.size) {
+      let same = true
+      for (const id of next) {
+        if (!prev.has(id)) {
+          same = false
+          break
+        }
+      }
+      if (same) return
+    }
+    clipped.value = next
+  }
+
+  useResizeObserver(treeEl, syncClipped)
+  watch(visibleNodes, () => {
+    nextTick(syncClipped)
+  })
 
   function activate (id: string) {
     if (isFile(id)) {
@@ -453,8 +492,27 @@
             <AppIcon v-else icon="file" :size="14" />
           </template>
 
-          <span class="flex-1 truncate" :class="current(id) ? 'font-medium opacity-100' : isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
-            {{ tree.get(id)?.value }}
+          <AppTooltip
+            v-if="clipped.has(id)"
+            as="span"
+            class="min-w-0 flex-1 truncate"
+            :class="labelClass(id)"
+            :data-label="id"
+            nowrap
+            position-area="right"
+            position-try="flip-inline"
+            :text="fileLabel(id)"
+          >
+            {{ fileLabel(id) }}
+          </AppTooltip>
+
+          <span
+            v-else
+            class="min-w-0 flex-1 truncate"
+            :class="labelClass(id)"
+            :data-label="id"
+          >
+            {{ fileLabel(id) }}
           </span>
 
           <AppTooltip
