@@ -104,7 +104,7 @@ export function createRtlFallback (): RtlContext {
 }
 
 export const [createRtlContext, createRtlPlugin, useRtl] =
-  createPluginContext<RtlPluginOptions, RtlContext>(
+  /* @__PURE__ */ createPluginContext<RtlPluginOptions, RtlContext>(
     'v0:rtl',
     options => createRtl(options),
     {

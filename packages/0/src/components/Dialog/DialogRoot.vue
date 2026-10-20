@@ -47,7 +47,7 @@
     close: () => void
   }
 
-  export const [useDialogContext, provideDialogContext] = createContext<DialogContext>()
+  export const [useDialogContext, provideDialogContext] = /* @__PURE__ */ createContext<DialogContext>()
 </script>
 
 <script setup lang="ts">

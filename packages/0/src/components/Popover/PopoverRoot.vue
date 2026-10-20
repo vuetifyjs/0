@@ -39,7 +39,7 @@
     toggle: () => void
   }
 
-  export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('v0:popover:root')
+  export const [usePopoverContext, providePopoverContext] = /* @__PURE__ */ createContext<PopoverContext>('v0:popover:root')
 </script>
 
 <script setup lang="ts">

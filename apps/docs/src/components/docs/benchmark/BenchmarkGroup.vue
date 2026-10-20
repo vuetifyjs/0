@@ -3,7 +3,7 @@
   import { isUndefined } from '@vuetify/v0'
 
   // Composables
-  import { GROUP_DESCRIPTIONS, TIER_CONFIG, type NormalizedGroup, type TierState } from '@/composables/useBenchmarkData'
+  import { formatPeak, GROUP_DESCRIPTIONS, groupPeak, sortControlName, TIER_CONFIG, type BenchmarkSortField, type NormalizedGroup, type TierState } from '@/composables/useBenchmarkData'
   import { significant, useBenchmarkHistory } from '@/composables/useBenchmarkHistory'
 
   // Utilities
@@ -16,10 +16,13 @@
     group: NormalizedGroup
     expanded: boolean
     tier: TierState
+    sortBy: BenchmarkSortField
+    sortDesc: boolean
   }>()
 
   const emit = defineEmits<{
     'update:expanded': [value: boolean]
+    'sort': [field: BenchmarkSortField]
   }>()
 
   const tierConfig = toRef(() => TIER_CONFIG[props.tier])
@@ -67,6 +70,16 @@
   })
 
   const since = toRef(() => history.value?.versionsSpanned[0])
+
+  const headline = toRef(() => {
+    const peak = groupPeak(props.group.benchmarks, props.sortBy)
+    return peak ? formatPeak(peak, props.sortBy) : ''
+  })
+
+  function ariaSort (field: BenchmarkSortField): 'ascending' | 'descending' | 'none' {
+    if (props.sortBy !== field) return 'none'
+    return props.sortDesc ? 'descending' : 'ascending'
+  }
 
   const label = toRef(() => {
     const c = changes.value
@@ -117,7 +130,7 @@
       </AppTooltip>
 
       <code class="text-xs text-on-surface-variant shrink-0 hidden sm:inline">
-        {{ group.fastest.hzLabel }}
+        {{ headline }}
       </code>
 
       <span class="hidden sm:inline-flex items-center gap-1.5 shrink-0" :class="tierConfig.color">
@@ -144,12 +157,30 @@
                 Operation
               </th>
 
-              <th class="text-left text-xs font-medium text-on-surface-variant px-4 py-2 min-w-48" scope="col">
-                Throughput
+              <th :aria-sort="ariaSort('hz')" class="text-left text-xs font-medium text-on-surface-variant px-4 py-2 min-w-48" scope="col">
+                <button :aria-label="sortControlName('Throughput', sortBy === 'hz', sortDesc)" class="inline-flex items-center gap-1 cursor-pointer" type="button" @click="emit('sort', 'hz')">
+                  Throughput
+                  <AppIcon
+                    v-if="sortBy === 'hz'"
+                    class="transition-transform"
+                    :class="sortDesc ? 'rotate-90' : '-rotate-90'"
+                    icon="chevron-right"
+                    :size="12"
+                  />
+                </button>
               </th>
 
-              <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
-                Latency
+              <th :aria-sort="ariaSort('mean')" class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
+                <button :aria-label="sortControlName('Latency', sortBy === 'mean', sortDesc)" class="inline-flex items-center gap-1 ml-auto cursor-pointer" type="button" @click="emit('sort', 'mean')">
+                  Latency
+                  <AppIcon
+                    v-if="sortBy === 'mean'"
+                    class="transition-transform"
+                    :class="sortDesc ? 'rotate-90' : '-rotate-90'"
+                    icon="chevron-right"
+                    :size="12"
+                  />
+                </button>
               </th>
 
               <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden lg:table-cell" scope="col">
@@ -164,8 +195,17 @@
                 Trend
               </th>
 
-              <th class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
-                Margin
+              <th :aria-sort="ariaSort('rme')" class="text-right text-xs font-medium text-on-surface-variant px-4 py-2 hidden md:table-cell" scope="col">
+                <button :aria-label="sortControlName('Margin', sortBy === 'rme', sortDesc)" class="inline-flex items-center gap-1 ml-auto cursor-pointer" type="button" @click="emit('sort', 'rme')">
+                  Margin
+                  <AppIcon
+                    v-if="sortBy === 'rme'"
+                    class="transition-transform"
+                    :class="sortDesc ? 'rotate-90' : '-rotate-90'"
+                    icon="chevron-right"
+                    :size="12"
+                  />
+                </button>
               </th>
             </tr>
           </thead>

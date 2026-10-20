@@ -34,7 +34,8 @@ describe('createOverflow', () => {
     }
 
     globalThis.ResizeObserver = vi.fn(function (this: unknown, cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
-      resizeCallback = cb
+      // Native entries always carry the box sizes; without them the mapper measures the target
+      resizeCallback = entries => cb(entries.map(entry => ({ borderBoxSize: [], contentBoxSize: [], ...entry })))
       return mockObserver
     }) as unknown as typeof ResizeObserver
 
@@ -1514,8 +1515,8 @@ describe('createOverflow', () => {
         queued.push(cb)
         return queued.length
       })
-      const callbacks: Array<(entries: Array<{ contentRect: { width: number, height: number } }>) => void> = []
-      globalThis.ResizeObserver = vi.fn(function (cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
+      const callbacks: Array<(entries: ResizeObserverEntry[]) => void> = []
+      globalThis.ResizeObserver = vi.fn(function (cb: (entries: ResizeObserverEntry[]) => void) {
         callbacks.push(cb)
         return { observe: vi.fn(), disconnect: vi.fn() }
       }) as unknown as typeof ResizeObserver
@@ -1534,8 +1535,17 @@ describe('createOverflow', () => {
         await nextTick()
 
         const parentCallback = callbacks.at(-1)
-        parentCallback?.([{ contentRect: { width: 100, height: 20 } }])
-        parentCallback?.([{ contentRect: { width: 140, height: 20 } }])
+        function resize (width: number): ResizeObserverEntry {
+          return {
+            target: parent,
+            contentRect: { width, height: 20, top: 0, left: 0, bottom: 20, right: width, x: 0, y: 0, toJSON: () => ({}) },
+            borderBoxSize: [{ inlineSize: width, blockSize: 20 }],
+            contentBoxSize: [{ inlineSize: width, blockSize: 20 }],
+            devicePixelContentBoxSize: [],
+          } as unknown as ResizeObserverEntry
+        }
+        parentCallback?.([resize(100)])
+        parentCallback?.([resize(140)])
 
         expect(queued.length).toBeGreaterThan(1)
         for (const frame of queued) frame(0)
@@ -1633,8 +1643,8 @@ describe('createOverflow SSR', () => {
 
     const frames = vi.fn()
     vi.stubGlobal('requestAnimationFrame', frames)
-    const callbacks: Array<(entries: Array<{ contentRect: { width: number, height: number } }>) => void> = []
-    globalThis.ResizeObserver = vi.fn(function (cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
+    const callbacks: Array<(entries: ResizeObserverEntry[]) => void> = []
+    globalThis.ResizeObserver = vi.fn(function (cb: (entries: ResizeObserverEntry[]) => void) {
       callbacks.push(cb)
       return { observe: vi.fn(), disconnect: vi.fn() }
     }) as unknown as typeof ResizeObserver
@@ -1648,7 +1658,15 @@ describe('createOverflow SSR', () => {
       await nextTick()
 
       expect(callbacks.length).toBeGreaterThan(0)
-      for (const callback of callbacks) callback([{ contentRect: { width: 80, height: 20 } }])
+      for (const callback of callbacks) {
+        callback([{
+          target: parent,
+          contentRect: { width: 80, height: 20, top: 0, left: 0, bottom: 20, right: 80, x: 0, y: 0, toJSON: () => ({}) },
+          borderBoxSize: [{ inlineSize: 80, blockSize: 20 }],
+          contentBoxSize: [{ inlineSize: 80, blockSize: 20 }],
+          devicePixelContentBoxSize: [],
+        } as unknown as ResizeObserverEntry])
+      }
       await nextTick()
 
       expect(frames).not.toHaveBeenCalled()

@@ -3,6 +3,9 @@ import { isPlaygroundThemeId, sanitizePlaygroundThemes } from '@vuetify/play'
 // Framework
 import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
 
+// Components
+import { binCopyPath, binFileExt, binReplExt } from '@/components/playground/open/types'
+
 // Composables
 import { readPlaygroundIdFromUrl, useOnePlaygrounds, usePlaygroundRouteId } from '@/composables/useOnePlaygrounds'
 import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple, rewritePackageMacroTypes, V0_MACROS_FILE } from '@/composables/usePlayground'
@@ -719,6 +722,32 @@ export function usePlaygroundFiles () {
     if (options.clearSearch) clearRegistrySearch()
   }
 
+  /**
+   * Copy bins in as new files on the playground that is already open.
+   * Does not reset the preset, does not change the Vuetify One link, and
+   * does not write anything back to the bins. The last file added becomes active.
+   */
+  function copyBins (files: { title?: string, language: string, content: string }[]) {
+    let active: string | undefined
+    for (const bin of files) {
+      const filename = binCopyPath(bin.title, binFileExt(bin.language), path => Boolean(store.files[path]))
+      store.addFile(filename)
+      const file = store.files[filename]
+      if (!file) continue
+      file.code = bin.content
+      if (binReplExt(bin.language)) compileFile(store, file)
+      active = filename
+    }
+    if (!active) return
+    store.setActive(active)
+    filesVersion.value++
+  }
+
+  /** Copy one bin. Same contract as `copyBins`. */
+  function copyBin (bin: { title?: string, language: string, content: string }) {
+    copyBins([bin])
+  }
+
   return {
     store,
     isReady,
@@ -742,6 +771,8 @@ export function usePlaygroundFiles () {
     openPlayground,
     openRegistryExample,
     openVuetifyExample,
+    copyBin,
+    copyBins,
     activeExample,
     snapshotContent,
   }

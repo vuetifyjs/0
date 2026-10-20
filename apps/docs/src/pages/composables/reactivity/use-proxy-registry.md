@@ -57,13 +57,13 @@ flowchart LR
 
 | Property | Reactive | Notes |
 | - | :-: | - |
-| `keys` | <AppSuccessIcon /> | Updates on register/unregister |
-| `values` | <AppSuccessIcon /> | Updates on register/unregister/update |
-| `entries` | <AppSuccessIcon /> | Updates on any ticket change |
-| `size` | <AppSuccessIcon /> | Updates on register/unregister |
+| `keys` | <AppSuccessIcon /> | Updates on register, unregister, update, clear, and reindex |
+| `values` | <AppSuccessIcon /> | Same events as `keys` |
+| `entries` | <AppSuccessIcon /> | Same events as `keys` |
+| `size` | <AppSuccessIcon /> | Same events as `keys` |
 
 > [!TIP] Deep vs shallow
-> Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
+> Pass `{ deep: true }` and `values` and `entries` are wrapped in `reactive()`. Omit it and the proxy returns the raw arrays. The registry must be created with `events: true`.
 
 ## Examples
 
@@ -76,7 +76,7 @@ A notification center that manages an event-sourced list of items through `creat
 
 The debug panel at the top shows `proxy.size`, `proxy.keys`, and a `toRef`-derived `unread` count, making the reactivity boundary visible: all three update the moment the registry changes, driven entirely by the event bridge `useProxyRegistry` installs. The unread badge on the header demonstrates that derived values — computed from `proxy.values` via `toRef` — are also reactive without extra wiring.
 
-Use `useProxyRegistry` any time a registry's contents need to drive a `v-for` or a reactive count in a template. The alternative — `reactive: true` on the registry — carries a subtle cache-invalidation footgun (see the FAQ) that `useProxyRegistry` avoids entirely by listening to events rather than relying on Vue's dep tracking of the internal Map. For selection composables like `createSingle` or `createGroup`, pass the selection instance directly since they extend `createRegistry` and support `events: true` the same way.
+Use `useProxyRegistry` any time a registry's contents need to drive a `v-for` or a reactive count in a template. `reactive: true` also tracks `values()`, because that method reads a version ref before it returns a cached array. The proxy is the event-driven snapshot: `keys`, `values`, `entries`, and `size`. For selection composables like `createSingle` or `createGroup`, pass the selection instance directly since they extend `createRegistry` and support `events: true` the same way.
 
 :::
 
@@ -85,7 +85,7 @@ Use `useProxyRegistry` any time a registry's contents need to drive a `v-for` or
 ::: faq
 ??? Why does the registry need `events: true`?
 
-`useProxyRegistry` listens for `register` and `unregister` events to know when to update reactive properties. Without events, the registry operates silently:
+`useProxyRegistry` listens for `register:ticket`, `unregister:ticket`, `update:ticket`, `clear:registry`, and `reindex:registry`. Without `events: true`, the registry operates silently:
 
 ```ts
 // Without events - proxy never updates
@@ -130,10 +130,8 @@ All read properties from the underlying registry:
 | - | - | - |
 | `size` | `number` | Yes |
 | `keys` | `ID[]` | Yes |
-| `values` | `unknown[]` | Yes |
-| `items` | `Map<ID, Ticket>` | Yes |
-| `has(id)` | `boolean` | Yes |
-| `get(id)` | `Ticket \| undefined` | Yes |
+| `values` | ticket array | Yes |
+| `entries` | `[ID, Ticket][]` | Yes |
 
 Mutations (`register`, `unregister`, `move`) are called on the underlying registry instance — not through the proxy. The proxy automatically syncs via registry events.
 
@@ -151,8 +149,8 @@ Vue's reactivity is granular. Components only re-render when they access propert
 ```vue
 <template>
   <!-- Re-renders when any item changes -->
-  <div v-for="id in proxy.keys" :key="id">
-    {{ proxy.get(id)?.value }}
+  <div v-for="ticket in proxy.values" :key="ticket.id">
+    {{ ticket.value }}
   </div>
 </template>
 ```
@@ -161,26 +159,16 @@ If you only read `size`, adding items triggers a re-render. If you iterate `keys
 
 ??? Why not just use reactive: true on the registry?
 
-`reactive: true` makes the internal collection a `shallowReactive(new Map())`, which looks like it should drive a `v-for` reactively — but there's a subtle footgun.
+`reactive: true` reads a version ref at the start of `values()`, including when the result is cached, so a render that reads `values()` stays subscribed to structural changes.
 
-`values()` caches its result internally and only invalidates when the collection mutates. Vue's render effect clears **all** reactive dependencies on every run, then re-establishes them as reactive sources are read. If a re-render is triggered by something other than a collection mutation (e.g., a selection change), `values()` returns from cache without reading the underlying Map — so Vue never re-establishes the dep. The next time you add an item, Vue doesn't know to re-render.
-
-```ts
-// Footgun: v-for may stop updating after a selection change
-const single = createSingle({ reactive: true })
-// After any selection-triggered re-render, addTab() won't update the list
-```
-
-`useProxyRegistry` avoids this entirely — it updates via events, not dep tracking:
+`useProxyRegistry` is the other path. It listens for registry events and exposes `keys`, `values`, `entries`, and `size`. The registry must be created with `events: true`.
 
 ```ts
-// Safe: event-driven, no dep-tracking fragility
 const single = createSingle({ events: true })
 const proxy = useProxyRegistry(single)
-// proxy.values always reflects current state
 ```
 
-If you need `reactive: true` for ticket-level prop tracking, you can bypass the cache by reading `single.collection.values()` directly in the template — but `useProxyRegistry` is the recommended approach.
+Use `reactive: true` when you also want per-ticket field updates through `upsert`. Use the proxy when you want a snapshot of keys, values, entries, and size.
 
 ??? Can I use useProxyRegistry with selection composables?
 

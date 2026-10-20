@@ -55,7 +55,7 @@
     }
   }
 
-  export const [useOverflowRoot, provideOverflowRoot] = createContext<OverflowRootContext>()
+  export const [useOverflowRoot, provideOverflowRoot] = /* @__PURE__ */ createContext<OverflowRootContext>()
 </script>
 
 <script setup lang="ts">

@@ -5,11 +5,13 @@ import { IN_BROWSER, useTimer } from '@vuetify/v0'
 import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
 // Utilities
-import { shallowRef, watch } from 'vue'
+import { onScopeDispose, shallowRef, toRef, watch } from 'vue'
 
 const POLL = 500
 const SPECIFIC = 2500
 const GENERIC = 6000
+const COUNTDOWN = 5_000
+const AUTO = 3
 
 export interface FailedDep {
   url: string
@@ -26,6 +28,14 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
 
   let elapsed = 0
   let probed = false
+  let tries = 0
+  // User clicked Retry while a countdown was running. Stays for this page
+  // load; a refresh clears it and the next failure counts down again.
+  let manual = false
+  // Bumped by start() and unmount so a HEAD that resolves late cannot
+  // fail() a cycle that has already moved on.
+  let cycle = 0
+  let disposed = false
 
   function mounted () {
     const app = iframe()?.contentDocument?.querySelector('#app')
@@ -70,6 +80,9 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     // #app on every recompile, so without this reset `elapsed` would creep up across
     // ordinary edits and eventually false-trigger the banner over a working preview.
     if (mounted()) {
+      countdown.stop()
+      tries = 0
+      dismissed.value = false
       status.value = 'ok'
       failed.value = []
       elapsed = 0
@@ -78,50 +91,111 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     }
 
     // A genuine compile error is already shown by the REPL's own overlay.
-    if (playground.store.errors.length > 0) return
+    // Stop a countdown that started before the error landed — an edit does
+    // not bump filesVersion, so the watch will not call start().
+    if (playground.store.errors.length > 0) {
+      countdown.stop()
+      status.value = 'ok'
+      failed.value = []
+      return
+    }
 
     elapsed += POLL
 
     if (!probed && elapsed >= SPECIFIC) {
       probed = true
+      const started = cycle
       const bad = await probe()
-      if (bad.length > 0 && !mounted()) {
-        failed.value = bad
-        status.value = 'failed'
+      if (disposed || started !== cycle || mounted()) return
+      if (playground.store.errors.length > 0) {
+        countdown.stop()
+        status.value = 'ok'
+        failed.value = []
+        return
+      }
+      if (bad.length > 0) {
+        fail(bad)
         return
       }
     }
 
-    if (elapsed >= GENERIC && !mounted()) {
-      status.value = 'failed' // failed stays [] → generic message
+    if (elapsed >= GENERIC && !mounted() && status.value !== 'failed') {
+      fail([])
     }
   }
+
+  function fail (deps: FailedDep[]) {
+    if (disposed) return
+    failed.value = deps
+    status.value = 'failed'
+    if (dismissed.value) return
+    beginCountdown()
+  }
+
+  function beginCountdown () {
+    if (disposed || manual || tries >= AUTO || countdown.isActive.value) return
+    countdown.start()
+  }
+
+  function onCountdown () {
+    tries += 1
+    remount()
+  }
+
+  const countdown = useTimer(onCountdown, { duration: COUNTDOWN })
+
+  const seconds = toRef(() => {
+    if (!countdown.isActive.value) return null
+    return Math.max(1, Math.ceil(countdown.remaining.value / 1000))
+  })
+
+  const attempt = toRef(() => {
+    if (!countdown.isActive.value) return null
+    return tries + 1
+  })
 
   const watchdog = useTimer(tick, { duration: POLL, repeat: true })
 
   function start () {
+    cycle += 1
     watchdog.stop()
+    countdown.stop()
     elapsed = 0
     probed = false
     status.value = 'ok'
     failed.value = []
     dismissed.value = false
-    if (!IN_BROWSER) return
+    if (disposed || !IN_BROWSER) return
     watchdog.start()
   }
 
-  function reload () {
+  function remount () {
     reloadKey.value++
     start()
   }
 
+  function reload () {
+    tries = 0
+    remount()
+  }
+
   function retry () {
-    reload()
+    if (countdown.isActive.value) manual = true
+    countdown.stop()
+    remount()
   }
 
   function dismiss () {
+    countdown.stop()
     dismissed.value = true
   }
+
+  onScopeDispose(() => {
+    disposed = true
+    cycle += 1
+    countdown.stop()
+    watchdog.stop()
+  }, true)
 
   watch(
     () => [playground.isReady.value, playground.filesVersion.value],
@@ -131,5 +205,5 @@ export function usePreviewHealth (iframe: () => HTMLIFrameElement | null | undef
     { immediate: true },
   )
 
-  return { status, failed, dismissed, reloadKey, reload, retry, dismiss }
+  return { status, failed, dismissed, reloadKey, reload, retry, dismiss, seconds, attempt }
 }

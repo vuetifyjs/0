@@ -58,7 +58,7 @@
     }
   }
 
-  export const [useStepRoot, provideStepRoot] = createContext<StepContext<StepTicket>>()
+  export const [useStepRoot, provideStepRoot] = /* @__PURE__ */ createContext<StepContext<StepTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

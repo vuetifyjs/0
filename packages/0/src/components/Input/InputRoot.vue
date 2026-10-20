@@ -160,7 +160,7 @@
     }
   }
 
-  export const [useInputRoot, provideInputRoot] = createContext<InputRootContext>()
+  export const [useInputRoot, provideInputRoot] = /* @__PURE__ */ createContext<InputRootContext>()
 
   /** Parsed form of a `validateOn` expression */
   export interface ParsedValidateOn {

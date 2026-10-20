@@ -71,7 +71,7 @@
     }
   }
 
-  export const [useExpansionPanelRoot, provideExpansionPanelRoot] = createContext<ExpansionPanelRootContext>({ suffix: 'item' })
+  export const [useExpansionPanelRoot, provideExpansionPanelRoot] = /* @__PURE__ */ createContext<ExpansionPanelRootContext>({ suffix: 'item' })
 </script>
 
 <script lang="ts" setup generic="V = unknown">

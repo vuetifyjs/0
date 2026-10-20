@@ -62,7 +62,7 @@
     complete: () => void
   }
 
-  export const [useTourRootContext, provideTourRootContext] = createContext<TourRootContext>({ suffix: 'root' })
+  export const [useTourRootContext, provideTourRootContext] = /* @__PURE__ */ createContext<TourRootContext>({ suffix: 'root' })
 </script>
 
 <script setup lang="ts">

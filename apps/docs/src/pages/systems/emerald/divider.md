@@ -2,7 +2,7 @@
 title: EmDivider - Emerald Divider for Vue
 meta:
 - name: description
-  content: Emerald's divider — a horizontal rule, a vertical separator, or a labeled break, choosing the right element and ARIA for each shape. Composed on Vuetify0's Atom.
+  content: A horizontal or vertical rule, with an optional center label. The component picks the element and the ARIA for each shape. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald divider, vue divider, separator vue, labeled divider, horizontal rule, design system divider
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A rule between things — horizontal or vertical, with an optional center label. The component picks the element and the ARIA for each shape so you never have to.
+A horizontal or vertical rule, with an optional center label. The component picks the element and the ARIA for each shape.
 
 ## Usage
 
@@ -103,6 +103,6 @@ Each of the three shapes says something different to assistive technology, and e
 | Vertical, no label | `div` | Explicit `role="separator"` with `aria-orientation="vertical"` |
 | Labeled | `div` | No role. Lines are `aria-hidden`; the label reads as plain text |
 
-The labeled shape carrying no role is the part worth understanding rather than "fixing". A `separator` is children-presentational — assistive technology discards everything inside it — so a labeled divider marked as a separator would announce as an anonymous rule and swallow its own words. Emerald keeps the words and gives up the role, which is the better half of that trade: the lines are decoration, the label is content.
+A labeled divider has no separator role. A `separator` is children-presentational — assistive technology discards everything inside it — so a labeled divider marked as a separator would announce as an anonymous rule and swallow its own words. Emerald keeps the words and gives up the role, which is the better half of that trade: the lines are decoration, the label is content.
 
 The divider is never focusable and has no keyboard behavior in any shape. ARIA's focusable-separator variant is a window splitter — a control that moves — and a divider that only draws a line must not take a tab stop. If you need a draggable divider between panes, that is [Splitter](/components/semantic/splitter), not this component.

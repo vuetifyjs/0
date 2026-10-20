@@ -4,6 +4,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Context
+  import PlaygroundSettingsAbout from './PlaygroundSettingsAbout.vue'
   import PlaygroundSettingsEditor from './PlaygroundSettingsEditor.vue'
   import PlaygroundSettingsExport from './PlaygroundSettingsExport.vue'
   import PlaygroundSettingsIcons from './PlaygroundSettingsIcons.vue'
@@ -31,6 +32,7 @@
     { id: 'editor', label: 'Editor', icon: 'editor', component: PlaygroundSettingsEditor, available: true },
     { id: 'icons', label: 'Icons', icon: 'feat-theme', component: PlaygroundSettingsIcons, available: true },
     { id: 'export', label: 'Export', icon: 'download', component: PlaygroundSettingsExport, available: true },
+    { id: 'about', label: 'About', icon: 'info', component: PlaygroundSettingsAbout, available: true },
   ]
 
   const current = toRef(() => sections.find(s => s.id === active.value))

@@ -7,10 +7,12 @@
   // Context
   import DocsCodeActions from './DocsCodeActions.vue'
   import DocsExampleThemeMenu from './DocsExampleThemeMenu.vue'
+  import DocsGenesisExamplePane from './DocsGenesisExamplePane.vue'
   import DocsGenesisShikiBlock from './DocsGenesisShikiBlock.vue'
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
+  import { useCollapseAnchor } from '@/composables/useCollapseAnchor'
   import { useExamples } from '@/composables/useExamples'
   import { prehighlight } from '@/composables/useHighlightCode'
   import { useIdleCallback } from '@/composables/useIdleCallback'
@@ -25,12 +27,13 @@
   import { PALETTE_THEMES, createThemeToggle, provideThemeToggle, useThemeToggleContext } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, onMounted, toRef } from 'vue'
+  import { computed, onMounted, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { PlaygroundHashData } from '@/composables/usePlayground'
   import type { Palette } from '@/composables/useThemeToggle'
   import type { GnDocsExampleFile } from '@paper/genesis'
+  import type { ComponentPublicInstance } from 'vue'
 
   export interface DocsGenesisExampleProps {
     /** Display filename for single-file mode (when not auto-resolved) */
@@ -68,6 +71,14 @@
   }
 
   const props = defineProps<DocsGenesisExampleProps>()
+
+  // `example` is the theme toggle below. A template ref of the same name is
+  // inlined onto that object in production and Vue crashes reading `refs`.
+  const anchor = useTemplateRef<ComponentPublicInstance>('anchor')
+  useCollapseAnchor(() => {
+    const el = anchor.value?.$el
+    return el instanceof HTMLElement ? el : undefined
+  })
 
   const inherited = useThemeToggleContext()
   const example = inherited ?? createThemeToggle({ palette: props.palette })
@@ -166,6 +177,7 @@
 <template>
   <GnDocsExample
     :id
+    ref="anchor"
     class="mb-6"
     :code="resolvedCode"
     :collapse
@@ -203,14 +215,10 @@
     </template>
 
     <template #code="{ code: paneCode, file: paneFile, language: paneLanguage }">
-      <div
-        class="docs-genesis-example-pane"
-        :class="lineWrap && 'docs-genesis-example-pane--wrap'"
-        data-tour="example-code"
-      >
+      <DocsGenesisExamplePane :label="paneFile?.name ?? fileName" :wrap="lineWrap">
         <DocsGenesisShikiBlock :code="paneCode ?? ''" :language="paneLanguage ?? 'text'" />
 
-        <div class="docs-genesis-example-pane__actions" data-tour="example-toolbar">
+        <template #actions>
           <DocsCodeActions
             v-model:size="size"
             v-model:wrap="lineWrap"
@@ -224,21 +232,32 @@
             show-wrap
             :title="paneFile?.name ?? fileName"
           />
-        </div>
-      </div>
+        </template>
+      </DocsGenesisExamplePane>
     </template>
   </GnDocsExample>
 </template>
 
 <style scoped>
   /* Skin the example surfaces with the AppBar's glass treatment so the
-     description and the sticky toolbars read as continuous page chrome. */
+     description and the sticky toolbars read as continuous page chrome.
+     The multifile file bar is excluded: it sticks over scrolling code, and
+     a translucent backdrop-filter lets that code paint across the tabs. */
   :deep(.genesis-docs-example-description),
   :deep(.genesis-docs-example__toggle-bar),
-  :deep(.genesis-docs-example__code-bar),
-  :deep(.genesis-docs-example-tabs__bar) {
+  :deep(.genesis-docs-example__code-bar) {
     background: var(--v0-glass-surface);
     backdrop-filter: blur(12px);
+  }
+
+  :deep(.genesis-docs-example-tabs__bar) {
+    background: var(--v0-surface);
+  }
+
+  /* Code-window fades and hover actions carry their own z-index. Keep them
+     inside the panel so they cannot paint over the sticky file bar. */
+  :deep(.genesis-docs-example-panel) {
+    isolation: isolate;
   }
 
   /* The glass skin above replaces the description's surface-tint background,
@@ -247,37 +266,5 @@
      it. Re-point the fade at the surface the glass resolves over. */
   :deep(.genesis-docs-example-description__fade) {
     background: linear-gradient(transparent, var(--v0-surface));
-  }
-
-  .docs-genesis-example-pane {
-    position: relative;
-  }
-
-  .docs-genesis-example-pane__actions {
-    position: absolute;
-    top: 0.5rem;
-    inset-inline-end: 0.5rem;
-    z-index: 10;
-    display: flex;
-    gap: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .docs-genesis-example-pane:hover .docs-genesis-example-pane__actions,
-  .docs-genesis-example-pane:focus-within .docs-genesis-example-pane__actions {
-    opacity: 1;
-  }
-
-  @media (max-width: 767px) {
-    .docs-genesis-example-pane__actions {
-      opacity: 1;
-    }
-  }
-
-  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre),
-  .docs-genesis-example-pane--wrap :deep(.docs-genesis-shiki-block pre code) {
-    white-space: pre-wrap;
-    word-break: break-word;
   }
 </style>

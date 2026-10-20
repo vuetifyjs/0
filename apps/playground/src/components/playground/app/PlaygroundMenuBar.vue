@@ -47,6 +47,8 @@
   // storage.get() watch created there dies on close and stops persisting.
   const openRail = storage.get<OpenRail>('playground-open-rail', DEFAULT_OPEN_RAIL)
   openRail.value = normalizeOpenRail(openRail.value)
+  storage.get<number | undefined>('playground-open-play-count')
+  storage.get<number | undefined>('playground-open-bin-count')
 
   const menu = shallowRef(false)
   const file = shallowRef(false)
@@ -288,7 +290,8 @@
           style="position-area: unset; inset-area: unset; top: anchor(top); left: anchor(right); position-try-fallbacks: flip-block;"
         >
           <PlaygroundMenuItem @click="onOpen">
-            Open
+            <AppIcon icon="folder-open" :size="14" />
+            <span class="flex-1">Open</span>
           </PlaygroundMenuItem>
 
           <div class="border-t border-divider my-1" />
@@ -354,21 +357,24 @@
             v-if="!isLinked"
             @click="onSave(false)"
           >
-            Save to Vuetify One
+            <AppIcon icon="save" :size="14" />
+            <span class="flex-1">Save to Vuetify One</span>
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
             v-if="isLinked"
             @click="onSave(false)"
           >
-            Rename
+            <AppIcon icon="pencil" :size="14" />
+            <span class="flex-1">Rename</span>
           </PlaygroundMenuItem>
 
           <PlaygroundMenuItem
             v-if="isLinked"
             @click="onSave(true)"
           >
-            Save as new
+            <AppIcon icon="file-plus" :size="14" />
+            <span class="flex-1">Save as new</span>
           </PlaygroundMenuItem>
 
           <!-- Lifecycle actions for linked playgrounds -->
@@ -459,6 +465,7 @@
           <div class="border-t border-divider my-1" />
 
           <PlaygroundMenuItem @click="onFormat">
+            <AppIcon icon="format" :size="14" />
             <span class="flex-1">Format</span>
             <span class="text-on-surface/40 text-2.5">Ctrl+S</span>
 
@@ -493,7 +500,8 @@
             :confirm="confirming"
             @click="onReset"
           >
-            {{ confirming ? 'Click to confirm' : 'Reset Playground' }}
+            <AppIcon icon="reset" :size="14" />
+            <span class="flex-1">{{ confirming ? 'Click to confirm' : 'Reset Playground' }}</span>
           </PlaygroundMenuItem>
         </Popover.Content>
       </Popover.Root>

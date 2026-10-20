@@ -1,8 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { createNested, isString, useBreakpoints } from '@vuetify/v0'
+  import { createNested, isString, isUndefined, useBreakpoints, useResizeObserver } from '@vuetify/v0'
 
   // Data
+  import { fileType } from '@/data/file-types'
   import { CONFIG_FILE_IDS, REPL_BUILTIN_FILES } from '@/data/playground-defaults'
 
   // Utilities
@@ -120,32 +121,17 @@
     return CONFIG_IDS.has(id)
   }
 
-  const EXT_ICONS: Record<string, { icon: string, color: string }> = {
-    vue: { icon: 'lang-vue', color: '#4FC08D' },
-    ts: { icon: 'lang-ts', color: '#3179c7' },
-    tsx: { icon: 'lang-ts', color: '#3179c7' },
-    js: { icon: 'lang-js', color: '#d3b62a' },
-    jsx: { icon: 'lang-js', color: '#d3b62a' },
-    css: { icon: 'lang-css', color: '#1572B6' },
-    json: { icon: 'lang-json', color: '#a57b39' },
-  }
-
   const creating = shallowRef<string | null>(null)
   const creatingType = shallowRef<'file' | 'folder'>('file')
   const pending = shallowRef('')
   const vFocus = { mounted: (el: HTMLElement) => el.focus() }
 
   function isFile (id: string) {
-    return VALID_EXT.test(id)
+    return !isUndefined(store.files[id])
   }
 
   function current (id: string) {
     return isFile(id) && id === activeFile.value
-  }
-
-  function fileExt (id: string) {
-    const ext = id.split('.').pop()
-    return ext ? EXT_ICONS[ext] : undefined
   }
 
   function add (type: 'file' | 'folder') {
@@ -204,27 +190,35 @@
     return !PROTECTED.has(id)
   }
 
-  function removeRecursive (id: string) {
-    for (const child of (tree.children.get(id) ?? [])) {
-      removeRecursive(String(child))
+  // vue-repl records src/main.ts as its main file. That file is hidden, so
+  // deleting the active editor file activates a file with no tab. A later
+  // cancelled confirm still has to correct that.
+  function shown (id: string | undefined) {
+    if (!isString(id)) return false
+    const file = store.files[id]
+    return !isUndefined(file) && !file.hidden
+  }
+
+  function removeRecursive (id: string): boolean {
+    const children = tree.children.get(id)
+    if (children) {
+      for (const child of children) {
+        if (!removeRecursive(String(child))) return false
+      }
     }
     if (isFile(id)) {
       store.deleteFile(id)
+      if (isFile(id)) return false
     }
     tree.unregister(id)
+    return true
   }
 
   function remove (id: string) {
     const active = activeFile.value
-    const wasActive = isFile(id)
-      ? active === id
-      : !!(active && active.startsWith(id + '/'))
-
     removeRecursive(id)
-
-    if (wasActive) {
-      store.setActive('src/App.vue')
-    }
+    if (activeFile.value === active || shown(activeFile.value)) return
+    store.setActive('src/App.vue')
   }
 
   interface TreeNode {
@@ -241,7 +235,7 @@
 
     const result: TreeNode[] = (ids as readonly (string | number)[]).flatMap(id => {
       const sid = String(id)
-      const nodes: TreeNode[] = [{ id: sid, depth, ext: isFile(sid) ? fileExt(sid) : undefined }]
+      const nodes: TreeNode[] = [{ id: sid, depth, ext: isFile(sid) ? fileType(sid) : undefined }]
       if (!isFile(sid) && tree.opened(id)) {
         nodes.push(...getVisibleNodes(sid, depth + 1))
         if (!creating.value) {
@@ -279,6 +273,45 @@
   })
 
   const treeEl = useTemplateRef<HTMLElement>('tree-el')
+  const clipped = shallowRef(new Set<string>())
+
+  function fileLabel (id: string): string {
+    const value = tree.get(id)?.value
+    return isString(value) ? value : ''
+  }
+
+  function labelClass (id: string): string {
+    if (current(id)) return 'font-medium opacity-100'
+    if (isFile(id)) return 'opacity-80'
+    return 'font-medium opacity-60'
+  }
+
+  function syncClipped () {
+    const root = treeEl.value
+    if (!root) return
+    const next = new Set<string>()
+    for (const el of root.querySelectorAll<HTMLElement>('[data-label]')) {
+      const id = el.dataset.label
+      if (id && el.scrollWidth > el.clientWidth + 1) next.add(id)
+    }
+    const prev = clipped.value
+    if (prev.size === next.size) {
+      let same = true
+      for (const id of next) {
+        if (!prev.has(id)) {
+          same = false
+          break
+        }
+      }
+      if (same) return
+    }
+    clipped.value = next
+  }
+
+  useResizeObserver(treeEl, syncClipped)
+  watch(visibleNodes, () => {
+    nextTick(syncClipped)
+  })
 
   function activate (id: string) {
     if (isFile(id)) {
@@ -456,11 +489,30 @@
               :style="{ color: ext.color }"
             />
 
-            <span v-else class="w-[14px]" />
+            <AppIcon v-else icon="file" :size="14" />
           </template>
 
-          <span class="flex-1 truncate" :class="current(id) ? 'font-medium opacity-100' : isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
-            {{ tree.get(id)?.value }}
+          <AppTooltip
+            v-if="clipped.has(id)"
+            as="span"
+            class="min-w-0 flex-1 truncate"
+            :class="labelClass(id)"
+            :data-label="id"
+            nowrap
+            position-area="right"
+            position-try="flip-inline"
+            :text="fileLabel(id)"
+          >
+            {{ fileLabel(id) }}
+          </AppTooltip>
+
+          <span
+            v-else
+            class="min-w-0 flex-1 truncate"
+            :class="labelClass(id)"
+            :data-label="id"
+          >
+            {{ fileLabel(id) }}
           </span>
 
           <AppTooltip

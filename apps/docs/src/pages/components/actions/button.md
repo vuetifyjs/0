@@ -176,7 +176,7 @@ Button.Root handles ARIA attributes automatically:
 - `role="button"` for proper semantics
 - `type="button"` when rendered as a `<button>` (prevents implicit form submission)
 - `aria-pressed` reflects selection state when inside a group
-- `aria-disabled="true"` for passive state (not native disabled)
+- `aria-disabled` is true when the button is disabled or passive. `passive` stays focusable. `disabled` also sets the native `disabled` attribute
 - `aria-label` from the `ariaLabel` prop
 - `tabindex="0"` for keyboard focus (`-1` when disabled)
 - Native `disabled` attribute when disabled (removes from tab order)

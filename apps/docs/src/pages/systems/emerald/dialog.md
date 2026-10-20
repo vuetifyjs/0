@@ -2,7 +2,7 @@
 title: EmDialog - Emerald Dialog for Vue
 meta:
 - name: description
-  content: Emerald's modal dialog — a compound over Vuetify0's headless Dialog, rendering a native dialog element with focus trapping, top-layer painting and Escape dismissal.
+  content: A modal dialog on the native dialog element. The browser handles focus trapping, top-layer stacking, and Escape. Built on Vuetify0's Dialog.
 - name: keywords
   content: emerald dialog, vue modal, native dialog element, focus trap vue, design system modal, vuetify0 dialog
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A modal dialog built on the platform's own `<dialog>` element — focus trapping, top-layer painting and Escape dismissal come from the browser rather than from JavaScript.
+A modal dialog on the platform `<dialog>` element. The browser handles focus trapping, top-layer stacking, and Escape dismissal.
 
 ## Usage
 
-`EmDialog` owns the open state through `v-model`; everything else is an express part. `EmDialogActivator` is the trigger, `EmDialogContent` is the modal surface, and `EmDialogTitle`, `EmDialogDescription`, `EmDialogFooter` and `EmDialogClose` are the regions inside it.
+`EmDialog` owns the open state through `v-model`. The other pieces are separate components. `EmDialogActivator` is the trigger, `EmDialogContent` is the modal surface, and `EmDialogTitle`, `EmDialogDescription`, `EmDialogFooter` and `EmDialogClose` are the regions inside it.
 
-The activator has one prop worth knowing before you write your first dialog. By default it renders its own element; pass `renderless` and it becomes a pure slot host, handing you an `attrs` object to spread onto your own trigger. Use `renderless` whenever the trigger is an `EmButton` — otherwise you get a button inside a button, which is invalid markup and confuses assistive technology about what is actually clickable.
+`EmDialogActivator` renders its own element by default. Pass `renderless` and it becomes a slot host, with an `attrs` object to spread onto your own trigger. Use `renderless` when the trigger is an `EmButton`. A button inside a button is invalid markup, and assistive technology cannot tell which element is the click target.
 
 ::: ds-example
 /systems/emerald/dialog/basic
@@ -76,11 +76,11 @@ v0's contribution is the wiring around it: the `aria-haspopup` / `aria-expanded`
 
 The case dialogs exist for: an action that cannot be undone, where the cost of an accidental click is high enough to justify interrupting the reader.
 
-Two deliberate choices here. `closeOnClickOutside` is off, and there is no `EmDialogClose`, so the only ways out are the two buttons — the reader has to make a decision rather than dismiss the question. Reserve that for genuinely destructive confirmations; using it for routine dialogs is how modals become the thing people complain about.
+`closeOnClickOutside` is off, and there is no `EmDialogClose`, so the only ways out are the two buttons — the reader has to make a decision rather than dismiss the question. Reserve that for destructive confirmations.
 
-The other is what the buttons say. "Keep project" and "Delete" name their outcomes, so each one can be read on its own; "Cancel" and "OK" force the reader back to the title to work out which is which. The destructive action takes the `destructive` variant and, notably, is *not* the primary — the safe choice should be the easy one.
+"Keep project" and "Delete" name their outcomes, so each one can be read on its own; "Cancel" and "OK" force the reader back to the title to work out which is which. The destructive action takes the `destructive` variant and, notably, is *not* the primary — the safe choice should be the easy one.
 
-Note that Escape still closes this dialog. That is the browser's own behavior on a modal `<dialog>` and it is not worth fighting: a reader who presses Escape has clearly not confirmed anything, so the outcome is the safe one anyway.
+Note that Escape still closes this dialog. That is the browser's own behavior on a modal `<dialog>`. A reader who presses Escape has not confirmed anything.
 :::
 
 ::: ds-example
@@ -90,7 +90,7 @@ Note that Escape still closes this dialog. That is the browser's own behavior on
 
 Dialog content is an ordinary slot, so form controls compose into it directly — `EmTextField` here, but any Emerald control works the same way.
 
-Focus is the thing to get right. The browser moves focus into the dialog when it opens and restores it to the activator on close, so a reader who opens the dialog, cancels, and carries on tabbing lands exactly where they were. That only holds if the trigger is still in the DOM when the dialog closes, which is one more reason to leave the activator mounted rather than swapping it out on open.
+The browser moves focus into the dialog when it opens and restores it to the activator on close, so a reader who opens the dialog, cancels, and carries on tabbing lands exactly where they were. That only holds if the trigger is still in the DOM when the dialog closes, which is one more reason to leave the activator mounted rather than swapping it out on open.
 
 `EmDialogFooter`'s `variant` handles the layout. `one-button` is the right shape for a single confirming action, `buttons` for the usual cancel-and-confirm pair, and `pagination` for a multi-step flow with navigation on both sides. It is layout only; nothing about the variant changes behavior.
 

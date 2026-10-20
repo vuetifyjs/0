@@ -93,7 +93,7 @@
     attachAnchor: PopoverReturn['attachAnchor']
   }
 
-  export const [useTooltipRoot, provideTooltipRoot] = createContext<TooltipRootContext>({ suffix: 'root' })
+  export const [useTooltipRoot, provideTooltipRoot] = /* @__PURE__ */ createContext<TooltipRootContext>({ suffix: 'root' })
 </script>
 
 <script setup lang="ts">

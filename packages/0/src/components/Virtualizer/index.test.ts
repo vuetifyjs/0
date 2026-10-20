@@ -198,6 +198,33 @@ describe('virtualizer', () => {
         disconnect: () => {},
       }
     }) as unknown as typeof ResizeObserver
+    // The observer fills a missing border box from layout. The stub entry
+    // has no box sizes, so the item's height is whatever the element measures.
+    const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 400,
+      height: 64,
+      top: 0,
+      left: 0,
+      bottom: 64,
+      right: 400,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect)
+    const style = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      paddingTop: '0',
+      paddingLeft: '0',
+      paddingRight: '0',
+      paddingBottom: '0',
+      borderTopWidth: '0',
+      borderRightWidth: '0',
+      borderBottomWidth: '0',
+      borderLeftWidth: '0',
+      boxSizing: 'content-box',
+      width: '400px',
+      height: '64px',
+      writingMode: 'horizontal-tb',
+    } as CSSStyleDeclaration)
     const resize = vi.fn()
 
     const wrapper = mount({
@@ -214,6 +241,8 @@ describe('virtualizer', () => {
 
     expect(resize).toHaveBeenCalledWith(1, 64)
     wrapper.unmount()
+    bounds.mockRestore()
+    style.mockRestore()
     globalThis.ResizeObserver = real
   })
 

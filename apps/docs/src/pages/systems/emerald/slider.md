@@ -2,7 +2,7 @@
 title: EmSlider - Emerald Slider for Vue
 meta:
 - name: description
-  content: Emerald's slider — pointer drag, click-to-position, and the full slider keyboard map, with one thumb by default and more through the slot. Composed on Vuetify0's headless Slider.
+  content: A slider with pointer drag, click-to-position, and the slider keyboard map. One thumb by default, and more through the slot. Built on Vuetify0's Slider.
 - name: keywords
   content: emerald slider, vue slider, range slider vue, design system slider, vuetify0 slider, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A value slider with pointer drag, click-to-position, and the full slider keyboard map — one thumb by default, more through the slot.
+A slider with pointer drag, click-to-position, and the slider keyboard map. One thumb by default. Add more through the slot.
 
 ## Usage
 

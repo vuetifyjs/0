@@ -115,7 +115,13 @@ url = "https://mcp.vuetifyjs.com/one"
 
 ### Codex
 
-[OpenAI Codex](https://developers.openai.com/codex/mcp) CLI, ChatGPT desktop, and the IDE extension share `~/.codex/config.toml` (project: `.codex/config.toml`, trusted projects only):
+[OpenAI Codex](https://developers.openai.com/codex/mcp) CLI, ChatGPT desktop, and the IDE extension share one config. Add the server from the CLI:
+
+```bash
+codex mcp add vuetify-mcp --url https://mcp.vuetifyjs.com/mcp
+```
+
+That writes `~/.codex/config.toml` (project: `.codex/config.toml`, trusted projects only):
 
 ```toml
 [mcp_servers.vuetify-mcp]
@@ -125,6 +131,14 @@ url = "https://mcp.vuetifyjs.com/mcp"
 Or in ChatGPT / the IDE: **Settings → MCP servers → Add server → Streamable HTTP** and the URL above.
 
 Documentation and API tools on `/mcp` need no login. To authenticate with Vuetify One, add `https://mcp.vuetifyjs.com/one` and run `codex mcp login vuetify-one`.
+
+### Gemini CLI
+
+[Gemini CLI](https://github.com/google-gemini/gemini-cli) adds the hosted server from the terminal:
+
+```bash
+gemini mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
 
 ### Kimi CLI
 
@@ -187,30 +201,30 @@ The first config runs the package locally over stdio. The second and third use t
 
 ### Vuetify CLI
 
-Add Vuetify AI rules and context to your project with the [Vuetify CLI](/guide/tooling/vuetify-cli):
+Write the MCP server connection into your editor with the [Vuetify CLI](/guide/tooling/vuetify-cli):
 
 ::: code-group no-filename
 
 ```bash pnpm
-pnpm dlx @vuetify/cli add mcp
+pnpm dlx @vuetify/cli mcp install
 ```
 
 ```bash npm
-npx @vuetify/cli add mcp
+npx @vuetify/cli mcp install
 ```
 
 ```bash yarn
-yarn dlx @vuetify/cli add mcp
+yarn dlx @vuetify/cli mcp install
 ```
 
 ```bash bun
-bunx @vuetify/cli add mcp
+bunx @vuetify/cli mcp install
 ```
 
 :::
 
 > [!NOTE]
-> The CLI `add mcp` command sets up [Ruler](https://github.com/intellectronica/ruler) project rules for AI context — it does not configure the MCP server connection. Use the interactive setup above to connect your IDE to the Vuetify MCP server.
+> `vuetify add mcp` is deprecated. It redirects to `vuetify mcp install`, which writes the server connection. The JSON blocks above are that same connection, written by hand.
 
 ### Local Server
 

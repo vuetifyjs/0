@@ -2,7 +2,7 @@
 title: EmTag - Emerald Tag for Vue
 meta:
 - name: description
-  content: Emerald's tag — a compact status and filter label in four variants that becomes a native toggle button when interactive. Composed on Vuetify0's Atom.
+  content: A compact label for statuses and filters, in four variants. It renders as text, and becomes a toggle button when interactive. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald tag, vue tag, filter chip vue, toggle tag, status label vue, design system tag
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A compact label for statuses and filters — a plain span by default, and a real toggle button the moment you make it interactive.
+A compact label for statuses and filters. It renders as text, and becomes a toggle button when you set `interactive`.
 
 ## Usage
 

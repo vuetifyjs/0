@@ -118,7 +118,7 @@
     }
   }
 
-  export const [useButtonRoot, provideButtonRoot] = createContext<ButtonRootContext>()
+  export const [useButtonRoot, provideButtonRoot] = /* @__PURE__ */ createContext<ButtonRootContext>()
 </script>
 
 <script lang="ts" setup generic="V = unknown">

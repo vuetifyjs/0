@@ -780,7 +780,7 @@ function createNotificationsFallback (): NotificationsContext {
  * ```
  */
 export const [createNotificationsContext, createNotificationsPlugin, useNotifications] =
-  createPluginContext<NotificationsPluginOptions, NotificationsContext>(
+  /* @__PURE__ */ createPluginContext<NotificationsPluginOptions, NotificationsContext>(
     'v0:notifications',
     options => createNotifications(options),
     {

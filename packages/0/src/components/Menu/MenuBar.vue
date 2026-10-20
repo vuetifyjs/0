@@ -32,7 +32,7 @@
     roving: RovingFocusReturn
   }
 
-  const [useMenuBar, provideMenuBar] = createContext<MenuBarContext | null>('v0:menu:bar', null)
+  const [useMenuBar, provideMenuBar] = /* @__PURE__ */ createContext<MenuBarContext | null>('v0:menu:bar', null)
 
   export { useMenuBar }
 

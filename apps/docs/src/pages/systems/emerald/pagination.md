@@ -2,7 +2,7 @@
 title: EmPagination - Emerald Pagination for Vue
 meta:
 - name: description
-  content: Emerald's pagination — page buttons, prev/next controls and an automatic ellipsis window, composed on Vuetify0's headless Pagination compound.
+  content: Page navigation for long lists. Numbered buttons, previous and next, and an ellipsis for pages away from the current one. Built on Vuetify0's Pagination.
 - name: keywords
   content: emerald pagination, vue pagination, design system pagination, page navigation vue, vuetify0 pagination, paper emerald
 features:
@@ -21,13 +21,13 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Page navigation for long lists — numbered page buttons, previous/next controls, and an ellipsis window that collapses the pages you are not near.
+Page navigation for long lists. Numbered page buttons, previous and next controls, and an ellipsis window for pages away from the current one.
 
 ## Usage
 
 `EmPagination` is a compound: the root owns the page state and the math, and you lay out the parts — `EmPaginationPrev`, `EmPaginationItem`, `EmPaginationNext` — inside its default slot. The slot receives `items`, the computed window of page entries, and each entry is either a page (`type: 'page'`) or an ellipsis (`type: 'ellipsis'`); render an `EmPaginationItem` for the pages and a plain span for the gaps.
 
-The prop worth reading twice is `size`. It is the total number of **items**, not pages — the page count is derived as `size / itemsPerPage`, rounded up. Passing your page count to `size` is the most common way to end up with a pagination that shows a tenth of the pages you expected.
+`size` is the total number of **items**, not pages — the page count is derived as `size / itemsPerPage`, rounded up. Passing your page count to `size` is the most common way to end up with a pagination that shows a tenth of the pages you expected.
 
 `v-model` is the current page, 1-indexed, and writes outside the valid range are clamped rather than honored.
 
@@ -84,7 +84,7 @@ The `ellipsis` prop controls the gap marker itself. It is a string, so any chara
 
 The default slot exposes more than `items`. `pageStart` and `pageStop` are the index range of the current page — `pageStart` is 0-indexed and `pageStop` is exclusive, so the human-readable form is `pageStart + 1` through `pageStop` — and `size` and `pages` are the totals they slice. A "1–8 of 87" summary is a one-line interpolation away, and because it derives from the same state as the buttons, it can never disagree with them.
 
-This matters more than it looks. The controls themselves announce only which page is current; nothing announces what the page *contains*. A visible range summary is the cheapest way to give every reader — sighted or not — the answer to "where am I in this list", and it belongs next to the controls, not in a tooltip.
+The controls themselves announce only which page is current; nothing announces what the page *contains*. A visible range summary is the cheapest way to give every reader — sighted or not — the answer to "where am I in this list", and it belongs next to the controls, not in a tooltip.
 
 The slot also exposes the imperative surface — `first`, `last`, `next`, `prev` and `select` — for the occasional control that lives outside the standard parts, like a "jump to end" button in a log viewer.
 :::

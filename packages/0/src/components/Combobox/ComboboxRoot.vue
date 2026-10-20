@@ -103,7 +103,7 @@
     commit: () => void
   }
 
-  export const [useComboboxRoot, provideComboboxRoot] = createContext<ComboboxRootContext>()
+  export const [useComboboxRoot, provideComboboxRoot] = /* @__PURE__ */ createContext<ComboboxRootContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

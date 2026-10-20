@@ -1183,7 +1183,8 @@ function content (): HTMLElement {
 function placed (el: HTMLElement): TourPlacement | '' {
   const centered = el.style.position === 'fixed'
     && (el.style.inset === '0' || el.style.inset === '0px')
-    && el.style.margin === 'auto'
+    && el.style.marginInline === 'auto'
+    && el.style.marginBlock === 'auto'
   if (centered) return 'center'
 
   const area = el.style.getPropertyValue('position-area')

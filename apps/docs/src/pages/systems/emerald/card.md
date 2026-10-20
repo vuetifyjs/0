@@ -2,7 +2,7 @@
 title: EmCard - Emerald Card for Vue
 meta:
 - name: description
-  content: Emerald's card — a six-part content surface with complete and simple variants and an optional hover elevation, composed on Vuetify0's Atom primitive.
+  content: A content surface with a header, title, subtitle, body, and footer. Two variants, optional hover elevation, and no state of its own. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald card, vue card, design system card, card component vue, vuetify0 atom, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A surface for grouping related content — header, title, subtitle, body and footer, in two variants, with an optional hover elevation. It is entirely presentational: the card owns no state and no behavior.
+A surface for grouping related content. It has a header, title, subtitle, body, and footer, in two variants, with optional hover elevation. The card has no state and no behavior.
 
 ## Usage
 
@@ -61,7 +61,7 @@ A surface for grouping related content — header, title, subtitle, body and foo
 
 The five parts do not even need Atom. They are plain `div`s with a class each, because there is no behavior to share between them — no context, no namespace, no state flowing from root to part. The compound shape exists purely so the stylesheet can give each region its spacing and type scale.
 
-That also makes `EmCard` the inverse of `EmButton` on one point worth noticing. On the button, v0 publishes state attributes (`data-loading`, `data-disabled`) and Emerald styles them; the card has no state, so the `data-variant` and `data-hoverable` attributes on its root are Emerald's own props reflected to the DOM. The convention is the same — the stylesheet targets data attributes, never state classes — but here Emerald is both the writer and the reader.
+That also makes `EmCard` the inverse of `EmButton`. On the button, v0 publishes state attributes (`data-loading`, `data-disabled`) and Emerald styles them; the card has no state, so the `data-variant` and `data-hoverable` attributes on its root are Emerald's own props reflected to the DOM. The convention is the same — the stylesheet targets data attributes, never state classes — but here Emerald is both the writer and the reader.
 
 ## Examples
 

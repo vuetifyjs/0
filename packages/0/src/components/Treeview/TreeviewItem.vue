@@ -38,7 +38,7 @@
     hasContent: Ref<boolean>
   }
 
-  export const [useTreeviewItem, provideTreeviewItem] = createContext<TreeviewItemContext | null>({ suffix: 'item' })
+  export const [useTreeviewItem, provideTreeviewItem] = /* @__PURE__ */ createContext<TreeviewItemContext | null>({ suffix: 'item' })
 </script>
 
 <script lang="ts" setup generic="V = unknown">

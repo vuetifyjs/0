@@ -35,7 +35,7 @@
 
   export type TreeviewListContext = RovingFocusReturn
 
-  export const [useTreeviewList, provideTreeviewList] = createContext<TreeviewListContext | null>({ suffix: 'list' })
+  export const [useTreeviewList, provideTreeviewList] = /* @__PURE__ */ createContext<TreeviewListContext | null>({ suffix: 'list' })
 </script>
 
 <script setup lang="ts">

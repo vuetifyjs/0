@@ -48,7 +48,7 @@
     }
   }
 
-  export const [useSingleRoot, provideSingleRoot] = createContext<SingleContext<SingleTicket>>()
+  export const [useSingleRoot, provideSingleRoot] = /* @__PURE__ */ createContext<SingleContext<SingleTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

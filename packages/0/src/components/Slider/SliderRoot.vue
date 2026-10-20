@@ -126,7 +126,7 @@
     }
   }
 
-  export const [useSliderRoot, provideSliderRoot] = createContext<SliderRootContext>()
+  export const [useSliderRoot, provideSliderRoot] = /* @__PURE__ */ createContext<SliderRootContext>()
 </script>
 
 <script setup lang="ts">

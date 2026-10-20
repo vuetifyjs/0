@@ -25,7 +25,7 @@ function VirtualizerFixture () {
 }
 
 describe('virtualizer SSR hydration', () => {
-  it('hydrates the empty container and spacers with zero mismatch warnings', async () => {
+  it('should hydrate the empty container and spacers with zero mismatch warnings', async () => {
     const { html, mismatches } = await hydrate(VirtualizerFixture)
 
     expect(html).toContain('data-spacer="start"')
@@ -35,7 +35,7 @@ describe('virtualizer SSR hydration', () => {
     expect(mismatches).toEqual([])
   })
 
-  it('renders no rows on the server', async () => {
+  it('should render no rows on the server', async () => {
     const { html } = await hydrate(VirtualizerFixture)
 
     expect(html).not.toContain('data-index')

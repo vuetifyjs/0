@@ -128,10 +128,10 @@
     }
   }
 
-  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext<unknown>>()
+  export const [useCheckboxRoot, provideCheckboxRoot] = /* @__PURE__ */ createContext<CheckboxRootContext<unknown>>()
 </script>
 
-<script setup lang="ts" generic="V = unknown">
+<script lang="ts" setup generic="V = unknown">
   // Context
   import { useCheckboxGroup } from './CheckboxGroup.vue'
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'

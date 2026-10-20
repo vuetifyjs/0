@@ -95,14 +95,14 @@ flowchart LR
     createBreakpointsPlugin --> createBreakpointsContext
   end
 
-  createBreakpointsContext --> useResizeObserver
-  useResizeObserver --> viewport[width/height]
-  viewport --> breakpoint[name/flags]
+  createBreakpointsContext --> resizeListener[window resize listener]
+  resizeListener --> viewport[width and height]
+  viewport --> breakpoint[name and flags via matchMedia]
 ```
 
 ## Reactivity
 
-All breakpoint properties are `Readonly<ShallowRef>` and automatically update when the viewport size changes. Use `.value` in script; destructure for template auto-unwrapping.
+The viewport flags are `Readonly<ShallowRef>` and update when the viewport size changes. `breakpoints`, `mobileBreakpoint`, and `ssr` are plain values. Use `.value` in script; destructure for template auto-unwrapping.
 
 Breakpoints are **range-based**, not exact pixel matches. The `name` is the **highest** breakpoint whose threshold the viewport meets or exceeds. For example, at `1200px` with default thresholds, `name` is `lg` because `1200 >= 1145` (the `lg` threshold) but `1200 < 1545` (the `xl` threshold). The individual flags like `lg` mean "the current breakpoint **is** lg", while `lgAndUp` means "the viewport is **at least** lg" (i.e., `lg`, `xl`, or `xxl`).
 
@@ -117,7 +117,7 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 | `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` | `ShallowRef<boolean>` | At or below breakpoint |
 | `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 | `mobileBreakpoint` | `BreakpointName \| number` | The threshold used to compute `isMobile` (static) |
-| `ssr` | `boolean` | `true` when running server-side with SSR options |
+| `ssr` | `boolean` | `true` whenever an `ssr` option was passed, including on the client |
 | `update()` | — | Manually trigger viewport dimension and breakpoint recalculation |
 
 > [!TIP]
@@ -137,7 +137,7 @@ Breakpoints are **range-based**, not exact pixel matches. The `name` is the **hi
 
 This example wires `useBreakpoints` into a live analytics dashboard whose card grid reflows as the viewport changes — one column on phones, scaling up to four columns on wide screens. The instrument strip above the grid reads the reactive `name`, `width`, `height`, and `isMobile` values directly, while the row of chips lights up the active per-breakpoint flag (`xs` through `xxl`). Everything updates automatically as you resize or zoom, with no manual listeners.
 
-The teaching point is making layout decisions in JavaScript. `useDashboard.ts` maps the active breakpoint name to a column count, so the component renders a different structure per breakpoint rather than relying solely on CSS `@media` rules. Reach for this when a layout choice can't be expressed in CSS alone — picking a column count, swapping a menu for a dialog, virtualizing only on small screens, or conditionally mounting an expensive widget. Because detection runs through `window.matchMedia`, the JS flags fire at exactly the same boundaries as your CSS breakpoints, even under browser zoom.
+`useDashboard.ts` maps the active breakpoint name to a column count, so the component renders a different structure per breakpoint rather than relying solely on CSS `@media` rules. Reach for this when a layout choice can't be expressed in CSS alone — picking a column count, swapping a menu for a dialog, virtualizing only on small screens, or conditionally mounting an expensive widget. Because detection runs through `window.matchMedia`, the JS flags fire at exactly the same boundaries as your CSS breakpoints, even under browser zoom.
 
 The composable reads its instance once and exposes derived refs; the presentational `DashboardGrid.vue` translates the column count into a grid class, keeping breakpoint logic out of the markup. The plugin must be installed for reactive updates (see Installation above), and for server rendering pass `ssr` dimensions so the first paint matches the client. For a lower-level, CSS-only signal without named breakpoints, see [useMediaQuery](/composables/system/use-media-query).
 

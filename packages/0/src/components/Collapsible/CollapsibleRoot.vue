@@ -64,7 +64,7 @@
     }
   }
 
-  export const [useCollapsible, provideCollapsible] = createContext<CollapsibleContext>()
+  export const [useCollapsible, provideCollapsible] = /* @__PURE__ */ createContext<CollapsibleContext>()
 </script>
 
 <script setup lang="ts">

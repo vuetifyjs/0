@@ -18,6 +18,18 @@ function virtualPageDatesStub (): Plugin {
   }
 }
 
+function virtualRegistryCatalogStub (): Plugin {
+  return {
+    name: 'virtual-registry-catalog-stub',
+    resolveId (id) {
+      if (id === 'virtual:registry-catalog') return '\0virtual:registry-catalog'
+    },
+    load (id) {
+      if (id === '\0virtual:registry-catalog') return 'export const catalog = {}\n'
+    },
+  }
+}
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -30,7 +42,7 @@ export default defineConfig({
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
     },
   },
-  plugins: [Vue(), virtualPageDatesStub()],
+  plugins: [Vue(), virtualPageDatesStub(), virtualRegistryCatalogStub()],
   define: {
     __DEV__: 'process.env.NODE_ENV !== \'production\'',
     __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',

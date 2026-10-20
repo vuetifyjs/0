@@ -2,7 +2,7 @@
 title: EmPopover - Emerald Popover for Vue
 meta:
 - name: description
-  content: Emerald's popover — an anchored, light-dismissed panel over the native popover API, with CSS anchor positioning and a skinned surface, composed on Vuetify0's headless Popover.
+  content: An anchored panel on the native popover API. The browser handles placement, stacking, and dismissal. Emerald styles the surface. Built on Vuetify0's Popover.
 - name: keywords
   content: emerald popover, vue popover, anchored panel, css anchor positioning, native popover api, vuetify0 popover
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-An anchored panel over the native popover API — the browser owns placement, stacking and dismissal; Emerald owns the surface.
+An anchored panel on the native popover API. The browser handles placement, stacking, and dismissal. Emerald styles the surface.
 
 ## Usage
 

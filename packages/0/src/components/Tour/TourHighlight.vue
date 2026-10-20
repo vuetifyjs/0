@@ -52,7 +52,7 @@
     height: number
   }
 
-  const statusStyle = {
+  const visuallyHiddenStyle = {
     position: 'absolute',
     width: '1px',
     height: '1px',
@@ -303,7 +303,7 @@
         data-part="status"
         data-scope="tour"
         role="status"
-        :style="statusStyle"
+        :style="visuallyHiddenStyle"
       >{{ status }}</div>
 
       <div

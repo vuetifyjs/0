@@ -155,14 +155,14 @@
     dismiss: (restore?: boolean) => void
   }
 
-  export const [useMenuRoot, provideMenuRoot] = createContext<MenuRootContext>()
+  export const [useMenuRoot, provideMenuRoot] = /* @__PURE__ */ createContext<MenuRootContext>()
 
   export interface MenuLayerContext {
     id: ID
     roving: RovingFocusReturn
   }
 
-  export const [useMenuLayer, provideMenuLayer] = createContext<MenuLayerContext>('v0:menu:layer')
+  export const [useMenuLayer, provideMenuLayer] = /* @__PURE__ */ createContext<MenuLayerContext>('v0:menu:layer')
 </script>
 
 <script setup lang="ts">

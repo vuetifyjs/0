@@ -2,7 +2,7 @@
 title: BuPanel - Bulma Panel for Vue
 meta:
 - name: description
-  content: Bulma's panel markup with Vuetify0 behavior — independent selection for blocks and for tabs, composed as the flat children Bulma already documents.
+  content: Bulma panel markup with separate selection for blocks and for tabs. Children are the flat elements Bulma already documents.
 - name: keywords
   content: bulma panel, vue panel, panel-block, panel-tabs, panel-heading, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.panel` with the JavaScript it never shipped: independent selection for blocks and for tabs, composed as the flat children Bulma already documents.
+Bulma's `.panel`: independent selection for blocks and for tabs, using the flat children Bulma already documents.
 
 > [!NOTE]
 > Reference: [Panel on bulma.io](https://bulma.io/documentation/components/panel/) — classes and visual variants. This page is the JavaScript.

@@ -38,6 +38,13 @@ declare module 'virtual:page-dates' {
   export default data
 }
 
+declare module 'virtual:registry-catalog' {
+  // Types
+  import type { RegistryChipItem } from '@/components/docs/meta/cliChip'
+  /** Docs path → the row the Vuetify CLI chip copies from. */
+  export const catalog: Record<string, RegistryChipItem>
+}
+
 declare module 'virtual:faqs' {
   // Types
   import type { Faq } from '@build/generate-faqs'

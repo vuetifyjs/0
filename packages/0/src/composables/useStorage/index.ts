@@ -311,7 +311,7 @@ function createStorageFallback<
 }
 
 export const [createStorageContext, createStoragePlugin, useStorage] =
-  createPluginContext<StorageContextOptions, StorageContext>(
+  /* @__PURE__ */ createPluginContext<StorageContextOptions, StorageContext>(
     'v0:storage',
     options => createStorage(options),
     {

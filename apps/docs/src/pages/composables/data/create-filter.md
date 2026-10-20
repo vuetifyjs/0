@@ -128,7 +128,7 @@ When the query is an array, each mode controls how multiple queries are matched 
 | `keys` | <AppSuccessIcon /> | `MaybeRefOrGetter` — changing the keys re-runs the filter |
 
 > [!TIP] Reactive filtering
-> The query, items, and `keys` passed to `apply()` / `createFilter()` can be reactive. The filtered result automatically updates when any of them change.
+> The query, items, and `keys` passed to `apply()` / `createFilter()` can be reactive. The filtered result automatically updates when any of them change. A deep `ref` subscribes the filter to every field on each item, so a large list should be a `shallowRef` or a plain array.
 
 ## Examples
 

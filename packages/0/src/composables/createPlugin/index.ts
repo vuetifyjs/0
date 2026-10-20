@@ -254,6 +254,7 @@ export function createPluginContext<
       provide: app => {
         const [, provide, ctx] = createXContext({ ...options, namespace } as O)
         context = ctx
+        // eslint-disable-next-line no-restricted-syntax -- createXContext's provide, not Vue's provide (PHILOSOPHY §6.5)
         provide(context, app)
         bindPluginContext(app, namespace, context)
 
@@ -296,6 +297,7 @@ export function createPluginContext<
     if (config?.fallback) {
       if (!hasInjectionContext()) return config.fallback(namespace) as _E
 
+      // eslint-disable-next-line no-restricted-syntax -- plugin consumer reads the injection createPluginContext installed (PHILOSOPHY §6.5)
       const provided = inject<_E | undefined>(namespace as string, undefined)
       if (!isUndefined(provided)) return provided
 

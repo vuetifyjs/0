@@ -87,12 +87,12 @@ The slot props `isAllSelected`, `isNoneSelected`, and `isMixed` reflect the aggr
 
 ## Accessibility
 
-Group is a headless **state provider**, not a complete interactive widget. It manages multi-selection with tri-state support and exposes that state on each slot's `attrs`; it ships pointer activation (a click handler) but no keyboard navigation or focus management.
+Group is a headless **state provider**, not a complete checkbox widget. Item `attrs` include `role="checkbox"`, a tabindex, Space, and the click handler.
 
 - `Group.Root` exposes `aria-multiselectable="true"`.
 - `Group.Item` exposes `role="checkbox"`, `aria-checked` (`true`, `false`, or `"mixed"` for the indeterminate state), and `aria-disabled`, plus `data-selected`, `data-disabled`, and `data-mixed` for styling.
 
-This is checkbox-group selection state. For a fully accessible checkbox with a native hidden input, label association, and Space activation, use [Checkbox](/components/forms/checkbox), which composes the same group logic. When you bind `attrs` to your own element, you are responsible for supplying keyboard handlers and any roles the pattern requires beyond what Group emits.
+Binding `attrs` already applies `role="checkbox"` and Space. For a native hidden input and label association, use [Checkbox](/components/forms/checkbox), which composes the same group logic.
 
 ## FAQ
 

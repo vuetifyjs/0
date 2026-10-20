@@ -23,7 +23,7 @@
     id: ID
   }
 
-  const [useMenuSub, provideMenuSub] = createContext<MenuSubContext>('v0:menu:sub')
+  const [useMenuSub, provideMenuSub] = /* @__PURE__ */ createContext<MenuSubContext>('v0:menu:sub')
 
   export { useMenuSub }
 

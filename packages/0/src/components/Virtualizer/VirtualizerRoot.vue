@@ -100,7 +100,7 @@
     reset: () => void
   }
 
-  export const [useVirtualizerRoot, provideVirtualizerRoot] = createContext<VirtualizerRootContext>()
+  export const [useVirtualizerRoot, provideVirtualizerRoot] = /* @__PURE__ */ createContext<VirtualizerRootContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

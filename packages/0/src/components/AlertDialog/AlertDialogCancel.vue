@@ -43,7 +43,7 @@
   import { useAlertDialogContext } from './AlertDialogRoot.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, toRef, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, onMounted, toRef, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'AlertDialogCancel' })
 
@@ -66,7 +66,7 @@
     context.cancelEl.value = (cancelRef.value?.element as HTMLElement | null) ?? null
   })
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     context.cancelEl.value = null
   })
 

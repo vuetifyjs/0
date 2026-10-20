@@ -2,7 +2,7 @@
 title: EmBadge - Emerald Badge for Vue
 meta:
 - name: description
-  content: Emerald's badge — a count, label, or status dot in six variants, with numeric capping like 99+. A single-span presentational shell over Vuetify0's Atom.
+  content: A pill for a count, a short label, or a status dot. Six variants on Emerald's status palette, with numeric capping such as 99+. Built on Vuetify0's Atom.
 - name: keywords
   content: emerald badge, vue badge, notification badge, status dot, count badge, vuetify0 atom
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A small pill for a count, a short label, or a bare status dot — six variants over Emerald's status palette, with numeric capping like 99+.
+A small pill for a count, a short label, or a status dot. Six variants use Emerald's status palette, and numbers can cap at a value such as 99+.
 
 ## Usage
 
@@ -90,7 +90,7 @@ This example is live so you can push the count across the boundary: it starts at
 
 A dot is pure signal: presence, state, activity. The canonical placements are beside a status word, as this example does, or pinned to the corner of an avatar or icon — Emerald's shell does the latter with a `primary` dot on the current user's avatar.
 
-The thing to remember is that a dot is invisible to assistive technology — it is an empty span with no name and no role. Never let it be the only carrier of a state. Beside visible text, as here, the text is the state and the dot is reinforcement; on an avatar corner, put the state in the host's label (`aria-label="John Doe, online"`) and the dot is free to stay decorative.
+A dot is invisible to assistive technology — it is an empty span with no name and no role. Never let it be the only carrier of a state. Beside visible text, as here, the text is the state and the dot is reinforcement; on an avatar corner, put the state in the host's label (`aria-label="John Doe, online"`) and the dot is free to stay decorative.
 :::
 
 ## Props

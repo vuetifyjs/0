@@ -2,7 +2,7 @@
 title: EmTextarea - Emerald Textarea for Vue
 meta:
 - name: description
-  content: Emerald's textarea — multi-line text entry with label, help text and error messages as props, validation and aria wiring supplied by Vuetify0's headless Input.
+  content: Multi-line text entry with the same label, help text, and error messages as the text field. Validation and ARIA wiring come from Vuetify0's Input.
 - name: keywords
   content: emerald textarea, vue textarea, multiline input vue, form validation vue, vuetify0 input, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Multi-line text entry with its label, help text and error messages attached — the same field anatomy as [EmTextField](/systems/emerald/text-field), grown to paragraph-length values.
+Multi-line text entry with the same label, help text, and error messages as [EmTextField](/systems/emerald/text-field).
 
 ## Usage
 
@@ -51,7 +51,7 @@ Everything around the control is a prop. `label` renders the visible label and w
 
 What makes it a textarea is one prop: Emerald passes `as="textarea"` to `Input.Control`. The compound is element-agnostic — the control renders through v0's `Atom`, so the whole wiring surface (value sync, focus tracking, the validation pipeline, the aria attributes) applies to a `<textarea>` exactly as it does to an `<input>`. v0 supplies the behavior; Emerald picks the element.
 
-The ownership split around the label is the same as the text field's, and worth restating because it decides who owns the `for`/`id` pair. Emerald generates the field id with `useId()` when you do not pass one, renders its own `<label for="…">`, and hands the id down to `Input.Root` — which then puts it on the control and derives the description and error ids from it. The label element is the skin's; the attribute wiring beneath it is v0's. Emerald deliberately does not pass `label` to `Input.Root`, so the accessible name comes from the real label element rather than a duplicate `aria-label`.
+The label works the same way as on the text field, which decides who owns the `for`/`id` pair. Emerald generates the field id with `useId()` when you do not pass one, renders its own `<label for="…">`, and hands the id down to `Input.Root` — which then puts it on the control and derives the description and error ids from it. The label element is the skin's; the attribute wiring beneath it is v0's. Emerald does not pass `label` to `Input.Root`, so the accessible name comes from the label element.
 
 Emerald's additions are CSS and two structural decisions. First, `Input.Error` is always rendered rather than conditionally mounted — the region carries `aria-live="polite"`, and a live region must already be in the document when its content arrives or the insertion is not announced. Second, `rows` is threaded twice: onto the control as the native attribute, and into a `--emerald-textarea-rows` custom property that the stylesheet multiplies by the body line-height to compute the control's `min-height` — which is what makes `rows` a floor for the drag-resize rather than just an initial size.
 
@@ -110,7 +110,7 @@ The same three states as the text field, with one textarea-specific wrinkle each
 | `rows` | `number` | `3` | Visible text rows — sets the native attribute and the control's minimum height |
 | `name` | `string` | — | Form field name |
 | `id` | `ID` | generated | Field id. Falls back to `useId()` |
-| `required` | `boolean` | `false` | Marks the field required. Does not itself reject an empty value |
+| `required` | `boolean` | `false` | Sets the required attribute and adds a required rule that fails an empty value when validation runs (default: blur) |
 | `disabled` | `boolean` | `false` | Field unavailable and not submitted; also disables resize |
 | `readonly` | `boolean` | `false` | Value shown but not editable; still focusable and submitted |
 | `rules` | `FormValidationRule[]` | — | Validators — `(value) => true \| string`, optionally async |
@@ -144,7 +144,7 @@ A field that is both described and invalid exposes both: the help text stays ass
 
 ### Required
 
-`required` sets the native attribute and the aria state, so the field is announced as required on focus rather than only failing at submit. Pair it with a rule that actually rejects the empty value — the attribute is the promise, the rule is the enforcement.
+`required` sets the native attribute, the aria state, and a required rule that fails an empty value when validation runs (default: blur). The field is announced as required on focus. The failure appears when validation runs.
 
 ### States
 

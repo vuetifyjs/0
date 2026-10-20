@@ -78,7 +78,7 @@ You do not need it for a `Dialog` with the default `as="dialog"` — `showModal(
 
 ### Roving Tabindex
 
-[useRovingFocus](/composables/system/use-roving-focus) manages arrow-key navigation across a group of items, keeping exactly one item tabbable and skipping disabled ones. [useVirtualFocus](/composables/system/use-virtual-focus) covers the `aria-activedescendant` variant, where DOM focus stays on a single control while a visual highlight moves.
+[useRovingFocus](/composables/system/use-roving-focus) manages arrow-key navigation across a group of items, keeping exactly one item tabbable and skipping disabled ones. [useVirtualFocus](/composables/system/use-virtual-focus) covers the `aria-activedescendant` variant, where DOM focus stays on a single control while a visual highlight moves. Treeview uses the composable. Tabs implements the same pattern inline.
 
 ### Teleported Content and Landmarks
 

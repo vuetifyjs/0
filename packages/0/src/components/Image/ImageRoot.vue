@@ -69,7 +69,7 @@
 
   export interface ImageContext extends UseImageReturn {}
 
-  export const [useImageRoot, provideImageRoot] = createContext<ImageContext>()
+  export const [useImageRoot, provideImageRoot] = /* @__PURE__ */ createContext<ImageContext>()
 </script>
 
 <script setup lang="ts">

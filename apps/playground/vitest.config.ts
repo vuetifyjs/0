@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vitest/config'
 
+import { playBuildDefines, readPlayBuildMeta } from './build-meta.ts'
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -19,6 +21,7 @@ export default defineConfig({
     __VUE_OPTIONS_API__: 'true',
     __VUE_PROD_DEVTOOLS__: 'false',
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+    ...playBuildDefines(readPlayBuildMeta(import.meta.url)),
   },
   test: {
     environment: 'node',

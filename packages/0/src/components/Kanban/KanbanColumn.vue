@@ -42,7 +42,7 @@
     isDisabled: Readonly<Ref<boolean>>
   }
 
-  export const [useKanbanColumn, provideKanbanColumn] = createContext<KanbanColumnContext>({ suffix: 'column' })
+  export const [useKanbanColumn, provideKanbanColumn] = /* @__PURE__ */ createContext<KanbanColumnContext>({ suffix: 'column' })
 
   export interface KanbanColumnProps<T = unknown> extends AtomProps {
     /** Column id, used in `move` payloads. Auto-generated when omitted. */

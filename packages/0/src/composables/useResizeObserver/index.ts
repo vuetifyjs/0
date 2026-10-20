@@ -224,17 +224,22 @@ export function useResizeObserver (
     supports: SUPPORTS_OBSERVER,
     once: options.once,
     create: cb => new ResizeObserver(entries => {
-      cb(entries.map(e => ({
-        contentRect: {
-          width: e.contentRect.width,
-          height: e.contentRect.height,
-          top: e.contentRect.top,
-          left: e.contentRect.left,
-        },
-        borderBoxSize: e.borderBoxSize,
-        contentBoxSize: e.contentBoxSize,
-        target: e.target,
-      })))
+      cb(entries.map(e => {
+        // Safari < 15.4 and Chrome < 84 omit the box sizes from native entries
+        const sizes = e.borderBoxSize && e.contentBoxSize ? e : measure(e.target)
+
+        return {
+          contentRect: {
+            width: e.contentRect.width,
+            height: e.contentRect.height,
+            top: e.contentRect.top,
+            left: e.contentRect.left,
+          },
+          borderBoxSize: sizes.borderBoxSize,
+          contentBoxSize: sizes.contentBoxSize,
+          target: e.target,
+        }
+      }))
     }),
     observe: (obs, el) => obs.observe(el, { box: options.box ?? 'content-box' }),
     immediate: options.immediate ? el => [measure(el)] : undefined,

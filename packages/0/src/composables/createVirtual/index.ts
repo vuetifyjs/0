@@ -588,6 +588,8 @@ export function createVirtual<T = unknown> (
   let clampRaf = -1
   let pending: { index: number, options?: ScrollToOptions } | null = null
   let measured = new Map<string | number, number>()
+  // Stays armed through empty updates so a first page loaded after mount pins.
+  let pin = false
   const markerEl = toRef(() => toValue(marker) ?? undefined)
 
   function refreshMarker () {
@@ -689,9 +691,12 @@ export function createVirtual<T = unknown> (
       return
     }
 
-    if (direction === 'reverse' && items.value.length > 0) {
-      pinEnd()
-      return
+    // Armed until a pin lands. A known viewport can scroll in this flush.
+    // Otherwise the resize observer pins after the spacers have height.
+    // An empty list stays armed so the first page loaded after mount pins.
+    if (direction === 'reverse') {
+      pin = true
+      if (items.value.length > 0 && viewportOf()) pinEnd()
     }
 
     update()
@@ -825,6 +830,15 @@ export function createVirtual<T = unknown> (
     const node = element.value
     if (!node) return
     applyWindow(Math.max(0, node.scrollTop - markerOffset))
+
+    // No viewport yet: keep pin armed until the resize observer measures one.
+    if (pin && items.value.length > 0 && viewportOf()) {
+      nextTick(() => {
+        if (!pin) return
+
+        pinEnd()
+      })
+    }
   }
 
   function checkEdges () {
@@ -998,11 +1012,14 @@ export function createVirtual<T = unknown> (
       return
     }
 
+    pin = false
     clampHeight = 0
     update()
   }
 
   function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
+    pin = false
+
     if (!element.value) {
       pending = { index, options: scrollOptions }
       return
@@ -1059,10 +1076,18 @@ export function createVirtual<T = unknown> (
     state.value = 'ok'
     anchorIndex = -1
     anchorOffset = 0
-    if (element.value && direction === 'reverse' && items.value.length > 0) pinEnd()
+    if (element.value && direction === 'reverse' && items.value.length > 0) {
+      pin = false
+      pinEnd()
+    }
   }
 
   onScopeDispose(() => {
+    // A scroll event queued before unmount still reaches scroll(); with no
+    // element, update() and checkEdges() bail instead of firing edge callbacks
+    element.value = undefined
+    pin = false
+
     if (!IN_BROWSER) return
 
     cancelAnimationFrame(raf)

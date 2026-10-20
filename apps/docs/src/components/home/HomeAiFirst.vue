@@ -1,17 +1,34 @@
 <script setup lang="ts">
-  const features = [
+  // Types
+  import type { PackageManager } from '@/composables/useSettings'
+
+  interface Feature {
+    icon: string
+    title: string
+    description: string
+    to: string
+    commands?: Record<PackageManager, string>
+    mcp?: boolean
+  }
+
+  const features: Feature[] = [
     {
       icon: 'vuetify-mcp',
       title: 'Vuetify MCP',
-      description: 'One command connects Claude, Cursor, or Windsurf to every v0 API.',
-      command: 'claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp',
+      description: 'One command connects Grok, Claude, Codex, or Gemini to every v0 API.',
+      mcp: true,
       to: '/guide/tooling/vuetify-mcp',
     },
     {
       icon: 'book',
       title: 'SKILL.md',
       description: 'Comprehensive reference with decision trees and anti-patterns for AI coding tools.',
-      command: 'npx skills add vuetifyjs/0',
+      commands: {
+        pnpm: 'pnpm dlx skills add vuetifyjs/0',
+        npm: 'npx skills add vuetifyjs/0',
+        yarn: 'yarn dlx skills add vuetifyjs/0',
+        bun: 'bunx skills add vuetifyjs/0',
+      },
       to: '/guide/tooling/ai-tools#usage',
     },
     {
@@ -24,7 +41,12 @@
       icon: 'vuetify-0',
       title: 'AI-Ready Scaffold',
       description: 'Scaffold a Vue or Nuxt project with Vuetify MCP pre-configured in one command.',
-      command: 'pnpm create vuetify0 --name=my-app --features=mcp',
+      commands: {
+        pnpm: 'pnpm create vuetify0 --name=my-app --features=mcp',
+        npm: 'npm create vuetify0 -- --name=my-app --features=mcp',
+        yarn: 'yarn create vuetify0 --name=my-app --features=mcp',
+        bun: 'bun create vuetify0 --name=my-app --features=mcp',
+      },
       to: '/guide/tooling/vuetify-cli',
     },
   ]
@@ -67,9 +89,11 @@
         <p class="relative opacity-60 text-sm leading-relaxed mb-4">{{ feature.description }}</p>
 
         <div class="relative mt-auto flex flex-col gap-4">
-          <HomeCopyCommand
-            v-if="feature.command"
-            :command="feature.command"
+          <HomeMcpCommand v-if="feature.mcp" />
+
+          <HomePackageCommand
+            v-else-if="feature.commands"
+            :commands="feature.commands"
           />
 
           <AppAskInline v-else />
@@ -83,6 +107,16 @@
           </router-link>
         </div>
       </div>
+    </div>
+
+    <div class="flex items-center justify-center mt-8">
+      <router-link
+        class="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
+        to="/guide/tooling/ai-tools"
+      >
+        Learn more about AI tools
+        <AppIcon icon="right" :size="12" />
+      </router-link>
     </div>
   </section>
 </template>

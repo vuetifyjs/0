@@ -1,9 +1,14 @@
 <script setup lang="ts">
+  // Framework
+  import { Button, isNull } from '@vuetify/v0'
+
   // Types
   import type { FailedDep } from '@/composables/usePreviewHealth'
 
-  const { failed = [] } = defineProps<{
+  const { attempt = null, failed = [], seconds = null } = defineProps<{
+    attempt?: number | null
     failed?: FailedDep[]
+    seconds?: number | null
   }>()
 
   defineEmits<{
@@ -46,15 +51,18 @@
         <AppCloseButton size="sm" @click="$emit('dismiss')" />
       </div>
 
-      <div class="flex justify-end">
-        <button
-          class="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary hover:opacity-90"
-          type="button"
+      <div class="flex items-end justify-end gap-3">
+        <p v-if="!isNull(attempt)" class="me-auto text-xs text-on-surface-variant/70 tabular-nums">
+          Try {{ attempt }} of 3
+        </p>
+
+        <Button.Root
+          class="inline-flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary tabular-nums hover:opacity-90"
           @click="$emit('retry')"
         >
           <AppIcon icon="reset" :size="16" />
-          Retry
-        </button>
+          {{ isNull(seconds) ? 'Retry' : `Retry in ${seconds}` }}
+        </Button.Root>
       </div>
     </div>
   </div>

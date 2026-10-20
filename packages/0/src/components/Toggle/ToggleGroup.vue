@@ -91,10 +91,10 @@
     }
   }
 
-  export const [useToggleGroup, provideToggleGroup] = createContext<ToggleGroupContext>()
+  export const [useToggleGroup, provideToggleGroup] = /* @__PURE__ */ createContext<ToggleGroupContext>()
 </script>
 
-<script setup lang="ts" generic="T = unknown">
+<script lang="ts" setup generic="T = unknown">
   // Composables
   import { createGroup } from '#v0/composables/createGroup'
   import { createSingle } from '#v0/composables/createSingle'

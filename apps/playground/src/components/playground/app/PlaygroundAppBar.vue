@@ -141,17 +141,6 @@
       </AppTooltip>
 
       <AppTooltip
-        aria-label="Copy share link"
-        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
-        :class="shared ? 'opacity-80' : 'opacity-50'"
-        position-area="bottom"
-        :text="shared ? 'Link copied!' : 'Copy share link'"
-        @click="onShare"
-      >
-        <AppIcon :icon="shared ? 'check' : 'link'" />
-      </AppTooltip>
-
-      <AppTooltip
         :aria-busy="oneSaving || undefined"
         :aria-label="isLinked
           ? (oneSaving
@@ -181,6 +170,17 @@
         />
 
         <span class="hidden sm:inline-block max-w-32 truncate text-xs">{{ isLinked ? oneTitle : 'Local' }}</span>
+      </AppTooltip>
+
+      <AppTooltip
+        aria-label="Copy share link"
+        class="pa-1 inline-flex rounded hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer transition-opacity"
+        :class="shared ? 'opacity-80' : 'opacity-50'"
+        position-area="bottom"
+        :text="shared ? 'Link copied!' : 'Copy share link'"
+        @click="onShare"
+      >
+        <AppIcon :icon="shared ? 'check' : 'link'" />
       </AppTooltip>
 
       <AppTooltip

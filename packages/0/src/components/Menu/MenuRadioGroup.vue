@@ -31,7 +31,7 @@
     disabled: Readonly<Ref<boolean>>
   }
 
-  const [useMenuRadio, provideMenuRadio] = createContext<MenuRadioContext>('v0:menu:radio')
+  const [useMenuRadio, provideMenuRadio] = /* @__PURE__ */ createContext<MenuRadioContext>('v0:menu:radio')
 
   export { useMenuRadio }
 

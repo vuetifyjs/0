@@ -91,7 +91,7 @@ Toggle renders as a native `<button>` element with proper ARIA attributes:
 |-----------|-------|-------------|
 | `role` | `group` | Identifies the toggle group |
 | `aria-orientation` | `horizontal` / `vertical` | Layout direction |
-| `aria-disabled` | `true` / absent | Present when group is disabled |
+| `aria-disabled` | `true` / `false` | Boolean on the group. `false` stays on the attribute |
 
 ### Keyboard
 

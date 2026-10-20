@@ -128,7 +128,8 @@
       return {
         position: 'fixed',
         inset: '0',
-        margin: 'auto',
+        marginInline: 'auto',
+        marginBlock: 'auto',
         width: 'max-content',
         height: 'max-content',
         maxWidth: `calc(100vw - ${offset * 2}px)`,

@@ -53,6 +53,20 @@ export interface OnePlayground {
 
 export type OnePlaygroundMeta = Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>
 
+/** One `/one/bins` row. `id` is the public slug. `language` is null on untitled drafts. */
+export interface OneBin {
+  id: string
+  title: string
+  content: string
+  language: string | null
+  favorite: boolean
+  pinned: boolean
+  locked: boolean
+  visibility: 'private' | 'public'
+  createdAt: string
+  updatedAt: string
+}
+
 /** Resolved One API origin — always use this; never hardcode production. */
 export const ONE_API = import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'
 
@@ -403,6 +417,26 @@ export function useOnePlaygrounds () {
   }
 
   /**
+   * List the signed-in user's Vuetify Bins. Same session as `list()`.
+   * Does not browse other people's public bins.
+   */
+  async function listBins (): Promise<OneBin[]> {
+    if (!IN_BROWSER) throw new Error('listBins is only available in the browser')
+
+    const res = await fetch(`${ONE_API}/one/bins`, {
+      credentials: 'include',
+    })
+
+    if (res.status === 401) throw new Error('Sign in required')
+    if (!res.ok) throw new Error(`Failed to load bins (${res.status})`)
+
+    const data = await res.json()
+    const bins = data.bins ?? data
+    if (!isArray(bins)) throw new Error('Failed to load bins')
+    return bins as OneBin[]
+  }
+
+  /**
    * Full-meta update — does not touch content.
    * One's Zod schema requires title + favorite + pinned + visibility (locked included).
    * Merge `snapshot` (or current title/meta) then spread `patch` last.
@@ -582,6 +616,7 @@ export function useOnePlaygrounds () {
     update,
     save,
     list,
+    listBins,
     patchMeta,
     destroy,
     fork,

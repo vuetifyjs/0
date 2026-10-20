@@ -33,7 +33,7 @@
     }
   }
 
-  const [useDataGridHeader, provideDataGridHeader] = createContext<DataGridHeaderContext | null>({ suffix: 'header' })
+  const [useDataGridHeader, provideDataGridHeader] = /* @__PURE__ */ createContext<DataGridHeaderContext | null>({ suffix: 'header' })
   export { useDataGridHeader }
 
   export interface DataGridHeaderProps extends AtomProps {

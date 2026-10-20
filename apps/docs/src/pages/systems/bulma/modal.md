@@ -2,7 +2,7 @@
 title: BuModal - Bulma Modal for Vue
 meta:
 - name: description
-  content: Bulma's modal markup with Vuetify0 behavior — Escape to close, backdrop dismissal, focus trapping and focus return, in both the modal-content and modal-card variants.
+  content: Bulma modal markup in both modal variants. Open state, Escape, backdrop dismissal, focus trapping, and focus return come from Vuetify0.
 - name: keywords
   content: bulma modal, vue modal, modal-card, dialog, focus trap, bulma vue, paper bulma
 features:
@@ -19,7 +19,7 @@ related:
 
 # BuModal
 
-Bulma's `.modal` with the JavaScript it never shipped: open state, backdrop dismissal, Escape, focus trapping and focus return.
+Bulma's `.modal`: open state, backdrop dismissal, Escape, focus trapping, and focus return.
 
 <DocsPageFeatures :frontmatter />
 
@@ -68,7 +68,7 @@ Both panels are shown here for completeness — a modal composes one or the othe
 
 Wraps v0's [Dialog](/components/disclosure/dialog). `Dialog.Root` owns `v-model`. `Dialog.Content` is renderless so the host can stay a `<div class="modal">` — the fixture demands that, never a native `<dialog>`. `BuModalContent` and `BuModalCard` take the identity Dialog would have bound (`id`, `role`, `aria-modal`, and on the card `aria-labelledby`) off the dialog context; the stack `z-index` lands on `.modal`.
 
-Two things Vuetify0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And Tab / Shift+Tab wrapping inside `.modal` is still hand-rolled — [`useFocusTrap`](/composables/system/use-focus-trap) now exists in Vuetify0, but BuModal's migration onto it is pending.
+Two things Vuetify0 ships that this wrapper skips. `Scrim` is global per stack ticket — mounting it behind a modal that already paints `.modal-background` would double the backdrop, so the backdrop is hand-rolled. And Tab / Shift+Tab wrapping inside `.modal` is still hand-rolled — [useFocusTrap](/composables/system/use-focus-trap) now exists in Vuetify0, but BuModal's migration onto it is pending.
 
 The parts that do map through: `BuModalTitle` is `Dialog.Title as="p"`. `BuModalClose` is `Dialog.Close` with class `modal-close` (the content-variant large X). `BuModalDelete` is `Dialog.Close` with class `delete` (the card-head X). They are not interchangeable.
 

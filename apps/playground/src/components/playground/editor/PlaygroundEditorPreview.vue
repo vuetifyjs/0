@@ -37,7 +37,7 @@
   const widthClass = toRef(() => WIDTHS[isViewport(viewport.value) ? viewport.value : '100%'])
 
   const host = useTemplateRef<HTMLElement>('host')
-  const { status, failed, dismissed, reloadKey, reload, retry, dismiss } = usePreviewHealth(
+  const { status, failed, dismissed, reloadKey, reload, retry, dismiss, seconds, attempt } = usePreviewHealth(
     () => host.value?.querySelector('iframe'),
   )
 
@@ -116,10 +116,28 @@
 
       <PlaygroundPreviewError
         v-if="status === 'failed' && !dismissed"
+        :attempt
         :failed
+        :seconds
         @dismiss="dismiss"
         @retry="retry"
       />
+
+      <div
+        v-else-if="status === 'failed'"
+        class="absolute inset-0 z-10 flex items-center justify-center p-6"
+      >
+        <div class="text-center">
+          <p class="text-sm text-on-surface-variant">Couldn't load preview files.</p>
+
+          <Button.Root
+            class="mt-2 border-0 bg-transparent p-0 text-sm font-medium text-on-surface hover:underline"
+            @click="reload"
+          >
+            Reload to try again
+          </Button.Root>
+        </div>
+      </div>
     </div>
   </div>
 </template>

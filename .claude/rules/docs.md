@@ -54,6 +54,8 @@ Every page has a **1-2 sentence intro** immediately after `<DocsPageFeatures>`. 
 
 Intros must be **user-facing**. Never mention internal composables (no "built on createInput and createNumeric" in an intro). [intent:197]
 
+A registry-backed feature page shows the Vuetify CLI chip from `<DocsPageFeatures>`. Do not paste `vuetify add` into a feature page. The getting-started page and the CLI guide keep the command blocks they already have.
+
 ```markdown
 <!-- Good — brief, user-facing -->
 Manage feature flags and variations across your application.

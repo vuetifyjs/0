@@ -8,7 +8,7 @@ Detailed API documentation for `@vuetify/v0` composables, components, utilities,
 - Browser & Environment (breakpoints, media queries, storage)
 - DOM Observation (resize, intersection, mutation observers)
 - Event Handling (click outside, hotkeys, event listeners)
-- Headless Components (Tabs, Dialog, Popover, Form, Checkbox, Radio, Pagination)
+- Headless Components (Tabs, Dialog, Checkbox, Radio)
 - Utility Functions (mergeDeep, clamp, range, useId)
 - Type Guards (isString, isObject, isNullOrUndefined, etc.)
 - Plugins (theme, locale, features, permissions, logger, stack, notifications)
@@ -43,8 +43,8 @@ selection.register({ id: 'a', value: 'A' })
 selection.register({ id: 'b', value: 'B' })
 
 selection.toggle('a')
-selection.selectedIds   // Set<string>
-selection.isSelected('a') // boolean
+selection.selectedIds  // Set<string>
+selection.selected('a') // boolean
 ```
 
 #### createGroup — Multi Selection with Tri-State
@@ -55,8 +55,8 @@ const group = createGroup()
 
 group.selectAll()
 group.toggleAll()
-group.isMixed  // true when partially selected
-group.isAllSelected
+group.isMixed.value       // true when the selection is partial
+group.isAllSelected.value // true when every item is selected
 ```
 
 #### createStep — Sequential Navigation
@@ -82,7 +82,7 @@ import { createNested } from '@vuetify/v0'
 const tree = createNested()
 
 tree.register({ id: 'parent', value: 'Parent' })
-tree.register({ id: 'child', value: 'Child', parent: 'parent' })
+tree.register({ id: 'child', value: 'Child', parentId: 'parent' })
 
 tree.getPath('child')        // ['parent', 'child']
 tree.getDescendants('parent') // ['child']
@@ -92,25 +92,21 @@ tree.getDescendants('parent') // ['child']
 
 #### createForm — Validation
 ```ts
-import { createForm } from '@vuetify/v0'
+import { createForm, createValidation } from '@vuetify/v0'
+import { shallowRef } from 'vue'
 
 const form = createForm()
-
-const email = form.register({
-  id: 'email',
-  value: '',
-  rules: [
-    v => !!v || 'Required',
-    v => /.+@.+/.test(v) || 'Invalid email',
-    async v => await checkAvailable(v) || 'Email taken'
-  ]
+const email = shallowRef('')
+const validation = createValidation({
+  value: email,
+  rules: ['required', 'email'],
 })
 
-email.isValid   // true | false | null (pending)
-email.errors    // string[]
-email.validate()
+form.register({ value: validation })
 
-form.submit()   // Validates all fields
+validation.isValid.value
+await form.submit()
+form.reset()
 ```
 
 #### createOtp — OTP / verification code
@@ -140,7 +136,7 @@ interface ThemeContext {
   toggle: () => void
 }
 
-const [useTheme, provideTheme] = createContext<ThemeContext>('Theme')
+const [useTheme, provideTheme] = createContext<ThemeContext>('v0:theme')
 
 // Provider
 provideTheme({ mode, toggle })
@@ -153,9 +149,9 @@ const { mode, toggle } = useTheme()
 ```ts
 import { createTrinity } from '@vuetify/v0'
 
-const [useConfig, provideConfig, defaultConfig] = createTrinity<Config>('Config', {
+const [useConfig, provideConfig, config] = createTrinity('v0:config', {
   theme: 'light',
-  locale: 'en'
+  locale: 'en',
 })
 ```
 
@@ -165,13 +161,13 @@ const [useConfig, provideConfig, defaultConfig] = createTrinity<Config>('Config'
 ```ts
 import { createRegistry } from '@vuetify/v0'
 
-const registry = createRegistry<{ id: string; label: string }>()
+const registry = createRegistry()
 
-registry.register({ id: 'item1', label: 'Item 1' })
+registry.register({ id: 'item1', value: 'Item 1' })
 registry.unregister('item1')
 
-registry.items  // Map<string, Item>
-registry.ids    // string[]
+registry.keys()
+registry.values()
 ```
 
 ### Data Utilities
@@ -180,11 +176,11 @@ registry.ids    // string[]
 ```ts
 import { createFilter } from '@vuetify/v0'
 
-const { apply } = createFilter({ keys: ['name', 'email'] })
+const filter = createFilter({ keys: ['name', 'email'] })
 const query = shallowRef('')
-const users = shallowRef([...])
+const users = shallowRef<Record<string, unknown>[]>([])
 
-const filtered = apply(query, users)
+const { items } = filter.apply(query, users)
 ```
 
 #### createPagination — Page Navigation
@@ -194,7 +190,7 @@ import { createPagination } from '@vuetify/v0'
 const pagination = createPagination({
   page: 1,
   itemsPerPage: 10,
-  length: 100
+  size: 100,
 })
 
 pagination.next()
@@ -206,24 +202,25 @@ pagination.last()
 #### createVirtual — Virtual Scrolling
 ```ts
 import { createVirtual } from '@vuetify/v0'
+import { ref } from 'vue'
 
-const { virtualItems, totalHeight, scrollTo } = createVirtual({
-  items: largeList,
-  itemHeight: 48
-})
+const rows = ref<unknown[]>([])
+const virtual = createVirtual(rows, { itemHeight: 48 })
+
+virtual.items
+virtual.size
+virtual.scrollTo(0)
 ```
 
 #### createTimeline — Undo/Redo
 ```ts
 import { createTimeline } from '@vuetify/v0'
 
-const timeline = createTimeline({ maxSize: 50 })
+const timeline = createTimeline({ size: 50 })
 
-timeline.push(state)
+timeline.register({ value: state })
 timeline.undo()
 timeline.redo()
-timeline.canUndo
-timeline.canRedo
 ```
 
 #### createQueue — FIFO with Timeouts
@@ -232,8 +229,7 @@ import { createQueue } from '@vuetify/v0'
 
 const notifications = createQueue({ timeout: 5000 })
 
-notifications.push({ message: 'Saved!' })
-// Auto-removes after 5 seconds
+notifications.register({ value: 'Saved!' })
 ```
 
 ---
@@ -261,6 +257,8 @@ import { useBreakpoints } from '@vuetify/v0'
 const { xs, sm, md, lg, xl, xxl, smAndUp, mdAndDown } = useBreakpoints()
 ```
 
+Install `createBreakpointsPlugin` first. Without it these stay on the `xs` fallback (width 0) and do not track the viewport.
+
 ### useMediaQuery
 ```ts
 import { useMediaQuery } from '@vuetify/v0'
@@ -285,7 +283,7 @@ const { width, height, pause, resume } = useResizeObserver(el)
 import { useIntersectionObserver } from '@vuetify/v0'
 
 const el = shallowRef<HTMLElement>()
-const { isIntersecting } = useIntersectionObserver(el, { threshold: 0.1 })
+const { isIntersecting } = useIntersectionObserver(el, () => {}, { threshold: 0.1 })
 ```
 
 ### useMutationObserver
@@ -319,7 +317,7 @@ useHotkey('g-h', navigateHome) // Sequence: g then h
 ```ts
 import { useClickOutside } from '@vuetify/v0'
 
-useClickOutside(menuRef, close, { touchThreshold: 500 })
+useClickOutside(menuRef, close)
 ```
 
 ---
@@ -355,7 +353,7 @@ import { Dialog } from '@vuetify/v0'
 
 <template>
   <Dialog.Root v-model="open">
-    <Dialog.Trigger>Open</Dialog.Trigger>
+    <Dialog.Activator>Open</Dialog.Activator>
     <Dialog.Content>
       <Dialog.Title>Confirm</Dialog.Title>
       <Dialog.Description>Are you sure?</Dialog.Description>
@@ -372,10 +370,12 @@ import { Checkbox } from '@vuetify/v0'
 </script>
 
 <template>
-  <Checkbox.Root v-model="checked">
-    <Checkbox.Indicator />
-    <Checkbox.Label>Accept terms</Checkbox.Label>
-  </Checkbox.Root>
+  <label>
+    <Checkbox.Root v-model="checked">
+      <Checkbox.Indicator />
+    </Checkbox.Root>
+    Accept terms
+  </label>
 </template>
 ```
 
@@ -387,36 +387,19 @@ import { Radio } from '@vuetify/v0'
 
 <template>
   <Radio.Group v-model="selected">
-    <Radio.Item value="a">
+    <Radio.Root value="a">
       <Radio.Indicator />
-      <Radio.Label>Option A</Radio.Label>
-    </Radio.Item>
-    <Radio.Item value="b">
+      Option A
+    </Radio.Root>
+    <Radio.Root value="b">
       <Radio.Indicator />
-      <Radio.Label>Option B</Radio.Label>
-    </Radio.Item>
+      Option B
+    </Radio.Root>
   </Radio.Group>
 </template>
 ```
 
-### Available Components
-
-| Component | Purpose |
-|-----------|---------|
-| `Atom` | Polymorphic element (render as any tag) |
-| `Avatar` | Image with fallback |
-| `Checkbox` | Checkbox control (standalone or group) |
-| `Dialog` | Modal overlay with focus trap |
-| `ExpansionPanel` | Accordion (single or multi-expand) |
-| `Group` | Multi-selection container |
-| `Pagination` | Page navigation |
-| `Popover` | Toggle overlay (CSS anchor positioning) |
-| `Radio` | Radio buttons with roving tabindex |
-| `Scrim` | Overlay backdrop |
-| `Selection` | Generic selection container |
-| `Single` | Single selection container |
-| `Step` | Stepper/wizard |
-| `Tabs` | Tab navigation |
+The skill lists every component. The samples above are calls, not the catalog.
 
 ---
 
@@ -463,7 +446,7 @@ import {
 } from '@vuetify/v0/utilities'
 
 if (isObject(value)) {
-  // value is Record<string, any>
+  // value is a plain object
 }
 ```
 
@@ -493,5 +476,8 @@ app.use(createThemePlugin({
 }))
 
 // In components
-const { current, toggle } = useTheme()
+const theme = useTheme()
+
+theme.selectedId.value
+theme.cycle()
 ```

@@ -123,7 +123,7 @@ export function createFallbackHydration<
  * ```
  */
 export const [createHydrationContext, createHydrationPlugin, useHydration] =
-  createPluginContext<HydrationContextOptions, HydrationContext>(
+  /* @__PURE__ */ createPluginContext<HydrationContextOptions, HydrationContext>(
     'v0:hydration',
     () => createHydration(),
     {

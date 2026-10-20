@@ -94,7 +94,7 @@
     }
   }
 
-  export const [useAvatarGroup, provideAvatarGroup] = createContext<AvatarGroupContext | null>()
+  export const [useAvatarGroup, provideAvatarGroup] = /* @__PURE__ */ createContext<AvatarGroupContext | null>()
 </script>
 
 <script setup lang="ts">

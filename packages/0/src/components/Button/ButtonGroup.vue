@@ -75,7 +75,7 @@
     }
   }
 
-  export const [useButtonGroup, provideButtonGroup] = createContext<SelectionContext<ButtonTicket>>()
+  export const [useButtonGroup, provideButtonGroup] = /* @__PURE__ */ createContext<SelectionContext<ButtonTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

@@ -52,6 +52,16 @@ describe('plugin SSR coverage meta-test', () => {
     expect(plugins.length).toBeGreaterThan(0)
   })
 
+  it('should pass a fallback factory to createPluginContext', () => {
+    const missing = plugins.filter(plugin => {
+      const source = fs.readFileSync(path.join(COMPOSABLES_DIR, plugin, 'index.ts'), 'utf8')
+      return !/\bfallback\s*:/.test(source)
+    })
+
+    // useDate does not call createPluginContext; it throws when the plugin is missing.
+    expect(missing).toEqual([])
+  })
+
   it.each(plugins)('%s has an index.ssr.test.ts file', plugin => {
     const ssrTestPath = path.join(COMPOSABLES_DIR, plugin, 'index.ssr.test.ts')
     const exists = fs.existsSync(ssrTestPath)

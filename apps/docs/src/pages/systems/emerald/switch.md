@@ -2,7 +2,7 @@
 title: EmSwitch - Emerald Switch for Vue
 meta:
 - name: description
-  content: Emerald's switch — a two-state toggle with three sizes and a click-anywhere label, composed on Vuetify0's headless Switch compound.
+  content: An on/off sliding toggle in three sizes. The label is part of the control, so clicking the text flips the switch. Built on Vuetify0's Switch.
 - name: keywords
   content: emerald switch, vue switch, design system switch, toggle switch, vuetify0 switch, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The on/off control — a sliding toggle in three sizes with a label that is part of the control, so clicking the text flips the switch.
+An on/off toggle in three sizes. The label is part of the control, so clicking the text flips the switch.
 
 ## Usage
 
@@ -86,7 +86,7 @@ Keep the `label` text identical to the visible text it stands in for. A reader u
 
 The state is preserved, not erased. A disabled switch keeps showing on or off exactly as it was, just without the color that invites interaction — which is what you want when a setting is locked by a precondition rather than discarded by one.
 
-One behavior to know: a disabled `EmSwitch` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot flip it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
+A disabled `EmSwitch` stays in the tab order. The root is a native button with no `disabled` attribute — the block happens in the state layer — so keyboard users can still reach it and hear it announced as disabled, they just cannot flip it. See [Accessibility](#accessibility) for why that is the announced-but-inert pattern rather than a gap.
 :::
 
 ## Props

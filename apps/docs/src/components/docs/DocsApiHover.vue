@@ -23,6 +23,8 @@
   import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { usePopoverPosition } from '@/composables/usePopoverPosition'
 
+  import { resolveComponentApi } from './resolveComponentApi'
+
   // Utilities
   import { toKebab } from '@/utilities/strings'
   import { computed, onScopeDispose, ref, shallowRef, toRef, watchEffect } from 'vue'
@@ -57,7 +59,6 @@
   })
 
   // Build lookup maps from API data
-  const componentNames = new Set(Object.keys(apiData.components))
   const composableNames = new Set(Object.keys(apiData.composables))
 
   // Lazy-loaded Vue API content (cached after first load)
@@ -116,10 +117,11 @@
 
     switch (apiType) {
       case 'component': {
-        // Component names come as "Popover.Root" format
-        // API data uses same format, so direct lookup
-        if (!componentNames.has(apiName)) return
-        activeApi.value = apiData.components[apiName]
+        // Prose writes the namespace (`Avatar`); the cache keys the compound
+        // as `Avatar.Root`. Standalone files (`Atom`) match the name directly.
+        const component = resolveComponentApi(apiName, apiData.components)
+        if (!component) return
+        activeApi.value = component
         activeApiType.value = 'component'
 
         break

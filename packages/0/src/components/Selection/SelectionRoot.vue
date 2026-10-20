@@ -52,7 +52,7 @@
     }
   }
 
-  export const [useSelectionRoot, provideSelectionRoot] = createContext<SelectionContext<SelectionTicket>>()
+  export const [useSelectionRoot, provideSelectionRoot] = /* @__PURE__ */ createContext<SelectionContext<SelectionTicket>>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

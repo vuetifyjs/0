@@ -2,7 +2,7 @@
 title: Vuetify0 Guide - Build Your Own UI Library
 meta:
   - name: description
-    content: Comprehensive guide to building UI libraries with Vuetify0. Learn composables, components, theming, plugins, and accessibility patterns for Vue 3.
+    content: A guide to building interfaces with Vuetify0, covering composables, components, theming, plugins, and accessibility patterns for Vue 3.
   - name: keywords
     content: vuetify0, guide, Vue 3, ui library, composables, theming, accessibility, design system
 features:

@@ -123,7 +123,7 @@ Chip filters are a common pattern for narrowing content by tags. This example bu
 
 `context.ts` defines the `TagInput` type, a typed `createTagFilter()` factory, and the seed data so the shape of each tag (id, value, color) is agreed on before either component touches the group. `TagFilter.vue` calls `onboard()` to register all tags in one shot and exposes `{ group, tickets }` via `defineExpose` so the parent can reach the group state. The select-all button's icon switches between `mdiCheckboxBlankOutline`, `mdiCheckboxIntermediate`, and `mdiCheckboxMarked` by reading `isMixed` and `isAllSelected` through a `toRef` — no extra local state needed. `chip-filter.vue` reads `group.isNoneSelected` to decide whether to show all tags or only the selected ones in the results strip below.
 
-Reach for this pattern when a fixed tag set needs to control visible content and the user should be able to toggle all at once. The tri-state header is genuinely useful when the set is large enough that "clear all" and "select all" are common operations. For a tree of nested tags with parent/child relationships, see [createNested](/composables/selection/create-nested).
+Reach for this pattern when a fixed tag set needs to control visible content and the user should be able to toggle all at once. Use the tri-state header when the set is large enough that "clear all" and "select all" are common operations. For a tree of nested tags with parent/child relationships, see [createNested](/composables/selection/create-nested).
 
 | File | Role |
 |------|------|

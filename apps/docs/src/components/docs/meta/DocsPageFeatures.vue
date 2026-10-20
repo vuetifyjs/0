@@ -1,15 +1,18 @@
 <script setup lang="ts">
   import pageDates from 'virtual:page-dates'
+  import { catalog } from 'virtual:registry-catalog'
 
   // Framework
-  import { isUndefined, useDate, useLogger } from '@vuetify/v0'
+  import { isUndefined, Tooltip, useDate, useLogger } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
+  import { cliChip } from '@/components/docs/meta/cliChip'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
+  import { useSettings } from '@/composables/useSettings'
 
   // Data
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
@@ -79,14 +82,56 @@
   const loading = shallowRef(false)
   const copyError = shallowRef(false)
   const clipboard = useClipboard()
+  const cliClipboard = useClipboard()
+  const cliError = shallowRef(false)
+  const settings = useSettings()
 
   let errorTimeout: ReturnType<typeof setTimeout>
+  let cliErrorTimeout: ReturnType<typeof setTimeout>
 
   onBeforeUnmount(() => {
     clearTimeout(errorTimeout)
+    clearTimeout(cliErrorTimeout)
   })
 
   const route = useRoute()
+
+  const cli = toRef(() => {
+    const path = route.path.replace(/\/$/, '') || '/'
+    const item = catalog[path]
+    if (!item) return null
+    return cliChip(item, settings.packageManager.value)
+  })
+
+  const cliText = toRef(() => {
+    if (cliError.value) return 'Failed to copy'
+    if (cliClipboard.copied.value) return 'Copied'
+    return 'Vuetify CLI'
+  })
+
+  const cliIcon = toRef(() => {
+    if (cliError.value) return 'alert'
+    if (cliClipboard.copied.value) return 'success'
+    return 'vuetify-cli'
+  })
+
+  const cliColor = toRef(() => {
+    if (cliError.value) return 'text-error'
+    if (cliClipboard.copied.value) return 'text-success'
+    return undefined
+  })
+
+  async function onCopyCli () {
+    if (!cli.value) return
+    cliError.value = false
+    const ok = await cliClipboard.copy(cli.value.command)
+    if (ok) return
+    cliError.value = true
+    clearTimeout(cliErrorTimeout)
+    cliErrorTimeout = setTimeout(() => {
+      cliError.value = false
+    }, 3000)
+  }
 
   const link = toRef(() => route.path.split('/').slice(1).filter(Boolean).join('/'))
   const edit = toRef(() => `${base}/edit/master/apps/docs/src/pages/${link.value}.md`)
@@ -387,6 +432,39 @@
           text="View on GitHub"
           title="View source code on GitHub"
         />
+
+        <Tooltip.Root v-if="cli" interactive>
+          <Tooltip.Activator
+            as="button"
+            class="border cursor-pointer inline-flex items-center rounded-2xl px-2 text-xs py-1 gap-1 bg-surface hover:bg-surface-tint appearance-none"
+            type="button"
+            @click="onCopyCli"
+          >
+            <AppIcon
+              :class="cliColor"
+              :icon="cliIcon"
+              size="1.2em"
+            />
+            {{ cliText }}
+          </Tooltip.Activator>
+
+          <Tooltip.Content
+            class="max-w-64 whitespace-normal rounded border border-divider bg-surface px-2 py-1 text-xs text-on-surface shadow-lg"
+            :style="{ margin: '6px 0' }"
+          >
+            <div class="flex flex-col gap-2">
+              <span>{{ cli.command }}</span>
+              <span class="text-on-surface-variant">{{ cli.detail }}</span>
+
+              <RouterLink
+                class="text-primary hover:underline"
+                to="/guide/tooling/vuetify-cli"
+              >
+                Learn more about the CLI
+              </RouterLink>
+            </div>
+          </Tooltip.Content>
+        </Tooltip.Root>
 
         <DocsActionChip
           :color="copyError ? 'text-error' : clipboard.copied.value ? 'text-success' : 'text-on-surface'"

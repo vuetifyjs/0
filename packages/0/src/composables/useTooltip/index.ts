@@ -222,7 +222,7 @@ export function createTooltipFallback (): TooltipContext {
 }
 
 export const [createTooltipContext, createTooltipPlugin, useTooltip] =
-  createPluginContext<TooltipPluginOptions, TooltipContext>(
+  /* @__PURE__ */ createPluginContext<TooltipPluginOptions, TooltipContext>(
     'v0:tooltip',
     createTooltip,
     {

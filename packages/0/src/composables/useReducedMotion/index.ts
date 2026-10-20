@@ -159,7 +159,7 @@ function createReducedMotionFallback (): ReducedMotionContext {
 }
 
 export const [createReducedMotionContext, createReducedMotionPlugin, useReducedMotion] =
-  createPluginContext<ReducedMotionPluginOptions, ReducedMotionContext>(
+  /* @__PURE__ */ createPluginContext<ReducedMotionPluginOptions, ReducedMotionContext>(
     'v0:reduced-motion',
     options => createReducedMotion(options),
     {

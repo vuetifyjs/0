@@ -2,7 +2,7 @@
 title: EmKanban - Emerald Kanban Board for Vue
 meta:
 - name: description
-  content: Emerald's kanban board — columns of draggable cards with pointer and keyboard moves, live announcements, and a drop indicator. Composed on Vuetify0's createKanban and useDragDrop.
+  content: Columns of cards you reorder or move between columns, by pointer or keyboard. The board owns that state and announces each move. Built on Vuetify0.
 - name: keywords
   content: emerald kanban, vue kanban, drag and drop board vue, accessible kanban, vuetify0 kanban, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A drag-and-drop board — columns of cards that reorder and move across columns by pointer or keyboard, with the board owning the state and announcing every move.
+A drag-and-drop board. Cards reorder inside a column and move across columns by pointer or keyboard. The board owns the state and announces each move.
 
 ## Usage
 
@@ -55,7 +55,7 @@ The column's default slot is the card body. It is scoped — `v-slot="{ card }"`
 
 The split follows from that. Each `EmKanbanColumn` registers itself into `kanban.columns` and registers its card list as a vertical drop zone that accepts `card` drags; each card registers a draggable. From there v0 does the mechanics — hit-testing the pointer against zones, resolving which slot a drop lands in from the zone's geometry, and gating everything on `disabled` — while Emerald owns everything a design system should: the DOM and its list semantics, the drop-indicator bar (drawn from the zone's `indicator` rect), the polite live region and its messages, returning focus to a card after a keyboard drop, and the `move` event.
 
-One correction lives in Emerald rather than v0, and it is worth knowing about if you build your own board: on a same-column drop the zone resolves its index against a stack that still contains the dragged card, while `transfer` removes before inserting — so the column subtracts one when the card moves down its own column. The reactive card iteration comes from Vuetify0 too, via [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+On a same-column drop, the zone resolves its index against a stack that still contains the dragged card, while `transfer` removes the card before inserting it. The column subtracts one when the card moves down its own column. Card iteration comes from [useProxyRegistry](/composables/reactivity/use-proxy-registry).
 
 ## Examples
 
@@ -163,4 +163,4 @@ The card `article` has no accessible-name wiring of its own — its name comes f
 
 ### Disabled
 
-`disabled` stops drags and transfers but deliberately leaves the cards focusable and described. The board does not announce refused pick-ups, so pair a frozen board with visible text explaining why it is frozen.
+`disabled` stops drags and transfers, and leaves the cards focusable and described. The board does not announce refused pick-ups, so pair a frozen board with visible text explaining why it is frozen.

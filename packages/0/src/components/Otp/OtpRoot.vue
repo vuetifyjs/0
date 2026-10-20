@@ -64,8 +64,8 @@
     focusedId: ShallowRef<ID | undefined>
   }
 
-  export const [useOtpRoot, provideOtpRoot] = createContext<OtpRootContext>()
-  export const [useOtpItems, provideOtpItems] = createContext<OtpItemsContext>({ suffix: 'items' })
+  export const [useOtpRoot, provideOtpRoot] = /* @__PURE__ */ createContext<OtpRootContext>()
+  export const [useOtpItems, provideOtpItems] = /* @__PURE__ */ createContext<OtpItemsContext>({ suffix: 'items' })
 
   export interface OtpRootProps extends AtomProps {
     /** Joined OTP value */

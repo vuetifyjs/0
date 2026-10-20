@@ -176,7 +176,7 @@
     }
   }
 
-  export const [useNumberFieldRoot, provideNumberFieldRoot] = createContext<NumberFieldRootContext>()
+  export const [useNumberFieldRoot, provideNumberFieldRoot] = /* @__PURE__ */ createContext<NumberFieldRootContext>()
 </script>
 
 <script setup lang="ts">

@@ -126,7 +126,7 @@
     announce: (text: string) => void
   }
 
-  export const [useKanbanRoot, provideKanbanRoot] = createContext<KanbanRootContext>()
+  export const [useKanbanRoot, provideKanbanRoot] = /* @__PURE__ */ createContext<KanbanRootContext>()
 
   export interface KanbanRootProps extends AtomProps {
     /** Disable every move on the board */

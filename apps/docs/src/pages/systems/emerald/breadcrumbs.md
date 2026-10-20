@@ -2,7 +2,7 @@
 title: EmBreadcrumbs - Emerald Breadcrumbs for Vue
 meta:
 - name: description
-  content: Emerald's breadcrumb trail — a nav landmark with links, a current-page marker, custom dividers, and automatic collapse behind an ellipsis when space runs out. Composed on Vuetify0's headless Breadcrumbs.
+  content: A navigation trail for where the current page sits. Middle crumbs collapse behind an ellipsis when the row runs out of room. Built on Vuetify0 Breadcrumbs.
 - name: keywords
   content: emerald breadcrumbs, vue breadcrumbs, breadcrumb navigation, overflow breadcrumbs, vuetify0 breadcrumbs, paper emerald
 features:
@@ -135,4 +135,4 @@ The semantics come from Vuetify0's parts, and they follow the WAI-ARIA breadcrum
 - `EmBreadcrumbsDivider` is `aria-hidden`; separators are visual rhythm, not content.
 - Crumbs collapsed by overflow are hidden with `display: none` and marked `inert`, which removes them from the accessibility tree *and* the tab order together — a collapsed crumb's link can never be a ghost tab stop.
 
-One limit to know about: `EmBreadcrumbsEllipsis` is decorative on its own — `aria-hidden`, with its hidden-crumb `count` surfaced only as a slot prop for visual use. A truncated trail therefore gives assistive technology no signal that levels were dropped, and no way to reveal them. When that matters, place v0's `Breadcrumbs.Activator` inside the ellipsis: the same ellipsis element then leaves the hidden state, and the activator provides a native disclosure button with `aria-expanded` and a count-aware name.
+`EmBreadcrumbsEllipsis` is decorative on its own — `aria-hidden`, with its hidden-crumb `count` surfaced only as a slot prop for visual use. A truncated trail therefore gives assistive technology no signal that levels were dropped, and no way to reveal them. When that matters, place v0's `Breadcrumbs.Activator` inside the ellipsis: the same ellipsis element then leaves the hidden state, and the activator provides a native disclosure button with `aria-expanded` and a count-aware name.

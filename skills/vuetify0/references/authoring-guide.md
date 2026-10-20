@@ -59,11 +59,11 @@ export const [useAccordionRoot, provideAccordionRoot] =
 <script setup lang="ts">
 import { createSingle } from '@vuetify/v0'
 
-const { mandatory = 'keep' } = defineProps<{
-  mandatory?: 'force' | 'keep'
+const { mandatory = false } = defineProps<{
+  mandatory?: boolean | 'force'
 }>()
 
-const single = createSingle({ mandatory })
+const single = createSingle({ mandatory: () => mandatory })
 
 // Provide state to all descendants
 provideAccordionRoot({ single })
@@ -105,16 +105,16 @@ onBeforeUnmount(() => single.unregister(ticket.id))
   <div>
     <button
       :id="`accordion-trigger-${id}`"
-      :aria-expanded="single.isSelected(id)"
+      :aria-expanded="single.selected(id)"
       :aria-controls="`accordion-panel-${id}`"
-      :data-state="single.isSelected(id) ? 'open' : 'closed'"
+      :data-state="single.selected(id) ? 'open' : 'closed'"
       @click="single.toggle(id)"
     >
       <slot name="trigger" />
     </button>
 
     <div
-      v-if="single.isSelected(id)"
+      v-if="single.selected(id)"
       :id="`accordion-panel-${id}`"
       role="region"
       :aria-labelledby="`accordion-trigger-${id}`"
@@ -131,7 +131,7 @@ onBeforeUnmount(() => single.unregister(ticket.id))
 
 ```vue
 <template>
-  <AccordionRoot mandatory="keep">
+  <AccordionRoot mandatory>
     <AccordionItem id="section-1" value="Section 1">
       <template #trigger>Section 1</template>
       Content for section 1
@@ -156,10 +156,10 @@ When the Root needs to react to which children are registered (e.g. to render a 
 <script setup lang="ts">
 import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
-const single = createSingle({ mandatory: 'force' })
+const single = createSingle({ mandatory: 'force', events: true })
 
-// Reactive view of the registry — updates when children mount/unmount
-const proxy = useProxyRegistry(single.registry, { events: true })
+// Reactive view of the registry. `events: true` belongs on the registry.
+const proxy = useProxyRegistry(single)
 </script>
 
 <template>
@@ -168,7 +168,7 @@ const proxy = useProxyRegistry(single.registry, { events: true })
     <button
       v-for="item in proxy.values"
       :key="item.id"
-      :data-selected="single.isSelected(item.id) || undefined"
+      :data-selected="single.selected(item.id) || undefined"
       @click="single.select(item.id)"
     >
       {{ item.value }}

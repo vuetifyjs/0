@@ -192,7 +192,7 @@ export function createRulesFallback (): RulesContext {
 }
 
 export const [createRulesContext, createRulesPlugin, useRules] =
-  createPluginContext<RulesContextOptions, RulesContext>(
+  /* @__PURE__ */ createPluginContext<RulesContextOptions, RulesContext>(
     'v0:rules',
     options => createRules(options),
     {

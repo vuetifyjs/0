@@ -1,5 +1,8 @@
+// This file is the only legal `typeof window` check (PHILOSOPHY §2.10).
+// eslint-disable-next-line no-restricted-syntax -- defines IN_BROWSER
 export const IN_BROWSER = typeof window !== 'undefined'
 export const SUPPORTS_TOUCH = IN_BROWSER && ('ontouchstart' in window || window.navigator.maxTouchPoints > 0)
+// eslint-disable-next-line no-restricted-syntax -- feature detect next to IN_BROWSER
 export const SUPPORTS_MATCH_MEDIA = IN_BROWSER && 'matchMedia' in window && typeof window.matchMedia === 'function'
 export const SUPPORTS_OBSERVER = IN_BROWSER && 'ResizeObserver' in window
 export const SUPPORTS_INTERSECTION_OBSERVER = IN_BROWSER && 'IntersectionObserver' in window

@@ -33,11 +33,11 @@ Foundation components for building higher-level abstractions.
 
 ## Providers
 
-Pure context providers for state management. Always renderless—they provide logic without rendering DOM elements.
+Context providers for shared state. Selection, Single, Group, and Step render no element. Locale, Scrim, and Theme default to a `div`.
 
 | Name | Description |
 | - | - |
-| [Selection](/components/providers/selection) | Multi-selection state with v-model binding |
+| [Selection](/components/providers/selection) | Selection state with v-model binding. Single-select unless `multiple` is set |
 | [Single](/components/providers/single) | Single-selection with automatic deselection |
 | [Group](/components/providers/group) | Multi-selection with tri-state support |
 | [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
@@ -53,6 +53,23 @@ Interactive controls for user-initiated actions.
 | - | - |
 | [Button](/components/actions/button) | Button with loading grace period, toggle groups, and icon accessibility |
 | [Toggle](/components/actions/toggle) | Pressable on/off button with standalone and group modes |
+
+## Disclosure
+
+Components for showing/hiding content.
+
+| Name | Description |
+| - | - |
+| [AlertDialog](/components/disclosure/alert-dialog) | Confirmation dialog with deferred close for async actions |
+| [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
+| [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
+| [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Menu](/components/disclosure/menu) | Actions from a button, a right-click, or a menubar |
+| [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
+| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support. Inactive panels stay mounted and hidden |
+| [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
+| [Tour](/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
+| [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 
 ## Forms
 
@@ -99,21 +116,4 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
-
-## Disclosure
-
-Components for showing/hiding content.
-
-| Name | Description |
-| - | - |
-| [AlertDialog](/components/disclosure/alert-dialog) | Confirmation dialog with deferred close for async actions |
-| [Collapsible](/components/disclosure/collapsible) | Single-item disclosure toggle for showing and hiding content |
-| [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
-| [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
-| [Menu](/components/disclosure/menu) | Actions from a button, a right-click, or a menubar |
-| [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
-| [Tabs](/components/disclosure/tabs) | Tab panel navigation with keyboard support and lazy content rendering |
-| [Tooltip](/components/disclosure/tooltip) | Description tooltip with hover/focus triggers and shared delay coordination |
-| [Tour](/components/disclosure/tour) | Guided product tour with activator highlighting and step navigation |
-| [Treeview](/components/disclosure/treeview) | Hierarchical tree with nested selection and expand/collapse |
 

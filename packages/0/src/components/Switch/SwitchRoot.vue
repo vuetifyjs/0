@@ -137,10 +137,10 @@
     }
   }
 
-  export const [useSwitchRoot, provideSwitchRoot] = createContext<SwitchRootContext<unknown>>()
+  export const [useSwitchRoot, provideSwitchRoot] = /* @__PURE__ */ createContext<SwitchRootContext<unknown>>()
 </script>
 
-<script setup lang="ts" generic="V = unknown">
+<script lang="ts" setup generic="V = unknown">
   defineOptions({ name: 'SwitchRoot', inheritAttrs: false })
 
   const attrs = useAttrs()

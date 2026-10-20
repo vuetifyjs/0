@@ -2,11 +2,13 @@
   "extends": "@tsconfig/node24/tsconfig.json",
   "include": [
     "vite.config.*",
-    "vitest.config.*"
+    "vitest.config.*",
+    "build-meta.ts"
   ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "bundler",

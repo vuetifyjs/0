@@ -2,6 +2,8 @@
   // Composables
   import { TIER_CONFIG } from '@/composables/useBenchmarkData'
 
+  import { sparklinePath } from './sparklinePath'
+
   // Utilities
   import { toRef } from 'vue'
 
@@ -27,10 +29,14 @@
   }>()
 
   const padding = 3
+  /** Past this, a dot per release stacks into a blob. The curve still hits every point. */
+  const markerLimit = 6
 
   const tierClass = toRef(() => tier ? TIER_CONFIG[tier].color : 'text-on-surface-variant')
 
   const coords = toRef(() => {
+    if (points.length === 0) return []
+
     const values = points.map(p => p.value)
     const min = Math.min(...values)
     const max = Math.max(...values)
@@ -47,7 +53,14 @@
     })
   })
 
-  const polylinePoints = toRef(() => coords.value.map(c => `${c.x.toFixed(2)},${c.y.toFixed(2)}`).join(' '))
+  const curve = toRef(() => sparklinePath(coords.value))
+
+  const markers = toRef(() => {
+    const all = coords.value
+    if (all.length <= markerLimit) return all
+    const last = all.at(-1)
+    return last ? [last] : []
+  })
 </script>
 
 <template>
@@ -59,9 +72,10 @@
     :viewBox="`0 0 ${width} ${height}`"
     :width
   >
-    <polyline
+    <path
+      v-if="curve"
+      :d="curve"
       fill="none"
-      :points="polylinePoints"
       stroke="currentColor"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -69,7 +83,7 @@
     />
 
     <circle
-      v-for="(c, i) in coords"
+      v-for="(c, i) in markers"
       :key="i"
       :cx="c.x"
       :cy="c.y"

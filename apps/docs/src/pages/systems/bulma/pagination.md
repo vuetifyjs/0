@@ -2,7 +2,7 @@
 title: BuPagination - Bulma Pagination for Vue
 meta:
 - name: description
-  content: Bulma's pagination markup with Vuetify0 behavior — 1-indexed v-model, composed Prev/Next/List/Item/Ellipsis parts, anchors in the documented DOM order.
+  content: Bulma pagination markup with a 1-indexed current page, ellipses, and disabled previous and next controls. The parts follow Bulma's documented DOM order.
 - name: keywords
   content: bulma pagination, vue pagination, pagination-list, is-current, bulma vue, paper bulma
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Bulma's `.pagination` with the JavaScript it never shipped: current page, ellipses, and disabled previous and next.
+Bulma's `.pagination`: current page, ellipses, and disabled previous and next.
 
 > [!NOTE]
 > Reference: [Pagination on bulma.io](https://bulma.io/documentation/components/pagination/) — classes and visual variants. This page is the JavaScript.
@@ -170,6 +170,6 @@ DOM order is previous, next, then the list — CSS puts the list in the middle v
 
 ## Accessibility
 
-The root is a `nav` whose accessible name comes from the locale key `Pagination.label`. Page links, previous and next are anchors, not buttons: `disabled` is omitted (it is not valid on `<a>`), and the inert state is `is-disabled` plus `aria-disabled` and `tabindex="-1"`. The current page is `is-current` with `aria-current="page"`.
+The root is a `nav` whose accessible name comes from the locale key `Pagination.label`. Page links, previous and next are `<a>` elements with `role="button"`: `disabled` is omitted (it is not valid on `<a>`), and the inert state is `is-disabled` plus `aria-disabled` and `tabindex="-1"`. The current page is `is-current` with `aria-current="page"`.
 
 Enter and Space activate those anchors. Ellipses are `aria-hidden`. Page-link names come from the locale keys `Pagination.goToPage` and `Pagination.currentPage` — do not copy the fixture's "Goto page N" strings; they are documentation placeholders, and the conformance suite ignores the difference on purpose.

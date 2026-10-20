@@ -2,7 +2,7 @@
 title: EmProgress - Emerald Progress for Vue
 meta:
 - name: description
-  content: Emerald's linear progress bar — determinate and indeterminate modes, three track sizes, and an optional label and value readout. Composed on Vuetify0's headless Progress.
+  content: A linear progress bar for uploads, tasks, and syncs. Determinate or indeterminate, with an optional label and a live percentage. Built on Vuetify0's Progress.
 - name: keywords
   content: emerald progress, vue progress bar, linear progress, indeterminate progress, vuetify0 progress, paper emerald
 features:
@@ -21,7 +21,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A linear progress bar for uploads, tasks and syncs — determinate or indeterminate, with an optional label row and a live percentage readout.
+A linear progress bar for uploads, tasks, and syncs. It can be determinate or indeterminate, with an optional label and a live percentage.
 
 ## Usage
 
@@ -51,7 +51,7 @@ A linear progress bar for uploads, tasks and syncs — determinate or indetermin
 
 The division of labor: v0 owns everything semantic — the `role="progressbar"` and its `aria-valuemin` / `aria-valuemax` / `aria-valuenow` / `aria-valuetext` attributes, `aria-busy` while indeterminate, the v-model bridge, the hidden input when `name` is set, and the `data-state` attributes on track and fill. Emerald owns everything visual — the meta row layout, the three track heights, the fill color and width transition, and the indeterminate sweep animation.
 
-v0's Progress is segment-based underneath ([createProgress](/composables/semantic/create-progress) can sum multiple fills, plus a buffer). Emerald deliberately flattens that: it renders exactly one `Progress.Fill` and no `Progress.Buffer`, so the component is a single-value bar, and its model handler unwraps the array shape v0 can emit back into a plain number.
+v0's Progress can sum multiple fills, plus a buffer, through [createProgress](/composables/semantic/create-progress). Emerald renders exactly one `Progress.Fill` and no `Progress.Buffer`. The component is a single-value bar, and its model handler turns the array shape v0 can emit back into a plain number.
 
 The naming logic is also split. When `label` is set, `Progress.Label` mounts and v0 points `aria-labelledby` at it; when it is not, `EmProgress` passes `ariaLabel` through — falling back to `'Progress'` — so the progressbar always has an accessible name.
 
@@ -64,7 +64,7 @@ The naming logic is also split. When `label` is set, `Progress.Label` mounts and
 
 `size` changes only the track height — `sm` is 4px, `md` 8px, `lg` 12px. The label and value keep their type steps (`b2` and `b3`) across all three, so the meta row does not scale with the bar.
 
-Pick by prominence, not importance. `sm` belongs inside dense surfaces — a table cell, a card footer, a list row — where the bar is one signal among many. `md` is the default for forms and panels. `lg` is for a surface whose whole point is the progress: an upload screen, an onboarding checklist, an installer.
+Choose the size by how much of the page the bar should occupy. `sm` fits a table cell, a card footer, or a list row. `md` is the default for forms and panels. `lg` is for a page that is mainly the progress, such as an upload screen, an onboarding checklist, or an installer.
 :::
 
 ::: ds-example
@@ -74,7 +74,7 @@ Pick by prominence, not importance. `sm` belongs inside dense surfaces — a tab
 
 `indeterminate` is for waits with no measurable progress — connecting, syncing, waiting on a server. The fill becomes a fixed-width segment sweeping the track, and the percentage readout is hidden even when `show-value` is set, because there is no value to read. On a bar with no committed value — mounted indeterminate, or still at `0` — Vuetify0 reports the matching ARIA state too: `aria-busy` set, `aria-valuenow` dropped.
 
-The prop is designed to be flipped on a bar whose `v-model` stays bound. While it is `true`, `EmProgress` withholds new values from Vuetify0 and ignores the model updates v0 echoes back, so you can leave the binding in place, turn `indeterminate` on while a request is in flight, and turn it off the moment real numbers start arriving — the bar picks up at whatever the model says. One caveat: withholding does not clear a value Vuetify0 has already committed, so a bar flipped to `indeterminate` after reporting real progress keeps its last `aria-valuenow` — the sweep there is Emerald's visual layer only. Flip the prop on before progress starts and the ARIA state is fully indeterminate as well.
+The prop is designed to be flipped on a bar whose `v-model` stays bound. While it is `true`, `EmProgress` passes `undefined` as the progress value and ignores the updates v0 echoes back. The parent model number stays. Vuetify0 then has no value, so `aria-valuenow` drops, `aria-busy` is set, and the fill width goes to 0. Turn the prop off and the bar reads the parent model again.
 
 > [!NOTE]
 > Zero is indeterminate too. v0 derives the indeterminate state from its segment values, and a lone fill at exactly `0` counts as "no progress yet" — so a bar whose model is `0` reports `aria-busy`, drops `aria-valuenow`, and picks up the sweep animation just as if the prop were set. Treat `0` as "not started" rather than "0% done", and seed the model with a small value once work actually begins.
@@ -118,7 +118,7 @@ The bar always has an accessible name. With `label`, the visible text is the nam
 
 ### Indeterminate and zero
 
-v0 derives its indeterminate state from the value it holds, not from the `indeterminate` prop. While that state is indeterminate — the bar mounted with no value, or the value sits at exactly `0` — `aria-valuenow` and `aria-valuetext` are removed and `aria-busy` is set: the standard signal for "working, amount unknown". A determinate bar at exactly `0` therefore reads as indeterminate too (see the note under Examples), so assistive technology hears "busy" rather than "0%". The converse also holds: flipping the `indeterminate` prop on after real progress has been reported does not clear the committed value, so the bar keeps announcing its last `aria-valuenow` while the sweep animation runs.
+v0 derives its indeterminate state from the value it holds, not from the `indeterminate` prop. While that state is indeterminate — the bar mounted with no value, or the value sits at exactly `0` — `aria-valuenow` and `aria-valuetext` are removed and `aria-busy` is set: the standard signal for "working, amount unknown". A determinate bar at exactly `0` therefore reads as indeterminate too (see the note under Examples), so assistive technology hears "busy" rather than "0%". Flipping Emerald's `indeterminate` prop on passes `undefined` as that value, so the same omission happens after real progress. The parent model number is left alone.
 
 ### Announcements
 

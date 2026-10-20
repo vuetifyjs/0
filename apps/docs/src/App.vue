@@ -657,6 +657,8 @@
      bound to the codeSize setting. */
   .app-shell {
     --docs-code-size: 0.8125rem;
+    /* Long example files scroll inside this cap. Shorter files never reach it. */
+    --docs-code-window-max: min(42rem, 105vh);
   }
 
   .app-shell[data-code-size='medium'] {
@@ -751,6 +753,63 @@
 
   /* Focus indicator for keyboard scrolling (inset to avoid clipping by overflow-hidden parent) */
   .shiki:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--v0-primary);
+  }
+
+  /* The window still scrolls (wheel, trackpad, keyboard). The bar stays
+     hidden. A fade on each edge shows that the file continues that way:
+     the top fade once the start has scrolled away, the bottom fade until
+     the end arrives. */
+  .docs-code-window {
+    --docs-code-progress: 0;
+    scrollbar-width: none;
+  }
+
+  .docs-code-window::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .docs-code-window::before,
+  .docs-code-window::after {
+    content: '';
+    position: sticky;
+    z-index: 2;
+    display: block;
+    height: 2.5rem;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .docs-code-window::before {
+    top: 0;
+    margin-bottom: -2.5rem;
+    background: linear-gradient(var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))), transparent);
+  }
+
+  .docs-code-window::after {
+    bottom: 0;
+    margin-top: -2.5rem;
+    background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
+  }
+
+  /* --docs-code-progress is written on scroll (0 at the top, 1 at the bottom).
+     A scroll-timeline animation here makes Chrome drop a single wheel detent
+     while the fade is held at either end. The ramp matches that timeline: the
+     top fade strengthens over the first 22% of the range, the bottom fade
+     lets go over the last 22%. Opacity only — a translate on these sticky
+     pseudos shifts the bottom veil off the last lines as the end arrives. */
+  .docs-code-window--active::before {
+    opacity: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
+  }
+
+  .docs-code-window--active::after {
+    opacity: clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1);
+  }
+
+  .docs-code-window:focus-visible {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--v0-primary);
   }

@@ -24,7 +24,7 @@
 
   export type TreeviewRootContext = NestedContext<NestedTicket>
 
-  export const [useTreeviewRoot, provideTreeviewRoot] = createContext<TreeviewRootContext>()
+  export const [useTreeviewRoot, provideTreeviewRoot] = /* @__PURE__ */ createContext<TreeviewRootContext>()
 </script>
 
 <script lang="ts" setup generic="T = unknown">

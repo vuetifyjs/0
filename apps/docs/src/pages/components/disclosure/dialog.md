@@ -78,12 +78,12 @@ By default, clicking the backdrop closes the dialog. Set `closeOnClickOutside` t
 
 ### Blocking Dialogs
 
-The `blocking` prop disables scrim-based dismissal entirely — the dialog can only be closed programmatically. Use this for critical confirmations where the user must make an explicit choice:
+The `blocking` prop stops scrim click-dismiss. Click-outside still closes unless `closeOnClickOutside` is false, and Escape still closes through the dialog cancel event. Use `blocking` together with those when a confirmation must be an explicit choice:
 
 ```vue
 <template>
   <Dialog.Content blocking>
-    <!-- Scrim click and click-outside will not close — must use Dialog.Close or v-model -->
+    <!-- Scrim dismiss is off. Click-outside and Escape still close unless you turn those off too. -->
   </Dialog.Content>
 </template>
 ```
@@ -159,7 +159,7 @@ To opt out, set `teleport="body"` (always body) or `:teleport="false"` (render i
 
 ??? What's the difference between `closeOnClickOutside` and `blocking`?
 
-`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` goes further and disables scrim-based dismissal entirely, so the dialog can only be closed programmatically via `Dialog.Close` or `v-model` — reach for it on critical confirmations that require an explicit choice. Neither opts the dialog out of the global `<Scrim>` — use `:scrim="false"` for that.
+`:close-on-click-outside="false"` on `Dialog.Content` stops backdrop clicks from closing the dialog. `blocking` only disables scrim dismissal. Escape and the default click-outside handler still close it. Neither opts the dialog out of the global `<Scrim>` — use `:scrim="false"` for that.
 
 ??? How do I opt a dialog out of the global Scrim?
 
