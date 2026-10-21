@@ -49,6 +49,7 @@ export type SkillTrack = 'essentials' | 'fundamentals' | 'features' | 'integrati
 // Categories for skill tours
 export type SkillCategory =
   | 'meta' // Learning the docs (navigation, search, Ask AI)
+  | 'styling' // Data-attribute styling of headless controls
   // | 'patterns' // Architectural patterns (Trinity, Context, Registry)
   // | 'theming' // Design tokens and themes (useTheme, createTokens)
   // | 'accessibility' // ARIA and keyboard (focus management, screen readers)
@@ -86,6 +87,7 @@ export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: 
 
 export const SKILL_CATEGORY_META: Record<SkillCategory, { label: string, icon: string }> = {
   meta: { label: 'Learning', icon: 'book' },
+  styling: { label: 'Styling', icon: 'palette' },
   // 'patterns': { label: 'Patterns', icon: 'map' },
   // 'theming': { label: 'Theming', icon: 'palette' },
   // 'accessibility': { label: 'Accessibility', icon: 'accessibility' },

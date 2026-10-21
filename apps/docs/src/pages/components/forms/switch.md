@@ -109,7 +109,7 @@ Switch subcomponents expose data attributes for CSS styling without conditional 
 | `data-state` | `checked`, `unchecked`, `indeterminate` | `Root`, `SelectAll`, `Track`, `Thumb` |
 | `data-disabled` | `true` | `Root`, `SelectAll` |
 
-```vue
+```vue data-tour=switch-disabled
 <template>
   <Switch.Root class="data-[disabled]:opacity-50">
     <Switch.Track class="bg-gray-300 transition-colors data-[state=checked]:bg-primary">
@@ -134,7 +134,7 @@ The Switch.Root component renders as a button and handles all ARIA attributes au
 
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
 
-```vue
+```vue data-tour=switch-renderless
 <template>
   <Switch.Root v-slot="{ attrs }" renderless>
     <div v-bind="attrs">

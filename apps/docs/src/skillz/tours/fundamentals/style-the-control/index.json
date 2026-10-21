@@ -1,0 +1,79 @@
+{
+  "mode": "guided",
+  "id": "style-the-control",
+  "name": "Style the control",
+  "level": 2,
+  "track": "fundamentals",
+  "categories": ["styling"],
+  "order": 0,
+  "prerequisites": ["reading-the-api"],
+  "description": "Learn how a headless switch gets its look from data-state, and when slot attrs belong on your element.",
+  "minutes": 4,
+  "startRoute": "/components/forms/switch",
+  "steps": [
+    {
+      "id": "preview",
+      "title": "It has a look",
+      "task": "This switch is colored and it moves. The component did not paint that. The example did.",
+      "hint": "",
+      "learn": "See that the look lives in the example",
+      "placement": "top"
+    },
+    {
+      "id": "on",
+      "title": "The attribute flipped",
+      "task": "We turned it on. The thumb slid because data-state changed to checked. Nothing in script toggled a class.",
+      "hint": "",
+      "learn": "Watch data-state drive the thumb",
+      "placement": "top"
+    },
+    {
+      "id": "source",
+      "title": "The class that moved it",
+      "task": "We opened the source. The thumb is translate-x-1 until data-state is checked, then translate-x-6. The attribute flip is the animation.",
+      "hint": "",
+      "learn": "Find the data-state class in the example source",
+      "placement": "top"
+    },
+    {
+      "id": "section",
+      "title": "Style the attribute",
+      "task": "data-state is checked, unchecked, or indeterminate. Write CSS against that. Do not mirror it with a class you toggle yourself.",
+      "hint": "",
+      "learn": "Prefer data-state over a scripted class",
+      "placement": "top"
+    },
+    {
+      "id": "absent",
+      "title": "Absent means off",
+      "task": "data-disabled is the value true, or the attribute is missing. A false value would still match a data-disabled selector, so the component omits it instead.",
+      "hint": "",
+      "learn": "See why boolean data attributes are true or absent",
+      "placement": "top"
+    },
+    {
+      "id": "roles",
+      "title": "Two channels",
+      "task": "aria-checked is for assistive tech. data-state is for CSS. Mixed is data-state indeterminate with aria-checked false.",
+      "hint": "",
+      "learn": "Keep ARIA and data-state on their own jobs",
+      "placement": "top"
+    },
+    {
+      "id": "renderless",
+      "title": "Bind attrs once",
+      "task": "This fence is renderless, so attrs goes on the element you render. On the default button, attrs is already on the root. Binding it again on a child fires the click twice.",
+      "hint": "",
+      "learn": "Bind slot attrs only on a renderless host",
+      "placement": "top"
+    },
+    {
+      "id": "conclusion",
+      "title": "That's the look",
+      "task": "The component ships the state. You paint data-state. Bind attrs to your own element only when you took the element away.",
+      "hint": "",
+      "learn": "Style the next headless control the same way",
+      "noActivator": true
+    }
+  ]
+}
