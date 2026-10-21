@@ -50,6 +50,7 @@ catalog:
   eslint-plugin-vuejs-accessibility: ^2.6.0
   fflate: ^0.8.3
   happy-dom: ^20.11.6
+  jdenticon: ^3.3.0
   knip: ^6.32.2
   launchdarkly-js-client-sdk: ^3.9.5
   markdown-it: ^14.3.0

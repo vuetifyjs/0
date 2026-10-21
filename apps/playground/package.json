@@ -16,6 +16,7 @@
     "@vuetify/play": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "client-zip": "catalog:",
+    "jdenticon": "catalog:",
     "pinia": "catalog:",
     "prettier": "catalog:",
     "swetrix": "catalog:",

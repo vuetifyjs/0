@@ -4,6 +4,7 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppJdenticon from '@/components/app/AppJdenticon.vue'
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
   // Composables
@@ -142,6 +143,8 @@
     :data-busy="busy || undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
+      <AppJdenticon :value="item.id" />
+
       <input
         v-if="renaming"
         ref="input"

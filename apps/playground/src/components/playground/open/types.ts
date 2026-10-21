@@ -123,6 +123,48 @@ export function binLanguageLabel (language: string | null | undefined) {
   return BIN_LANGUAGE_LABEL[key] ?? language
 }
 
+/** Stable id for the bin file-type filter. Empty languages share `text`. */
+export function binTypeKey (language: string | null | undefined) {
+  if (!isString(language) || language.length === 0) return 'text'
+  return language.toLowerCase()
+}
+
+export interface BinTypeOption {
+  id: string
+  label: string
+  count: number
+  icon: string
+  color: string
+}
+
+/** File types present in a bin list, alphabetical, one row per language. */
+export function binTypeOptions (bins: Array<{ language?: string | null }>): BinTypeOption[] {
+  const counts = new Map<string, BinTypeOption>()
+  for (const bin of bins) {
+    const id = binTypeKey(bin.language)
+    const existing = counts.get(id)
+    if (existing) {
+      existing.count += 1
+      continue
+    }
+    const type = binFileType(bin.language)
+    counts.set(id, {
+      id,
+      label: binLanguageLabel(bin.language),
+      count: 1,
+      icon: type?.icon ?? 'file',
+      color: type?.color ?? '',
+    })
+  }
+  return [...counts.values()].toSorted((a, b) => a.label.localeCompare(b.label))
+}
+
+/** Keep bins of one file type. `all` leaves the list alone. */
+export function binsOfType<T extends { language?: string | null }> (items: T[], type: string) {
+  if (type === 'all') return items
+  return items.filter(item => binTypeKey(item.language) === type)
+}
+
 /** File-tree icon for a bin language. Unknown languages use the text-file mark. */
 export function binFileType (language: string | null | undefined) {
   return fileType(`file.${binFileExt(language)}`)

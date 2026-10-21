@@ -14,6 +14,7 @@ declare module 'vue' {
     AppCloseButton: typeof import('./components/app/AppCloseButton.vue')['default']
     AppDotGrid: typeof import('./components/app/AppDotGrid.vue')['default']
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
+    AppJdenticon: typeof import('./components/app/AppJdenticon.vue')['default']
     AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']
     AppSelect: typeof import('./components/app/AppSelect.vue')['default']
     AppSkeleton: typeof import('./components/app/AppSkeleton.vue')['default']
