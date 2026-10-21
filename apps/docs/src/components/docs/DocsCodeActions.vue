@@ -55,7 +55,7 @@
 </script>
 
 <template>
-  <div class="flex gap-1">
+  <div class="docs-code-actions flex gap-1">
     <GnActionButton
       v-if="playground"
       aria-label="Open in Vuetify Play"
@@ -95,6 +95,7 @@
     <GnActionButton
       v-if="showCopy"
       :aria-label="!clipboard.copied.value ? 'Copy code' : 'Copied'"
+      class="docs-code-actions__copy"
       :title="!clipboard.copied.value ? 'Copy code' : 'Copied'"
       @click="copyCode"
     >
@@ -102,3 +103,17 @@
     </GnActionButton>
   </div>
 </template>
+
+<style>
+  /* 4px → 6px. Only this row; other genesis action buttons stay at 0.25rem. */
+  .docs-code-actions .genesis-action-button {
+    border-radius: 0.375rem;
+  }
+
+  /* Full ink, no fill. The hairline is the only extra chrome. */
+  .genesis-action-button.docs-code-actions__copy {
+    opacity: 1;
+    color: var(--v0-on-surface, #212121);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v0-on-surface, #212121) 14%, transparent);
+  }
+</style>
