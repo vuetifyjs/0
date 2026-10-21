@@ -20,6 +20,7 @@ interface TourContext {
 export function defineTour ({ settings }: TourContext) {
   let saved: boolean | undefined
   let hoverTarget: HTMLElement | null = null
+  let opened: HTMLElement | null = null
 
   function remember () {
     if (saved === undefined) saved = settings.showInlineApi.value
@@ -53,18 +54,48 @@ export function defineTour ({ settings }: TourContext) {
     input.dispatchEvent(new Event('input', { bubbles: true }))
   }
 
+  function conceal () {
+    if (!opened) return
+    const region = opened
+    opened = null
+    if (region.hasAttribute('hidden')) return
+    region.parentElement?.querySelector<HTMLButtonElement>('button')?.click()
+  }
+
+  function reveal (target: HTMLElement) {
+    const region = target.closest<HTMLElement>('[role="region"]')
+    if (!region || !region.hasAttribute('hidden')) return
+    region.parentElement?.querySelector<HTMLButtonElement>('button')?.click()
+    opened = region
+  }
+
   function hideHover () {
+    conceal()
     if (!hoverTarget) return
     hoverTarget.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }))
     hoverTarget = null
   }
 
-  // The hover card prefers the space above its token and flips below only
-  // when that space is under 400px. Leave the token high enough for the
-  // tour card and short of 400px, so the hover card opens underneath it.
+  // The reference opens above its token until the space above reaches 400px,
+  // then flips below. The tour card also sits above the token, and on a phone
+  // it moves below when that space is under 256px. Keep the token just past
+  // that line so the tour card stays above and the reference opens under it.
   function placeHoverTarget (target: HTMLElement) {
     const rect = target.getBoundingClientRect()
-    window.scrollBy(0, rect.top - 280)
+    window.scrollBy(0, rect.top - 270)
+  }
+
+  function proseCandidate (): HTMLElement | null {
+    const nodes = document.querySelectorAll<HTMLElement>('[data-api-candidate="Tabs.Root"]')
+    for (const node of nodes) {
+      if (!node.closest('pre, .shiki')) return node
+    }
+    return null
+  }
+
+  async function settle () {
+    await nextTick()
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
   }
 
   function raiseHover () {
@@ -103,7 +134,7 @@ export function defineTour ({ settings }: TourContext) {
           if (target) activate(target)
         },
       },
-      search: {
+      filter: {
         enter: async ({ activate }: StepHandlerContext) => {
           setInline(true)
           hideHover()
@@ -135,10 +166,18 @@ export function defineTour ({ settings }: TourContext) {
       hover: {
         enter: async ({ activate }: StepHandlerContext) => {
           hideHover()
-          const target = await query('[data-api-candidate="Tabs.Root"]')
+          const target = proseCandidate()
           if (!target) return
-          activate(target, { scroll: false })
+          // The prose name lives in a collapsed FAQ answer. A code-fence
+          // token is inside an overflow clip, and anchoring the tour card
+          // there paints it under the scrim.
+          reveal(target)
+          await settle()
+          // Scroll before activate. The tour card measures the token once,
+          // and a token above the fold would flip the card down onto the
+          // reference on a phone.
           placeHoverTarget(target)
+          activate(target, { scroll: false })
           hoverTarget = target
           target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
           await new Promise(resolve => setTimeout(resolve, 250))

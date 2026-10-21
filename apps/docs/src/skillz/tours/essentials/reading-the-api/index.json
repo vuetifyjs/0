@@ -37,7 +37,7 @@
       "placementMobile": "top"
     },
     {
-      "id": "search",
+      "id": "filter",
       "title": "Filter the page",
       "task": "We typed model. The filter matches names and descriptions on this page only. It does not search the rest of the docs.",
       "hint": "",
