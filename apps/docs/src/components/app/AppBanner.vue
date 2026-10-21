@@ -11,8 +11,8 @@
 
   const SITE = 'v0-docs'
   const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000
-  // Same gap vuetifyjs.com uses after a close, so the next banner does not
-  // replace the one the reader just put away.
+  // Same gap vuetifyjs.com writes to `banners.last` after a click or a close,
+  // so the next banner does not replace the one the reader just acted on.
   const COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000
   const MIN_HEIGHT = 24
   const MAX_HEIGHT = 120
@@ -205,6 +205,10 @@
     return parseBanners(await response.json())
   }
 
+  function onClick () {
+    hold()
+  }
+
   function onDismiss () {
     const slug = banner.value?.slug
     if (!isString(slug)) return
@@ -262,7 +266,10 @@
       class="absolute inset-0 bg-black/40 pointer-events-none"
     />
 
-    <div class="relative z-1 flex items-center gap-2 md:gap-3 w-full px-3 md:px-4 min-w-0">
+    <div
+      class="relative z-1 flex items-center gap-2 md:gap-3 w-full px-3 md:px-4 min-w-0"
+      @click="onClick"
+    >
       <component
         :is="linkTag"
         class="flex items-center gap-3 min-w-0 flex-1 text-inherit no-underline"
