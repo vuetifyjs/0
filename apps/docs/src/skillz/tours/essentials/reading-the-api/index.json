@@ -1,0 +1,89 @@
+{
+  "mode": "guided",
+  "id": "reading-the-api",
+  "name": "Reading the API",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 4,
+  "prerequisites": [],
+  "description": "Learn how to read the generated API reference — one block per part, a filter, slots, and the hover card.",
+  "minutes": 4,
+  "startRoute": "/components/disclosure/tabs",
+  "steps": [
+    {
+      "id": "reference",
+      "title": "API Reference",
+      "task": "Every component page ends here. This block is generated from the source. It is not a hand-written table.",
+      "hint": "",
+      "learn": "Find the generated reference on a component page",
+      "placement": "top"
+    },
+    {
+      "id": "parts",
+      "title": "One card per part",
+      "task": "Tabs is a compound. Each card is one part — Root, List, Item, Panel — with its own props, events, and slots.",
+      "hint": "",
+      "learn": "Read a compound as separate parts",
+      "placement": "top"
+    },
+    {
+      "id": "inline",
+      "title": "Open it here",
+      "task": "We opened the reference on this page. Show inline expands every part in place. The link cards were only the index.",
+      "hint": "",
+      "learn": "Expand the reference inline",
+      "placement": "bottom",
+      "placementMobile": "top"
+    },
+    {
+      "id": "search",
+      "title": "Filter the page",
+      "task": "We typed model. The filter matches names and descriptions on this page only. It does not search the rest of the docs.",
+      "hint": "",
+      "learn": "Filter one page's reference",
+      "placement": "bottom"
+    },
+    {
+      "id": "props",
+      "title": "Props",
+      "task": "We cleared the filter. This is Tabs.Root's props. modelValue is the active tab. Defaults are listed on the prop; they are not a separate column.",
+      "hint": "",
+      "learn": "Read a part's props",
+      "placement": "top"
+    },
+    {
+      "id": "slots",
+      "title": "Slots",
+      "task": "Tabs.Item's slot gives you isSelected, isDisabled, and attrs. attrs already contains onClick. Bind attrs to your own element only when the item is renderless. Binding them onto a child of the default button fires the click twice.",
+      "hint": "",
+      "learn": "Read slot props and know when to bind attrs",
+      "placement": "top"
+    },
+    {
+      "id": "hover",
+      "title": "Hover a name",
+      "task": "We hovered Tabs.Root in the page. The card is the same reference: props, a docs link, and the API page.",
+      "hint": "",
+      "learn": "Open the reference from a name in the prose",
+      "placement": "top"
+    },
+    {
+      "id": "standalone",
+      "title": "Same data, own page",
+      "task": "View standalone opens this reference on its own URL. Inline and standalone read one dataset.",
+      "hint": "",
+      "learn": "Open the standalone API page",
+      "placement": "bottom",
+      "placementMobile": "top"
+    },
+    {
+      "id": "conclusion",
+      "title": "That's the reference",
+      "task": "Cards for the parts, inline for the details, hover when a name shows up in the prose.",
+      "hint": "",
+      "learn": "Read an API reference without hunting",
+      "noActivator": true
+    }
+  ]
+}
