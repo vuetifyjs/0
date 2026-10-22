@@ -4,7 +4,7 @@ Vue behavior for [Bootstrap 6](https://getbootstrap.com/)'s markup. Bootstrap sh
 
 Nothing about your stylesheet changes. There is no plugin, no `theme.css`, and no CSS in the package.
 
-`BDialog` is implemented. The rest of the catalog lands against the commit in `harness/PIN.md`. Bootstrap 6 is not on npm yet.
+The Tier 1 catalog is implemented against the commit in `harness/PIN.md`. `BDatepicker` waits on `createDatePicker`. `BTable` is Tier 2 and is not in this package. Bootstrap 6 is not on npm yet.
 
 ## Install
 

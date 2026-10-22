@@ -5,6 +5,7 @@
   // Framework
   import { Select } from '@vuetify/v0'
   import { ant } from '@vuetify/v0/palettes/ant'
+  import { bootstrap } from '@vuetify/v0/palettes/bootstrap'
   import { material } from '@vuetify/v0/palettes/material'
   import { md1 } from '@vuetify/v0/palettes/md1'
   import { md2 } from '@vuetify/v0/palettes/md2'
@@ -43,6 +44,7 @@
     material: { label: 'Material 3', data: material as Record<string, Record<string, string>>, namespace: 'md' },
     radix: { label: 'Radix', data: radix as Record<string, Record<string, string>>, namespace: 'radix' },
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
+    bootstrap: { label: 'Bootstrap', data: bootstrap as Record<string, Record<string, string>>, namespace: 'bs' },
     emerald: {
       label: 'Emerald',
       data: { primary: ladder(primary), secondary: ladder(secondary), neutral: ladder(neutral), danger: ladder(danger), alert: ladder(alert), success: ladder(success), info: ladder(info) },
