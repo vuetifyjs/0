@@ -24,6 +24,14 @@ import type { TierState } from './useBenchmarkData'
  */
 export const NOISE_BAND = 20
 
+/**
+ * How many published releases a trend may look back across.
+ *
+ * Early snapshots sit well below later ones, so a first-to-last delta reads
+ * as a large speedup that did not happen recently.
+ */
+export const TREND_RELEASES = 5
+
 /** True when a trend delta is large enough to outrank run-to-run noise. */
 export function significant (delta: number): boolean {
   return Math.abs(delta) > NOISE_BAND
@@ -126,6 +134,11 @@ function ingestSource (
   }
 }
 
+/** Last {@link TREND_RELEASES} releases. A shorter series is kept whole. */
+function trendPoints (sorted: HistoryPoint[]): HistoryPoint[] {
+  return sorted.slice(-TREND_RELEASES)
+}
+
 function shapeFeature (feature: string, featureMap: Map<string, Map<string, HistoryPoint[]>>): FeatureHistory | null {
   const groups: GroupHistory[] = []
   const allVersions = new Set<string>()
@@ -134,7 +147,7 @@ function shapeFeature (feature: string, featureMap: Map<string, Map<string, Hist
     const benchmarks: BenchmarkHistory[] = []
     for (const [benchName, points] of benchMap) {
       if (points.length < 2) continue
-      const sorted = points.toSorted((a, b) => compareVersion(a.version, b.version))
+      const sorted = trendPoints(points.toSorted((a, b) => compareVersion(a.version, b.version)))
       const first = sorted[0]!
       const last = sorted.at(-1)!
       const delta = first.hz === 0 ? 0 : ((last.hz - first.hz) / first.hz) * 100

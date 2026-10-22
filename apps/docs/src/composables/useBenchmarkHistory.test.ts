@@ -21,6 +21,15 @@ vi.mock('./benchmarkHistorySources', () => ({
               },
             },
           },
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 1_000, hzLabel: '1.0k ops/s', mean: 0.001, meanLabel: '1.0ms', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
         },
       },
     }),
@@ -46,6 +55,95 @@ vi.mock('./benchmarkHistorySources', () => ({
               },
             },
           },
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 5_000, hzLabel: '5.0k ops/s', mean: 0.0002, meanLabel: '200μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    '0.3.0.json': () => Promise.resolve({
+      default: {
+        version: '0.3.0',
+        items: {
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 10_000, hzLabel: '10.0k ops/s', mean: 0.0001, meanLabel: '100μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    '0.4.0.json': () => Promise.resolve({
+      default: {
+        version: '0.4.0',
+        items: {
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 10_100, hzLabel: '10.1k ops/s', mean: 0.000_099, meanLabel: '99μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    '0.5.0.json': () => Promise.resolve({
+      default: {
+        version: '0.5.0',
+        items: {
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 10_200, hzLabel: '10.2k ops/s', mean: 0.000_098, meanLabel: '98μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    '0.6.0.json': () => Promise.resolve({
+      default: {
+        version: '0.6.0',
+        items: {
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 10_300, hzLabel: '10.3k ops/s', mean: 0.000_097, meanLabel: '97μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    '0.7.0.json': () => Promise.resolve({
+      default: {
+        version: '0.7.0',
+        items: {
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 10_400, hzLabel: '10.4k ops/s', mean: 0.000_096, meanLabel: '96μs', rme: 1, tier: 'fast' },
+                },
+              },
+            },
+          },
         },
       },
     }),
@@ -67,6 +165,15 @@ vi.mock('./benchmarkHistorySources', () => ({
               _groups: {
                 'primitive filtering': {
                   'Filter 1k strings': { name: 'Filter 1k strings', hz: 5500, hzLabel: '5.5k ops/s', mean: 0.000_182, meanLabel: '182μs', rme: 9, tier: 'fast' },
+                },
+              },
+            },
+          },
+          createRegistry: {
+            benchmarks: {
+              _groups: {
+                lookup: {
+                  'Get by id': { name: 'Get by id', hz: 9_000, hzLabel: '9.0k ops/s', mean: 0.000_111, meanLabel: '111μs', rme: 1, tier: 'fast' },
                 },
               },
             },
@@ -138,10 +245,24 @@ describe('useBenchmarkHistory', () => {
     stop()
   })
 
-  it('should compute delta as percent change from first to last release', async () => {
+  it('should compute delta as percent change across the trend window', async () => {
     const { api, stop } = await setup('createDataTable')
     const bench = api.history.value!.groups[0].benchmarks[0]
     expect(bench.delta).toBeCloseTo(25, 5)
+    stop()
+  })
+
+  it('should ignore releases older than the last five when computing the trend', async () => {
+    const { api, stop } = await setup('createRegistry')
+    const history = api.history.value
+    expect(history).not.toBeNull()
+    expect(history!.versionsSpanned).toEqual(['0.4.0', '0.5.0', '0.6.0', '0.7.0', '1.0.0-alpha.0'])
+
+    const bench = history!.groups[0].benchmarks[0]
+    expect(bench.points.map(p => p.version)).toEqual(['0.4.0', '0.5.0', '0.6.0', '0.7.0', '1.0.0-alpha.0'])
+    expect(bench.points.map(p => p.hz)).toEqual([10_100, 10_200, 10_300, 10_400, 9_000])
+    // 10,100 → 9,000, not 1,000 → 9,000. The early snapshots would read as +800%.
+    expect(bench.delta).toBeCloseTo(((9_000 - 10_100) / 10_100) * 100, 5)
     stop()
   })
 
