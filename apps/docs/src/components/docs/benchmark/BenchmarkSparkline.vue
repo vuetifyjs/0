@@ -13,7 +13,6 @@
   interface Point {
     label: string
     value: number
-    isCurrent?: boolean
   }
 
   const {
@@ -87,7 +86,7 @@
       :key="i"
       :cx="c.x"
       :cy="c.y"
-      :fill="c.point.isCurrent ? 'none' : 'currentColor'"
+      fill="currentColor"
       r="2"
       stroke="currentColor"
       stroke-width="1.5"

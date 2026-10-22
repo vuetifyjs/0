@@ -104,7 +104,7 @@
           <Tooltip.Activator as="span" class="inline-flex cursor-help">
             <BenchmarkSparkline
               :height="22"
-              :points="historyPoints.map(p => ({ label: p.version, value: p.hz, isCurrent: p.isCurrent }))"
+              :points="historyPoints.map(p => ({ label: p.version, value: p.hz }))"
               :tier="benchmark.tier"
               :width="96"
             />
@@ -120,7 +120,7 @@
                 :key="p.version"
                 class="flex items-center justify-between gap-4"
               >
-                <span :class="p.isCurrent ? 'font-medium text-on-surface' : 'text-on-surface-variant'">{{ p.version }}</span>
+                <span class="text-on-surface-variant">{{ p.version }}</span>
                 <code class="text-on-surface">{{ formatHz(p.hz) }}</code>
               </div>
 

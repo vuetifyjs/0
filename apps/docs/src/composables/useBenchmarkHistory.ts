@@ -11,8 +11,6 @@ import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, sha
 import type { RawFeature } from './benchmarkHistorySources'
 import type { TierState } from './useBenchmarkData'
 
-const CURRENT_LABEL = 'current' as const
-
 /**
  * The band a trend delta has to clear before it counts as a real change.
  *
@@ -35,7 +33,6 @@ export interface HistoryPoint {
   version: string
   hz: number
   mean: number
-  isCurrent: boolean
   tier: TierState
 }
 
@@ -62,11 +59,9 @@ let cache: ShallowRef<FeatureIndex | null> | null = null
 let loadingState: ShallowRef<boolean> | null = null
 let loadPromise: Promise<void> | null = null
 
-/** Chronological order; `current` always sorts last, releases outrank their prereleases. */
+/** Chronological order. A release sorts after its own prerelease. */
 function compareVersion (a: string, b: string): number {
   if (a === b) return 0
-  if (a === CURRENT_LABEL) return 1
-  if (b === CURRENT_LABEL) return -1
 
   function parse (v: string) {
     const [core, pre] = v.split('-')
@@ -91,7 +86,6 @@ function ingestSource (
   index: FeatureIndex,
   version: string,
   items: Record<string, RawFeature>,
-  isCurrent: boolean,
 ) {
   for (const [feature, raw] of Object.entries(items)) {
     const groups = raw?.benchmarks?._groups
@@ -125,7 +119,6 @@ function ingestSource (
           version,
           hz,
           mean,
-          isCurrent,
           tier: tier ?? 'unmeasured',
         })
       }
@@ -164,17 +157,13 @@ async function loadAll (): Promise<FeatureIndex> {
 
   const history = await Promise.all(
     Object.values(historySources).map(load => load()
-      .then(m => ({ version: m.default.version, items: m.default.items ?? {}, isCurrent: false }))
+      .then(m => ({ version: m.default.version, items: m.default.items ?? {} }))
       .catch(() => null)),
   )
 
-  const current = await import('@/data/metrics.json')
-    .then(m => ({ version: CURRENT_LABEL, items: m.default as Record<string, RawFeature>, isCurrent: true }))
-    .catch(() => null)
-
-  for (const source of [...history, current]) {
+  for (const source of history) {
     if (!source) continue
-    ingestSource(index, source.version, source.items, source.isCurrent)
+    ingestSource(index, source.version, source.items)
   }
 
   return index

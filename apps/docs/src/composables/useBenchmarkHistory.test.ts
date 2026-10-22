@@ -77,34 +77,6 @@ vi.mock('./benchmarkHistorySources', () => ({
   },
 }))
 
-vi.mock('@/data/metrics.json', () => ({
-  default: {
-    createDataTable: {
-      coverage: { statements: 99.5, functions: 100, branches: 100, overall: 99.8 },
-      benchmarks: {
-        _groups: {
-          initialization: {
-            'Create table (1,000 items)': { name: 'Create table (1,000 items)', hz: 16_000, hzLabel: '16.0k ops/s', mean: 0.000_062_5, meanLabel: '62.5μs', rme: 13, tier: 'blazing' },
-          },
-        },
-      },
-    },
-    createFilter: {
-      coverage: { statements: 100, functions: 100, branches: 100, overall: 100 },
-      benchmarks: {
-        _groups: {
-          'primitive filtering': {
-            'Filter 1k strings': { name: 'Filter 1k strings', hz: 6000, hzLabel: '6.0k ops/s', mean: 0.000_167, meanLabel: '167μs', rme: 7, tier: 'fast' },
-          },
-        },
-      },
-    },
-    Button: {
-      coverage: { statements: 100, functions: 100, branches: 100, overall: 100 },
-    },
-  },
-}))
-
 // Composables
 import { useBenchmarkHistory, __resetBenchmarkHistoryCacheForTests } from './useBenchmarkHistory'
 
@@ -138,39 +110,38 @@ describe('useBenchmarkHistory', () => {
     stop()
   })
 
-  it('should build a 4-point trend for a feature present in all four sources', async () => {
+  it('should build a trend from release snapshots only', async () => {
     const { api, stop } = await setup('createDataTable')
     const history = api.history.value
     expect(history).not.toBeNull()
     expect(history!.feature).toBe('createDataTable')
-    expect(history!.versionsSpanned).toEqual(['0.1.0', '0.2.0', '1.0.0-alpha.0', 'current'])
+    expect(history!.versionsSpanned).toEqual(['0.1.0', '0.2.0', '1.0.0-alpha.0'])
     expect(history!.groups).toHaveLength(1)
 
     const bench = history!.groups[0].benchmarks[0]
     expect(bench.name).toBe('Create table (1,000 items)')
-    expect(bench.points).toHaveLength(4)
-    expect(bench.points.map(p => p.hz)).toEqual([20_000, 22_000, 25_000, 16_000])
-    expect(bench.points.map(p => p.version)).toEqual(['0.1.0', '0.2.0', '1.0.0-alpha.0', 'current'])
-    expect(bench.points.map(p => p.isCurrent)).toEqual([false, false, false, true])
+    expect(bench.points).toHaveLength(3)
+    expect(bench.points.map(p => p.hz)).toEqual([20_000, 22_000, 25_000])
+    expect(bench.points.map(p => p.version)).toEqual(['0.1.0', '0.2.0', '1.0.0-alpha.0'])
     stop()
   })
 
-  it('should build a 3-point trend for a feature added in 0.2.0', async () => {
+  it('should build a trend for a feature added in 0.2.0', async () => {
     const { api, stop } = await setup('createFilter')
     const history = api.history.value
     expect(history).not.toBeNull()
-    expect(history!.versionsSpanned).toEqual(['0.2.0', '1.0.0-alpha.0', 'current'])
+    expect(history!.versionsSpanned).toEqual(['0.2.0', '1.0.0-alpha.0'])
 
     const bench = history!.groups[0].benchmarks[0]
-    expect(bench.points).toHaveLength(3)
-    expect(bench.points.map(p => p.version)).toEqual(['0.2.0', '1.0.0-alpha.0', 'current'])
+    expect(bench.points).toHaveLength(2)
+    expect(bench.points.map(p => p.version)).toEqual(['0.2.0', '1.0.0-alpha.0'])
     stop()
   })
 
-  it('should compute delta as percent change from first to last point', async () => {
+  it('should compute delta as percent change from first to last release', async () => {
     const { api, stop } = await setup('createDataTable')
     const bench = api.history.value!.groups[0].benchmarks[0]
-    expect(bench.delta).toBeCloseTo(-20, 5)
+    expect(bench.delta).toBeCloseTo(25, 5)
     stop()
   })
 
