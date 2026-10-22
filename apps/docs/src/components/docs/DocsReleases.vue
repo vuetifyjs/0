@@ -12,9 +12,6 @@
   import { useMarkdown } from '@/composables/useMarkdown'
   import { useSettings } from '@/composables/useSettings'
 
-  // Constants
-  import { EMOJIS } from '@/constants/emoji'
-
   // Stores
   import { type Release, useReleasesStore } from '@/stores/releases'
 
@@ -22,7 +19,18 @@
   import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
-  const reactions = EMOJIS
+  // GitHub release reaction summary, in picker order. Glyphs match the
+  // reaction control, which is a smaller set than the markdown emoji map.
+  const RELEASE_REACTIONS = [
+    { key: '+1', emoji: '👍', label: 'thumbs up' },
+    { key: '-1', emoji: '👎', label: 'thumbs down' },
+    { key: 'laugh', emoji: '😄', label: 'laugh' },
+    { key: 'hooray', emoji: '🎉', label: 'hooray' },
+    { key: 'confused', emoji: '😕', label: 'confused' },
+    { key: 'heart', emoji: '❤️', label: 'heart' },
+    { key: 'rocket', emoji: '🚀', label: 'rocket' },
+    { key: 'eyes', emoji: '👀', label: 'eyes' },
+  ] as const
 
   const route = useRoute()
   const router = useRouter()
@@ -98,6 +106,25 @@
     return typeof count === 'number' ? count : 0
   }
 
+  const releaseReactions = toRef(() => {
+    const release = model.value
+    if (!release?.reactions?.total_count) return []
+
+    const shown: { key: string, emoji: string, label: string, count: number }[] = []
+    for (const reaction of RELEASE_REACTIONS) {
+      const count = getReactionCount(release, reaction.key)
+      if (count > 0) {
+        shown.push({
+          key: reaction.key,
+          emoji: reaction.emoji,
+          label: reaction.label,
+          count,
+        })
+      }
+    }
+    return shown
+  })
+
   async function copyReleaseLink () {
     if (!model.value || !IN_BROWSER) return
     await linkClipboard.copy(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
@@ -161,20 +188,6 @@
 
         <div v-if="model" class="flex items-center gap-2 flex-1">
           <span class="font-semibold">{{ model.tag_name }}</span>
-
-          <template v-if="model.reactions?.total_count">
-            <span class="opacity-50">&mdash;</span>
-
-            <template v-for="(emoji, key) in reactions" :key>
-              <span
-                v-if="getReactionCount(model, key)"
-                class="inline-flex items-center gap-0.5 text-sm"
-              >
-                {{ emoji }}
-                <span class="text-xs opacity-70">{{ getReactionCount(model, key) }}</span>
-              </span>
-            </template>
-          </template>
         </div>
 
         <span v-else class="opacity-50">Select a release...</span>
@@ -334,6 +347,22 @@
           <AppIcon :icon="installClipboard.copied.value ? 'success' : 'copy'" :size="16" />
         </GnActionButton>
       </div>
+
+      <ul
+        v-if="releaseReactions.length > 0"
+        aria-label="Reactions"
+        class="flex flex-wrap items-center gap-1.5 list-none m-0 select-none px-4 py-3 border-b border-divider"
+      >
+        <li
+          v-for="reaction in releaseReactions"
+          :key="reaction.key"
+          class="inline-flex items-center gap-1 rounded-full border border-divider px-2 py-0.5 text-sm"
+        >
+          <span aria-hidden="true">{{ reaction.emoji }}</span>
+          <span class="text-xs tabular-nums">{{ reaction.count }}</span>
+          <span class="sr-only">{{ reaction.label }}</span>
+        </li>
+      </ul>
 
       <!-- Body -->
       <div
