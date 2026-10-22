@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, useClickOutside, useFeatures, useStack, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useEventListener, useFeatures, useResizeObserver, useStack, useWindowEventListener } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -89,6 +89,33 @@
     return ids
   })
   const navRef = useTemplateRef<HTMLElement>('nav')
+  const scrollRef = useTemplateRef<HTMLElement>('scroll')
+  const contentRef = useTemplateRef<HTMLElement>('content')
+  const overflowing = shallowRef(false)
+
+  // Same edge veil as the example code window: gone at an edge that is in
+  // view, full once that edge has scrolled away. A scroll timeline drops a
+  // wheel detent in Chrome, so the amount is written on scroll. The 22% ramp
+  // is capped — a code window's range is short, and the same percentage of
+  // the drawer would leave the veil faint for most of a scroll.
+  function syncFade () {
+    const el = scrollRef.value
+    if (!el) return
+
+    const range = el.scrollHeight - el.clientHeight
+    const overflows = range > 2
+    if (overflowing.value !== overflows) overflowing.value = overflows
+
+    const ramp = Math.min(range * 0.22, 96)
+    const top = ramp > 0 ? Math.min(el.scrollTop / ramp, 1) : 0
+    const bottom = ramp > 0 ? Math.min((range - el.scrollTop) / ramp, 1) : 0
+    el.style.setProperty('--nav-fade-top-amt', String(top))
+    el.style.setProperty('--nav-fade-bottom-amt', String(bottom))
+  }
+
+  useEventListener(scrollRef, 'scroll', syncFade, { passive: true })
+  useResizeObserver(scrollRef, syncFade)
+  useResizeObserver(contentRef, syncFade)
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
   const isMobile = shallowRef(true)
@@ -123,6 +150,7 @@
     const activeLink = links.find(link => link.getAttribute('href') === route.path)
     // block: 'nearest' scrolls the .nav-scroll container the minimum amount, and is a no-op when already visible
     activeLink?.scrollIntoView({ block: 'nearest' })
+    syncFade()
   }, { immediate: true })
 
   useClickOutside(
@@ -170,84 +198,114 @@
       <AppCloseButton label="Close navigation" @click="navigation.close" />
     </header>
 
-    <div class="nav-scroll flex-1 min-h-0 overflow-y-auto py-4">
-      <!-- URL filter banner -->
-      <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
-        <p class="text-xs text-on-surface-variant mb-2">
-          Showing docs for your project
-        </p>
+    <div
+      ref="scroll"
+      class="nav-scroll flex-1 min-h-0 overflow-y-auto py-4"
+      :class="overflowing && 'nav-scroll--fade'"
+    >
+      <div ref="content">
+        <!-- URL filter banner -->
+        <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
+          <p class="text-xs text-on-surface-variant mb-2">
+            Showing docs for your project
+          </p>
 
-        <button
-          class="text-xs text-primary hover:underline"
-          type="button"
-          @click="navConfig.clearFilter"
-        >
-          Show all docs
-        </button>
+          <button
+            class="text-xs text-primary hover:underline"
+            type="button"
+            @click="navConfig.clearFilter"
+          >
+            Show all docs
+          </button>
+        </div>
+
+        <ul class="flex gap-1 md:gap-2 flex-col">
+          <template v-if="filteredOutPage">
+            <li class="px-4 section-label">
+              Active page
+            </li>
+
+            <li class="px-4">
+              <router-link
+                aria-current="page"
+                class="font-semibold text-primary underline"
+                :to="filteredOutPage.to"
+              >
+                {{ filteredOutPage.name }}
+              </router-link>
+            </li>
+
+            <li class="px-4">
+              <AppDivider />
+            </li>
+          </template>
+
+          <template v-for="(nav, i) in visibleNav" :key="i">
+            <li v-if="'divider' in nav" class="px-4">
+              <AppDivider />
+            </li>
+
+            <AppNavLink
+              v-else-if="'to' in nav"
+              :id="nav.to"
+              class="px-4"
+              :emphasized="nav.emphasized"
+              :name="nav.name"
+              :to="nav.to"
+            />
+
+            <AppNavLink
+              v-else
+              :id="categories.get(i)!"
+              class="px-4"
+              :name="nav.name"
+            />
+          </template>
+
+          <template v-if="levelFilter.selectedLevels.size > 0">
+            <!-- Skip divider if Active page section already added one and nav has no real content -->
+            <li v-if="!filteredOutPage || hasNavContent" class="px-4">
+              <AppDivider />
+            </li>
+
+            <li class="px-4">
+              <router-link
+                class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
+                to="/guide/essentials/using-the-docs#skill-levels"
+              >
+                <AppIcon icon="info" size="16" />
+                <span>Missing pages?</span>
+              </router-link>
+            </li>
+          </template>
+        </ul>
       </div>
-
-      <ul class="flex gap-1 md:gap-2 flex-col">
-        <template v-if="filteredOutPage">
-          <li class="px-4 section-label">
-            Active page
-          </li>
-
-          <li class="px-4">
-            <router-link
-              aria-current="page"
-              class="font-semibold text-primary underline"
-              :to="filteredOutPage.to"
-            >
-              {{ filteredOutPage.name }}
-            </router-link>
-          </li>
-
-          <li class="px-4">
-            <AppDivider />
-          </li>
-        </template>
-
-        <template v-for="(nav, i) in visibleNav" :key="i">
-          <li v-if="'divider' in nav" class="px-4">
-            <AppDivider />
-          </li>
-
-          <AppNavLink
-            v-else-if="'to' in nav"
-            :id="nav.to"
-            class="px-4"
-            :emphasized="nav.emphasized"
-            :name="nav.name"
-            :to="nav.to"
-          />
-
-          <AppNavLink
-            v-else
-            :id="categories.get(i)!"
-            class="px-4"
-            :name="nav.name"
-          />
-        </template>
-
-        <template v-if="levelFilter.selectedLevels.size > 0">
-          <!-- Skip divider if Active page section already added one and nav has no real content -->
-          <li v-if="!filteredOutPage || hasNavContent" class="px-4">
-            <AppDivider />
-          </li>
-
-          <li class="px-4">
-            <router-link
-              class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-              to="/guide/essentials/using-the-docs#skill-levels"
-            >
-              <AppIcon icon="info" size="16" />
-              <span>Missing pages?</span>
-            </router-link>
-          </li>
-        </template>
-      </ul>
     </div>
 
     <AppNavFooter />
   </Discovery.Activator>
 </template>
+
+<style scoped>
+  /* The drawer fill lives on the nav (solid or glass), so a painted gradient
+     cannot match both. Mask the items into that fill instead. Length and
+     the 22% ramp match the example code window. */
+  .nav-scroll--fade {
+    --nav-fade-top: calc(var(--nav-fade-top-amt, 0) * 2.5rem);
+    --nav-fade-bottom: calc(var(--nav-fade-bottom-amt, 0) * 2.5rem);
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--nav-fade-top),
+      #000 calc(100% - var(--nav-fade-bottom)),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--nav-fade-top),
+      #000 calc(100% - var(--nav-fade-bottom)),
+      transparent 100%
+    );
+  }
+</style>

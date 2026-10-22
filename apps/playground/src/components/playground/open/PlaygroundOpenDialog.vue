@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter, IN_BROWSER, useStorage } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, Select, useStorage } from '@vuetify/v0'
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
@@ -24,6 +24,8 @@
   // Local
   import { readOpenSession, touchOpenSession, writeOpenSession } from './open-session'
   import {
+    binsOfType,
+    binTypeOptions,
     exampleLabel,
     featureBucket,
     normalizeOpenRail,
@@ -39,7 +41,7 @@
 
   // Utilities
   import { isNumber } from '#v0/utilities'
-  import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { RegistryExample, RegistryIndexEntry, RegistryItem } from '@/data/registry'
@@ -64,6 +66,8 @@
   const savedChip = shallowRef<OpenSavedChip>(restored?.savedChip ?? 'all')
   const savedSort = shallowRef<OpenSavedSort>(restored?.savedSort ?? 'updated')
   const savedSortDir = shallowRef<'asc' | 'desc'>(restored?.savedSortDir ?? 'desc')
+  /** Vuetify Bin file-type filter. `all` or a language id from `binTypeKey`. */
+  const binType = shallowRef(restored?.binType ?? 'all')
   const pendingScroll = shallowRef(restored?.scrollTop ?? 0)
   const pendingExamplesScroll = shallowRef(restored?.examplesScrollTop ?? 0)
   /** Gallery wayfinding — name last opened on its rail (2 min session). */
@@ -194,12 +198,24 @@
     ),
   )
 
+  const binTypes = toRef(() => binTypeOptions(bins.value))
+
+  const binTypeItems = toRef(() => [
+    { id: 'all', label: 'All types', count: bins.value.length, icon: '', color: '' },
+    ...binTypes.value,
+  ])
+
+  const binTypeLabel = toRef(() => {
+    if (binType.value === 'all') return 'Type'
+    return binTypes.value.find(item => item.id === binType.value)?.label ?? 'Type'
+  })
+
   const binsPool = computed(() => {
     const unpinned = bins.value.filter(item => !item.pinned)
     const pool = savedChip.value === 'favorite'
       ? unpinned.filter(item => item.favorite)
       : unpinned
-    return sortPlaygrounds(pool, savedSort.value, savedSortDir.value)
+    return sortPlaygrounds(binsOfType(pool, binType.value), savedSort.value, savedSortDir.value)
   })
 
   // Flatten searchable text so createFilter can match example ids without a custom fn.
@@ -352,6 +368,20 @@
     && bins.value.length > 0,
   )
 
+  const showBinType = computed(() =>
+    rail.value === 'bins'
+    && !binsLoading.value
+    && !binsError.value
+    && binTypes.value.length > 1,
+  )
+
+  watch(binTypes, options => {
+    if (!binsLoaded.value || binType.value === 'all') return
+    if (options.some(option => option.id === binType.value)) return
+    binType.value = 'all'
+    persistSession()
+  })
+
   const listChips = computed(() => rail.value === 'bins' ? binsChips.value : savedChips.value)
   const showListChips = computed(() => showSavedChips.value || showBinsChips.value)
   const showListSort = computed(() => showSavedSort.value || showBinsSort.value)
@@ -488,6 +518,7 @@
       savedChip: savedChip.value,
       savedSort: savedSort.value,
       savedSortDir: savedSortDir.value,
+      binType: binType.value,
       lastFeature: lastFeature.value,
       lastFeatureRail: lastFeatureRail.value,
       selectedName: selected.value?.name ?? selectedVuetify.value?.name,
@@ -675,6 +706,7 @@
     query.value = ''
     kind.value = 'all'
     savedChip.value = 'all'
+    binType.value = 'all'
     pendingScroll.value = 0
     pendingExamplesScroll.value = 0
     if (pane.value) pane.value.scrollTop = 0
@@ -702,6 +734,12 @@
       return
     }
     savedChip.value = next
+    pendingScroll.value = 0
+    if (pane.value) pane.value.scrollTop = 0
+    persistSession()
+  }
+
+  function onBinType () {
     pendingScroll.value = 0
     if (pane.value) pane.value.scrollTop = 0
     persistSession()
@@ -1221,25 +1259,82 @@
               class="flex flex-wrap items-center justify-between gap-2"
             >
               <div
-                v-if="showListChips"
-                :aria-label="rail === 'bins' ? 'Filter Vuetify Bin' : 'Filter Vuetify Play'"
-                class="flex flex-wrap gap-1.5"
-                role="group"
+                v-if="showListChips || showBinType"
+                class="flex flex-wrap items-center gap-1.5"
               >
-                <button
-                  v-for="chip in listChips"
-                  :key="chip.id"
-                  :aria-pressed="savedChip === chip.id"
-                  class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] transition-colors border"
-                  :class="savedChip === chip.id
-                    ? 'border-primary bg-primary/10 text-primary font-medium'
-                    : 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'"
-                  type="button"
-                  @click="onSavedChip(chip.id)"
+                <div
+                  v-if="showListChips"
+                  :aria-label="rail === 'bins' ? 'Filter Vuetify Bin' : 'Filter Vuetify Play'"
+                  class="flex flex-wrap gap-1.5"
+                  role="group"
                 >
-                  <span>{{ chip.label }}</span>
-                  <span class="tabular-nums opacity-70">{{ chip.count }}</span>
-                </button>
+                  <button
+                    v-for="chip in listChips"
+                    :key="chip.id"
+                    :aria-pressed="savedChip === chip.id"
+                    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] transition-colors border"
+                    :class="savedChip === chip.id
+                      ? 'border-primary bg-primary/10 text-primary font-medium'
+                      : 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'"
+                    type="button"
+                    @click="onSavedChip(chip.id)"
+                  >
+                    <span>{{ chip.label }}</span>
+                    <span class="tabular-nums opacity-70">{{ chip.count }}</span>
+                  </button>
+                </div>
+
+                <Select.Root
+                  v-if="showBinType"
+                  v-model="binType"
+                  mandatory
+                  @update:model-value="onBinType"
+                >
+                  <Select.Activator
+                    aria-label="Filter by file type"
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] border transition-colors cursor-pointer"
+                    :class="binType === 'all'
+                      ? 'border-divider text-on-surface-variant hover:border-primary/40 hover:text-on-surface'
+                      : 'border-primary bg-primary/10 text-primary font-medium'"
+                  >
+                    <span>{{ binTypeLabel }}</span>
+
+                    <Select.Cue class="flex items-center transition-transform data-[state=open]:rotate-180">
+                      <AppIcon icon="chevron-down" :size="12" />
+                    </Select.Cue>
+                  </Select.Activator>
+
+                  <Select.Content class="z-20 bg-surface border border-divider rounded-md shadow-lg py-1 min-w-40 max-h-60 overflow-y-auto">
+                    <Select.Item
+                      v-for="item in binTypeItems"
+                      :id="item.id"
+                      :key="item.id"
+                      v-slot="{ isSelected }"
+                      class="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-left text-on-surface cursor-pointer hover:bg-surface-tint data-[highlighted]:bg-surface-tint data-[selected]:text-primary"
+                      :value="item.id"
+                    >
+                      <AppIcon
+                        v-if="item.icon"
+                        class="shrink-0"
+                        :icon="item.icon"
+                        :size="14"
+                        :style="{ color: item.color }"
+                      />
+
+                      <span
+                        v-else
+                        class="size-3.5 shrink-0"
+                      />
+
+                      <span class="flex-1 truncate">{{ item.label }}</span>
+
+                      <span
+                        class="tabular-nums text-[10px] opacity-70"
+                        :class="isSelected ? 'text-primary' : 'text-on-surface-variant'"
+                      >{{ item.count }}</span>
+                    </Select.Item>
+                  </Select.Content>
+                </Select.Root>
               </div>
 
               <div

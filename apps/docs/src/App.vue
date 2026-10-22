@@ -246,6 +246,8 @@
       Skip to main content
     </a>
 
+    <div id="docs-copy-status" aria-live="polite" class="sr-only" role="status" />
+
     <div class="app-shell-content pt-[calc(48px+var(--app-banner-h,0px))]">
       <AppBanner />
       <AppBar />
@@ -366,12 +368,30 @@
         display: inline-flex;
         align-items: center;
         align-self: center;
+        /* mdiCheck. A pseudo-element cannot mount AppIcon. */
+        --header-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M21 7 9 19 3.5 13.5 4.91 12.09 9 16.17 19.59 5.59 21 7Z'/%3E%3C/svg%3E");
 
         &::before,
         &::after {
           content: '#';
           color: var(--v0-primary);
           transition: opacity 0.2s;
+        }
+
+        &.header-anchor--copied::before,
+        &.header-anchor--copied::after {
+          content: '';
+          width: 1em;
+          height: 1lh;
+          background-color: var(--v0-success);
+          opacity: 1;
+          -webkit-mask: var(--header-check) center / 1em 1em no-repeat;
+          mask: var(--header-check) center / 1em 1em no-repeat;
+        }
+
+        &.header-anchor--copied::before {
+          left: -1.15em;
+          top: 0;
         }
 
         &::before {
@@ -800,7 +820,9 @@
      while the fade is held at either end. The ramp matches that timeline: the
      top fade strengthens over the first 22% of the range, the bottom fade
      lets go over the last 22%. Opacity only — a translate on these sticky
-     pseudos shifts the bottom veil off the last lines as the end arrives. */
+     pseudos shifts the bottom veil off the last lines as the end arrives.
+     --active means the window overflows vertically. A wide line must not add
+     it: progress stays 0, and the bottom veil would cover lines in view. */
   .docs-code-window--active::before {
     opacity: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
   }

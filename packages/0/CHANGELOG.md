@@ -1,5 +1,132 @@
 # @vuetify/v0
 
+## 1.3.0
+
+### Minor Changes
+
+- [#383](https://github.com/vuetifyjs/0/pull/383) [`ff80dd2`](https://github.com/vuetifyjs/0/commit/ff80dd2d5ae05e9b3c3452c2ee4c4ff6a4c77d4c) Thanks [@johnleider](https://github.com/johnleider)! - feat(createCombobox): commit free-text values in non-strict mode
+
+  A non-strict combobox (the default) now accepts typed text that matches no registered option. Confirming with **Enter**, **Tab**, click-outside, or blur mints a ticket for the typed value, selects it, and emits it through `v-model`; `strict` keeps the constrained behaviour and discards unmatched text on confirm. Adds a `commit()` action to the combobox context. **Escape** still cancels. Virtual focus reads the option element from the registered ticket (`el`), not `document.querySelector`.
+
+- [#948](https://github.com/vuetifyjs/0/pull/948) [`0184058`](https://github.com/vuetifyjs/0/commit/018405893e702bba2eb6d30e390b2008ee49506a) Thanks [@johnleider](https://github.com/johnleider)! - feat(createPlugin): opt plugins into Vue DevTools with `devtools: true`
+
+  Inspector snapshots unwrap refs and class getters. Logger and storage supply an `inspect` hook so method-only contexts still show state. Storage gains `keys()`.
+
+- [#178](https://github.com/vuetifyjs/0/pull/178) [`8302695`](https://github.com/vuetifyjs/0/commit/830269534d890fb56d05e10fcec27bbe91063235) Thanks [@johnleider](https://github.com/johnleider)! - feat(Tour): add createTour and Tour compound for guided walkthroughs
+
+  Headless step sequencer with activator targeting, form-gated next, and enter/leave/completed handlers. The Tour compound adds highlight, anchored content, and keyboard chrome on top. createTourPlugin provides one app-level tour. The app owns the catalog and loads one tour at a time.
+
+- [#1046](https://github.com/vuetifyjs/0/pull/1046) [`1a5cbce`](https://github.com/vuetifyjs/0/commit/1a5cbce149ca1b08301ce3f76b8783af70c8c106) Thanks [@johnleider](https://github.com/johnleider)! - feat(createVirtual): keep the window aligned when the scroll parent is not the list
+
+  `marker` drops content above the list out of the scroll position. `itemKey` keeps a measured height on the item when the array is prepended, filtered, or reordered. `scrollTo` places the window before it writes the scroll position, retries when the browser clamps that write, and runs a call made before the scroll element exists. Pass `ownElement: false` to leave an externally owned scroll element unstyled.
+
+- [#961](https://github.com/vuetifyjs/0/pull/961) [`3b3734e`](https://github.com/vuetifyjs/0/commit/3b3734e3572d24bfcdc5d45af9358254b5574f80) Thanks [@johnleider](https://github.com/johnleider)! - feat(Dialog): opt a dialog out of the global Scrim with `scrim`
+
+  `Dialog.Content` and `AlertDialog.Content` accept `scrim` (default `true`). Pass `false` when you own the backdrop so an app-level `<Scrim>` does not double-dim the overlay.
+
+- [#1012](https://github.com/vuetifyjs/0/pull/1012) [`bec776d`](https://github.com/vuetifyjs/0/commit/bec776dee57cbb0812278b6c9cd5e5953942c2b2) Thanks [@johnleider](https://github.com/johnleider)! - feat(Kanban): add Kanban compound component over createKanban ([#1012](https://github.com/vuetifyjs/0/issues/1012))
+
+  Adds `Kanban.Root`, `Kanban.Column`, `Kanban.List`, `Kanban.Item`,
+  `Kanban.Instructions`, and `Kanban.LiveRegion` for boards of movable items in
+  columns. Each Column binds its item array with `v-model`; a drop writes the new
+  order back and Root emits `move` once with `{ value, from, to, fromIndex, toIndex }`.
+  Items move by pointer drag or by keyboard: Space / Enter picks up, arrow keys
+  and Home / End move a previewed drop target (RTL-aware, skipping columns that
+  are disabled or whose `accept` refuses the item), Space / Enter drops, and
+  Escape cancels without touching the board. The pending target is exposed as
+  `data-target` on the column and list and `data-drop="before" | "after"` on the
+  neighbouring item; every step is announced through the live region. Columns
+  gate incoming moves with `accept(value, from, index)` and freeze with
+  `disabled`.
+
+- [#787](https://github.com/vuetifyjs/0/pull/787) [`18eb798`](https://github.com/vuetifyjs/0/commit/18eb7981f29613afebb968573abc8556abceabee) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(Otp): add Otp compound component over createOtp ([#519](https://github.com/vuetifyjs/0/issues/519))
+
+  Adds `Otp.Root`, `Otp.Item`, and `Otp.HiddenInput` for one-time-password /
+  verification-code entry. Root bridges v-model, exposes a `role="group"` with a
+  locale-driven default accessible name, and auto-renders a hidden input when
+  `name` is set. Each Item is a single character box (`autocomplete="one-time-code"`)
+  that auto-advances on input, moves back on Backspace of an empty box, supports
+  arrow-key movement, and distributes pasted or autofilled text across boxes.
+  `@complete` fires when the code fills. Reject-and-retry lives on `createOtp`'s
+  `onComplete` option.
+  Root slots an `items` array derived from `length` (same pattern as Rating) so
+  boxes are iterated once instead of repeating the count in `v-for`.
+
+- [#788](https://github.com/vuetifyjs/0/pull/788) [`f990bbb`](https://github.com/vuetifyjs/0/commit/f990bbbb14e3b87122f77be021cac400e55704cb) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(Virtualizer): add Virtualizer compound component over createVirtual ([#788](https://github.com/vuetifyjs/0/issues/788))
+
+  Adds `Virtualizer.Root`, `Virtualizer.Item`, and `Virtualizer.Spacer` for
+  rendering large lists. Root renders a keyboard-focusable scroll container and
+  slots only the visible window (plus `overscan`), typed from `items`. Place a
+  `Spacer` before the rows and a `Spacer` with `edge="end"` after them to reserve
+  the off-screen range; set `as` (for example `li` inside a `ul`) when a `div`
+  cannot sit there. Each Item measures its own border box, so variable-height
+  rows with padding or borders need no manual `resize()` call. `@top` / `@bottom`
+  (with `top-threshold` / `bottom-threshold`) drive infinite scroll.
+  `scrollTo(index, options)` and `reset()` come from the default slot or a
+  template ref on Root, which also exposes the container `element` — handy for
+  scroll controls outside the list or a `useVirtualFocus` cursor.
+
+  Virtualizer imposes no role — pass `role` on Root and Item, and
+  `aria-posinset` / `aria-setsize` on Item, to match your content (for grids,
+  `aria-rowcount` on Root and `aria-rowindex` on Item). When a focused row
+  scrolls out of the window, focus moves to the scroll container instead of
+  falling to the page. `renderless` is not supported; use `createVirtual`
+  directly for full control over the markup.
+
+- [#935](https://github.com/vuetifyjs/0/pull/935) [`8670f30`](https://github.com/vuetifyjs/0/commit/8670f30730b9a4404e2fe5430e8e530767178a14) Thanks [@johnleider](https://github.com/johnleider)! - feat(forms): expose AtomExpose on control roots and focus() on groups
+
+  `Checkbox.Root`, `Radio.Root`, `Switch.Root`, `Toggle.Root`, and `Button.Root` now expose the rendered host via `AtomExpose.element`, so a template ref can call `.focus()`. `Radio.Group`, `Checkbox.Group`, `Switch.Group`, `Toggle.Group`, and `Button.Group` expose `focus(options?: FocusOptions)` which focuses the selected item, or the first if none is selected.
+
+- [#1037](https://github.com/vuetifyjs/0/pull/1037) [`edf2af9`](https://github.com/vuetifyjs/0/commit/edf2af977bcc852f52f0084268421048b74c9e09) Thanks [@sridhar-3009](https://github.com/sridhar-3009)! - feat(Input): export parseValidateOn from the Input barrel
+
+  `parseValidateOn` and its `ParsedValidateOn` return type are now public, so wrappers that re-implement the `validateOn` surface can reuse the parser instead of copying it. NumberField and `@paper/bulma` now use the shared parser.
+
+- [#1038](https://github.com/vuetifyjs/0/pull/1038) [`0621413`](https://github.com/vuetifyjs/0/commit/06214134009198669346b5ad16f127d3c73fe25d) Thanks [@johnleider](https://github.com/johnleider)! - feat(Menu): add a headless menu for a button, a right-click, or a menubar, including submenus
+
+- [#1040](https://github.com/vuetifyjs/0/pull/1040) [`4047a65`](https://github.com/vuetifyjs/0/commit/4047a65d354f9e11e93584194d8009d1ce343509) Thanks [@johnleider](https://github.com/johnleider)! - feat(Pagination): fit uneven buttons to the container and grow when it widens
+
+  Page buttons can have different widths. The row shrinks when the rendered buttons overflow and grows back when the container widens or the current page is shorter. `createOverflow` accepts `probe: true` when the count that fits is not mounted yet. Render `capacity`, measure that row, and call `settle()`.
+
+- [#1055](https://github.com/vuetifyjs/0/pull/1055) [`1f5719c`](https://github.com/vuetifyjs/0/commit/1f5719ccf8af9bc8cb0c2afd4dc25c63b5ecbb20) Thanks [@johnleider](https://github.com/johnleider)! - feat(Select): name the activator from a visible label
+
+  `Select.Activator` accepts `ariaLabelledby` and renders it as `aria-labelledby`. Pass the id of an existing label element when the control's text is the selected value. If `label` and `ariaLabelledby` are both set, `aria-labelledby` is used and `aria-label` is omitted.
+
+- [#1058](https://github.com/vuetifyjs/0/pull/1058) [`2f59b6b`](https://github.com/vuetifyjs/0/commit/2f59b6be45ace1dc7f1551fdbd5144526be6eaf4) Thanks [@johnleider](https://github.com/johnleider)! - feat(Select): select an option by typing its text
+
+  Printable characters match option text. Characters typed within one second accumulate, and a repeated letter cycles. A single select updates the value and leaves the list open or closed as it was. The matcher is `useTypeahead`.
+
+- [#939](https://github.com/vuetifyjs/0/pull/939) [`3cf3360`](https://github.com/vuetifyjs/0/commit/3cf3360603d4c30fef16da5fc00527c51e08d35e) Thanks [@Haviles04](https://github.com/Haviles04)! - feat(useFocusTrap): confine Tab and Shift+Tab to a root element
+
+  A `<dialog>` opened with `showModal()` is trapped by the browser. Anything else — a `Dialog.Content` rendered `as="div"`, a drawer, a command palette — had to hand-roll containment. `useFocusTrap` is that loop, once:
+
+  ```ts
+  const panel = useTemplateRef<HTMLElement>("panel");
+
+  useFocusTrap(panel, { active: isOpen });
+  ```
+
+  Tab and Shift+Tab wrap at the first and last tabbable descendant, focus moves into the root on activate, and the previously focused element gets it back on deactivate. Pass `initial` to choose where focus lands (or `false` to skip autofocus), `restore: false` to leave focus alone on release, and `onEscape` to opt into Escape handling — the trap never closes anything itself. Nested traps: the last connected trap owns Tab; the last connected trap that has `onEscape` owns Escape.
+
+  The boundary is computed the way the browser computes tab order, not by element identity: a radio group counts as one stop (the checked member if it is otherwise tabbable, otherwise the first otherwise-tabbable member), and focus parked on a script-focusable `tabindex="-1"` descendant past the last stop still wraps rather than walking out. `aria-disabled` controls stay in the tab order per APG, so they remain real boundaries.
+
+  The keydown listener is bound to `document` in the capture phase rather than to the root, so focus that escaped the subtree — a backdrop click that blurred to `<body>`, a stray programmatic `focus()` — is recovered on the next Tab instead of leaving the trap permanently dead. Only the boundaries are intercepted, so a nested widget keeps its own Tab handling. Containment pierces open shadow roots; discovery does not, which is documented along with the `<iframe>` limitation.
+
+  Give the root `tabindex="-1"` if it can ever hold zero tabbable descendants — the trap focuses the root as a fallback, and v0 does not write attributes onto elements it did not render.
+
+### Patch Changes
+
+- [#1056](https://github.com/vuetifyjs/0/pull/1056) [`ede941e`](https://github.com/vuetifyjs/0/commit/ede941eb9fbb91228838a2b539cc1ad3fefd585d) Thanks [@johnleider](https://github.com/johnleider)! - fix(Menu): a repeated typeahead letter still accepts the next character
+
+  Repeating a letter moves to the next match. A different letter before the pause searches from that one letter.
+
+  A click listener on a menu item runs before the item's own action, including when the item is disabled.
+
+- [#1011](https://github.com/vuetifyjs/0/pull/1011) [`09e971d`](https://github.com/vuetifyjs/0/commit/09e971d4a017ecacd3eeed3b67c79a29ad4da7df) Thanks [@johnleider](https://github.com/johnleider)! - fix(Otp): accept a full autofilled one-time code ([#1011](https://github.com/vuetifyjs/0/issues/1011))
+
+  A code the browser inserts in one edit (SMS autofill, a password manager) fills every box. Dropping text onto a filled box replaces from that box instead of shifting the digits already there.
+
+- [#948](https://github.com/vuetifyjs/0/pull/948) [`0184058`](https://github.com/vuetifyjs/0/commit/018405893e702bba2eb6d30e390b2008ee49506a) Thanks [@johnleider](https://github.com/johnleider)! - fix(components): declare missing update:model-value emits so Vue DevTools can track Root v-models
+
 ## 1.2.4
 
 ### Patch Changes

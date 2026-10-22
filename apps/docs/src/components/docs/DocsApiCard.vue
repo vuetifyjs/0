@@ -74,7 +74,6 @@
         <a
           class="header-anchor"
           :href="`#${item.name}`"
-          @click.prevent="api.scrollToAnchor(item.name)"
         >
           <span class="text-sm font-semibold font-mono text-primary">{{ item.name }}</span>
 

@@ -66,6 +66,7 @@
   <div
     v-if="componentApis.length > 0"
     class="mt-8 mb-12 markdown-body"
+    data-tour="api-reference"
   >
     <div class="markdown-body flex items-center justify-between gap-4 mb-3">
       <DocsHeaderAnchor
@@ -78,6 +79,7 @@
 
       <button
         class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none whitespace-nowrap"
+        data-tour="api-inline-toggle"
         type="button"
         @click="showInlineApi = !showInlineApi"
       >
@@ -93,7 +95,7 @@
     />
 
     <template v-if="showInlineApi">
-      <DocsSearchInput v-model="search" class="mt-8" :placeholder />
+      <DocsSearchInput v-model="search" class="mt-8" data-tour="api-search" :placeholder />
 
       <hr class="mt-4" :class="{ '-mb-4': !empty }">
 

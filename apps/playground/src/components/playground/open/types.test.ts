@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Local
-import { binCopyPath, binFileExt, binFileType, binLanguageLabel, binReplExt, DEFAULT_OPEN_RAIL, normalizeOpenRail } from './types'
+import { binCopyPath, binFileExt, binFileType, binLanguageLabel, binReplExt, binsOfType, binTypeKey, binTypeOptions, DEFAULT_OPEN_RAIL, normalizeOpenRail } from './types'
 
 describe('normalizeOpenRail', () => {
   it('should default to Vuetify One', () => {
@@ -37,6 +37,21 @@ describe('normalizeOpenRail', () => {
     expect(binFileType('python')?.icon).toBe('lang-py')
     expect(binFileType('JavaScript')?.icon).toBe('lang-js')
     expect(binFileType(null)?.icon).toBe('file-document')
+  })
+
+  it('should group bins by file type', () => {
+    expect(binTypeKey(null)).toBe('text')
+    expect(binTypeKey('JavaScript')).toBe('javascript')
+    const options = binTypeOptions([
+      { language: 'vue' },
+      { language: 'Vue' },
+      { language: 'typescript' },
+      { language: null },
+    ])
+    expect(options.map(option => option.id)).toEqual(['text', 'typescript', 'vue'])
+    expect(options.find(option => option.id === 'vue')).toMatchObject({ label: 'Vue', count: 2, icon: 'lang-vue' })
+    expect(binsOfType([{ language: 'vue' }, { language: 'css' }], 'vue')).toEqual([{ language: 'vue' }])
+    expect(binsOfType([{ language: 'vue' }], 'all')).toEqual([{ language: 'vue' }])
   })
 
   it('should name a copied bin without clobbering a file', () => {

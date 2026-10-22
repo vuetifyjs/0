@@ -13,12 +13,10 @@
   }>()
 
   const scrollable = shallowRef(false)
+  // A wide line leaves progress at 0, which would paint the bottom veil over lines already in view.
+  const overflowsY = shallowRef(false)
   const scrollRef = useTemplateRef<HTMLElement>('scroll')
   const contentRef = useTemplateRef<HTMLElement>('content')
-
-  function overflows (el: HTMLElement): boolean {
-    return el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2
-  }
 
   // Peek mode clips the code on an ancestor. That clip is not this element's
   // scrollport, so a tall file stays out of the tab order until it is expanded
@@ -35,10 +33,14 @@
     const el = scrollRef.value
     if (!el) {
       scrollable.value = false
+      overflowsY.value = false
       return
     }
     const capped = !el.closest('.genesis-docs-example-code')?.hasAttribute('data-truncated')
-    scrollable.value = capped && overflows(el)
+    const vertical = el.scrollHeight - el.clientHeight > 2
+    const horizontal = el.scrollWidth - el.clientWidth > 2
+    overflowsY.value = capped && vertical
+    scrollable.value = capped && (vertical || horizontal)
     syncProgress()
   }
 
@@ -60,7 +62,7 @@
       ref="scroll"
       :aria-label="scrollable ? (label ? `Scrollable example code, ${label}` : 'Scrollable example code') : undefined"
       class="docs-genesis-example-pane__scroll docs-code-window"
-      :class="scrollable && 'docs-code-window--active'"
+      :class="overflowsY && 'docs-code-window--active'"
       :role="scrollable ? 'region' : undefined"
       :tabindex="scrollable ? 0 : undefined"
     >

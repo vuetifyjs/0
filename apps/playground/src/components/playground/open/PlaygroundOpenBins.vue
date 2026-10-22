@@ -4,6 +4,7 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppJdenticon from '@/components/app/AppJdenticon.vue'
   import AppSkeleton from '@/components/app/AppSkeleton.vue'
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
@@ -164,6 +165,8 @@
           class="min-w-0 h-full inline-flex items-center gap-1 px-1.5 text-[11px] text-on-surface cursor-pointer border-0 bg-transparent"
           @click="emit('open', item)"
         >
+          <AppJdenticon :size="16" :value="item.id" />
+
           <AppIcon class="shrink-0 text-on-surface-variant" icon="pin" :size="12" />
 
           <span class="truncate">{{ item.title || 'Untitled' }}</span>
@@ -211,7 +214,7 @@
       :class="pinned.length > 0 ? 'py-6' : 'h-full'"
     >
       <p class="text-sm text-on-surface-variant">
-        {{ query ? `No matches for “${query}”` : 'No bins' }}
+        {{ query ? `No matches for “${query}”` : 'No matches' }}
       </p>
     </div>
 
@@ -243,10 +246,12 @@
 
         <Button.Root
           :aria-label="label(entry.raw)"
-          class="min-w-0 flex-1 text-sm text-on-surface truncate hover:text-primary border-0 bg-transparent cursor-pointer text-left p-0"
+          class="min-w-0 flex-1 inline-flex items-center gap-2 text-sm text-on-surface hover:text-primary border-0 bg-transparent cursor-pointer text-left p-0"
           @click.stop="emit('open', entry.raw)"
         >
-          {{ entry.raw.title || 'Untitled' }}
+          <AppJdenticon :value="entry.raw.id" />
+
+          <span class="truncate">{{ entry.raw.title || 'Untitled' }}</span>
         </Button.Root>
 
         <div class="flex items-center gap-2 shrink-0">

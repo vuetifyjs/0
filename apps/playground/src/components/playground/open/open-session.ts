@@ -27,6 +27,8 @@ export interface OpenSessionState {
   savedChip: OpenSavedChip
   savedSort: OpenSavedSort
   savedSortDir: 'asc' | 'desc'
+  /** Vuetify Bin file-type filter. `all` or a `binTypeKey` language id. */
+  binType: string
   /**
    * Feature name last opened on a gallery rail (wayfinding chip).
    * Scoped by lastFeatureRail so v0 and Vuetify names don't collide.
@@ -69,6 +71,11 @@ function normalizeSavedSortDir (value: string | undefined): 'asc' | 'desc' {
   return value === 'asc' ? 'asc' : 'desc'
 }
 
+function normalizeBinType (value: string | undefined) {
+  if (!value || value.length > 40) return 'all'
+  return value
+}
+
 /** Read session if still within the 2-minute window; otherwise clear and return null. */
 export function readOpenSession (): OpenSessionState | null {
   if (!session) return null
@@ -85,6 +92,7 @@ export function readOpenSession (): OpenSessionState | null {
     savedChip: normalizeSavedChip(session.savedChip),
     savedSort: normalizeSavedSort(session.savedSort),
     savedSortDir: normalizeSavedSortDir(session.savedSortDir),
+    binType: normalizeBinType(session.binType),
     lastFeature: session.lastFeature,
     lastFeatureRail: session.lastFeatureRail
       ? normalizeOpenRail(session.lastFeatureRail)
@@ -105,6 +113,7 @@ export function writeOpenSession (state: OpenSessionState) {
     savedChip: normalizeSavedChip(state.savedChip),
     savedSort: normalizeSavedSort(state.savedSort),
     savedSortDir: normalizeSavedSortDir(state.savedSortDir),
+    binType: normalizeBinType(state.binType),
     lastFeature: state.lastFeature,
     lastFeatureRail: state.lastFeatureRail
       ? normalizeOpenRail(state.lastFeatureRail)

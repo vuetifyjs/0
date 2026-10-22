@@ -170,6 +170,11 @@ function benchSummary (b: RawBench): BenchSummary {
   }
 }
 
+/** A thrown or unfinished bench records no samples. Omitting it keeps the rest of the snapshot. */
+function isMeasured (b: RawBench): boolean {
+  return Number.isFinite(b.hz) && Number.isFinite(b.mean)
+}
+
 /**
  * Reduce a single file entry from vitest bench JSON into the per-item
  * benchmarks shape used by metrics.json and the per-version history files.
@@ -181,12 +186,17 @@ function benchSummary (b: RawBench): BenchSummary {
  * workstation, and on four full-suite runs of identical code that correction
  * made results measurably *less* reproducible than leaving them alone.
  */
+
 export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
   const result: ItemBenchmarks = { _groups: {} }
 
   for (const group of file.groups ?? []) {
     const groupName = group.fullName.split(' > ').pop() ?? group.fullName
-    const groupBenchmarks = group.benchmarks ?? []
+    for (const b of group.benchmarks ?? []) {
+      if (!isMeasured(b)) console.warn(`[benchmarks] skipping "${b.name}": no samples`)
+    }
+    const groupBenchmarks = (group.benchmarks ?? []).filter(b => isMeasured(b))
+    if (groupBenchmarks.length === 0) continue
     const groupEntry: GroupEntry = {}
 
     for (const b of groupBenchmarks) {
@@ -215,7 +225,7 @@ export function buildItemBenchmarks (file: RawBenchFile): ItemBenchmarks {
     result._groups[groupName] = groupEntry
   }
 
-  const allBenchmarks = (file.groups ?? []).flatMap(g => g.benchmarks ?? [])
+  const allBenchmarks = (file.groups ?? []).flatMap(g => (g.benchmarks ?? []).filter(b => isMeasured(b)))
   const fastestOverall = allBenchmarks.reduce<RawBench | null>((a, b) => (!a || b.hz > a.hz) ? b : a, null)
   const slowestOverall = allBenchmarks.reduce<RawBench | null>((a, b) => (!a || b.hz < a.hz) ? b : a, null)
   if (fastestOverall) result._fastest = benchSummary(fastestOverall)

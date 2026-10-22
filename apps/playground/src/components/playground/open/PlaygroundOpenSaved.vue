@@ -4,6 +4,7 @@
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppJdenticon from '@/components/app/AppJdenticon.vue'
   import AppSkeleton from '@/components/app/AppSkeleton.vue'
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
@@ -82,12 +83,14 @@
       <span
         v-for="item in pinned"
         :key="item.id"
-        class="inline-flex items-center max-w-[11rem] h-6 rounded-full border border-divider bg-surface-tint/40"
+        class="inline-flex items-center max-w-[13rem] h-6 rounded-full border border-divider bg-surface-tint/40"
       >
         <Button.Root
           class="min-w-0 inline-flex items-center gap-1 pl-1.5 pr-1 text-[11px] text-on-surface border-0 bg-transparent cursor-pointer"
           @click="emit('open', item)"
         >
+          <AppJdenticon :size="16" :value="item.id" />
+
           <AppIcon class="shrink-0 text-on-surface-variant" icon="pin" :size="12" />
 
           <span class="truncate">{{ item.title || 'Untitled' }}</span>
