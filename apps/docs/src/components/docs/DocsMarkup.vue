@@ -141,8 +141,9 @@
       <div
         ref="scroller"
         :aria-label="scrollable ? scrollLabel : undefined"
-        class="docs-markup__window transition-[max-height] duration-300 ease-out"
+        class="docs-markup__window"
         :class="[
+          !settings.prefersReducedMotion.value && 'transition-[max-height] duration-300 ease-out',
           capped && 'docs-markup__window--capped docs-code-window',
           overflowsY && 'docs-code-window--active',
         ]"

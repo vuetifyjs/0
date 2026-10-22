@@ -237,6 +237,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
+    :data-reduce-motion="settings.prefersReducedMotion.value || undefined"
     :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
   >
     <a
@@ -691,6 +692,29 @@
 
   .shiki code {
     font-size: var(--docs-code-size);
+  }
+
+  /* Fence expand, the example-code peek, and those two chevrons. The OS
+     media query is not the preference: settings resolves system detection,
+     the explicit on/off choice, and the tour override. The Uno preflight
+     pins every duration to 0.01ms !important under prefers-reduced-motion,
+     so an explicit Full motion choice has to outrank it here only.
+     FAQ and description peeks stay on the preflight. */
+  .app-shell[data-reduce-motion] .docs-markup__window,
+  .app-shell[data-reduce-motion] .genesis-docs-example-code__content,
+  .app-shell[data-reduce-motion] .docs-markup ~ .genesis-peek .genesis-peek__chevron,
+  .app-shell[data-reduce-motion] .genesis-docs-example > .genesis-peek .genesis-peek__chevron {
+    transition: none;
+  }
+
+  .app-shell:not([data-reduce-motion]) .docs-markup__window,
+  .app-shell:not([data-reduce-motion]) .genesis-docs-example-code__content {
+    transition-duration: 0.3s !important;
+  }
+
+  .app-shell:not([data-reduce-motion]) .docs-markup ~ .genesis-peek .genesis-peek__chevron,
+  .app-shell:not([data-reduce-motion]) .genesis-docs-example > .genesis-peek .genesis-peek__chevron {
+    transition-duration: 0.15s !important;
   }
 
   /* DocsMarkup code block styling */
