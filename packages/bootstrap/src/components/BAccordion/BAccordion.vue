@@ -37,7 +37,7 @@
 
   const [useBAccordion, provideBAccordion] = createContext<BAccordionContext | null>('bootstrap:accordion', null)
 
-  export { provideBAccordion, useBAccordion }
+  export { useBAccordion }
 </script>
 
 <script setup lang="ts">

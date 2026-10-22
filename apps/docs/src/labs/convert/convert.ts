@@ -9,9 +9,9 @@
 // Utilities
 import { isElement, isNull, isNullOrUndefined } from '#v0/utilities'
 
-export const BULMA_CSS = 'https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css'
+const BULMA_CSS = 'https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css'
 
-export const BOOTSTRAP_CSS = 'https://cdn.jsdelivr.net/gh/twbs/bootstrap@f6cc0f2cde9cbf3d73759ada24a39555d2de3a12/dist/css/bootstrap.min.css'
+const BOOTSTRAP_CSS = 'https://cdn.jsdelivr.net/gh/twbs/bootstrap@f6cc0f2cde9cbf3d73759ada24a39555d2de3a12/dist/css/bootstrap.min.css'
 
 const COLORS = ['primary', 'link', 'info', 'success', 'warning', 'danger'] as const
 

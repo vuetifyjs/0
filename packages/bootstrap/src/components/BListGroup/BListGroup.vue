@@ -26,7 +26,9 @@
     selection: SingleContext
   }
 
-  export const [useListGroup, provideListGroup] = createContext<BListGroupContext | null>()
+  const [useListGroup, provideListGroup] = createContext<BListGroupContext | null>()
+
+  export { useListGroup }
 </script>
 
 <script setup lang="ts">

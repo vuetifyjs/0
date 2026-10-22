@@ -82,7 +82,7 @@ function parse (file: string): Block[] {
 }
 
 /** Load a fixture block as a detached Element. See file header for `name` syntax. */
-export function loadFixture (name: string): Element {
+function loadFixture (name: string): Element {
   const colon = name.indexOf(':')
   const file = colon === -1 ? name : name.slice(0, colon)
   const pick = colon === -1 ? '0' : name.slice(colon + 1)
