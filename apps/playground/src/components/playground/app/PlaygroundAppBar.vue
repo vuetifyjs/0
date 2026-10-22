@@ -118,13 +118,20 @@
     <div class="flex items-center gap-2">
       <PlaygroundMenuBar />
 
-      <img
-        alt="Vuetify0 Play"
-        class="h-7"
-        :src="theme.isDark.value
-          ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
-          : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
+      <button
+        aria-label="Choose a template"
+        class="inline-flex items-center rounded p-1 -m-1 hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer"
+        type="button"
+        @click="playground.chooseTemplate()"
       >
+        <img
+          alt=""
+          class="h-7"
+          :src="theme.isDark.value
+            ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
+            : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
+        >
+      </button>
     </div>
 
     <div class="flex items-center gap-2">
