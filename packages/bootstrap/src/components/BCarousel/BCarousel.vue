@@ -33,7 +33,9 @@
     claim: () => number
   }
 
-  export const [useBCarousel, provideBCarousel] = createContext<BCarouselContext>('v0:b-carousel-index')
+  const [useBCarousel, provideBCarousel] = createContext<BCarouselContext>('v0:b-carousel-index')
+
+  export { useBCarousel }
 
   const AUTOPLAY_MS = 5_000
 </script>

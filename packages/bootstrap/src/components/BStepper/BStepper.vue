@@ -25,7 +25,9 @@
   /** Step's own inject key. Not the claim counter. */
   export const STEPPER_NS = 'v0:b-stepper'
 
-  export const [useBStepper, provideBStepper] = createContext<BStepperContext>('v0:b-stepper-index')
+  const [useBStepper, provideBStepper] = createContext<BStepperContext>('v0:b-stepper-index')
+
+  export { useBStepper }
 </script>
 
 <script setup lang="ts">

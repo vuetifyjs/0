@@ -32,7 +32,7 @@
 
   const [useBToast, provideBToast] = createContext<BToastContext | null>('bootstrap:toast', null)
 
-  export { provideBToast, useBToast }
+  export { useBToast }
 </script>
 
 <script setup lang="ts">
