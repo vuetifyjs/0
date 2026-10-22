@@ -76,13 +76,15 @@ export function defineTour ({ settings }: TourContext) {
     hoverTarget = null
   }
 
+  // The tour card sits above the token and is about 310px tall, so a token
+  // higher than that gets covered when the card is shifted back on screen.
   // The reference opens above its token until the space above reaches 400px,
-  // then flips below. The tour card also sits above the token, and on a phone
-  // it moves below when that space is under 256px. Keep the token just past
-  // that line so the tour card stays above and the reference opens under it.
+  // then flips below. 380 clears the tour card and stays under that line, so
+  // the reference opens under the highlight. On a phone the tour card moves
+  // below when the space above is under 256px, and 380 keeps it above.
   function placeHoverTarget (target: HTMLElement) {
     const rect = target.getBoundingClientRect()
-    window.scrollBy(0, rect.top - 270)
+    window.scrollBy(0, rect.top - 380)
   }
 
   function proseCandidate (): HTMLElement | null {
@@ -96,6 +98,41 @@ export function defineTour ({ settings }: TourContext) {
   async function settle () {
     await nextTick()
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  }
+
+  // The event id contains a colon, which a #id selector reads as a pseudo.
+  function row (id: string): HTMLElement | null {
+    const heading = document.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`)
+    const card = heading?.closest('.border')
+    return card instanceof HTMLElement ? card : null
+  }
+
+  // The cutout otherwise sits on the element's own border. 8px keeps a gap
+  // without swallowing the neighbors.
+  function spotlight (
+    activate: StepHandlerContext['activate'],
+    target: HTMLElement | null,
+    scroll = true,
+  ) {
+    if (!target) return
+    activate(target, { padding: 8, scroll })
+  }
+
+  // A card placed above its target is about 310px tall. Centering a tall
+  // target leaves less than that, and the title slides off the top. Nudge
+  // the target down so the card fits. Anchor positioning follows the scroll.
+  function clearCard (target: HTMLElement | null) {
+    if (!target) return
+    const top = target.getBoundingClientRect().top
+    if (top >= 340) return
+    window.scrollBy(0, top - 340)
+  }
+
+  async function list () {
+    setInline(true)
+    hideHover()
+    await query('[data-tour="api-search"]')
+    writeSearch('')
   }
 
   function raiseHover () {
@@ -114,7 +151,8 @@ export function defineTour ({ settings }: TourContext) {
           setInline(false)
           hideHover()
           const target = await query('[data-tour="api-reference"]')
-          if (target) activate(target)
+          spotlight(activate, target)
+          clearCard(target)
         },
       },
       parts: {
@@ -122,7 +160,8 @@ export function defineTour ({ settings }: TourContext) {
           setInline(false)
           hideHover()
           const target = await query('[data-tour="api-cards"]')
-          if (target) activate(target)
+          spotlight(activate, target)
+          clearCard(target)
         },
       },
       inline: {
@@ -131,7 +170,7 @@ export function defineTour ({ settings }: TourContext) {
           hideHover()
           writeSearch('')
           const target = await query('[data-tour="api-inline-toggle"]')
-          if (target) activate(target)
+          spotlight(activate, target)
         },
       },
       filter: {
@@ -140,27 +179,47 @@ export function defineTour ({ settings }: TourContext) {
           hideHover()
           const target = await query('[data-tour="api-search"]')
           writeSearch('model')
-          if (target) activate(target)
+          spotlight(activate, target)
         },
       },
       props: {
         enter: async ({ activate }: StepHandlerContext) => {
-          setInline(true)
-          hideHover()
-          await query('[data-tour="api-search"]')
-          writeSearch('')
+          await list()
           const target = await query('#tabs-root-props')
-          if (target) activate(target)
+          spotlight(activate, target)
+          clearCard(target)
+        },
+      },
+      model: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await list()
+          const target = row('modelValue')
+          spotlight(activate, target)
+          clearCard(target)
+        },
+      },
+      mandatory: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await list()
+          const target = row('mandatory')
+          spotlight(activate, target)
+          clearCard(target)
+        },
+      },
+      events: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await list()
+          const target = row('update:model-value')
+          spotlight(activate, target)
+          clearCard(target)
         },
       },
       slots: {
         enter: async ({ activate }: StepHandlerContext) => {
-          setInline(true)
-          hideHover()
-          await query('[data-tour="api-search"]')
-          writeSearch('')
+          await list()
           const target = await query('#tabs-item-slots')
-          if (target) activate(target)
+          spotlight(activate, target)
+          clearCard(target)
         },
       },
       hover: {
@@ -177,10 +236,18 @@ export function defineTour ({ settings }: TourContext) {
           // and a token above the fold would flip the card down onto the
           // reference on a phone.
           placeHoverTarget(target)
-          activate(target, { scroll: false })
+          spotlight(activate, target, false)
           hoverTarget = target
+          await settle()
+          // Opening the answer and scrolling fires a mouseleave that cancels
+          // the card's open delay. Dispatch once the page has stopped moving,
+          // then once more if that leave landed after the first dispatch.
           target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-          await new Promise(resolve => setTimeout(resolve, 250))
+          await new Promise(resolve => setTimeout(resolve, 350))
+          if (!document.querySelector('.docs-api-hover-popover')) {
+            target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+            await new Promise(resolve => setTimeout(resolve, 350))
+          }
           raiseHover()
         },
         leave: hideHover,
@@ -190,7 +257,7 @@ export function defineTour ({ settings }: TourContext) {
           setInline(true)
           hideHover()
           const target = await query('[data-tour="api-inline-toggle"]')
-          if (target) activate(target)
+          spotlight(activate, target)
         },
       },
     },

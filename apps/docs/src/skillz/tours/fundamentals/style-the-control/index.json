@@ -7,71 +7,103 @@
   "categories": ["styling"],
   "order": 0,
   "prerequisites": ["reading-the-api"],
-  "description": "Learn how a headless switch gets its look from data-state, and when slot attrs belong on your element.",
-  "minutes": 4,
+  "description": "See how a switch gets its color and motion from data-state, including the indeterminate state, and when attrs belong on your own element.",
+  "minutes": 5,
   "startRoute": "/components/forms/switch",
   "steps": [
     {
       "id": "preview",
-      "title": "It has a look",
-      "task": "This switch is colored and it moves. The component did not paint that. The example did.",
-      "hint": "",
-      "learn": "See that the look lives in the example",
+      "title": "The example styles it",
+      "task": "This switch has a color, and the thumb moves. Those styles are classes in the example. The component does not include them.",
+      "hint": "Switch renders the button and sets data-state. The classes in the example turn that state into a color and a position.",
+      "learn": "See that the styling is in the example",
       "placement": "top"
     },
     {
       "id": "on",
-      "title": "The attribute flipped",
-      "task": "We turned it on. The thumb slid because data-state changed to checked. Nothing in script toggled a class.",
-      "hint": "",
-      "learn": "Watch data-state drive the thumb",
+      "title": "Turned on",
+      "task": "We turned it on. data-state is now checked, and that is what moved the thumb. The example does not change a class from script.",
+      "hint": "The root, the track, and the thumb all get the same data-state. The label next to the switch is ordinary text.",
+      "learn": "Watch data-state move the thumb",
+      "placement": "top"
+    },
+    {
+      "id": "track",
+      "title": "The track",
+      "task": "The color is on the track. Off, its class is bg-surface-variant. Checked, data-[state=checked]:bg-primary replaces it.",
+      "hint": "The thumb in this example stays white. Change the track classes when you want different on and off colors.",
+      "learn": "Color the track from data-state",
+      "placement": "top"
+    },
+    {
+      "id": "thumb",
+      "title": "The thumb",
+      "task": "The thumb stays white. It moves from translate-x-1 to translate-x-6 when data-state is checked, and it stays visible either way.",
+      "hint": "transition-transform on the thumb is what animates that move. Without it, the thumb jumps to the new position.",
+      "learn": "Move the thumb from data-state",
       "placement": "top"
     },
     {
       "id": "source",
       "title": "The class that moved it",
-      "task": "We opened the source. The thumb is translate-x-1 until data-state is checked, then translate-x-6. The attribute flip is the animation.",
-      "hint": "",
+      "task": "We opened the source. The thumb classes are translate-x-1 and data-[state=checked]:translate-x-6. Changing data-state is what runs the transition.",
+      "hint": "The track classes are on the line above: bg-surface-variant and data-[state=checked]:bg-primary. The same pattern works for your own switch.",
       "learn": "Find the data-state class in the example source",
       "placement": "top"
     },
     {
       "id": "section",
       "title": "Style the attribute",
-      "task": "data-state is checked, unchecked, or indeterminate. Write CSS against that. Do not mirror it with a class you toggle yourself.",
-      "hint": "",
-      "learn": "Prefer data-state over a scripted class",
+      "task": "data-state is checked, unchecked, or indeterminate. Style those values with CSS. You do not need a second class in script that copies the state.",
+      "hint": "If script and the component both track the state, they can disagree. data-state is already updated when the switch changes.",
+      "learn": "Style data-state instead of toggling a class",
+      "placement": "top"
+    },
+    {
+      "id": "attributes",
+      "title": "Which part has it",
+      "task": "data-state is on the root, the track, and the thumb. data-disabled is on the root and on SelectAll, and its only value is true.",
+      "hint": "Check the Components column before you write a selector. The track and the thumb do not have data-disabled.",
+      "learn": "See which part sets which attribute",
       "placement": "top"
     },
     {
       "id": "absent",
-      "title": "Absent means off",
-      "task": "data-disabled is the value true, or the attribute is missing. A false value would still match a data-disabled selector, so the component omits it instead.",
-      "hint": "",
-      "learn": "See why boolean data attributes are true or absent",
+      "title": "Missing, not false",
+      "task": "data-disabled is either true, or it is left off the element. false would still match a data-disabled selector, so the component omits the attribute instead.",
+      "hint": "This block fades the root with data-[disabled]:opacity-50. The track and the thumb fade with it, because they do not have their own data-disabled.",
+      "learn": "See why data-disabled is true or missing",
+      "placement": "top"
+    },
+    {
+      "id": "mixed",
+      "title": "Indeterminate",
+      "task": "Enable all is indeterminate. Some settings are on and some are off, so the thumb sits in the middle of the track.",
+      "hint": "The track is a lighter primary in this state. aria-checked is still false.",
+      "learn": "Style the indeterminate state",
       "placement": "top"
     },
     {
       "id": "roles",
-      "title": "Two channels",
-      "task": "aria-checked is for assistive tech. data-state is for CSS. Mixed is data-state indeterminate with aria-checked false.",
-      "hint": "",
-      "learn": "Keep ARIA and data-state on their own jobs",
+      "title": "ARIA and CSS",
+      "task": "aria-checked is for assistive technology. data-state is for CSS. An indeterminate switch has data-state indeterminate and aria-checked false.",
+      "hint": "Enable all looks half on, but a screen reader announces it as off. aria-checked has no third value.",
+      "learn": "Keep aria-checked and data-state separate",
       "placement": "top"
     },
     {
       "id": "renderless",
       "title": "Bind attrs once",
-      "task": "This fence is renderless, so attrs goes on the element you render. On the default button, attrs is already on the root. Binding it again on a child fires the click twice.",
-      "hint": "",
+      "task": "This block is renderless, so attrs goes on the element you render. The default root is a button and already has attrs. Putting attrs on a child as well runs the click twice.",
+      "hint": "Use renderless when you want to replace the button. If you are styling that button, you do not need renderless.",
       "learn": "Bind slot attrs only on a renderless host",
       "placement": "top"
     },
     {
       "id": "conclusion",
       "title": "That's the look",
-      "task": "The component ships the state. You paint data-state. Bind attrs to your own element only when you took the element away.",
-      "hint": "",
+      "task": "The component sets the state. You style data-state. Put attrs on your own element only when renderless replaces the button.",
+      "hint": "Checkbox uses the same three data-state values. Radio has checked and unchecked only.",
       "learn": "Style the next headless control the same way",
       "noActivator": true
     }
