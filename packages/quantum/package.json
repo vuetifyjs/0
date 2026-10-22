@@ -1,0 +1,56 @@
+{
+  "name": "@paper/quantum",
+  "version": "0.0.0",
+  "description": "Quantum design system. Material Design 1 (2014 to 2017), composed on Vuetify0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/quantum"
+  },
+  "types": "./dist/index.d.mts",
+  "type": "module",
+  "files": [
+    "dist",
+    "LICENSE-ICONS"
+  ],
+  "scripts": {
+    "build": "tsdown && pnpm bake:theme",
+    "bake:theme": "tsx scripts/bake-theme.ts",
+    "typecheck": "vue-tsc --noEmit --incremental",
+    "test:browser": "vitest run --config vitest.browser.config.ts"
+  },
+  "peerDependencies": {
+    "vue": ">=3.5.0"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css",
+    "./theme.css": "./dist/theme.css"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./style.css": "./dist/style.css",
+      "./theme.css": "./dist/theme.css"
+    }
+  },
+  "dependencies": {
+    "@vuetify/v0": "workspace:^"
+  },
+  "devDependencies": {
+    "@vitest/browser-playwright": "catalog:",
+    "tsdown": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}
