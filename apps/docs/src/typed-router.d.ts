@@ -101,6 +101,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/virtualizer': RouteRecordInfo<
+      '/components/data/virtualizer',
+      '/components/data/virtualizer',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -878,6 +885,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-typeahead': RouteRecordInfo<
+      '/composables/system/use-typeahead',
+      '/composables/system/use-typeahead',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-virtual-focus': RouteRecordInfo<
       '/composables/system/use-virtual-focus',
       '/composables/system/use-virtual-focus',
@@ -1571,6 +1585,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/quantum/': RouteRecordInfo<
+      '/systems/quantum/',
+      '/systems/quantum',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -1659,6 +1680,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/data/kanban.md': {
       routes:
         | '/components/data/kanban'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/virtualizer.md': {
+      routes:
+        | '/components/data/virtualizer'
       views:
         | never
       pathParamNames:
@@ -2552,6 +2581,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/composables/system/use-typeahead.md': {
+      routes:
+        | '/composables/system/use-typeahead'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/composables/system/use-virtual-focus.md': {
       routes:
         | '/composables/system/use-virtual-focus'
@@ -3339,6 +3376,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/emerald/tooltip.md': {
       routes:
         | '/systems/emerald/tooltip'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/quantum/index.md': {
+      routes:
+        | '/systems/quantum/'
       views:
         | never
       pathParamNames:

@@ -42,6 +42,7 @@ declare module 'vue' {
     AppPaletteBulmaButton: typeof import('./components/app/theme/palette/AppPaletteBulmaButton.vue')['default']
     AppPaletteEmeraldButton: typeof import('./components/app/theme/palette/AppPaletteEmeraldButton.vue')['default']
     AppPaletteMaterial3Button: typeof import('./components/app/theme/palette/AppPaletteMaterial3Button.vue')['default']
+    AppPaletteQuantumButton: typeof import('./components/app/theme/palette/AppPaletteQuantumButton.vue')['default']
     AppPaletteRadixButton: typeof import('./components/app/theme/palette/AppPaletteRadixButton.vue')['default']
     AppPaletteTailwindButton: typeof import('./components/app/theme/palette/AppPaletteTailwindButton.vue')['default']
     AppPaletteVuetify0Button: typeof import('./components/app/theme/palette/AppPaletteVuetify0Button.vue')['default']

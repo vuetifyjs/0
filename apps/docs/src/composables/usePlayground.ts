@@ -37,12 +37,18 @@ const PAPER_CDN = {
   '@paper/emerald': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/index.mjs',
   '@paper/emerald/style.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/style.css',
   '@paper/emerald/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/theme.css',
+  // Resolves once @paper/quantum is on npm; until the first publish these 404
+  // and "Open in Playground" on Quantum examples cannot load the package.
+  '@paper/quantum': 'https://cdn.jsdelivr.net/npm/@paper/quantum@latest/dist/index.mjs',
+  '@paper/quantum/style.css': 'https://cdn.jsdelivr.net/npm/@paper/quantum@latest/dist/style.css',
+  '@paper/quantum/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/quantum@latest/dist/theme.css',
 } as const
 
 /**
- * Map `@paper/emerald` / `@paper/bulma` specifiers in example source to jsDelivr
- * ESM URLs. The playground also has these on its builtin import map; embedding
- * them in the hash keeps older v0play builds and shared links self-contained.
+ * Map `@paper/emerald` / `@paper/quantum` / `@paper/bulma` specifiers in
+ * example source to jsDelivr ESM URLs. The playground also has these on its
+ * builtin import map; embedding them in the hash keeps older v0play builds and
+ * shared links self-contained.
  *
  * jsDelivr, not esm.sh — these packages import `vue` / `@vuetify/v0` as bare
  * specifiers and must share the REPL's copies.
@@ -54,6 +60,11 @@ export function paperImportsFromCode (files: Iterable<{ code: string }>): Record
       imports['@paper/emerald'] = PAPER_CDN['@paper/emerald']
       imports['@paper/emerald/style.css'] = PAPER_CDN['@paper/emerald/style.css']
       imports['@paper/emerald/theme.css'] = PAPER_CDN['@paper/emerald/theme.css']
+    }
+    if (file.code.includes('@paper/quantum')) {
+      imports['@paper/quantum'] = PAPER_CDN['@paper/quantum']
+      imports['@paper/quantum/style.css'] = PAPER_CDN['@paper/quantum/style.css']
+      imports['@paper/quantum/theme.css'] = PAPER_CDN['@paper/quantum/theme.css']
     }
     if (file.code.includes('@paper/bulma')) imports['@paper/bulma'] = PAPER_CDN['@paper/bulma']
   }

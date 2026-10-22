@@ -1,0 +1,17 @@
+/**
+ * Docs-only layout for @paper/quantum examples (pages/systems/quantum).
+ * Quantum examples mount inline in the docs document (DocsSystemExample), so
+ * a viewport-fixed component (an app bar, a bottom navigation, a positioned
+ * FAB, a snackbar portal, a persistent bottom sheet) would paint over the
+ * docs shell. Containment makes this wrapper the containing block of its
+ * `position: fixed` descendants, so the component ships no docs-only
+ * attribute and the example still shows the real fixed positioning.
+ * A snackbar portal inside it passes `:teleport="false"` so it stays inside.
+ */
+
+.quantum-docs-screen {
+  position: relative;
+  height: 360px;
+  overflow: clip;
+  contain: layout paint;
+}

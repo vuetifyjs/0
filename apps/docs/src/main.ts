@@ -19,6 +19,7 @@ import { useAuthStore } from '@vuetify/auth'
 
 import './styles/tokens.css'
 import './styles/transitions.css'
+import './styles/quantum.css'
 import 'virtual:uno.css'
 
 export const createApp = ViteSSG(

@@ -20,6 +20,17 @@
   // far worse than growing.
   const RESERVE = 88
 
+  // Systems that mount inline, keyed by the second path segment of the example
+  // (`/systems/<system>/...`), with the theme ids their adapter token sheet in
+  // App.vue scopes colors to. A system's tokens must not reset host elements
+  // to be listed here. There is no per-example flag: an example that shows a
+  // viewport-fixed component contains it in a `quantum-docs-screen` wrapper
+  // (`contain: layout paint`) instead.
+  const INLINE: Record<string, { light: string, dark: string }> = {
+    emerald: { light: 'emerald-light', dark: 'emerald-dark' },
+    quantum: { light: 'quantum-light', dark: 'quantum-dark' },
+  }
+
   let store: StorageContext | null = null
 
   // Where an example comes to rest is a property of the example, not of the
@@ -99,11 +110,12 @@
 
   const { filePath, filePaths } = defineProps<DocsSystemExampleProps>()
 
-  // Emerald mounts inline under `[data-theme="emerald-light"]` — its tokens
-  // do not reset host elements, so it can share the docs document. Systems
-  // that reset `button`/`input` (Bulma) cannot; those run in an iframe
-  // against `sandbox/<system>.html`. Source is still resolved here for the
-  // code pane, playground, and bin actions on the iframe path.
+  // The systems in INLINE (Emerald, Quantum) mount inline under their own
+  // `[data-theme]`: their tokens do not reset host elements, so they can share
+  // the docs document. Systems that reset `button`/`input` (Bulma) cannot;
+  // those run in an iframe against `sandbox/<system>.html`. Source is still
+  // resolved here for the code pane, playground, and bin actions on the
+  // iframe path.
   const examples = useExamples()
 
   const paths = toRef(() => filePaths ?? (filePath ? [filePath] : []))
@@ -121,8 +133,9 @@
   provideThemeToggle(local)
 
   const segments = toRef(() => entry.value.replace(/^\//, '').split('/'))
-  const framed = toRef(() => segments.value[1] !== 'emerald')
-  const inlineTheme = toRef(() => local.isDark.value ? 'emerald-dark' : 'emerald-light')
+  const system = toRef(() => segments.value[1] ?? '')
+  const framed = toRef(() => !(system.value in INLINE))
+  const inlineTheme = toRef(() => INLINE[system.value]?.[local.isDark.value ? 'dark' : 'light'] ?? 'light')
 
   // Snapshot, not a binding: folding the theme into a reactive `src` would
   // reload the frame — dropping any open overlay — on every toggle. It only
