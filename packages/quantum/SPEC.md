@@ -170,6 +170,7 @@ Emerald's contract, restated where Quantum differs:
 - No named slots. Spec anatomy is a prop for short text (`label`, `helper`, `title`) or a compound part; every component has one default slot.
 - No orchestrator API: no `density`, `ripple`, `to`, no Vuetify colour prop lists. Where MD1 names a thing, the prop is the spec's own word (`dense`, `raised`, `mini`, `shifting`, `prominent`, `inset`, `discrete`, `linear`, `editable`).
 - Glyphs draw through `QuIcon` roles; no inline glyph SVG in a `Qu*` file. Non-glyph geometry (the circular progress arc, the clock face and hand) is inline SVG, declared under Deviations.
+- Withheld v0 props are withheld at the type level. A shell's `Pick` is the public surface and TypeScript rejects the rest; at runtime the attrs still fall through to the v0 root (`<QuButton loading>` reaches `Button.Root`), the shape Emerald ships too. No shell filters attrs.
 - Every interactive component hosts a `QuRipple`. There is no prop to remove it: the ripple is the spec's press feedback, not an option (ruling 8 keeps Vuetify's `ripple` prop on the wrapper).
 - Native `<dialog>` paints the scrim through `::backdrop` in `--quantum-scrim`; Quantum never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
 - Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('Quantum.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
@@ -263,13 +264,13 @@ Modal: `dialog.quantum-bottom-sheet` > `div.quantum-bottom-sheet__content`. Pers
 
 ### QuButton
 
-`button.quantum-button` > [`span.quantum-ripple`, `span.quantum-button__icon` (when `icon`), `span.quantum-button__content`].
+`button.quantum-button` > [`span.quantum-ripple`, `span.quantum-button__icon` (when `icon`), `span.quantum-button__content` (omitted when the button is icon-only, so `Button.Icon` can mark the root `data-solo`)].
 
-- `variant`: `'flat' | 'raised'` (`'flat'`). `dense` (`false`): 32 dp, 13 sp. `footer` (`false`): the persistent footer button, 48 dp flat, full width of its container, no radius; `footer` with `raised` is a dev warning (the spec forbids raised buttons in persistent areas). `icon`: a glyph role; with slot content it leads the label, without it the button is icon-only (`data-solo` from `Button.Icon`, 48 dp circular target, `ariaLabel` required, dev warning when missing). `disabled`, `ariaLabel`, `name`, `namespace`.
+- `variant`: `'flat' | 'raised'` (`'flat'`). `dense` (`false`): 32 dp, 13 sp. `footer` (`false`): the persistent footer button, 48 dp flat, full width of its container, no radius; `footer` with `raised` is a dev warning (the spec forbids raised buttons in persistent areas). `icon`: a glyph role; with slot content it leads the label, without it the button is icon-only (`data-solo` from `Button.Icon`, 48 dp circular target, `ariaLabel` required, dev warning when missing). `disabled`, `ariaLabel`, `name` (feeds v0's hidden input, which submits only when the button is selected inside a v0 `Button.Group`), `namespace` (forwarded to `Button.Icon` and `Button.Content` as well as `Button.Root`).
 - No `loading`: MD1 buttons have no loading state (ruling 7); progress is a `QuProgressCircular` beside the button.
 - Composition: `Button.Root` + `Button.Content`; `Button.Icon` wraps `QuIcon`.
 - Values: `spec/components/buttons.md`. 36 dp tall in a 48 dp target; min width 88 dp; radius 2 dp; padding 0 16 dp; 8 dp between buttons; label Button 14 sp Medium caps; flat ink `--quantum-accent` (primary accents selected buttons, accent is the action colour); raised fill `--quantum-primary` 500 at 2 dp, 8 dp pressed, pressed fill `--quantum-primary-dark` (700); desktop raised rests at 0 dp and gains 2 dp on hover; focus 12%; pressed overlay 40% `#999999` light, 25% `#CCCCCC` dark; disabled text 26% / 30%, disabled raised fill 12%.
-- Decision: hover overlay for flat and raised buttons is not in the spec; Quantum draws `--quantum-hover` (6% black, from the steppers page) and records the Vuetify 12% as the rejected precedent.
+- Decision: no hover overlay on flat or raised buttons (Lead decision 3): the page states none, Vuetify's 12% currentColor hover is the rejected precedent, and desktop hover is the 2 dp lift only. `--quantum-hover` is read by lists, menus, steppers, chips and tiles, not by `QuButton`.
 
 ### QuIconToggle
 
@@ -610,7 +611,7 @@ Decisions: single-line styles get `line-height: 1`; tracking numbers are Adobe u
 
 ### Elevation
 
-`--quantum-elevation-0` to `--quantum-elevation-24`: the three-layer `box-shadow` values (umbra `--quantum-shadow-umbra` `rgba(0,0,0,.2)`, penumbra `.14`, ambient `.12`), the recipe tabulated in `spec/elevation.md` (Vuetify 1.5's `_elevations.styl`, the only pixel recipe; the spec gives dp only). Transition `box-shadow 280ms` on the standard curve. The dark theme keeps the same shadows (the spec's dark theme is surfaces, not lights). Component resting values are the spec's: dialog and picker 24, drawers and modal bottom sheet 16, FAB 6 (12 pressed), sub menu 9, menu 8, bottom navigation 8, snackbar 6, app bar 4, refresh indicator 3, search bar 2 (3 scrolled), card and raised button 2 (8 raised), switch 1; under `pointer: fine` every resting value drops 2 dp (raised button 0, 2 on hover and press).
+`--quantum-elevation-0` to `--quantum-elevation-24`: the three-layer `box-shadow` values (umbra `--quantum-shadow-umbra` `rgba(0,0,0,.2)`, penumbra `.14`, ambient `.12`), the recipe tabulated in `spec/elevation.md` (Vuetify 1.5's `_elevations.styl`, the only pixel recipe; the spec gives dp only). Transition `box-shadow 280ms` on the standard curve: a fixed literal shared by the `quantum-elevation-*` utilities and the raised button (Vuetify 1.5's `elevationTransition`, `moderate`), with no duration token behind it; it does not follow the desktop duration scale, which covers the colour and movement transitions only. The dark theme keeps the same shadows (the spec's dark theme is surfaces, not lights). Component resting values are the spec's: dialog and picker 24, drawers and modal bottom sheet 16, FAB 6 (12 pressed), sub menu 9, menu 8, bottom navigation 8, snackbar 6, app bar 4, refresh indicator 3, search bar 2 (3 scrolled), card and raised button 2 (8 raised), switch 1; under `pointer: fine` every resting value drops 2 dp (raised button 0, 2 on hover and press).
 
 ### Motion
 

@@ -31,6 +31,6 @@
     "target": "esnext",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "test/**/*.ts"],
   "exclude": ["src/**/__tests__/*", "scripts/**"]
 }

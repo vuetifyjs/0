@@ -4,6 +4,8 @@ import { playwright } from '@vitest/browser-playwright'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vitest/config'
 
+import { commands } from './test/commands'
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -48,6 +50,7 @@ export default defineConfig({
         },
       }),
       headless: !process.env.TEST_BAIL,
+      commands,
       instances: [{ browser: 'chromium' }],
       viewport: { width: 1280, height: 800 },
     },

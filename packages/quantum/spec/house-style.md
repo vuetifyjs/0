@@ -559,11 +559,11 @@ Adapted from `EmButton.vue` and cut to the SPEC.md surface: no `loading` (MD1 bu
     :name
     :namespace
   >
-    <Button.Icon v-if="icon" class="quantum-button__icon">
+    <Button.Icon v-if="icon" class="quantum-button__icon" :namespace>
       <QuIcon :name="icon" />
     </Button.Icon>
 
-    <Button.Content class="quantum-button__content">
+    <Button.Content class="quantum-button__content" :namespace>
       <slot />
     </Button.Content>
   </Button.Root>
@@ -1087,7 +1087,7 @@ describe('quButton', () => {
 
     expect(button.disabled).toBe(true)
     expect(Object.hasOwn(button.dataset, 'disabled')).toBe(true)
-    expect(button.hasAttribute('aria-disabled')).toBe(false)
+    expect(button.getAttribute('aria-disabled')).toBe('true')
   })
 
   it('should expose data-dense and data-footer', async () => {
@@ -1123,7 +1123,7 @@ Compound tests add `app.use(createStackPlugin())` for dialogs, drive `open` thro
 
 | Kind | Assert | Confidence |
 |---|---|---|
-| Shell | root tag, `quantum-*` class, every `data-*` hook for every prop value, native `disabled` without `aria-disabled` on `<button>`, `aria-label` passthrough | high |
+| Shell | root tag, `quantum-*` class, every `data-*` hook for every prop value, native `disabled` plus `aria-disabled="true"` and `tabindex="-1"` (v0 `Button.Root` emits all three; `aria-disabled` is a boolean string in both states), `aria-label` passthrough | high |
 | Compound | the root context reaches every part (no orphan warning when nested, one warning when not), `aria-*` relationships (`aria-labelledby`, `aria-controls`, `aria-selected`), roving tabindex (`tabindex` 0 on exactly one item), keyboard map, model round trip | high |
 | Overlay | `element.open`, `::backdrop` click behavior, Escape, focus return, `createStackPlugin` installed | high |
 | Icon | path data equals the registry glyph, alias resolution, override through the plugin, `aria-hidden` default, `role="img"` with `label`, warn once and render nothing for an unknown role (copy `EmIcon.test.ts`) | high |
@@ -1248,7 +1248,7 @@ Multi-paragraph prose: what the example demonstrates, when to reach for it, the 
 | `disabled` | `boolean` | `false` | ... |
 | `ariaLabel` | `string` | | Accessible name. Required for icon-only buttons |
 | `name` | `string` | | Form field name; renders a hidden input when set |
-| `namespace` | `string` | | Which v0 `Button` instance to bind to. Only needed when nesting |
+| `namespace` | `string` | | The context key `Button.Root` provides to its parts; the shell forwards it to `Button.Icon` and `Button.Content`. Leave it unset unless a surrounding v0 `Button` context must not collide with this one |
 
 The default slot is the label. There are no named slots.
 
