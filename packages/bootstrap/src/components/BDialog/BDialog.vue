@@ -1,9 +1,9 @@
 <script lang="ts">
   // Framework
-  import { Dialog, IN_BROWSER, createContext, isNullOrUndefined, isUndefined } from '@vuetify/v0'
+  import { Dialog, IN_BROWSER, createContext, isNullOrUndefined, isUndefined, useEventListener, useTimer } from '@vuetify/v0'
 
   // Utilities
-  import { mergeProps, onMounted, onScopeDispose, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, onMounted, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   export interface BDialogProps {
     /**
@@ -45,15 +45,13 @@
 
   const attrs = useAttrs()
   const dialogEl = useTemplateRef<HTMLDialogElement>('dialog')
+  const exitEl = shallowRef<HTMLDialogElement | null>(null)
 
   const classes = toRef(() => {
     const list = ['dialog']
     if (!isUndefined(size)) list.push(`dialog-${size}`)
     return list
   })
-
-  let pending: ((event: TransitionEvent) => void) | undefined
-  let timer = 0
 
   function close () {
     model.value = false
@@ -75,15 +73,8 @@
   }
 
   function clearPending () {
-    const element = dialogEl.value
-    if (!isUndefined(pending) && !isNullOrUndefined(element)) {
-      element.removeEventListener('transitionend', pending)
-    }
-    pending = undefined
-    if (timer) {
-      window.clearTimeout(timer)
-      timer = 0
-    }
+    exitEl.value = null
+    fallback.stop()
   }
 
   function release () {
@@ -95,6 +86,24 @@
     }
     unlock()
   }
+
+  function endBounce () {
+    const element = dialogEl.value
+    if (isNullOrUndefined(element)) return
+    element.classList.remove('dialog-static')
+  }
+
+  // 400ms is past the pin's 0.3s exit. 300ms matches `.dialog-static`.
+  const fallback = useTimer(release, { duration: 400 })
+  const bounceTimer = useTimer(endBounce, { duration: 300 })
+
+  function onExit (event: TransitionEvent) {
+    const element = dialogEl.value
+    if (isNullOrUndefined(element) || event.target !== element) return
+    release()
+  }
+
+  useEventListener(() => exitEl.value, 'transitionend', onExit)
 
   // Dialog.Content is renderless, so its own showModal() watches a null atom.
   // `.hiding` has to land before close(): Bootstrap keeps the dialog in the
@@ -119,22 +128,15 @@
       return
     }
 
-    function onEnd (event: TransitionEvent) {
-      if (event.target !== element) return
-      release()
-    }
-    pending = onEnd
-    element.addEventListener('transitionend', onEnd)
-    timer = window.setTimeout(release, 400)
+    exitEl.value = element
+    fallback.start()
   }
 
   function bounce () {
     const element = dialogEl.value
     if (isNullOrUndefined(element)) return
     element.classList.add('dialog-static')
-    window.setTimeout(() => {
-      element.classList.remove('dialog-static')
-    }, 300)
+    bounceTimer.start()
   }
 
   function onCancel (event: Event) {

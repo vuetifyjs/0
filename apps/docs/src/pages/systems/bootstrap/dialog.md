@@ -10,9 +10,13 @@ features:
   label: 'C: BDialog'
   level: 2
   renderless: false
-  order: 1
+  group: overlay
 related:
   - /systems/bootstrap
+  - /systems/bootstrap/drawer
+  - /systems/bootstrap/menu
+  - /systems/bootstrap/toast
+  - /systems/bootstrap/tooltip
   - /components/disclosure/dialog
 ---
 
@@ -23,7 +27,7 @@ Bootstrap's `<dialog class="dialog">` with the open state, backdrop click, and E
 <DocsPageFeatures :frontmatter />
 
 > [!NOTE]
-> Reference: [Dialog on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/dialog/). Classes and visual variants. This page is the JavaScript.
+> Reference: [Dialog on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/dialog/). Classes and visual variants. This page is Vue.
 
 ## Usage
 
@@ -103,7 +107,7 @@ The HTML tab is the dialog from the v6 docs, without `data-bs-toggle` or `data-b
 
 Wraps v0's [Dialog](/components/disclosure/dialog). `Dialog.Root` owns `v-model`. `Dialog.Content` is renderless so the host can stay a `<dialog class="dialog">` — the fixture demands that element, and the browser's `showModal()` is what traps focus and paints `::backdrop`.
 
-`Scrim` stays off. A global scrim behind a dialog that already paints `::backdrop` would double the backdrop. `blocking` is Dialog's `blocking`: backdrop clicks bounce and do not close. Escape still closes, matching Bootstrap's static backdrop. Bootstrap's separate `keyboard: false` option is not a prop.
+`Scrim` stays off. A global scrim behind a dialog that already paints `::backdrop` would double the backdrop. `closeOnClickOutside` stays off too: `Dialog.Content` is renderless, so it has no element to hit-test. A backdrop click is a click on the `<dialog>` itself. `blocking` ignores that click and adds `.dialog-static` for the bounce. Escape still closes, matching Bootstrap's static backdrop. Bootstrap's separate `keyboard: false` option is not a prop.
 
 Size modifiers are `dialog-sm`, `dialog-lg`, and `dialog-xl`. Anything else Bootstrap puts on the dialog — `dialog-scrollable`, `dialog-fullscreen`, `dialog-instant` — is a class you pass through.
 

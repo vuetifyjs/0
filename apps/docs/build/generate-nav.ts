@@ -40,13 +40,18 @@ export interface NavItemDivider {
   divider: true
 }
 
-export type NavItem = NavItemLink | NavItemCategory | NavItemDivider
+export interface NavItemSubheader {
+  subheader: string
+}
+
+export type NavItem = NavItemLink | NavItemCategory | NavItemDivider | NavItemSubheader
 
 interface PageInfo {
   path: string
   urlPath: string
   name: string
   order: number
+  group?: string
   hidden: boolean
   level?: 1 | 2 | 3
   emphasized?: EmphasisLevel
@@ -84,6 +89,10 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
   composables: ['foundation', 'registration', 'selection', 'forms', 'data', 'semantic', 'reactivity', 'system', 'plugins', 'transformers'],
   systems: ['bootstrap', 'bulma', 'emerald'],
 }
+
+// Design-system pages stay one folder per system. `features.group` is the
+// extra level Components and Composables get from a subdirectory.
+const PAGE_GROUP_ORDER = ['overlay', 'disclosure', 'forms', 'content', 'layout']
 
 // Standalone pages that appear between sections
 const STANDALONE: Record<string, { order: number, name: string }> = {
@@ -210,6 +219,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     urlPath: getUrlPath(file),
     name,
     order: frontmatter.features?.order ?? 999,
+    group: frontmatter.features?.group,
     hidden: false,
     level: frontmatter.features?.level,
     emphasized: emphasis,
@@ -249,9 +259,39 @@ function buildSubcategories (section: string, pages: PageInfo[]): NavItem[] {
 // A subcategory that owns an index page becomes a link that still expands —
 // the same shape a top-level section gets — rather than a dead label with the
 // index page listed under it as a separate child.
+function groupPages (pages: PageInfo[]): NavItem[] {
+  const loose: PageInfo[] = []
+  const groups = new Map<string, PageInfo[]>()
+
+  for (const page of pages) {
+    if (!page.group) {
+      loose.push(page)
+      continue
+    }
+
+    const members = groups.get(page.group) ?? []
+    members.push(page)
+    groups.set(page.group, members)
+  }
+
+  if (groups.size === 0) return loose.toSorted(comparePages).map(toNavLink)
+
+  const grouped = Array.from(groups.entries())
+    .toSorted(createSubcategoryComparator(PAGE_GROUP_ORDER))
+    .flatMap(([group, members]): NavItem[] => [
+      { subheader: titleCase(group) },
+      ...members.toSorted(comparePages).map(toNavLink),
+    ])
+
+  return [
+    ...loose.toSorted(comparePages).map(toNavLink),
+    ...grouped,
+  ]
+}
+
 function toSubcategory (name: string, pages: PageInfo[], collapsible = false): NavItem {
   const index = pages.find(p => p.path.endsWith('index.md'))
-  const children = pages.filter(p => p !== index).toSorted(comparePages).map(toNavLink)
+  const children = groupPages(pages.filter(p => p !== index))
 
   if (!index) {
     const item: NavItemCategory = { name, children }

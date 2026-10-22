@@ -51,6 +51,10 @@
          scrollbar or leave the document at a stale offset. */
       html {
         overflow: clip;
+        /* The docs Uno preflight sets `scrollbar-gutter: stable` on every
+           document this app serves, including this frame. The gutter is empty
+           canvas, and a dialog backdrop cannot paint into it. */
+        scrollbar-gutter: auto !important;
       }
     </style>
   </head>

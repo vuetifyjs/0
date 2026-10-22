@@ -26,6 +26,13 @@ export function filterNav (items: NavItem[], keep: (item: NavItemLink) => boolea
     .filter((item): item is NavItem => item !== null)
 
   return filtered.filter((item, index, arr) => {
+    if ('subheader' in item) {
+      for (const entry of arr.slice(index + 1)) {
+        if ('subheader' in entry || 'divider' in entry) return false
+        if ('to' in entry) return true
+      }
+      return false
+    }
     if (!('divider' in item)) return true
     const prev = arr[index - 1]
     const next = arr[index + 1]
