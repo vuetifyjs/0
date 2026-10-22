@@ -1592,6 +1592,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/quantum/button': RouteRecordInfo<
+      '/systems/quantum/button',
+      '/systems/quantum/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -3384,6 +3391,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/quantum/index.md': {
       routes:
         | '/systems/quantum/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/quantum/button.md': {
+      routes:
+        | '/systems/quantum/button'
       views:
         | never
       pathParamNames:
