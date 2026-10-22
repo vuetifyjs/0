@@ -73,6 +73,12 @@
         ],
         "#emerald": [
           "../../packages/emerald/src"
+        ],
+        "@paper/quantum": [
+          "../../packages/quantum/src"
+        ],
+        "#quantum": [
+          "../../packages/quantum/src"
         ]
       }
     },

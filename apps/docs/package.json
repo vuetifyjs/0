@@ -53,6 +53,7 @@
     "@paper/bulma": "workspace:*",
     "@paper/emerald": "workspace:*",
     "@paper/genesis": "workspace:*",
+    "@paper/quantum": "workspace:*",
     "@vuetify/auth": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/play": "workspace:*",
