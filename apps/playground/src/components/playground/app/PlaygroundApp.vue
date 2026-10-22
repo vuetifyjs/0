@@ -8,7 +8,7 @@
   import { usePlaygroundFiles } from '@/composables/usePlaygroundFiles'
 
   // Utilities
-  import { nextTick, onMounted, shallowRef, toRef, watch } from 'vue'
+  import { computed, nextTick, onMounted, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { ActiveExample } from '@/composables/usePlaygroundFiles'
@@ -36,6 +36,12 @@
     fetching: Ref<boolean>
     fetchVersions: () => Promise<void>
     activePreset: ShallowRef<string>
+    /** Blank-visit starter. Unset means the chooser asks. */
+    defaultPreset: Ref<string | undefined>
+    /** Blank visit. No files until the user picks a preset. */
+    choosing: ShallowRef<boolean>
+    /** Drop the open playground and show the template chooser. */
+    chooseTemplate: () => void
     applyPreset: (id: string) => Promise<void>
     activeAddons: ShallowRef<string[]>
     toggleAddon: (id: string) => Promise<void>
@@ -102,7 +108,11 @@
     fetching,
     fetchVersions,
     activePreset,
-    applyPreset,
+    defaultPreset,
+    suppressIntro,
+    choosing,
+    chooseTemplate,
+    applyPreset: applyPresetFiles,
     activeAddons,
     toggleAddon,
     openPlayground,
@@ -119,7 +129,23 @@
   const { isMobile } = useBreakpoints()
 
   // Persisted open state (true = open)
-  const left = storage.get('playground-left-open', true)
+  const leftStored = storage.get('playground-left-open', true)
+  const left = computed({
+    get: () => suppressIntro.value ? false : leftStored.value,
+    set: (value: boolean) => {
+      if (!value && suppressIntro.value) return
+      suppressIntro.value = false
+      leftStored.value = value
+    },
+  })
+
+  async function applyPreset (id: string) {
+    // A closed welcome panel is a saved preference. Only Vuetify 4 hides
+    // the Vuetify0 intro for the session, and that must not write the pref.
+    if (choosing.value && id === 'vuetify') suppressIntro.value = true
+    await applyPresetFiles(id)
+    choosing.value = false
+  }
 
   // Persisted user preference for side preview position
   const sidePref = storage.get('playground-preview-right', false)
@@ -159,7 +185,11 @@
 
     const toSide = !side.value
     sidePref.value = toSide
-    if (toSide) left.value = false
+    // suppressIntro makes a false write a no-op. Docking right is a real close.
+    if (toSide) {
+      suppressIntro.value = false
+      left.value = false
+    }
     side.value = toSide
     bottom.value = !toSide
   }
@@ -183,6 +213,9 @@
     fetching,
     fetchVersions,
     activePreset,
+    defaultPreset,
+    choosing,
+    chooseTemplate,
     applyPreset,
     activeAddons,
     toggleAddon,
@@ -204,34 +237,47 @@
     movePreview,
   })
 
-  // Restore panel state on runtime breakpoint changes
+  // Restore panel state on runtime breakpoint changes.
+  // Snapshot the stored intro pref. `left` reads false while a Vuetify 4
+  // session hides the panel, and writing that back would close it for good.
   watch(isMobile, mobile => {
     if (mobile) {
-      desktop$.left = left.value
+      desktop$.left = leftStored.value
       desktop$.tree = tree.value
       tree.value = false
       editor.value = false
-      left.value = false
+      if (!suppressIntro.value) left.value = false
       bottom.value = false
       side.value = false
     } else {
       const currentSide = sidePref.value && !desktop$.left
       tree.value = desktop$.tree
       editor.value = true
-      left.value = desktop$.left
+      if (!suppressIntro.value) left.value = desktop$.left
       bottom.value = !currentSide
       side.value = currentSide
     }
   })
 
   onMounted(() => {
-    const stop = watch(isReady, ready => {
-      if (!ready) return
-      stop()
+    function settle () {
       nextTick(() => {
         settled.value = true
       })
-    }, { immediate: true })
+    }
+
+    // isReady may already be true: the blank path sets it in an earlier mounted hook.
+    // An immediate watch would call stop before this const is initialized.
+    if (isReady.value) {
+      settle()
+      return
+    }
+
+    const stop = watch(isReady, ready => {
+      if (!ready) return
+      stop()
+      settle()
+    })
   })
 </script>
 
