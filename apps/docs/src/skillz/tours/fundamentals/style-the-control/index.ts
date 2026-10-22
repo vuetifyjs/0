@@ -4,21 +4,26 @@ import { nextTick } from 'vue'
 // Types
 import type { StepHandlerContext } from '@/composables/useDiscovery'
 
+// Document order on /components/forms/switch. The basic switch is first.
+// The settings panel, with the mixed Enable all lever, is second.
+const LIVE = 0
+const PANEL = 1
+
 /**
  * Style the control tour handlers.
  *
- * The first gn-example on /components/forms/switch is the basic switch.
- * Document order is the scope, same as Using Examples: a global
- * data-tour=example selector would also match the settings panel later
- * on the page.
+ * Targets are pieces of the Switch page, so each enter calls activate.
+ * A global data-tour=example selector would also match the settings
+ * panel, so every example lookup takes a document-order index.
+ * Guided steps block the target, so clicks are simulated.
  */
 export function defineTour () {
-  function example (): HTMLElement | null {
-    return document.querySelector<HTMLElement>('[data-tour="example"]')
+  function example (index = LIVE): HTMLElement | null {
+    return document.querySelectorAll<HTMLElement>('[data-tour="example"]')[index] ?? null
   }
 
-  function getIn (selector: string): HTMLElement | null {
-    return example()?.querySelector<HTMLElement>(selector) ?? null
+  function getIn (selector: string, index = LIVE): HTMLElement | null {
+    return example(index)?.querySelector<HTMLElement>(selector) ?? null
   }
 
   async function settle () {
@@ -36,21 +41,86 @@ export function defineTour () {
     )?.click()
   }
 
+  // Default saved state is already mixed. A reader who toggled the panel
+  // first needs one child flip: all-on or all-off both become mixed.
+  function ensureMixed () {
+    const master = getIn('[data-tour="example-preview"] [role="switch"]', PANEL)
+    if (!master || master.dataset.state === 'indeterminate') return
+    const rows = example(PANEL)?.querySelectorAll<HTMLElement>(
+      '[data-tour="example-preview"] [role="switch"]',
+    )
+    rows?.[1]?.click()
+  }
+
+  function attributeTable (): HTMLElement | null {
+    const heading = document.querySelector('#styling-with-data-attributes')
+    let node = heading?.nextElementSibling ?? null
+    while (node) {
+      if (node.classList.contains('docs-table')) return node as HTMLElement
+      if (node.id === 'accessibility') return null
+      node = node.nextElementSibling
+    }
+    return null
+  }
+
+  // The cutout otherwise sits on the element's own border. 8px keeps a gap
+  // without swallowing the neighbors.
+  function spotlight (
+    activate: StepHandlerContext['activate'],
+    target: HTMLElement | null,
+    scroll = true,
+  ) {
+    if (!target) return
+    activate(target, { padding: 8, scroll })
+  }
+
+  // The tallest card is about 350px. Centering a tall target leaves less
+  // than that, and the title slides off the top. Nudge the target down so
+  // the card fits. Anchor positioning follows the scroll.
+  function clearCard (target: HTMLElement | null) {
+    if (!target) return
+    const top = target.getBoundingClientRect().top
+    if (top >= 380) return
+    window.scrollBy(0, top - 380)
+  }
+
+  function show (
+    activate: StepHandlerContext['activate'],
+    target: HTMLElement | null,
+  ) {
+    spotlight(activate, target)
+    clearCard(target)
+  }
+
   return {
     handlers: {
       preview: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
-          const host = example()
-          if (host) activate(host)
+          show(activate, example())
         },
       },
       on: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
           turnOn()
-          const preview = getIn('[data-tour="example-preview"]')
-          if (preview) activate(preview)
+          show(activate, getIn('[data-tour="example-preview"]'))
+        },
+      },
+      track: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await settle()
+          turnOn()
+          await settle()
+          show(activate, getIn('[data-tour="example-preview"] [role="switch"] > [data-state]'))
+        },
+      },
+      thumb: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await settle()
+          turnOn()
+          await settle()
+          show(activate, getIn('[data-tour="example-preview"] [role="switch"] > [data-state] > [data-state]'))
         },
       },
       source: {
@@ -58,36 +128,45 @@ export function defineTour () {
           await settle()
           openCode()
           await settle()
-          const pane = getIn('[data-tour="example-code"]')
-          if (pane) activate(pane)
+          show(activate, getIn('[data-tour="example-code"]'))
         },
       },
       section: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
-          const heading = document.querySelector<HTMLElement>('#styling-with-data-attributes')
-          if (heading) activate(heading)
+          show(activate, document.querySelector<HTMLElement>('#styling-with-data-attributes'))
+        },
+      },
+      attributes: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await settle()
+          show(activate, attributeTable())
         },
       },
       absent: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
-          const fence = document.querySelector<HTMLElement>('[data-tour="switch-disabled"]')
-          if (fence) activate(fence)
+          show(activate, document.querySelector<HTMLElement>('[data-tour="switch-disabled"]'))
+        },
+      },
+      mixed: {
+        enter: async ({ activate }: StepHandlerContext) => {
+          await settle()
+          ensureMixed()
+          await settle()
+          show(activate, getIn('[data-tour="example-preview"] [role="switch"]', PANEL))
         },
       },
       roles: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
-          const heading = document.querySelector<HTMLElement>('#accessibility')
-          if (heading) activate(heading)
+          show(activate, document.querySelector<HTMLElement>('#accessibility'))
         },
       },
       renderless: {
         enter: async ({ activate }: StepHandlerContext) => {
           await settle()
-          const fence = document.querySelector<HTMLElement>('[data-tour="switch-renderless"]')
-          if (fence) activate(fence)
+          show(activate, document.querySelector<HTMLElement>('[data-tour="switch-renderless"]'))
         },
       },
     },
