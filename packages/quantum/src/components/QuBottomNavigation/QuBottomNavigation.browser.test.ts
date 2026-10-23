@@ -871,7 +871,7 @@ describe('quBottomNavigation', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes and lighten the active ink on the dark one', async () => {
       style(new QuantumStyleSheetAdapter().generate({
         'quantum-light': quantumColors,
         'quantum-dark': quantumDarkColors,
@@ -879,15 +879,20 @@ describe('quBottomNavigation', () => {
 
       const host = mount(() => h('div', { 'data-theme': 'quantum-dark' }, [
         h(QuBottomNavigation, {}, () => DESTINATIONS.slice(0, 3).map(action => h(QuBottomNavigationAction, action))),
+        h(QuBottomNavigation, { variant: 'primary' }, () => DESTINATIONS.slice(0, 3).map(action => h(QuBottomNavigationAction, action))),
       ]))
       await settle()
 
-      const nav = host.querySelector<HTMLElement>('nav')!
-      const [active, inactive] = nav.querySelectorAll<HTMLElement>('.quantum-bottom-navigation__action')
+      const [nav, coloured] = host.querySelectorAll<HTMLElement>('nav')
+      const [active, inactive] = nav!.querySelectorAll<HTMLElement>('.quantum-bottom-navigation__action')
 
-      expect(getComputedStyle(nav).backgroundColor).toBe('rgb(66, 66, 66)')
-      expect(getComputedStyle(active!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(nav!).backgroundColor).toBe('rgb(66, 66, 66)')
+      // Indigo 500 reads at under 2:1 on Grey 800, so the active action takes the primary's 100 (Lead decision 12).
+      expect(getComputedStyle(active!).color).toBe('rgb(197, 202, 233)')
       expect(getComputedStyle(inactive!).color).toBe('rgba(255, 255, 255, 0.7)')
+      // The coloured bar is a primary fill: the fill and its on-primary ink stay as they are.
+      expect(getComputedStyle(coloured!).backgroundColor).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(coloured!.querySelector('.quantum-bottom-navigation__action')!).color).toBe('rgb(255, 255, 255)')
     })
   })
 })

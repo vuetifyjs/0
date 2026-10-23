@@ -185,6 +185,16 @@
     color: var(--quantum-primary, #3F51B5);
   }
 
+  /*
+   * The primary 500 reads at under 2:1 on the dark theme's Grey 800 bar. The
+   * dark theme takes the primary's 100 instead (Lead decision 12), the rule of
+   * QuSubheader and the current item of a QuList; the coloured bar is a primary
+   * fill and keeps its on-primary ink.
+   */
+  [data-theme='quantum-dark'] .quantum-bottom-navigation[data-variant='surface'] .quantum-bottom-navigation__action[data-selected] {
+    color: var(--quantum-primary-light, #C5CAE9);
+  }
+
   /* The coloured bar: active ink is black or white by contrast, the rest at the secondary 70%. */
   .quantum-bottom-navigation[data-variant='primary'] .quantum-bottom-navigation__action {
     color: color-mix(in srgb, var(--quantum-on-primary, #FFFFFF) 70%, transparent);
