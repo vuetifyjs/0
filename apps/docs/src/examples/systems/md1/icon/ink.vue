@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-row">
+  <div class="md1-docs-row md1-docs-icon-tiers">
     <figure
       v-for="entry in tiers"
       :key="entry.tier"
@@ -33,6 +33,11 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--md1-spacing-1, 8px);
+  }
+
+  /* The third tier wraps alone on a phone; it centres under the first two. */
+  .md1-docs-icon-tiers {
+    justify-content: center;
   }
 
   .md1-docs-icon-tier {

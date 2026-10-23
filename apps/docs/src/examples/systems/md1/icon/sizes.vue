@@ -13,7 +13,7 @@
 
 <template>
   <div class="md1-docs-stack">
-    <div v-for="entry in sizes" :key="entry.size" class="md1-docs-row">
+    <div v-for="entry in sizes" :key="entry.size" class="md1-docs-row md1-docs-icon-sizes">
       <span
         v-for="role in roles"
         :key="role"
@@ -41,6 +41,11 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--md1-spacing-1, 8px);
+  }
+
+  /* A row that wraps on a phone keeps its targets and caption centred. */
+  .md1-docs-icon-sizes {
+    justify-content: center;
   }
 
   /* The touch target belongs to the host, drawn here as a dashed square: 48 dp around a 24 dp icon, 40 dp around a 20 dp one. */
