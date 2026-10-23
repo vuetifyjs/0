@@ -172,7 +172,7 @@ Emerald's contract, restated where Quantum differs:
 - Glyphs draw through `QuIcon` roles; no inline glyph SVG in a `Qu*` file. Non-glyph geometry (the circular progress arc, the clock face and hand) is inline SVG, declared under Deviations.
 - Withheld v0 props are withheld at the type level. A shell's `Pick` is the public surface and TypeScript rejects the rest; at runtime the attrs still fall through to the v0 root (`<QuButton loading>` reaches `Button.Root`), the shape Emerald ships too. No shell filters attrs.
 - Every interactive component hosts a `QuRipple`. There is no prop to remove it: the ripple is the spec's press feedback, not an option (ruling 8 keeps Vuetify's `ripple` prop on the wrapper).
-- Native `<dialog>` paints the scrim through `::backdrop` in `--quantum-scrim`; Quantum never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
+- Native `<dialog>` paints the scrim through `::backdrop` in `--quantum-scrim` (`--quantum-scrim-sheet` under a bottom sheet, Lead decision 2); Quantum never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
 - Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('Quantum.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
 
 ## Compound access
@@ -258,8 +258,8 @@ Modal: `dialog.quantum-bottom-sheet` > `div.quantum-bottom-sheet__content`. Pers
 
 - `v-model` open; `persistent` (`false`): non-modal, no scrim, no focus trap, rests at the content's elevation and may move the FAB up; `grid` (`false`): `Item` children lay out as 48 dp icon tiles with 16 dp labels; `v-model:expanded` (`false`): full height with internal scroll and an `X`.
 - Parts: `Activator` (renderless `Dialog.Activator`); `Title` (56 dp row, Regular 16 sp at 54%, 1 dp divider below); `Item` (`icon`, `href`, `disabled`; 48 dp row, 24 dp icon, 32 dp icon-to-text gap; a `Button.Root` or anchor). Dividers are `QuDivider`.
-- Composition: `Dialog.Root` + `Dialog.Content` (native `<dialog>`, `scrim: false`, `::backdrop` in `--quantum-scrim`) positioned at the bottom edge; persistent sheets use `Portal` + `Collapsible` for the expanded state.
-- Values: `spec/components/bottom-sheets.md`. 16 dp elevation (modal); scrim `#000` 20%; 16 dp side keyline, 8 dp top and bottom; grid margin 24 dp, rows 24 dp apart; initial max height = width x 9 / 16; full width under 960 px; from 960 px the inset follows the increment table (1 increment from the edge, 6 wide; 2 and 8 at 1280; 3 and 9 at 1440) with the 64 dp increment.
+- Composition: `Dialog.Root` + `Dialog.Content` (native `<dialog>`, `scrim: false`, `::backdrop` in `--quantum-scrim-sheet`) positioned at the bottom edge; persistent sheets use `Portal` + `Collapsible` for the expanded state.
+- Values: `spec/components/bottom-sheets.md`. 16 dp elevation (modal); scrim `--quantum-scrim-sheet`, `#000` 20%; 16 dp side keyline, 8 dp top and bottom; grid margin 24 dp, rows 24 dp apart; initial max height = width x 9 / 16; full width under 960 px; from 960 px the inset follows the increment table (1 increment from the edge, 6 wide; 2 and 8 at 1280; 3 and 9 at 1440) with the 64 dp increment.
 - Limits: swipe to dismiss and swipe to expand are not shipped (gesture); `X`, scrim click and Escape are the paths. No corner radius (square in every figure).
 
 ### QuButton
@@ -580,7 +580,8 @@ The default theme is the spec's own worked example (Indigo primary, Pink accent,
 | `--quantum-hover` | black 6% | white 10% | steppers page (light, high); dark measured halo (`moderate`); not stated for buttons |
 | `--quantum-button-disabled` | black 12% | white 12% | buttons page (raised container) |
 | `--quantum-button-disabled-text` | black 26% | white 30% | buttons page |
-| `--quantum-scrim` | black 20% | black 20% | bottom-sheets page; the only overlay value in MD1, applied to every modal `::backdrop` (Vuetify's `#212121` at 46% recorded as the rejected precedent) |
+| `--quantum-scrim` | Grey 900 `#212121` 46% | same | Lead decision 2: Vuetify 1.5's overlay (`moderate`) for the `::backdrop` of `QuDialog`, the temporary `QuNavigationDrawer` and the `QuDataTable` edit dialog; the dialog and drawer pages state no value |
+| `--quantum-scrim-sheet` | black 20% | same | bottom-sheets page, the only overlay value in MD1; the `::backdrop` of a modal `QuBottomSheet` |
 | `--quantum-snackbar` / `-snackbar-text` | `#323232` / white | same | snackbars page |
 | `--quantum-tooltip` / `-tooltip-text` | Grey 700 at 90% / white | same | tooltips page |
 | `--quantum-chip` | Grey 300 `#E0E0E0` | `#555555` | image only, Vuetify value (`moderate`) |

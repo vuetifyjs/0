@@ -830,7 +830,7 @@ Adapted from `EmDialog/*` and cut to SPEC.md's parts (`Activator`, `Content`, `T
 
   /* Native backdrop: Quantum never mounts v0 Scrim (#910). */
   .quantum-dialog::backdrop {
-    background: var(--quantum-scrim, rgba(0, 0, 0, 0.2));
+    background: var(--quantum-scrim, rgba(33, 33, 33, 0.46));
   }
 
   .quantum-dialog__sheet {
@@ -974,7 +974,7 @@ Literals in the dialog sample:
 |---|---|---|---|
 | `calc(100vw - 80px)`, `calc(100vh - 48px)` | px | dialogs page: at least 40 dp from the side edges and 24 dp top and bottom | high |
 | min-width `280px`; max-width `560px` | px | dialogs page minimum 280 dp (5 units of 56); the desktop maximum (10 units) is a SPEC.md decision | high / low |
-| scrim `rgba(0, 0, 0, 0.2)` | alpha | bottom-sheets page, SPEC.md `--quantum-scrim` | high |
+| scrim `rgba(33, 33, 33, 0.46)` | alpha | SPEC.md `--quantum-scrim`, Lead decision 2 (Vuetify 1.5 `_overlay.styl`; the bottom-sheets page's black 20% is `--quantum-scrim-sheet`) | moderate |
 | text `rgba(0, 0, 0, 0.87)`, secondary `0.54` | alpha | colour page | high |
 | title `20px / 500`, line-height `28px`, `20px` below | px | dialogs page (Medium 20 sp, 28 dp line height, 20 dp to the text) | high |
 | body `14px / 400 / 20px` | px | typography page Body 1; Body 1 as the dialog body style is a SPEC.md decision | high (metrics) / low (choice) |
