@@ -7,7 +7,7 @@
     <Md1Toolbar variant="primary">
       <Md1Toolbar.Nav />
 
-      <Md1Toolbar.Title>Standard, 56 or 64 dp</Md1Toolbar.Title>
+      <Md1Toolbar.Title>Standard</Md1Toolbar.Title>
 
       <Md1Toolbar.Actions>
         <Md1Button aria-label="Search" icon="search" />

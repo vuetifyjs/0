@@ -7,7 +7,7 @@
     <Md1Toolbar>
       <Md1Toolbar.Nav icon="up" />
 
-      <Md1Toolbar.Title>Surface (light or dark by theme)</Md1Toolbar.Title>
+      <Md1Toolbar.Title>Surface</Md1Toolbar.Title>
 
       <Md1Toolbar.Actions>
         <Md1Button aria-label="Share" icon="share" />
