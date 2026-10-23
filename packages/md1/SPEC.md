@@ -728,7 +728,7 @@ What the integration and the docs sweeps of 2026-10-23 left open. Each line says
 
 ### Token gaps
 
-- **Input line.** Ships the 42% black / 70% white line derived from `--md1-hover` times seven; undecided: a `--md1-input-line` pair.
+- **Input line.** Ships the 42% black / 70% white line in `Md1TextField`, the `Md1DataTable` edit field and the `Md1Slider` value field, derived from the `--md1-text-primary` channel (`0.42 + 0.28 * r / 255`); `--md1-hover` times seven drifted to 41% / 71% and is no longer used; undecided: a `--md1-input-line` pair.
 - **Placeholder.** Ships `--md1-text-hint` (38% black, 50% white) where the text-fields page states 42% black; undecided: a token for the 42%.
 - **Switch.** Ships no switch role tokens; the dark track and thumb values sit under `[data-theme='md1-dark']` selectors, so a light region nested in a dark one keeps them; undecided: switch tokens.
 - **Contextual header.** Ships `Md1DataTable.Contextual` on `--md1-accent-light` (A100) where the data tables page asks for the accent's 50; undecided: `--md1-accent-50`.
@@ -762,7 +762,6 @@ What the integration and the docs sweeps of 2026-10-23 left open. Each line says
 - **Tabs.** No example puts a primary tab bar inside `Md1Toolbar`; open: that example.
 - **Text field.** No `picker` example; open: one.
 - **FAB seam.** The example hosts the FAB on a hand-built header with `data-fab-host`; open: the `Md1Toolbar.Extension`, `Md1Card` and `Md1BottomSheet` hosts.
-- **Progress timers.** `progress-circular/fab.vue` and `progress-linear/query.vue` call `stop()` inside a repeating `useTimer` handler, which v0 re-arms after the handler returns, so the stop does nothing; open: stopping from outside the handler.
 
 ### Locale keys with inline English fallbacks
 
