@@ -92,6 +92,8 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--md1-spacing-2, 16px);
+    /* The panel centres its child at max-content; the cap lets the table scroll inside a phone's width. */
+    max-width: 100%;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
@@ -123,6 +125,11 @@
   .md1-docs-motion-durations-query {
     display: block;
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  /* 54% measures 4.45:1 on the 6% hover fill of the current row; the query there reads at the primary ink. */
+  .md1-docs-motion-durations-row[data-active] .md1-docs-motion-durations-query {
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   .md1-docs-motion-durations-bars {
