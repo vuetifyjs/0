@@ -160,8 +160,8 @@ Every `QuTextField` variant applies to the field. `box` is the 56 dp filled rect
 | `box` | `boolean` | `false` | The 56 dp filled box with 4 dp corners (44 dp dense) |
 | `dense` | `boolean` | `false` | 13 sp text, halved spacings, 40 dp suggestion rows |
 | `fullWidth` | `boolean` | `false` | Spans the container: 56 dp (48 dp dense), the divider as its line |
-| `solo` | `boolean` | `false` | The raised 48 dp sheet with no line and no visible label, 2 dp |
-| `scrolled` | `boolean` | `false` | A solo field over scrolled content: 3 dp |
+| `solo` | `boolean` | `false` | The raised 48 dp sheet with no line and no visible label, 2 dp (0 dp under a fine pointer) |
+| `scrolled` | `boolean` | `false` | A solo field over scrolled content: 3 dp (1 dp under a fine pointer) |
 | `strict` | `boolean` | `false` | Only suggestions are accepted; unmatched text is discarded on confirm |
 | `multiple` | `boolean` | `false` | `v-model` is an array; values render as contact chips in the field and the list stays open after a choice |
 | `inline` | `boolean` | `false` | In-line completion: the first matching suggestion completes the typed text at the placeholder colour, Enter accepts it, no menu opens |
