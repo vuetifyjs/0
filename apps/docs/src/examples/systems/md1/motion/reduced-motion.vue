@@ -52,8 +52,10 @@
     gap: var(--md1-spacing-3, 24px);
   }
 
+  /* Full width: the centred column would otherwise shrink the stage to its line of copy. */
   .md1-docs-motion-reduced-stage {
     position: relative;
+    width: 100%;
     height: 120px;
     overflow: clip;
     background: var(--md1-background, #FAFAFA);
