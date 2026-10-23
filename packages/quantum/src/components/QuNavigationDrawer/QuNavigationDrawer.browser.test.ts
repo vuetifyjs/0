@@ -93,41 +93,43 @@ function drawer (options: Options = {}): HTMLElement {
   const open = options.open ?? shallowRef(false)
   const current = options.page ?? shallowRef<unknown>('inbox')
 
-  const node = () => h(QuNavigationDrawer, {
-    'id': 'drawer',
-    ...options.props,
-    'modelValue': open.value,
-    'onUpdate:modelValue': (value: boolean) => {
-      open.value = value
-    },
-  }, {
-    default: (props: QuNavigationDrawerSlotProps) => [
-      options.bare
-        ? null
-        : h(QuNavigationDrawer.Activator, null, {
-            default: ({ attrs }: QuNavigationDrawerActivatorSlotProps) => h(QuButton, { ...attrs, id: 'trigger' }, () => props.isOpen ? 'Close menu' : 'Menu'),
-          }),
-      h(QuNavigationDrawer.Header, { name: 'Ada Lovelace', email: 'ada@example.com' }),
-      h(QuNavigationDrawer.Content, () => [
-        h(QuList, {
-          'id': 'primary',
-          'modelValue': current.value,
-          'onUpdate:modelValue': (value: unknown) => {
-            current.value = value
-          },
-        }, () => [
-          destination('inbox', 'inbox', 'Inbox', { id: 'inbox' }),
-          destination('sent', 'send', 'Sent mail', { id: 'sent' }),
-          destination('drafts', 'drafts', 'Drafts', { id: 'drafts', disabled: true }),
-          h(QuList.Group, { title: 'Labels', icon: 'label' }, () => [destination('work', 'label', 'Work')]),
-          ...Array.from({ length: options.more ?? 0 }, (_, index) => destination(`extra-${index}`, 'star', `Starred ${index + 1}`)),
+  function node () {
+    return h(QuNavigationDrawer, {
+      'id': 'drawer',
+      ...options.props,
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }, {
+      default: (props: QuNavigationDrawerSlotProps) => [
+        options.bare
+          ? null
+          : h(QuNavigationDrawer.Activator, null, {
+              default: ({ attrs }: QuNavigationDrawerActivatorSlotProps) => h(QuButton, { ...attrs, id: 'trigger' }, () => props.isOpen ? 'Close menu' : 'Menu'),
+            }),
+        h(QuNavigationDrawer.Header, { name: 'Ada Lovelace', email: 'ada@example.com' }),
+        h(QuNavigationDrawer.Content, () => [
+          h(QuList, {
+            'id': 'primary',
+            'modelValue': current.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              current.value = value
+            },
+          }, () => [
+            destination('inbox', 'inbox', 'Inbox', { id: 'inbox' }),
+            destination('sent', 'send', 'Sent mail', { id: 'sent' }),
+            destination('drafts', 'drafts', 'Drafts', { id: 'drafts', disabled: true }),
+            h(QuList.Group, { title: 'Labels', icon: 'label' }, () => [destination('work', 'label', 'Work')]),
+            ...Array.from({ length: options.more ?? 0 }, (_, index) => destination(`extra-${index}`, 'star', `Starred ${index + 1}`)),
+          ]),
+          h(QuDivider, { id: 'divider' }),
+          h(QuSubheader, { id: 'subheader' }, () => 'Support'),
+          h(QuList, { id: 'support' }, () => [destination('settings', 'settings', 'Settings'), destination('help', 'help', 'Help')]),
         ]),
-        h(QuDivider, { id: 'divider' }),
-        h(QuSubheader, { id: 'subheader' }, () => 'Support'),
-        h(QuList, { id: 'support' }, () => [destination('settings', 'settings', 'Settings'), destination('help', 'help', 'Help')]),
-      ]),
-    ],
-  })
+      ],
+    })
+  }
 
   // Non-modal drawers sit beside the content in a flex row the height of the screen.
   return mount(() => h('div', { style: 'display: flex; height: 600px', ...options.host }, [node(), h('main', { id: 'main', style: 'flex: 1 1 auto' }, 'Content')]))

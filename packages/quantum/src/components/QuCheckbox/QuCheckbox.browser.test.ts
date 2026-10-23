@@ -286,7 +286,9 @@ describe('quCheckbox', () => {
       await settle()
 
       const control = host.querySelector<HTMLElement>('.quantum-checkbox__control')!
-      const paths = () => [...control.querySelectorAll('.quantum-checkbox__check path')].map(p => p.getAttribute('d'))
+      function paths () {
+        return [...control.querySelectorAll('.quantum-checkbox__check path')].map(p => p.getAttribute('d'))
+      }
 
       expect(control.dataset.state).toBe('indeterminate')
       expect(paths()).toEqual(quantumIcons.remove)

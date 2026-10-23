@@ -63,34 +63,36 @@ function prompt (options: Options = {}): HTMLElement {
     return h(QuFeatureDiscovery.Target, null, () => h(QuButton, { ariaLabel: 'Search', icon: 'search', id: 'action', onClick: onAction }))
   }
 
-  const tree = () => h(QuFeatureDiscovery, {
-    ...props,
-    'modelValue': open.value,
-    'onUpdate:modelValue': (next: boolean) => {
-      open.value = next
-    },
-    onComplete,
-    onDismiss,
-  }, () => [
-    card
-      ? h('div', {
-          class: 'quantum-card',
-          id: 'card',
-          style: {
-            position: 'absolute',
-            left: `${-card.width / 2 + 24}px`,
-            top: `${-card.height / 2 + 24}px`,
-            width: `${card.width}px`,
-            height: `${card.height}px`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-        }, [action()])
-      : action(),
-    h(QuFeatureDiscovery.Title, null, () => 'Find mail fast'),
-    h(QuFeatureDiscovery.Text, null, () => 'Search by sender, subject or date.'),
-  ])
+  function tree () {
+    return h(QuFeatureDiscovery, {
+      ...props,
+      'modelValue': open.value,
+      'onUpdate:modelValue': (next: boolean) => {
+        open.value = next
+      },
+      onComplete,
+      onDismiss,
+    }, () => [
+      card
+        ? h('div', {
+            class: 'quantum-card',
+            id: 'card',
+            style: {
+              position: 'absolute',
+              left: `${-card.width / 2 + 24}px`,
+              top: `${-card.height / 2 + 24}px`,
+              width: `${card.width}px`,
+              height: `${card.height}px`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          }, [action()])
+        : action(),
+      h(QuFeatureDiscovery.Title, null, () => 'Find mail fast'),
+      h(QuFeatureDiscovery.Text, null, () => 'Search by sender, subject or date.'),
+    ])
+  }
 
   return mount(() => h('div', [
     h('button', { id: 'opener', type: 'button', style: { position: 'absolute', left: '0px', top: '0px' } }, 'Opener'),

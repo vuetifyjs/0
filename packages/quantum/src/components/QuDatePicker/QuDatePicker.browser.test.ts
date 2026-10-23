@@ -211,7 +211,7 @@ describe('quDatePicker', () => {
     })
 
     it('should take the first weekday from an installed date plugin, and let the prop override it', async () => {
-      const plugin = (app: App) => {
+      function plugin (app: App) {
         app.use(createDatePlugin({ adapter: new V0DateAdapter(), locale: 'en-US', firstDayOfWeek: 1 }))
       }
 
@@ -229,7 +229,9 @@ describe('quDatePicker', () => {
       await settle()
 
       const [prev, next] = root.querySelectorAll<HTMLElement>('.quantum-date-picker__step')
-      const paths = (el: HTMLElement) => [...el.querySelectorAll('svg.quantum-icon path')].map(p => p.getAttribute('d'))
+      function paths (el: HTMLElement) {
+        return [...el.querySelectorAll('svg.quantum-icon path')].map(p => p.getAttribute('d'))
+      }
 
       expect(paths(prev!)).toEqual(quantumIcons['chevron-left'])
       expect(paths(next!)).toEqual(quantumIcons['chevron-right'])

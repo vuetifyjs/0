@@ -288,7 +288,9 @@ describe('quList', () => {
       await settle()
 
       const left = host.querySelector('.quantum-list')!.getBoundingClientRect().left
-      const offset = (el: Element) => el.getBoundingClientRect().left - left
+      function offset (el: Element) {
+        return el.getBoundingClientRect().left - left
+      }
       const [avatar, icon, plain, inset] = [...host.querySelectorAll('.quantum-list__primary')]
 
       expect(offset(host.querySelector('.quantum-list__avatar')!)).toBe(24)

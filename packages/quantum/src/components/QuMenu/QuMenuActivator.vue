@@ -49,7 +49,7 @@
   const layer = menu.defaultLayer
 
   function trigger (): Element | null {
-    return IN_BROWSER ? document.getElementById(menu.triggerId(layer)) : null
+    return IN_BROWSER ? document.querySelector(`#${CSS.escape(menu.triggerId(layer))}`) : null
   }
 
   menu.content.upsert(layer, { returnTo: trigger })

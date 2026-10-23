@@ -968,7 +968,9 @@ describe('quToolbar', () => {
 
       await expect.poll(() => list.matches(':popover-open')).toBe(true)
 
-      const rows = () => [...list.querySelectorAll<HTMLElement>('[role="option"]')].filter(row => row.style.display !== 'none')
+      function rows () {
+        return [...list.querySelectorAll<HTMLElement>('[role="option"]')].filter(row => row.style.display !== 'none')
+      }
 
       expect(rows().map(row => row.textContent)).toEqual(['beach'])
       expect(paths(rows()[0]!)).toEqual(quantumIcons.history)

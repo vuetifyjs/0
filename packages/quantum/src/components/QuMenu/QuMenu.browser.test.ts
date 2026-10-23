@@ -791,14 +791,14 @@ describe('quMenu', () => {
   })
 
   describe('cascading', () => {
-    function cascade (props: QuMenuProps & Record<string, unknown> = { desktop: true }) {
+    function cascade (desktop = true) {
       return menu(() => [
         h(QuMenuItem, null, () => 'New'),
         h(QuMenuSub, { label: 'Share', icon: 'share' }, () => [
           h(QuMenuItem, null, () => 'Email'),
           h(QuMenuItem, null, () => 'Link'),
         ]),
-      ], { props })
+      ], { props: { desktop } })
     }
 
     function nested (): HTMLElement {
@@ -877,7 +877,7 @@ describe('quMenu', () => {
     })
 
     it('should stand the handset sub menu at 9 dp', async () => {
-      const host = cascade({})
+      const host = cascade(false)
       await settle()
 
       await show(host)

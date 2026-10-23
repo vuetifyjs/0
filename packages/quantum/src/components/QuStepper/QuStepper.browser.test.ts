@@ -222,7 +222,7 @@ describe('quStepper', () => {
       expect(shown[0]!.textContent).toContain('Campaign settings body')
       expect(shown[0]!.getAttribute('role')).toBe('region')
 
-      const label = document.getElementById(shown[0]!.getAttribute('aria-labelledby')!)!
+      const label = document.querySelector(`#${CSS.escape(shown[0]!.getAttribute('aria-labelledby')!)}`)!
 
       expect(label.classList.contains('quantum-stepper__label')).toBe(true)
       expect(label.textContent).toContain('Campaign settings')
@@ -714,7 +714,9 @@ describe('quStepper', () => {
       }))))))
       await settle()
 
-      const row = () => visible(host)[0]!.querySelectorAll<HTMLButtonElement>('.quantum-button')
+      function row () {
+        return visible(host)[0]!.querySelectorAll<HTMLButtonElement>('.quantum-button')
+      }
 
       await userEvent.click(row()[1]!)
       await settle()
@@ -783,7 +785,7 @@ describe('quStepper', () => {
       expect(next!.disabled).toBe(false)
       expect(paths(next!)).toEqual(quantumIcons['chevron-right'])
       // The steps stay mounted, so the label still names the visible region.
-      expect(document.getElementById(visible(root)[0]!.getAttribute('aria-labelledby')!)).not.toBeNull()
+      expect(document.querySelector(`#${CSS.escape(visible(root)[0]!.getAttribute('aria-labelledby')!)}`)).not.toBeNull()
     })
 
     it('should step with NEXT and BACK and disable NEXT on the last step', async () => {
@@ -791,7 +793,9 @@ describe('quStepper', () => {
       const root = stepper({ model, props: { mobile: 'text' }, bar: true })
       await settle()
 
-      const buttons = () => [...root.querySelectorAll<HTMLButtonElement>('.quantum-stepper__bar > .quantum-button')]
+      function buttons () {
+        return [...root.querySelectorAll<HTMLButtonElement>('.quantum-stepper__bar > .quantum-button')]
+      }
 
       await userEvent.click(buttons()[1]!)
       await settle()

@@ -116,7 +116,7 @@
   // again in the same task means no frame ever paints the gap, and the toggle
   // events coalesce into one that leaves v0's open state untouched.
   function keep () {
-    const el = document.getElementById(root.id)
+    const el = document.querySelector<HTMLElement>(`#${CSS.escape(root.id)}`)
 
     if (!isNull(el) && !el.matches(':popover-open')) el.showPopover()
   }
