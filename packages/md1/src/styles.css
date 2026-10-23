@@ -1,0 +1,374 @@
+/*
+ * @paper/md1 utilities: the 13 MD1 type styles and the 25 elevation levels
+ * (SPEC.md "Typography and elevation utilities", the declared deviation from
+ * ruling 3). Every value reads its --md1-* token with the spec literal as
+ * the fallback, and the desktop ((pointer: fine)) and script (:lang()) switches
+ * are restated with their own fallbacks so the classes hold without theme.css.
+ * Mirrors src/design-system.ts; change both together.
+ */
+
+/* Type: font, size, weight, leading, tracking, case and the ink tier of each style (device sizes). */
+
+.md1-type-display-4 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-display-4-size, 112px);
+  font-weight: var(--md1-type-display-4-weight, 300);
+  line-height: var(--md1-type-display-4-leading, 1);
+  letter-spacing: var(--md1-type-display-4-tracking, -0.01em);
+  text-transform: var(--md1-type-display-4-transform, none);
+  color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+}
+
+.md1-type-display-3 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-display-3-size, 56px);
+  font-weight: var(--md1-type-display-3-weight, 400);
+  line-height: var(--md1-type-display-3-leading, 1);
+  letter-spacing: var(--md1-type-display-3-tracking, -0.005em);
+  text-transform: var(--md1-type-display-3-transform, none);
+  color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+}
+
+.md1-type-display-2 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-display-2-size, 45px);
+  font-weight: var(--md1-type-display-2-weight, 400);
+  line-height: var(--md1-type-display-2-leading, 48px);
+  letter-spacing: var(--md1-type-display-2-tracking, 0);
+  text-transform: var(--md1-type-display-2-transform, none);
+  color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+}
+
+.md1-type-display-1 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-display-1-size, 34px);
+  font-weight: var(--md1-type-display-1-weight, 400);
+  line-height: var(--md1-type-display-1-leading, 40px);
+  letter-spacing: var(--md1-type-display-1-tracking, 0);
+  text-transform: var(--md1-type-display-1-transform, none);
+  color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+}
+
+.md1-type-headline {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-headline-size, 24px);
+  font-weight: var(--md1-type-headline-weight, 400);
+  line-height: var(--md1-type-headline-leading, 32px);
+  letter-spacing: var(--md1-type-headline-tracking, 0);
+  text-transform: var(--md1-type-headline-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-title {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-title-size, 20px);
+  font-weight: var(--md1-type-title-weight, 500);
+  line-height: var(--md1-type-title-leading, 1);
+  letter-spacing: var(--md1-type-title-tracking, 0.005em);
+  text-transform: var(--md1-type-title-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-subheading {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-subheading-size, 16px);
+  font-weight: var(--md1-type-subheading-weight, 400);
+  line-height: var(--md1-type-subheading-leading, 24px);
+  letter-spacing: var(--md1-type-subheading-tracking, 0.01em);
+  text-transform: var(--md1-type-subheading-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-subheading-2 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-subheading-2-size, 16px);
+  font-weight: var(--md1-type-subheading-2-weight, 400);
+  line-height: var(--md1-type-subheading-2-leading, 28px);
+  letter-spacing: var(--md1-type-subheading-2-tracking, 0.01em);
+  text-transform: var(--md1-type-subheading-2-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-body-2 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-body-2-size, 14px);
+  font-weight: var(--md1-type-body-2-weight, 500);
+  line-height: var(--md1-type-body-2-leading, 24px);
+  letter-spacing: var(--md1-type-body-2-tracking, 0.01em);
+  text-transform: var(--md1-type-body-2-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-body-1 {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-body-1-size, 14px);
+  font-weight: var(--md1-type-body-1-weight, 400);
+  line-height: var(--md1-type-body-1-leading, 20px);
+  letter-spacing: var(--md1-type-body-1-tracking, 0.01em);
+  text-transform: var(--md1-type-body-1-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-caption {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-caption-size, 12px);
+  font-weight: var(--md1-type-caption-weight, 400);
+  line-height: var(--md1-type-caption-leading, 1);
+  letter-spacing: var(--md1-type-caption-tracking, 0.02em);
+  text-transform: var(--md1-type-caption-transform, none);
+  color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+}
+
+.md1-type-button {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-button-size, 14px);
+  font-weight: var(--md1-type-button-weight, 500);
+  line-height: var(--md1-type-button-leading, 1);
+  letter-spacing: var(--md1-type-button-tracking, 0.01em);
+  text-transform: var(--md1-type-button-transform, uppercase);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+.md1-type-menu {
+  font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
+  font-size: var(--md1-type-menu-size, 14px);
+  font-weight: var(--md1-type-menu-weight, 500);
+  line-height: var(--md1-type-menu-leading, 1);
+  letter-spacing: var(--md1-type-menu-tracking, 0.01em);
+  text-transform: var(--md1-type-menu-transform, none);
+  color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+}
+
+/* Desktop: subheading 15 sp, body and menu 13 sp. */
+
+@media (pointer: fine) {
+  .md1-type-subheading {
+    font-size: var(--md1-type-subheading-size, 15px);
+  }
+  .md1-type-subheading-2 {
+    font-size: var(--md1-type-subheading-2-size, 15px);
+  }
+  .md1-type-body-2 {
+    font-size: var(--md1-type-body-2-size, 13px);
+  }
+  .md1-type-body-1 {
+    font-size: var(--md1-type-body-1-size, 13px);
+  }
+  .md1-type-menu {
+    font-size: var(--md1-type-menu-size, 13px);
+  }
+}
+
+/* Dense (ja, ko, zh) and tall scripts: one sp larger from title down, the taller leading column. */
+
+.md1-type-display-2:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  line-height: var(--md1-type-display-2-leading, 63px);
+}
+.md1-type-display-1:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  line-height: var(--md1-type-display-1-leading, 48px);
+}
+.md1-type-headline:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  line-height: var(--md1-type-headline-leading, 34px);
+}
+.md1-type-title:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-title-size, 21px);
+}
+.md1-type-subheading:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-subheading-size, 17px);
+  line-height: var(--md1-type-subheading-leading, 26px);
+}
+.md1-type-subheading-2:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-subheading-2-size, 17px);
+  line-height: var(--md1-type-subheading-2-leading, 30px);
+}
+.md1-type-body-2:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-body-2-size, 15px);
+  line-height: var(--md1-type-body-2-leading, 26px);
+}
+.md1-type-body-1:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-body-1-size, 15px);
+  line-height: var(--md1-type-body-1-leading, 23px);
+}
+.md1-type-caption:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-caption-size, 13px);
+}
+.md1-type-button:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-button-size, 15px);
+}
+.md1-type-menu:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-size: var(--md1-type-menu-size, 15px);
+}
+
+/* Dense scripts add the CJK stack. */
+
+:is(.md1-type-display-4, .md1-type-display-3, .md1-type-display-2, .md1-type-display-1, .md1-type-headline, .md1-type-title, .md1-type-subheading, .md1-type-subheading-2, .md1-type-body-2, .md1-type-body-1, .md1-type-caption, .md1-type-button, .md1-type-menu):is(:lang(ja), :lang(ko), :lang(zh)) {
+  font-family: var(--md1-font-family, Roboto, "Noto Sans CJK", Noto, sans-serif);
+}
+
+/* Tall scripts add the Noto stack and use Regular and Bold only. */
+
+:is(.md1-type-display-4, .md1-type-display-3, .md1-type-display-2, .md1-type-display-1, .md1-type-headline, .md1-type-title, .md1-type-subheading, .md1-type-subheading-2, .md1-type-body-2, .md1-type-body-1, .md1-type-caption, .md1-type-button, .md1-type-menu):is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-family: var(--md1-font-family, Roboto, "Noto Sans", Noto, sans-serif);
+}
+.md1-type-display-4:is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-weight: var(--md1-type-display-4-weight, 400);
+}
+.md1-type-title:is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-weight: var(--md1-type-title-weight, 700);
+}
+.md1-type-body-2:is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-weight: var(--md1-type-body-2-weight, 700);
+}
+.md1-type-button:is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-weight: var(--md1-type-button-weight, 700);
+}
+.md1-type-menu:is(:lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+  font-weight: var(--md1-type-menu-weight, 700);
+}
+
+/* Dense and tall scripts on desktop: the script tables' desktop column. */
+
+@media (pointer: fine) {
+  .md1-type-subheading:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+    font-size: var(--md1-type-subheading-size, 16px);
+  }
+  .md1-type-subheading-2:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+    font-size: var(--md1-type-subheading-2-size, 16px);
+  }
+  .md1-type-body-2:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+    font-size: var(--md1-type-body-2-size, 14px);
+  }
+  .md1-type-body-1:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+    font-size: var(--md1-type-body-1-size, 14px);
+  }
+  .md1-type-menu:is(:lang(ja), :lang(ko), :lang(zh), :lang(ar), :lang(bn), :lang(fa), :lang(gu), :lang(hi), :lang(km), :lang(kn), :lang(lo), :lang(ml), :lang(mr), :lang(my), :lang(ne), :lang(pa), :lang(si), :lang(ta), :lang(te), :lang(th), :lang(ur), :lang(vi)) {
+    font-size: var(--md1-type-menu-size, 14px);
+  }
+}
+
+/* Elevation: the three-layer shadow per dp and the 280 ms elevation transition on the standard curve. */
+
+.md1-elevation-0 {
+  box-shadow: var(--md1-elevation-0, 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-1 {
+  box-shadow: var(--md1-elevation-1, 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-2 {
+  box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-3 {
+  box-shadow: var(--md1-elevation-3, 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-4 {
+  box-shadow: var(--md1-elevation-4, 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-5 {
+  box-shadow: var(--md1-elevation-5, 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-6 {
+  box-shadow: var(--md1-elevation-6, 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-7 {
+  box-shadow: var(--md1-elevation-7, 0px 4px 5px -2px rgba(0, 0, 0, 0.2), 0px 7px 10px 1px rgba(0, 0, 0, 0.14), 0px 2px 16px 1px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-8 {
+  box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-9 {
+  box-shadow: var(--md1-elevation-9, 0px 5px 6px -3px rgba(0, 0, 0, 0.2), 0px 9px 12px 1px rgba(0, 0, 0, 0.14), 0px 3px 16px 2px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-10 {
+  box-shadow: var(--md1-elevation-10, 0px 6px 6px -3px rgba(0, 0, 0, 0.2), 0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-11 {
+  box-shadow: var(--md1-elevation-11, 0px 6px 7px -4px rgba(0, 0, 0, 0.2), 0px 11px 15px 1px rgba(0, 0, 0, 0.14), 0px 4px 20px 3px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-12 {
+  box-shadow: var(--md1-elevation-12, 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-13 {
+  box-shadow: var(--md1-elevation-13, 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 13px 19px 2px rgba(0, 0, 0, 0.14), 0px 5px 24px 4px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-14 {
+  box-shadow: var(--md1-elevation-14, 0px 7px 9px -4px rgba(0, 0, 0, 0.2), 0px 14px 21px 2px rgba(0, 0, 0, 0.14), 0px 5px 26px 4px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-15 {
+  box-shadow: var(--md1-elevation-15, 0px 8px 9px -5px rgba(0, 0, 0, 0.2), 0px 15px 22px 2px rgba(0, 0, 0, 0.14), 0px 6px 28px 5px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-16 {
+  box-shadow: var(--md1-elevation-16, 0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-17 {
+  box-shadow: var(--md1-elevation-17, 0px 8px 11px -5px rgba(0, 0, 0, 0.2), 0px 17px 26px 2px rgba(0, 0, 0, 0.14), 0px 6px 32px 5px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-18 {
+  box-shadow: var(--md1-elevation-18, 0px 9px 11px -5px rgba(0, 0, 0, 0.2), 0px 18px 28px 2px rgba(0, 0, 0, 0.14), 0px 7px 34px 6px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-19 {
+  box-shadow: var(--md1-elevation-19, 0px 9px 12px -6px rgba(0, 0, 0, 0.2), 0px 19px 29px 2px rgba(0, 0, 0, 0.14), 0px 7px 36px 6px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-20 {
+  box-shadow: var(--md1-elevation-20, 0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 20px 31px 3px rgba(0, 0, 0, 0.14), 0px 8px 38px 7px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-21 {
+  box-shadow: var(--md1-elevation-21, 0px 10px 13px -6px rgba(0, 0, 0, 0.2), 0px 21px 33px 3px rgba(0, 0, 0, 0.14), 0px 8px 40px 7px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-22 {
+  box-shadow: var(--md1-elevation-22, 0px 10px 14px -6px rgba(0, 0, 0, 0.2), 0px 22px 35px 3px rgba(0, 0, 0, 0.14), 0px 8px 42px 7px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-23 {
+  box-shadow: var(--md1-elevation-23, 0px 11px 14px -7px rgba(0, 0, 0, 0.2), 0px 23px 36px 3px rgba(0, 0, 0, 0.14), 0px 9px 44px 8px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.md1-elevation-24 {
+  box-shadow: var(--md1-elevation-24, 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12));
+  transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}

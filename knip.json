@@ -74,11 +74,11 @@
         "#emerald": [
           "../../packages/emerald/src"
         ],
-        "@paper/quantum": [
-          "../../packages/quantum/src"
+        "@paper/md1": [
+          "../../packages/md1/src"
         ],
-        "#quantum": [
-          "../../packages/quantum/src"
+        "#md1": [
+          "../../packages/md1/src"
         ]
       }
     },
