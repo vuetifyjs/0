@@ -18,8 +18,11 @@
     gap: var(--md1-spacing-1, 8px);
   }
 
+  /* The explanation sits centred under the button it explains, so a wrapped line stays with it on a narrow screen. */
   .md1-docs-errors-caption {
+    max-width: 360px;
     margin: 0;
+    text-align: center;
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-caption-size, 12px);
     letter-spacing: var(--md1-type-caption-tracking, 0.02em);
