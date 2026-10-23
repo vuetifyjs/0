@@ -91,6 +91,16 @@
   }
 
   /*
+   * The primary 500 reads at about 1.5:1 on the dark sheet, under the 4.5:1
+   * floor. The dark theme takes the primary's 100 instead, the lighter tint
+   * the navigation drawer page asks for when the colour does not contrast
+   * (the same rule as the current item of a QuList).
+   */
+  [data-theme='quantum-dark'] .quantum-subheader[data-primary] {
+    color: var(--quantum-primary-light, #C5CAE9);
+  }
+
+  /*
    * Pin and push: sticky inside the scroll container, above the positioned
    * tiles that follow it. The fill is inherited rather than painted so the
    * pinned tile matches whatever surface the list sits on, in either theme.

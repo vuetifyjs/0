@@ -335,7 +335,7 @@ describe('quSubheader', () => {
   })
 
   describe('theme', () => {
-    it('should take its ink from the adapter sheet in both themes while the primary variant keeps the role', async () => {
+    it('should take its ink from the adapter sheet in both themes and lighten the primary variant on the dark one', async () => {
       style(new QuantumStyleSheetAdapter().generate({
         'quantum-light': quantumColors,
         'quantum-dark': quantumDarkColors,
@@ -355,9 +355,10 @@ describe('quSubheader', () => {
 
       // The sheet and the stylesheet fallbacks agree on the light theme.
       expect(getComputedStyle(light!).color).toBe('rgba(0, 0, 0, 0.54)')
-      // Secondary ink is 70% white on the dark theme; the primary role is the same hue in both.
+      // Secondary ink is 70% white on the dark theme; the primary variant takes the primary's 100 there,
+      // because Indigo 500 on the Grey 800 sheet reads at about 1.5:1.
       expect(getComputedStyle(dark!).color).toBe('rgba(255, 255, 255, 0.7)')
-      expect(getComputedStyle(primary!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(primary!).color).toBe('rgb(197, 202, 233)')
       // The foundations publish Body 2 at 13 sp under a fine pointer and the tablet keylines at this viewport.
       expect(getComputedStyle(dark!).fontSize).toBe('13px')
       expect(getComputedStyle(inset!).paddingLeft).toBe('80px')
