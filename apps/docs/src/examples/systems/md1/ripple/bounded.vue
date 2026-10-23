@@ -33,6 +33,7 @@
   .md1-docs-ripple-compare {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     align-items: flex-start;
     gap: var(--md1-spacing-4, 32px);
   }
