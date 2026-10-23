@@ -1113,6 +1113,21 @@
     box-shadow: var(--quantum-elevation-3, 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12));
   }
 
+  /*
+   * Mouse and keyboard: every resting elevation sits 2 dp lower (elevation
+   * page), so the solo sheet rests at 0 dp and 1 dp scrolled, the same row
+   * QuSearchBar draws.
+   */
+  @media (pointer: fine) {
+    .quantum-text-field[data-solo] .quantum-text-field__field {
+      box-shadow: var(--quantum-elevation-0, none);
+    }
+
+    .quantum-text-field[data-solo][data-scrolled] .quantum-text-field__field {
+      box-shadow: var(--quantum-elevation-1, 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12));
+    }
+  }
+
   .quantum-text-field[data-solo] .quantum-text-field__line {
     display: none;
   }

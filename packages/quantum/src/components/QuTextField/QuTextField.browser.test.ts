@@ -20,8 +20,7 @@ import { quantumColors, quantumDarkColors } from '../../colors'
 // Icons
 import { quantumIcons } from '../../icons'
 
-const ELEVATION_2 = '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)'
-const ELEVATION_3 = '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)'
+const ELEVATION_1 = '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)'
 
 const ACCENT = 'rgb(255, 64, 129)'
 const ERROR = 'rgb(255, 23, 68)'
@@ -121,6 +120,13 @@ function near (actual: string, expected: [number, number, number, number]) {
 
 function height (el: Element): number {
   return el.getBoundingClientRect().height
+}
+
+/** A rule as authored, read from the stylesheet: for values outside the test browser's media (handset, coarse pointer). */
+function rule (selector: string): CSSStyleRule | undefined {
+  const rules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules])
+
+  return rules.find((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule && rule.selectorText.replaceAll('"', '\'') === selector)
 }
 
 afterEach(() => {
@@ -647,14 +653,17 @@ describe('quTextField', () => {
       expect(height(dense.field)).toBe(48)
     })
 
-    it('should raise the solo field to 2 dp with no line and no visible label, rising to 3 dp when scrolled', async () => {
+    it('should raise the solo field to 2 dp with no line and no visible label, rising to 3 dp when scrolled, each 2 dp lower under a fine pointer', async () => {
       const { root, field: box, input, label, line } = field({ solo: true, placeholder: 'Search', icon: 'search' })
       await settle()
 
       expect(root.dataset.solo).toBe('true')
       expect(height(box)).toBe(48)
       expect(getComputedStyle(box).borderRadius).toBe('2px')
-      expect(getComputedStyle(box).boxShadow).toBe(serialize(ELEVATION_2, 'boxShadow'))
+      // The test browser is a fine pointer: the desktop rule drops the 2 dp rest to 0 dp. The handset value is read as authored.
+      expect(matchMedia('(pointer: fine)').matches).toBe(true)
+      expect(getComputedStyle(box).boxShadow).toBe('none')
+      expect(rule('.quantum-text-field[data-solo] .quantum-text-field__field')!.style.boxShadow).toContain('--quantum-elevation-2')
       expect(getComputedStyle(line).display).toBe('none')
       expect(label!.getBoundingClientRect().width).toBe(1)
       expect(input.labels![0]).toBe(label)
@@ -675,7 +684,8 @@ describe('quTextField', () => {
       await settle()
 
       expect(scrolled.root.dataset.scrolled).toBe('true')
-      await expect.poll(() => getComputedStyle(scrolled.field).boxShadow).toBe(serialize(ELEVATION_3, 'boxShadow'))
+      await expect.poll(() => getComputedStyle(scrolled.field).boxShadow).toBe(serialize(ELEVATION_1, 'boxShadow'))
+      expect(rule('.quantum-text-field[data-solo][data-scrolled] .quantum-text-field__field')!.style.boxShadow).toContain('--quantum-elevation-3')
     })
 
     it('should hide a heading label visually, keep the name and show the placeholder at rest', async () => {
