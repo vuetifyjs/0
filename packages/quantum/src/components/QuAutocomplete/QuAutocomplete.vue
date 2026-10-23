@@ -11,14 +11,10 @@
     useLogger,
   } from '@vuetify/v0'
 
-  // Components
-  import QuChip from '../QuChip/QuChip.vue'
-  import QuIcon from '../QuIcon/QuIcon.vue'
-  import QuRipple from '../QuRipple/QuRipple.vue'
-
   // Context
-  import { provideQuAutocomplete } from './context'
   import QuAutocompleteSuggestion from './QuAutocompleteSuggestion.vue'
+
+  import { provideQuAutocomplete } from './context'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
@@ -27,6 +23,9 @@
   import type { QuIconName } from '../../icons'
   import type { ComboboxRootProps } from '@vuetify/v0'
 
+  import QuChip from '../QuChip/QuChip.vue'
+  import QuIcon from '../QuIcon/QuIcon.vue'
+  import QuRipple from '../QuRipple/QuRipple.vue'
   // Styles: the field draws with QuTextField's anatomy classes, so its
   // stylesheet loads wherever the autocomplete is imported on its own.
   import '../QuTextField/QuTextField.vue'
@@ -40,8 +39,14 @@
    */
   export interface QuAutocompleteProps extends Pick<
     ComboboxRootProps,
-    'id' | 'name' | 'disabled' | 'strict' | 'multiple' | 'error' | 'errorMessages' | 'displayValue' | 'namespace'
+    'id' | 'name' | 'disabled' | 'strict' | 'multiple' | 'error' | 'displayValue' | 'namespace'
   > {
+    /**
+     * Messages shown under the line in the error colour. Declared here rather
+     * than picked from v0, because the declaration bundler drops v0's
+     * `MaybeArray` from a generic component's inlined props.
+     */
+    errorMessages?: string | string[]
     /** The label every text field needs: resting at input size, floating at 12 sp on focus or with content. */
     label?: string
     /** The label became a heading elsewhere on the screen: hidden visually, still the accessible name. */

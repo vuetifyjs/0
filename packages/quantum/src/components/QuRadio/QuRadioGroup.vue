@@ -12,8 +12,14 @@
    */
   export interface QuRadioGroupProps extends Pick<
     RadioGroupProps,
-    'disabled' | 'mandatory' | 'name' | 'activation' | 'namespace' | 'ariaLabelledby'
+    'disabled' | 'mandatory' | 'name' | 'namespace' | 'ariaLabelledby'
   > {
+    /**
+     * `automatic` selects on arrow focus; `manual` waits for Space. Declared
+     * here rather than picked from v0, because the declaration bundler drops
+     * v0's `RadioActivation` from a generic component's inlined props.
+     */
+    activation?: 'automatic' | 'manual'
     /** Accessible name for the set of options. */
     ariaLabel?: string
   }
