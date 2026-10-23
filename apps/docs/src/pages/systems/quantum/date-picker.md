@@ -1,0 +1,132 @@
+---
+title: QuDatePicker - Quantum Date Picker for Vue
+meta:
+- name: description
+  content: The Material Design 1 date picker with its primary header, month grid and year list, in portrait and landscape, hosted by a confirmation dialog. Built on Vuetify0.
+- name: keywords
+  content: quantum date picker, material design 1 date picker, calendar, year picker, vue date picker, vuetify0 date picker, paper quantum
+features:
+  category: Component
+  label: 'C: QuDatePicker'
+  level: 2
+  renderless: false
+  group: forms
+  order: 7
+related:
+  - /systems/quantum
+  - /systems/quantum/dialog
+  - /systems/quantum/time-picker
+  - /composables/system/use-roving-focus
+  - /composables/plugins/use-date
+---
+
+# QuDatePicker
+
+<DocsPageFeatures :frontmatter />
+
+The Material Design 1 date picker: the chosen date in a coloured header over a month grid, with a year list one tap away. It picks one date, in a confirmation dialog.
+
+> [!NOTE]
+> Reference: [Pickers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html), the archived page Quantum is pinned to. The page gives no numbers; every size here is measured from its own artwork. This page is the Vue.
+
+## Usage
+
+`QuDatePicker` is a shell component with no parts. `v-model` is an ISO date string (`YYYY-MM-DD`). Put it inside `QuDialog variant="confirmation"`, which supplies Cancel and OK: the picker holds its date in the dialog until OK, and the dialog's `v-model:value` receives it.
+
+::: ds-example
+/systems/quantum/date-picker/basic
+:::
+
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { QuDatePicker } from '@paper/quantum'
+</script>
+
+<template>
+  <QuDatePicker />
+</template>
+```
+
+## Composed on Vuetify0
+
+v0's [createDatePicker](/roadmap) is still a draft, so the calendar logic is Quantum's own until it lands: the visible month, the focused day, the six-week matrix, the year list and the selection write. The grid's keyboard model is v0's [useRovingFocus](/composables/system/use-roving-focus) in its seven-column grid mode, and every day, the header year and the two chevrons are v0 [Button](/components/actions/button) roots. When the app installs v0's [date plugin](/composables/plugins/use-date), its adapter formats the month label, the day names and the year, and its locale supplies the first weekday; without it the picker formats through `Intl` on the browser's locale.
+
+Inside a confirmation `QuDialog` the picker reads the date the dialog holds and writes back through it, so OK commits and Cancel discards without any wiring. Anywhere else it reads and writes its own `v-model`. `data-view` (`date` or `year`) and `data-landscape` are Quantum's hooks; the day buttons carry `data-selected` and `data-today`.
+
+## Examples
+
+::: ds-example
+/systems/quantum/date-picker/surface
+
+### The picker surface
+
+The picker on its own, at the dialog's 24 dp, so the anatomy reads at a glance. The guidelines put pickers in a dialog on mobile, and so should you; this example only drops the dialog to show the parts.
+
+The header is a 96 dp band in the primary colour (Grey 700 on the dark theme) with the year in Body 2 size at 70% white over the date in Display 1, 34 sp at 100%, both 24 dp from the start edge. Below it sit the 48 dp navigation row, with the month in Body 2 between two chevrons 16 dp from the edges, the 40 dp row of weekday initials in 12 sp at the hint ink, and six week rows of 44 x 40 dp cells. The grid always draws six rows so the sheet keeps its height from month to month, and the days of the neighbouring months stay blank, as the spec draws them.
+
+The selected day is a filled 40 dp circle in the primary colour with a white number ("the selected day is indicated by a filled circle"); today is printed in the primary colour and a heavier weight. On the dark theme both switch to the accent's 200 swatch, the selection-controls page's dark rule. The surface is 328 dp wide and 424 dp tall; the confirmation dialog's 60 dp action area brings it to the page's 484.
+
+Tap the year in the header to swap the grid for the year list: 44 dp rows in Subheading, the selected year at 24 sp in the primary colour, centred when the list opens. Choosing a year keeps the day and month, clamped to the target month, and returns to the calendar. Swipe the grid sideways to change months; the chevrons do the same.
+:::
+
+::: ds-example
+/systems/quantum/date-picker/landscape
+
+### Landscape
+
+`landscape` moves the header into a 168 dp column at the start edge, where the date wraps to two lines at the 40 dp leading, and tightens the body to 344 dp with 46 x 32 dp cells and a 32 dp selection circle. The pickers page draws both layouts and says "the picker view adapts to the device's orientation".
+
+Quantum does not switch layouts on its own. The web notes in the spec ask for an explicit choice, not a guess from the viewport width, so bind `landscape` to whatever your app treats as landscape: an `(orientation: landscape)` media query, a short viewport, or a fixed decision for a desktop dialog. The surface is 512 dp wide; with the dialog's action row below it the sheet is 324 dp tall, 20 dp over the page's measured 304, because the actions sit under the whole picker rather than inside the body column.
+:::
+
+::: ds-example
+/systems/quantum/date-picker/first-day
+
+### First day of the week
+
+`firstDayOfWeek` sets the column the week starts in, `0` for Sunday through `6` for Saturday; any other integer folds onto that range, so `7` is Sunday again. The pickers page draws a Sunday-first week; many locales start on Monday, and a calendar that disagrees with the reader's wall calendar is read wrong.
+
+Leave it unset to follow the installed date plugin, whose locale knows its own first weekday; with no plugin the week starts on Sunday. The weekday initials rotate with the columns, and each column header keeps the full weekday name as its accessible name.
+:::
+
+## Props
+
+<!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
+     @paper/* packages; once the generator covers the design systems this table
+     is replaced by <DocsApi />. Keep it in sync with QuDatePicker.vue until then. -->
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modelValue` | `string` | | The selected date, `YYYY-MM-DD`. A value in another shape is ignored. Inside a confirmation `QuDialog` the dialog's held value is used instead |
+| `landscape` | `boolean` | `false` | The landscape layout: a 168 dp header column beside a 344 dp body with 32 dp rows |
+| `firstDayOfWeek` | `number` | `0` | The weekday the grid starts on, `0` for Sunday. Unset, it follows the installed date plugin's locale |
+
+There is no slot. Minimum and maximum dates, disabled dates and ranges are not part of the Material Design 1 picker and do not ship; neither does a built-in action row, which belongs to the dialog.
+
+## Accessibility
+
+The picker is a group named by the header date. The grid follows the WAI-ARIA date picker dialog pattern: a `grid` named by the month label, `columnheader` cells named with the full weekday, and `gridcell`s holding one button per day, named with the full date ("Thursday, April 13, 2017"). The selected cell is `aria-selected`, today carries `aria-current="date"`, and the month label is a polite live region, so paging announces the new month.
+
+### Keyboard
+
+| Key | Behavior |
+|-----|----------|
+| Tab, Shift+Tab | Moves between the header year, the chevrons and the grid. The grid is one stop: the selected day, or the focused one |
+| Arrow Left, Arrow Right | Previous or next day, paging the month at its edges. Mirrored under `dir="rtl"` |
+| Arrow Up, Arrow Down | The same weekday one week earlier or later |
+| Home, End | First or last day of the week row |
+| Ctrl+Home, Ctrl+End | First or last day of the month |
+| Page Up, Page Down | The same day in the previous or next month, clamped to its length |
+| Shift+Page Up, Shift+Page Down | The same day in the previous or next year |
+| Enter, Space | Selects the focused day; in the year list, selects the focused year |
+| Arrow Up, Arrow Down (year list) | Moves through the years |
+
+### Header year
+
+The header year is a toggle button named "Choose year" and the year, with `aria-pressed` reporting whether the year list is showing. Pressing it opens the `listbox` of years with the selected year focused and centred; pressing it again returns to the calendar without a change. Choosing a year returns focus to the day in the grid.
+
+### In a dialog
+
+Opened in a confirmation `QuDialog`, the native dialog moves focus straight to the selected day, so the arrows work at once. Escape and Cancel discard the change; OK commits it. The chevrons are named "Previous month" and "Next month" and both, like the year label, are translatable through `useLocale` (`Quantum.previousMonth`, `Quantum.nextMonth`, `Quantum.chooseYear`, `Quantum.year`).
