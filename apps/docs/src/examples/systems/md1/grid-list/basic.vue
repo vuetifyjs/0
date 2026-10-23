@@ -17,7 +17,7 @@
 
 <template>
   <div class="md1-docs-grid-list">
-    <Md1GridList :columns="3">
+    <Md1GridList>
       <Md1GridList.Tile
         v-for="photo in photos"
         :key="photo.id"
