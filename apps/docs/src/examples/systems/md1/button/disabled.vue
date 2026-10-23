@@ -13,13 +13,3 @@
     <Md1Button disabled variant="raised">Disabled</Md1Button>
   </div>
 </template>
-
-<style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-</style>

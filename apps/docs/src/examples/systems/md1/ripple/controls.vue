@@ -17,13 +17,3 @@
     <Md1Checkbox v-model="remember" label="Remember me" />
   </div>
 </template>
-
-<style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-</style>

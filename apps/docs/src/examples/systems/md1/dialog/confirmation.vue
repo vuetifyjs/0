@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-row">
+  <div class="md1-docs-row md1-docs-row-loose">
     <Md1Dialog v-slot="{ value, commit }" v-model:value="tone" variant="confirmation">
       <Md1Dialog.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" variant="raised">Phone ringtone</Md1Button>
@@ -48,13 +48,6 @@
 </template>
 
 <style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-2, 16px);
-  }
-
   .md1-docs-note {
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-caption-size, 12px);

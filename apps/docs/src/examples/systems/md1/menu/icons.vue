@@ -23,12 +23,3 @@
     </Md1Menu>
   </div>
 </template>
-
-<style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-</style>

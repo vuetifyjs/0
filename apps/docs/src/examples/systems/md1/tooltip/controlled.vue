@@ -19,12 +19,3 @@
     <Md1Button @click="open = !open">{{ open ? 'Hide hint' : 'Show hint' }}</Md1Button>
   </div>
 </template>
-
-<style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-</style>

@@ -36,12 +36,6 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
 
   /* A row that wraps on a phone keeps its targets and caption centred. */
   .md1-docs-icon-sizes {

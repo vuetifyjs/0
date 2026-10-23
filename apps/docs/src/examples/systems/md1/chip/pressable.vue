@@ -28,13 +28,6 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
 
   .md1-docs-note {
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);

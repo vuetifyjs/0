@@ -28,13 +28,6 @@
 </template>
 
 <style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-
   /* The third tier wraps alone on a phone; it centres under the first two. */
   .md1-docs-icon-tiers {
     justify-content: center;

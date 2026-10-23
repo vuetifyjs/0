@@ -17,13 +17,6 @@
 </template>
 
 <style>
-  .md1-docs-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--md1-spacing-1, 8px);
-  }
-
   /* The host sets the ink: active icons on the theme surface. */
   .md1-docs-icon-ink {
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));

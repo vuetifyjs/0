@@ -165,3 +165,22 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 344px));
   justify-content: center;
 }
+
+/*
+ * Example rows. Example styles are document-global, so one definition of
+ * `.md1-docs-row` serves every page: a wrapping row, centred as a group like
+ * the rest of the example. `.md1-docs-row-loose` widens the gap to 16 px for
+ * the dialog and picker activator rows. `:where()` keeps the specificity at one
+ * class, so an example's own modifier class still applies.
+ */
+:where(.genesis-docs-example-preview__panel[data-theme^="md1-"]) .md1-docs-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--md1-spacing-1, 8px);
+}
+
+:where(.genesis-docs-example-preview__panel[data-theme^="md1-"]) .md1-docs-row-loose {
+  gap: var(--md1-spacing-2, 16px);
+}
