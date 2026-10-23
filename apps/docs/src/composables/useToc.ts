@@ -29,6 +29,11 @@ import { useRoute } from 'vue-router'
 // Types
 import type { Ref } from 'vue'
 
+// Headings that belong to a live example, not to the page: a dialog's title
+// (native or ARIA, open or closed) and anything mounted in an example
+// preview, such as a persistent bottom sheet's header.
+const EXCLUDE = 'dialog, [role="dialog"], [role="alertdialog"], .genesis-docs-example-preview'
+
 export interface TocHeading {
   id: string
   text: string
@@ -117,7 +122,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     let currentH3: TocHeading | null = null
 
     for (const el of elements) {
-      if (el.closest('[role="dialog"]')) continue
+      if (el.closest(EXCLUDE)) continue
 
       const id = el.id
       const text = el.textContent?.trim() ?? ''
