@@ -103,7 +103,7 @@ From `spec/patterns/rulings.md`, which carries the reasons.
 | navigation-drawer | component `QuNavigationDrawer` |
 | search | component `QuSearchBar` (persistent search) and the `Search` part of `QuToolbar` (expandable search); one Combobox core |
 | scrolling-techniques | `QuToolbar` props `scroll` and `tabBar`, part `Extension` |
-| selection | selected state on `QuList.Item`, `QuGridList.Tile`, `QuCard`; `QuToolbar.Contextual`; a `::selection` rule in the accent |
+| selection | selected state on `QuList.Item`, `QuGridList.Tile`, `QuCard`; `QuToolbar.Contextual`; the accent text highlight is the app's `::selection` rule (Known limitations) |
 | errors, empty-states, confirmation-acknowledgement, settings, navigation, loading-images, offline-states, help-feedback | documented compositions of shipped components (docs pages, no surface) |
 | navigational-transitions | sibling slide on `QuTabs` panels; parent-to-child expansion on `QuFab` and `QuCard` through the motion tokens |
 | swipe-to-refresh | a composition example on `QuProgressCircular`; no `QuSwipeRefresh` (v0 has no swipe primitive, mobile browsers own pull-to-refresh, the spec forbids it in drawers and pannable content) |
@@ -133,7 +133,7 @@ MD1 pages with no web surface:
 | Swipe to refresh | see the rulings table |
 | Toasts | Android system messaging at the bottom of the screen that cannot be swiped off; `QuSnackbar` is the web surface |
 | Gestures, data formats | rules carried by the owning components and the docs; no surface |
-| Text selection handles and the floating Cut / Copy / Paste toolbar | OS and browser chrome; Quantum ships only the `::selection` rule |
+| Text selection handles and the floating Cut / Copy / Paste toolbar | OS and browser chrome; the accent highlight is the app's `::selection` rule (Known limitations) |
 | Split screen (`layout/split-screen`) | "Android only" on the page: multi-window activation, divider dragging and activity launch placement; the browser owns window management (`spec/layout.md`) |
 | Material design: introduction, environment, material properties | principles carried by the elevation, motion and colour tokens (`spec/elevation.md` and `spec/color.md` read them as supplementary sources); no surface |
 | What's new (`material-design/whats-new`) | the archive's changelog; cited in the Pinned spec table for its "September 2017" last entry |
@@ -677,6 +677,7 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 - **Values the spec never states**, filled by the decisions recorded above and in the notes: hover overlay, scrim alpha, card, menu and tooltip radius, chip fill, grid-list bar scrim, snackbar timeout, ripple timing, mini drawer width, speed-dial spacing, expanded-panel elevation, dialog desktop width and body text style, tab colours on surface bars, tooltip open delay and long-press threshold, control-to-label gap, indeterminate cycle durations. Each is tagged in the component section; none is `high`.
 - **Measured geometry.** Selection controls, sliders, pickers, progress thickness and the snackbar line pitch come from the spec's own artwork at 2 px per dp (`measured`), not from text.
 - **Dark active icon opacity.** `--quantum-icon-active` is 100% white on the dark theme: the icons page's Color section, the colour page (2016 and 2018) and Vuetify 1.5 agree. The icons page's state table gives 70% for an active icon that is not focused (100% focused, 50% inactive), the dark counterpart of the light 54% the token already uses. Both readings are `high` (`spec/iconography.md`), so the token stays at 100% until the lead rules on the 70%.
+- **Text selection highlight.** `style.css` ships no `::selection` rule. The selection page's accent highlight covers every selectable text on the page, which a package stylesheet reaches only with a global rule, and the docs app loads `style.css` on every page; a rule scoped to Quantum parts would give one page two highlight colours. The app sets it on its root, `::selection { background: var(--quantum-selection); color: var(--quantum-text-primary) }`, the recipe on the selection docs page.
 - **Desktop and dense mapping.** `(pointer: fine)` stands in for the spec's "mouse and keyboard"; a touch laptop gets device metrics. There is no runtime override in v1.
 - **Vuetify 1.5 disagreements** with the spec (switch thumb 4 dp, bottom navigation single-layer shadow, bottom sheet at 24 dp, 300 px drawer, 64 dp "prominent", swing curve, 7 px progress bar, 290 px picker, 42 px snackbar gap, 22 px dense list icons, 12% hover) are resolved in the spec's favour; the notes list every one.
 - **Bottom, floating and column toolbars.** The structure page names them and gives no metrics; `QuToolbar position="bottom"` and `floating` ship with the app bar heights and a 2 dp floating elevation as decisions; the bottom toolbar shelf is a `QuBottomSheet persistent` composition, not a component. `QuBottomNavigation` is the bar for destinations.
