@@ -470,6 +470,22 @@ describe('quDataTable', () => {
         .toBeLessThan(sort.querySelector('.md1-data-table__label')!.getBoundingClientRect().left)
     })
 
+    // The bare name sat 1 px above a sortable one: an overflow-hidden inline-block aligns by its bottom edge.
+    it('should set a plain column name on the same line as a sortable one', async () => {
+      const host = table()
+      await settle()
+
+      function top (th: HTMLTableCellElement): number {
+        const text = document.createRange()
+        text.selectNodeContents(th.querySelector('.md1-data-table__label')!)
+        return text.getBoundingClientRect().top - th.getBoundingClientRect().top
+      }
+
+      const [name, , comment] = columns(host)
+
+      expect(top(comment!)).toBe(top(name!))
+    })
+
     it('should sort from the keyboard: the control is a native button with the ripple first', async () => {
       const host = table()
       await settle()

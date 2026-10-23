@@ -168,11 +168,17 @@
     flex-direction: row-reverse;
   }
 
+  /*
+   * An inline-block with `overflow: hidden` takes its bottom margin edge as
+   * its baseline, which lifts a bare (unsortable) name 1 px above the
+   * flex-centred name of a sortable column; `top` aligns both.
+   */
   .md1-data-table__label {
     position: relative;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: top;
   }
 
   .md1-data-table__label:focus-visible {
