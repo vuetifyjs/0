@@ -6,15 +6,15 @@ Confidence legend: `high` = read from a spec page (text or a figure on that page
 
 ## Sources
 
-The Wayback Machine served these captures. Where the requested timestamp was redirected to a neighbouring capture, the served timestamp is listed.
+Pages read, with the date of the archive copy read. The canonical page is the m1.material.io URL; earlier revisions are named in prose and not linked.
 
 | Page | URL actually read | Capture served |
 |---|---|---|
-| Style / Color (2017 revision of the page, archived guidelines) | `http://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html` | 2018-12-25 00:21:49 (requested 20181225002255) |
-| Style / Color (original 2014 wording, Google Design) | `http://web.archive.org/web/20160604084405/http://www.google.com/design/spec/style/color.html` | 2016-06-04 08:44:05 (requested 20160604061521) |
-| Material design / Material properties | `http://web.archive.org/web/20181225002240/https://material.io/archive/guidelines/material-design/material-properties.html` | 2018-12-25 00:22:40 |
-| Material design / Environment | `http://web.archive.org/web/20210805002434/https://material.io/archive/guidelines/material-design/environment.html` | 2021-08-05 00:24:34 (archive redirected from the 2018-12-25 request; same frozen archive page) |
-| Material design / Introduction | `http://web.archive.org/web/20210815144307/https://material.io/archive/guidelines/material-design/introduction.html` | 2021-08-15 14:43:07 (archive redirected from the 2018-12-25 request) |
+| Style / Color (2017 revision of the page, archived guidelines) | `https://m1.material.io/style/color.html` | 2018-12-25 00:21:49 |
+| Style / Color (original 2014 wording, Google Design) | the 2016 revision of the guidelines page `style/color` | 2016-06-04 08:44:05 |
+| Material design / Material properties | `https://m1.material.io/material-design/material-properties.html` | 2018-12-25 00:22:40 |
+| Material design / Environment | `https://m1.material.io/material-design/environment.html` | 2021-08-05 00:24:34 (no 2018-12-25 copy; same frozen archive page) |
+| Material design / Introduction | `https://m1.material.io/material-design/introduction.html` | 2021-08-15 14:43:07 (no 2018-12-25 copy; same frozen archive page) |
 | Vuetify 1.5.24 palette | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/settings/_colors.styl` | local checkout |
 | Vuetify 1.5.24 theme | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/settings/_theme.styl` | local checkout |
 | Vuetify 1.5.24 JS palette copy | `/home/john/sites/vuetify1/packages/vuetify/src/util/colors.ts` | local checkout |
@@ -25,7 +25,7 @@ Figures read from those pages (theme values and the 500/700/100/A200 structure e
 - 2018 page assets: `style-color-themes-light1.png`, `style-color-themes-light2.png`, `style-color-themes-dark1.png`, `style-color-themes-dark2.png`, `style-color-colorscheme-palette1.png`, `style-color-uiapplication-palette1.png`, `style-color-uiapplication-palette2.png`, `style-color-colorsystem-pesto-palette-161116.png`, `style-color-uiapplication-accent2.png`.
 - 2016 page assets: `style_color_colorscheme_palette1.png`, `style_color_colorscheme_palette1_example.png`, `style_color_uiapplication_palette1.png`, `style_color_uiapplication_palette2.png`, `style_color_colorscheme_accentcolor_appbar.png`.
 
-Not read: the 2018-02-23 capture of `material.io/guidelines/style/color.html` (connection refused on every attempt; it was not needed because the 2018-12-25 page did not 404). WebFetch cannot reach web.archive.org; every page above was fetched with curl and parsed locally.
+Not read: the early-2018 live guidelines copy of `style/color` (connection refused on every attempt; it was not needed because the archived page did not 404). Every page above was fetched with curl and parsed locally.
 
 Revision note: the 2018-12-25 archive page is the 2017 revision of the color page (sections Color Tool, Color palette, Color system, Usability, Themes). The 2016 capture carries the original 2014 wording (Color palette, Color schemes, Text and background colors, Themes). The palette hex values, the opacity tables, and the theme figures are identical in both. The guidance prose differs: the 2014 text says "accent color" where the 2017 text says "secondary color". Both wordings are recorded below and labelled by year.
 

@@ -6,13 +6,13 @@ Pattern page `patterns/navigation-drawer.html`. Ruling (see `rulings.md`): **com
 
 | Source | Location | Read |
 |---|---|---|
-| MD1 spec, Navigation drawer | `https://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html` (requested 2018-12-25 00:22:55; served capture 2018-12-25 00:23:00) | yes, full text; a raw sweep of the HTML for every `dp`, `sp` and `%` token found nothing beyond the text below |
-| MD1 spec, Navigation (when to use, nested / expanding / cascading drawers) | `https://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html` | yes, full text |
-| MD1 spec, Settings (placement of "Settings" in the drawer) | `https://web.archive.org/web/20181225002157/https://material.io/archive/guidelines/patterns/settings.html` | yes, full text |
-| MD1 spec, Help and feedback (placement of "Help", "Send feedback", "Sign out") | `https://web.archive.org/web/20181225002233/https://material.io/archive/guidelines/patterns/help-feedback.html` | yes, full text |
-| MD1 spec, Swipe to refresh (drawers excluded) | `https://web.archive.org/web/20181225002224/https://material.io/archive/guidelines/patterns/swipe-to-refresh.html` | yes, full text |
-| MD1 spec, Gestures (edge swipe) | `https://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html` | yes, full text |
-| MD1 spec, Scrolling techniques (app bar heights for the clipped variant and the width formula) | `https://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html` | yes, full text |
+| MD1 spec, Navigation drawer | `https://m1.material.io/patterns/navigation-drawer.html` (archive copy dated 2018-12-25 00:23:00) | yes, full text; a raw sweep of the HTML for every `dp`, `sp` and `%` token found nothing beyond the text below |
+| MD1 spec, Navigation (when to use, nested / expanding / cascading drawers) | `https://m1.material.io/patterns/navigation.html` | yes, full text |
+| MD1 spec, Settings (placement of "Settings" in the drawer) | `https://m1.material.io/patterns/settings.html` | yes, full text |
+| MD1 spec, Help and feedback (placement of "Help", "Send feedback", "Sign out") | `https://m1.material.io/patterns/help-feedback.html` | yes, full text |
+| MD1 spec, Swipe to refresh (drawers excluded) | `https://m1.material.io/patterns/swipe-to-refresh.html` | yes, full text |
+| MD1 spec, Gestures (edge swipe) | `https://m1.material.io/patterns/gestures.html` | yes, full text |
+| MD1 spec, Scrolling techniques (app bar heights for the clipped variant and the width formula) | `https://m1.material.io/patterns/scrolling-techniques.html` | yes, full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_navigation-drawer.styl`, `_overlay.styl`, `_system-bars.styl`, `_lists.styl` (heights only), `_subheaders.styl` (color only), `src/stylus/settings/_variables.styl`, `_theme.styl`, `_elevations.styl`, `src/stylus/tools/_bootable.styl`, `src/components/VNavigationDrawer/VNavigationDrawer.ts`, `src/components/VList/VListTile.ts` (activeClass), `src/components/VSystemBar/VSystemBar.ts`, `src/mixins/overlayable.ts` | yes |
 
 Confidence legend: `high` = read on the spec page named; `moderate` = Vuetify 1.5 source only; `low` = memory.

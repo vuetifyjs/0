@@ -8,13 +8,12 @@ Confidence legend: `high` = read from the archived spec page text; `moderate` = 
 
 | Page | URL | Served capture |
 |---|---|---|
-| Feature discovery | `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/feature-discovery.html` | 2018-12-04 02:58:11 (the archive served the nearest capture) |
-| Feature discovery, mirror | `https://m1.material.io/growth-communications/feature-discovery.html` | read 2026-10-22; every metric sentence identical to the Wayback text |
-| Onboarding | `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/onboarding.html` | 2018-12-25 request; served timestamp not recorded in the stripped text |
-| Gesture education | `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/gesture-education.html` | same |
-| Introduction | `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/introduction.html` | same |
+| Feature discovery | `https://m1.material.io/growth-communications/feature-discovery.html` | archive copy dated 2018-12-04 02:58:11; re-read 2026-10-22, every metric sentence identical |
+| Onboarding | `https://m1.material.io/growth-communications/onboarding.html` | 2018-12-25 request; served timestamp not recorded in the stripped text |
+| Gesture education | `https://m1.material.io/growth-communications/gesture-education.html` | same |
+| Introduction | `https://m1.material.io/growth-communications/introduction.html` | same |
 
-The page's figures (`useredu-er-featuredisc-design-01.png`, `useredu-er-feasturedisc-design-phone-centered.png`, `useredu-er-feasturedisc-design-offset.png`, `useredu-er-feasturedisc-design-tablet-contained.png`, `useredu-er-feasturedisc-design-tablet-edge.png`, `useredu-er-featuredisc-color1.png`, `useredu-er-featuredisc-color2.png`) could not be fetched on 2026-10-22: the Wayback image host refused the connection and the `m1.material.io` asset paths return 404. No value below is measured from artwork.
+The page's figures (`useredu-er-featuredisc-design-01.png`, `useredu-er-feasturedisc-design-phone-centered.png`, `useredu-er-feasturedisc-design-offset.png`, `useredu-er-feasturedisc-design-tablet-contained.png`, `useredu-er-feasturedisc-design-tablet-edge.png`, `useredu-er-featuredisc-color1.png`, `useredu-er-featuredisc-color2.png`) could not be fetched on 2026-10-22: the archived image host refused the connection and the `m1.material.io` asset paths return 404. No value below is measured from artwork.
 
 ## 1. Definition and anatomy
 

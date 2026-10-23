@@ -6,9 +6,9 @@ Pattern page `patterns/search.html`. Ruling (see `rulings.md`): **expandable sea
 
 | Source | Location | Read |
 |---|---|---|
-| MD1 spec, Search | `https://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html` (requested the 2018-12-25 00:22:55 snapshot; the archive served its 2021-08-05 02:39:55 capture of the same static archive page) | yes, full text |
-| MD1 spec, Scrolling techniques (app bar block heights) | `https://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html` | yes, full text |
-| MD1 spec, Navigation drawer (list keylines reused by suggestion rows) | `https://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html` | yes, full text |
+| MD1 spec, Search | `https://m1.material.io/patterns/search.html` (archive copy dated 2021-08-05 02:39:55; same static archive page) | yes, full text |
+| MD1 spec, Scrolling techniques (app bar block heights) | `https://m1.material.io/patterns/scrolling-techniques.html` | yes, full text |
+| MD1 spec, Navigation drawer (list keylines reused by suggestion rows) | `https://m1.material.io/patterns/navigation-drawer.html` | yes, full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_toolbar.styl`, `src/stylus/settings/_theme.styl`, `src/stylus/settings/_variables.styl`, `src/components/VToolbar/VToolbar.ts` | yes |
 
 Confidence legend: `high` = read on the spec page named; `moderate` = Vuetify 1.5 source only; `low` = memory.

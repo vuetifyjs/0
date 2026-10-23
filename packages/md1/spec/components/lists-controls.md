@@ -8,12 +8,12 @@ Primary (fetched and read by this note's author):
 
 | URL | Note |
 |---|---|
-| http://web.archive.org/web/20210805003730/https://material.io/archive/guidelines/components/lists-controls.html | Requested `20181225002255`; the archive served the 2021-08-05 capture. Text identical to the 2018-01-19 capture. |
-| http://web.archive.org/web/20180119205826/https://material.io/guidelines/components/lists-controls.html | Requested `20180223140411`; served 2018-01-19. |
-| http://web.archive.org/web/20160604212921/http://www.google.com/design/spec/components/lists-controls.html | Requested `20160604061521`; served 2016-06-04. Same text. |
-| http://web.archive.org/web/20160604212921im_/http://material-design.storage.googleapis.com/publish/material_v_8/material_ext_publish/0Bx4BSt6jniD7TWlQcWJZRE1NQ1U/components_listcontrols_usage.png | Images read at the same host and timestamp: `components_listcontrols_checkbox1.png`, `checkbox2.png`, `switch.png`, `reorder.png`, `expand1.png`, `expand3.png`, `expand4.png`, `leave1.png`, `menu1.png`, `menu2.png`, `menu3.png`. `leave2.png` and `expand2.png` could not be fetched (connection reset, 404 on the 2021 host). Images are xhdpi (2 px per dp). |
+| https://m1.material.io/components/lists-controls.html | Archive copy dated 2021-08-05. Text identical to the early-2018 live guidelines. |
+| the 2018 live guidelines page `components/lists-controls` | Copy dated 2018-01-19. |
+| the 2016 revision of the guidelines page `components/lists-controls` | Copy dated 2016-06-04. Same text. |
+| `components_listcontrols_usage.png` (2016 revision artwork, not linked) | Images read from the same 2016 revision: `components_listcontrols_checkbox1.png`, `checkbox2.png`, `switch.png`, `reorder.png`, `expand1.png`, `expand3.png`, `expand4.png`, `leave1.png`, `menu1.png`, `menu2.png`, `menu3.png`. `leave2.png` and `expand2.png` could not be fetched (connection reset, 404 on the 2021 host). Images are xhdpi (2 px per dp). |
 
-The page contains no numeric specification; every number below comes from the lists page (`lists.md`), from the supporting pages read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/<path>`): `components/selection-controls.html` (sibling extraction `md1/group-d/txt/selection-controls.txt`), `style/color.html`, `material-design/elevation-shadows.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html`, `components/dividers.html`, or from measurement of the images listed above.
+The page contains no numeric specification; every number below comes from the lists page (`lists.md`), from the supporting pages read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `https://m1.material.io/<path>`): `components/selection-controls.html` (sibling extraction `md1/group-d/txt/selection-controls.txt`), `style/color.html`, `material-design/elevation-shadows.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html`, `components/dividers.html`, or from measurement of the images listed above.
 
 Vuetify 1.5.24 cross-check files: `stylus/components/_lists.styl`, `_selection-controls.styl`, `_dividers.styl`, `stylus/settings/_variables.styl`, `_theme.styl`, `components/VList/VListGroup.ts`.
 

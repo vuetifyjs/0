@@ -4,20 +4,20 @@ Spec page: `components/tabs.html`. Material Design 1 component: `Md1Tabs` (bar) 
 
 ## Sources
 
-| Source | URL (snapshot) | Read |
+| Source | URL (copy read) | Read |
 |---|---|---|
-| MD1 archived spec, Tabs | `https://web.archive.org/web/20181225002217/https://material.io/archive/guidelines/components/tabs.html` (requested `20181225002255`, archive resolved to `20181225002217`) | full text |
-| 2016 Google Design spec, Tabs (cross-check) | `https://web.archive.org/web/20160530205717/http://www.google.com/design/spec/components/tabs.html` | full text; specs identical to 2018; differs only in "Tab labels may be either all icons or all text" |
-| 2015 Google Design spec, Tabs (cross-check, rules later dropped) | `https://web.archive.org/web/20150302181952/http://www.google.com/design/spec/components/tabs.html` | full text |
-| MD1 Patterns, Scrolling techniques (tab bar in the app bar) | `https://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html` | full text |
-| MD1 Patterns, Navigation (when to use tabs) | `https://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html` | Tabs and combinations sections |
-| MD1 Layout, Metrics and keylines (keylines, touch target) | `https://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html` | full text |
-| MD1 Layout, Responsive UI (breakpoints for "larger / smaller views") | `https://web.archive.org/web/20181225002227/https://material.io/archive/guidelines/layout/responsive-ui.html` | breakpoint section |
-| MD1 Style, Typography | `https://web.archive.org/web/20181225002206/https://material.io/archive/guidelines/style/typography.html` | type scale image, Button style rule |
-| MD1 Style, Color (text opacity on colored backgrounds) | `https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html` | usability section |
-| MD1 Components, Buttons (overlay opacities for reference) | `https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html` | specs sections |
-| MD1 Material design, Elevation and shadows | `https://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html` | component table |
-| MD1 Motion, Duration and easing | `https://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html` | full text |
+| MD1 archived spec, Tabs | `https://m1.material.io/components/tabs.html` (archive copy dated 2018-12-25 00:22:17) | full text |
+| 2016 Google Design spec, Tabs (cross-check) | the 2016 revision of the guidelines page `components/tabs` | full text; specs identical to 2018; differs only in "Tab labels may be either all icons or all text" |
+| 2015 Google Design spec, Tabs (cross-check, rules later dropped) | the 2015 revision of the guidelines page `components/tabs` | full text |
+| MD1 Patterns, Scrolling techniques (tab bar in the app bar) | `https://m1.material.io/patterns/scrolling-techniques.html` | full text |
+| MD1 Patterns, Navigation (when to use tabs) | `https://m1.material.io/patterns/navigation.html` | Tabs and combinations sections |
+| MD1 Layout, Metrics and keylines (keylines, touch target) | `https://m1.material.io/layout/metrics-keylines.html` | full text |
+| MD1 Layout, Responsive UI (breakpoints for "larger / smaller views") | `https://m1.material.io/layout/responsive-ui.html` | breakpoint section |
+| MD1 Style, Typography | `https://m1.material.io/style/typography.html` | type scale image, Button style rule |
+| MD1 Style, Color (text opacity on colored backgrounds) | `https://m1.material.io/style/color.html` | usability section |
+| MD1 Components, Buttons (overlay opacities for reference) | `https://m1.material.io/components/buttons.html` | specs sections |
+| MD1 Material design, Elevation and shadows | `https://m1.material.io/material-design/elevation-shadows.html` | component table |
+| MD1 Motion, Duration and easing | `https://m1.material.io/motion/duration-easing.html` | full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_tabs.styl`, `src/stylus/settings/_variables.styl`, `_theme.styl`, `src/components/VTabs/VTabs.js`, `src/components/VTabs/mixins/tabs-props.js`, `tabs-computed.js`, `src/components/VTabs/VTab.js` | cross-check |
 
 ## 1. Purpose and usage

@@ -6,14 +6,14 @@ Units: `dp` is `px` at 1:1 on the web (family convention).
 
 ## Sources
 
-Fetched 2026-10-22 with `curl` (the WebFetch tool is blocked for web.archive.org); HTML stripped to text. The icon tables on these pages are real HTML tables, so no images were needed.
+Fetched 2026-10-22 with `curl`; HTML stripped to text. The icon tables on these pages are real HTML tables, so no images were needed.
 
-| Source | URL | Snapshot |
+| Source | URL | Copy read |
 |---|---|---|
-| Icons page | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html | 2018-12-25 00:22:55 |
-| Imagery page | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/imagery.html | 2018-12-25 00:22:55 |
-| Writing page | https://web.archive.org/web/20190803033154/https://material.io/archive/guidelines/style/writing.html (the 2018-12-25 URL redirects here; the 2018-02-23 and 2016 fallbacks did not respond) | 2019-08-03 03:31:54 |
-| Color page, "Icons and other elements" (cross-reference) | https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:21:49 |
+| Icons page | https://m1.material.io/style/icons.html | 2018-12-25 00:22:55 |
+| Imagery page | https://m1.material.io/style/imagery.html | 2018-12-25 00:22:55 |
+| Writing page | https://m1.material.io/style/writing.html (the 2018-12-25 URL redirects here; the 2018-02-23 and 2016 fallbacks did not respond) | 2019-08-03 03:31:54 |
+| Color page, "Icons and other elements" (cross-reference) | https://m1.material.io/style/color.html | 2018-12-25 00:21:49 |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_icons.styl`, `settings/_theme.styl`, `settings/_variables.styl`, `components/_buttons.styl`, `_lists.styl`, `_chips.styl`, `_steppers.styl`, `_data-table.styl`, `_breadcrumbs.styl`, `_alerts.styl`, `_pagination.styl` | local checkout |
 
 Confidence legend: `high` = read from the spec page; `moderate` = Vuetify 1.5 stylus only; `low` = memory.

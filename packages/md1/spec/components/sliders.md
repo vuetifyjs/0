@@ -2,7 +2,7 @@
 
 ## Sources
 
-- Spec page: https://m1.material.io/components/sliders.html (Google-hosted frozen archive of the MD1 guidelines; `https://material.io/archive/guidelines/components/sliders.html` 301-redirects to it; fetched 2026-10-22). The Wayback target `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/sliders.html` refused TCP connections for the whole session (rate limiting).
+- Spec page: https://m1.material.io/components/sliders.html (the MD1 guidelines Google hosts as an archive; fetched 2026-10-22).
 - The page text gives usage and colors only; it has no dimension callouts. Every dimension below is measured in pixels from the spec sheets, which render at 2 px per dp (calibration: the same artboard family as the snackbar sheets, where the 24 dp and 48 dp callouts measure 48 px and 96 px; the 2 dp track measures 4 px everywhere). Base URL `https://storage.googleapis.com/material-io-design/m1/assets/`:
   - `0Bx4BSt6jniD7QkJlRGNfTGEzQlE/components-sliders-continuous1.png` (light, normal, focused, click, disabled at 0 %, 60 %, 100 %)
   - `0Bx4BSt6jniD7R2s2OGFDcVRkZFE/components-sliders-continuous2.png` (dark, same grid)

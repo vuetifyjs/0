@@ -6,9 +6,8 @@ Confidence tags: `high` = stated on the spec page or a companion spec page (text
 
 ## Sources
 
-- Spec page (authoritative): `http://web.archive.org/web/20181225002209/https://material.io/archive/guidelines/components/grid-lists.html` (Wayback snapshot 2018-12-25 00:22:09 of the MD1 archive; full text read).
-- Same page on Google's live MD1 mirror: `https://m1.material.io/components/grid-lists.html` (read 2026-10-22; text identical; figures served from `https://storage.googleapis.com/material-io-design/m1/assets/<id>/<name>.png`).
-- Earlier revision, read for drift: `http://web.archive.org/web/20160604212921/http://www.google.com/design/spec/components/grid-lists.html` (2016-06-04; identical text apart from a stray "test" heading).
+- Spec page (authoritative): `https://m1.material.io/components/grid-lists.html` (the MD1 guidelines Google hosts as an archive; full text read, and identical line for line to the archive's 2018-12-25 content; read 2026-10-22).
+- Earlier revision, read for drift: the 2016 revision of the guidelines page `components/grid-lists` (2016-06-04; identical text apart from a stray "test" heading).
 - Figures read from the page: components-grids-specs1 (type 14/14), -specs2 (type 16/12), -specs22 (truncation redline; cropped and enlarged 3x), -specs3, -specs5, -specs7, -specs8, -specs10, -specs13, -specs14, -specs15, -specs16, -specs17 (cropped), -specs18, -specs19, -specs20, -specs21, -content2 (action and text positions).
 - Companion spec pages (m1.material.io): `style/typography.html`, `style/color.html`, `layout/metrics-keylines.html` (ratio keylines, icon 24dp, touch target 48dp), `components/subheaders.html` (grid subheaders), `patterns/selection.html`, `components/dividers.html`, `components/lists.html`.
 - Vuetify 1.5.24: `src/stylus/components/_grid.styl`, `_subheaders.styl`; `src/stylus/settings/_variables.styl` (`$grid-gutter`, `$grid-gutters`, `$grid-breakpoints`).

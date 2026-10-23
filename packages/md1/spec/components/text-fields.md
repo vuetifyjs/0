@@ -4,17 +4,17 @@ Spec page: `components/text-fields.html`. Material Design 1 components: `Md1Text
 
 ## Sources
 
-| Source | URL (snapshot) | Read |
+| Source | URL (copy read) | Read |
 |---|---|---|
-| MD1 archived spec, Text fields | `https://web.archive.org/web/20200502053713/https://material.io/archive/guidelines/components/text-fields.html` (requested `20181225002255`; the archive redirected to its `20200502053713` capture of the same archived page) | full text |
-| 2016 Google Design spec, Text fields (cross-check, older metrics) | `https://web.archive.org/web/20160602210413/http://www.google.com/design/spec/components/text-fields.html` | full text |
-| MD1 Patterns, Errors (user input errors, form rules, counters) | `https://web.archive.org/web/20181225002155/https://material.io/archive/guidelines/patterns/errors.html` | full text |
-| MD1 Patterns, Search (search field variants) | `https://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html` (requested `20181225002255`, archive resolved to `20210805023955`) | full text |
-| MD1 Style, Color (text opacity tables, secondary color usage, palette hexes) | `https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html` | full text |
-| MD1 Style, Typography | `https://web.archive.org/web/20181225002206/https://material.io/archive/guidelines/style/typography.html` | type scale image |
-| MD1 Layout, Metrics and keylines (touch targets) | `https://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html` | full text |
-| MD1 Material design, Elevation and shadows | `https://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html` | component table |
-| MD1 Motion, Duration and easing | `https://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html` | full text |
+| MD1 archived spec, Text fields | `https://m1.material.io/components/text-fields.html` (archive copy dated 2020-05-02 05:37:13) | full text |
+| 2016 Google Design spec, Text fields (cross-check, older metrics) | the 2016 revision of the guidelines page `components/text-fields` | full text |
+| MD1 Patterns, Errors (user input errors, form rules, counters) | `https://m1.material.io/patterns/errors.html` | full text |
+| MD1 Patterns, Search (search field variants) | `https://m1.material.io/patterns/search.html` (archive copy dated 2021-08-05 02:39:55) | full text |
+| MD1 Style, Color (text opacity tables, secondary color usage, palette hexes) | `https://m1.material.io/style/color.html` | full text |
+| MD1 Style, Typography | `https://m1.material.io/style/typography.html` | type scale image |
+| MD1 Layout, Metrics and keylines (touch targets) | `https://m1.material.io/layout/metrics-keylines.html` | full text |
+| MD1 Material design, Elevation and shadows | `https://m1.material.io/material-design/elevation-shadows.html` | component table |
+| MD1 Motion, Duration and easing | `https://m1.material.io/motion/duration-easing.html` | full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_text-fields.styl`, `_inputs.styl`, `_textarea.styl`, `_counters.styl`, `_labels.styl`, `_messages.styl`, `src/stylus/settings/_theme.styl`, `_variables.styl`, `src/components/VTextField/VTextField.js`, `src/components/VInput/VInput.js` | cross-check |
 
 ## 1. Purpose and usage

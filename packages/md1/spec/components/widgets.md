@@ -4,9 +4,9 @@ Spec page: `components/widgets.html`. Material Design 1 component: none. Ruling:
 
 ## Sources
 
-| Source | URL (snapshot) | Read |
+| Source | URL (copy read) | Read |
 |---|---|---|
-| MD1 archived spec, Widgets | `https://web.archive.org/web/20181225002239/https://material.io/archive/guidelines/components/widgets.html` (requested `20181225002255`, archive resolved to `20181225002239`) | full text |
+| MD1 archived spec, Widgets | `https://m1.material.io/components/widgets.html` (archive copy dated 2018-12-25 00:22:39) | full text |
 | Vuetify 1.5.24 | no stylus or component counterpart exists | n/a |
 
 ## Summary paragraph

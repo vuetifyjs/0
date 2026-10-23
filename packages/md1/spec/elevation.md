@@ -6,15 +6,15 @@ Confidence legend: `high` = read from the archived spec page; `moderate` = Vueti
 
 ## Sources
 
-Archived spec pages (Wayback Machine; the 2018-12-25 00:22:55 request redirects to the nearest capture):
+Spec pages (m1.material.io, the MD1 guidelines Google hosts as an archive; where the archive copy read was dated later than 2018-12-25, the date is noted):
 
-- https://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html (primary)
-- https://web.archive.org/web/20210805002434/https://material.io/archive/guidelines/material-design/environment.html (supplementary: key light and ambient light model; 2021-08-05 capture of the archive page, the 2018 capture answered HTTP 503)
-- https://web.archive.org/web/20181225002244/https://material.io/archive/guidelines/motion/transforming-material.html (supplementary: shadows of divided material)
-- https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html (supplementary: button elevations, desktop hover)
-- https://web.archive.org/web/20210805020619/https://material.io/archive/guidelines/patterns/navigation-drawer.html (supplementary: drawer type elevations, scrim)
-- https://web.archive.org/web/20181225002150/https://material.io/archive/guidelines/components/bottom-navigation.html (supplementary: bottom navigation versus snackbar order)
-- https://web.archive.org/web/20181225002140/https://material.io/archive/guidelines/components/toolbars.html (supplementary: toolbar step and waterfall)
+- https://m1.material.io/material-design/elevation-shadows.html (primary)
+- https://m1.material.io/material-design/environment.html (supplementary: key light and ambient light model; 2021-08-05 capture of the archive page, the 2018 capture answered HTTP 503)
+- https://m1.material.io/motion/transforming-material.html (supplementary: shadows of divided material)
+- https://m1.material.io/components/buttons.html (supplementary: button elevations, desktop hover)
+- https://m1.material.io/patterns/navigation-drawer.html (supplementary: drawer type elevations, scrim)
+- https://m1.material.io/components/bottom-navigation.html (supplementary: bottom navigation versus snackbar order)
+- https://m1.material.io/components/toolbars.html (supplementary: toolbar step and waterfall)
 
 Vuetify 1.5.24 cross-check files (`/home/john/sites/vuetify1/packages/vuetify/src/stylus/`):
 

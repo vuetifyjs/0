@@ -4,14 +4,14 @@ Spec page: Components > Cards. Covers the card, card collections, content blocks
 
 ## Sources
 
-| Tag | URL | Snapshot | Used for |
+| Tag | URL | Copy read | Used for |
 |---|---|---|---|
-| A18 | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/cards.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
-| G16 | https://web.archive.org/web/20160604061521/http://www.google.com/design/spec/components/cards.html | 2016-06-04 06:15:21 UTC | version cross-check only |
-| ELEV | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | resting and raised elevation |
-| MOTION | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
-| COLOR | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:22:55 UTC | text opacities, theme surfaces |
-| KEY | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | 24dp tablet keyline, card paddings in templates, aspect ratios |
+| A18 | https://m1.material.io/components/cards.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
+| G16 | the 2016 revision of the guidelines page `components/cards` | 2016-06-04 06:15:21 UTC | version cross-check only |
+| ELEV | https://m1.material.io/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | resting and raised elevation |
+| MOTION | https://m1.material.io/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
+| COLOR | https://m1.material.io/style/color.html | 2018-12-25 00:22:55 UTC | text opacities, theme surfaces |
+| KEY | https://m1.material.io/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | 24dp tablet keyline, card paddings in templates, aspect ratios |
 | V15 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_cards.styl`, `_sheet.styl`, `settings/_variables.styl`, `settings/_theme.styl`, `settings/_elevations.styl`, `components/VCard/VCard.ts`, `VCardTitle.ts`, `VCardMedia.ts` | Vuetify 1.5.24 | cross-check |
 
 Fetch notes: fetched with `curl -sL` over HTTPS; text extracted from static HTML. Redline images carry no alt text; image-only values are recorded as `not found`.

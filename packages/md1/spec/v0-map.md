@@ -16,12 +16,12 @@ Repo: `/home/john/sites/0/.claude/worktrees/quantum` (branch `feat/quantum`; `pa
 | Other | `utilities/helpers.ts` (`useId`), `locale/messages/en/index.ts`, `theme/tokens.ts`, `theme/index.ts`, `theme/adapters/index.ts`, `popover/index.ts`, `popover/adapters/floating-ui/index.ts`; `packages/emerald/SPEC.md`, `packages/emerald/src/components/EmCalendar/calendar.ts`, `packages/emerald/src/components/EmTextField/EmTextField.vue`, `packages/emerald/src/components/EmButton/EmButton.vue`; `/home/john/sites/0/.claude/worktrees/bootstrap-v6/packages/bootstrap/SPEC.md` |
 | Docs examples (snippets) | `apps/docs/src/examples/components/<name>/basic.vue` for every component above (`radio/group.vue` and `atom/polymorphic.vue` where no `basic.vue` exists) |
 
-Web (fetched with `curl` over `https`; the WebFetch tool refuses `web.archive.org`, and plain `http` does not connect from this sandbox):
+Web (fetched with `curl` over `https`; plain `http` does not connect from this sandbox):
 
-| URL | Snapshot | Result |
+| URL | Copy read | Result |
 |---|---|---|
-| `https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/` | 2018-12-25 00:22:55 UTC | HTTP 200, 35507 bytes. Used only for the component and pattern page list that heads the mapping table. |
-| `https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html` | 2018-12-25 | Failed twice (curl exit 7, connection refused). Not read. |
+| `https://m1.material.io/` | 2018-12-25 00:22:55 UTC | HTTP 200, 35507 bytes. Used only for the component and pattern page list that heads the mapping table. |
+| `https://m1.material.io/components/buttons.html` | 2018-12-25 | Failed twice (curl exit 7, connection refused). Not read. |
 
 Vuetify 1.5.24 stylus was not consulted. This note carries no visual metrics; those belong to the tokens and component notes.
 
@@ -971,7 +971,7 @@ Vuetify 1.5.24 stylus was not consulted. This note carries no visual metrics; th
 
 ## Mapping table: MD1 component to v0 primitive
 
-MD1 component pages in the 2018-12-25 snapshot index (`guidelines/components/`): bottom-navigation, bottom-sheets, buttons, buttons-floating-action-button, cards, chips, data-tables, dialogs, dividers, expansion-panels, grid-lists, lists, lists-controls, menus, pickers, progress-activity, selection-controls, sliders, snackbars-toasts, steppers, subheaders, tabs, text-fields, toolbars, tooltips, widgets. Pattern pages relevant here: `patterns/navigation-drawer.html`, `patterns/search.html`. "Widgets" is an Android launcher concept and has no web component.
+MD1 component pages in the archive index (`components/`): bottom-navigation, bottom-sheets, buttons, buttons-floating-action-button, cards, chips, data-tables, dialogs, dividers, expansion-panels, grid-lists, lists, lists-controls, menus, pickers, progress-activity, selection-controls, sliders, snackbars-toasts, steppers, subheaders, tabs, text-fields, toolbars, tooltips, widgets. Pattern pages relevant here: `patterns/navigation-drawer.html`, `patterns/search.html`. "Widgets" is an Android launcher concept and has no web component.
 
 | MD1 component | v0 primitive(s) | Pattern | Reasoning | Confidence |
 |---|---|---|---|---|

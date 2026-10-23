@@ -364,7 +364,7 @@ MD1 glyphs are the Material Icons set of the period (filled, 24x24 grid), which 
 
 ### 1.12 SPEC.md contract
 
-`DESIGN_SYSTEMS.md` "Per-package SPEC.md" requires: (1) class `design system` and purpose; (2) the pinned spec, named with a date (here: the archived MD1 guidelines, snapshot timestamp, plus the Vuetify 1.5.24 cross-reference); (3) a coverage statement listing what ships and what is deliberately out (a v0 primitive existing is not a reason to ship; ruling 7); (4) the component inventory and every intentional deviation from the family contract with a reason. Emerald's `SPEC.md` sections to mirror: Identity, Purpose, Token source, Dark theme, Pipeline, Consumer contract, Compound access, per-wave surface tables (`Component | v0 primitive`), Non-goals. Confidence: high.
+`DESIGN_SYSTEMS.md` "Per-package SPEC.md" requires: (1) class `design system` and purpose; (2) the pinned spec, named with a date (here: the MD1 guidelines Google hosts as an archive at m1.material.io, with the 2018-12-25 date their content was verified against, plus the Vuetify 1.5.24 cross-reference); (3) a coverage statement listing what ships and what is deliberately out (a v0 primitive existing is not a reason to ship; ruling 7); (4) the component inventory and every intentional deviation from the family contract with a reason. Emerald's `SPEC.md` sections to mirror: Identity, Purpose, Token source, Dark theme, Pipeline, Consumer contract, Compound access, per-wave surface tables (`Component | v0 primitive`), Non-goals. Confidence: high.
 
 ## 2. Component recipe
 
@@ -1199,7 +1199,7 @@ Section order for `pages/systems/**` (docs.md "Systems pages use their own secti
 Flat and raised variants, a dense form for desktop, and the persistent footer button.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](<archived spec URL for this component>). Specification and visuals. This page is Vue.
+> Reference: [Buttons, Material Design 1 guidelines](<https://m1.material.io/ page for this component>). Specification and visuals. This page is Vue.
 
 ## Usage
 
@@ -1330,7 +1330,7 @@ Template (adapted from `emerald/button/basic.vue`):
 2. `# Material Design 1`, `<DocsPageFeatures :frontmatter />`, a two-sentence lead ("Material Design 1 is a design system for Vue, built on Vuetify0. It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.").
 3. `<DocsSystemActivator palette="md1" />` (the prop exists; the component reads `PALETTE_ICONS` / `PALETTE_LABELS`).
 4. Optional overview example: `::: ds-example no-resize` with `/systems/md1/overview` (Bootstrap index).
-5. `## What Material Design 1 is`, the pinned spec sentence (MD1 as archived, snapshot date), and the escape-hatch sentence.
+5. `## What Material Design 1 is`, the pinned spec sentence (MD1 as Google archives it at m1.material.io), and the escape-hatch sentence.
 6. `## Installation`: `::: code-group no-filename` with `bash pnpm` / `npm` / `yarn` / `bun` fences, then a `ts main.ts` fence with `createMd1Plugin()` and the two CSS imports, then the options table (`{ theme: false }`, `{ icons: false }` with the bundle footnote), then `### Without the plugin`.
 7. `## Tokens`: the families table and the `-channels` sentence; `### The v0 bridge`.
 8. `## Icons`: role naming, `label` rule, link to the icon page.

@@ -2,12 +2,12 @@
 
 ## Sources
 
-- Spec page: https://m1.material.io/components/snackbars-toasts.html (Google-hosted frozen archive of the MD1 guidelines; `https://material.io/archive/guidelines/components/snackbars-toasts.html` 301-redirects to it; fetched 2026-10-22). The Wayback target `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/snackbars-toasts.html` refused TCP connections for the whole session (rate limiting); the m1 copy is the same archive (verified on `selection-controls.html` against the Wayback capture `20210805015907`: identical text).
+- Spec page: https://m1.material.io/components/snackbars-toasts.html (the MD1 guidelines Google hosts as an archive; fetched 2026-10-22). The m1 copy is the frozen archive text (verified on `selection-controls.html` against a 2021-08-05 archive copy: identical text).
 - Spec sheets read visually and measured in pixels. Every sheet renders at 2 px per dp (calibrated: the "24" callout bars are 48 px wide, the "48" callout block is 96 px).
-  - https://storage.googleapis.com/material-io-design/m1/assets/0B57Y8yNEHsZPcS1OaVBVajhpeDQ/components-toasts-mobile4.png (mobile specs)
-  - https://storage.googleapis.com/material-io-design/m1/assets/0B57Y8yNEHsZPaTBmR1lJeTdVT0k/components-toasts-tabletdesktop3.png (tablet and desktop specs)
-  - https://storage.googleapis.com/material-io-design/m1/assets/0B6Okdz75tqQsZzFkU1dvelo1WTA/components-toasts-mobile1.png, `.../0B6Okdz75tqQsc2RLNDJEeTFlS28/components-toasts-mobile2.png`, `.../0B6Okdz75tqQsa1VjR0RYWEpZZUE/components-toasts-mobile3.png` (mobile mockups)
-  - https://storage.googleapis.com/material-io-design/m1/assets/0B57Y8yNEHsZPRWxUaHo3bGNUeXM/components-toasts-tabletdesktop1.png, `.../0B57Y8yNEHsZPVkRWSkNRLVNzQXc/components-toasts-tabletdesktop2.png`, `.../0Bzhp5Z4wHba3RXRkX21NSHA0SEk/components-toasts-tabletdesktop1-left.png`, `.../0Bzhp5Z4wHba3WklUeEdTaG1HODQ/components-toasts-tabletdesktop2-left.png` (desktop mockups)
+  - `components-toasts-mobile4.png` (mobile specs)
+  - `components-toasts-tabletdesktop3.png` (tablet and desktop specs)
+  - `components-toasts-mobile1.png`, `components-toasts-mobile2.png`, `components-toasts-mobile3.png` (mobile mockups)
+  - `components-toasts-tabletdesktop1.png`, `components-toasts-tabletdesktop2.png`, `components-toasts-tabletdesktop1-left.png`, `components-toasts-tabletdesktop2-left.png` (desktop mockups)
   - `components-toasts-usage1..6.png` (do and don't pairs)
 - Vuetify 1.5.24: `packages/vuetify/src/stylus/components/_snackbars.styl`, `settings/_variables.styl` (`$snackbar-*`, `$display-breakpoints`), `settings/_elevations.styl`.
 

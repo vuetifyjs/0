@@ -6,9 +6,8 @@ Confidence tags: `high` = stated on the spec page or a companion spec page (text
 
 ## Sources
 
-- Spec page (authoritative): `http://web.archive.org/web/20181225002154/https://material.io/archive/guidelines/components/dividers.html` (Wayback snapshot 2018-12-25 00:21:54 of the MD1 archive; full text read).
-- Same page on Google's live MD1 mirror: `https://m1.material.io/components/dividers.html` (read 2026-10-22; text identical; figures served from `https://storage.googleapis.com/material-io-design/m1/assets/<id>/<name>.png`).
-- Earlier revision, read for drift: `http://web.archive.org/web/20160529220840/http://www.google.com/design/spec/components/dividers.html` (2016-05-29; identical text).
+- Spec page (authoritative): `https://m1.material.io/components/dividers.html` (the MD1 guidelines Google hosts as an archive; full text read, and identical line for line to the archive's 2018-12-25 content; read 2026-10-22).
+- Earlier revision, read for drift: the 2016 revision of the guidelines page `components/dividers` (2016-05-29; identical text).
 - Figures read from the page: components-dividers-specs ("The divider sits within the baseline of the tile"), -type3 (inset divider in a contacts list), -type5 (divider above a subheader).
 - Companion spec pages (m1.material.io): `components/lists.html` (text left padding 72dp), `layout/metrics-keylines.html` (72dp mobile and 80dp tablet content keylines), `components/subheaders.html`, `style/color.html` (12% dividers in both opacity tables).
 - Vuetify 1.5.24: `src/stylus/components/_dividers.styl`, `_subheaders.styl`, `_lists.styl`; `src/stylus/settings/_theme.styl`, `_variables.styl`; `src/components/VDivider/VDivider.ts`.

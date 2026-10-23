@@ -8,17 +8,17 @@ Primary (fetched and read by this note's author):
 
 | URL | Note |
 |---|---|
-| http://web.archive.org/web/20181225002143/https://material.io/archive/guidelines/components/progress-activity.html | Requested `20181225002255`; served the 2018-12-25 02:21:43 capture. |
-| http://web.archive.org/web/20170712071800/https://material.io/guidelines/components/progress-activity.html | Requested `20180223140411`; served 2017-07-12. Same text. |
-| http://web.archive.org/web/20160923031834/https://material.google.com/components/progress-activity.html | Requested `20160604061521`; served 2016-09-23. Same text. |
-| http://web.archive.org/web/20181225002143im_/https://material.io/archive/guidelines/assets/0B7WCemMG6e0VWkJiRjRLbzRNS3M/components-progress-and-activity.png | Hero illustration (stylized; no redlines). |
-| http://web.archive.org/web/20181225002143im_/https://material.io/archive/guidelines/assets/0B0NGgBg38lWWVXBBVF9qR3E4a2s/components-progressactivity-typesofindicators-061101-linear-sheet-xhdpi-003.mp4 | Linear indicator sheet (1520 x 1160 px, 7.6 s); frames extracted with ffmpeg and measured at 2 px per dp. |
-| http://web.archive.org/web/20160923031834im_/https://material-design.storage.googleapis.com/publish/material_v_9/0B14F_FSUCc01dkwzSzlwa3ZvbUU/061101_Circular_Sheet_xhdpi_005.mp4 | Circular indicator sheet (1520 x 316 px, 6.7 s); the 2018 host copy returns 404. |
-| http://web.archive.org/web/20160923031834im_/https://material-design.storage.googleapis.com/publish/material_v_9/0B6Okdz75tqQsdk1oMG9KY2pCcms/components-progressactivity-typesofindicators-Circular_wFab_xhdpi_003.mp4 | Circular loader integrated with a floating action button (720 x 1250 px, 5.9 s). |
+| https://m1.material.io/components/progress-activity.html | Archive copy dated 2018-12-25 02:21:43. |
+| the 2017 live guidelines page `components/progress-activity` | Copy dated 2017-07-12. Same text. |
+| the 2016 revision of the guidelines page `components/progress-activity` | Copy dated 2016-09-23. Same text. |
+| `components-progress-and-activity.png` | Hero illustration (stylized; no redlines). |
+| `components-progressactivity-typesofindicators-061101-linear-sheet-xhdpi-003.mp4` | Linear indicator sheet (1520 x 1160 px, 7.6 s); frames extracted with ffmpeg and measured at 2 px per dp. |
+| `061101_Circular_Sheet_xhdpi_005.mp4` (2016 revision artwork, not linked) | Circular indicator sheet (1520 x 316 px, 6.7 s); the archived guidelines' own copy returns 404. |
+| `components-progressactivity-typesofindicators-Circular_wFab_xhdpi_003.mp4` (2016 revision artwork, not linked) | Circular loader integrated with a floating action button (720 x 1250 px, 5.9 s). |
 
 The page text contains no numeric values. Thickness, size and track opacity below are pixel measurements of the spec's own videos and are tagged `moderate`. The remaining behavior videos (loading in phases, card expansion, scroll up, swipe down) were not fetched.
 
-Supporting pages, read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/<path>`): `material-design/elevation-shadows.html` (refresh indicator), `style/color.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html` (56 dp floating action button).
+Supporting pages, read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `https://m1.material.io/<path>`): `material-design/elevation-shadows.html` (refresh indicator), `style/color.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html` (56 dp floating action button).
 
 Vuetify 1.5.24 cross-check files: `stylus/components/_progress-linear.styl`, `_progress-circular.styl`, `stylus/settings/_variables.styl`, `components/VProgressLinear/VProgressLinear.ts`, `components/VProgressCircular/VProgressCircular.ts`.
 

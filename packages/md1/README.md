@@ -170,8 +170,9 @@ are listed under "Known limitations" in [SPEC.md](./SPEC.md).
 
 ## Pinned spec
 
-Material Design, 2014 to 2017 guidelines, Wayback snapshot 2018-12-25 of
-`material.io/archive/guidelines` (mirror: `m1.material.io`). Vuetify 1.5.24 is
+Material Design, 2014 to 2017 guidelines, at
+[m1.material.io](https://m1.material.io/), the Material Design 1 guidelines
+Google hosts as an archive. Vuetify 1.5.24 is
 a numeric cross-check only. The research notes under [spec/](./spec) carry
 every value with its source and confidence.
 

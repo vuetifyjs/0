@@ -6,23 +6,23 @@ Units: the spec writes `sp` for type size and `dp` for leading. On the web both 
 
 ## Sources
 
-Fetched 2026-10-22 with `curl` (the WebFetch tool is blocked for web.archive.org). The HTML was stripped to text; every numeric table on the typography page is an image with empty `alt`, so those images were downloaded from the same crawl and read visually.
+Fetched 2026-10-22 with `curl`. The HTML was stripped to text; every numeric table on the typography page is an image with empty `alt`, so those images were downloaded from the same crawl and read visually.
 
-| Source | URL | Snapshot |
+| Source | URL | Copy read |
 |---|---|---|
-| Typography page (text) | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/typography.html | 2018-12-25 00:22:55 |
-| Type scale image | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3alhXZ2pPWGk3Zjg/style-typography-styles-scale.png | 2018-12-25 00:22:06 |
-| Leading image (English) | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3Q1VaNVBsdFozUTg/style-typography-styles-lineheight1.png | 2018-12-25 00:22:06 |
+| Typography page (text) | https://m1.material.io/style/typography.html | 2018-12-25 00:22:55 |
+| Type scale image | `style-typography-styles-scale.png` | 2018-12-25 00:22:06 |
+| Leading image (English) | `style-typography-styles-lineheight1.png` | 2018-12-25 00:22:06 |
 | Leading pairing images | `style-typography-styles-lineheight2.png`, `style-typography-styles-lineheight3.png` (same asset path pattern) | 2018-12-25 00:22:06 |
-| Tracking image | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3LUZGWGdtZmFfUU0/style-typography-styles-tracking.png | 2018-12-25 00:22:06 |
-| Dense scale image | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3N3d4REJ0enZqd2M/style-typography-style1.png | 2018-12-25 00:22:06 |
-| Tall scale image | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3ek5vUE41WjNOSmM/style-typography-style3.png | 2018-12-25 00:22:06 |
-| Leading image (dense and tall) | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3bW9GQUFPTXlTbWc/style-typography-lineheight-tall1.png | 2018-12-25 00:22:06 |
+| Tracking image | `style-typography-styles-tracking.png` | 2018-12-25 00:22:06 |
+| Dense scale image | `style-typography-style1.png` | 2018-12-25 00:22:06 |
+| Tall scale image | `style-typography-style3.png` | 2018-12-25 00:22:06 |
+| Leading image (dense and tall) | `style-typography-lineheight-tall1.png` | 2018-12-25 00:22:06 |
 | Line length images | `style-typography-styles-linelengths1.png`, `style-typography-styles-linelengths2.png` | 2018-12-25 00:22:06 |
 | Weight images | `style-typography-weights1.png` (Roboto), `style-typography-weight1.png` (Noto Sans CJK), `style-typography-weight2.png` (Noto Sans Thai, Devanagari) | 2018-12-25 00:22:06 |
-| Per-style opacity image | https://web.archive.org/web/20181225002206im_/https://material.io/archive/guidelines/assets/0Bzhp5Z4wHba3dGx2T1FqM0xXbTA/style-typography-styles-contrast.png | 2018-12-25 00:22:06 |
+| Per-style opacity image | `style-typography-styles-contrast.png` | 2018-12-25 00:22:06 |
 | Hero image | `style-typography.png` (repeats the scale) | 2018-12-25 00:22:06 |
-| Color page, "Text on backgrounds" (cross-reference only) | https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:21:49 |
+| Color page, "Text on backgrounds" (cross-reference only) | https://m1.material.io/style/color.html | 2018-12-25 00:21:49 |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/settings/_theme.styl`, `settings/_variables.styl`, `elements/_typography.styl`, `elements/_global.styl`, `trumps/_text.styl`, `components/_buttons.styl`, `_toolbar.styl`, `_tabs.styl`, `_lists.styl`, `_subheaders.styl`, `_inputs.styl`, `_labels.styl`, `_chips.styl`, `_snackbars.styl`, `_tooltips.styl`, `_tables.styl`, `_data-table.styl`, `_steppers.styl`, `_bottom-navs.styl`, `_counters.styl`, `_messages.styl`, `_navigation-drawer.styl`, `_breadcrumbs.styl`, `_badges.styl`, `_alerts.styl` | local checkout |
 
 Confidence legend: `high` = read from the spec page or its images; `moderate` = Vuetify 1.5 stylus only; `low` = memory; `derived` = arithmetic on high values.

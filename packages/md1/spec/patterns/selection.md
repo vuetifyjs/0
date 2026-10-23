@@ -6,10 +6,10 @@ Pattern page `patterns/selection.html`. Ruling (see `rulings.md`): **item select
 
 | Source | Location | Read |
 |---|---|---|
-| MD1 spec, Selection | `https://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html` (2018-12-25 00:21:48 capture) | yes, full text |
-| MD1 spec, Gestures (data selection rows of the touch activities table) | `https://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html` | yes, full text |
-| MD1 spec, Navigation (Back button dismisses contextual action bars) | `https://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html` | yes, full text |
-| MD1 spec, Navigation drawer (selected list item color) | `https://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html` | yes, full text |
+| MD1 spec, Selection | `https://m1.material.io/patterns/selection.html` (2018-12-25 00:21:48 capture) | yes, full text |
+| MD1 spec, Gestures (data selection rows of the touch activities table) | `https://m1.material.io/patterns/gestures.html` | yes, full text |
+| MD1 spec, Navigation (Back button dismisses contextual action bars) | `https://m1.material.io/patterns/navigation.html` | yes, full text |
+| MD1 spec, Navigation drawer (selected list item color) | `https://m1.material.io/patterns/navigation-drawer.html` | yes, full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_toolbar.styl`, `src/stylus/settings/_theme.styl`, `src/stylus/settings/_variables.styl` | yes |
 
 Confidence legend: `high` = read on the spec page named; `moderate` = Vuetify 1.5 source only; `low` = memory.

@@ -6,19 +6,19 @@ Confidence legend: `high` = read from the archived spec page; `moderate` = Vueti
 
 ## Sources
 
-Archived spec pages (Wayback Machine, snapshot timestamp in the URL; the 2018-12-25 00:22:55 request redirects to the nearest capture of each page):
+Spec pages (m1.material.io, the MD1 guidelines Google hosts as an archive; where the archive copy read was dated later than 2018-12-25, the date is noted):
 
-- https://web.archive.org/web/20210805024222/https://material.io/archive/guidelines/layout/principles.html (2021-08-05 capture of the archive page; the 2018 capture timed out)
-- https://web.archive.org/web/20210308145521/https://material.io/archive/guidelines/layout/units-measurements.html (2021-03-08 capture of the archive page)
-- https://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html
-- https://web.archive.org/web/20181225002252/https://material.io/archive/guidelines/layout/structure.html
-- https://web.archive.org/web/20181225002227/https://material.io/archive/guidelines/layout/responsive-ui.html
-- https://web.archive.org/web/20210816114252/https://material.io/archive/guidelines/layout/split-screen.html (2021-08-16 capture of the archive page)
-- https://web.archive.org/web/20160604084504/http://www.google.com/design/spec/usability/accessibility.html (2016-06-04 Google Design capture; the 2018, 2021 and 2018-02-23 live-guidelines captures all timed out after three attempts each)
-- https://web.archive.org/web/20181225002208/https://material.io/archive/guidelines/usability/bidirectionality.html
-- https://web.archive.org/web/20210805020619/https://material.io/archive/guidelines/patterns/navigation-drawer.html (supplementary, for drawer widths and types)
-- https://web.archive.org/web/20181225002150/https://material.io/archive/guidelines/components/bottom-navigation.html (supplementary, for bottom bar metrics)
-- https://web.archive.org/web/20181225002140/https://material.io/archive/guidelines/components/toolbars.html (supplementary, toolbar layering rules only; the archived page carries no metrics)
+- https://m1.material.io/layout/principles.html (2021-08-05 capture of the archive page; the 2018 capture timed out)
+- https://m1.material.io/layout/units-measurements.html (2021-03-08 capture of the archive page)
+- https://m1.material.io/layout/metrics-keylines.html
+- https://m1.material.io/layout/structure.html
+- https://m1.material.io/layout/responsive-ui.html
+- https://m1.material.io/layout/split-screen.html (2021-08-16 capture of the archive page)
+- the 2016 revision of the guidelines page `usability/accessibility` (2016-06-04 Google Design capture; the 2018, 2021 and 2018-02-23 live-guidelines captures all timed out after three attempts each)
+- https://m1.material.io/usability/bidirectionality.html
+- https://m1.material.io/patterns/navigation-drawer.html (supplementary, for drawer widths and types)
+- https://m1.material.io/components/bottom-navigation.html (supplementary, for bottom bar metrics)
+- https://m1.material.io/components/toolbars.html (supplementary, toolbar layering rules only; the archived page carries no metrics)
 
 Vuetify 1.5.24 cross-check files (`/home/john/sites/vuetify1/packages/vuetify/src/`):
 

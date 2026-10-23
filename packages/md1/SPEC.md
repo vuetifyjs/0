@@ -25,14 +25,12 @@ Purpose: Material Design 1 proves the Paper design-system contract against a spe
 
 | Source | Pin | Role |
 |---|---|---|
-| Material Design, 2014 to 2017 guidelines | `material.io/archive/guidelines`, Wayback snapshot 2018-12-25 00:22:55 UTC: `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/` | authoritative; the spec text wins over every other source. The archive's own changelog (`material-design/whats-new`, served capture 2018-12-25 00:22:49) ends with "September 2017", which dates the frozen content |
-| Fallback 1 | live guidelines snapshot 2018-02-23: `http://web.archive.org/web/20180223140411/https://material.io/guidelines/` | used when a page 404s in the archive |
-| Fallback 2 | Google Design snapshot 2016-06-04: `http://web.archive.org/web/20160604061521/http://www.google.com/design/spec/` | original 2014 wording; used to record revision drift |
-| Mirror | `https://m1.material.io/` (Google's own frozen copy; `material.io/archive/guidelines/*` 301s to it) | text verified identical to the Wayback captures wherever both were readable; used when the Wayback host refused connections |
+| Material Design, 2014 to 2017 guidelines | `https://m1.material.io/`, the Material Design 1 guidelines Google hosts as an archive | authoritative; the spec text wins over every other source. The archive's own changelog (`material-design/whats-new`) ends with "September 2017", which dates the frozen content. The research notes verified their values against the archive's content as of 2018-12-25 |
+| Earlier revisions | the 2015 and 2016 Google Design spec and the early-2018 live guidelines | read only to record revision drift; the notes name the revision in prose, and none of it is a source of a pinned value |
 | Vuetify 1.5.24 | `vuetifyjs/vuetify` tag `v1.5.24`, path `packages/vuetify/src/stylus/**` (https://github.com/vuetifyjs/vuetify/tree/v1.5.24/packages/vuetify/src/stylus) | numeric cross-check only; never a source of API, and never a source of a value the spec states |
 | Material Icons | `google/material-design-icons` at commit `49d4db35df873165d6bd6ba09b063c7dafbac2f4`, `materialicons` (filled) 24px sources, Apache License 2.0 | glyph source for `Md1Icon`: 80 glyphs, 27 aliases (`spec/icons.md`) |
 
-Where the archive served a neighbouring capture (2018-01, 2020-05, 2021-03, 2021-08), the note that read the page records the served timestamp; the content is the frozen archive page in every case. Where a value exists only inside a spec PNG or video, the notes read the artwork at 2 px per dp and this file tags the value `measured`. Where no source states a value, the notes say `not found` and this file records the Material Design 1 decision that fills the gap.
+Where a note read an archive copy dated later than 2018-12-25 (2020-05, 2021-03, 2021-08), it records the date; the content is the frozen archive page in every case. Where a value exists only inside a spec PNG or video, the notes read the artwork at 2 px per dp and this file tags the value `measured`. Where no source states a value, the notes say `not found` and this file records the Material Design 1 decision that fills the gap.
 
 Confidence legend for this file: `high` = spec text; `moderate` = Vuetify 1.5 stylus only; `measured` = read from spec artwork at 2 px per dp (the notes write "measured" in the value cell and tag such rows `moderate`); `low` = memory.
 

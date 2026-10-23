@@ -2,7 +2,7 @@
 
 ## Sources
 
-- Spec page: https://m1.material.io/components/subheaders.html (Google-hosted frozen archive of the MD1 guidelines; `https://material.io/archive/guidelines/components/subheaders.html` 301-redirects to it; fetched 2026-10-22). The Wayback target `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/subheaders.html` refused TCP connections for the whole session (rate limiting).
+- Spec page: https://m1.material.io/components/subheaders.html (the MD1 guidelines Google hosts as an archive; fetched 2026-10-22).
 - Spec sheets read visually and measured in pixels; sheets render at 2 px per dp. Base URL `https://storage.googleapis.com/material-io-design/m1/assets/`:
   - `0B0iWdZjcphyMd2E2RlgwQlVoRjg/components-subheaders1.png` (list subheader specs)
   - `0Bx4BSt6jniD7OWVYZFY4N3lGRGs/components-subheaders3.png` (list subheader aligned with text content next to a FAB)

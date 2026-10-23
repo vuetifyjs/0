@@ -4,7 +4,7 @@ Every page of the MD1 "Patterns" section, classified for `@paper/md1` under DESI
 
 ## Sources
 
-The 2018-12-25 archive index (`https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/`) lists 20 pattern pages; `app-shortcuts` is not among them. Each page below was fetched from the Wayback Machine over HTTPS with `curl`; the served capture timestamp is recorded per row. The archive's CDX index was queried for `app-shortcuts` on `material.io/guidelines`, `material.io/archive/guidelines`, `material.google.com` and `www.google.com/design/spec`: the only `patterns/app*` capture on any host is `app-structure.html` (a redirect), and no `material.io/guidelines` URL containing `shortcut` was ever captured. The 2018-02-23 snapshot of `patterns/app-shortcuts.html` returns a Wayback 404.
+The 2018-12-25 archive index (`https://m1.material.io/`) lists 20 pattern pages; `app-shortcuts` is not among them. Each page below was fetched over HTTPS with `curl`; the date of the archive copy read is recorded per row. Every host the guidelines lived on (the 2014 to 2016 Google Design spec, `material.google.com`, the 2017 to 2018 live guidelines and the archive) was searched for `app-shortcuts`: the only `patterns/app*` page on any host is `app-structure.html` (a redirect), no page containing `shortcut` was ever archived, and the early-2018 `patterns/app-shortcuts.html` is a 404.
 
 Vuetify 1.5.24 (`/home/john/sites/vuetify1`) was used only for the four component-style notes; it ships no pattern pages.
 
@@ -32,7 +32,7 @@ Vuetify 1.5.24 (`/home/john/sites/vuetify1`) was used only for the four componen
 | permissions | 2018-12-25 00:21:39 | out of scope | None. Denied-permission feedback = `Md1Snackbar` with an action; blocked critical permission = explanation screen with a button that opens settings | `components/snackbars-toasts.md`; `components/dialogs.md`; `components/buttons.md` | Android runtime permissions and their nine groups; browser permission prompts are chrome |
 | fingerprint | 2018-12-25 00:22:59 | out of scope | None. The confirm-fingerprint dialog metrics are recorded in the values table below for reference only | n/a | "Android only" on the page; WebAuthn prompts are browser chrome |
 | help-feedback | 2018-12-25 00:22:33 | composition | Icon roles `help`, `feedback`, `help-outline` (tooltip), 24 dp (tooltip icons 18 dp); icon opacity table (light: active 54%, inactive 38%; dark: active 100%, inactive 50%) as theme tokens; ordering in the drawer and overflow menu (Send feedback above Help, Help last unless Sign out); help icon in the app bar for complex apps; help screen with a Send feedback button and an overflow for About, Privacy, Terms | `style/icons.md`; `style/color.md` (icon opacities); `patterns/navigation-drawer.md`; `components/menus.md`; `components/toolbars.md`; `components/tooltips.md` | Placement and writing guidance plus three icon roles |
-| app-shortcuts | not found (2018-12 index lacks it; 2018-02 snapshot 404; no CDX capture on any host) | out of scope | None | n/a | Android launcher feature (static and dynamic launcher shortcuts); no web surface regardless of the page's absence |
+| app-shortcuts | not found (the archive index lacks it; the early-2018 live guidelines page is a 404; no archived copy on any host) | out of scope | None | n/a | Android launcher feature (static and dynamic launcher shortcuts); no web surface regardless of the page's absence |
 
 ## Guidance that component notes must carry
 
@@ -88,7 +88,7 @@ The component researchers own these pages; the values and rules below were read 
 
 | Item | Where it should have been | Status |
 |---|---|---|
-| `patterns/app-shortcuts.html` | 2018-12 archive index, 2018-02 snapshot, 2016 Google Design snapshot, CDX on all hosts | not found; page never captured |
+| `patterns/app-shortcuts.html` | archive index, early-2018 live guidelines, 2016 revision, every archived host | not found; page never archived |
 | Scrim color and opacity | navigation-drawer | not found; Vuetify 1.5 `#212121` at 46% (moderate) |
 | Mini variant width | navigation-drawer | not found; Vuetify 1.5 80 px (moderate) |
 | Header (account) background and image treatment | navigation-drawer | not found (figure only) |

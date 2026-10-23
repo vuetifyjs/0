@@ -4,18 +4,18 @@ Spec page: Components > Chips. Covers chips with text, chips with text and an ic
 
 ## Sources
 
-| Tag | URL | Snapshot | Used for |
+| Tag | URL | Copy read | Used for |
 |---|---|---|---|
-| A18 | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/chips.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
-| L18 | https://web.archive.org/web/20180223140411/https://material.io/guidelines/components/chips.html | 2018-02-23 14:04:11 UTC | cross-check; text identical to A18 |
-| G16 | https://web.archive.org/web/20160604061521/http://www.google.com/design/spec/components/chips.html | 2016-06-04 06:15:21 UTC | cross-check; text identical to A18 apart from punctuation |
-| ELEV | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | elevation context (chips are not in the component table) |
-| MOTION | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
-| COLOR | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:22:55 UTC | text and icon opacities, grey palette |
-| KEY | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | touch targets |
+| A18 | https://m1.material.io/components/chips.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
+| L18 | the 2018 live guidelines page `components/chips` | 2018-02-23 14:04:11 UTC | cross-check; text identical to A18 |
+| G16 | the 2016 revision of the guidelines page `components/chips` | 2016-06-04 06:15:21 UTC | cross-check; text identical to A18 apart from punctuation |
+| ELEV | https://m1.material.io/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | elevation context (chips are not in the component table) |
+| MOTION | https://m1.material.io/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
+| COLOR | https://m1.material.io/style/color.html | 2018-12-25 00:22:55 UTC | text and icon opacities, grey palette |
+| KEY | https://m1.material.io/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | touch targets |
 | V15 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_chips.styl`, `settings/_variables.styl`, `settings/_theme.styl`, `components/VChip/VChip.ts`, `components/Vuetify/mixins/icons.ts` | Vuetify 1.5.24 | cross-check |
 
-Fetch notes: fetched with `curl -sL` over HTTPS; text extracted from static HTML. The chips page is short (about 3.5k characters of text in all three snapshots); most visual values live in redline images with no alt text and are recorded as `not found`.
+Fetch notes: fetched with `curl -sL` over HTTPS; text extracted from static HTML. The chips page is short (about 3.5k characters of text in all three revisions); most visual values live in redline images with no alt text and are recorded as `not found`.
 
 Confidence legend: `high` = read from the spec page text; `moderate` = from Vuetify 1.5 stylus only; `low` = memory.
 

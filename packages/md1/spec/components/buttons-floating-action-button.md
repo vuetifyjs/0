@@ -4,15 +4,15 @@ Spec page: Components > Buttons: Floating Action Button. Covers the default and 
 
 ## Sources
 
-| Tag | URL | Snapshot | Used for |
+| Tag | URL | Copy read | Used for |
 |---|---|---|---|
-| A18 | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons-floating-action-button.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
-| G16 | https://web.archive.org/web/20160604061521/http://www.google.com/design/spec/components/buttons-floating-action-button.html | 2016-06-04 06:15:21 UTC | version cross-check only |
-| ELEV | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | resting and pressed elevation, interference rules |
-| MOTION | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
-| COLOR | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:22:55 UTC | secondary color rules for the FAB |
-| KEY | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | FAB in layout templates, touch targets |
-| BSHEET | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-sheets.html | 2018-12-25 00:22:55 UTC | persistent bottom sheet moving the FAB |
+| A18 | https://m1.material.io/components/buttons-floating-action-button.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
+| G16 | the 2016 revision of the guidelines page `components/buttons-floating-action-button` | 2016-06-04 06:15:21 UTC | version cross-check only |
+| ELEV | https://m1.material.io/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | resting and pressed elevation, interference rules |
+| MOTION | https://m1.material.io/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
+| COLOR | https://m1.material.io/style/color.html | 2018-12-25 00:22:55 UTC | secondary color rules for the FAB |
+| KEY | https://m1.material.io/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | FAB in layout templates, touch targets |
+| BSHEET | https://m1.material.io/components/bottom-sheets.html | 2018-12-25 00:22:55 UTC | persistent bottom sheet moving the FAB |
 | V15 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_buttons.styl` (`.v-btn--floating`), `_speed-dial.styl`, `settings/_variables.styl`, `components/VSpeedDial/VSpeedDial.js`, `components/VBtn/VBtn.ts` | Vuetify 1.5.24 | cross-check |
 
 Fetch notes: fetched with `curl -sL` over HTTPS; text extracted from static HTML. Redline images carry no alt text; image-only values are recorded as `not found`.

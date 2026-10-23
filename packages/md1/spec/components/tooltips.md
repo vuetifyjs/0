@@ -4,14 +4,14 @@ Spec page: `components/tooltips.html`. Material Design 1 component: `Md1Tooltip`
 
 ## Sources
 
-| Source | URL (snapshot) | Read |
+| Source | URL (copy read) | Read |
 |---|---|---|
-| MD1 archived spec, Tooltips | `https://web.archive.org/web/20181225002230/https://material.io/archive/guidelines/components/tooltips.html` (requested `20181225002255`, archive resolved to `20181225002230`) | full text, plus the two keyline images `components-tooltips-cursor-keyline.png` and `components-tooltips-touch-keyline.png` |
-| 2016 Google Design spec, Tooltips (cross-check) | `https://web.archive.org/web/20160604084349/http://www.google.com/design/spec/components/tooltips.html` | full text; identical numbers, lacks the Interaction section |
-| MD1 Motion, Duration and easing | `https://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html` | curve definitions |
-| MD1 Style, Typography | `https://web.archive.org/web/20181225002206/https://material.io/archive/guidelines/style/typography.html` | type scale image `style-typography-styles-scale.png` |
-| MD1 Style, Color | `https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html` | Grey palette hex values |
-| MD1 Material design, Elevation and shadows | `https://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html` | component elevation table (no tooltip row) |
+| MD1 archived spec, Tooltips | `https://m1.material.io/components/tooltips.html` (archive copy dated 2018-12-25 00:22:30) | full text, plus the two keyline images `components-tooltips-cursor-keyline.png` and `components-tooltips-touch-keyline.png` |
+| 2016 Google Design spec, Tooltips (cross-check) | the 2016 revision of the guidelines page `components/tooltips` | full text; identical numbers, lacks the Interaction section |
+| MD1 Motion, Duration and easing | `https://m1.material.io/motion/duration-easing.html` | curve definitions |
+| MD1 Style, Typography | `https://m1.material.io/style/typography.html` | type scale image `style-typography-styles-scale.png` |
+| MD1 Style, Color | `https://m1.material.io/style/color.html` | Grey palette hex values |
+| MD1 Material design, Elevation and shadows | `https://m1.material.io/material-design/elevation-shadows.html` | component elevation table (no tooltip row) |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_tooltips.styl`, `src/components/VTooltip/VTooltip.js`, `src/mixins/delayable.ts`, `src/stylus/settings/_variables.styl` | cross-check |
 
 ## 1. Purpose and usage

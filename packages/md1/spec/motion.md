@@ -6,17 +6,17 @@ Confidence legend: `high` = read from the archived spec page; `moderate` = Vueti
 
 ## Sources
 
-Archived spec pages (Wayback Machine; the 2018-12-25 00:22:55 request redirects to the nearest capture):
+Spec pages (m1.material.io, the MD1 guidelines Google hosts as an archive; where the archive copy read was dated later than 2018-12-25, the date is noted):
 
-- https://web.archive.org/web/20181225002146/https://material.io/archive/guidelines/motion/material-motion.html
-- https://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html
-- https://web.archive.org/web/20181225002141/https://material.io/archive/guidelines/motion/movement.html
-- https://web.archive.org/web/20181225002244/https://material.io/archive/guidelines/motion/transforming-material.html
-- https://web.archive.org/web/20210805004105/https://material.io/archive/guidelines/motion/choreography.html (2021-08-05 capture of the archive page; the 2018 capture timed out)
-- https://web.archive.org/web/20181225002158/https://material.io/archive/guidelines/motion/creative-customization.html (served capture 2018-12-25 00:21:58 of the 2018-12-25 00:22:55 request; read 2026-10-22 for the creative customization section)
-- https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html (supplementary: press, focus and disabled overlay values)
-- https://web.archive.org/web/20210805020619/https://material.io/archive/guidelines/patterns/navigation-drawer.html (supplementary: ripple on selection)
-- https://web.archive.org/web/20160604084504/http://www.google.com/design/spec/usability/accessibility.html (supplementary: motion accessibility limits; 2016 capture)
+- https://m1.material.io/motion/material-motion.html
+- https://m1.material.io/motion/duration-easing.html
+- https://m1.material.io/motion/movement.html
+- https://m1.material.io/motion/transforming-material.html
+- https://m1.material.io/motion/choreography.html (2021-08-05 capture of the archive page; the 2018 capture timed out)
+- https://m1.material.io/motion/creative-customization.html (archive copy dated 2018-12-25 00:21:58; read 2026-10-22 for the creative customization section)
+- https://m1.material.io/components/buttons.html (supplementary: press, focus and disabled overlay values)
+- https://m1.material.io/patterns/navigation-drawer.html (supplementary: ripple on selection)
+- the 2016 revision of the guidelines page `usability/accessibility` (supplementary: motion accessibility limits; 2016 capture)
 
 Vuetify 1.5.24 cross-check files (`/home/john/sites/vuetify1/packages/vuetify/src/`):
 

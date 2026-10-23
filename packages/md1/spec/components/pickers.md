@@ -8,14 +8,14 @@ Primary (fetched and read by this note's author):
 
 | URL | Note |
 |---|---|
-| http://web.archive.org/web/20181225002218/https://material.io/archive/guidelines/components/pickers.html | Requested `20181225002255`; served the 2018-12-25 02:22:18 capture. |
-| http://web.archive.org/web/20171229175953/https://material.io/guidelines/components/pickers.html | Requested `20180223140411`; served 2017-12-29. Same text. |
-| http://web.archive.org/web/20160924083422/https://material.google.com/components/pickers.html | Requested `20160604061521`; served 2016-09-24. Same text. |
-| http://web.archive.org/web/20181225002219im_/https://material.io/archive/guidelines/assets/0B3321sZLoP_HVWZOVkdRQlJEdDg/components-pickers-date1.png | Date and year picker, light, portrait (1520 x 1280 px). Same host for `components-pickers-date3.png` (light landscape), `date4.png` (dark portrait), `date5.png` (dark landscape), `components-pickers-time1.png` (light portrait), `time2.png` (light landscape), `time3.png` (dark portrait), `time4.png` (dark landscape), `components-pickers.png` (hero), videos `components-pickers-date-navigation-xhdpi-004.mp4` and `components-pickers-time-transition.mp4` (frames extracted with ffmpeg). |
+| https://m1.material.io/components/pickers.html | Archive copy dated 2018-12-25 02:22:18. |
+| the 2017 live guidelines page `components/pickers` | Copy dated 2017-12-29. Same text. |
+| the 2016 revision of the guidelines page `components/pickers` | Copy dated 2016-09-24. Same text. |
+| `components-pickers-date1.png` | Date and year picker, light, portrait (1520 x 1280 px). Same host for `components-pickers-date3.png` (light landscape), `date4.png` (dark portrait), `date5.png` (dark landscape), `components-pickers-time1.png` (light portrait), `time2.png` (light landscape), `time3.png` (dark portrait), `time4.png` (dark landscape), `components-pickers.png` (hero), videos `components-pickers-date-navigation-xhdpi-004.mp4` and `components-pickers-time-transition.mp4` (frames extracted with ffmpeg). |
 
 The page text contains no numbers. All metrics below are pixel measurements of the spec's own images, which are xhdpi renders (2 px per dp; verified by the 34 sp title and 40 dp selection target). Measured values are tagged `moderate`.
 
-Supporting pages, read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/<path>`): `components/dialogs.html` (dialog metrics), `material-design/elevation-shadows.html`, `style/typography.html`, `style/color.html`, `motion/duration-easing.html`, `components/selection-controls.html` (dark theme accent swatch).
+Supporting pages, read via the shared scratchpad extractions `m1-*.txt` of the same archive (canonical path `https://m1.material.io/<path>`): `components/dialogs.html` (dialog metrics), `material-design/elevation-shadows.html`, `style/typography.html`, `style/color.html`, `motion/duration-easing.html`, `components/selection-controls.html` (dark theme accent swatch).
 
 Vuetify 1.5.24 cross-check files: `stylus/components/_pickers.styl`, `_date-picker-title.styl`, `_date-picker-header.styl`, `_date-picker-table.styl`, `_date-picker-years.styl`, `_time-picker-title.styl`, `_time-picker-clock.styl`, `stylus/settings/_variables.styl`, `_theme.styl`, `components/VPicker/VPicker.ts`, `VDatePicker/VDatePicker.ts`, `VDatePicker/mixins/date-picker-table.ts`, `VTimePicker/VTimePicker.ts`, `VTimePicker/VTimePickerClock.ts`.
 

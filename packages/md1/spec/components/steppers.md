@@ -2,7 +2,7 @@
 
 ## Sources
 
-- Spec page: https://m1.material.io/components/steppers.html (Google-hosted frozen archive of the MD1 guidelines; `https://material.io/archive/guidelines/components/steppers.html` 301-redirects to it; fetched 2026-10-22, served gzip-encoded). The Wayback target `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/steppers.html` refused TCP connections for the whole session (rate limiting).
+- Spec page: https://m1.material.io/components/steppers.html (the MD1 guidelines Google hosts as an archive; fetched 2026-10-22, served gzip-encoded).
 - Spec sheets read visually and measured in pixels; all sheets render at 2 px per dp (calibrated on the 24 dp callouts, 48 px). Base URL `https://storage.googleapis.com/material-io-design/m1/assets/`:
   - `0Bzhp5Z4wHba3cGdLMGNvSWltT0k/components-acux-stepper-standard-rl.png` (horizontal step specs)
   - `0Bzhp5Z4wHba3OXNxYnA5eXBsdFU/components-acux-stepper-optstp-rl.png` (optional step specs)

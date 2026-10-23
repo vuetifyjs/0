@@ -6,8 +6,8 @@ Pattern page `patterns/scrolling-techniques.html`. Ruling (see `rulings.md`): **
 
 | Source | Location | Read |
 |---|---|---|
-| MD1 spec, Scrolling techniques | `https://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html` (2018-12-25 00:21:45 capture) | yes, full text; a raw sweep of the HTML for every `dp` and `sp` token found nothing beyond the text below |
-| MD1 spec, Gestures (reveal upon scroll) | `https://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html` | yes, full text |
+| MD1 spec, Scrolling techniques | `https://m1.material.io/patterns/scrolling-techniques.html` (2018-12-25 00:21:45 capture) | yes, full text; a raw sweep of the HTML for every `dp` and `sp` token found nothing beyond the text below |
+| MD1 spec, Gestures (reveal upon scroll) | `https://m1.material.io/patterns/gestures.html` | yes, full text |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_toolbar.styl`, `_system-bars.styl`, `_tabs.styl` (heights only), `src/stylus/settings/_variables.styl`, `_theme.styl`, `src/components/VToolbar/VToolbar.ts`, `src/components/VSystemBar/VSystemBar.ts` | yes |
 
 Confidence legend: `high` = read on the spec page named; `moderate` = Vuetify 1.5 source only; `low` = memory.

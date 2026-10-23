@@ -4,21 +4,21 @@ Spec page: `components/toolbars.html`. Material Design 1 components: `Md1Toolbar
 
 ## Sources
 
-| Source | URL (snapshot) | Read |
+| Source | URL (copy read) | Read |
 |---|---|---|
-| MD1 archived spec, Toolbars | `https://web.archive.org/web/20181225002140/https://material.io/archive/guidelines/components/toolbars.html` (requested `20181225002255`, archive resolved to `20181225002140`) | full text |
-| MD1 Layout, Structure (Toolbars, App bar, System bars sections) | `https://web.archive.org/web/20181225002252/https://material.io/archive/guidelines/layout/structure.html` | full text |
-| MD1 Layout, Metrics and keylines | `https://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html` | full text |
-| MD1 Patterns, Scrolling techniques | `https://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html` | full text |
-| MD1 Patterns, Search (expandable search in the toolbar) | `https://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html` (requested `20181225002255`, archive resolved to `20210805023955`) | full text |
-| MD1 Patterns, Selection (toolbar in selection mode, text selection toolbar) | `https://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html` | full text |
-| MD1 Components, Menus (action overflow) | `https://web.archive.org/web/20181225002215/https://material.io/archive/guidelines/components/menus.html` | usage section |
-| MD1 Style, Typography | `https://web.archive.org/web/20181225002206/https://material.io/archive/guidelines/style/typography.html` | app bar rule and type scale image |
-| MD1 Style, Color (themes, text and icon opacity) | `https://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html` | full text plus theme palette images `style-color-themes-light1.png`, `style-color-themes-dark1.png` |
-| MD1 Material design, Elevation and shadows | `https://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html` | full text |
-| MD1 Motion, Duration and easing | `https://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html` | full text |
-| 2016 Google Design spec, Toolbars and Structure (cross-check) | `https://web.archive.org/web/20160604061521/http://www.google.com/design/spec/components/toolbars.html` (resolved to nearest snapshot), `https://web.archive.org/web/20160606152517/http://www.google.com/design/spec/layout/structure.html` | full text; app bar metrics identical to 2018 |
-| 2015 Google Design spec, Selection (search for "contextual action bar") | `https://web.archive.org/web/20150226205547/http://www.google.com/design/spec/patterns/selection.html` | term not present |
+| MD1 archived spec, Toolbars | `https://m1.material.io/components/toolbars.html` (archive copy dated 2018-12-25 00:21:40) | full text |
+| MD1 Layout, Structure (Toolbars, App bar, System bars sections) | `https://m1.material.io/layout/structure.html` | full text |
+| MD1 Layout, Metrics and keylines | `https://m1.material.io/layout/metrics-keylines.html` | full text |
+| MD1 Patterns, Scrolling techniques | `https://m1.material.io/patterns/scrolling-techniques.html` | full text |
+| MD1 Patterns, Search (expandable search in the toolbar) | `https://m1.material.io/patterns/search.html` (archive copy dated 2021-08-05 02:39:55) | full text |
+| MD1 Patterns, Selection (toolbar in selection mode, text selection toolbar) | `https://m1.material.io/patterns/selection.html` | full text |
+| MD1 Components, Menus (action overflow) | `https://m1.material.io/components/menus.html` | usage section |
+| MD1 Style, Typography | `https://m1.material.io/style/typography.html` | app bar rule and type scale image |
+| MD1 Style, Color (themes, text and icon opacity) | `https://m1.material.io/style/color.html` | full text plus theme palette images `style-color-themes-light1.png`, `style-color-themes-dark1.png` |
+| MD1 Material design, Elevation and shadows | `https://m1.material.io/material-design/elevation-shadows.html` | full text |
+| MD1 Motion, Duration and easing | `https://m1.material.io/motion/duration-easing.html` | full text |
+| 2016 Google Design spec, Toolbars and Structure (cross-check) | the 2016 revision of the guidelines page `components/toolbars`, the 2016 revision of the guidelines page `layout/structure` | full text; app bar metrics identical to 2018 |
+| 2015 Google Design spec, Selection (search for "contextual action bar") | the 2015 revision of the guidelines page `patterns/selection` | term not present |
 | Vuetify 1.5.24 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_toolbar.styl`, `src/components/VToolbar/VToolbar.ts`, `src/stylus/settings/_variables.styl`, `_theme.styl`, `_elevations.styl`, `components/_tabs.styl`, `components/_footer.styl` | cross-check |
 
 ## 1. Purpose and usage

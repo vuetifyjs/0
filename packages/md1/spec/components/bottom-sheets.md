@@ -4,15 +4,15 @@ Spec page: Components > Bottom sheets. Covers modal and persistent bottom sheets
 
 ## Sources
 
-| Tag | URL | Snapshot | Used for |
+| Tag | URL | Copy read | Used for |
 |---|---|---|---|
-| A18 | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-sheets.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
-| G16 | https://web.archive.org/web/20160604061521/http://www.google.com/design/spec/components/bottom-sheets.html | 2016-06-04 06:15:21 UTC | version cross-check; grid-style metrics changed between versions |
-| ELEV | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | 16dp modal bottom sheet elevation |
-| MOTION | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
-| COLOR | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/color.html | 2018-12-25 00:22:55 UTC | text opacities |
-| KEY | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | ratio keyline formula, increments, list keylines |
-| BNAV | https://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-navigation.html | 2018-12-25 00:22:55 UTC | bottom sheets cover the bottom navigation bar |
+| A18 | https://m1.material.io/components/bottom-sheets.html | 2018-12-25 00:22:55 UTC | primary, authoritative |
+| G16 | the 2016 revision of the guidelines page `components/bottom-sheets` | 2016-06-04 06:15:21 UTC | version cross-check; grid-style metrics changed between versions |
+| ELEV | https://m1.material.io/material-design/elevation-shadows.html | 2018-12-25 00:22:55 UTC | 16dp modal bottom sheet elevation |
+| MOTION | https://m1.material.io/motion/duration-easing.html | 2018-12-25 00:22:55 UTC | durations and curves |
+| COLOR | https://m1.material.io/style/color.html | 2018-12-25 00:22:55 UTC | text opacities |
+| KEY | https://m1.material.io/layout/metrics-keylines.html | 2018-12-25 00:22:55 UTC | ratio keyline formula, increments, list keylines |
+| BNAV | https://m1.material.io/components/bottom-navigation.html | 2018-12-25 00:22:55 UTC | bottom sheets cover the bottom navigation bar |
 | V15 | `/home/john/sites/vuetify1/packages/vuetify/src/stylus/components/_bottom-sheets.styl`, `_dialogs.styl`, `_overlay.styl`, `settings/_variables.styl`, `components/VBottomSheet/VBottomSheet.js` | Vuetify 1.5.24 | cross-check |
 
 Fetch notes: fetched with `curl -sL` over HTTPS; text extracted from static HTML. Redline images carry no alt text; image-only values are recorded as `not found`.

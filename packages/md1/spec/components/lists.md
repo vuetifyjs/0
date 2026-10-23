@@ -4,16 +4,16 @@ Material Design 1 spec page `components/lists.html`, pinned for `@paper/md1` (`M
 
 ## Sources
 
-Primary (fetched and read by this note's author; Wayback resolved the requested 2018-12-25 timestamp to the captures listed):
+Primary (fetched and read by this note's author; dates are those of the archive copies read):
 
 | URL | Note |
 |---|---|
-| http://web.archive.org/web/20210805024943/https://material.io/archive/guidelines/components/lists.html | Requested `20181225002255`; the archive has no 2018-12-25 capture of this path and served 2021-08-05. Text identical to the 2018-01-19 capture. |
-| http://web.archive.org/web/20180119205824/https://material.io/guidelines/components/lists.html | Requested `20180223140411`; served 2018-01-19. |
-| http://web.archive.org/web/20160530205119/http://www.google.com/design/spec/components/lists.html | Requested `20160604061521`; served 2016-05-30. Adds one line the later captures dropped: "List right margin: 56dp". |
-| http://web.archive.org/web/20160530205119im_/http://material-design.storage.googleapis.com/publish/material_v_8/material_ext_publish/0B6Okdz75tqQsYzdVRGozRHVYbms/components_lists_keylines1.png | Keyline redline (16, 72, 16, 56 labels). Same host and timestamp for `components_lists_keylines3/4/5/6.png`, `components_lists_keylines_single2/5/5_dense/8/11.png`, `components_lists_keylines_two5/5_dense.png`, `components_lists_keylines_three2_dense.png`, `components_lists_content1.png`. The 2021 capture of the same images returns 404. All redline images are xhdpi (2 px per dp); measured values below are divided by 2. |
+| https://m1.material.io/components/lists.html | Copy read: 2021-08-05 (no 2018-12-25 copy of this path exists). Text identical to the early-2018 live guidelines. |
+| the 2018 live guidelines page `components/lists` | Copy dated 2018-01-19. |
+| the 2016 revision of the guidelines page `components/lists` | Copy dated 2016-05-30. Adds one line the later revisions dropped: "List right margin: 56dp". |
+| `components_lists_keylines1.png` (2016 revision artwork, not linked) | Keyline redline (16, 72, 16, 56 labels). Same 2016 revision for `components_lists_keylines3/4/5/6.png`, `components_lists_keylines_single2/5/5_dense/8/11.png`, `components_lists_keylines_two5/5_dense.png`, `components_lists_keylines_three2_dense.png`, `components_lists_content1.png`. The 2021 capture of the same images returns 404. All redline images are xhdpi (2 px per dp); measured values below are divided by 2. |
 
-Supporting pages, read from the shared scratchpad text extractions `m1-*.txt` produced by a sibling researcher from the same archive (canonical path `http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/<path>`; not fetched by this author): `components/subheaders.html`, `components/dividers.html`, `style/color.html`, `style/typography.html`, `material-design/elevation-shadows.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html`, `components/buttons.html` (state overlay opacities only).
+Supporting pages, read from the shared scratchpad text extractions `m1-*.txt` produced by a sibling researcher from the same archive (canonical path `https://m1.material.io/<path>`; not fetched by this author): `components/subheaders.html`, `components/dividers.html`, `style/color.html`, `style/typography.html`, `material-design/elevation-shadows.html`, `motion/duration-easing.html`, `layout/metrics-keylines.html`, `components/buttons.html` (state overlay opacities only).
 
 Vuetify 1.5.24 cross-check files: `packages/vuetify/src/stylus/components/_lists.styl`, `_subheaders.styl`, `_dividers.styl`, `stylus/settings/_variables.styl`, `_theme.styl`, `components/VList/VListTileAvatar.ts`, `VList/VListTile.ts`, `VAvatar/VAvatar.ts`, `VIcon/VIcon.ts`.
 
