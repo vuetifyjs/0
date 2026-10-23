@@ -10,7 +10,13 @@
 
     <QuIconToggle aria-label="Star" disabled icon="star-border" icon-on="star" />
 
-    <QuIconToggle aria-label="Star" disabled icon="star-border" icon-on="star" :model-value="true" />
+    <QuIconToggle
+      aria-label="Star"
+      disabled
+      icon="star-border"
+      icon-on="star"
+      :model-value="true"
+    />
   </div>
 </template>
 

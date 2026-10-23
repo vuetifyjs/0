@@ -4,7 +4,13 @@
 
 <template>
   <div class="quantum-docs-sliders">
-    <QuSlider disabled icon-end="add" icon-start="remove" label="Call volume" :model-value="50" />
+    <QuSlider
+      disabled
+      icon-end="add"
+      icon-start="remove"
+      label="Call volume"
+      :model-value="50"
+    />
 
     <QuSlider disabled editable label="Contrast" :model-value="20" />
   </div>
