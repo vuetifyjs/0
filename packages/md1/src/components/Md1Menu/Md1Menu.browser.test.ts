@@ -222,6 +222,30 @@ describe('quMenu', () => {
       expect(Math.round(rect.top)).toBe(Math.round(anchor.bottom))
       expect(Math.round(rect.left)).toBe(Math.round(anchor.left))
     })
+
+    // A handset menu under a centred control near the bottom edge is wider than the room on either side of
+    // the control, so every start- or end-aligned area overflowed and the browser kept the base position:
+    // the sheet hung past the bottom of the screen instead of rising above the control.
+    it('should rise above a centred trigger near the bottom edge when the sheet is wider than either side', async () => {
+      const width = Math.round(window.innerWidth * 0.7)
+      const host = menu(() => [
+        h(Md1MenuItem, null, () => h('span', { style: `display: inline-block; width: ${width}px` })),
+        h(Md1MenuItem, null, () => 'Settings'),
+      ], { props: { desktop: true } })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '50%', bottom: '8px', translate: '-50% 0' })
+      await settle()
+
+      await show(host)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const anchor = trigger(host).getBoundingClientRect()
+      const rect = sheet().getBoundingClientRect()
+
+      expect(rect.bottom).toBeLessThanOrEqual(anchor.top + 1)
+      expect(rect.top).toBeGreaterThanOrEqual(0)
+      expect(rect.left).toBeGreaterThanOrEqual(0)
+      expect(rect.right).toBeLessThanOrEqual(window.innerWidth)
+    })
   })
 
   describe('metrics', () => {

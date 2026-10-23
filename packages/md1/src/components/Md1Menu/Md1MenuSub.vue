@@ -91,7 +91,7 @@
       :eager
       :namespace
       position-area="inline-end span-block-end"
-      position-try="flip-inline, flip-block, --md1-menu-sub-fit"
+      position-try="flip-inline, flip-block, --md1-menu-sub-fit, --md1-menu-sub-wide, --md1-menu-sub-wide-flip, --md1-menu-sub-wide-fit"
     >
       <div class="md1-menu__list">
         <slot />

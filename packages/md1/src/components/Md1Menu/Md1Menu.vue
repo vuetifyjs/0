@@ -196,17 +196,54 @@
   /*
    * Near a screen edge the whole sheet moves so every item stays visible, and
    * when neither block side has the room it scrolls internally. The browser
-   * tries the opposite side first; this last resort keeps the first side and
-   * caps the sheet at the room left there, less the edge margin. Position try
-   * names, not design tokens.
+   * tries the opposite side first. A sheet wider than the room on either side
+   * of the emitting element (a handset menu under a centred control) fails
+   * every start- or end-aligned area, so the `-wide` areas span the whole
+   * screen and centre the sheet on the element, which the screen edge then
+   * pushes back inside. The `-fit` areas are the last resort: they keep the
+   * first side and cap the sheet at the room left there, less the edge
+   * margin. Position try names, not design tokens.
    */
+  @position-try --md1-menu-wide {
+    position-area: block-end span-all;
+    justify-self: anchor-center;
+  }
+
+  @position-try --md1-menu-wide-flip {
+    position-area: block-start span-all;
+    justify-self: anchor-center;
+  }
+
   @position-try --md1-menu-fit {
     position-area: block-end span-inline-end;
     max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
   }
 
+  @position-try --md1-menu-fit-wide {
+    position-area: block-end span-all;
+    justify-self: anchor-center;
+    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+  }
+
   @position-try --md1-menu-sub-fit {
     position-area: inline-end span-block-end;
+    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+  }
+
+  /* A sub menu with no room beside its parent on either side drops below its parent row, over the parent sheet, or rises above it; capped as the last resort. */
+  @position-try --md1-menu-sub-wide {
+    position-area: block-end span-all;
+    justify-self: anchor-center;
+  }
+
+  @position-try --md1-menu-sub-wide-flip {
+    position-area: block-start span-all;
+    justify-self: anchor-center;
+  }
+
+  @position-try --md1-menu-sub-wide-fit {
+    position-area: block-end span-all;
+    justify-self: anchor-center;
     max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
   }
 
