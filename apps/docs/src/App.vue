@@ -374,9 +374,12 @@
       position: relative;
 
       /* Long API tokens (useIntersectionObserver, SUPPORTS_*) must break
-         instead of widening the layout viewport on phones. */
+         instead of widening the layout viewport on phones. Prose only: a
+         Material Design 1 heading inside a live example keeps its own wrap. */
       @media (max-width: 767px) {
-        overflow-wrap: anywhere;
+        &:not(.genesis-docs-example-preview__panel[data-theme^='md1-'] *) {
+          overflow-wrap: anywhere;
+        }
       }
 
       > .header-anchor {
@@ -498,7 +501,9 @@
       }
     }
 
-    p {
+    /* Prose paragraphs only: a Material Design 1 example sets its own
+       paragraph spacing, which a single-class rule there cannot win against. */
+    p:not(.genesis-docs-example-preview__panel[data-theme^='md1-'] p) {
       margin-bottom: .5rem;
     }
 
