@@ -17,7 +17,7 @@
   /* The frame is the query container: the sheet only scrolls once the frame is narrower than it. */
   .md1-docs-landscape {
     container-type: inline-size;
-    padding: var(--md1-spacing-3, 24px) 0 var(--md1-spacing-5, 40px);
+    padding: var(--md1-spacing-3, 24px) 0;
   }
 
   /*

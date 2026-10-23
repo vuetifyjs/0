@@ -23,7 +23,8 @@
   }
 
   .md1-docs-picker {
-    margin: var(--md1-spacing-3, 24px);
+    max-width: 100%;
+    margin: var(--md1-spacing-3, 24px) 0;
     border-radius: var(--md1-radius, 2px);
   }
 </style>

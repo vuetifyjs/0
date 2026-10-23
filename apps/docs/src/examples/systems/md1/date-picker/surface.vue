@@ -26,7 +26,8 @@
 
   /* The picker's own surface at the dialog's 24 dp, shown without the dialog so the anatomy reads at a glance. */
   .md1-docs-picker {
-    margin: var(--md1-spacing-3, 24px);
+    max-width: 100%;
+    margin: 0 0 var(--md1-spacing-1, 8px);
     border-radius: var(--md1-radius, 2px);
   }
 
