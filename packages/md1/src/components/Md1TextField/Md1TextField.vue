@@ -746,6 +746,12 @@
     opacity: 1;
   }
 
+  /* `type="search"`: the clear button is the field's own; the engine's cancel glyph would draw a second one. */
+  .md1-text-field__input::-webkit-search-cancel-button,
+  .md1-text-field__input::-webkit-search-decoration {
+    appearance: none;
+  }
+
   /* Prefix and suffix: formatting shows only when the field is pressed, focused or filled. */
   .md1-text-field__prefix,
   .md1-text-field__suffix {

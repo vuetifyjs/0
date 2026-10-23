@@ -93,9 +93,8 @@ function serialize (value: string, property: 'color' | 'boxShadow' = 'color'): s
 }
 
 /**
- * The line's colour derives from the hover overlay at runtime, so it computes
- * as `color(srgb ...)` and carries the 8-bit rounding of its source: compare
- * it as channels within half a percent.
+ * The line's colour derives from the primary ink at runtime, so it computes
+ * as `color(srgb ...)`: compare it as channels within a percent and a half.
  */
 function ink (value: string): number[] {
   const numbers = [...value.matchAll(/[\d.]+/g)].map(match => Number(match[0]))
@@ -538,6 +537,19 @@ describe('quTextField', () => {
       await userEvent.click(mic)
 
       expect(onVoice).toHaveBeenCalledTimes(1)
+    })
+
+    it('should draw only its own clear button on a search field', async () => {
+      const { input } = field({ clearable: true, type: 'search' }, 'x')
+      await settle()
+
+      // getComputedStyle cannot read the engine's search pseudo-elements, so find the rule that hides the cancel glyph.
+      const rules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]).filter(
+        (rule): rule is CSSStyleRule => rule instanceof CSSStyleRule && rule.selectorText.includes('::-webkit-search-cancel-button'),
+      )
+
+      expect(input.type).toBe('search')
+      expect(rules.some(rule => input.matches(rule.selectorText.split(',')[0]!.replace('::-webkit-search-cancel-button', '')) && rule.style.appearance === 'none')).toBe(true)
     })
 
     it('should give each trailing glyph a 24 dp box and a 48 dp target, 8 dp from its neighbour', async () => {
