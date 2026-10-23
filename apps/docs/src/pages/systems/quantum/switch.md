@@ -1,0 +1,128 @@
+---
+title: QuSwitch - Quantum Switch for Vue
+meta:
+- name: description
+  content: The Material Design 1 switch, a 20 dp thumb at 1 dp elevation over a 36 x 14 dp track in the accent colour when on, with its inline label, disabled and dark theme values. Built on Vuetify0's Switch.
+- name: keywords
+  content: quantum switch, material design 1 switch, selection controls, toggle switch, vue switch, vuetify0 switch, paper quantum
+features:
+  category: Component
+  label: 'C: QuSwitch'
+  level: 2
+  renderless: false
+  group: forms
+  order: 4
+related:
+  - /systems/quantum
+  - /systems/quantum/checkbox
+  - /systems/quantum/radio
+  - /components/forms/switch
+---
+
+# QuSwitch
+
+<DocsPageFeatures :frontmatter />
+
+The Material Design 1 switch. It turns a single setting on or off, and its inline label says which setting.
+
+> [!NOTE]
+> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page Quantum is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
+
+## Usage
+
+`QuSwitch` is a shell component: `v-model` is a boolean and `label` is the inline label. The guidelines require that label: the option the switch controls, and its state, must be clear from it.
+
+::: ds-example
+/systems/quantum/switch/basic
+:::
+
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { QuSwitch } from '@paper/quantum'
+</script>
+
+<template>
+  <QuSwitch />
+</template>
+```
+
+## Composed on Vuetify0
+
+`QuSwitch` renders v0's [Switch](/components/forms/switch) compound, `Switch.Root`, `Switch.Track` and `Switch.Thumb`, inside a native `<label>`. The root is a `<button role="switch">` that owns the model, `aria-checked`, the Space and click handlers and the hidden input added under `name`; the track and thumb are `aria-hidden` and carry `data-state`.
+
+v0 hard-codes `dir="ltr"` on the track so the thumb's travel is the same in every direction. Quantum mirrors the track with `scaleX(-1)` under right-to-left text, so the off thumb rests at the start edge there too.
+
+The first child of the button is an unbounded [QuRipple](/systems/quantum/ripple). Its ink is centred on the thumb and travels with it; under a fine pointer it is hidden, because the guidelines draw the radial reaction only where touch is favoured.
+
+## Examples
+
+::: ds-example
+/systems/quantum/switch/states
+
+### On, off and disabled
+
+The track is a 36 x 14 dp pill; the thumb is a 20 dp circle that overhangs it by 3 dp above and below, sits flush with either end and travels 16 dp. The thumb rests at 1 dp, the switch's entry on the elevation page.
+
+Off, the thumb is Grey 50 on a 38% black track. On, the thumb takes the accent colour and the track the same colour at 50%. Disabled, in either position, the thumb is Grey 400 on a 12% black track, and the label takes the disabled text ink.
+
+The dark theme changes every one of those: Grey 400 on a 30% white track off, the accent's 200 shade (`--quantum-accent-control`, Pink 200) for thumb and track on, Grey 800 on a 10% white track disabled. Unlike the checkbox and radio, which keep the accent itself on dark, the switch moves to the lighter shade.
+
+Stack switches as this example does: the 48 dp target reaches 14 dp beyond the control, so side by side at an 8 dp gap it would cover the end of the previous label.
+:::
+
+::: ds-example
+/systems/quantum/switch/settings
+
+### A settings column
+
+Switches suit independent settings that take effect at once. Each row is 48 dp tall with the label 8 dp from the control, so a column of switches keeps the touch targets apart without extra spacing; the 8 dp gap is a Quantum decision, as the page gives no value.
+
+When a switch sits in a list tile, the tile's text names it: place it in the tile's secondary action column and pass `ariaLabel` instead of `label`, so the setting is not read twice.
+:::
+
+## Props
+
+<!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
+     @paper/* packages; once the generator covers the design systems this table
+     is replaced by <DocsApi />. Keep it in sync with QuSwitch.vue until then. -->
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modelValue` | `boolean` | | `v-model`: on or off |
+| `label` | `string` | | The inline label naming the setting; the control's `aria-labelledby` points at it. The default slot replaces it |
+| `disabled` | `boolean` | `false` | Grey 400 thumb on a 12% track (Grey 800 on 10% white on dark), no activation, no ripple |
+| `value` | `unknown` | | Value submitted through the hidden input, and the ticket value inside a v0 `Switch.Group` |
+| `name` | `string` | | Form field name; renders v0's hidden checkbox input, checked with the model |
+| `ariaLabel` | `string` | | Accessible name for a switch with no visible label |
+| `namespace` | `string` | | The context key `Switch.Root` provides to the track and thumb |
+
+The default slot is the label. There are no named slots.
+
+## Accessibility
+
+The control is a `<button role="switch">` with `aria-checked`, the WAI-ARIA Switch pattern. Its name is the inline label, through `aria-labelledby`. A switch with no visible label takes `ariaLabel`, or an `aria-labelledby` naming the list tile text, which Quantum moves from the `<label>` root onto the control. Quantum warns in development when a switch has no name. Keep the label stable: the switch already announces on and off, so a label that flips with the state says it twice.
+
+### Keyboard
+
+| Key | Behavior |
+|-----|----------|
+| Tab, Shift+Tab | Moves focus to and from the switch |
+| Space | Toggles the switch |
+| Enter | Toggles the switch (the native button's activation) |
+
+### Focus
+
+Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black off (10% white on dark) and 10% of the accent on. Quantum draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink. A focused disabled switch draws the grey halo, on or off, as the spec sheets draw the disabled focused state.
+
+### Disabled
+
+| State | Attributes set | Focusable | Activation |
+|-------|----------------|-----------|------------|
+| enabled | `tabindex="0"` | Yes | Space, Enter, click on the switch or label |
+| `disabled` | `aria-disabled="true"`, `data-disabled` | Yes: the button stays in the tab order, so the setting is still discoverable | Blocked |
+
+### Touch target
+
+The radial reaction is also the hit area: a 48 dp circle around the thumb. The whole label row is a click target as well.
