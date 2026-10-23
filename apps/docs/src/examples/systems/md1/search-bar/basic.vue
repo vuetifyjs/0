@@ -6,7 +6,7 @@
   const submitted = shallowRef<string>()
 
   const recent = ['Lisbon', 'Hiking trails near me']
-  const places = ['Lisbon', 'Lima', 'Lille', 'Limerick', 'Lyon']
+  const places = ['Lima', 'Lille', 'Limerick', 'Ljubljana', 'Lyon']
 
   function onSubmit (value: string) {
     submitted.value = value
