@@ -17,20 +17,52 @@
 }
 
 /*
- * Docs links on the dark theme. The shell colours prose, table and footnote
- * links with `--v0-primary`, Indigo 500, which reads at about 1.5:1 on the
- * Grey 800 sheet and 1.9:1 on the #303030 background. They take the
- * primary's 100 instead, the package's own rule for primary ink on a dark
- * surface (Md1Subheader, Md1List). Links inside a live example keep the
- * example's colours.
+ * Docs shell colours. The token sheet bridges the package roles onto `--v0-*`
+ * for every `[data-theme="md1-*"]` element, and it lands after the docs
+ * palette, so these overrides sit on `:root` alone: the shell repaints, while
+ * an example panel carries its own `data-theme` and keeps the package values.
+ *
+ * The shell uses each role mostly as ink (navigation, links, overlines,
+ * callout titles, focus rings), and the package's 500 / A200 / A400 swatches
+ * read at 1.5 to 3.6:1 as ink on the dark #303030 / Grey 800 surfaces. On
+ * dark, ink takes the light tone (lead decision 12: primary 100; the accent's
+ * 200, the package's dark accent ink; the 200 of each severity) with black
+ * ink on the few fills. On light, the severities and accent take the darkest
+ * tone that clears 4.5:1 inside a 10% callout tint. Indigo 800 and Indigo 50
+ * are the tints that carry secondary ink: Indigo 700 and Indigo 100 pass only
+ * full-strength ink.
  */
-:root[data-theme="md1-dark"] .markdown-body .v0-link:not(.genesis-docs-example-preview *) {
-  color: var(--md1-primary-light, #C5CAE9);
+:root[data-theme="md1-dark"] {
+  --v0-primary: #C5CAE9; /* Indigo 100: 8.2:1 on #303030, 6.2:1 on Grey 800 */
+  --v0-on-primary: rgba(0, 0, 0, 0.87);
+  --v0-secondary: #F48FB1; /* Pink 200 */
+  --v0-on-secondary: rgba(0, 0, 0, 0.87);
+  --v0-accent: #F48FB1;
+  --v0-on-accent: rgba(0, 0, 0, 0.87);
+  --v0-error: #EF9A9A; /* Red 200 */
+  --v0-on-error: rgba(0, 0, 0, 0.87);
+  --v0-info: #90CAF9; /* Blue 200 */
+  --v0-on-info: rgba(0, 0, 0, 0.87);
+  --v0-success: #A5D6A7; /* Green 200 */
+  --v0-on-success: rgba(0, 0, 0, 0.87);
+  --v0-warning: #FFCC80; /* Orange 200 */
+  --v0-on-warning: rgba(0, 0, 0, 0.87);
+  --v0-surface-tint: #283593; /* Indigo 800: 60% white reads 4.8:1 */
+}
+
+:root[data-theme="md1-light"] {
+  --v0-secondary: #C51162; /* Pink A700 */
+  --v0-accent: #C51162;
+  --v0-error: #C62828; /* Red 800 */
+  --v0-info: #1565C0; /* Blue 800 */
+  --v0-success: #1B5E20; /* Green 900 */
+  --v0-warning: #BF360C; /* Deep Orange 900: no orange clears 4.5:1 on white */
+  --v0-surface-tint: #E8EAF6; /* Indigo 50 */
 }
 
 /*
  * Inline code on the light theme. The shell's chip pairs `--v0-surface-tint`,
- * Indigo 100, with secondary ink, 54% black, which reads at 4.0:1. The chip
+ * Indigo 50, with secondary ink, 54% black, which reads at 4.4:1. The chip
  * takes the Grey 100 surface variant and primary ink instead, 15:1; secondary
  * ink on Grey 100 would land at 4.496:1, just under the 4.5:1 floor. Code
  * inside a live example keeps the example's colours.
