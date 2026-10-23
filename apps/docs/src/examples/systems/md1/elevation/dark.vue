@@ -52,14 +52,16 @@
   .md1-docs-elevation-theme-sheets {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--md1-spacing-3, 24px);
+    gap: var(--md1-spacing-2, 16px);
   }
 
   .md1-docs-elevation-theme-sheet {
     display: flex;
     align-items: flex-end;
     height: 80px;
-    padding: var(--md1-spacing-1, 8px) var(--md1-spacing-2, 16px);
+    padding: var(--md1-spacing-1, 8px);
+    /* One line for "24 dp" in the three-up row on a phone. */
+    white-space: nowrap;
     background: var(--md1-surface, #FFFFFF);
     border-radius: var(--md1-radius, 2px);
   }

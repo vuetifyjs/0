@@ -58,7 +58,9 @@
     justify-content: flex-end;
     gap: 4px;
     height: 96px;
-    padding: var(--md1-spacing-2, 16px);
+    /* 12 dp sides keep "md1-elevation-24" on one line in the 120 dp column. */
+    padding: var(--md1-spacing-2, 16px) 12px;
+    white-space: nowrap;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
     background: var(--md1-surface, #FFFFFF);
     border-radius: var(--md1-radius, 2px);
