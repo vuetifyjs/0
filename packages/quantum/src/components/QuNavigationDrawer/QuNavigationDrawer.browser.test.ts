@@ -752,7 +752,7 @@ describe('quNavigationDrawer', () => {
       expect(host.querySelector('#sent')!.hasAttribute('aria-current')).toBe(false)
     })
 
-    it('should colour a bare-text current destination in the primary colour too', async () => {
+    it('should colour a bare-text current destination in the primary colour too, its 100 on the dark theme', async () => {
       const current = shallowRef<unknown>('inbox')
       const host = mount(() => h(QuNavigationDrawer, { type: 'permanent' }, () => [
         h(QuNavigationDrawer.Content, () => h(QuList, {
@@ -765,10 +765,18 @@ describe('quNavigationDrawer', () => {
           h(QuList.Item, { value: 'sent', id: 'sent' }, () => [h(QuList.Icon, { name: 'send' }), 'Sent mail']),
         ])),
       ]))
+      const dark = mount(() => h('div', { 'data-theme': 'quantum-dark' }, [
+        h(QuNavigationDrawer, { type: 'permanent' }, () => [
+          h(QuNavigationDrawer.Content, () => h(QuList, { modelValue: 'inbox' }, () => [
+            h(QuList.Item, { value: 'inbox', id: 'dark-inbox' }, () => [h(QuList.Icon, { name: 'inbox' }), 'Inbox']),
+          ])),
+        ]),
+      ]))
       await settle()
 
       expect(getComputedStyle(host.querySelector('#inbox .quantum-list__body')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(host.querySelector('#sent .quantum-list__body')!).color).toBe('rgba(0, 0, 0, 0.87)')
+      expect(getComputedStyle(dark.querySelector('#dark-inbox .quantum-list__body')!).color).toBe('rgb(197, 202, 233)')
     })
 
     it('should keep 8 dp above and below a full-bleed divider between groupings', async () => {
@@ -829,7 +837,7 @@ describe('quNavigationDrawer', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes, the current destination in the primary\'s 100 on the dark one', async () => {
       style(new QuantumStyleSheetAdapter().generate({ 'quantum-light': quantumColors, 'quantum-dark': quantumDarkColors }))
 
       const light = drawer({ bare: true, props: { type: 'permanent' }, host: { 'data-theme': 'quantum-light' } })
@@ -840,6 +848,11 @@ describe('quNavigationDrawer', () => {
       expect(getComputedStyle(sheet(dark)).backgroundColor).toBe('rgb(66, 66, 66)')
       expect(getComputedStyle(dark.querySelector('#sent .quantum-list__primary')!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(sheet(dark)).borderRightColor).toBe('rgba(255, 255, 255, 0.12)')
+      // Indigo 500 reads at under 2:1 on Grey 800, so the current destination takes Indigo 100 (Lead decision 12).
+      expect(getComputedStyle(dark.querySelector('#inbox .quantum-list__primary')!).color).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(dark.querySelector('#inbox .quantum-list__icon')!).color).toBe('rgb(197, 202, 233)')
+      // The header is a primary fill and keeps the primary 500.
+      expect(getComputedStyle(dark.querySelector('.quantum-navigation-drawer__header')!).backgroundColor).toBe('rgb(63, 81, 181)')
     })
   })
 })
