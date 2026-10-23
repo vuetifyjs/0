@@ -47,7 +47,7 @@
   }))
 
   const done = useTimer(() => {
-    messages.value.unshift({ id: next, from: 'MD1', text: `New message ${next}` })
+    messages.value.unshift({ id: next, from: 'Material Design 1', text: `New message ${next}` })
     next++
     refreshing.value = false
     pull.value = 0

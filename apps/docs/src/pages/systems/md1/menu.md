@@ -1,5 +1,5 @@
 ---
-title: Md1Menu - MD1 Menu for Vue
+title: Md1Menu - Material Design 1 Menu for Vue
 meta:
 - name: description
   content: The Material Design 1 menu, a transient 8 dp sheet of choices in handset, dense and desktop metrics, with check items, groups and cascading sub menus. Built on Vuetify0's Menu.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 menu: a temporary sheet of choices that opens from a button and closes once one is chosen. It comes in handset, dense and desktop metrics, with check items, grouped sections and cascading sub menus.
 
 > [!NOTE]
-> Reference: [Menus, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/menus.html), the archived page MD1 is pinned to. Metrics, widths, elevation, states and behavior. This page is the Vue.
+> Reference: [Menus, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/menus.html), the archived page Material Design 1 is pinned to. Metrics, widths, elevation, states and behavior. This page is the Vue.
 
 ## Usage
 
@@ -68,9 +68,9 @@ The Material Design 1 menu: a temporary sheet of choices that opens from a butto
 
 `Md1Menu` renders v0's [Menu](/components/disclosure/menu) compound and keeps its behavior: `Menu.Root` owns the open path, `Menu.Activator` the trigger wiring, `Menu.Content` the native popover with its roving focus, typeahead, Escape and light dismiss, `Menu.Item` and `Menu.CheckboxItem` the rows, `Menu.Separator` the divider, and `Menu.Sub` with `Menu.SubActivator` and `Menu.SubContent` the cascading layer, folded into the single `Md1Menu.Sub` part. The placement is CSS anchor positioning through v0's popover adapter.
 
-MD1 adds the spec around it. The sheet's width, elevation and motion are MD1's stylesheet; `data-dense` and `data-desktop` on the sheet and `data-selected` and `data-icon` on a row are MD1's own attributes, while `data-open`, `data-highlighted`, `data-disabled` and `data-state` are v0's. Every row hosts a [Md1Ripple](/systems/md1/ripple), and every glyph (the leading icon, the check, the sub menu triangle) draws through [Md1Icon](/systems/md1/icon).
+Material Design 1 adds the spec around it. The sheet's width, elevation and motion are Material Design 1's stylesheet; `data-dense` and `data-desktop` on the sheet and `data-selected` and `data-icon` on a row are Material Design 1's own attributes, while `data-open`, `data-highlighted`, `data-disabled` and `data-state` are v0's. Every row hosts a [Md1Ripple](/systems/md1/ripple), and every glyph (the leading icon, the check, the sub menu triangle) draws through [Md1Icon](/systems/md1/icon).
 
-Two seams are MD1's. The activator is renderless, so the menu has no element to return focus to; `Md1Menu.Activator` registers the trigger by its id as the menu's return target, and Escape or a choice puts focus back on the button. And v0 activates a plain item from the keyboard without a click, so `Md1Menu.Item` answers Enter and Space with a click itself: `select`, a consumer `@click` and the `value` commit fire once whichever way the item is chosen.
+Two seams are Material Design 1's. The activator is renderless, so the menu has no element to return focus to; `Md1Menu.Activator` registers the trigger by its id as the menu's return target, and Escape or a choice puts focus back on the button. And v0 activates a plain item from the keyboard without a click, so `Md1Menu.Item` answers Enter and Space with a click itself: `select`, a consumer `@click` and the `value` commit fire once whichever way the item is chosen.
 
 ## Examples
 
@@ -81,7 +81,7 @@ Two seams are MD1's. The activator is renderless, so the menu has no element to 
 
 `icon` draws a glyph role at the leading keyline, 16 dp from the start edge at 54% ink. One icon anywhere in the list moves every row's text to the 72 dp content keyline (80 dp from 600 px), so labels stay aligned whether or not their row has a glyph. Menu items may contain icons, the guidelines say; they are optional, and a menu either uses them as a column or not at all.
 
-`info` is the inline information the lists-controls page puts at the trailing edge: a keyboard shortcut or similar, in the secondary ink (54% black, 70% white), never truncated. MD1 also publishes it as `aria-keyshortcuts` and hides the visible copy from the accessible name, so a screen reader hears "Share" and is told the shortcut separately. When the visible text is not in the attribute's syntax, pass `aria-keyshortcuts` yourself; the attribute you pass wins.
+`info` is the inline information the lists-controls page puts at the trailing edge: a keyboard shortcut or similar, in the secondary ink (54% black, 70% white), never truncated. Material Design 1 also publishes it as `aria-keyshortcuts` and hides the visible copy from the accessible name, so a screen reader hears "Share" and is told the shortcut separately. When the visible text is not in the attribute's syntax, pass `aria-keyshortcuts` yourself; the attribute you pass wins.
 :::
 
 ::: ds-example
@@ -111,7 +111,7 @@ A menu may only own items, groups and separators in the accessibility tree, so t
 
 `value` on an item and `v-model:selected` on the root make a simple menu that commits a choice. Choosing an option commits it immediately and closes the menu, the guidelines' selection rule; the row whose value matches the model is drawn with the 12% focus shade the buttons page gives a focused surface, and carries `aria-current`.
 
-The guidelines also position a simple menu so the selected item sits over the emitting control. MD1 does not implement that alignment: CSS anchor positioning has no measured offset for it, so the menu opens below its trigger, aligned to its start edge. This is a known limitation. A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
+The guidelines also position a simple menu so the selected item sits over the emitting control. Material Design 1 does not implement that alignment: CSS anchor positioning has no measured offset for it, so the menu opens below its trigger, aligned to its start edge. This is a known limitation. A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
 :::
 
 ::: ds-example
@@ -129,7 +129,7 @@ Each row is a `menuitemcheckbox` with `aria-checked`, and `data-state` carries `
 
 ### Dense
 
-`dense` condenses a handset menu to the 14 sp type the menus page names for dense simple menus. The page gives no dense row height; MD1 uses the dense list tile's 40 dp, a decision rather than a spec value. Text padding and widths stay the same.
+`dense` condenses a handset menu to the 14 sp type the menus page names for dense simple menus. The page gives no dense row height; Material Design 1 uses the dense list tile's 40 dp, a decision rather than a spec value. Text padding and widths stay the same.
 
 Use it where many short options must fit on a phone screen at once. Everywhere a finger is the primary input and space is not scarce, keep the 48 dp rows: they are the touch target.
 :::
@@ -141,7 +141,7 @@ Use it where many short options must fit on a phone screen at once. Everywhere a
 
 `desktop` switches to the desktop column of the menus page, for layouts where mouse and keyboard are the primary input: 32 px rows, 24 px text padding, 15 px type and 8 px above the first row and below the last. With `dense` it is the dense desktop menu: 24 px rows, 13 px type and 4 px list padding. A desktop sheet rests 2 dp lower than a handset one, 6 dp in place of 8, the elevation page's desktop rule, and its glyphs drop to the 20 dp dense icon size with the text at the 64 px keyline.
 
-Widths change unit as well: a desktop sheet is a multiple of 64 px, at least 128 px, with no 5x ceiling (the width redline draws 6x and 7x desktop menus). MD1 makes the choice an explicit prop rather than a pointer media query, so a desktop toolbar opens a desktop menu on a touch laptop too, and a handset layout keeps its 48 dp rows under a mouse.
+Widths change unit as well: a desktop sheet is a multiple of 64 px, at least 128 px, with no 5x ceiling (the width redline draws 6x and 7x desktop menus). Material Design 1 makes the choice an explicit prop rather than a pointer media query, so a desktop toolbar opens a desktop menu on a touch laptop too, and a handset layout keeps its 48 dp rows under a mouse.
 :::
 
 ::: ds-example

@@ -1,5 +1,5 @@
 ---
-title: Md1Checkbox - MD1 Checkbox for Vue
+title: Md1Checkbox - Material Design 1 Checkbox for Vue
 meta:
 - name: description
   content: The Material Design 1 checkbox, an 18 dp square filled with the accent colour and a white check when on, with its inline label, disabled inks, the touch-only radial reaction and an indeterminate extension. Built on Vuetify0's Checkbox.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 checkbox. It selects any number of options from a set: an outlined square when off, filled with the accent colour and a white check when on.
 
 > [!NOTE]
-> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page MD1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
+> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
 
 ## Usage
 
@@ -54,9 +54,9 @@ Use checkboxes when several options from a list can be on at once. For a single 
 
 `Md1Checkbox` renders v0's [Checkbox](/components/forms/checkbox) compound, `Checkbox.Root` and `Checkbox.Indicator`, inside a native `<label>`. The root is a `<button role="checkbox">`; it owns the model, `aria-checked`, the Space and click handlers, and the hidden form input it adds when `name` is set. The indicator holds the check glyph, drawn through [Md1Icon](/systems/md1/icon) as the `check` role (`remove` while indeterminate), and is hidden while the box is off.
 
-`Checkbox.Root` emits the `data-state` (`checked`, `unchecked`, `indeterminate`) and `data-disabled` attributes MD1's stylesheet hangs off. The visible label is a sibling span that the button's `aria-labelledby` points at, and the `<label>` around both makes the text a click target without a second handler.
+`Checkbox.Root` emits the `data-state` (`checked`, `unchecked`, `indeterminate`) and `data-disabled` attributes Material Design 1's stylesheet hangs off. The visible label is a sibling span that the button's `aria-labelledby` points at, and the `<label>` around both makes the text a click target without a second handler.
 
-The first child of the button is an unbounded [Md1Ripple](/systems/md1/ripple). The guidelines draw the 48 dp radial reaction only on form factors that favour touch, so MD1 hides the ink under a fine pointer.
+The first child of the button is an unbounded [Md1Ripple](/systems/md1/ripple). The guidelines draw the 48 dp radial reaction only on form factors that favour touch, so Material Design 1 hides the ink under a fine pointer.
 
 ## Examples
 
@@ -69,7 +69,7 @@ The box is 18 dp square with a 2 dp border and 2 dp corners, centred in a 24 dp 
 
 Disabled drops the whole control to 26% black (30% white on dark), and the check of a disabled box is cut out of the square in the sheet colour, as the spec sheets draw it. The label takes the disabled text ink. A disabled checkbox ignores clicks on the box and on its label and draws no ripple.
 
-The guidelines give no gap between the control and its label; MD1 uses 8 dp from the 24 dp control, one step of the grid, and each row is 48 dp tall so stacked checkboxes keep their touch targets apart. Those two values are decisions, not spec numbers. Stack checkboxes as this example does: the 48 dp target reaches 12 dp beyond the control, so side by side at an 8 dp gap it would cover the end of the previous label.
+The guidelines give no gap between the control and its label; Material Design 1 uses 8 dp from the 24 dp control, one step of the grid, and each row is 48 dp tall so stacked checkboxes keep their touch targets apart. Those two values are decisions, not spec numbers. Stack checkboxes as this example does: the 48 dp target reaches 12 dp beyond the control, so side by side at an 8 dp gap it would cover the end of the previous label.
 :::
 
 ::: ds-example
@@ -103,7 +103,7 @@ The default slot is the label. There are no named slots.
 
 ## Accessibility
 
-The control is a `<button role="checkbox">` with `aria-checked`, the WAI-ARIA Checkbox pattern. Its name is the visible label, through `aria-labelledby`. A checkbox with no visible label needs `ariaLabel`, or an `aria-labelledby` naming text elsewhere on the page (a data table row's cell), which MD1 moves from the `<label>` root onto the control. MD1 warns in development when none of these is set.
+The control is a `<button role="checkbox">` with `aria-checked`, the WAI-ARIA Checkbox pattern. Its name is the visible label, through `aria-labelledby`. A checkbox with no visible label needs `ariaLabel`, or an `aria-labelledby` naming text elsewhere on the page (a data table row's cell), which Material Design 1 moves from the `<label>` root onto the control. Material Design 1 warns in development when none of these is set.
 
 ### Keyboard
 
@@ -115,7 +115,7 @@ The control is a `<button role="checkbox">` with `aria-checked`, the WAI-ARIA Ch
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction around the control: 6% black off (10% white on dark) and 10% of the accent on, the values measured from the spec sheets. MD1 draws it for `:focus-visible` on every pointer type, so a keyboard user on a desktop still sees where focus is; the touch-only rule of the guidelines applies to the press ink. A focused disabled checkbox draws the grey halo, on or off, as the spec sheets draw the disabled focused state. Under forced colours a transparent 2 px outline draws in its place.
+Keyboard focus draws the 48 dp radial reaction around the control: 6% black off (10% white on dark) and 10% of the accent on, the values measured from the spec sheets. Material Design 1 draws it for `:focus-visible` on every pointer type, so a keyboard user on a desktop still sees where focus is; the touch-only rule of the guidelines applies to the press ink. A focused disabled checkbox draws the grey halo, on or off, as the spec sheets draw the disabled focused state. Under forced colours a transparent 2 px outline draws in its place.
 
 ### Disabled
 

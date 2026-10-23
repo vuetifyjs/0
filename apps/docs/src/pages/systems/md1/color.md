@@ -1,8 +1,8 @@
 ---
-title: Color - MD1 Material Design 1 Color for Vue
+title: Color - Material Design 1 Color for Vue
 meta:
 - name: description
-  content: The Material Design 1 color system in MD1. The 2014 palette as tokens, the light and dark theme roles, ink and state opacities, and overriding a role.
+  content: The Material Design 1 color system. The 2014 palette as tokens, the light and dark theme roles, ink and state opacities, and overriding a role.
 - name: keywords
   content: md1 color, material design 1 palette, material color palette, primary accent, light theme, dark theme, text opacity, vue design tokens, paper md1
 features:
@@ -25,11 +25,11 @@ related:
 The Material Design 1 color system: a 256-swatch palette, a primary and an accent hue picked from it, and black or white ink at fixed opacities over light and dark surfaces.
 
 > [!NOTE]
-> Reference: [Color, Material Design 1 guidelines](http://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html), the archived page MD1 is pinned to, with the [2016 capture](http://web.archive.org/web/20160604084405/http://www.google.com/design/spec/style/color.html) for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
+> Reference: [Color, Material Design 1 guidelines](http://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html), the archived page Material Design 1 is pinned to, with the [2016 capture](http://web.archive.org/web/20160604084405/http://www.google.com/design/spec/style/color.html) for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
 
 ## Usage
 
-Every color MD1 paints is a CSS custom property. Components read the role tokens (`--md1-primary`, `--md1-accent`, `--md1-surface`, `--md1-text-primary`); the raw palette is there for your own surfaces. Reference a token with the spec value as its fallback, the way MD1's own stylesheets do:
+Every color Material Design 1 paints is a CSS custom property. Components read the role tokens (`--md1-primary`, `--md1-accent`, `--md1-surface`, `--md1-text-primary`); the raw palette is there for your own surfaces. Reference a token with the spec value as its fallback, the way Material Design 1's own stylesheets do:
 
 ```css
 .app-banner {
@@ -52,7 +52,7 @@ The same values are exported from the package as `md1Palette`, keyed the same wa
 
 ## Theme roles
 
-A Material Design 1 theme is three shades of one primary hue and one accent from a second hue. MD1's default theme is the guidelines' own worked example, Indigo and Pink.
+A Material Design 1 theme is three shades of one primary hue and one accent from a second hue. Material Design 1's default theme is the guidelines' own worked example, Indigo and Pink.
 
 | Token | Rule | Light | Dark |
 |-------|------|-------|------|
@@ -83,7 +83,7 @@ The dark background, `#303030`, is not a palette value; the guidelines print it 
 
 ## Ink and state
 
-Text, icons and dividers are never a grey from the palette. They are black on light surfaces and white on dark ones, at an opacity that sets their rank, so they keep their contrast on any background color. MD1 publishes each tier as a translucent token.
+Text, icons and dividers are never a grey from the palette. They are black on light surfaces and white on dark ones, at an opacity that sets their rank, so they keep their contrast on any background color. Material Design 1 publishes each tier as a translucent token.
 
 | Token | Light (black) | Dark (white) |
 |-------|---------------|--------------|
@@ -112,7 +112,7 @@ Every theme token in the tables above is also published as `--md1-<role>-channel
 
 ## Overriding a role
 
-`createMd1Plugin` takes v0's theme options under `theme`. Each theme's `colors` merge over MD1's own map one level deep, so you pass only the roles you change:
+`createMd1Plugin` takes v0's theme options under `theme`. Each theme's `colors` merge over Material Design 1's own map one level deep, so you pass only the roles you change:
 
 ```ts main.ts
 import { createApp } from 'vue'
@@ -169,7 +169,7 @@ The guidelines suggest the 500 shades as primary colors and the other shades as 
 
 ### Contested ink
 
-Two captures of the color page disagree about the ink on six swatches. The 2016 capture, carrying the original 2014 wording, prints white text on Pink 300, Blue 500, Light Blue 600, Light Green 700, Orange 800 and Deep Orange 500; the 2018 archive prints black. MD1 pins the 2018 page, so `md1PaletteInk` returns `#000000` for all six, and a theme derived from Blue or Deep Orange puts black ink on its primary.
+Two captures of the color page disagree about the ink on six swatches. The 2016 capture, carrying the original 2014 wording, prints white text on Pink 300, Blue 500, Light Blue 600, Light Green 700, Orange 800 and Deep Orange 500; the 2018 archive prints black. Material Design 1 pins the 2018 page, so `md1PaletteInk` returns `#000000` for all six, and a theme derived from Blue or Deep Orange puts black ink on its primary.
 
 Each tile shows both readings side by side. If your brand follows the older page, override `on-primary` (or `on-accent`) for that theme; the role is a single token and nothing else derives from it.
 :::
@@ -199,9 +199,9 @@ The guidelines prefer opacity to grey because an opacity keeps its contrast over
 
 ### State overlays
 
-The overlays interactive components lay over their own surface, in both themes. Hover is 6% black (10% white on dark), the steppers page's value and MD1's rule for every list, menu and tile whose page states none; buttons draw no hover overlay at all. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
+The overlays interactive components lay over their own surface, in both themes. Hover is 6% black (10% white on dark), the steppers page's value and Material Design 1's rule for every list, menu and tile whose page states none; buttons draw no hover overlay at all. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
 
-Selection is the accent at 30%: the selection page names the accent and MD1 chose the alpha. A disabled raised button is a 12% fill with its label at 26% black (30% white on dark). The two scrims sit outside this grid: 20% black under a bottom sheet, the only value the guidelines state, and Grey 900 at 46% under dialogs and the temporary drawer.
+Selection is the accent at 30%: the selection page names the accent and Material Design 1 chose the alpha. A disabled raised button is a 12% fill with its label at 26% black (30% white on dark). The two scrims sit outside this grid: 20% black under a bottom sheet, the only value the guidelines state, and Grey 900 at 46% under dialogs and the temporary drawer.
 :::
 
 ::: ds-example
@@ -218,4 +218,4 @@ Amber is one of the hues whose 500 carries black ink, so the derived `on-primary
 
 The color page cites WCAG 2.0 AA: 4.5:1 for normal text and 3:1 for large text. The typography page sets 4.5:1 as its minimum and prefers 7:1. Primary text at 87% black on white measures about 16:1 and secondary text at 54% about 4.6:1; disabled text at 38% falls below 4.5:1 by design, because it marks a control that cannot be used.
 
-Color is never the only signal. The guidelines ask for a state change shown in more than one way, an icon or a moved element beside the new color, and MD1's components follow that: an error text field adds helper text under the red line, a selected checkbox draws a check mark as well as the accent. When you override a role, check the new `on-primary` and `on-accent` pairs against those ratios; `md1HueTheme` takes them from the palette's own recommendations, which assume large swatches, not small text.
+Color is never the only signal. The guidelines ask for a state change shown in more than one way, an icon or a moved element beside the new color, and Material Design 1's components follow that: an error text field adds helper text under the red line, a selected checkbox draws a check mark as well as the accent. When you override a role, check the new `on-primary` and `on-accent` pairs against those ratios; `md1HueTheme` takes them from the palette's own recommendations, which assume large swatches, not small text.

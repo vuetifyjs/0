@@ -1,5 +1,5 @@
 ---
-title: Md1Icon - MD1 Icon for Vue
+title: Md1Icon - Material Design 1 Icon for Vue
 meta:
 - name: description
   content: The Material Design 1 system icons by role name. 80 filled Material Icons glyphs answer to 107 names through a Vuetify0 token registry, at 24 dp or 20 dp dense, decorative unless labelled, and mirrored in RTL where the glyph points.
@@ -23,10 +23,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-The Material Design 1 system icon: ask for a role, such as `menu` or `search`, and get the filled Material Icons glyph on the 24 dp grid. Every MD1 component that draws a mark draws it through this one.
+The Material Design 1 system icon: ask for a role, such as `menu` or `search`, and get the filled Material Icons glyph on the 24 dp grid. Every Material Design 1 component that draws a mark draws it through this one.
 
 > [!NOTE]
-> Reference: [Icons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html), the archived page MD1 is pinned to, with [Bidirectionality](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/usability/bidirectionality.html) for the RTL rules. Grid, sizes, ink and mirroring. This page is the Vue.
+> Reference: [Icons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html), the archived page Material Design 1 is pinned to, with [Bidirectionality](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/usability/bidirectionality.html) for the RTL rules. Grid, sizes, ink and mirroring. This page is the Vue.
 
 ## Usage
 
@@ -54,7 +54,7 @@ The Material Design 1 system icon: ask for a role, such as `menu` or `search`, a
 
 There is no v0 icon component; `Md1Icon` is built on a Vuetify0 composable instead. The registry is a [createTokens](/composables/registration/create-tokens) instance, and alias resolution is `createTokens`' own. An alias is stored as the literal reference `{close}` and dereferenced when it is read, so `clear` and `close` are two entries over one array of path data, and overriding `close` moves both.
 
-The registry is installed by a [createPluginContext](/composables/foundation/create-plugin) trinity: `createMd1IconsContext`, `createMd1IconsPlugin` and `useMd1Icons`, under the `md1:icons` key. `createMd1Plugin` composes the icons plugin for you. The trinity carries a fallback, so `Md1Icon` draws the built-in set in an app with no MD1 plugin installed at all; that set is built once on first use and shared. The `namespace` prop exists for the remaining case, a subtree given its own registry under a key of its own.
+The registry is installed by a [createPluginContext](/composables/foundation/create-plugin) trinity: `createMd1IconsContext`, `createMd1IconsPlugin` and `useMd1Icons`, under the `md1:icons` key. `createMd1Plugin` composes the icons plugin for you. The trinity carries a fallback, so `Md1Icon` draws the built-in set in an app with no Material Design 1 plugin installed at all; that set is built once on first use and shared. The `namespace` prop exists for the remaining case, a subtree given its own registry under a key of its own.
 
 What `Md1Icon` adds is the renderer: one `<svg viewBox="0 0 24 24" fill="currentColor">` with a `<path>` per string of the glyph, the `data-size` attribute that sets the box through `--md1-icon-size`, the `data-mirror` attribute that flips directional roles under `[dir="rtl"]`, and the `aria-hidden` or `role="img"` pair. A role that resolves to nothing renders nothing and logs the name in development.
 
@@ -69,7 +69,7 @@ The whole set, iterated from `md1Icons`, the map the registry is built from and 
 
 Roles are named for what the glyph is, not for the screen that first needed it. The 27 aliases come from three vocabularies: Material Design 1's own words (`clear`, `done`, `calendar`, `clock`, `nearby`), the role names the Paper design systems share (`chevron-down`, `plus`, `eye`, `kebab`), and Material Icons source names whose upstream path data is identical to a shipped role (`launch`, `get-app`, `mode-edit`). Either name is valid at the call site.
 
-The artwork is the `materialicons` filled 24 px set at commit `49d4db35`, each path byte-equal to its upstream `d` attribute. Two glyphs were redrawn upstream after the Material Design 1 era, `settings` and `account-circle`; MD1 ships the current drawings, and `spec/icons.md` keeps both strings from tag `3.0.2`, the last release of the period artwork, for anyone who wants it back through the plugin.
+The artwork is the `materialicons` filled 24 px set at commit `49d4db35`, each path byte-equal to its upstream `d` attribute. Two glyphs were redrawn upstream after the Material Design 1 era, `settings` and `account-circle`; Material Design 1 ships the current drawings, and `spec/icons.md` keeps both strings from tag `3.0.2`, the last release of the period artwork, for anyone who wants it back through the plugin.
 :::
 
 ::: ds-example
@@ -81,7 +81,7 @@ The guidelines define two system icon sizes. `m`, the default, is the 24 dp icon
 
 The touch target is not the icon's. A 24 dp icon sits in a 48 dp target and a 20 dp icon in a 40 dp one, and the host control provides it; the dashed squares in the example stand in for that host.
 
-`size` sets `data-size`, and `data-size` sets `--md1-icon-size` on the icon at zero specificity. A host rule that sets the property on the icon itself, such as `.my-host .md1-icon { --md1-icon-size: 18px; }`, outranks the prop; that is how an MD1 component retunes the glyph it embeds without a prop of its own. Setting the property on the host element alone changes nothing, because the icon's own declaration beats the inherited value.
+`size` sets `data-size`, and `data-size` sets `--md1-icon-size` on the icon at zero specificity. A host rule that sets the property on the icon itself, such as `.my-host .md1-icon { --md1-icon-size: 18px; }`, outranks the prop; that is how a Material Design 1 component retunes the glyph it embeds without a prop of its own. Setting the property on the host element alone changes nothing, because the icon's own declaration beats the inherited value.
 :::
 
 ::: ds-example
@@ -89,9 +89,9 @@ The touch target is not the icon's. A 24 dp icon sits in a 48 dp target and a 20
 
 ### Ink
 
-The glyph draws at full `currentColor`; the opacity tier is the host's decision, made by state. The guidelines give three: an active focused icon is 87% black on light backgrounds, an active unfocused one 54%, an inactive one 38%. On dark backgrounds the same table gives 100%, 70% and 50% white, while the page's colour section and the colour page give an active icon 100% white. MD1's dark theme follows the colour section: 100% white for focused and active, 50% for inactive.
+The glyph draws at full `currentColor`; the opacity tier is the host's decision, made by state. The guidelines give three: an active focused icon is 87% black on light backgrounds, an active unfocused one 54%, an inactive one 38%. On dark backgrounds the same table gives 100%, 70% and 50% white, while the page's colour section and the colour page give an active icon 100% white. Material Design 1's dark theme follows the colour section: 100% white for focused and active, 50% for inactive.
 
-MD1 publishes them as `--md1-icon-focused`, `--md1-icon-active` and `--md1-icon-inactive`, and switches them with the theme. Set `color` on the element around the icon, as the example does, rather than an opacity on the icon itself: an opacity would also fade a coloured glyph, such as an error mark, that should stay at full strength.
+Material Design 1 publishes them as `--md1-icon-focused`, `--md1-icon-active` and `--md1-icon-inactive`, and switches them with the theme. Set `color` on the element around the icon, as the example does, rather than an opacity on the icon itself: an opacity would also fade a coloured glyph, such as an error mark, that should stay at full strength.
 :::
 
 ::: ds-example
@@ -138,14 +138,14 @@ app.use(createMd1Plugin({
 }))
 ```
 
-`createMd1IconsPlugin` takes the same two options on its own. The example cannot install a plugin, so it provides the same registry to its own subtree with `createMd1IconsContext`, and everything inside it resolves against that: `Md1Button icon="print"` draws the new glyph through its own `Md1Icon`. Replacing a role the same way restyles every MD1 component that draws it, which is why no component inlines its own artwork.
+`createMd1IconsPlugin` takes the same two options on its own. The example cannot install a plugin, so it provides the same registry to its own subtree with `createMd1IconsContext`, and everything inside it resolves against that: `Md1Button icon="print"` draws the new glyph through its own `Md1Icon`. Replacing a role the same way restyles every Material Design 1 component that draws it, which is why no component inlines its own artwork.
 
 A glyph is an array of path `d` strings drawn into the 24 x 24 viewBox with `fill="currentColor"` and no stroke. Material Icons filled artwork drops in as is; stroked artwork will render as solid shapes.
 :::
 
 ### Licence
 
-The glyphs are [Material Icons](https://github.com/google/material-design-icons), Copyright Google LLC, used under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Path data comes from the `materialicons` filled 24 px sources at commit `49d4db35df873165d6bd6ba09b063c7dafbac2f4`; the 24 x 24 background rectangle is removed from each file and no glyph geometry is changed. Icons are renamed to MD1 role names, and `spec/icons.md` lists the Material Icons source name of every role. Google does not endorse this package.
+The glyphs are [Material Icons](https://github.com/google/material-design-icons), Copyright Google LLC, used under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). Path data comes from the `materialicons` filled 24 px sources at commit `49d4db35df873165d6bd6ba09b063c7dafbac2f4`; the 24 x 24 background rectangle is removed from each file and no glyph geometry is changed. Icons are renamed to Material Design 1 role names, and `spec/icons.md` lists the Material Icons source name of every role. Google does not endorse this package.
 
 The package ships the notice and the full licence text as `LICENSE-ICONS`. `@paper/md1` itself is MIT. Glyphs you add through the plugin carry their own licence.
 

@@ -1,5 +1,5 @@
 ---
-title: Md1FeatureDiscovery - MD1 Feature Discovery for Vue
+title: Md1FeatureDiscovery - Material Design 1 Feature Discovery for Vue
 meta:
 - name: description
   content: The Material Design 1 feature discovery prompt, a circular background at 96% around a tap target over one promoted action, with the edge, offset and surface rules. Built on Vuetify0's Tour.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 feature discovery prompt. A large circle in the app's colour draws attention to one action, with a short title and a line of text that say what it does for the user.
 
 > [!NOTE]
-> Reference: [Feature discovery, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/feature-discovery.html), the archived page MD1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
+> Reference: [Feature discovery, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/feature-discovery.html), the archived page Material Design 1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
 
 ## Usage
 
@@ -60,7 +60,7 @@ A prompt holds one action and nothing else: no buttons, no "Next". Show it at a 
 
 `Md1FeatureDiscovery` runs a one-step v0 [Tour](/components/disclosure/tour). Each prompt creates its own tour context under a unique namespace, so two prompts on a page never share a step. `Target` is a `Tour.Activator` rendered as a `span` around the action: it registers the element the tour measures and anchors to, and it never scrolls the page. The text is a `Tour.Content`, the tour's non-modal dialog, with `Tour.Title` and `Tour.Description` inside it supplying `aria-labelledby` and `aria-describedby`. `Tour.Content` also binds Escape and moves focus into the prompt; when the tour stops or completes, the tour returns focus to the element that had it when the prompt opened.
 
-The circles are MD1's own. `Tour.Highlight` paints a rectangular cutout scrim with a stroke around the activator and takes no class, so the root draws the background and the target disc in a v0 [Portal](/components/primitives/portal) rendered in place, at the stack layer v0 gives a tour highlight, and lifts the action one layer above them. A tap outside the background stops the tour; that is the dismissal `Tour.Skip` performs, without its button. `Tour.Next`, `Tour.Prev`, `Tour.Progress` and `Tour.Keyboard` are not rendered: a prompt has one step, and the keyboard part's Enter and arrow keys would complete it without the action.
+The circles are Material Design 1's own. `Tour.Highlight` paints a rectangular cutout scrim with a stroke around the activator and takes no class, so the root draws the background and the target disc in a v0 [Portal](/components/primitives/portal) rendered in place, at the stack layer v0 gives a tour highlight, and lifts the action one layer above them. A tap outside the background stops the tour; that is the dismissal `Tour.Skip` performs, without its button. `Tour.Next`, `Tour.Prev`, `Tour.Progress` and `Tour.Keyboard` are not rendered: a prompt has one step, and the keyboard part's Enter and arrow keys would complete it without the action.
 
 The layer carries `data-open`, `data-color`, `data-contained`, `data-placement`, `data-exit` and the v0 presence `data-state` (`mounted`, `present`, `leaving`), which the stylesheet uses for the enter, complete and dismiss motion.
 
@@ -73,7 +73,7 @@ The layer carries `data-open`, `data-color`, `data-contained`, `data-placement`,
 
 When the promoted action sits within 88 dp of the top or bottom of the screen, the guidelines place the tap target directly on top of it and centre the background around it. An app bar action is the common case, so this is the prompt most apps show: the background is centred on the search icon and falls over the content below, and `data-placement` reads `center`.
 
-The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are MD1 decisions, and the background grows further when the text needs the room.
+The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are Material Design 1 decisions, and the background grows further when the text needs the room.
 
 Tapping the icon runs its own click handler and emits `complete`; tapping anywhere outside the background, or pressing Escape, emits `dismiss`. Either way the model goes back to `false`. Setting the model to `false` yourself closes the prompt without an event.
 :::
@@ -105,7 +105,7 @@ The promoted action here is an `Md1Fab` with `position="static"`, placed by its 
 
 On desktop and tablet the guidelines keep a prompt on the surface the target rests on, such as a card. From 600 px up, a target inside an `Md1Card` gets that treatment: the circles are clipped to the card and `data-contained` is set. Targets within 88 dp of the card's edge centre the background on the target, as the share button does here; targets nearer the card's centre take the 20 dp offset. The text is nudged to stay on the card.
 
-The page lists the exceptions too, and MD1 follows them. A surface smaller than 280 dp tall and 360 dp wide lets the prompt extend past its edges, unconfined. A target within the top or bottom 144 dp, or the left or right 200 dp, of the screen centres the background over everything else. `contained` overrides the automatic choice: `true` limits the prompt at any width, to the card or else to the Target's parent element, and `false` never limits it.
+The page lists the exceptions too, and Material Design 1 follows them. A surface smaller than 280 dp tall and 360 dp wide lets the prompt extend past its edges, unconfined. A target within the top or bottom 144 dp, or the left or right 200 dp, of the screen centres the background over everything else. `contained` overrides the automatic choice: `true` limits the prompt at any width, to the card or else to the Target's parent element, and `false` never limits it.
 :::
 
 ## Props

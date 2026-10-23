@@ -1,6 +1,6 @@
 /**
  * Docs-only layout for @paper/md1 examples (pages/systems/md1).
- * MD1 examples mount inline in the docs document (DocsSystemExample), so
+ * Material Design 1 examples mount inline in the docs document (DocsSystemExample), so
  * a viewport-fixed component (an app bar, a bottom navigation, a positioned
  * FAB, a snackbar portal, a persistent bottom sheet) would paint over the
  * docs shell. Containment makes this wrapper the containing block of its

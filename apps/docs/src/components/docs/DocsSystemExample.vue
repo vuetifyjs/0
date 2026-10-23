@@ -110,7 +110,7 @@
 
   const { filePath, filePaths } = defineProps<DocsSystemExampleProps>()
 
-  // The systems in INLINE (Emerald, MD1) mount inline under their own
+  // The systems in INLINE (Emerald, Material Design 1) mount inline under their own
   // `[data-theme]`: their tokens do not reset host elements, so they can share
   // the docs document. Systems that reset `button`/`input` (Bulma) cannot;
   // those run in an iframe against `sandbox/<system>.html`. Source is still

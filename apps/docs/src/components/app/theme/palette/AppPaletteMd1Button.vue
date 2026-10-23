@@ -16,7 +16,7 @@
     :active
     icon="theme-md1"
     justify="start"
-    label="MD1"
+    label="Material Design 1"
     @click="toggle.setPalette('md1')"
   />
 </template>

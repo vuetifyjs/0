@@ -1,5 +1,5 @@
 ---
-title: Md1Snackbar - MD1 Snackbar for Vue
+title: Md1Snackbar - Material Design 1 Snackbar for Vue
 meta:
 - name: description
   content: The Material Design 1 snackbar. One short message at the bottom edge with at most one text action, single or two lines, queued one at a time and gone on its own. Built on Vuetify0's Snackbar.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 snackbar. A short message about an operation at the bottom of the screen, with at most one text action, that leaves on its own.
 
 > [!NOTE]
-> Reference: [Snackbars and toasts, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/snackbars-toasts.html), the archived page MD1 is pinned to. Metrics, placement, motion and usage. This page is the Vue.
+> Reference: [Snackbars and toasts, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/snackbars-toasts.html), the archived page Material Design 1 is pinned to. Metrics, placement, motion and usage. This page is the Vue.
 
 ## Usage
 
@@ -59,7 +59,7 @@ The Material Design 1 snackbar. A short message about an operation at the bottom
 
 Entrance and exit run through [usePresence](/components/primitives/presence): the root stays mounted until its exit animation ends, which is what lets the queue hold the next snackbar back until the first has left. The action is a flat [Md1Button](/systems/md1/button), with its ripple, in the accent colour.
 
-v0's portal applies the stack z-index inline and only nudges a static wrapper to `position: relative`, so the `md1-snackbar-portal` class positions itself: fixed, the full width of the bottom edge, and transparent to the pointer outside the bar. `data-state` comes from the presence state; `data-align`, `data-multiline` and `data-stacked` are MD1's own.
+v0's portal applies the stack z-index inline and only nudges a static wrapper to `position: relative`, so the `md1-snackbar-portal` class positions itself: fixed, the full width of the bottom edge, and transparent to the pointer outside the bar. `data-state` comes from the presence state; `data-align`, `data-multiline` and `data-stacked` are Material Design 1's own.
 
 ## Examples
 
@@ -70,7 +70,7 @@ v0's portal applies the stack z-index inline and only nudges a static wrapper to
 
 `Md1Snackbar.Queue` shows the notifications sent through `useNotifications().send()`, and only one at a time. The guidelines never stack snackbars: when a second one is sent while the first is up, the first contracts downward and the second animates upward once it has gone. The queue renders the newest notification through its slot as `item`; older ones leave the display queue but stay in the notifications inbox.
 
-The guidelines give no duration. MD1's default is 6000 ms (Vuetify 1.5's value), set by the queue's `timeout` prop for every notification sent without its own; a `timeout` passed to `send()` still wins. Hovering or focusing the snackbar pauses the timer, so a reader who reaches for the action is never cut off.
+The guidelines give no duration. Material Design 1's default is 6000 ms (Vuetify 1.5's value), set by the queue's `timeout` prop for every notification sent without its own; a `timeout` passed to `send()` still wins. Hovering or focusing the snackbar pauses the timer, so a reader who reaches for the action is never cut off.
 
 An app installs `createNotificationsPlugin()` once and sends from anywhere. This example provides its own notifications context instead because the docs install none. A snackbar inside a queue takes the shown notification's id, so its action dismisses that notification without any wiring.
 :::
@@ -90,9 +90,9 @@ A single-line snackbar is 48 dp, with 14 dp above and below a 20 dp line, and cu
 
 ### Long action
 
-When a two-line snackbar's action is wider than 128 dp, the action moves to its own row: the 112 dp form of the handset specs, the label at the end and 14 dp off the bottom edge. MD1 measures the rendered action and sets `data-stacked`; there is no prop, because the layout follows the label, which a translation can lengthen.
+When a two-line snackbar's action is wider than 128 dp, the action moves to its own row: the 112 dp form of the handset specs, the label at the end and 14 dp off the bottom edge. Material Design 1 measures the rendered action and sets `data-stacked`; there is no prop, because the layout follows the label, which a translation can lengthen.
 
-Otherwise the action sits on the message's line with 24 dp between the two (48 dp from 600 px) and its label 24 dp from the end edge. It is a flat button in the accent colour, uppercased by the stylesheet. Choosing it emits `action` and dismisses the snackbar. "Dismiss" and "Cancel" are not snackbar actions, because a snackbar leaves on its own; MD1 warns in development when the label is either one.
+Otherwise the action sits on the message's line with 24 dp between the two (48 dp from 600 px) and its label 24 dp from the end edge. It is a flat button in the accent colour, uppercased by the stylesheet. Choosing it emits `action` and dismisses the snackbar. "Dismiss" and "Cancel" are not snackbar actions, because a snackbar leaves on its own; Material Design 1 warns in development when the label is either one.
 :::
 
 ::: ds-example

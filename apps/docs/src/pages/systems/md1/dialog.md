@@ -1,5 +1,5 @@
 ---
-title: Md1Dialog - MD1 Dialog for Vue
+title: Md1Dialog - Material Design 1 Dialog for Vue
 meta:
 - name: description
   content: The Material Design 1 dialog in its alert, simple, confirmation and full-screen forms, on a native dialog element with side-by-side or stacked actions. Built on Vuetify0's Dialog and AlertDialog.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 dialog. A 24 dp sheet that interrupts with a decision: an alert, a list that commits on a tap, a choice that waits for OK, or a full-screen task on a handset.
 
 > [!NOTE]
-> Reference: [Dialogs, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dialogs.html), the archived page MD1 is pinned to. Types, metrics, actions, scrolling and dismissal. This page is the Vue.
+> Reference: [Dialogs, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dialogs.html), the archived page Material Design 1 is pinned to. Types, metrics, actions, scrolling and dismissal. This page is the Vue.
 
 ## Usage
 
@@ -64,13 +64,13 @@ The Material Design 1 dialog. A 24 dp sheet that interrupts with a decision: an 
 
 ## Composed on Vuetify0
 
-`Md1Dialog` renders v0's [AlertDialog](/components/disclosure/alert-dialog) compound under `variant="alert"` and v0's [Dialog](/components/disclosure/dialog) compound for the other three types. Every part picks the matching v0 part from the root's variant, so one MD1 tree serves both. `Dialog.Content` opens a native `<dialog>` with `showModal()`, which gives the top layer, focus containment, the inert page behind and Escape. `Title` and `Text` render `Dialog.Title` and `Dialog.Description`, which wire `aria-labelledby` and `aria-describedby` on the dialog only while they are mounted.
+`Md1Dialog` renders v0's [AlertDialog](/components/disclosure/alert-dialog) compound under `variant="alert"` and v0's [Dialog](/components/disclosure/dialog) compound for the other three types. Every part picks the matching v0 part from the root's variant, so one Material Design 1 tree serves both. `Dialog.Content` opens a native `<dialog>` with `showModal()`, which gives the top layer, focus containment, the inert page behind and Escape. `Title` and `Text` render `Dialog.Title` and `Dialog.Description`, which wire `aria-labelledby` and `aria-describedby` on the dialog only while they are mounted.
 
-The scrim is the dialog's own `::backdrop` in `--md1-scrim`. MD1 passes `scrim: false` to every `Dialog.Content` it renders and never mounts v0's `Scrim`, so one backdrop paints per dialog. An app that also mounts `<Scrim>` paints a second one.
+The scrim is the dialog's own `::backdrop` in `--md1-scrim`. Material Design 1 passes `scrim: false` to every `Dialog.Content` it renders and never mounts v0's `Scrim`, so one backdrop paints per dialog. An app that also mounts `<Scrim>` paints a second one.
 
-`Cancel` and `Confirm` are flat [Md1Buttons](/systems/md1/button), each with its ripple. Under the alert they sit on the renderless `AlertDialog.Cancel` and `AlertDialog.Action`; otherwise `Cancel` sits on `Dialog.Close` and `Confirm` is a plain button that commits through the root. The root provides a `md1:dialog` context with `value` and `commit(value)`, the hook a list or a radio group inside the dialog calls. `Dialog.Close` names itself "Close" from the locale; MD1 drops that label so the visible text stays the accessible name.
+`Cancel` and `Confirm` are flat [Md1Buttons](/systems/md1/button), each with its ripple. Under the alert they sit on the renderless `AlertDialog.Cancel` and `AlertDialog.Action`; otherwise `Cancel` sits on `Dialog.Close` and `Confirm` is a plain button that commits through the root. The root provides a `md1:dialog` context with `value` and `commit(value)`, the hook a list or a radio group inside the dialog calls. `Dialog.Close` names itself "Close" from the locale; Material Design 1 drops that label so the visible text stays the accessible name.
 
-`data-variant`, `data-open`, `data-dismissible` and `data-scrolled` on the `<dialog>`, and `data-stacked` on the action row, are MD1's own.
+`data-variant`, `data-open`, `data-dismissible` and `data-scrolled` on the `<dialog>`, and `data-stacked` on the action row, are Material Design 1's own.
 
 ## Examples
 
@@ -81,7 +81,7 @@ The scrim is the dialog's own `::backdrop` in `--md1-scrim`. MD1 passes `scrim: 
 
 Most alerts have no title: one or two sentences carry the question, as in the usage example. A title is for high-risk situations, and it must be a clear question or statement ("Erase USB storage?"), never "Warning!" or "Are you sure?".
 
-The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the secondary ink; the page states no body style, so that is an MD1 decision. The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
+The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the secondary ink; the page states no body style, so that is a Material Design 1 decision. The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
 
 The 52 dp action area holds the two flat buttons: 8 dp around them and 8 dp between them, each at least 64 dp wide with 8 dp of internal padding. The affirmative action sits at the right edge and the dismissive action directly to its left. Under the alert, focus starts on the dismissive action, so an accidental Enter cannot erase anything.
 :::
@@ -93,7 +93,7 @@ The 52 dp action area holds the two flat buttons: 8 dp around them and 8 dp betw
 
 Side-by-side buttons fit only while each label fits the maximum button width, (dialog width - 8 - 8 - 8) / 2: 128 dp on a 280 dp dialog. `Md1Dialog.Actions` measures its labels and stacks itself when one is longer. Stacked buttons span the dialog as 48 dp touch targets, affirmative above dismissive, with the label text ending 16 dp from the right edge and the last target 8 dp from the bottom.
 
-Pass `stacked` to force either layout. Keep labels to verbs that name the outcome. A dialog has at most two actions; a third, such as "Learn more", navigates away from the decision, so MD1 warns in development when the row holds more than two.
+Pass `stacked` to force either layout. Keep labels to verbs that name the outcome. A dialog has at most two actions; a third, such as "Learn more", navigates away from the decision, so Material Design 1 warns in development when the row holds more than two.
 :::
 
 ::: ds-example
@@ -103,7 +103,7 @@ Pass `stacked` to force either layout. Keep labels to verbs that name the outcom
 
 A simple dialog is a list of choices with no buttons: choosing an option commits it and closes the dialog, and a tap outside or Escape cancels. The rows here are 56 dp single-line rows with 40 dp avatars, the avatar at the 24 dp keyline and the text at 80 dp, and the list ends 8 dp above the sheet's edge.
 
-Each row calls `commit(value)` from the root's slot, which writes `v-model:value` and closes at once. On a handset the guidelines prefer a simple menu, which is less disruptive; reach for the simple dialog when menu text would wrap. The rows in this example are a v0 `Button.Root` with a ripple, standing in for the MD1 list items.
+Each row calls `commit(value)` from the root's slot, which writes `v-model:value` and closes at once. On a handset the guidelines prefer a simple menu, which is less disruptive; reach for the simple dialog when menu text would wrap. The rows in this example are a v0 `Button.Root` with a ripple, standing in for the Material Design 1 list items.
 :::
 
 ::: ds-example
@@ -113,7 +113,7 @@ Each row calls `commit(value)` from the root's slot, which writes `v-model:value
 
 A confirmation dialog holds one choice until the user confirms it. The radio group calls `commit` as the selection moves, but `v-model:value` changes only on OK. Cancel, Escape or a tap outside discards the change and the next opening starts from the committed value.
 
-`Confirm` stays disabled while nothing is chosen: the affirmative action waits for a choice, and its label drops to the disabled ink, 26% black on the light theme and 30% white on the dark one. The dismissive action is never disabled. The radios in this example are v0 `Radio` parts in the accent colour, standing in for the MD1 radio.
+`Confirm` stays disabled while nothing is chosen: the affirmative action waits for a choice, and its label drops to the disabled ink, 26% black on the light theme and 30% white on the dark one. The dismissive action is never disabled. The radios in this example are v0 `Radio` parts in the accent colour, standing in for the Material Design 1 radio.
 :::
 
 ::: ds-example
@@ -143,7 +143,7 @@ Keep a dismissive action in the row when dismissal is disabled. Without one, a k
 
 Full-screen dialogs are a handset form for complex tasks: changes are not saved in real time and nothing is kept until the verb is tapped. Under 600 px the dialog fills the screen with no corners and no shadow; the app bar carries the depth. From 600 px the same tree renders as a 560 px sheet at 24 dp.
 
-The app bar has the discard X at the left, the title on the 72 dp keyline and the verb (save, send, create; never done or OK) at the right. The X calls the root's `close`. With `dirty` set, closing by the X, Cancel or Escape first asks "Discard changes?" in a nested alert, the one dialog a dialog may open. Full-screen dialogs ignore taps outside: there is no outside. The app bar in this example is styled by the docs page and stands in for the MD1 toolbar.
+The app bar has the discard X at the left, the title on the 72 dp keyline and the verb (save, send, create; never done or OK) at the right. The X calls the root's `close`. With `dirty` set, closing by the X, Cancel or Escape first asks "Discard changes?" in a nested alert, the one dialog a dialog may open. Full-screen dialogs ignore taps outside: there is no outside. The app bar in this example is styled by the docs page and stands in for the Material Design 1 toolbar.
 :::
 
 ## Props

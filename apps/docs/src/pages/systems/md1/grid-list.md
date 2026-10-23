@@ -1,5 +1,5 @@
 ---
-title: Md1GridList - MD1 Grid List for Vue
+title: Md1GridList - Material Design 1 Grid List for Vue
 meta:
 - name: description
   content: The Material Design 1 grid list, image tiles in a grid of cells with header and footer bars, 4 dp or 1 dp gutters, the ratio keylines, spanning tiles, the horizontal gallery and selected tiles. Built on Vuetify0's Atom and Button.
@@ -28,7 +28,7 @@ related:
 The Material Design 1 grid list. A repeated pattern of cells holding image tiles, with an optional header or footer bar of text and one action icon on each tile.
 
 > [!NOTE]
-> Reference: [Grid lists, Material Design 1 guidelines](http://web.archive.org/web/20181225002209/https://material.io/archive/guidelines/components/grid-lists.html), the archived page MD1 is pinned to. Types, metrics, behavior and the tile bars. This page is the Vue.
+> Reference: [Grid lists, Material Design 1 guidelines](http://web.archive.org/web/20181225002209/https://material.io/archive/guidelines/components/grid-lists.html), the archived page Material Design 1 is pinned to. Types, metrics, behavior and the tile bars. This page is the Vue.
 
 ## Usage
 
@@ -71,9 +71,9 @@ The root publishes `data-gutter`, `data-ratio` and `data-horizontal`; a tile pub
 
 The secondary content of a tile sits in a band over the image, at the bottom (`position="footer"`, the default) or at the top (`position="header"`). A `title` alone gives the single-line bar, 48 dp tall with the text in Subheading, 16 sp. Adding a `subtitle` gives the two-line bar, 68 dp tall, with the second line in Caption, 12 sp. The text starts 16 dp from the tile edge and is cut with an ellipsis when it does not fit, since the guidelines ask you to truncate rather than wrap.
 
-The guidelines draw the band as a translucent dark layer and give no value for it. MD1 uses `--md1-grid-list-bar`, 60% black, the upper end of the imagery page's scrim range, so white text stays readable on any photo. The title is white at 100% and the subtitle at 70%, the colour page's primary and secondary values for light text on a dark background. The band stays the same in the dark theme.
+The guidelines draw the band as a translucent dark layer and give no value for it. Material Design 1 uses `--md1-grid-list-bar`, 60% black, the upper end of the imagery page's scrim range, so white text stays readable on any photo. The title is white at 100% and the subtitle at 70%, the colour page's primary and secondary values for light text on a dark background. The band stays the same in the dark theme.
 
-The guidelines also allow a 14 sp over 14 sp two-line bar. MD1 ships the 16 sp over 12 sp form only.
+The guidelines also allow a 14 sp over 14 sp two-line bar. Material Design 1 ships the 16 sp over 12 sp form only.
 :::
 
 ::: ds-example
@@ -99,7 +99,7 @@ The guidelines give the grid list two paddings between tiles, 4 dp and 1 dp. `gu
 
 ### Columns, ratio and spans
 
-`columns` fixes the column count. Without it, the grid fills its width with as many columns as fit at a minimum of two layout increments (112 dp, 128 dp from 600 px), an MD1 decision where the page gives no number. `ratio` is the shape every one-cell tile keeps, one of the ratio keylines of the metrics page: 16:9, 3:2, 4:3, 1:1 (the default), 3:4 or 2:3.
+`columns` fixes the column count. Without it, the grid fills its width with as many columns as fit at a minimum of two layout increments (112 dp, 128 dp from 600 px), a Material Design 1 decision where the page gives no number. `ratio` is the shape every one-cell tile keeps, one of the ratio keylines of the metrics page: 16:9, 3:2, 4:3, 1:1 (the default), 3:4 or 2:3.
 
 A tile can span more than one cell with `span` (across) and `rowSpan` (down). A larger tile draws the eye, which the guidelines recommend for a featured item; consider whether it still needs secondary text once the image is that large. Tiles flow left to right, then top to bottom, and re-sort when the width changes; a grid list never turns into a list.
 :::
@@ -109,7 +109,7 @@ A tile can span more than one cell with `span` (across) and `rowSpan` (down). A 
 
 ### Horizontal gallery
 
-Grid lists scroll vertically. The one exception the guidelines permit is a single-line gallery of images, and `horizontal` is that form: one row that scrolls sideways. Tiles are three increments wide (168 dp, 192 dp from 600 px), an MD1 decision, so the last visible tile is cut off at the initial scroll position. That cut is how the guidelines ask a horizontal list to show that there is more; never align the last tile with the edge of the view. With `columns`, exactly that many tiles share the visible width instead.
+Grid lists scroll vertically. The one exception the guidelines permit is a single-line gallery of images, and `horizontal` is that form: one row that scrolls sideways. Tiles are three increments wide (168 dp, 192 dp from 600 px), a Material Design 1 decision, so the last visible tile is cut off at the initial scroll position. That cut is how the guidelines ask a horizontal list to show that there is more; never align the last tile with the edge of the view. With `columns`, exactly that many tiles share the visible width instead.
 :::
 
 ::: ds-example
@@ -119,7 +119,7 @@ Grid lists scroll vertically. The one exception the guidelines permit is a singl
 
 `selected` applies the selection pattern of the guidelines: a scrim and a check mark over the item. The scrim is `--md1-selection`, the accent at 30%, and the check is the `check-circle` glyph in white at the start corner, in the same 48 dp box as a bar icon. The scrim does not take pointer events, so the tile stays pressable and a second press can clear the selection.
 
-MD1 does not own the selection. Keep the selected ids in your own state, toggle them from the tile's click, and pass `selected` back, as this example does. The check mark is labelled "Selected" (`Md1.selected` in the locale) and describes the tile's action, so assistive technology announces the state with the tile.
+Material Design 1 does not own the selection. Keep the selected ids in your own state, toggle them from the tile's click, and pass `selected` back, as this example does. The check mark is labelled "Selected" (`Md1.selected` in the locale) and describes the tile's action, so assistive technology announces the state with the tile.
 :::
 
 ::: ds-example
@@ -160,7 +160,7 @@ The grid list is a `<ul>` and every tile is an `<li>`, so assistive technology a
 
 ### Naming
 
-An interactive tile is one `<button>` or `<a>` that fills the tile. Its name comes from the bar's `title`, linked with `aria-labelledby`, or from the image's `alt` when there is no bar. Without either, MD1 warns in development, because an image-only action has nothing to announce. The bar's action icon is a separate button named by `iconLabel`; its glyph is hidden.
+An interactive tile is one `<button>` or `<a>` that fills the tile. Its name comes from the bar's `title`, linked with `aria-labelledby`, or from the image's `alt` when there is no bar. Without either, Material Design 1 warns in development, because an image-only action has nothing to announce. The bar's action icon is a separate button named by `iconLabel`; its glyph is hidden.
 
 A tile without a click listener or `href` renders no button at all. Give its image an `alt` when the picture carries meaning, and leave it empty when a bar title already says what it shows.
 
@@ -172,11 +172,11 @@ A tile without a click listener or `href` renders no button at all. Give its ima
 | Enter | Activates the focused tile or icon |
 | Space | Activates the focused button |
 
-Each tile is its own tab stop, the link-per-tile list the guidelines' web notes describe. A collection that needs arrow-key navigation with one tab stop is a layout grid in the WAI-ARIA sense, which MD1 does not ship; compose it with v0's `useRovingFocus`.
+Each tile is its own tab stop, the link-per-tile list the guidelines' web notes describe. A collection that needs arrow-key navigation with one tab stop is a layout grid in the WAI-ARIA sense, which Material Design 1 does not ship; compose it with v0's `useRovingFocus`.
 
 ### Focus and hover
 
-Keyboard focus lays a 12% overlay over the tile, the focus value of the buttons page; a mouse hover lays 6% (10% on the dark theme), MD1's hover value where a page states none. Both are drawn for `:focus-visible` and `:hover` only. Pressing draws the ripple from the press point.
+Keyboard focus lays a 12% overlay over the tile, the focus value of the buttons page; a mouse hover lays 6% (10% on the dark theme), Material Design 1's hover value where a page states none. Both are drawn for `:focus-visible` and `:hover` only. Pressing draws the ripple from the press point.
 
 ### Selected
 

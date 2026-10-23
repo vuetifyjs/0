@@ -1,5 +1,5 @@
 ---
-title: Md1List - MD1 List for Vue
+title: Md1List - Material Design 1 List for Vue
 meta:
 - name: description
   content: The Material Design 1 list, one continuous column of one-, two- and three-line tiles with avatars, icons, secondary actions, dense metrics, expandable groups and the selection pattern. Built on Vuetify0's Atom, createSelection and Collapsible.
@@ -27,13 +27,13 @@ related:
 The Material Design 1 list. One continuous column of one-, two- and three-line tiles, with an avatar or icon at the edge, text on the content keyline, a secondary action at the end, dense metrics for desktop, expandable groups, and the selection pattern's selected state.
 
 > [!NOTE]
-> Reference: [Lists](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists.html) and [Lists: controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists-controls.html), Material Design 1 guidelines, the archived pages MD1 is pinned to. Tile types, metrics, keylines, controls and the expand pattern. The selected state follows the [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html) pattern. This page is the Vue.
+> Reference: [Lists](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists.html) and [Lists: controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists-controls.html), Material Design 1 guidelines, the archived pages Material Design 1 is pinned to. Tile types, metrics, keylines, controls and the expand pattern. The selected state follows the [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html) pattern. This page is the Vue.
 
 ## Usage
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. On the dark theme the primary 500 would read at under 2:1, below the 4.5:1 contrast floor, so the current item takes the primary's 100 instead, an MD1 decision.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. On the dark theme the primary 500 would read at under 2:1, below the 4.5:1 contrast floor, so the current item takes the primary's 100 instead, a Material Design 1 decision.
 
 ::: ds-example
 /systems/md1/list/basic
@@ -77,7 +77,7 @@ The root renders v0's [Atom](/components/primitives/atom) as the `ul` and owns a
 
 `Md1List.Group` is v0's [Collapsible](/components/disclosure/collapsible): `Collapsible.Root` is the `li`, `Collapsible.Activator` is the header tile, `Collapsible.Cue` holds the chevron and `Collapsible.Content` the nested `ul`. Activation, `aria-expanded`, `aria-controls` and the `data-state` the stylesheet reads all come from v0.
 
-The first child of every interactive tile is a [Md1Ripple](/systems/md1/ripple). `data-dense`, `data-select` and `data-selecting` on the root, and `data-lines`, `data-selected`, `data-disabled` and `data-inset` on each item, are MD1's own.
+The first child of every interactive tile is a [Md1Ripple](/systems/md1/ripple). `data-dense`, `data-select` and `data-selecting` on the root, and `data-lines`, `data-selected`, `data-disabled` and `data-inset` on each item, are Material Design 1's own.
 
 A secondary action is a separate target, so `Md1List.Item` renders `Md1List.Action` beside the tile rather than inside it, where a switch or a checkbox would nest one control inside a button. The text column stops short of the action column either way.
 
@@ -112,7 +112,7 @@ The avatar or icon sits on the margin keyline, 16 dp from the edge, and the text
 
 When mouse and keyboard are the primary input, the guidelines condense the measurements: 40, 48, 60 and 76 dp tiles for the four heights above, 13 sp text, and 4 dp of list padding in place of 8. `dense` turns them on for the whole list. The page gives no separate dense secondary size, so both lines take 13 sp.
 
-The icon stays 24 dp in a dense list. The dense redlines draw it at full size, and MD1 follows them over Vuetify 1.5's 22 px dense icon. As with the dense button, MD1 exposes the form as a prop rather than switching on the pointer type, so one surface can mix a dense list with standard controls.
+The icon stays 24 dp in a dense list. The dense redlines draw it at full size, and Material Design 1 follows them over Vuetify 1.5's 22 px dense icon. As with the dense button, Material Design 1 exposes the form as a prop rather than switching on the pointer type, so one surface can mix a dense list with standard controls.
 :::
 
 ::: ds-example
@@ -140,7 +140,7 @@ A radio in the action column turns the list into a single choice. Wrap the list 
 
 `select="single"` makes the list a listbox. The root renders `ul[role=listbox]`, each tile becomes `role="option"` with `aria-selected`, and `v-model` holds the selected value. Clicking a tile, or pressing Space or Enter on it, selects it and clears the previous one.
 
-The selected tile carries the selection pattern's scrim: the `--md1-selection` token, the accent at 30%, the same fill `Md1GridList` uses. The pattern page gives no scrim value, so the alpha is an MD1 decision recorded on the token. A disabled option stays visible at 38% ink and refuses the selection.
+The selected tile carries the selection pattern's scrim: the `--md1-selection` token, the accent at 30%, the same fill `Md1GridList` uses. The pattern page gives no scrim value, so the alpha is a Material Design 1 decision recorded on the token. A disabled option stays visible at 38% ink and refuses the selection.
 :::
 
 ::: ds-example
@@ -160,7 +160,7 @@ On desktop the pattern reveals a check mark on hover: the empty checkbox replace
 
 `Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve, indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, and its 100 tint on the dark theme.
 
-`v-model` on the group holds its open state. Nested items still register with the root list, so the root's `v-model` marks the current destination wherever it sits in the tree. Groups belong to navigation lists: a listbox may hold options only, and MD1 warns in development when a group is placed inside one.
+`v-model` on the group holds its open state. Nested items still register with the root list, so the root's `v-model` marks the current destination wherever it sits in the tree. Groups belong to navigation lists: a listbox may hold options only, and Material Design 1 warns in development when a group is placed inside one.
 :::
 
 ## Props

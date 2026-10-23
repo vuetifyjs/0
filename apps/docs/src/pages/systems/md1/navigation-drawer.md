@@ -1,5 +1,5 @@
 ---
-title: Md1NavigationDrawer - MD1 Navigation Drawer for Vue
+title: Md1NavigationDrawer - Material Design 1 Navigation Drawer for Vue
 meta:
 - name: description
   content: The Material Design 1 navigation drawer, temporary, persistent, mini and permanent (full height, clipped or floating), with the 16:9 account header and list destinations. Built on Vuetify0's Dialog and Atom.
@@ -30,7 +30,7 @@ related:
 The Material Design 1 navigation drawer. The sheet along the start edge that holds an app's destinations: temporary over a scrim on a handset, persistent beside the content on a tablet, permanent on a desktop.
 
 > [!NOTE]
-> Reference: [Navigation drawer, Material Design 1 guidelines](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html), the archived page MD1 is pinned to. Types, widths, keylines, the account header, elevation and ordering. This page is the Vue.
+> Reference: [Navigation drawer, Material Design 1 guidelines](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html), the archived page Material Design 1 is pinned to. Types, widths, keylines, the account header, elevation and ordering. This page is the Vue.
 
 ## Usage
 
@@ -60,11 +60,11 @@ The Material Design 1 navigation drawer. The sheet along the start edge that hol
 
 ## Composed on Vuetify0
 
-The temporary drawer is v0's [Dialog](/components/disclosure/dialog): `Dialog.Root` owns the open state, `Dialog.Activator` is the trigger, and `Dialog.Content` renders the native `<dialog>` opened with `showModal()`. The browser contains focus, closes on Escape and paints `::backdrop`, which MD1 fills with the scrim. Inside the `<dialog>` the sheet is a `<nav>`. MD1 never mounts v0's `Scrim`: every `Dialog.Content` it renders passes `scrim: false`.
+The temporary drawer is v0's [Dialog](/components/disclosure/dialog): `Dialog.Root` owns the open state, `Dialog.Activator` is the trigger, and `Dialog.Content` renders the native `<dialog>` opened with `showModal()`. The browser contains focus, closes on Escape and paints `::backdrop`, which Material Design 1 fills with the scrim. Inside the `<dialog>` the sheet is a `<nav>`. Material Design 1 never mounts v0's `Scrim`: every `Dialog.Content` it renders passes `scrim: false`.
 
-The persistent, mini and permanent drawers are not dialogs, and v0 has no non-modal sheet, so MD1 renders one on v0's [Atom](/components/primitives/atom): a `<nav>` landmark that sits in the layout beside the content. Expanding levels inside the drawer are `Md1List.Group`, which is v0's [Collapsible](/components/disclosure/collapsible). Which type a screen size gets is your decision; the [responsive example](#responsive-types) composes v0's [useBreakpoints](/composables/plugins/use-breakpoints) for it.
+The persistent, mini and permanent drawers are not dialogs, and v0 has no non-modal sheet, so Material Design 1 renders one on v0's [Atom](/components/primitives/atom): a `<nav>` landmark that sits in the layout beside the content. Expanding levels inside the drawer are `Md1List.Group`, which is v0's [Collapsible](/components/disclosure/collapsible). Which type a screen size gets is your decision; the [responsive example](#responsive-types) composes v0's [useBreakpoints](/composables/plugins/use-breakpoints) for it.
 
-The root's one slot holds both the trigger and the drawer. MD1 renders the `Activator` children outside the drawer, where a closed `<dialog>` cannot hide them, and everything else inside. That is why `Activator` must be a direct child of the root. When the trigger lives elsewhere, in an app bar, leave `Activator` out and bind `v-model` instead.
+The root's one slot holds both the trigger and the drawer. Material Design 1 renders the `Activator` children outside the drawer, where a closed `<dialog>` cannot hide them, and everything else inside. That is why `Activator` must be a direct child of the root. When the trigger lives elsewhere, in an app bar, leave `Activator` out and bind `v-model` instead.
 
 ## Examples
 
@@ -85,7 +85,7 @@ Here the trigger is the menu icon of a [Md1Toolbar](/systems/md1/toolbar), outsi
 
 ### Account header
 
-`Header` is the account area: a block of the drawer's width at the 16:9 ratio keyline, filled with the primary colour (`--md1-primary`) or covered by `image`. `avatar` draws a 64 dp circle on the 16 dp keyline, and the 56 dp account row at the bottom carries `name` in Roboto Medium 14 sp and `email` in Roboto Regular 14 sp, both white, as the pattern page sets them. The avatar size is an MD1 decision; the page shows it but gives no number.
+`Header` is the account area: a block of the drawer's width at the 16:9 ratio keyline, filled with the primary colour (`--md1-primary`) or covered by `image`. `avatar` draws a 64 dp circle on the 16 dp keyline, and the 56 dp account row at the bottom carries `name` in Roboto Medium 14 sp and `email` in Roboto Regular 14 sp, both white, as the pattern page sets them. The avatar size is a Material Design 1 decision; the page shows it but gives no number.
 
 The default slot of `Header` lands at the end of the account row, where an account switcher goes. The pictures are decorative (`alt=""`) because the name beside them already identifies the account. On a handset there is no status bar on the web, so the header starts at the top edge without the 24 dp strip the native drawer extends behind.
 :::
@@ -95,7 +95,7 @@ The default slot of `Header` lands at the end of the account row, where an accou
 
 ### Persistent
 
-`type="persistent"` toggles open and closed beside the content, at the same elevation as the content. When it opens it takes its width from the layout, so the content narrows to fit, and when it closes the content takes the room back: 300 ms on the standard curve, the motion page's relative movement. MD1 draws a 1 dp divider seam along its inner edge, a decision where the page states only the elevation. Choosing a destination leaves it open.
+`type="persistent"` toggles open and closed beside the content, at the same elevation as the content. When it opens it takes its width from the layout, so the content narrows to fit, and when it closes the content takes the room back: 300 ms on the standard curve, the motion page's relative movement. Material Design 1 draws a 1 dp divider seam along its inner edge, a decision where the page states only the elevation. Choosing a destination leaves it open.
 
 A persistent drawer sits in a flex row beside the content and stretches to the row's height, capped at the screen height and kept in view while the page scrolls. Closed, it is `inert`: its destinations leave the tab order with it. The pattern page says the drawer's state is "remembered from action to action and session to session"; that memory is yours, typically v0's [useStorage](/composables/plugins/use-storage) bound to `v-model`. The guidelines advise against a persistent drawer in apps whose hierarchy needs an up arrow.
 
@@ -107,7 +107,7 @@ The menu icon here passes `open` to `Md1Toolbar.Nav`, which turns the menu glyph
 
 ### Mini variant
 
-`mini` is the persistent drawer's alternative rest state: only the icon column shows, and opening expands it to the full drawer. The rail is one standard increment wide, 56 dp under 600 px and 64 dp from 600 px: the 24 dp icon between its 16 dp margins. The pattern page describes the state without a width, so this is an MD1 decision; Vuetify's 80 px was not taken.
+`mini` is the persistent drawer's alternative rest state: only the icon column shows, and opening expands it to the full drawer. The rail is one standard increment wide, 56 dp under 600 px and 64 dp from 600 px: the 24 dp icon between its 16 dp margins. The pattern page describes the state without a width, so this is a Material Design 1 decision; Vuetify's 80 px was not taken.
 
 At rest the destinations keep their full-width layout and are clipped at the rail's edge rather than reflowed, so nothing jumps when the drawer expands. Subheaders and the account area fade out, and the icons stay focusable and named by their labels. `mini` applies to the persistent drawer only; on another type it warns in development.
 :::
@@ -119,7 +119,7 @@ At rest the destinations keep their full-width layout and are clipped at the rai
 
 `type="permanent"` is always visible, pinned to its edge at the content's elevation, and cannot be closed: `v-model` and `close` are ignored and an `Activator` inside it warns. The guidelines recommend it as the desktop default. This one is the full-height form, for apps focused on information consumption: the drawer spans the screen and the toolbar sits beside it.
 
-The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. On the dark theme `Md1List` takes the primary's 100 shade instead, an MD1 decision: the page states the selected colour on the light sheet only, and the primary 500 reads at under 2:1 on the dark one, below the 4.5:1 contrast floor. Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
+The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. On the dark theme `Md1List` takes the primary's 100 shade instead, a Material Design 1 decision: the page states the selected colour on the light sheet only, and the primary 500 reads at under 2:1 on the dark one, below the 4.5:1 contrast floor. Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
 
 `Md1List.Group` is the expanding drawer of the navigation page: selecting a collapsed section reveals its level in-line. The whole sheet, header included, scrolls as a view when the destinations outgrow the screen.
 :::
@@ -137,7 +137,7 @@ The drawer follows the list keylines of the pattern page at every width: icons o
 
 ### Floating
 
-`floating` detaches the permanent drawer from the screen edge into a card, for apps that need less hierarchy. It takes the card's sheet: 2 dp corners (`--md1-radius`), the card's 2 dp resting elevation (0 dp where the pointer is a mouse, the elevation page's desktop rule) and no seam. The 8 dp gap around it is an MD1 decision; the page's figure gives none. `floating` applies to the permanent drawer only.
+`floating` detaches the permanent drawer from the screen edge into a card, for apps that need less hierarchy. It takes the card's sheet: 2 dp corners (`--md1-radius`), the card's 2 dp resting elevation (0 dp where the pointer is a mouse, the elevation page's desktop rule) and no seam. The 8 dp gap around it is a Material Design 1 decision; the page's figure gives none. `floating` applies to the permanent drawer only.
 :::
 
 ::: ds-example
@@ -153,7 +153,7 @@ The drawer follows the list keylines of the pattern page at every width: icons o
 
 ### Responsive types
 
-The pattern page ties each type to a screen size: temporary is required on mobile, persistent is acceptable on anything larger, and permanent is the desktop default. It gives no pixel values, so MD1 ships no automatic switch: `type` is always explicit. This example is the recommended recipe: v0's `useBreakpoints` reports the window width, and the drawer is temporary under 600 px, persistent under 1280 px and permanent above, using the `md1Breakpoints` table (1280 is 1264 px with the responsive-ui page's 16 px allowance for browser chrome).
+The pattern page ties each type to a screen size: temporary is required on mobile, persistent is acceptable on anything larger, and permanent is the desktop default. It gives no pixel values, so Material Design 1 ships no automatic switch: `type` is always explicit. This example is the recommended recipe: v0's `useBreakpoints` reports the window width, and the drawer is temporary under 600 px, persistent under 1280 px and permanent above, using the `md1Breakpoints` table (1280 is 1264 px with the responsive-ui page's 16 px allowance for browser chrome).
 
 Resize the window to watch the drawer change. The example closes the drawer whenever the type changes, so a window narrowed into the handset range never lands on an open drawer over a scrim.
 :::

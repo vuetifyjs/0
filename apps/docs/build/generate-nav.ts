@@ -92,7 +92,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
 
 // Subcategory names that title case gets wrong
 const SUBCATEGORY_NAMES: Record<string, string> = {
-  md1: 'MD1',
+  md1: 'Material Design 1',
 }
 
 // Design-system pages stay one folder per system. `features.group` is the

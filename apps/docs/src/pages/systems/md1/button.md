@@ -1,5 +1,5 @@
 ---
-title: Md1Button - MD1 Button for Vue
+title: Md1Button - Material Design 1 Button for Vue
 meta:
 - name: description
   content: The Material Design 1 button in flat and raised variants, with the dense and persistent footer forms and a glyph through Md1Icon. Built on Vuetify0's Button.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 button. Flat ink or a raised sheet, in the standard, dense and persistent footer forms, with an optional glyph ahead of the label.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page MD1 is pinned to. Metrics, states, colour and placement. This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to. Metrics, states, colour and placement. This page is the Vue.
 
 ## Usage
 
@@ -54,7 +54,7 @@ Use one type per container. Raised buttons add dimension to a flat layout and gi
 
 `Md1Button` renders v0's [Button](/components/actions/button) compound, `Button.Root` and `Button.Content`, with `Button.Icon` around a [Md1Icon](/systems/md1/icon) when `icon` is set, and adds nothing to its behavior. `Button.Content` carries the label and is left out of an icon-only button, which is how `Button.Icon` marks the root `data-solo`. Activation, focus order, the native `disabled` attribute and the `aria-label` fallback for an icon-only button all come from `Button.Root`.
 
-`Button.Root` is also what emits the `data-disabled` and `data-solo` attributes MD1's stylesheet hangs off. `data-variant`, `data-dense` and `data-footer` are MD1's own. MD1 never writes a state class; it styles the attributes v0 publishes.
+`Button.Root` is also what emits the `data-disabled` and `data-solo` attributes Material Design 1's stylesheet hangs off. `data-variant`, `data-dense` and `data-footer` are Material Design 1's own. Material Design 1 never writes a state class; it styles the attributes v0 publishes.
 
 The first child of the root is a [Md1Ripple](/systems/md1/ripple), the ink reaction the buttons page describes on every press. There is no prop to remove it: the ripple is the spec's press feedback, not an option. There is no `loading` prop either. Material Design 1 buttons have no loading state, so progress belongs in an `Md1ProgressCircular` beside the button.
 
@@ -69,7 +69,7 @@ A flat button is text printed on the sheet it sits on: no container, no shadow, 
 
 A raised button is a rectangular sheet of its own: the primary colour (`--md1-primary`, Indigo 500) with white ink at 100%, resting at 2 dp. Pressing it lifts the sheet to 8 dp and fills it with the 700 shade (`--md1-primary-dark`); on release it settles back to rest. Raised buttons add dimension to mostly flat layouts and emphasize an action on busy or wide surfaces. The guidelines call them too prominent inside dialogs.
 
-Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. Neither variant draws a hover overlay: the buttons page states none, and MD1 keeps it that way.
+Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. Neither variant draws a hover overlay: the buttons page states none, and Material Design 1 keeps it that way.
 :::
 
 ::: ds-example
@@ -79,7 +79,7 @@ Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding
 
 When mouse and keyboard are the primary input, the guidelines allow button measurements to be slightly reduced. `dense` is that form: 32 dp tall with a 13 sp label, while the 16 dp padding and the 2 dp radius stay. Reach for it in dense desktop surfaces, a data table's toolbar or a desktop dialog, and keep the 36 dp button for anything a finger will touch.
 
-The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be slightly reduced"), so MD1 exposes it as a prop instead of switching on `(pointer: fine)`: the same app can hold a dense toolbar above standard dialog actions. The touch target still extends to 48 dp around the button; the dense form only condenses what is painted. A glyph inside a dense button drops to the 20 dp dense icon size.
+The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be slightly reduced"), so Material Design 1 exposes it as a prop instead of switching on `(pointer: fine)`: the same app can hold a dense toolbar above standard dialog actions. The touch target still extends to 48 dp around the button; the dense form only condenses what is painted. A glyph inside a dense button drops to the 20 dp dense icon size.
 :::
 
 ::: ds-example
@@ -87,9 +87,9 @@ The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be s
 
 ### Icons
 
-`icon` names a role from the MD1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so MD1 uses one step of the 8 dp grid; that value is a decision, not a spec number.
+`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so Material Design 1 uses one step of the 8 dp grid; that value is a decision, not a spec number.
 
-Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and MD1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it MD1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
+Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
 :::
 
 ::: ds-example
@@ -107,7 +107,7 @@ Prefer explaining the precondition next to a disabled button. A disabled control
 
 ### Persistent footer
 
-A persistent footer button is a flat button fixed to the bottom of a screen or a dialog, so the action stays available while the content scrolls. The guidelines fix its height at 48 dp; MD1 renders it the width of its container with square corners, an MD1 decision where the page states only the height. The guidelines add a divider above it when the content scrolls, and forbid raised buttons in persistent areas; `footer` with `variant="raised"` logs a development warning and is not a spec form.
+A persistent footer button is a flat button fixed to the bottom of a screen or a dialog, so the action stays available while the content scrolls. The guidelines fix its height at 48 dp; Material Design 1 renders it the width of its container with square corners, a Material Design 1 decision where the page states only the height. The guidelines add a divider above it when the content scrolls, and forbid raised buttons in persistent areas; `footer` with `variant="raised"` logs a development warning and is not a spec form.
 
 Use it for the one action a sheet must keep reachable: "Got it" under a notice, "Done" under a long form. The 48 dp height is the touch target itself, so no hit area is added around it, and the label is capitalised by the stylesheet while the source text stays sentence case.
 :::
@@ -122,12 +122,12 @@ Use it for the one action a sheet must keep reachable: "Got it" under a notice, 
 |------|------|---------|-------------|
 | `variant` | `'flat' \| 'raised'` | `'flat'` | Flat is accent ink on the sheet with no lift. Raised is a primary 500 sheet at 2 dp that lifts to 8 dp and fills with the 700 shade on press; 0 dp at rest and 2 dp on hover under a fine pointer |
 | `dense` | `boolean` | `false` | 32 dp tall, 13 sp label: the condensed form for mouse and keyboard layouts |
-| `footer` | `boolean` | `false` | The persistent footer button: 48 dp tall (guidelines); full width and square corners (MD1). Always flat; pairing it with `raised` warns in development |
+| `footer` | `boolean` | `false` | The persistent footer button: 48 dp tall (guidelines); full width and square corners (Material Design 1). Always flat; pairing it with `raised` warns in development |
 | `icon` | `Md1IconName` | | An `Md1Icon` role drawn ahead of the label; any role registered through `createMd1IconsPlugin` also type-checks. Icon-only without slot content: a 48 dp circular target that requires `ariaLabel` |
 | `disabled` | `boolean` | `false` | Sets the native `disabled` attribute: out of the tab order, no activation, 26% ink (30% on dark), a 12% raised fill and no shadow |
 | `ariaLabel` | `string` | | Accessible name. Required for icon-only buttons |
 | `name` | `string` | | Form field name for v0's hidden input. A standalone button's input is unchecked and submits nothing; it carries a value only when the button is selected inside a v0 `Button.Group` |
-| `namespace` | `string` | | The context key `Button.Root` provides to its parts; MD1 forwards it to `Button.Icon` and `Button.Content`. Leave it unset unless a surrounding v0 `Button` context must not collide with this one |
+| `namespace` | `string` | | The context key `Button.Root` provides to its parts; Material Design 1 forwards it to `Button.Icon` and `Button.Content`. Leave it unset unless a surrounding v0 `Button` context must not collide with this one |
 
 The default slot is the label. There are no named slots.
 
@@ -149,7 +149,7 @@ The accessible name is the default slot's text. The capitals are applied by the 
 
 ### Focus
 
-The guidelines give a focused button a 12% overlay: 12% of the button's own ink on a flat button, a 12% black shade over the colour on a raised one. MD1 draws it for `:focus-visible` only, so keyboard focus shows it and a mouse click does not leave it behind. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+The guidelines give a focused button a 12% overlay: 12% of the button's own ink on a flat button, a 12% black shade over the colour on a raised one. Material Design 1 draws it for `:focus-visible` only, so keyboard focus shows it and a mouse click does not leave it behind. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
 
 ### Disabled
 

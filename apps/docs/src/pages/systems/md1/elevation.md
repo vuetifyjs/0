@@ -1,8 +1,8 @@
 ---
-title: Elevation - MD1 Material Design 1 Elevation and Shadows for Vue
+title: Elevation - Material Design 1 Elevation and Shadows for Vue
 meta:
 - name: description
-  content: Material Design 1 elevation in MD1. The 0 to 24 dp shadow scale as tokens and utility classes, the component elevation table, the three-layer shadow recipe, and dark theme shadows.
+  content: Material Design 1 elevation. The 0 to 24 dp shadow scale as tokens and utility classes, the component elevation table, the three-layer shadow recipe, and dark theme shadows.
 - name: keywords
   content: md1 elevation, material design 1 elevation, material shadows, box-shadow, dp elevation, resting elevation, paper md1, vuetify0
 features:
@@ -23,10 +23,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Every MD1 surface sits at a depth measured in dp, and the shadow it casts is the only cue that says how far it floats above the sheet beneath it.
+Every Material Design 1 surface sits at a depth measured in dp, and the shadow it casts is the only cue that says how far it floats above the sheet beneath it.
 
 > [!NOTE]
-> Reference: [Elevation and shadows, Material Design 1 guidelines](http://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html), the archived page MD1 is pinned to. The component elevation table, resting and dynamic elevation, and the rules for shadows. This page is the Vue.
+> Reference: [Elevation and shadows, Material Design 1 guidelines](http://web.archive.org/web/20181225002223/https://material.io/archive/guidelines/material-design/elevation-shadows.html), the archived page Material Design 1 is pinned to. The component elevation table, resting and dynamic elevation, and the rules for shadows. This page is the Vue.
 
 ## Usage
 
@@ -56,7 +56,7 @@ The class also carries the elevation transition, so swapping `md1-elevation-2` f
 
 Material is 1 dp thick and every sheet occupies one position on the z axis. Elevation is the distance between the top of one surface and the top of another, so a child's elevation is relative to its parent's. The web has no real z axis, so the guidelines emulate depth with shadows offset on the y axis: two light sources, a key light that casts a directional shadow and an ambient light that casts a soft one all around.
 
-Three rules follow from the model, and every MD1 component keeps them:
+Three rules follow from the model, and every Material Design 1 component keeps them:
 
 - **Resting elevation** is where a component sits when nothing is happening. It never drifts on its own, and a component that moves returns to rest as soon as the input ends.
 - **Dynamic elevation** is the goal a component lifts toward in response to input. Every component that lifts on press uses the same offset, +6 dp: the FAB goes from 6 to 12 dp, the raised button and the picked-up card from 2 to 8 dp.
@@ -64,7 +64,7 @@ Three rules follow from the model, and every MD1 component keeps them:
 
 ## Desktop elevation
 
-The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. MD1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations. The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. A laptop with a touch screen reports a coarse pointer and keeps the device values.
+The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. Material Design 1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations. The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. A laptop with a touch screen reports a coarse pointer and keeps the device values.
 
 ## Examples
 
@@ -85,7 +85,7 @@ The change animates over 280 ms on the standard curve, the transition the `md1-e
 
 ### The shadow recipe
 
-The guidelines give elevation in dp and never in pixels, so MD1 takes its shadows from Vuetify 1.5's `_elevations.styl`, the reference implementation of the Material paper shadows. Every level is three stacked `box-shadow` layers. The umbra is the dark core of the key light's shadow at black 20%, the penumbra its soft edge at 14%, and the ambient layer the all-round shadow at 12%. The first two together are the key shadow the environment page draws; the third is its ambient shadow.
+The guidelines give elevation in dp and never in pixels, so Material Design 1 takes its shadows from Vuetify 1.5's `_elevations.styl`, the reference implementation of the Material paper shadows. Every level is three stacked `box-shadow` layers. The umbra is the dark core of the key light's shadow at black 20%, the penumbra its soft edge at 14%, and the ambient layer the all-round shadow at 12%. The first two together are the key shadow the environment page draws; the third is its ambient shadow.
 
 The example pulls the 6 dp and 24 dp levels apart, one layer per sheet, and then stacks them. At 6 dp the umbra is `0px 3px 5px -1px`, the penumbra `0px 6px 10px 0px` and the ambient layer `0px 1px 18px 0px`; by 24 dp the same three layers have grown to `0px 11px 15px -7px`, `0px 24px 38px 3px` and `0px 9px 46px 8px`. That growth is the guidelines' rule made literal: the higher the surface, the softer and larger its shadow.
 
@@ -115,7 +115,7 @@ The result is that depth reads less strongly on the dark theme, because a black 
 |-------|------|
 | `md1-elevation-0` to `md1-elevation-24` | `box-shadow: var(--md1-elevation-<n>)` and `transition: box-shadow 280ms` on `--md1-easing-standard` |
 
-The classes are a declared deviation from the no-utilities rule for design systems: together with the `md1-type-*` classes they are the only utilities MD1 ships, so a composition outside the component set can still render at the system's depth without copying 25 shadow values.
+The classes are a declared deviation from the no-utilities rule for design systems: together with the `md1-type-*` classes they are the only utilities Material Design 1 ships, so a composition outside the component set can still render at the system's depth without copying 25 shadow values.
 
 ## Accessibility
 

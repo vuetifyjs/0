@@ -1,8 +1,8 @@
 ---
-title: Empty States - MD1 Material Design 1 Empty States Pattern for Vue
+title: Empty States - Material Design 1 Empty States Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 empty states pattern in MD1. A neutral image with a tagline, and the starter, educational and best match alternatives built from cards, lists and buttons.
+  content: The Material Design 1 empty states pattern. A neutral image with a tagline, and the starter, educational and best match alternatives built from cards, lists and buttons.
 - name: keywords
   content: md1 empty state, material design 1 empty states, empty list, no results, starter content, educational card, best match, vue empty state, paper md1
 features:
@@ -24,10 +24,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-An empty state is what a screen shows when its content cannot be shown: a list with no items, a search with no results. MD1 has no empty state component; the screen is an `Md1Icon` and a line of type, or one of the alternatives the guidelines prefer, built from `Md1Card`, `Md1List` and `Md1Button`.
+An empty state is what a screen shows when its content cannot be shown: a list with no items, a search with no results. Material Design 1 has no empty state component; the screen is an `Md1Icon` and a line of type, or one of the alternatives the guidelines prefer, built from `Md1Card`, `Md1List` and `Md1Button`.
 
 > [!NOTE]
-> Reference: [Empty states, Material Design 1 guidelines](http://web.archive.org/web/20181225002248/https://material.io/archive/guidelines/patterns/empty-states.html), the archived page MD1 is pinned to. Image, tagline, and the three alternatives to a truly empty screen. This page is the Vue.
+> Reference: [Empty states, Material Design 1 guidelines](http://web.archive.org/web/20181225002248/https://material.io/archive/guidelines/patterns/empty-states.html), the archived page Material Design 1 is pinned to. Image, tagline, and the three alternatives to a truly empty screen. This page is the Vue.
 
 ## Usage
 
@@ -41,7 +41,7 @@ The image is the inbox glyph at 96 dp in the disabled ink, 38% black on the ligh
 
 ## Building blocks
 
-| Part of the screen | MD1 surface | Guideline |
+| Part of the screen | Material Design 1 surface | Guideline |
 |--------------------|-----------------|-----------|
 | Image | `Md1Icon` scaled through `--md1-icon-size`, in `--md1-text-disabled` | Subtle and neutral against the background; conveys the app's purpose, such as its icon; not touchable |
 | Tagline | The Subheading type tokens in `--md1-text-secondary` | Positive in tone, on brand, states the purpose without reading as a call to action |
@@ -49,7 +49,7 @@ The image is the inbox glyph at 96 dp in the disabled ink, 38% black on the ligh
 | Educational content | A dismissible `Md1Card` with `Md1Card.Actions` | Explains what the screen will hold; brief; can be dismissed or skipped |
 | Best match | `Md1Card` results under a heading in the `md1-type-body-2` class | States plainly that the results answer a nearby query, not the one typed |
 
-MD1 ships no `Md1EmptyState`. The guidelines define the pattern as content guidance over surfaces that already exist, and a component the spec never names would be an MD1 invention (SPEC.md, exclusivity).
+Material Design 1 ships no `Md1EmptyState`. The guidelines define the pattern as content guidance over surfaces that already exist, and a component the spec never names would be a Material Design 1 invention (SPEC.md, exclusivity).
 
 ## Examples
 

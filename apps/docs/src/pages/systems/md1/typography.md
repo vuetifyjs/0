@@ -1,8 +1,8 @@
 ---
-title: Typography - MD1 Material Design 1 Type Scale for Vue
+title: Typography - Material Design 1 Type Scale for Vue
 meta:
 - name: description
-  content: The Material Design 1 type scale in MD1. Thirteen styles from Display 4 to Caption as md1-type classes, Roboto and Noto, desktop sizes and dense and tall scripts.
+  content: The Material Design 1 type scale. Thirteen styles from Display 4 to Caption as md1-type classes, Roboto and Noto, desktop sizes and dense and tall scripts.
 - name: keywords
   content: md1 typography, material design 1 type scale, roboto, noto, display headline title subheading body caption, vue typography, paper md1
 features:
@@ -24,7 +24,7 @@ related:
 The Material Design 1 type scale: thirteen named styles set in Roboto and Noto, from Display 4 at 112 sp down to the 12 sp Caption, with desktop sizes and rules for dense and tall scripts.
 
 > [!NOTE]
-> Reference: [Typography, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/typography.html), the archived page MD1 is pinned to. Typeface, scale, leading, tracking, language categories and text opacity. This page is the Vue.
+> Reference: [Typography, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/typography.html), the archived page Material Design 1 is pinned to. Typeface, scale, leading, tracking, language categories and text opacity. This page is the Vue.
 
 ## Usage
 
@@ -38,7 +38,7 @@ Each style is a class. Put `md1-type-<style>` on any element and it gets the fam
 </template>
 ```
 
-The classes ship in `@paper/md1/style.css`. MD1's components set their own text with the same tokens, so you need the classes only for your own content. When a class does not fit, read the tokens directly: `--md1-type-<style>-size`, `-weight`, `-leading`, `-tracking` and `-transform`, plus `--md1-font-family`.
+The classes ship in `@paper/md1/style.css`. Material Design 1's components set their own text with the same tokens, so you need the classes only for your own content. When a class does not fit, read the tokens directly: `--md1-type-<style>-size`, `-weight`, `-leading`, `-tracking` and `-transform`, plus `--md1-font-family`.
 
 ::: ds-example
 /systems/md1/typography/basic
@@ -66,29 +66,29 @@ The classes ship in `@paper/md1/style.css`. MD1's components set their own text 
 
 Ink is the style's opacity of black on a light theme, from the page's contrast figure; on a dark theme the same two tiers become white at 70% and 100% through `--md1-text-secondary` and `--md1-text-primary` (see [Color](/systems/md1/color)).
 
-Three columns carry an MD1 decision where the page is silent:
+Three columns carry a Material Design 1 decision where the page is silent:
 
-- **Single-line leading.** The page prints no leading for Display 4, Display 3, Title, Caption, Button and Menu, which "should exist as single lines". MD1 sets `line-height: 1` on them.
-- **Tracking unit.** The page prints bare numbers. MD1 reads them as Adobe tracking units, 1/1000 em, so -10 is `-0.01em` and 20 is `0.02em`.
-- **Menu.** The archived scale, leading and tracking images omit Menu, though the contrast figure lists it. MD1 uses Medium 14 sp (13 sp desktop), single line, at tracking 10. Those metrics are a recollection of earlier revisions of the page, not a capture MD1 could read; treat them as the least certain on the page.
+- **Single-line leading.** The page prints no leading for Display 4, Display 3, Title, Caption, Button and Menu, which "should exist as single lines". Material Design 1 sets `line-height: 1` on them.
+- **Tracking unit.** The page prints bare numbers. Material Design 1 reads them as Adobe tracking units, 1/1000 em, so -10 is `-0.01em` and 20 is `0.02em`.
+- **Menu.** The archived scale, leading and tracking images omit Menu, though the contrast figure lists it. Material Design 1 uses Medium 14 sp (13 sp desktop), single line, at tracking 10. Those metrics are a recollection of earlier revisions of the page, not a capture Material Design 1 could read; treat them as the least certain on the page.
 
 ## Typeface
 
-Roboto is the standard typeface, and Noto covers every language Roboto does not. The page's stack is Roboto, then Noto, then the platform sans-serif, and MD1 publishes it as `--md1-font-family`:
+Roboto is the standard typeface, and Noto covers every language Roboto does not. The page's stack is Roboto, then Noto, then the platform sans-serif, and Material Design 1 publishes it as `--md1-font-family`:
 
 ```css
 font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
 ```
 
-MD1 does not load fonts. Include Roboto in the weights the scale uses (Light 300, Regular 400 and Medium 500, plus Bold 700 for tall scripts) the way your app loads any web font; without it the stack falls through to the system sans-serif. The weights are also tokens: `--md1-font-weight-light`, `-regular`, `-medium` and `-bold`.
+Material Design 1 does not load fonts. Include Roboto in the weights the scale uses (Light 300, Regular 400 and Medium 500, plus Bold 700 for tall scripts) the way your app loads any web font; without it the stack falls through to the system sans-serif. The weights are also tokens: `--md1-font-weight-light`, `-regular`, `-medium` and `-bold`.
 
 ## Desktop sizes
 
-The page gives two sizes for the body styles: one for phones and tablets and a smaller one where mouse and keyboard are the primary input. MD1 keys that on `(pointer: fine)`. Under it, Subheading and Subheading 2 drop to 15 sp and Body 2, Body 1 and Menu to 13 sp; leading, weight and every other style stay the same. A laptop with a touch screen and a mouse reports a fine pointer and gets the desktop sizes. There is no runtime override.
+The page gives two sizes for the body styles: one for phones and tablets and a smaller one where mouse and keyboard are the primary input. Material Design 1 keys that on `(pointer: fine)`. Under it, Subheading and Subheading 2 drop to 15 sp and Body 2, Body 1 and Menu to 13 sp; leading, weight and every other style stay the same. A laptop with a touch screen and a mouse reports a fine pointer and gets the desktop sizes. There is no runtime override.
 
 ## Dense and tall scripts
 
-The page sorts languages into three categories, and MD1 switches between them on the `lang` attribute alone. Set `lang` on `<html>`, or on any element for a passage in another language, and the type tokens and classes beneath it rescope.
+The page sorts languages into three categories, and Material Design 1 switches between them on the `lang` attribute alone. Set `lang` on `<html>`, or on any element for a passage in another language, and the type tokens and classes beneath it rescope.
 
 | Category | Languages (`:lang()`) | Size | Leading | Weight | Font stack |
 |----------|------------------------|------|---------|--------|------------|
@@ -108,7 +108,7 @@ Styles larger than Title keep the English size. Leading grows for every wrapping
 | Body 2 | 24 | 26 |
 | Body 1 | 20 | 23 |
 
-Noto ships tall scripts in Regular and Bold only, so the page's own table sets every Medium style in Bold there (Title, Body 2 and Button) and Display 4 in Regular. The table has no Menu row; MD1 sets Menu in Bold too, by the same rule. The page's prose advises against Bold; MD1 follows the table, which is the only one that names a weight per style. On desktop the dense and tall body styles drop back by one: Subheading 16 sp, Body 2, Body 1 and Menu 14 sp.
+Noto ships tall scripts in Regular and Bold only, so the page's own table sets every Medium style in Bold there (Title, Body 2 and Button) and Display 4 in Regular. The table has no Menu row; Material Design 1 sets Menu in Bold too, by the same rule. The page's prose advises against Bold; Material Design 1 follows the table, which is the only one that names a weight per style. On desktop the dense and tall body styles drop back by one: Subheading 16 sp, Body 2, Body 1 and Menu 14 sp.
 
 ## Examples
 
@@ -154,6 +154,6 @@ Set `lang` correctly and the type follows; there is no prop, class or plugin opt
 
 ## Accessibility
 
-The page sets a contrast floor of 4.5:1 for text, with 7:1 preferred. The style inks meet it on MD1's light surfaces: 87% black on white measures about 16:1 and 54% black about 4.6:1. Keep secondary-tier styles, Caption and the display styles, off tinted backgrounds that would push them under 4.5:1.
+The page sets a contrast floor of 4.5:1 for text, with 7:1 preferred. The style inks meet it on Material Design 1's light surfaces: 87% black on white measures about 16:1 and 54% black about 4.6:1. Keep secondary-tier styles, Caption and the display styles, off tinted backgrounds that would push them under 4.5:1.
 
 Sizes are in px, the web reading of sp. The page's reason for sp is that a platform can scale type for readers who need it. Browser zoom scales px; a reader's default font size setting does not, because the tokens are px rather than rem. Button labels are capitalised by `text-transform`, so screen readers announce the sentence-case source text rather than spelling out capitals. Set `lang` on every passage in another language: the dense and tall rules depend on it, and so does the voice a screen reader picks.

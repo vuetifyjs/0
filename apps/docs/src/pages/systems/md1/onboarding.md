@@ -1,8 +1,8 @@
 ---
-title: Onboarding - MD1 Material Design 1 Onboarding Pattern for Vue
+title: Onboarding - Material Design 1 Onboarding Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 onboarding models in MD1. Quickstart, self-select and top user benefits, composed from buttons, lists and cards with pagination dots you draw.
+  content: The Material Design 1 onboarding models. Quickstart, self-select and top user benefits, composed from buttons, lists and cards with pagination dots you draw.
 - name: keywords
   content: md1 onboarding, material design 1 onboarding, warm welcome, first run experience, quickstart, self-select, top user benefits, onboarding carousel, vue onboarding, paper md1
 features:
@@ -25,10 +25,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Onboarding, the guidelines' "warm welcome", is the first experience a new user has with an app. Material Design 1 defines three models for it, and MD1 composes each from `Md1Button`, `Md1List` and `Md1Card`; there is no onboarding component.
+Onboarding, the guidelines' "warm welcome", is the first experience a new user has with an app. Material Design 1 defines three models for it, and `@paper/md1` composes each from `Md1Button`, `Md1List` and `Md1Card`; there is no onboarding component.
 
 > [!NOTE]
-> Reference: [Onboarding, Material Design 1 guidelines](http://web.archive.org/web/20181225002225/https://material.io/archive/guidelines/growth-communications/onboarding.html), the archived page MD1 is pinned to. The three models, when to use each, and the platform redlines. This page is the Vue.
+> Reference: [Onboarding, Material Design 1 guidelines](http://web.archive.org/web/20181225002225/https://material.io/archive/guidelines/growth-communications/onboarding.html), the archived page Material Design 1 is pinned to. The three models, when to use each, and the platform redlines. This page is the Vue.
 
 ## Usage
 
@@ -50,7 +50,7 @@ Quickstart gives the user something to do instead of a blank screen. The first k
 
 Never combine self-select with top user benefits. Setup may run before the first-run experience, or after or inside onboarding. Whichever model runs, the screen it ends on should make it easy to act on what was just learned. For a single feature introduced later, use [Feature discovery](/systems/md1/feature-discovery) instead.
 
-| Part | MD1 surface | Guideline |
+| Part | Material Design 1 surface | Guideline |
 |------|-----------------|-----------|
 | Primary call to action | `Md1Button variant="raised"` | "Get started" throughout a carousel; the first key action in Quickstart |
 | Choices | `Md1List select="multiple"`, or `Md1GridList` tiles with `selected` | Fewer than ten, on one screen, each with a noticeable effect |
@@ -58,7 +58,7 @@ Never combine self-select with top user benefits. Setup may run before the first
 | Desktop carousel | `Md1Card`, with icon-only `Md1Button`s for Previous and Next | Illustration, copy and the button in a centred card |
 | Pagination | Dots you draw | One per screen, beneath the copy or the card; none for a video |
 
-MD1 ships no pagination dots: the guidelines draw them on the onboarding page only and give no metrics, so they are part of your composition, not a component.
+Material Design 1 ships no pagination dots: the guidelines draw them on the onboarding page only and give no metrics, so they are part of your composition, not a component.
 
 ## Examples
 
@@ -79,9 +79,9 @@ The example is one screen: a headline in the Headline style (24 sp on 32 sp), a 
 
 Top user benefits is a brief autoplay carousel of at most three illustrations, each positioning one benefit of the app at a moment that matters rather than describing a feature. Each screen auto-advances every two to three seconds; the first one advances sooner so it is clear this is not a single screen. Autoplay stops for good once the user touches the carousel, and the carousel loops until "Get started" is pressed. The button and the dots stay fixed while the copy changes on its own field, at the same elevation as the illustration.
 
-The example keeps the slide state in v0's [createStep](/composables/selection/create-step) with `circular` on, and times it with [useTimer](/composables/system/use-timer): 2 s for the first screen and 3 s for the others, values inside the guidelines' range. A `pointerdown` or focus anywhere in the carousel stops the timer. The dots are v0 `Button.Root`s, 8 dp marks in the disabled ink with the current one in the primary colour, so a keyboard user can move between screens; the guidelines also make the screen swipeable, a gesture MD1 does not ship. Once autoplay stops, the copy region becomes a polite live region so a screen reader hears each change.
+The example keeps the slide state in v0's [createStep](/composables/selection/create-step) with `circular` on, and times it with [useTimer](/composables/system/use-timer): 2 s for the first screen and 3 s for the others, values inside the guidelines' range. A `pointerdown` or focus anywhere in the carousel stops the timer. The dots are v0 `Button.Root`s, 8 dp marks in the disabled ink with the current one in the primary colour, so a keyboard user can move between screens; the guidelines also make the screen swipeable, a gesture Material Design 1 does not ship. Once autoplay stops, the copy region becomes a polite live region so a screen reader hears each change.
 
-The layout is the handset portrait redline: a 1:1 illustration, then centred copy and controls built upward from the bottom edge with 24 dp of padding. The headline is 24 sp on a 32 sp leading; the centre of the copy sits 56 dp above the top of the button, which leaves room for one to three lines. The redline sets the subhead at 15 sp where MD1's Subheading token is 16 sp on a touch device; the example uses the token.
+The layout is the handset portrait redline: a 1:1 illustration, then centred copy and controls built upward from the bottom edge with 24 dp of padding. The headline is 24 sp on a 32 sp leading; the centre of the copy sits 56 dp above the top of the button, which leaves room for one to three lines. The redline sets the subhead at 15 sp where Material Design 1's Subheading token is 16 sp on a touch device; the example uses the token.
 :::
 
 ::: ds-example
@@ -91,7 +91,7 @@ The layout is the handset portrait redline: a 1:1 illustration, then centred cop
 
 On desktop the guidelines put the illustration, the copy and the button in a centred card, with "Previous" and "Next" beside the card and the pagination beneath it. The redline: Headline 24 sp on 32 sp, Subheading 16 sp on 24 sp, 56 dp from the top of the button to the centre of the copy, 24 dp from the card to the dots, and 48 dp from the card to each arrow. Below 600 px, where the handset layouts apply instead, the example moves the arrows into the pagination row so the card keeps its width.
 
-The card is an `Md1Card` at its resting elevation and the arrows are icon-only `Md1Button`s with the `arrow-back` and `arrow-forward` glyphs, named "Previous" and "Next" through `ariaLabel`. Both glyphs mirror under right-to-left text. The guidelines' figure draws the arrows as white circles with a shadow; MD1 has no such button, so the flat icon button stands in. The dots only reflect the position here (`aria-hidden`), because the arrows already navigate. The carousel is circular, so Next on the last screen returns to the first, matching the mobile carousel's loop.
+The card is an `Md1Card` at its resting elevation and the arrows are icon-only `Md1Button`s with the `arrow-back` and `arrow-forward` glyphs, named "Previous" and "Next" through `ariaLabel`. Both glyphs mirror under right-to-left text. The guidelines' figure draws the arrows as white circles with a shadow; Material Design 1 has no such button, so the flat icon button stands in. The dots only reflect the position here (`aria-hidden`), because the arrows already navigate. The carousel is circular, so Next on the last screen returns to the first, matching the mobile carousel's loop.
 :::
 
 ## Accessibility

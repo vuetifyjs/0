@@ -1,5 +1,5 @@
 ---
-title: Md1ToggleButtons - MD1 Toggle Buttons for Vue
+title: Md1ToggleButtons - Material Design 1 Toggle Buttons for Vue
 meta:
 - name: description
   content: The Material Design 1 toggle buttons, a group of at least three related options with exclusive or multiple selection, as text, glyphs or both. Built on Vuetify0's Toggle.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 toggle buttons. A row of at least three related options, selected one at a time or several at once, labelled with text, a glyph, or both.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page MD1 is pinned to (the toggle buttons section). The page draws the group's metrics only as images; the values on this page are MD1 decisions, marked where they appear. This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to (the toggle buttons section). The page draws the group's metrics only as images; the values on this page are Material Design 1 decisions, marked where they appear. This page is the Vue.
 
 ## Usage
 
@@ -54,7 +54,7 @@ The Material Design 1 toggle buttons. A row of at least three related options, s
 
 `Md1ToggleButtons` renders v0's [Toggle](/components/actions/toggle) compound: the root is `Toggle.Group`, which owns the selection (single or multiple, decided once at setup), the `v-model` and the `role="group"` container, and each item is a `Toggle.Root` that registers with it and publishes `aria-pressed`. Exclusive selection, `mandatory` and per-item `disabled` are v0's.
 
-`Toggle.Group` emits `data-disabled` and `data-orientation`; `Toggle.Root` emits `data-state` (`on` or `off`) and `data-disabled` on each item. `data-multiple` on the root and `data-solo` on an icon-only item are MD1's own. Each item hosts a bounded [Md1Ripple](/systems/md1/ripple) as its first child, and glyphs draw through [Md1Icon](/systems/md1/icon).
+`Toggle.Group` emits `data-disabled` and `data-orientation`; `Toggle.Root` emits `data-state` (`on` or `off`) and `data-disabled` on each item. `data-multiple` on the root and `data-solo` on an icon-only item are Material Design 1's own. Each item hosts a bounded [Md1Ripple](/systems/md1/ripple) as its first child, and glyphs draw through [Md1Icon](/systems/md1/icon).
 
 The root also counts its items through a registry so it can hold the guidelines' minimum: a group of fewer than three options warns in development. An item rendered outside a group warns too, and falls back to a standalone toggle.
 
@@ -67,7 +67,7 @@ The root also counts its items through a registry so it can hold the guidelines'
 
 The default group is exclusive: selecting an option deselects the one before it, and pressing the selected option again clears the selection. That is the guidelines' "exclusive and unselected" combination, and `v-model` reads `undefined` while nothing is chosen.
 
-Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 16 dp of side padding. The page shows the group only as an image, so the container is an MD1 decision: one 2 dp radius shared by the items, a 1 dp edge and 1 dp dividers in `--md1-divider`, so layout reads as one control the way the guidelines ask. Each item still answers to a 48 dp tall hit area.
+Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 16 dp of side padding. The page shows the group only as an image, so the container is a Material Design 1 decision: one 2 dp radius shared by the items, a 1 dp edge and 1 dp dividers in `--md1-divider`, so layout reads as one control the way the guidelines ask. Each item still answers to a 48 dp tall hit area.
 
 The selected option fills with the 12% overlay of the buttons page (`--md1-focus`) and its ink rises from the secondary tier, 54% black, to the primary tier, 87% black. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
 :::
@@ -97,9 +97,9 @@ The selected option fills with the 12% overlay of the buttons page (`--md1-focus
 
 ### Icons
 
-`icon` on an item draws a glyph from the MD1 icon set through `Md1Icon` ahead of the label, at 24 dp with the 8 dp gap Md1Button uses (the guidelines state no icon-to-label gap). Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
+`icon` on an item draws a glyph from the Material Design 1 icon set through `Md1Icon` ahead of the label, at 24 dp with the 8 dp gap Md1Button uses (the guidelines state no icon-to-label gap). Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
 
-An icon-only item has no text, so it needs `ariaLabel`; without one MD1 warns in development. The glyph is hidden from assistive technology in both forms, so the label in the slot or `ariaLabel` is always the item's whole name.
+An icon-only item has no text, so it needs `ariaLabel`; without one Material Design 1 warns in development. The glyph is hidden from assistive technology in both forms, so the label in the slot or `ariaLabel` is always the item's whole name.
 :::
 
 ::: ds-example

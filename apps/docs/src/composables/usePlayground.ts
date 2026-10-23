@@ -38,7 +38,7 @@ const PAPER_CDN = {
   '@paper/emerald/style.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/style.css',
   '@paper/emerald/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/emerald@latest/dist/theme.css',
   // Resolves once @paper/md1 is on npm; until the first publish these 404
-  // and "Open in Playground" on MD1 examples cannot load the package.
+  // and "Open in Playground" on Material Design 1 examples cannot load the package.
   '@paper/md1': 'https://cdn.jsdelivr.net/npm/@paper/md1@latest/dist/index.mjs',
   '@paper/md1/style.css': 'https://cdn.jsdelivr.net/npm/@paper/md1@latest/dist/style.css',
   '@paper/md1/theme.css': 'https://cdn.jsdelivr.net/npm/@paper/md1@latest/dist/theme.css',

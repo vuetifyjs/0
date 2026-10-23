@@ -1,13 +1,13 @@
 ---
-title: MD1 - Material Design 1 for Vue on Vuetify0
+title: Material Design 1 - Design System for Vue on Vuetify0
 meta:
 - name: description
-  content: MD1 is the Material Design 1 (2014 to 2017) design system for Vue, built on Vuetify0. Tokens, light and dark themes, the Material Icons set, and Md1* components that wrap v0's headless compounds.
+  content: Material Design 1 is the 2014 to 2017 design system for Vue, built on Vuetify0. Tokens, light and dark themes, the Material Icons set, and Md1* components that wrap v0's headless compounds.
 - name: keywords
   content: md1, material design 1, material design 2014, quantum paper, vue design system, vuetify0, paper, design tokens, md1 components, material icons
 features:
   category: Guide
-  label: 'MD1'
+  label: 'Material Design 1'
   level: 2
   order: 0
 related:
@@ -21,29 +21,29 @@ related:
   - /systems/md1/layout
 ---
 
-# MD1
+# Material Design 1
 
 <DocsPageFeatures :frontmatter />
 
-MD1 is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. MD1 handles appearance.
+Material Design 1 is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.
 
 <DocsSystemActivator palette="md1" />
 
-## What MD1 is
+## What Material Design 1 is
 
-MD1 is Material Design 1: the 2014 to 2017 Material Design guidelines, the language Google developed under the codename Quantum Paper. It is the older language in its own right, not a theme of the current one, and `@paper/material` stays reserved for Material Design 3. Every `Md1*` API is the spec's vocabulary rendered on v0, and nothing more. Where the guidelines say `dense`, `raised`, `mini` or `shifting`, the prop is that word.
+Material Design 1 is the 2014 to 2017 Material Design guidelines, the language Google developed under the codename Quantum Paper. It is the older language in its own right, not a theme of the current one, and `@paper/material` stays reserved for Material Design 3. Every `Md1*` API is the spec's vocabulary rendered on v0, and nothing more. Where the guidelines say `dense`, `raised`, `mini` or `shifting`, the prop is that word.
 
-MD1 has its own tokens, its own icon set, and its own component names. Selection, focus, popovers, dialogs, and validation come from v0. Keyboard behavior does too, except the date and time pickers, whose grids live in MD1 until v0 has them. An MD1 component behaves like the Vuetify0 compound it wraps, so a keyboard fix in v0 reaches `Md1Dialog` without a separate MD1 release.
+Material Design 1 has its own tokens, its own icon set, and its own component names. Selection, focus, popovers, dialogs, and validation come from v0. Keyboard behavior does too, except the date and time pickers, whose grids live in Material Design 1 until v0 has them. A Material Design 1 component behaves like the Vuetify0 compound it wraps, so a keyboard fix in v0 reaches `Md1Dialog` without a separate Material Design 1 release.
 
 ### The pinned spec
 
-The guidelines are archived, so the spec cannot move under the package. MD1 is pinned to the Wayback Machine capture of the archived guidelines taken on 2018-12-25 at 00:22:55 UTC: [material.io/archive/guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/). The archive's own changelog ends with September 2017, which dates the frozen content. Google's mirror at [m1.material.io](https://m1.material.io/) carries the same pages. The glyphs are Material Icons at commit `49d4db35`, and Vuetify 1.5.24 is used only as a numeric cross-check, never as a source of API.
+The guidelines are archived, so the spec cannot move under the package. Material Design 1 is pinned to the Wayback Machine capture of the archived guidelines taken on 2018-12-25 at 00:22:55 UTC: [material.io/archive/guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/). The archive's own changelog ends with September 2017, which dates the frozen content. Google's mirror at [m1.material.io](https://m1.material.io/) carries the same pages. The glyphs are Material Icons at commit `49d4db35`, and Vuetify 1.5.24 is used only as a numeric cross-check, never as a source of API.
 
 Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface (widgets, notifications, launch screens, toasts, split screen) are listed as out, with the reason, in the package's `SPEC.md`.
 
 ### The escape hatch
 
-A missing piece is yours to compose. Take the v0 primitive, style it with the `--md1-*` tokens and the `md1-type-*` and `md1-elevation-*` classes, and add `Md1Ripple` for the ink. The result is supported as v0 and as MD1 tokens. It is not an MD1 component, and the hole stays listed under the package's known limitations rather than being filled with an unspecified extra.
+A missing piece is yours to compose. Take the v0 primitive, style it with the `--md1-*` tokens and the `md1-type-*` and `md1-elevation-*` classes, and add `Md1Ripple` for the ink. The result is supported as v0 and as Material Design 1 tokens. It is not a Material Design 1 component, and the hole stays listed under the package's known limitations rather than being filled with an unspecified extra.
 
 ## Installation
 
@@ -93,7 +93,7 @@ Three options turn parts of that setup off. Each key also accepts that plugin's 
 | `{ icons: false }` | Skips installing the icon registry on the app. `Md1Icon` still draws from the built-in set[^icons-bundle] |
 | `{ reducedMotion: false }` | Skips `createReducedMotionPlugin`. Use this when the host installs it itself. `Md1Ripple` reads it; with no plugin installed, `Md1Ripple` follows the operating system's `prefers-reduced-motion` setting, and the CSS stays gated on it either way |
 
-[^icons-bundle]: `{ icons: false }` skips installation. It does not remove the glyph map from the bundle, because the plugin entry imports that map statically. Components that draw a glyph import `Md1Icon`, so an app using MD1 controls already includes the map. To leave the map out, call `createMd1IconsPlugin` yourself and skip `createMd1Plugin`.
+[^icons-bundle]: `{ icons: false }` skips installation. It does not remove the glyph map from the bundle, because the plugin entry imports that map statically. Components that draw a glyph import `Md1Icon`, so an app using Material Design 1 controls already includes the map. To leave the map out, call `createMd1IconsPlugin` yourself and skip `createMd1Plugin`.
 
 ### Without the plugin
 
@@ -124,13 +124,13 @@ The [Color](/systems/md1/color), [Typography](/systems/md1/typography), [Elevati
 
 Each color is emitted as its value and as space-separated RGB channels. Use `--md1-primary-channels` in `rgb(... / 0.4)` when you need a translucent overlay. The ink tokens are already translucent: black at 87%, 54%, 38% and 12% on the light theme, white at 100%, 70%, 50% and 12% on the dark one.
 
-Breakpoints are not custom properties. They ship as `md1Breakpoints`, the documented dp table in JS: 480, 600, 840, 960, 1280, 1440, 1600 and 1920, keyed by the nominal width, with the 16 px desktop reduction on 1280 and above (the 1024 row, 1008 px effective, is in the documented table only). Vuetify0's `useBreakpoints` has its own named breakpoints and takes no MD1 input, so map the table onto those names yourself when a layout needs the spec's widths.
+Breakpoints are not custom properties. They ship as `md1Breakpoints`, the documented dp table in JS: 480, 600, 840, 960, 1280, 1440, 1600 and 1920, keyed by the nominal width, with the 16 px desktop reduction on 1280 and above (the 1024 row, 1008 px effective, is in the documented table only). Vuetify0's `useBreakpoints` has its own named breakpoints and takes no Material Design 1 input, so map the table onto those names yourself when a layout needs the spec's widths.
 
 ### The v0 bridge
 
-MD1 also writes its color roles onto the `--v0-*` names that Vuetify0 kits read, so a kit written against those names picks up MD1's colors.
+Material Design 1 also writes its color roles onto the `--v0-*` names that Vuetify0 kits read, so a kit written against those names picks up Material Design 1's colors.
 
-Most names match: `--v0-primary` copies `--md1-primary` and `--v0-background` copies `--md1-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads a bridge-only tint (the primary's 100 on the light theme, its 700 on the dark one, so code chips and table headers keep their contrast under white ink), `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no MD1 component reads them.
+Most names match: `--v0-primary` copies `--md1-primary` and `--v0-background` copies `--md1-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads a bridge-only tint (the primary's 100 on the light theme, its 700 on the dark one, so code chips and table headers keep their contrast under white ink), `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no Material Design 1 component reads them.
 
 Pass `{ v0Aliases: false }` to the adapter to skip the `--v0-*` names.
 
@@ -164,7 +164,7 @@ Every component below is exported from `@paper/md1` and has its own page. The se
 | `Md1Checkbox` | [Selection controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html) | v0 [Checkbox](/components/forms/checkbox) | [Checkbox](/systems/md1/checkbox) |
 | `Md1Chip` | [Chips](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/chips.html) | v0 [Atom](/components/primitives/atom) or [Button](/components/actions/button); [Popover](/components/disclosure/popover) for the open contact chip | [Chip](/systems/md1/chip) |
 | `Md1DataTable` | [Data tables](http://web.archive.org/web/20181225002253/https://material.io/archive/guidelines/components/data-tables.html) | v0 [DataTable](/components/data/data-table) + [createPagination](/composables/data/create-pagination) (through [createDataTable](/composables/data/create-data-table)); [Checkbox](/components/forms/checkbox), [Button](/components/actions/button), [Tooltip](/components/disclosure/tooltip), [Select](/components/forms/select), [Popover](/components/disclosure/popover), [Input](/components/forms/input) and [Dialog](/components/disclosure/dialog) for its parts | [Data table](/systems/md1/data-table) |
-| `Md1DatePicker` | [Pickers](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html) | an MD1 core on v0 [useRovingFocus](/composables/system/use-roving-focus) + [Button](/components/actions/button); [useDate](/composables/plugins/use-date) formats when installed. The core moves to v0 when v0 ships a date picker | [Date picker](/systems/md1/date-picker) |
+| `Md1DatePicker` | [Pickers](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html) | a Material Design 1 core on v0 [useRovingFocus](/composables/system/use-roving-focus) + [Button](/components/actions/button); [useDate](/composables/plugins/use-date) formats when installed. The core moves to v0 when v0 ships a date picker | [Date picker](/systems/md1/date-picker) |
 | `Md1Dialog` | [Dialogs](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dialogs.html) | v0 [Dialog](/components/disclosure/dialog); [AlertDialog](/components/disclosure/alert-dialog) for the alert variant | [Dialog](/systems/md1/dialog) |
 | `Md1Divider` | [Dividers](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dividers.html) | v0 [Atom](/components/primitives/atom) | [Divider](/systems/md1/divider) |
 | `Md1DropdownButton` | [Buttons](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html) | v0 [Menu](/components/disclosure/menu) (RadioGroup + RadioItem); [Button](/components/actions/button) for the segmented state | [Dropdown button](/systems/md1/dropdown-button) |
@@ -180,7 +180,7 @@ Every component below is exported from `@paper/md1` and has its own page. The se
 | `Md1ProgressCircular` | [Progress and activity](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/progress-activity.html) | v0 [Progress](/components/semantic/progress) | [Progress circular](/systems/md1/progress-circular) |
 | `Md1ProgressLinear` | [Progress and activity](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/progress-activity.html) | v0 [Progress](/components/semantic/progress) + [Presence](/components/primitives/presence) | [Progress linear](/systems/md1/progress-linear) |
 | `Md1Radio` | [Selection controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html) | v0 [Radio](/components/forms/radio) | [Radio](/systems/md1/radio) |
-| `Md1Ripple` | every component page | an MD1 composable on v0 [useEventListener](/composables/system/use-event-listener) + [useReducedMotion](/composables/plugins/use-reduced-motion) | [Ripple](/systems/md1/ripple) |
+| `Md1Ripple` | every component page | a Material Design 1 composable on v0 [useEventListener](/composables/system/use-event-listener) + [useReducedMotion](/composables/plugins/use-reduced-motion) | [Ripple](/systems/md1/ripple) |
 | `Md1SearchBar` | [Search](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/search.html) | v0 [Combobox](/components/forms/combobox), through the search core it shares with `Md1Toolbar.Search`; [Md1Button](/systems/md1/button) for the actions | [Search bar](/systems/md1/search-bar) |
 | `Md1Slider` | [Sliders](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/sliders.html) | v0 [Slider](/components/forms/slider); [Input](/components/forms/input) for the editable value | [Slider](/systems/md1/slider) |
 | `Md1Snackbar` | [Snackbars and toasts](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/snackbars-toasts.html) | v0 [Snackbar](/components/semantic/snackbar) + [Presence](/components/primitives/presence) | [Snackbar](/systems/md1/snackbar) |
@@ -189,7 +189,7 @@ Every component below is exported from `@paper/md1` and has its own page. The se
 | `Md1Switch` | [Selection controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html) | v0 [Switch](/components/forms/switch) | [Switch](/systems/md1/switch) |
 | `Md1Tabs` | [Tabs](http://web.archive.org/web/20181225002217/https://material.io/archive/guidelines/components/tabs.html) | v0 [Tabs](/components/disclosure/tabs) + [createOverflow](/composables/semantic/create-overflow); [Button](/components/actions/button) for the pagination arrows | [Tabs](/systems/md1/tabs) |
 | `Md1TextField` | [Text fields](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html) | v0 [Input](/components/forms/input) + [Button](/components/actions/button); [Select](/components/forms/select) under `dropdown`; [Md1Dialog](/systems/md1/dialog) under `picker` | [Text field](/systems/md1/text-field) |
-| `Md1TimePicker` | [Pickers](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html) | v0 [Radio](/components/forms/radio) + [Toggle](/components/actions/toggle) around an MD1 clock core | [Time picker](/systems/md1/time-picker) |
+| `Md1TimePicker` | [Pickers](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html) | v0 [Radio](/components/forms/radio) + [Toggle](/components/actions/toggle) around a Material Design 1 clock core | [Time picker](/systems/md1/time-picker) |
 | `Md1ToggleButtons` | [Buttons](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html) | v0 [Toggle](/components/actions/toggle) | [Toggle buttons](/systems/md1/toggle-buttons) |
 | `Md1Toolbar` | [Toolbars](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/toolbars.html) | v0 [Atom](/components/primitives/atom); [Combobox](/components/forms/combobox) for the search part, [useRovingFocus](/composables/system/use-roving-focus) for the actions | [Toolbar](/systems/md1/toolbar) |
 | `Md1Tooltip` | [Tooltips](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/tooltips.html) | v0 [Tooltip](/components/disclosure/tooltip) + [useTimer](/composables/system/use-timer) for press and hold | [Tooltip](/systems/md1/tooltip) |
@@ -212,7 +212,7 @@ The style guides document the token families and the type and elevation classes.
 
 ## Patterns
 
-The pattern pages compose the components above. None of them adds an `Md1*` export: where the guidelines describe a pattern, MD1 ships an example built from existing parts, not a new component.
+The pattern pages compose the components above. None of them adds an `Md1*` export: where the guidelines describe a pattern, Material Design 1 ships an example built from existing parts, not a new component.
 
 | Pattern | MD1 page | Built from | Page |
 |---------|----------|------------|------|
@@ -228,4 +228,4 @@ The pattern pages compose the components above. None of them adds an `Md1*` expo
 | Onboarding | [Onboarding](http://web.archive.org/web/20181225002225/https://material.io/archive/guidelines/growth-communications/onboarding.html) | Quickstart, self-select and top-benefits flows of `Md1Button`, `Md1List` and `Md1Card` | [Onboarding](/systems/md1/onboarding) |
 
 > [!NOTE]
-> MD1 is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.
+> Material Design 1 is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.

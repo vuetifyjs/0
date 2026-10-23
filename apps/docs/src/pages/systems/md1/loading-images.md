@@ -1,8 +1,8 @@
 ---
-title: Loading Images - MD1 Material Design 1 Loading Images Pattern for Vue
+title: Loading Images - Material Design 1 Loading Images Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 loading images pattern in MD1. Images fade in from transparent, flat and desaturated, on card media and grid list tiles, with a staggered three-phase recipe for your own images.
+  content: The Material Design 1 loading images pattern. Images fade in from transparent, flat and desaturated, on card media and grid list tiles, with a staggered three-phase recipe for your own images.
 - name: keywords
   content: md1 loading images, material design 1 loading images, image fade in, progressive image load, saturation, exposure, card media, grid list, vue image loading, paper md1
 features:
@@ -27,11 +27,11 @@ related:
 Images in Material Design 1 do not pop in. They develop like a print: opacity, exposure and saturation rise in three staggered phases, over a longer duration than a transition, and full colour arrives last.
 
 > [!NOTE]
-> Reference: [Loading images, Material Design 1 guidelines](http://web.archive.org/web/20181225002216/https://material.io/archive/guidelines/patterns/loading-images.html), the archived page MD1 is pinned to. Opacity, exposure and saturation, duration and the position shift. This page is the Vue.
+> Reference: [Loading images, Material Design 1 guidelines](http://web.archive.org/web/20181225002216/https://material.io/archive/guidelines/patterns/loading-images.html), the archived page Material Design 1 is pinned to. Opacity, exposure and saturation, duration and the position shift. This page is the Vue.
 
 ## Usage
 
-MD1 has no image component; the guidelines define none. The two components that own an image, `Md1Card.Media` and `Md1GridList.Tile`, run the recipe themselves from their `src`, so an image placed through them loads the Material way with no extra code.
+Material Design 1 has no image component; the guidelines define none. The two components that own an image, `Md1Card.Media` and `Md1GridList.Tile`, run the recipe themselves from their `src`, so an image placed through them loads the Material way with no extra code.
 
 ::: ds-example
 /systems/md1/loading-images/card
@@ -80,7 +80,7 @@ An image that does not sit in a card or a grid list, a navigation drawer header 
 
 The first animation is opacity from 0% to 100% with an 8 px horizontal shift, the small position change the guidelines add, over half the load on the decelerate curve. The second is a filter over the whole load: contrast rises from 60% to 100% by three quarters of the way, and saturation climbs from 20% to 100% across the full length, so colour is the last thing to land. The load duration is four times `--md1-duration-complex`, 1.5 s on a phone and 800 ms under a mouse. The guidelines ask only for something longer than a transition, so this value is a docs choice; keep the proportions and pick the length for the image's size and prominence.
 
-The guidelines call the full treatment ideal for large images on large screens, their example being a desktop wallpaper. For small thumbnails a plain fade is enough. Both animations stop under reduced motion, through the same `data-reduced-motion` attribute and media query the rest of MD1 reads, and the image then appears in its final state.
+The guidelines call the full treatment ideal for large images on large screens, their example being a desktop wallpaper. For small thumbnails a plain fade is enough. Both animations stop under reduced motion, through the same `data-reduced-motion` attribute and media query the rest of Material Design 1 reads, and the image then appears in its final state.
 :::
 
 ## Accessibility

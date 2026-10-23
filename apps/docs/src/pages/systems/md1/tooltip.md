@@ -1,5 +1,5 @@
 ---
-title: Md1Tooltip - MD1 Tooltip for Vue
+title: Md1Tooltip - Material Design 1 Tooltip for Vue
 meta:
 - name: description
   content: The Material Design 1 tooltip, a one-line Grey 700 label shown on hover, keyboard focus or press and hold, in desktop and touch metrics. Built on Vuetify0's Tooltip.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 tooltip: a short text label that identifies a control when the pointer rests on it, when it takes keyboard focus, or when a finger presses and holds it.
 
 > [!NOTE]
-> Reference: [Tooltips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/tooltips.html), the archived page MD1 is pinned to. Metrics, colour, motion and the touch behavior. This page is the Vue.
+> Reference: [Tooltips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/tooltips.html), the archived page Material Design 1 is pinned to. Metrics, colour, motion and the touch behavior. This page is the Vue.
 
 ## Usage
 
@@ -56,9 +56,9 @@ The Material Design 1 tooltip: a short text label that identifies a control when
 
 `Md1Tooltip` renders v0's [Tooltip](/components/disclosure/tooltip) compound and keeps its behavior: `Tooltip.Root` owns the open state and the open and close delays, `Tooltip.Activator` wires hover, keyboard focus, the click that dismisses and Escape, and `Tooltip.Content` is the native popover with `role="tooltip"` that the control points at through `aria-describedby`. The tile is anchored with CSS anchor positioning, centred below the control and flipped above it when the viewport has no room below.
 
-The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; MD1 leaves both at the region's values (150 ms and 300 ms by default) and sets its own open delay of 0 ms, because the tooltips page names no delay before showing. Pass `openDelay` to change that per tooltip.
+The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; Material Design 1 leaves both at the region's values (150 ms and 300 ms by default) and sets its own open delay of 0 ms, because the tooltips page names no delay before showing. Pass `openDelay` to change that per tooltip.
 
-MD1 adds what v0 leaves out. v0 ignores touch pointers on purpose, so the press and hold of the tooltips page is MD1's own: `Md1Tooltip.Activator` binds the pointer handlers that run it, and `data-touch` on the content is MD1's attribute for the touch metrics. The lift lands outside the popover, which the browser's light dismiss would close at once, so the activator shows the label again in the same task and the 1.5 seconds hold. `data-state` (`closed`, `delayed-open`, `instant-open`) is v0's. The activator is renderless and leaves the control's own `disabled`, `type` and `aria-disabled` alone, so a disabled tooltip never disables the button it labels.
+Material Design 1 adds what v0 leaves out. v0 ignores touch pointers on purpose, so the press and hold of the tooltips page is Material Design 1's own: `Md1Tooltip.Activator` binds the pointer handlers that run it, and `data-touch` on the content is Material Design 1's attribute for the touch metrics. The lift lands outside the popover, which the browser's light dismiss would close at once, so the activator shows the label again in the same task and the 1.5 seconds hold. `data-state` (`closed`, `delayed-open`, `instant-open`) is v0's. The activator is renderless and leaves the control's own `disabled`, `type` and `aria-disabled` alone, so a disabled tooltip never disables the button it labels.
 
 ## Examples
 
@@ -79,9 +79,9 @@ A tooltip is not a substitute for a name. Assistive technology reads the tooltip
 
 ### Press and hold
 
-On a touch screen there is no hover. The guidelines trigger the tooltip by tapping and holding the element: the label shows while the finger stays down and remains for 1.5 seconds after the lift, unless the user takes another action first. MD1 shows it once the finger has rested for 500 ms, a threshold the page does not state, so a quick tap stays a tap and reaches the button's own click (here, it shares).
+On a touch screen there is no hover. The guidelines trigger the tooltip by tapping and holding the element: the label shows while the finger stays down and remains for 1.5 seconds after the lift, unless the user takes another action first. Material Design 1 shows it once the finger has rested for 500 ms, a threshold the page does not state, so a quick tap stays a tap and reaches the button's own click (here, it shares).
 
-A hold that showed the tooltip is not a tap. MD1 cancels the browser's context menu during the hold and drops the click the lift would otherwise synthesise, so holding the share button labels it without sharing. A press anywhere, a key or a scroll during the 1.5 seconds hides the label at once.
+A hold that showed the tooltip is not a tap. Material Design 1 cancels the browser's context menu during the hold and drops the click the lift would otherwise synthesise, so holding the share button labels it without sharing. A press anywhere, a key or a scroll during the 1.5 seconds hides the label at once.
 
 A tooltip summoned this way takes the touch metrics: a 32 dp tile, 16 dp side padding, 14 sp Roboto Medium, 24 dp below the control, against the desktop 22 dp, 8 dp, 10 sp and 14 dp. A device that has a mouse and a touch screen picks per gesture, through `data-touch` on the content. Try it with the device toolbar of your browser's developer tools.
 :::
@@ -124,7 +124,7 @@ The usual reason is that the control already says what it does. Here, showing th
 
 | Part | Props | Notes |
 |------|-------|-------|
-| `Md1Tooltip.Activator` | `namespace` | Renderless. The slot receives `attrs` (spread them onto the control), `isOpen` and `isDisabled`. `attrs` carries `aria-describedby`, `data-state`, the anchor name in `style`, v0's hover, focus, click and Escape handlers, and MD1's press-and-hold handlers |
+| `Md1Tooltip.Activator` | `namespace` | Renderless. The slot receives `attrs` (spread them onto the control), `isOpen` and `isDisabled`. `attrs` carries `aria-describedby`, `data-state`, the anchor name in `style`, v0's hover, focus, click and Escape handlers, and Material Design 1's press-and-hold handlers |
 | `Md1Tooltip.Content` | `namespace` | The native popover with `role="tooltip"` around the tile. The default slot is the label: one line of plain text. Elements inside it log a development warning |
 
 The default slot of each part is its content. There are no named slots.

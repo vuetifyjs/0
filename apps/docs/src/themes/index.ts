@@ -834,7 +834,7 @@ export const themes = {
   // defines no such roles.
   'md1-dark': {
     id: 'md1-dark',
-    label: 'MD1',
+    label: 'Material Design 1',
     icon: 'theme-md1',
     dark: true,
     colors: {
@@ -871,7 +871,7 @@ export const themes = {
   },
   'md1-light': {
     id: 'md1-light',
-    label: 'MD1',
+    label: 'Material Design 1',
     icon: 'theme-md1',
     dark: false,
     colors: {

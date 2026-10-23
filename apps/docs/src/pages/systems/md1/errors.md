@@ -1,8 +1,8 @@
 ---
-title: Errors - MD1 Material Design 1 Errors Pattern for Vue
+title: Errors - Material Design 1 Errors Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 errors pattern in MD1. Inline field errors, form submission summaries, blocking alert dialogs, peripheral snackbars with retry and failed-to-load states.
+  content: The Material Design 1 errors pattern. Inline field errors, form submission summaries, blocking alert dialogs, peripheral snackbars with retry and failed-to-load states.
 - name: keywords
   content: md1 errors, material design 1 errors, form validation, error text, error dialog, snackbar retry, empty state, vue form errors, paper md1
 features:
@@ -24,14 +24,14 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-How an MD1 app reports what went wrong: next to the field that caused it, in a dialog when work cannot continue, or in a snackbar when it can.
+How a Material Design 1 app reports what went wrong: next to the field that caused it, in a dialog when work cannot continue, or in a snackbar when it can.
 
 > [!NOTE]
-> Reference: [Errors, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/errors.html), the archived page MD1 is pinned to. Error types, form rules, text metrics and app errors. This page is the Vue.
+> Reference: [Errors, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/errors.html), the archived page Material Design 1 is pinned to. Error types, form rules, text metrics and app errors. This page is the Vue.
 
 ## Usage
 
-Errors are a pattern, not a component. MD1 ships no error surface of its own; every error on this page is an `Md1TextField`, an `Md1Dialog`, an `Md1Snackbar` or plain content, composed the way the guidelines describe. Three rules apply to all of them:
+Errors are a pattern, not a component. Material Design 1 ships no error surface of its own; every error on this page is an `Md1TextField`, an `Md1Dialog`, an `Md1Snackbar` or plain content, composed the way the guidelines describe. Three rules apply to all of them:
 
 - Say clearly what happened.
 - Say how to fix it.
@@ -70,7 +70,7 @@ The errors page restates the text field metrics for the error state. The [text f
 | Space between fields, and below the error text | 16 dp |
 | Error text | Roboto Regular 12 sp, the Caption style |
 | Hint and helper text | Black at 38% on light, white at 50% on dark (`--md1-text-hint`) |
-| Error color | A warm, contrasting hue; MD1's is Red A400 (`--md1-error`, `#FF1744`) |
+| Error color | A warm, contrasting hue; Material Design 1's is Red A400 (`--md1-error`, `#FF1744`) |
 | Single line with error text | 64 dp tile; 16 dp above the input, 8 dp below it, 4 dp above and below the error |
 | Floating label with error text | 80 dp tile; 8 dp above the label, 8 dp above and below the input, 4 dp above and below the error |
 | Character counter | Roboto Regular 12 sp; 88 dp input area; 16 dp extra bottom padding; 8 dp above the counter |
@@ -132,7 +132,7 @@ Use a dialog only when the app truly cannot continue. Most errors are peripheral
 
 A snackbar carries a peripheral error: something failed, but the rest of the app still works. The feed below is from 10:42 and stays on screen; the snackbar at the bottom edge says the refresh failed and offers Retry. Retry runs the refresh again, with a linear progress indicator across the top edge while it works, and succeeds. Press Refresh to see the failure again: in this example a plain refresh always fails.
 
-Snackbars are transient. This one leaves after MD1's 6000 ms default and never comes back on its own, which is why it suits a failure the user can ignore. Do not use a snackbar for a critical error, for one that persists until the user acts, or for a batch of errors at once.
+Snackbars are transient. This one leaves after Material Design 1's 6000 ms default and never comes back on its own, which is why it suits a failure the user can ignore. Do not use a snackbar for a critical error, for one that persists until the user acts, or for a batch of errors at once.
 
 Offer Retry only when it can succeed. When the app can tell the connection is down, it is offline, and the [offline states](/systems/md1/offline-states) pattern applies instead.
 :::

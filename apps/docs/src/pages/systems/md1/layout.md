@@ -1,8 +1,8 @@
 ---
-title: Layout - MD1 Material Design 1 Grid, Keylines and Breakpoints for Vue
+title: Layout - Material Design 1 Grid, Keylines and Breakpoints for Vue
 meta:
 - name: description
-  content: Material Design 1 layout in MD1. dp as px, the 8 dp grid and 4 dp baseline, the 16 and 72 dp keylines, 56 and 64 dp increments, 48 dp touch targets and the breakpoint table.
+  content: Material Design 1 layout. dp as px, the 8 dp grid and 4 dp baseline, the 16 and 72 dp keylines, 56 and 64 dp increments, 48 dp touch targets and the breakpoint table.
 - name: keywords
   content: md1 layout, material design 1 layout, keylines, 8dp grid, baseline grid, increments, touch target, breakpoints, responsive ui, md1Breakpoints, paper md1
 features:
@@ -22,10 +22,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-MD1 lays every surface on an 8 dp grid, aligns content to two keylines, and sizes bars and panels in increments, with one switch at 600 px between handset and tablet metrics.
+Material Design 1 lays every surface on an 8 dp grid, aligns content to two keylines, and sizes bars and panels in increments, with one switch at 600 px between handset and tablet metrics.
 
 > [!NOTE]
-> Reference: [Metrics and keylines, Material Design 1 guidelines](http://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html), the archived page MD1 is pinned to, with [Units and measurements](https://web.archive.org/web/20210308145521/https://material.io/archive/guidelines/layout/units-measurements.html) and [Responsive UI](http://web.archive.org/web/20181225002227/https://material.io/archive/guidelines/layout/responsive-ui.html). This page is the Vue.
+> Reference: [Metrics and keylines, Material Design 1 guidelines](http://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html), the archived page Material Design 1 is pinned to, with [Units and measurements](https://web.archive.org/web/20210308145521/https://material.io/archive/guidelines/layout/units-measurements.html) and [Responsive UI](http://web.archive.org/web/20181225002227/https://material.io/archive/guidelines/layout/responsive-ui.html). This page is the Vue.
 
 ## Usage
 
@@ -47,13 +47,13 @@ Layout values are custom properties on `:root`: the spacing scale, the two keyli
 
 ## Units
 
-The guidelines measure in density-independent pixels. One dp is one physical pixel on a 160 dpi screen, so a 48 dp target is about 9 mm on any display; sp is the same unit for type, scaled by the reader's font size setting. The units page settles the web case directly: "When writing CSS, use px wherever dp or sp is stated." Every MD1 value is the spec's dp number written as CSS px, 1 to 1, and the browser's device pixel ratio does the density work that the dp formula does on Android.
+The guidelines measure in density-independent pixels. One dp is one physical pixel on a 160 dpi screen, so a 48 dp target is about 9 mm on any display; sp is the same unit for type, scaled by the reader's font size setting. The units page settles the web case directly: "When writing CSS, use px wherever dp or sp is stated." Every Material Design 1 value is the spec's dp number written as CSS px, 1 to 1, and the browser's device pixel ratio does the density work that the dp formula does on Android.
 
 ## Device classes
 
-The guidelines describe three independent axes, and MD1 maps each exactly once:
+The guidelines describe three independent axes, and Material Design 1 maps each exactly once:
 
-| Axis | What changes | MD1 mapping |
+| Axis | What changes | Material Design 1 mapping |
 |------|--------------|-----------------|
 | Handset or tablet layout | 16 or 24 dp margins, 72 or 80 dp content keyline, 56 or 64 dp increment and app bar, 280 or 320 dp drawer | `@media (min-width: 600px)` |
 | Desktop input | 15 and 13 sp type, resting elevation 2 dp lower, 150 to 200 ms durations, no touch halo on selection controls | `@media (pointer: fine)` |
@@ -82,7 +82,7 @@ The keylines are horizontal positions measured from the leading edge. Icons and 
 
 Every component aligns to an 8 dp square baseline grid, on handsets, tablets and desktops alike. Iconography in toolbars and type align to a finer 4 dp grid, which is why type leading values (20, 24, 28, 32 sp) are all multiples of 4. The margins and gutters of the responsive grid follow the 8 dp grid too, and the guidelines allow 8, 16, 24 or 40 dp for them.
 
-MD1 ships the grid as `--md1-spacing-1` to `--md1-spacing-5`: 8, 16, 24, 32 and 40 px, one to five steps. The example draws the 8 dp grid behind the scale so each bar ends on a line. Reach for the tokens for padding, gaps and margins, and use a bare multiple of 8 for anything larger. Values that are not on the grid, such as the 20 dp padding under an app bar title, come from a component page and stay literal in that component.
+Material Design 1 ships the grid as `--md1-spacing-1` to `--md1-spacing-5`: 8, 16, 24, 32 and 40 px, one to five steps. The example draws the 8 dp grid behind the scale so each bar ends on a line. Reach for the tokens for padding, gaps and margins, and use a bare multiple of 8 for anything larger. Values that are not on the grid, such as the 20 dp padding under an app bar title, come from a component page and stay literal in that component.
 :::
 
 ::: ds-example
@@ -112,7 +112,7 @@ A touch target is at least 48 x 48 dp, about 9 mm, with 8 dp or more between tar
 
 The responsive-ui page lists the widths layouts should adapt at, 480, 600, 840, 960, 1280, 1440 and 1600 dp, inside a 13-row breakpoint system that adds the device names, the window class, the column count and the gutter. Desktop rows, 1024 and up, sit 16 dp below their listed width to leave room for browser chrome, so the 1280 row starts at 1264. The example highlights the row this window falls in.
 
-Breakpoints cannot be custom properties, because media queries do not read them. MD1 ships the table on this page and `md1Breakpoints`, a map from each nominal width to its effective one: 480, 600, 840, 960, 1264 (1280), 1424 (1440), 1584 (1600) and 1904 (1920). Vuetify0's `useBreakpoints` has its own named breakpoints and takes nothing from MD1. When a layout needs the spec's widths, map them onto those names yourself:
+Breakpoints cannot be custom properties, because media queries do not read them. Material Design 1 ships the table on this page and `md1Breakpoints`, a map from each nominal width to its effective one: 480, 600, 840, 960, 1264 (1280), 1424 (1440), 1584 (1600) and 1904 (1920). Vuetify0's `useBreakpoints` has its own named breakpoints and takes nothing from Material Design 1. When a layout needs the spec's widths, map them onto those names yourself:
 
 ```ts main.ts
 import { createBreakpointsPlugin } from '@vuetify/v0'

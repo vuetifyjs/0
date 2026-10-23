@@ -1,5 +1,5 @@
 ---
-title: Md1Slider - MD1 Slider for Vue
+title: Md1Slider - Material Design 1 Slider for Vue
 meta:
 - name: description
   content: The Material Design 1 slider, continuous or discrete, with intensity icons at the ends and an editable numeric value. Built on Vuetify0's Slider.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 slider. Pick a value from a range by moving the thumb, continuously or snapped to evenly spaced ticks, with optional intensity icons and an editable numeric value.
 
 > [!NOTE]
-> Reference: [Sliders, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/sliders.html), the archived page MD1 is pinned to. Usage, colour and the measured spec sheets. This page is the Vue.
+> Reference: [Sliders, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/sliders.html), the archived page Material Design 1 is pinned to. Usage, colour and the measured spec sheets. This page is the Vue.
 
 ## Usage
 
@@ -52,9 +52,9 @@ The Material Design 1 slider. Pick a value from a range by moving the thumb, con
 
 `Md1Slider` renders v0's [Slider](/components/forms/slider) compound: `Slider.Root` is the `div.md1-slider` group, `Slider.Track` the 48 dp band you press, `Slider.Range` the active portion of the line, and `Slider.Thumb` the focusable `role="slider"` element. Value maths, step snapping, the keyboard map, pointer dragging and the hidden form input when `name` is set all come from v0. The discrete value pin binds the thumb's `value` slot prop. The editable numeric field is v0's [Input](/components/forms/input), `Input.Root` and `Input.Control`, bound to the same value.
 
-`Slider.Root` emits `data-disabled`, and the thumb emits `data-state="dragging"`. `data-discrete`, `data-zero`, `data-dragging` and `data-editable` on the root are MD1's own. MD1 never writes a state class; it styles the attributes.
+`Slider.Root` emits `data-disabled`, and the thumb emits `data-state="dragging"`. `data-discrete`, `data-zero`, `data-dragging` and `data-editable` on the root are Material Design 1's own. Material Design 1 never writes a state class; it styles the attributes.
 
-The thumb hosts a [Md1Ripple](/systems/md1/ripple) as its first child, the press feedback every MD1 control carries. Intensity icons draw through [Md1Icon](/systems/md1/icon). Range and vertical sliders are not part of Material Design 1 and do not ship.
+The thumb hosts a [Md1Ripple](/systems/md1/ripple) as its first child, the press feedback every Material Design 1 control carries. Intensity icons draw through [Md1Icon](/systems/md1/icon). Range and vertical sliders are not part of Material Design 1 and do not ship.
 
 ## Examples
 
@@ -63,7 +63,7 @@ The thumb hosts a [Md1Ripple](/systems/md1/ripple) as its first child, the press
 
 ### Intensity icons
 
-The guidelines let a slider carry an icon at either end of the bar to show what the value means: a quiet speaker at the minimum and a loud one at the maximum. `iconStart` and `iconEnd` name roles from the MD1 icon set and draw them at 24 dp, 16 dp from the track, in the active icon ink (54% black, 100% white on dark). They are decoration: hidden from assistive technology, because the slider's own name already says what it controls.
+The guidelines let a slider carry an icon at either end of the bar to show what the value means: a quiet speaker at the minimum and a loud one at the maximum. `iconStart` and `iconEnd` name roles from the Material Design 1 icon set and draw them at 24 dp, 16 dp from the track, in the active icon ink (54% black, 100% white on dark). They are decoration: hidden from assistive technology, because the slider's own name already says what it controls.
 
 Either end can stand alone. The track takes whatever width is left between the icons and any editable field, so a slider in a narrow settings row keeps its proportions. When the slider is disabled, the icons drop to the 26% disabled ink with the rest of the control.
 :::
@@ -85,7 +85,7 @@ On keyboard focus and while dragging, a 26 x 32 dp value pin replaces the thumb.
 
 For settings where the user must land on an exact value, the guidelines pair a continuous slider with a text field. `editable` adds a 24 dp wide numeric field 16 dp after the track, right-aligned and underlined. The value updates live as the thumb moves, and the underline turns to the accent while the thumb is pressed or the field is focused.
 
-Typing sets the value directly. MD1 clamps the number to `min` and `max` and snaps it to `step` as you type, and puts the committed value back in the field when it loses focus, so an out-of-range entry like 150 settles at 100. The field shares the slider's accessible name. Pairing `editable` with `discrete` logs a development warning, because discrete values are not user-editable on the guidelines' terms.
+Typing sets the value directly. Material Design 1 clamps the number to `min` and `max` and snaps it to `step` as you type, and puts the committed value back in the field when it loses focus, so an out-of-range entry like 150 settles at 100. The field shares the slider's accessible name. Pairing `editable` with `discrete` logs a development warning, because discrete values are not user-editable on the guidelines' terms.
 :::
 
 ::: ds-example
@@ -95,7 +95,7 @@ Typing sets the value directly. MD1 clamps the number to `min` and `max` and sna
 
 At its minimum a slider shows a hollow thumb: a 12 dp ring with a 2 dp stroke in the inactive ink (26% black, 30% white on dark) instead of a filled accent dot. The active portion of the line has no length, and the inactive line stops at the ring's edge rather than showing through it. The guidelines draw it this way so an empty setting reads as off at a glance.
 
-The state follows the value, not a prop: MD1 marks the root `data-zero` whenever the value equals `min`. Pressing grows the ring to 18 dp and lifts its ink to 38%, and keyboard focus draws the 32 dp halo in the 12% focus overlay rather than the accent.
+The state follows the value, not a prop: Material Design 1 marks the root `data-zero` whenever the value equals `min`. Pressing grows the ring to 18 dp and lifts its ink to 38%, and keyboard focus draws the 32 dp halo in the 12% focus overlay rather than the accent.
 
 The discrete slider is drawn differently at its minimum. Its sheets show no ring: the thumb is a filled 12 dp dot in the primary text ink, 87% black (white on dark), sitting on the start of the line, and the value pin that replaces it on focus turns grey.
 :::
@@ -136,7 +136,7 @@ There are no slots.
 
 ## Accessibility
 
-The thumb is a WAI-ARIA slider: `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-orientation="horizontal"`, inside a `role="group"` root. The guidelines say nothing about the keyboard, so MD1 follows the pattern v0 implements.
+The thumb is a WAI-ARIA slider: `role="slider"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-orientation="horizontal"`, inside a `role="group"` root. The guidelines say nothing about the keyboard, so Material Design 1 follows the pattern v0 implements.
 
 ### Naming
 

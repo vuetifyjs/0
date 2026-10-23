@@ -1,5 +1,5 @@
 ---
-title: Md1ProgressLinear - MD1 Linear Progress for Vue
+title: Md1ProgressLinear - Material Design 1 Linear Progress for Vue
 meta:
 - name: description
   content: The Material Design 1 linear progress indicator, a 4 dp bar at the edge of a header or sheet, in determinate, indeterminate, buffer and query forms. Built on Vuetify0's Progress and Presence.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a header or sheet that appears while content loads and disappears when it is done.
 
 > [!NOTE]
-> Reference: [Progress and activity, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/progress-activity.html), the archived page MD1 is pinned to. Types, placement and behavior. This page is the Vue.
+> Reference: [Progress and activity, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/progress-activity.html), the archived page Material Design 1 is pinned to. Types, placement and behavior. This page is the Vue.
 
 ## Usage
 
@@ -50,9 +50,9 @@ The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a hea
 
 ## Composed on Vuetify0
 
-`Md1ProgressLinear` renders v0's [Progress](/components/semantic/progress) compound, `Progress.Root` with `Progress.Track` and `Progress.Fill`, plus `Progress.Buffer` when `buffer` is set. `Progress.Root` renders through its renderless path and MD1 binds the progressbar attributes onto its own element, because v0 reads a value of 0 as indeterminate while a Material Design 1 determinate bar starts at 0%. `data-state` therefore comes from MD1's `value` prop: `determinate` whenever a number is set, `indeterminate` otherwise. The width `Progress.Fill` and `Progress.Buffer` write inline is the percentage the stylesheet draws.
+`Md1ProgressLinear` renders v0's [Progress](/components/semantic/progress) compound, `Progress.Root` with `Progress.Track` and `Progress.Fill`, plus `Progress.Buffer` when `buffer` is set. `Progress.Root` renders through its renderless path and Material Design 1 binds the progressbar attributes onto its own element, because v0 reads a value of 0 as indeterminate while a Material Design 1 determinate bar starts at 0%. `data-state` therefore comes from Material Design 1's `value` prop: `determinate` whenever a number is set, `indeterminate` otherwise. The width `Progress.Fill` and `Progress.Buffer` write inline is the percentage the stylesheet draws.
 
-The root sits inside a [Presence](/components/primitives/presence), which carries its lifecycle phase in `data-presence` (`mounted` for the one frame before paint, then `present`). The stylesheet hangs the entrance on it. `data-query` and `data-buffer` are MD1's own hooks, and `data-complete` marks a bar at 100%.
+The root sits inside a [Presence](/components/primitives/presence), which carries its lifecycle phase in `data-presence` (`mounted` for the one frame before paint, then `present`). The stylesheet hangs the entrance on it. `data-query` and `data-buffer` are Material Design 1's own hooks, and `data-complete` marks a bar at 100%.
 
 ## Examples
 
@@ -63,7 +63,7 @@ The root sits inside a [Presence](/components/primitives/presence), which carrie
 
 Use the determinate bar when the percentage complete is detectable: an upload, a download, a known number of steps. The fill is the primary colour (`--md1-primary`, Indigo 500 in the default theme) and the track behind it is the same colour at 30%, the opacity measured from the spec's own indicator sheet. The bar is 4 dp tall, a measurement from that sheet as well, and spans the full width of the edge it sits on.
 
-The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". MD1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps. The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
+The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". Material Design 1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps. The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
 :::
 
 ::: ds-example
@@ -71,7 +71,7 @@ The guidelines say a determinate indicator "fills from 0% to 100%, and never dec
 
 ### Indeterminate
 
-Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length; MD1 runs one sweep every 2 seconds on the standard curve, a decision recorded in SPEC.md.
+Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length; Material Design 1 runs one sweep every 2 seconds on the standard curve, a decision recorded in SPEC.md.
 
 The guidelines place linear indicators "on the edge of a header or sheet" and say they "appear and disappear". The example hangs the bar below the header with an absolutely positioned wrapper, so mounting it never shifts the content. On mount the bar grows out of that edge over the 225 ms enter duration on the deceleration curve, the motion page's rule for an element entering the screen. With reduced motion requested, it appears in place and the sweep slows to half speed rather than stopping, because a frozen segment would read as stalled determinate progress.
 :::
@@ -81,7 +81,7 @@ The guidelines place linear indicators "on the edge of a header or sheet" and sa
 
 ### Buffer
 
-`buffer` adds the buffered extent ahead of the fill, the guidelines' example being a video that downloads faster than it plays. The buffered segment takes the track tint, and the unbuffered remainder past it is drawn as a dotted trail in the same tint. The spec shows the trail only in video; MD1 draws 2 dp dots at an 8 dp pitch, a decision.
+`buffer` adds the buffered extent ahead of the fill, the guidelines' example being a video that downloads faster than it plays. The buffered segment takes the track tint, and the unbuffered remainder past it is drawn as a dotted trail in the same tint. The spec shows the trail only in video; Material Design 1 draws 2 dp dots at an 8 dp pitch, a decision.
 
 Both values are percentages from 0 to 100, clamped. Keep `buffer` at or above `value`: the fill paints over the buffer, so a buffer behind the fill is simply hidden. Assistive technology hears both extents in one `aria-valuetext`, "40%, 70% buffered" in English, translatable through the `Md1.buffered` locale key.
 :::
@@ -134,4 +134,4 @@ Screen readers do not announce progress changes on their own. For a long operati
 
 ### Motion
 
-The indeterminate sweep is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, MD1 drops the entrance animation and halves the sweep speed. The plugin's setting wins over the operating system's.
+The indeterminate sweep is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, Material Design 1 drops the entrance animation and halves the sweep speed. The plugin's setting wins over the operating system's.

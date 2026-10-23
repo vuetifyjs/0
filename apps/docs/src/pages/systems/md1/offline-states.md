@@ -1,8 +1,8 @@
 ---
-title: Offline States - MD1 Material Design 1 Offline States for Vue
+title: Offline States - Material Design 1 Offline States for Vue
 meta:
 - name: description
-  content: The Material Design 1 offline states pattern in MD1. Mark what works offline, explain what does not, download for later with progress, and remove downloads.
+  content: The Material Design 1 offline states pattern. Mark what works offline, explain what does not, download for later with progress, and remove downloads.
 - name: keywords
   content: md1 offline, material design 1 offline states, offline pin, cloud off, no internet, download progress, offline ux, vue offline, paper md1
 features:
@@ -27,7 +27,7 @@ related:
 Keep an app useful without a connection: show what is available, say what is not, and let people save content for later.
 
 > [!NOTE]
-> Reference: [Offline states, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/offline-states.html), the archived page MD1 is pinned to. Principles, states and settings, icons and the download interaction. This page is the Vue.
+> Reference: [Offline states, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/offline-states.html), the archived page Material Design 1 is pinned to. Principles, states and settings, icons and the download interaction. This page is the Vue.
 
 ## Usage
 
@@ -57,7 +57,7 @@ The page names four glyphs and pairs each with a fixed label.
 Use the standard glyphs. Never use a toggle for downloading one file: a toggle says a state is on or off, and a download is a one-time action.
 
 > [!WARNING]
-> MD1's pinned icon set ships `download` and `delete` but not `offline-pin` or `cloud-off`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
+> Material Design 1's pinned icon set ships `download` and `delete` but not `offline-pin` or `cloud-off`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
 
 ## Examples
 

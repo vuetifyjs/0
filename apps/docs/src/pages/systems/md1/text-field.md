@@ -1,5 +1,5 @@
 ---
-title: Md1TextField - MD1 Text Field for Vue
+title: Md1TextField - Material Design 1 Text Field for Vue
 meta:
 - name: description
   content: The Material Design 1 text field with its floating label, helper and error text, counter, prefix and suffix, box, dense, multi-line, text area, full-width, solo and dropdown forms. Built on Vuetify0's Input.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 text field. A label that floats above the input, a line that takes the accent colour on focus, and helper, error and counter text beneath it.
 
 > [!NOTE]
-> Reference: [Text fields, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html), the archived page MD1 is pinned to. Anatomy, metrics, the light and dark state tables, and the formatted inputs. This page is the Vue.
+> Reference: [Text fields, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html), the archived page Material Design 1 is pinned to. Anatomy, metrics, the light and dark state tables, and the formatted inputs. This page is the Vue.
 
 ## Usage
 
@@ -55,7 +55,7 @@ The Material Design 1 text field. A label that floats above the input, a line th
 
 ## Composed on Vuetify0
 
-`Md1TextField` renders v0's [Input](/components/forms/input) compound renderless: `Input.Root` owns the value, validation and form registration, `Input.Control` is the editable `<input>` (a `<textarea>` under `multiline` and `textarea`), and `Input.Description` and `Input.Error` carry the helper and the error. The visible label is a native `<label for>`; `label` is never passed to `Input.Root`, which would repeat the name as an `aria-label`. `Input.Root` publishes `data-state`, `data-dirty`, `data-disabled` and `data-readonly`, and MD1's stylesheet hangs the floating label, the line and the error colours off them. `data-focused` is MD1's own: it also counts the dropdown's activator and its open menu, which `Input.Root` never sees.
+`Md1TextField` renders v0's [Input](/components/forms/input) compound renderless: `Input.Root` owns the value, validation and form registration, `Input.Control` is the editable `<input>` (a `<textarea>` under `multiline` and `textarea`), and `Input.Description` and `Input.Error` carry the helper and the error. The visible label is a native `<label for>`; `label` is never passed to `Input.Root`, which would repeat the name as an `aria-label`. `Input.Root` publishes `data-state`, `data-dirty`, `data-disabled` and `data-readonly`, and Material Design 1's stylesheet hangs the floating label, the line and the error colours off them. `data-focused` is Material Design 1's own: it also counts the dropdown's activator and its open menu, which `Input.Root` never sees.
 
 The clear, visibility and voice glyphs and the picker signifier are each a v0 [Button](/components/actions/button) `Button.Root` with a [Md1Ripple](/systems/md1/ripple) as its first child and the glyph drawn through [Md1Icon](/systems/md1/icon). Under `dropdown` the field composes v0's [Select](/components/forms/select): `Select.Activator` is the readonly control with the arrow, `Select.Content` is the menu and each `Md1TextField.Item` is a `Select.Item`, so typeahead, the virtual highlight and the listbox semantics are v0's. Under `picker` the signifier opens a [Md1Dialog](/systems/md1/dialog) in its confirmation variant.
 
@@ -142,7 +142,7 @@ Each trailing glyph is 24 dp inside a 48 dp touch target, 8 dp apart and 8 dp ab
 
 For forms with many or crowded fields, `dense` shortens the field: 13 sp text, 8 dp above the label, 4 dp between the label and the input, and 4 dp between the line and the helper, half the standard spacing. Glyphs drop to the 20 dp dense size.
 
-The guidelines tie the dense field to mouse-and-keyboard layouts, so MD1 makes it an explicit prop rather than switching on the pointer type: the same app can hold a dense settings form beside a standard sign-in form.
+The guidelines tie the dense field to mouse-and-keyboard layouts, so Material Design 1 makes it an explicit prop rather than switching on the pointer type: the same app can hold a dense settings form beside a standard sign-in form.
 :::
 
 ::: ds-example

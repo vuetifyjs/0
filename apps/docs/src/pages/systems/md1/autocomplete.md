@@ -1,5 +1,5 @@
 ---
-title: Md1Autocomplete - MD1 Autocomplete for Vue
+title: Md1Autocomplete - Material Design 1 Autocomplete for Vue
 meta:
 - name: description
   content: The Material Design 1 auto-complete text field, with suggestions in a menu under the field or completed in-line, free text or a strict choice, and contact chips for several values. Built on Vuetify0's Combobox.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 auto-complete text field. Suggestions refresh with each keystroke, either in a menu under the field or completed in-line to the right of the cursor.
 
 > [!NOTE]
-> Reference: [Text fields, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html), the archived page MD1 is pinned to. The auto-complete rules, anatomy and state tables of the text field, and the menu sheet the suggestions sit on. This page is the Vue.
+> Reference: [Text fields, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html), the archived page Material Design 1 is pinned to. The auto-complete rules, anatomy and state tables of the text field, and the menu sheet the suggestions sit on. This page is the Vue.
 
 ## Usage
 

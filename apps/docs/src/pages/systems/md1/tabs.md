@@ -1,5 +1,5 @@
 ---
-title: Md1Tabs - MD1 Tabs for Vue
+title: Md1Tabs - Material Design 1 Tabs for Vue
 meta:
 - name: description
   content: The Material Design 1 tabs, fixed or scrollable, with text, icon or icon-and-text tabs over a 2 dp indicator, desktop pagination arrows and a sibling slide between panels. Built on Vuetify0's Tabs and createOverflow.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 tab bar. Fixed or scrollable tabs over a 2 dp indicator, with text, an icon, or an icon above text, and panels that slide between siblings.
 
 > [!NOTE]
-> Reference: [Tabs, Material Design 1 guidelines](http://web.archive.org/web/20181225002217/https://material.io/archive/guidelines/components/tabs.html), the archived page MD1 is pinned to. Types, metrics, colour and behavior. This page is the Vue.
+> Reference: [Tabs, Material Design 1 guidelines](http://web.archive.org/web/20181225002217/https://material.io/archive/guidelines/components/tabs.html), the archived page Material Design 1 is pinned to. Types, metrics, colour and behavior. This page is the Vue.
 
 ## Usage
 
@@ -61,7 +61,7 @@ Use tabs to move between a small number of equally important, related views, suc
 
 `Md1Tabs` renders v0's [Tabs](/components/disclosure/tabs) compound and adds nothing to its selection or keyboard behavior. `Tabs.Root` owns the selection and the model, `Tabs.List` the `tablist` role and its label, `Tabs.Item` the roving tab stop, the arrow keys, Home and End, and the `aria-selected` and `aria-controls` pair, and `Tabs.Panel` the `tabpanel` role, its `aria-labelledby` and the `hidden` attribute on every panel but the selected one. The first enabled tab is selected when the model is empty, and a tab is selected as soon as it takes focus.
 
-The bar measures its tabs with v0's [createOverflow](/composables/semantic/create-overflow), which decides when the desktop pagination arrows show and sets `data-overflow` on the root. Each arrow is a v0 [Button](/components/actions/button), so a disabled arrow carries `disabled` and `data-disabled` like any other MD1 button. `Tabs.Item` emits the `data-selected` and `data-disabled` attributes the stylesheet hangs off. `data-fixed`, `data-scrollable`, and the item's `data-icon` and `data-lines` are MD1's own.
+The bar measures its tabs with v0's [createOverflow](/composables/semantic/create-overflow), which decides when the desktop pagination arrows show and sets `data-overflow` on the root. Each arrow is a v0 [Button](/components/actions/button), so a disabled arrow carries `disabled` and `data-disabled` like any other Material Design 1 button. `Tabs.Item` emits the `data-selected` and `data-disabled` attributes the stylesheet hangs off. `data-fixed`, `data-scrollable`, and the item's `data-icon` and `data-lines` are Material Design 1's own.
 
 The first child of every tab is a [Md1Ripple](/systems/md1/ripple), the guidelines' touch target animation: ink from the point of contact across the whole tab cell. Glyphs draw through [Md1Icon](/systems/md1/icon).
 
@@ -74,7 +74,7 @@ The first child of every tab is a [Md1Ripple](/systems/md1/ripple), the guidelin
 
 Fixed tabs show every tab at once and give them equal widths. The guidelines reserve them for a limited number of tabs, where a consistent position helps muscle memory. This is the default; `scrollable` switches to the other type.
 
-How the width is shared depends on the view. Under 600 dp, the guidelines' smaller views, the bar is full width and each tab takes an equal share, never less than 72 dp. From 600 dp each tab is at least 160 dp, and the bar centres itself: every tab takes the width of the widest one, between 160 dp and 264 dp, and the row sits in the middle of the bar. When that would leave 16 dp or less between the outer tabs and the edge of the view, the guidelines switch back to full width, and so does MD1. There is no `centered` prop: the rule decides.
+How the width is shared depends on the view. Under 600 dp, the guidelines' smaller views, the bar is full width and each tab takes an equal share, never less than 72 dp. From 600 dp each tab is at least 160 dp, and the bar centres itself: every tab takes the width of the widest one, between 160 dp and 264 dp, and the row sits in the middle of the bar. When that would leave 16 dp or less between the outer tabs and the edge of the view, the guidelines switch back to full width, and so does Material Design 1. There is no `centered` prop: the rule decides.
 
 The indicator is a 2 dp line under the selected tab, in the accent colour (`--md1-accent`, Pink A200 in the default theme), and the selected label and icon take the same colour. It slides to the new tab on the standard curve; the page states no duration, so it takes the standard 300 ms, 200 ms with a mouse.
 :::
@@ -86,7 +86,7 @@ The indicator is a 2 dp line under the selected tab, in the accent colour (`--md
 
 Scrollable tabs show a subset at a time and suit many tabs, or a number that changes. Each tab is as wide as its label plus padding, at least 72 dp (160 dp from 600 dp) and at most 264 dp or the width of the view less 56 dp, whichever is smaller. The first tab's text lines up with the screen-edge keyline, 16 dp on a phone and 24 dp from 600 dp; with a mouse it starts on the content keyline instead, 80 dp from 600 dp and 72 dp below.
 
-On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected. The guidelines also name a "More" dropdown for overflowing desktop tabs; MD1 ships the pagination arrows instead.
+On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected. The guidelines also name a "More" dropdown for overflowing desktop tabs; Material Design 1 ships the pagination arrows instead.
 :::
 
 ::: ds-example
@@ -96,7 +96,7 @@ On a touch screen the bar scrolls with a swipe, without changing the selection. 
 
 `icon` with a label is the icon-and-text tab: a 24 dp glyph above the label with 10 dp between them, in a bar 72 dp tall instead of 48 dp. The glyph and the label share one colour, the indicator's when selected.
 
-Use the same form for every tab in a bar. The guidelines show labelled and icon-only tabs in one bar as a "Don't"; MD1 warns in development when a bar mixes them.
+Use the same form for every tab in a bar. The guidelines show labelled and icon-only tabs in one bar as a "Don't"; Material Design 1 warns in development when a bar mixes them.
 :::
 
 ::: ds-example
@@ -104,7 +104,7 @@ Use the same form for every tab in a bar. The guidelines show labelled and icon-
 
 ### Icons only
 
-`icon` without a label is an icon-only tab, still 48 dp tall with the glyph centred. The 2016 guidelines put it plainly: tab labels are either all icons or all text. An icon-only tab has no visible text, so its accessible name comes from `ariaLabel`; the glyph is hidden from assistive technology, and MD1 warns in development when the name is missing.
+`icon` without a label is an icon-only tab, still 48 dp tall with the glyph centred. The 2016 guidelines put it plainly: tab labels are either all icons or all text. An icon-only tab has no visible text, so its accessible name comes from `ariaLabel`; the glyph is hidden from assistive technology, and Material Design 1 warns in development when the name is missing.
 :::
 
 ::: ds-example
@@ -127,7 +127,7 @@ The example is narrower than a page, so the fixed tabs share 520 px and the long
 
 ### Colour and motion
 
-A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink and the indicator are the accent and the inactive ink is the secondary text colour (54% black, 70% white on the dark theme), an MD1 decision where the page gives only the coloured bar's values. Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 60%.
+A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink and the indicator are the accent and the inactive ink is the secondary text colour (54% black, 70% white on the dark theme), a Material Design 1 decision where the page gives only the coloured bar's values. Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 60%.
 
 Panels change by sliding, the sibling transition of the navigation patterns: the new panel comes in from the end side and the old one leaves to the start side, reversed when you move back and mirrored in right-to-left layouts, over 300 ms on the standard curve. With reduced motion the panels swap at once.
 

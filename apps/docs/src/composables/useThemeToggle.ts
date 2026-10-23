@@ -54,7 +54,7 @@ export const PALETTE_LABELS: Record<Palette, string> = {
   'ant-design': 'Ant Design',
   'emerald': 'Emerald',
   'bulma': 'Bulma',
-  'md1': 'MD1',
+  'md1': 'Material Design 1',
 }
 
 const ACCESSIBILITY_THEMES = [

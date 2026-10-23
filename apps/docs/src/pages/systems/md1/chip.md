@@ -1,5 +1,5 @@
 ---
-title: Md1Chip - MD1 Chip for Vue
+title: Md1Chip - Material Design 1 Chip for Vue
 meta:
 - name: description
   content: The Material Design 1 chip with text, an icon or a photo, deletable from its cancel glyph or the Delete key, and the contact chip that opens to its addresses. Built on Vuetify0.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 chip: a small block that stands for an entity, such as a filter, a rule or a contact. Chips can carry an icon or a photo, can be deleted, and the contact chip opens to show the contact's other addresses.
 
 > [!NOTE]
-> Reference: [Chips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/chips.html), the archived page MD1 is pinned to. Metrics, contact chips, deletion and behavior. This page is the Vue.
+> Reference: [Chips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/chips.html), the archived page Material Design 1 is pinned to. Metrics, contact chips, deletion and behavior. This page is the Vue.
 
 ## Usage
 
@@ -57,9 +57,9 @@ The Material Design 1 chip: a small block that stands for an entity, such as a f
 
 A chip with no press renders v0's [Atom](/components/primitives/atom) as a `<span>`. A chip with a press, and every contact chip, renders [Button](/components/actions/button) `Button.Root` instead, so activation, focus order and the native `disabled` attribute come from v0. The delete control of a text chip is its own `Button.Root` with an accessible name; a pressable chip cannot hold a second button, so there the glyph is decoration and the chip itself answers to Delete.
 
-The contact chip's open state is v0's [Popover](/components/disclosure/popover). `Popover.Root` owns the `open` model and `Popover.Activator` binds the chip as its trigger once an `Addresses` part is present, which is where `aria-expanded`, `aria-controls` and `data-open` come from. `Md1Chip.Addresses` is `Popover.Content`: a native popover, so Escape and a press outside close it and focus returns to the chip without any MD1 code. The sheet is moved out of the chip's `<button>` into an outlet right beside it, which keeps it inside the chip's themed subtree.
+The contact chip's open state is v0's [Popover](/components/disclosure/popover). `Popover.Root` owns the `open` model and `Popover.Activator` binds the chip as its trigger once an `Addresses` part is present, which is where `aria-expanded`, `aria-controls` and `data-open` come from. `Md1Chip.Addresses` is `Popover.Content`: a native popover, so Escape and a press outside close it and focus returns to the chip without any Material Design 1 code. The sheet is moved out of the chip's `<button>` into an outlet right beside it, which keeps it inside the chip's themed subtree.
 
-On a pressable chip `data-disabled` comes from `Button.Root`; on a text chip MD1 sets it on the `<span>` itself. `data-open` comes from `Popover.Activator` once an `Addresses` part is present. `data-deletable`, `data-contact` and `data-focused` are MD1's own; the chip never writes a state class. Every pressable chip and every address row starts with a [Md1Ripple](/systems/md1/ripple).
+On a pressable chip `data-disabled` comes from `Button.Root`; on a text chip Material Design 1 sets it on the `<span>` itself. `data-open` comes from `Popover.Activator` once an `Addresses` part is present. `data-deletable`, `data-contact` and `data-focused` are Material Design 1's own; the chip never writes a state class. Every pressable chip and every address row starts with a [Md1Ripple](/systems/md1/ripple).
 
 ## Examples
 
@@ -68,7 +68,7 @@ On a pressable chip `data-disabled` comes from `Button.Root`; on a text chip MD1
 
 ### Text and an icon
 
-`icon` names a role from the MD1 icon set and draws it through `Md1Icon` ahead of the label: the page's "chip with text and an icon". The guidelines show the type but give no icon metrics, so MD1 draws the 24 dp glyph in the active icon tier (54% black, white on the dark theme), 4 dp from the chip's start edge and 8 dp before the label. Those three numbers are decisions; the 32 dp height, the 13 sp label at 87% and the 12 dp end padding are the page's.
+`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: the page's "chip with text and an icon". The guidelines show the type but give no icon metrics, so Material Design 1 draws the 24 dp glyph in the active icon tier (54% black, white on the dark theme), 4 dp from the chip's start edge and 8 dp before the label. Those three numbers are decisions; the 32 dp height, the 13 sp label at 87% and the 12 dp end padding are the page's.
 
 The glyph is hidden from assistive technology, because the label already names the chip. Use an icon to classify a chip (a place, a date, a label) and keep the label as the content. When a chip stands for a person, use `avatar` instead: the photo takes the icon's place.
 :::
@@ -78,9 +78,9 @@ The glyph is hidden from assistive technology, because the label already names t
 
 ### Deletable
 
-`deletable` adds the remove glyph: the `cancel` icon at 24 dp in 54% black, with a 4 dp margin to the chip's end edge, which replaces the 12 dp end padding. The guidelines make the icon persistent on desktop, so MD1 never hides it on hover. Pressing it emits `delete`; the chip does not remove itself, because the list it belongs to is yours.
+`deletable` adds the remove glyph: the `cancel` icon at 24 dp in 54% black, with a 4 dp margin to the chip's end edge, which replaces the 12 dp end padding. The guidelines make the icon persistent on desktop, so Material Design 1 never hides it on hover. Pressing it emits `delete`; the chip does not remove itself, because the list it belongs to is yours.
 
-On a text chip the glyph is a real button named "Delete" plus the label ("Delete Toronto"), and Delete or Backspace on it emits `delete` too, as the page states. The page states a 2 dp rise on focus for the contact chip; MD1 extends it to every chip (a decision) and applies it to the whole chip while focus is anywhere inside it, the delete control included. The control keeps a 48 dp tall hit area, so the 24 dp glyph is easy to press on touch.
+On a text chip the glyph is a real button named "Delete" plus the label ("Delete Toronto"), and Delete or Backspace on it emits `delete` too, as the page states. The page states a 2 dp rise on focus for the contact chip; Material Design 1 extends it to every chip (a decision) and applies it to the whole chip while focus is anywhere inside it, the delete control included. The control keeps a 48 dp tall hit area, so the 24 dp glyph is easy to press on touch.
 :::
 
 ::: ds-example
@@ -100,7 +100,7 @@ The 32 dp chip answers to a 48 dp tall hit area, the touch target minimum of the
 
 `contact` is the chip the guidelines put in a "To" field: the photo flush with the start edge at the chip's full height, 8 dp to the name, 12 dp after it, and the name at 14 sp. A contact chip is always a button. When it takes focus it rises to 2 dp and grows to 40 dp; the field around it gives back 4 dp on each side, from 20 dp of padding to 16 dp, so the row keeps its height. Tab through the chips above to see it.
 
-The photo size is not in the page's text; MD1 follows the figures, a circle as tall as the chip. Contact chips are usually deletable, and the remove glyph sits at the end edge as on any chip. Since the contact chip is a button, delete it from the keyboard with Delete or Backspace once it has focus.
+The photo size is not in the page's text; Material Design 1 follows the figures, a circle as tall as the chip. Contact chips are usually deletable, and the remove glyph sits at the end edge as on any chip. Since the contact chip is a button, delete it from the keyboard with Delete or Backspace once it has focus.
 :::
 
 ::: ds-example
@@ -118,7 +118,7 @@ A press on the open chip closes it, also as the page says: a press on a row clos
 
 ### Disabled
 
-The page states no disabled chip. MD1's `disabled` drops the label to the disabled text tier (38% black, 50% white on the dark theme) and the glyphs to the inactive icon tier, and takes the chip out of pointer and keyboard interaction. A disabled delete control is a disabled button, out of the tab order, so `delete` cannot fire.
+The page states no disabled chip. Material Design 1's `disabled` drops the label to the disabled text tier (38% black, 50% white on the dark theme) and the glyphs to the inactive icon tier, and takes the chip out of pointer and keyboard interaction. A disabled delete control is a disabled button, out of the tab order, so `delete` cannot fire.
 
 Prefer removing a chip that cannot be acted on over disabling it. A disabled chip in a list of filters reads as a filter that is applied but stuck, which is rarely what you mean.
 :::
@@ -178,4 +178,4 @@ The chip carries `aria-expanded` and `aria-controls` while it owns a sheet. The 
 
 ### Focus
 
-A focused chip rises to 2 dp, the guidelines' rule for the contact chip that MD1 extends to every chip, and keyboard focus on a pressable chip adds the 12% overlay. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+A focused chip rises to 2 dp, the guidelines' rule for the contact chip that Material Design 1 extends to every chip, and keyboard focus on a pressable chip adds the 12% overlay. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.

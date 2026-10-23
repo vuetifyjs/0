@@ -1,8 +1,8 @@
 ---
-title: Settings - MD1 Material Design 1 Settings Pattern for Vue
+title: Settings - Material Design 1 Settings Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 settings pattern in MD1. Settings lists with switches, checkboxes and status text, grouped by subheaders and dividers, with choice dialogs and subscreens.
+  content: The Material Design 1 settings pattern. Settings lists with switches, checkboxes and status text, grouped by subheaders and dividers, with choice dialogs and subscreens.
 - name: keywords
   content: md1 settings, material design 1 settings, settings screen, settings list, switch list, preferences pattern, vue settings, paper md1
 features:
@@ -24,10 +24,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-A settings screen is a list of the preferences that shape how an app behaves, each with its current value in view. MD1 has no settings component; the screen is an `Md1List` with controls in its action column, `Md1Subheader` and `Md1Divider` for grouping, and `Md1Dialog` for the settings that take a choice.
+A settings screen is a list of the preferences that shape how an app behaves, each with its current value in view. Material Design 1 has no settings component; the screen is an `Md1List` with controls in its action column, `Md1Subheader` and `Md1Divider` for grouping, and `Md1Dialog` for the settings that take a choice.
 
 > [!NOTE]
-> Reference: [Settings, Material Design 1 guidelines](http://web.archive.org/web/20181225002157/https://material.io/archive/guidelines/patterns/settings.html), the archived page MD1 is pinned to, with the [navigation drawer](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html) and [help and feedback](http://web.archive.org/web/20181225002233/https://material.io/archive/guidelines/patterns/help-feedback.html) pages for placement. Placement, grouping, labels and status text. This page is the Vue.
+> Reference: [Settings, Material Design 1 guidelines](http://web.archive.org/web/20181225002157/https://material.io/archive/guidelines/patterns/settings.html), the archived page Material Design 1 is pinned to, with the [navigation drawer](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html) and [help and feedback](http://web.archive.org/web/20181225002233/https://material.io/archive/guidelines/patterns/help-feedback.html) pages for placement. Placement, grouping, labels and status text. This page is the Vue.
 
 ## Usage
 
@@ -39,7 +39,7 @@ Each setting is one list row: the label as the primary line, the current status 
 
 ## Building blocks
 
-| Part of the screen | MD1 surface | Guideline |
+| Part of the screen | Material Design 1 surface | Guideline |
 |--------------------|-----------------|-----------|
 | Setting row | `Md1List.Item` with `:lines="2"` | Label plus optional single-line secondary text; labels wrap when needed |
 | Label | `Md1List.Primary` | Brief and meaningful; sentence case; no generic verbs (Set, Change, Manage) |

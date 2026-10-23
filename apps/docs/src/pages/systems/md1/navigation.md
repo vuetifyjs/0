@@ -1,8 +1,8 @@
 ---
-title: Navigation - MD1 Material Design 1 Navigation Pattern for Vue
+title: Navigation - Material Design 1 Navigation Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 navigation pattern in MD1. Lateral navigation with tabs, drawers and bottom navigation, forward navigation through lists and cards, and the up and back buttons.
+  content: The Material Design 1 navigation pattern. Lateral navigation with tabs, drawers and bottom navigation, forward navigation through lists and cards, and the up and back buttons.
 - name: keywords
   content: md1 navigation, material design 1 navigation, navigation drawer, bottom navigation, tabs, up button, back button, vue navigation, paper md1
 features:
@@ -24,10 +24,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-How a reader moves through an app: sideways between sibling views, down into a child, and back up again. MD1 ships the surfaces the guidelines name for each move; this page shows which one to reach for and how they combine.
+How a reader moves through an app: sideways between sibling views, down into a child, and back up again. Material Design 1 ships the surfaces the guidelines name for each move; this page shows which one to reach for and how they combine.
 
 > [!NOTE]
-> Reference: [Navigation, Material Design 1 guidelines](http://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html), the archived page MD1 is pinned to, with [Navigational transitions](http://web.archive.org/web/20181225002137/https://material.io/archive/guidelines/patterns/navigational-transitions.html) and the [navigation drawer](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html) page. Hierarchy, patterns, the up and back buttons, and transitions. This page is the Vue.
+> Reference: [Navigation, Material Design 1 guidelines](http://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html), the archived page Material Design 1 is pinned to, with [Navigational transitions](http://web.archive.org/web/20181225002137/https://material.io/archive/guidelines/patterns/navigational-transitions.html) and the [navigation drawer](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html) page. Hierarchy, patterns, the up and back buttons, and transitions. This page is the Vue.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Pick the navigation from the shape of the app: tabs or bottom navigation for a f
 
 The guidelines describe an app as a hierarchy of scenes, and name each move through it.
 
-| Term | Meaning | MD1 surface |
+| Term | Meaning | Material Design 1 surface |
 |------|---------|-----------------|
 | Home | The entrance to the app; the parent of every other screen | |
 | Parent and child | A higher level of the hierarchy and the levels below it | |
@@ -55,7 +55,7 @@ Navigation history is not created by switching views with tabs, swiping or a dro
 
 ## Choosing a pattern
 
-| Pattern | MD1 surface | Recommended for |
+| Pattern | Material Design 1 surface | Recommended for |
 |---------|-----------------|-----------------|
 | Embedded navigation | Controls inside the content | Apps with a strong primary view, few alternate views, and infrequent use |
 | Tabs | `Md1Tabs` | Frequent switching between a small number of equally important views; promoting awareness of the alternatives |
@@ -65,22 +65,22 @@ Navigation history is not created by switching views with tabs, swiping or a dro
 | Cascading drawer (desktop) | `Md1NavigationDrawer` with `Md1Menu.Sub` panels | Deep hierarchies shown as horizontal panels; a level closes when a subsection is chosen |
 | In-context navigation | `Md1List`, `Md1Card` and links in the content | Large sets of child scenes; the up arrow returns to the previous level |
 
-Combined forms follow from the same parts: a drawer with tabs for two levels of navigation, and on desktop a drawer with nested navigation plus tabs for three. Gestural navigation between siblings is limited to what `Md1Tabs` provides; MD1 ships no swipe gestures.
+Combined forms follow from the same parts: a drawer with tabs for two levels of navigation, and on desktop a drawer with nested navigation plus tabs for three. Gestural navigation between siblings is limited to what `Md1Tabs` provides; Material Design 1 ships no swipe gestures.
 
 ## Up and back
 
 App bars provide the two ascending buttons.
 
-| Button | Where it goes | MD1 |
+| Button | Where it goes | Material Design 1 |
 |--------|---------------|---------|
 | Up | One level up the app's hierarchy, until the home screen; it never leaves the app | `Md1Toolbar.Nav icon="up"`, a 48 dp button with the `arrow-back` glyph; emits `click`, and the app routes to the parent |
-| Back | Back through the history of recently viewed screens, in reverse order; it may leave the app | The browser's Back button and history; MD1 renders no Back button |
+| Back | Back through the history of recently viewed screens, in reverse order; it may leave the app | The browser's Back button and history; Material Design 1 renders no Back button |
 
 Back also dismisses floating surfaces, clears a contextual action bar along with its selection, and hides the on-screen keyboard. On the web, Escape is the in-page counterpart: it closes `Md1Dialog`, a temporary `Md1NavigationDrawer` and `Md1Menu`, and clears the selection from `Md1Toolbar.Contextual` and `Md1DataTable.Contextual`.
 
 ## Transitions
 
-| Move | Transition | MD1 |
+| Move | Transition | Material Design 1 |
 |------|------------|---------|
 | Parent to child | The touched surface lifts and expands into place from its origin, on the standard curve; the elevation change marks the shift in focus | Composed by the app; the examples below show it with a Vue `Transition` on `--md1-duration-enter` and `--md1-easing-standard` |
 | Sibling to sibling | No elevation change; the new content slides in from the right while the old content leaves to the left | Built into `Md1Tabs.Panel`, mirrored under `dir="rtl"` |
@@ -136,7 +136,7 @@ The expanded section's title takes the primary colour, and its children indent t
 
 Descending navigation moves from a collection to one of its items. Each `Md1List.Item` with a click listener (or an `href`) is the link to its child. The child screen's app bar swaps the menu icon for the up arrow, named after the parent it returns to.
 
-The parent-to-child transition is the guidelines' marker for going deeper: the surface the reader touched lifts and expands into place on the standard curve. The child here is a raised sheet that scales in from the top over `--md1-duration-enter` (225 ms on handsets, 150 ms under a mouse) with `--md1-easing-standard`. MD1 ships no route transition; this one belongs to the app, and it is dropped under reduced motion.
+The parent-to-child transition is the guidelines' marker for going deeper: the surface the reader touched lifts and expands into place on the standard curve. The child here is a raised sheet that scales in from the top over `--md1-duration-enter` (225 ms on handsets, 150 ms under a mouse) with `--md1-easing-standard`. Material Design 1 ships no route transition; this one belongs to the app, and it is dropped under reduced motion.
 :::
 
 ::: ds-example
@@ -156,7 +156,7 @@ The same parent-to-child transition applies: the elevation change says the reade
 
 Up and Back diverge after a crosslink. Open Kind of Blue, follow "More by Miles Davis" to the artist, then compare the two buttons. Up goes to Artists, the artist's parent in the hierarchy, whatever path led there. Back, the browser's button stood in for by the button under the frame, returns to the album, because Back follows history and the crosslink created a history entry.
 
-Up never leaves the app; Back can. Give every screen below home an up arrow, and let the browser own Back. Within one screen, Back's other duties (closing a dialog, clearing a contextual action bar) are Escape in MD1's components.
+Up never leaves the app; Back can. Give every screen below home an up arrow, and let the browser own Back. Within one screen, Back's other duties (closing a dialog, clearing a contextual action bar) are Escape in Material Design 1's components.
 :::
 
 ## Accessibility

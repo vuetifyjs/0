@@ -1,5 +1,5 @@
 ---
-title: Md1DatePicker - MD1 Date Picker for Vue
+title: Md1DatePicker - Material Design 1 Date Picker for Vue
 meta:
 - name: description
   content: The Material Design 1 date picker with its primary header, month grid and year list, in portrait and landscape, hosted by a confirmation dialog. Built on Vuetify0.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 date picker: the chosen date in a coloured header over a month grid, with a year list one tap away. It picks one date, in a confirmation dialog.
 
 > [!NOTE]
-> Reference: [Pickers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html), the archived page MD1 is pinned to. The page gives no numbers; every size here is measured from its own artwork. This page is the Vue.
+> Reference: [Pickers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html), the archived page Material Design 1 is pinned to. The page gives no numbers; every size here is measured from its own artwork. This page is the Vue.
 
 ## Usage
 
@@ -51,9 +51,9 @@ The Material Design 1 date picker: the chosen date in a coloured header over a m
 
 ## Composed on Vuetify0
 
-v0's [createDatePicker](/roadmap) is still a draft, so the calendar logic is MD1's own until it lands: the visible month, the focused day, the six-week matrix, the year list and the selection write. The grid's keyboard model is v0's [useRovingFocus](/composables/system/use-roving-focus) in its seven-column grid mode, and every day, the header year and the two chevrons are v0 [Button](/components/actions/button) roots. When the app installs v0's [date plugin](/composables/plugins/use-date), its adapter formats the month label, the day names and the year, and its locale supplies the first weekday; without it the picker formats through `Intl` on the browser's locale.
+v0's [createDatePicker](/roadmap) is still a draft, so the calendar logic is Material Design 1's own until it lands: the visible month, the focused day, the six-week matrix, the year list and the selection write. The grid's keyboard model is v0's [useRovingFocus](/composables/system/use-roving-focus) in its seven-column grid mode, and every day, the header year and the two chevrons are v0 [Button](/components/actions/button) roots. When the app installs v0's [date plugin](/composables/plugins/use-date), its adapter formats the month label, the day names and the year, and its locale supplies the first weekday; without it the picker formats through `Intl` on the browser's locale.
 
-Inside a confirmation `Md1Dialog` the picker reads the date the dialog holds and writes back through it, so OK commits and Cancel discards without any wiring. Anywhere else it reads and writes its own `v-model`. `data-view` (`date` or `year`) and `data-landscape` are MD1's hooks; the day buttons carry `data-selected` and `data-today`.
+Inside a confirmation `Md1Dialog` the picker reads the date the dialog holds and writes back through it, so OK commits and Cancel discards without any wiring. Anywhere else it reads and writes its own `v-model`. `data-view` (`date` or `year`) and `data-landscape` are Material Design 1's hooks; the day buttons carry `data-selected` and `data-today`.
 
 ## Examples
 
@@ -78,7 +78,7 @@ Tap the year in the header to swap the grid for the year list: 44 dp rows in Sub
 
 `landscape` moves the header into a 168 dp column at the start edge, where the date wraps to two lines at the 40 dp leading, and tightens the body to 344 dp with 46 x 32 dp cells and a 32 dp selection circle. The pickers page draws both layouts and says "the picker view adapts to the device's orientation".
 
-MD1 does not switch layouts on its own. The web notes in the spec ask for an explicit choice, not a guess from the viewport width, so bind `landscape` to whatever your app treats as landscape: an `(orientation: landscape)` media query, a short viewport, or a fixed decision for a desktop dialog. The surface is 512 dp wide; with the dialog's action row below it the sheet is 324 dp tall, 20 dp over the page's measured 304, because the actions sit under the whole picker rather than inside the body column.
+Material Design 1 does not switch layouts on its own. The web notes in the spec ask for an explicit choice, not a guess from the viewport width, so bind `landscape` to whatever your app treats as landscape: an `(orientation: landscape)` media query, a short viewport, or a fixed decision for a desktop dialog. The surface is 512 dp wide; with the dialog's action row below it the sheet is 324 dp tall, 20 dp over the page's measured 304, because the actions sit under the whole picker rather than inside the body column.
 :::
 
 ::: ds-example

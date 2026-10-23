@@ -4,7 +4,7 @@
   import type { Md1PaletteKey } from '@paper/md1'
 
   // The six swatches where the 2016 page prints white text and the 2018 page,
-  // which MD1 pins, prints black.
+  // which Material Design 1 pins, prints black.
   const CONTESTED = [
     ['pink-300', 'Pink 300'],
     ['blue-500', 'Blue 500'],

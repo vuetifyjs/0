@@ -1,5 +1,5 @@
 ---
-title: Md1Stepper - MD1 Stepper for Vue
+title: Md1Stepper - Material Design 1 Stepper for Vue
 meta:
 - name: description
   content: The Material Design 1 stepper. Numbered steps on a 72 dp bar or stacked vertically, linear or non-linear, with alternative labels, editable, optional and error steps, transient feedback and the three mobile forms. Built on Vuetify0's Step and Collapsible.
@@ -29,7 +29,7 @@ related:
 The Material Design 1 stepper. Progress through a sequence of numbered steps, on a horizontal bar or stacked down the page, with the bottom-bar forms for mobile.
 
 > [!NOTE]
-> Reference: [Steppers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/steppers.html), the archived page MD1 is pinned to. Metrics, colour, states and the mobile forms. This page is the Vue.
+> Reference: [Steppers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/steppers.html), the archived page Material Design 1 is pinned to. Metrics, colour, states and the mobile forms. This page is the Vue.
 
 ## Usage
 
@@ -67,7 +67,7 @@ The parts are also exported under their flat names: `Md1StepperStep`, `Md1Steppe
 
 Each step's `Content` is a v0 [Collapsible](/components/disclosure/collapsible) region, open while its step is active and `hidden` otherwise, so a step's form keeps its state while the user is elsewhere. The region is named by the step's label. In a horizontal stepper the content is teleported under the whole header; in a vertical one it stays inside its step. `Actions` renders two [Md1Button](/systems/md1/button)s, and the mobile `Bar` renders the dots or the bar through v0's [Progress](/components/semantic/progress) with a "Step N of M" text alternative.
 
-MD1 styles the attributes it publishes: `data-vertical`, `data-linear`, `data-alternative`, `data-mobile` and `data-feedback` on the root, and `data-state` (`active`, `complete`, `inactive`), `data-editable`, `data-optional` and `data-error` on each step. Every step header the user can go to is a v0 [Button](/components/actions/button) `Button.Root`, a native button, with a [Md1Ripple](/systems/md1/ripple) as its first child, and the check, pencil, warning and chevron glyphs draw through [Md1Icon](/systems/md1/icon).
+Material Design 1 styles the attributes it publishes: `data-vertical`, `data-linear`, `data-alternative`, `data-mobile` and `data-feedback` on the root, and `data-state` (`active`, `complete`, `inactive`), `data-editable`, `data-optional` and `data-error` on each step. Every step header the user can go to is a v0 [Button](/components/actions/button) `Button.Root`, a native button, with a [Md1Ripple](/systems/md1/ripple) as its first child, and the check, pencil, warning and chevron glyphs draw through [Md1Icon](/systems/md1/icon).
 
 ## Examples
 
@@ -78,7 +78,7 @@ MD1 styles the attributes it publishes: `data-vertical`, `data-linear`, `data-al
 
 Vertical steppers stack the steps and open the active step's content under its label. The guidelines design them for narrow screens and call them ideal for mobile, so keep each step's content responsive.
 
-The label row starts 24 dp from the top, with 12 dp from the circle to the label, and the content is indented to the label's keyline, 60 dp from the edge. The 1 dp connector runs down from each circle, 8 dp clear of it, to the next circle. The CONTINUE and CANCEL row sits 16 dp under the content with 8 dp between the buttons, and the next step's label starts 48 dp below that row. The guidelines state no motion for the content; MD1 opens it as a height change over the standard 300 ms.
+The label row starts 24 dp from the top, with 12 dp from the circle to the label, and the content is indented to the label's keyline, 60 dp from the edge. The 1 dp connector runs down from each circle, 8 dp clear of it, to the next circle. The CONTINUE and CANCEL row sits 16 dp under the content with 8 dp between the buttons, and the next step's label starts 48 dp below that row. The guidelines state no motion for the content; Material Design 1 opens it as a height change over the standard 300 ms.
 :::
 
 ::: ds-example
@@ -138,7 +138,7 @@ The red is `--md1-error`, Red A400, the colour the text field uses for its error
 
 The guidelines let a stepper show a transient feedback message after a step is saved, and only when there is long latency between steps. While `feedback` holds a message, the active step's content is replaced by an indeterminate circular indicator and the message in Body 1 at 54%; clear it and the content returns.
 
-The guidelines show the feedback in video only, so the layout here, the circle beside the message, is an MD1 decision. The content stays mounted underneath, so nothing the user typed is lost.
+The guidelines show the feedback in video only, so the layout here, the circle beside the message, is a Material Design 1 decision. The content stays mounted underneath, so nothing the user typed is lost.
 :::
 
 ::: ds-example
@@ -200,7 +200,7 @@ There are no named slots.
 
 ## Accessibility
 
-The guidelines name no keyboard model and WAI-ARIA has no stepper pattern, so MD1 uses the platform's. The steps are an ordered list; the active one carries `aria-current="step"`. A step header the user can go to is a native `<button>`, and one they cannot (the active step, a future step of a linear stepper, a completed step that is not editable) is plain text, so the tab order only holds places the user can actually go.
+The guidelines name no keyboard model and WAI-ARIA has no stepper pattern, so Material Design 1 uses the platform's. The steps are an ordered list; the active one carries `aria-current="step"`. A step header the user can go to is a native `<button>`, and one they cannot (the active step, a future step of a linear stepper, a completed step that is not editable) is plain text, so the tab order only holds places the user can actually go.
 
 ### Naming
 

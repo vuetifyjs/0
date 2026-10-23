@@ -1,5 +1,5 @@
 ---
-title: Md1IconToggle - MD1 Icon Toggle for Vue
+title: Md1IconToggle - Material Design 1 Icon Toggle for Vue
 meta:
 - name: description
   content: The Material Design 1 icon toggle, a single choice selected or deselected, drawn as a glyph in a 48 dp target with a bounded or unbounded ripple. Built on Vuetify0's Toggle.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 icon toggle. One choice, selected or deselected, drawn as a glyph in a 48 dp touch target: the star on a message, the bookmark on an article.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page MD1 is pinned to (the icon toggles section). Icon opacities come from the [icons page](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html). This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to (the icon toggles section). Icon opacities come from the [icons page](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html). This page is the Vue.
 
 ## Usage
 
@@ -55,7 +55,7 @@ The guidelines place icon toggles in app bars, toolbars, action buttons and togg
 
 `Md1IconToggle` renders v0's [Toggle](/components/actions/toggle) compound: `Toggle.Root` is the native `<button>` and owns the pressed state, the click and the `aria-pressed` attribute, and a renderless `Toggle.Indicator` reads that state to pick the glyph. The glyph itself draws through [Md1Icon](/systems/md1/icon), hidden from assistive technology.
 
-`Toggle.Root` emits the `data-state` (`on` or `off`) and `data-disabled` attributes MD1's stylesheet hangs off; `data-unbounded` is MD1's own. The first child of the root is a [Md1Ripple](/systems/md1/ripple), the press feedback the guidelines give every button.
+`Toggle.Root` emits the `data-state` (`on` or `off`) and `data-disabled` attributes Material Design 1's stylesheet hangs off; `data-unbounded` is Material Design 1's own. The first child of the root is a [Md1Ripple](/systems/md1/ripple), the press feedback the guidelines give every button.
 
 ## Examples
 
@@ -64,7 +64,7 @@ The guidelines place icon toggles in app bars, toolbars, action buttons and togg
 
 ### Star
 
-The canonical icon toggle: an outlined star while off, a filled star while on. `icon` names the off glyph and `iconOn` the on glyph, both roles of the MD1 icon set, and `v-model` holds the boolean. Each click flips the state, and v0 publishes it to assistive technology as `aria-pressed`, so a screen reader announces "Star, toggle button, pressed".
+The canonical icon toggle: an outlined star while off, a filled star while on. `icon` names the off glyph and `iconOn` the on glyph, both roles of the Material Design 1 icon set, and `v-model` holds the boolean. Each click flips the state, and v0 publishes it to assistive technology as `aria-pressed`, so a screen reader announces "Star, toggle button, pressed".
 
 The glyph is the 24 dp system icon centred in the 48 dp touch target of the metrics page. The note beside the toggle is the example's own status line; in an app the changed glyph is the feedback, and the guidelines need nothing more.
 :::
@@ -86,7 +86,7 @@ Both inks paint the pressed overlay of the buttons page, 40% `#999999` on the li
 
 Off, on, and both again disabled. The ink follows the icons page's opacity tiers: an off toggle draws at the inactive tier, 38% black (50% white on the dark theme), and an on toggle at the active tier, 54% black (100% white). Keyboard focus lifts the glyph to the focused tier, 87% black (100% white), and fills the 48 dp circle with 12% of the glyph's own ink: the buttons page ties an icon toggle's focus indicator to the icon's colour and gives focus a 12% overlay. The circle is what shows focus on an on toggle in the dark theme, where the active and focused tiers are both 100% white and the glyph cannot brighten.
 
-The guidelines draw a disabled toggle only as an image, so MD1 gives it the buttons page's disabled ink, 26% black (30% white). A disabled toggle keeps its glyph, so an on toggle still reads as on. It leaves the tab order, ignores clicks and draws no ink.
+The guidelines draw a disabled toggle only as an image, so Material Design 1 gives it the buttons page's disabled ink, 26% black (30% white). A disabled toggle keeps its glyph, so an on toggle still reads as on. It leaves the tab order, ignores clicks and draws no ink.
 :::
 
 ::: ds-example

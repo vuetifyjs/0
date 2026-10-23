@@ -1,5 +1,5 @@
 ---
-title: Md1DataTable - MD1 Data Table for Vue
+title: Md1DataTable - Material Design 1 Data Table for Vue
 meta:
 - name: description
   content: The Material Design 1 data table as a table card, with a title header, sortable columns, selectable rows, a contextual header, inline editing and a pagination footer. Built on Vuetify0's DataTable.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 data table: raw data on a card, with a title header, sortable columns, selectable rows, inline editing and a pagination footer.
 
 > [!NOTE]
-> Reference: [Data tables, Material Design 1 guidelines](http://web.archive.org/web/20181225002253/https://material.io/archive/guidelines/components/data-tables.html), the archived page MD1 is pinned to. Metrics, colour, sorting, selection and editing. This page is the Vue.
+> Reference: [Data tables, Material Design 1 guidelines](http://web.archive.org/web/20181225002253/https://material.io/archive/guidelines/components/data-tables.html), the archived page Material Design 1 is pinned to. Metrics, colour, sorting, selection and editing. This page is the Vue.
 
 ## Usage
 
@@ -72,7 +72,7 @@ The root creates one v0 [createDataTable](/composables/data/create-data-table) a
 
 Each sortable column's control is a v0 [Button](/components/actions/button) that calls the column's `toggle`; the column definition is a v0 [Tooltip](/components/disclosure/tooltip). The row and select-all checkboxes are v0 [Checkbox](/components/forms/checkbox) roots. The rows-per-page selector is a v0 [Select](/components/forms/select), whose list is a native popover anchored to the selector. The small edit sheet is a v0 [Popover](/components/disclosure/popover) around a v0 [Input](/components/forms/input); the large edit dialog is a v0 [Dialog](/components/disclosure/dialog) on the native `<dialog>`. Every interactive root hosts a [Md1Ripple](/systems/md1/ripple) as its first child.
 
-`data-direction` on a column and `data-selected` on a row come from v0; `data-numeric`, `data-editable`, `data-editing`, `data-selectable` and `data-contextual` are MD1's own.
+`data-direction` on a column and `data-selected` on a row come from v0; `data-numeric`, `data-editable`, `data-editing`, `data-selectable` and `data-contextual` are Material Design 1's own.
 
 ## Examples
 
@@ -105,7 +105,7 @@ A tooltip is a supplement, not a label. Keep the column name meaningful on its o
 
 `selectable` adds the checkbox column: a select-all checkbox in the header row and one per data row, 18 dp boxes in 24 dp containers, 24 dp from the card edge and 24 dp from the first column's text, inked in the secondary colour. Under a mouse they draw no radial reaction, as the selection controls page asks; from the keyboard a focused checkbox shows the 48 dp halo. A selected row turns Grey 100; a hovered row Grey 200. `v-model:selected` carries the row records. Select-all covers the visible page and goes mixed when only some of the page is selected.
 
-`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's light value, with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back. The guidelines' figures keep the checkbox column visible at all times, and MD1 follows them rather than the selection pattern's hover-revealed checkbox.
+`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's light value, with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back. The guidelines' figures keep the checkbox column visible at all times, and Material Design 1 follows them rather than the selection pattern's hover-revealed checkbox.
 
 A row with `selectable` set to `false` keeps its place in the checkbox column but draws no checkbox, and select-all skips it.
 

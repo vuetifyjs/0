@@ -1,5 +1,5 @@
 ---
-title: Md1DropdownButton - MD1 Dropdown Button for Vue
+title: Md1DropdownButton - Material Design 1 Dropdown Button for Vue
 meta:
 - name: description
   content: The Material Design 1 dropdown button in plain, segmented, generic, dense and desktop forms, whose menu covers the button and lists the states. Built on Vuetify0's Menu.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 dropdown button. A flat button that shows the current state and a down arrow; pressing it opens a menu over the button that lists every state.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page MD1 is pinned to, with the menu sheet from [Menus](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/menus.html). Behavior, the desktop paddings and the menu metrics. This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to, with the menu sheet from [Menus](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/menus.html). Behavior, the desktop paddings and the menu metrics. This page is the Vue.
 
 ## Usage
 
@@ -58,9 +58,9 @@ The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the l
 
 `Md1DropdownButton` renders v0's [Menu](/components/disclosure/menu) compound: `Menu.Root` owns the open state, `Menu.Activator` is the button (or, segmented, the arrow segment), `Menu.Content` is the sheet, and `Menu.RadioGroup` holds the states. Each `Md1DropdownButton.Item` is a `Menu.RadioItem`, so the current state is announced as checked. The segmented state segment is a v0 [Button](/components/actions/button) `Button.Root`. Open and close, focus return, the roving highlight, typeahead and light dismiss all come from v0.
 
-MD1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dropdown commits and closes on the choice, so each item dismisses the menu after v0 selects it. The sheet is anchored so it covers the button and then slides up until the selected state sits over the button, measured once the sheet is laid out. And the button reads the selected item's text and glyph through a `md1:dropdown-button` context the items register with.
+Material Design 1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dropdown commits and closes on the choice, so each item dismisses the menu after v0 selects it. The sheet is anchored so it covers the button and then slides up until the selected state sits over the button, measured once the sheet is laid out. And the button reads the selected item's text and glyph through a `md1:dropdown-button` context the items register with.
 
-`Menu.Activator` and the items publish `data-open`, `data-state`, `data-highlighted` and `data-disabled`, which MD1's stylesheet hangs off. `data-segmented`, `data-dense`, `data-desktop` and `data-solo` on the root are MD1's own. Every interactive element hosts a [Md1Ripple](/systems/md1/ripple) as its first child, and every glyph is a [Md1Icon](/systems/md1/icon) role.
+`Menu.Activator` and the items publish `data-open`, `data-state`, `data-highlighted` and `data-disabled`, which Material Design 1's stylesheet hangs off. `data-segmented`, `data-dense`, `data-desktop` and `data-solo` on the root are Material Design 1's own. Every interactive element hosts a [Md1Ripple](/systems/md1/ripple) as its first child, and every glyph is a [Md1Icon](/systems/md1/icon) role.
 
 ## Examples
 
@@ -71,7 +71,7 @@ MD1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dro
 
 A segmented dropdown button has two sections. Pressing the current state fires that state's action, and pressing the arrow shows all the options; choosing one changes the state the button displays. `segmented` splits the button that way: the state segment emits `select` with the current value and never opens the menu, and the arrow segment is the menu button.
 
-The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are MD1 decisions. The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet opens from the arrow's end corner, at least as wide as the whole button, so it still covers both segments.
+The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are Material Design 1 decisions. The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet opens from the arrow's end corner, at least as wide as the whole button, so it still covers both segments.
 :::
 
 ::: ds-example
@@ -81,7 +81,7 @@ The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. 
 
 `icon` on an item gives the state a glyph. The row draws it in the leading column, and the button draws it ahead of the text while that state is selected, the icon form of the dropdown the buttons page shows. Because the leading column then belongs to the glyph, the check of the current state moves to the trailing edge.
 
-Glyphs draw at 24 dp and 54% ink in the menu, 38% when the state is disabled. Pick roles from the MD1 icon set or register your own through the icons plugin.
+Glyphs draw at 24 dp and 54% ink in the menu, 38% when the state is disabled. Pick roles from the Material Design 1 icon set or register your own through the icons plugin.
 :::
 
 ::: ds-example
@@ -91,7 +91,7 @@ Glyphs draw at 24 dp and 54% ink in the menu, 38% when the state is disabled. Pi
 
 The generic dropdown shows an arrow by default, and pressing an option navigates to further settings rather than becoming a displayed state. With no selected state and no `label`, the button is the arrow alone in the 48 dp circular target of an icon button, and `data-solo` is set.
 
-The arrow carries no text, so pass `ariaLabel`; without it MD1 warns in development. In this example the model stays empty: the choice is handled in `update:modelValue` and the button keeps showing the arrow.
+The arrow carries no text, so pass `ariaLabel`; without it Material Design 1 warns in development. In this example the model stays empty: the choice is handled in `update:modelValue` and the button keeps showing the arrow.
 :::
 
 ::: ds-example
@@ -99,7 +99,7 @@ The arrow carries no text, so pass `ariaLabel`; without it MD1 warns in developm
 
 ### Dense
 
-`dense` condenses both halves. The button becomes the dense button, 32 dp tall with a 13 sp label; the menu takes the 14 sp dense type of the menus page. That page gives no dense row height, so the rows take the 40 dp of the dense list tile, an MD1 decision `Md1Menu` shares. The 48 dp touch target still extends around the 32 dp button without taking layout space.
+`dense` condenses both halves. The button becomes the dense button, 32 dp tall with a 13 sp label; the menu takes the 14 sp dense type of the menus page. That page gives no dense row height, so the rows take the 40 dp of the dense list tile, a Material Design 1 decision `Md1Menu` shares. The 48 dp touch target still extends around the 32 dp button without taking layout space.
 :::
 
 ::: ds-example

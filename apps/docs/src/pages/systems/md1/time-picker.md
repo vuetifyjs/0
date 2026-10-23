@@ -1,5 +1,5 @@
 ---
-title: Md1TimePicker - MD1 Time Picker for Vue
+title: Md1TimePicker - Material Design 1 Time Picker for Vue
 meta:
 - name: description
   content: The Material Design 1 time picker, a primary header with the hour, minute and AM or PM over a clock face with a sweeping hand, in 12 and 24 hour formats and portrait and landscape layouts. Built on Vuetify0's Toggle and Radio.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 time picker. A header in the primary colour shows the time, and a clock face below it takes taps, drags and arrow keys, in the 12 and 24 hour formats and the portrait and landscape layouts.
 
 > [!NOTE]
-> Reference: [Pickers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html), the archived page MD1 is pinned to. Anatomy, both layouts and both themes. The page states no numbers: every size on this page is measured from its artwork at 2 px per dp. This page is the Vue.
+> Reference: [Pickers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/pickers.html), the archived page Material Design 1 is pinned to. Anatomy, both layouts and both themes. The page states no numbers: every size on this page is measured from its artwork at 2 px per dp. This page is the Vue.
 
 ## Usage
 
@@ -51,11 +51,11 @@ The Material Design 1 time picker. A header in the primary colour shows the time
 
 ## Composed on Vuetify0
 
-The header's hour and minute digits are a v0 [Toggle](/components/actions/toggle) group: one pressed button per ring, so the active view is a `role="group"` of `aria-pressed` buttons. AM and PM are a v0 [Radio](/components/forms/radio) group, and so is the clock face: one `Radio.Root` per hour, or per minute, with the roving tabindex and the wrapping arrow keys v0 builds in. MD1 adds no focus handling of its own.
+The header's hour and minute digits are a v0 [Toggle](/components/actions/toggle) group: one pressed button per ring, so the active view is a `role="group"` of `aria-pressed` buttons. AM and PM are a v0 [Radio](/components/forms/radio) group, and so is the clock face: one `Radio.Root` per hour, or per minute, with the roving tabindex and the wrapping arrow keys v0 builds in. Material Design 1 adds no focus handling of its own.
 
-The time itself lives in `useClock`, an MD1 composable, because v0's `createTimePicker` is still a draft with no source. `useClock` holds one canonical 24 hour time, derives the period, the header digits, the ring of the current view and the hand angle, and maps a pointer angle to the nearest ring value. It never touches the DOM: the component binds the pointer events on the face and writes the model. When v0 ships its time picker, the core moves there and this page keeps its API.
+The time itself lives in `useClock`, a Material Design 1 composable, because v0's `createTimePicker` is still a draft with no source. `useClock` holds one canonical 24 hour time, derives the period, the header digits, the ring of the current view and the hand angle, and maps a pointer angle to the nearest ring value. It never touches the DOM: the component binds the pointer events on the face and writes the model. When v0 ships its time picker, the core moves there and this page keeps its API.
 
-The face and the hand are inline SVG, the one place besides the circular progress arc where MD1 draws its own geometry: they are parameterised at runtime by the hand angle, not glyphs a consumer would rebrand. Every interactive button hosts a [Md1Ripple](/systems/md1/ripple). `data-view` (`hour` or `minute`), `data-period` (`am` or `pm`) and `data-landscape` sit on the root for styling.
+The face and the hand are inline SVG, the one place besides the circular progress arc where Material Design 1 draws its own geometry: they are parameterised at runtime by the hand angle, not glyphs a consumer would rebrand. Every interactive button hosts a [Md1Ripple](/systems/md1/ripple). `data-view` (`hour` or `minute`), `data-period` (`am` or `pm`) and `data-landscape` sit on the root for styling.
 
 ## Examples
 
@@ -74,7 +74,7 @@ The dialog sheet rests at 24 dp, the elevation table's value for a picker. Escap
 
 ### 24 hour format
 
-The guidelines say the picker follows the user's preferred clock, 12 hour or 24 hour, and draw only the 12 hour face. `format="24"` is MD1's reading of the other: the outer ring keeps 12 and 1 to 11, and an inner ring at 62% of the radius carries 00 and 13 to 23, set in the 14 sp Body 1 size and the secondary ink so the outer hours lead. The header shows zero-padded hours and drops AM and PM. The inner ring and its sizes are an interpretation (Vuetify 1.5's inner-ring scale), not spec values.
+The guidelines say the picker follows the user's preferred clock, 12 hour or 24 hour, and draw only the 12 hour face. `format="24"` is Material Design 1's reading of the other: the outer ring keeps 12 and 1 to 11, and an inner ring at 62% of the radius carries 00 and 13 to 23, set in the 14 sp Body 1 size and the secondary ink so the outer hours lead. The header shows zero-padded hours and drops AM and PM. The inner ring and its sizes are an interpretation (Vuetify 1.5's inner-ring scale), not spec values.
 
 A press near the centre picks from the inner ring and a press near the edge from the outer one; the hand shortens to reach the inner ring. The arrow keys walk the day in order, 11 to 12 to 13, so the keyboard never needs to know which ring an hour is on. `v-model` is the same `HH:mm` string in both formats, so switching the display never changes the value.
 :::

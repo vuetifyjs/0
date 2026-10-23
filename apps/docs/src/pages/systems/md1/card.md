@@ -1,5 +1,5 @@
 ---
-title: Md1Card - MD1 Card for Vue
+title: Md1Card - Material Design 1 Card for Vue
 meta:
 - name: description
   content: The Material Design 1 card, a 2 dp sheet with 2 dp corners built from header, media, title, subtitle, supporting text, actions and an expandable region. Built on Vuetify0's Atom and Collapsible.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 card. A sheet of material that is the entry point to more detail, assembled from the content blocks the guidelines define: a header, rich media, a primary title, supporting text, actions and an expandable region.
 
 > [!NOTE]
-> Reference: [Cards, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/cards.html), the archived page MD1 is pinned to. Content blocks, metrics, elevation and behavior. This page is the Vue.
+> Reference: [Cards, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/cards.html), the archived page Material Design 1 is pinned to. Content blocks, metrics, elevation and behavior. This page is the Vue.
 
 ## Usage
 
@@ -69,7 +69,7 @@ Use cards for a collection of mixed content: photos with captions of variable le
 
 `Md1Card` renders v0's [Atom](/components/primitives/atom) as an `article` and adds a renderless [Collapsible](/components/disclosure/collapsible) root inside it, under its own `md1:card:collapsible` namespace so a card never captures the parts of a consumer's Collapsible. `Md1Card.Expanded` is `Collapsible.Content`: the `region` role, the `hidden` attribute while collapsed and the `data-state` hook all come from v0. The card adds no behavior of its own, because the guidelines describe a sheet, not a control: there is no ripple on the root, no role and no tab stop. The primary action of a card is a link or a button you place inside it.
 
-`data-expanded` and `data-selected` on the root, `data-inset`, `data-ratio` and `data-state` on `Media`, and `data-align` on `Actions` are MD1's own hooks. `Media` tracks its image with v0's [useImage](/composables/system/use-image), which drives the loading-images recipe through `data-state`.
+`data-expanded` and `data-selected` on the root, `data-inset`, `data-ratio` and `data-state` on `Media`, and `data-align` on `Actions` are Material Design 1's own hooks. `Media` tracks its image with v0's [useImage](/composables/system/use-image), which drives the loading-images recipe through `data-state`.
 
 The parts read the card through an optional `md1:card` context. Every part except `Expanded` renders outside a card and warns once in development that its card state is inert; `Expanded` throws there, as the `Collapsible.Content` it wraps does.
 
@@ -80,9 +80,9 @@ The parts read the card through an optional `md1:card` context. Every part excep
 
 ### Header
 
-`Md1Card.Header` is the avatar, title and subtitle row: 72 dp tall with 16 dp on every side, a 40 dp round avatar at the keyline and the two text lines at the 72 dp content keyline (80 dp from 600 px, where the keyline moves to 24 dp). The title is 14 sp Medium at the primary ink, the subtitle 14 sp Regular at the secondary ink; the guidelines give the sizes and MD1 takes the weights from Body 2 and Body 1. Both lines use a 20 dp leading so the pair fits the avatar's height and the row stays 72 dp.
+`Md1Card.Header` is the avatar, title and subtitle row: 72 dp tall with 16 dp on every side, a 40 dp round avatar at the keyline and the two text lines at the 72 dp content keyline (80 dp from 600 px, where the keyline moves to 24 dp). The title is 14 sp Medium at the primary ink, the subtitle 14 sp Regular at the secondary ink; the guidelines give the sizes and Material Design 1 takes the weights from Body 2 and Body 1. Both lines use a 20 dp leading so the pair fits the avatar's height and the row stays 72 dp.
 
-The default slot is the end of the row. Put the overflow menu's icon button there: MD1 pulls a 48 dp icon button out by 12 dp so its 24 dp glyph lands on the keyline, the upper-right placement the guidelines give the overflow menu. The avatar image is decorative (`alt=""`), because the title already names the person.
+The default slot is the end of the row. Put the overflow menu's icon button there: Material Design 1 pulls a 48 dp icon button out by 12 dp so its 24 dp glyph lands on the keyline, the upper-right placement the guidelines give the overflow menu. The avatar image is decorative (`alt=""`), because the title already names the person.
 
 Pair a header with 16:9 media and a short action row, the guidelines' second and third combinations, when the card is about someone or from someone.
 :::
@@ -136,7 +136,7 @@ The primary action of a card is typically the card itself, not a button in this 
 
 ### UI controls
 
-The action row also hosts the controls the guidelines name for modifying a card's primary content: "a slider to choose a day, stars to rate content, or a segmented button to select a date range". Here an `Md1ToggleButtons` group switches the range the title reports. Tabs and a slider go in the same place, as `Md1Tabs` and `Md1Slider`; a star rating is an escape-hatch composition of v0's Rating with MD1 tokens, since Material Design 1 defines no rating component.
+The action row also hosts the controls the guidelines name for modifying a card's primary content: "a slider to choose a day, stars to rate content, or a segmented button to select a date range". Here an `Md1ToggleButtons` group switches the range the title reports. Tabs and a slider go in the same place, as `Md1Tabs` and `Md1Slider`; a star rating is an escape-hatch composition of v0's Rating with Material Design 1 tokens, since Material Design 1 defines no rating component.
 
 The control changes what the card shows; it never navigates away. Keep it to one control per card, and give it an accessible name (`label` on the toggle group) because the row has no visible caption.
 :::
@@ -148,7 +148,7 @@ The control changes what the card shows; it never navigates away. Keep it to one
 
 Bind `v-model:expanded` and the card can expand in place to reveal `Md1Card.Expanded`, the expanded supporting text: Body 1 at the secondary ink with 16 dp above, 24 dp below and the content keyline at the sides. A full-bleed divider marks the seam, the guidelines' rule for expansion. The region grows and shrinks over the standard duration on the standard curve and lands at once under reduced motion. While collapsed it is `hidden`, so its contents leave the tab order.
 
-Without the model there is no expansion: an unset `expanded` leaves the region hidden, and MD1 warns in development that `Md1Card.Expanded` has nothing to reveal it. The toggle is yours to place. The example uses v0's `Collapsible.Activator`, renderless under `MD1_CARD_COLLAPSIBLE`, with an `Md1Button` as the trigger, which gives the button `aria-expanded` and `aria-controls` pointing at the region. A plain button that flips the model works too, without those attributes.
+Without the model there is no expansion: an unset `expanded` leaves the region hidden, and Material Design 1 warns in development that `Md1Card.Expanded` has nothing to reveal it. The toggle is yours to place. The example uses v0's `Collapsible.Activator`, renderless under `MD1_CARD_COLLAPSIBLE`, with an `Md1Button` as the trigger, which gives the button `aria-expanded` and `aria-controls` pointing at the region. A plain button that flips the model works too, without those attributes.
 
 The expanded card may grow past the view's height and then scrolls with the collection; the guidelines keep scrolling out of the card itself on mobile.
 :::
@@ -170,7 +170,7 @@ The expanded card may grow past the view's height and then scrolls with the coll
 
 A card collection is a layout of cards on one plane. The guidelines keep a constant card width within a collection, 8 dp from the screen edge and 8 dp between cards on mobile (8, 16, 24 or 40 dp on larger screens), and scroll the collection vertically only. Layout is yours: the example is a CSS grid with 8 dp gutters.
 
-Cards rest at 2 dp and rise to 8 dp when picked up. Where the pointer is a mouse, the desktop rule applies instead: the card rests seamed at 0 dp and lifts to 8 dp on hover, so a collection on a desktop page reads as flat until the pointer finds a card. Swipe to dismiss and pick-up-and-move are gestures MD1 does not ship; provide buttons for dismissing and reordering.
+Cards rest at 2 dp and rise to 8 dp when picked up. Where the pointer is a mouse, the desktop rule applies instead: the card rests seamed at 0 dp and lifts to 8 dp on hover, so a collection on a desktop page reads as flat until the pointer finds a card. Swipe to dismiss and pick-up-and-move are gestures Material Design 1 does not ship; provide buttons for dismissing and reordering.
 :::
 
 ## Props

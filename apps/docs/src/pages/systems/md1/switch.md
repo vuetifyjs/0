@@ -1,5 +1,5 @@
 ---
-title: Md1Switch - MD1 Switch for Vue
+title: Md1Switch - Material Design 1 Switch for Vue
 meta:
 - name: description
   content: The Material Design 1 switch, a 20 dp thumb at 1 dp elevation over a 36 x 14 dp track in the accent colour when on, with its inline label, disabled and dark theme values. Built on Vuetify0's Switch.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 switch. It turns a single setting on or off, and its inline label says which setting.
 
 > [!NOTE]
-> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page MD1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
+> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
 
 ## Usage
 
@@ -52,7 +52,7 @@ The Material Design 1 switch. It turns a single setting on or off, and its inlin
 
 `Md1Switch` renders v0's [Switch](/components/forms/switch) compound, `Switch.Root`, `Switch.Track` and `Switch.Thumb`, inside a native `<label>`. The root is a `<button role="switch">` that owns the model, `aria-checked`, the Space and click handlers and the hidden input added under `name`; the track and thumb are `aria-hidden` and carry `data-state`.
 
-v0 hard-codes `dir="ltr"` on the track so the thumb's travel is the same in every direction. MD1 mirrors the track with `scaleX(-1)` under right-to-left text, so the off thumb rests at the start edge there too.
+v0 hard-codes `dir="ltr"` on the track so the thumb's travel is the same in every direction. Material Design 1 mirrors the track with `scaleX(-1)` under right-to-left text, so the off thumb rests at the start edge there too.
 
 The first child of the button is an unbounded [Md1Ripple](/systems/md1/ripple). Its ink is centred on the thumb and travels with it; under a fine pointer it is hidden, because the guidelines draw the radial reaction only where touch is favoured.
 
@@ -77,7 +77,7 @@ Stack switches as this example does: the 48 dp target reaches 14 dp beyond the c
 
 ### A settings column
 
-Switches suit independent settings that take effect at once. Each row is 48 dp tall with the label 8 dp from the control, so a column of switches keeps the touch targets apart without extra spacing; the 8 dp gap is an MD1 decision, as the page gives no value.
+Switches suit independent settings that take effect at once. Each row is 48 dp tall with the label 8 dp from the control, so a column of switches keeps the touch targets apart without extra spacing; the 8 dp gap is a Material Design 1 decision, as the page gives no value.
 
 When a switch sits in a list tile, the tile's text names it: place it in the tile's secondary action column and pass `ariaLabel` instead of `label`, so the setting is not read twice.
 :::
@@ -102,7 +102,7 @@ The default slot is the label. There are no named slots.
 
 ## Accessibility
 
-The control is a `<button role="switch">` with `aria-checked`, the WAI-ARIA Switch pattern. Its name is the inline label, through `aria-labelledby`. A switch with no visible label takes `ariaLabel`, or an `aria-labelledby` naming the list tile text, which MD1 moves from the `<label>` root onto the control. MD1 warns in development when a switch has no name. Keep the label stable: the switch already announces on and off, so a label that flips with the state says it twice.
+The control is a `<button role="switch">` with `aria-checked`, the WAI-ARIA Switch pattern. Its name is the inline label, through `aria-labelledby`. A switch with no visible label takes `ariaLabel`, or an `aria-labelledby` naming the list tile text, which Material Design 1 moves from the `<label>` root onto the control. Material Design 1 warns in development when a switch has no name. Keep the label stable: the switch already announces on and off, so a label that flips with the state says it twice.
 
 ### Keyboard
 
@@ -114,7 +114,7 @@ The control is a `<button role="switch">` with `aria-checked`, the WAI-ARIA Swit
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black off (10% white on dark) and 10% of the accent on. MD1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink. A focused disabled switch draws the grey halo, on or off, as the spec sheets draw the disabled focused state.
+Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink. A focused disabled switch draws the grey halo, on or off, as the spec sheets draw the disabled focused state.
 
 ### Disabled
 

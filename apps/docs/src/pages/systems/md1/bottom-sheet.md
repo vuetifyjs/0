@@ -1,5 +1,5 @@
 ---
-title: Md1BottomSheet - MD1 Bottom Sheet for Vue
+title: Md1BottomSheet - Material Design 1 Bottom Sheet for Vue
 meta:
 - name: description
   content: The Material Design 1 bottom sheet, modal or persistent, in list and grid layouts with an optional header and a full-height expanded state. Built on Vuetify0's Dialog, Portal and Collapsible.
@@ -28,7 +28,7 @@ related:
 The Material Design 1 bottom sheet. A sheet of material that slides up from the bottom edge: modal, over a scrim, to offer a set of actions, or persistent, beside the content it supplements.
 
 > [!NOTE]
-> Reference: [Bottom sheets, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-sheets.html), the archived page MD1 is pinned to. Types, list and grid metrics, the 16:9 keyline, widths and dismissal. This page is the Vue.
+> Reference: [Bottom sheets, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-sheets.html), the archived page Material Design 1 is pinned to. Types, list and grid metrics, the 16:9 keyline, widths and dismissal. This page is the Vue.
 
 ## Usage
 
@@ -58,11 +58,11 @@ The Material Design 1 bottom sheet. A sheet of material that slides up from the 
 
 ## Composed on Vuetify0
 
-The modal sheet is v0's [Dialog](/components/disclosure/dialog): `Dialog.Root` owns the open state, `Dialog.Activator` is the trigger, `Dialog.Content` is the native `<dialog>` opened with `showModal()`, and `Dialog.Title` gives the sheet its accessible name. The browser contains focus, closes on Escape and paints `::backdrop`, which MD1 fills with the sheet's scrim. MD1 never mounts v0's `Scrim`: every `Dialog.Content` it renders passes `scrim: false`.
+The modal sheet is v0's [Dialog](/components/disclosure/dialog): `Dialog.Root` owns the open state, `Dialog.Activator` is the trigger, `Dialog.Content` is the native `<dialog>` opened with `showModal()`, and `Dialog.Title` gives the sheet its accessible name. The browser contains focus, closes on Escape and paints `::backdrop`, which Material Design 1 fills with the sheet's scrim. Material Design 1 never mounts v0's `Scrim`: every `Dialog.Content` it renders passes `scrim: false`.
 
-The persistent sheet is not a dialog, and v0 has no non-modal sheet, so MD1 assembles one. A v0 [Portal](/components/primitives/portal) mounts it while it is open and gives it a stack z-index, and a [Collapsible](/components/disclosure/collapsible) root renders the `<aside>` and owns the expanded state. `Item` is a v0 [Button](/components/actions/button) root, or an anchor when it has an `href`.
+The persistent sheet is not a dialog, and v0 has no non-modal sheet, so Material Design 1 assembles one. A v0 [Portal](/components/primitives/portal) mounts it while it is open and gives it a stack z-index, and a [Collapsible](/components/disclosure/collapsible) root renders the `<aside>` and owns the expanded state. `Item` is a v0 [Button](/components/actions/button) root, or an anchor when it has an `href`.
 
-The root's one slot holds both the trigger and the content. MD1 renders the `Activator` children outside the sheet, where a closed `<dialog>` cannot hide them, and everything else inside. That is why `Activator` must be a direct child of the root rather than wrapped in a component of your own.
+The root's one slot holds both the trigger and the content. Material Design 1 renders the `Activator` children outside the sheet, where a closed `<dialog>` cannot hide them, and everything else inside. That is why `Activator` must be a direct child of the root rather than wrapped in a component of your own.
 
 ## Examples
 
@@ -75,7 +75,7 @@ A list sheet with a header: the `Title` row is 56 dp tall, set in Regular 16 sp 
 
 Each `Item` is a 48 dp row on the 16 dp keyline: a 24 dp icon in the active icon ink (54%), 32 dp of space, then the label in Regular 16 sp at 87%. An `Md1Divider` between items starts a new section and takes 8 dp above and below. `disabled` drops the row to 38% ink and removes it from the tab order; `href` makes the row a link, as the page's "open the application" action is.
 
-The guidelines state no hover, focus or pressed values for the rows, so they take the list rules MD1 uses everywhere: a 6% hover overlay, the 12% focus overlay for keyboard focus, and the ripple on press.
+The guidelines state no hover, focus or pressed values for the rows, so they take the list rules Material Design 1 uses everywhere: a 6% hover overlay, the 12% focus overlay for keyboard focus, and the ripple on press.
 :::
 
 ::: ds-example
@@ -83,9 +83,9 @@ The guidelines state no hover, focus or pressed values for the rows, so they tak
 
 ### Grid
 
-`grid` lays the items out as tiles: a 48 dp icon with a 16 dp label 8 dp below it, the icons spread evenly across each row. The grid keeps 24 dp of margin on every side and 24 dp between rows (the 2016 page said 16 dp; MD1 follows the 2018 page). A header runs across the grid, flush with the sheet's edges, with 8 dp between its divider and the first row.
+`grid` lays the items out as tiles: a 48 dp icon with a 16 dp label 8 dp below it, the icons spread evenly across each row. The grid keeps 24 dp of margin on every side and 24 dp between rows (the 2016 page said 16 dp; Material Design 1 follows the 2018 page). A header runs across the grid, flush with the sheet's edges, with 8 dp between its divider and the first row.
 
-The page sizes the label row and not its type. MD1 sets the label in Caption, 12 sp, on the 16 dp line, centred under the icon; that choice is a decision. Use a grid for a share sheet or an app chooser, where the icons carry recognition; use the list when the labels need room or subtext.
+The page sizes the label row and not its type. Material Design 1 sets the label in Caption, 12 sp, on the 16 dp line, centred under the icon; that choice is a decision. Use a grid for a share sheet or an app chooser, where the icons carry recognition; use the list when the labels need room or subtext.
 :::
 
 ::: ds-example
@@ -95,7 +95,7 @@ The page sizes the label row and not its type. MD1 sets the label in Caption, 12
 
 A sheet opens at the height of its content, capped at the 16:9 ratio keyline: the width times 9/16, 202 dp on a 360 dp phone. It never reaches the app bar either; an increment and 8 dp stay clear above it so there is always somewhere to tap and dismiss. A longer list scrolls inside the sheet.
 
-`v-model:expanded` lifts the cap: the sheet fills the screen, its content scrolls internally, and an X appears in a bar at the top. The X dismisses the sheet, as the page specifies, and every dismissal returns the next opening to the initial height. On a handset the guidelines expand the sheet with an upward swipe. MD1 ships no gestures, so the expanded state is a model and the root's `expand` slot prop, here bound to a footer button.
+`v-model:expanded` lifts the cap: the sheet fills the screen, its content scrolls internally, and an X appears in a bar at the top. The X dismisses the sheet, as the page specifies, and every dismissal returns the next opening to the initial height. On a handset the guidelines expand the sheet with an upward swipe. Material Design 1 ships no gestures, so the expanded state is a model and the root's `expand` slot prop, here bound to a footer button.
 :::
 
 ::: ds-example
@@ -103,7 +103,7 @@ A sheet opens at the height of its content, capped at the 16:9 ratio keyline: th
 
 ### Persistent
 
-`persistent` makes the sheet part of the layout: no scrim, no focus trap, and the content beside it stays interactive. It rests at the app's own elevation, so it casts no shadow; MD1 draws a 1 dp divider seam along its top edge, a decision where the page states only the elevation. The sheet is an `<aside>`, a complementary landmark named by its title. Its `Activator` is a disclosure button with `aria-expanded` and `aria-controls`, and Escape from inside the sheet dismisses it.
+`persistent` makes the sheet part of the layout: no scrim, no focus trap, and the content beside it stays interactive. It rests at the app's own elevation, so it casts no shadow; Material Design 1 draws a 1 dp divider seam along its top edge, a decision where the page states only the elevation. The sheet is an `<aside>`, a complementary landmark named by its title. Its `Activator` is a disclosure button with `aria-expanded` and `aria-controls`, and Escape from inside the sheet dismisses it.
 
 Choosing an item in a modal sheet dismisses the sheet; choosing one in a persistent sheet leaves it in place, which is the point of a persistent sheet: playback controls that stay, place details beside a map. A persistent sheet portals to the stack target by default. This example passes `:teleport="false"` so the sheet stays inside the preview, where `md1-docs-screen` is the containing block of its fixed position.
 :::

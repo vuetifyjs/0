@@ -1,8 +1,8 @@
 ---
-title: Motion - MD1 Material Design 1 Durations and Easing for Vue
+title: Motion - Material Design 1 Durations and Easing for Vue
 meta:
 - name: description
-  content: Material Design 1 motion in MD1. The four easing curves and four durations as tokens, with tablet and desktop duration scales, the 20 ms stagger, the ink reaction, and reduced motion.
+  content: Material Design 1 motion. The four easing curves and four durations as tokens, with tablet and desktop duration scales, the 20 ms stagger, the ink reaction, and reduced motion.
 - name: keywords
   content: md1 motion, material design 1 motion, easing curves, standard curve, deceleration curve, acceleration curve, sharp curve, durations, ripple, reduced motion, paper md1
 features:
@@ -22,10 +22,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-MD1 moves on four easing curves and four durations, scaled for the device, so every surface that enters, leaves or transforms does it at the same speed and in the same way.
+Material Design 1 moves on four easing curves and four durations, scaled for the device, so every surface that enters, leaves or transforms does it at the same speed and in the same way.
 
 > [!NOTE]
-> Reference: [Duration and easing, Material Design 1 guidelines](http://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html), the archived page MD1 is pinned to, with [Movement](http://web.archive.org/web/20181225002141/https://material.io/archive/guidelines/motion/movement.html) and [Choreography](https://web.archive.org/web/20210805004105/https://material.io/archive/guidelines/motion/choreography.html). This page is the Vue.
+> Reference: [Duration and easing, Material Design 1 guidelines](http://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html), the archived page Material Design 1 is pinned to, with [Movement](http://web.archive.org/web/20181225002141/https://material.io/archive/guidelines/motion/movement.html) and [Choreography](https://web.archive.org/web/20210805004105/https://material.io/archive/guidelines/motion/choreography.html). This page is the Vue.
 
 ## Usage
 
@@ -58,11 +58,11 @@ Elements that move between two on-screen points along both axes follow an arc ra
 
 ### Easing curves
 
-The guidelines name four curves and MD1 ships each as a token. The standard curve, `cubic-bezier(0.4, 0, 0.2, 1)`, accelerates quickly and decelerates slowly; it is the most common curve and the one for every on-screen movement and every surface transformation. The deceleration curve, `cubic-bezier(0, 0, 0.2, 1)`, starts at full velocity and eases to rest, for elements entering the screen. The acceleration curve, `cubic-bezier(0.4, 0, 1, 1)`, starts slowly and leaves at full velocity, for elements leaving the screen for good. The sharp curve, `cubic-bezier(0.4, 0, 0.6, 1)`, is the symmetrical one, for elements that step off-screen and may come back at any moment.
+The guidelines name four curves and Material Design 1 ships each as a token. The standard curve, `cubic-bezier(0.4, 0, 0.2, 1)`, accelerates quickly and decelerates slowly; it is the most common curve and the one for every on-screen movement and every surface transformation. The deceleration curve, `cubic-bezier(0, 0, 0.2, 1)`, starts at full velocity and eases to rest, for elements entering the screen. The acceleration curve, `cubic-bezier(0.4, 0, 1, 1)`, starts slowly and leaves at full velocity, for elements leaving the screen for good. The sharp curve, `cubic-bezier(0.4, 0, 0.6, 1)`, is the symmetrical one, for elements that step off-screen and may come back at any moment.
 
 Each plot draws the curve and its two control points; Play sends a dot along each track on its curve. The dots run at 1200 ms, a docs-only slow motion so the shapes can be followed by eye. The tokens carry no duration of their own. Pair them with a duration token in the same `transition` declaration.
 
-The curves apply to position, opacity and scale alike. Vuetify 1.5 defaults to its own `swing` curve, and ships a `fast-in-fast-out` one; neither is a Material Design 1 curve, and MD1 ships neither.
+The curves apply to position, opacity and scale alike. Vuetify 1.5 defaults to its own `swing` curve, and ships a `fast-in-fast-out` one; neither is a Material Design 1 curve, and Material Design 1 ships neither.
 :::
 
 ::: ds-example
@@ -72,7 +72,7 @@ The curves apply to position, opacity and scale alike. Vuetify 1.5 defaults to i
 
 The guidelines time motion per device. On a phone a typical transition is 300 ms, an element entering 225 ms, an element leaving 195 ms, and a large full-screen transition 375 ms; transitions past 400 ms start to feel slow. Tablets have more distance to cover, so their motion is about 30% longer, the guidelines' 300 ms becoming 390 ms. Desktop motion is shorter and simpler, 150 to 200 ms, because a pointer expects an immediate response and a short web transition hides dropped frames.
 
-MD1 ships the four phone values as `--md1-duration-enter`, `-leave`, `-standard` and `-complex` and redeclares them twice. Under `(min-width: 600px) and (pointer: coarse)` they are the tablet scale, each value times 1.3: 293, 254, 390 and 488 ms. Under `(pointer: fine)` they are the desktop scale: 150, 150, 200 and 200 ms. The highlighted row is the class this window matches, and Play fills each bar over the value the tokens hold right now. Wearables, 30% shorter, have no web surface and no scale.
+Material Design 1 ships the four phone values as `--md1-duration-enter`, `-leave`, `-standard` and `-complex` and redeclares them twice. Under `(min-width: 600px) and (pointer: coarse)` they are the tablet scale, each value times 1.3: 293, 254, 390 and 488 ms. Under `(pointer: fine)` they are the desktop scale: 150, 150, 200 and 200 ms. The highlighted row is the class this window matches, and Play fills each bar over the value the tokens hold right now. Wearables, 30% shorter, have no web surface and no scale.
 
 The scale covers colour and movement. The 280 ms elevation transition on the [Elevation](/systems/md1/elevation) page is a fixed value outside it.
 :::
@@ -84,7 +84,7 @@ The scale covers colour and movement. The 280 ms elevation transition on the [El
 
 When several surfaces appear at once, the guidelines stagger them along one focal path: lists top to bottom, grids left to right and top to bottom, never all at once and never out of order. One item does not wait for the previous one to finish; each starts no more than 20 ms after the one before it.
 
-`--md1-stagger` is that 20 ms. The example delays each row by its index times the token, and every row enters on the deceleration curve over `--md1-duration-enter`. `Md1Menu` items, `Md1DropdownButton` rows, `Md1GridList` tiles and the `Md1Fab` speed dial actions read the same token, so a composed list and an MD1 one keep the same rhythm.
+`--md1-stagger` is that 20 ms. The example delays each row by its index times the token, and every row enters on the deceleration curve over `--md1-duration-enter`. `Md1Menu` items, `Md1DropdownButton` rows, `Md1GridList` tiles and the `Md1Fab` speed dial actions read the same token, so a composed list and a Material Design 1 one keep the same rhythm.
 :::
 
 ::: ds-example
@@ -92,11 +92,11 @@ When several surfaces appear at once, the guidelines stagger them along one foca
 
 ### Ink reaction
 
-Material responds to input exactly where it lands. The guidelines draw that response as a touch ripple: ink that expands outward from the point of contact and confirms the input was received, with reactions near the touch happening before reactions further away. Every interactive MD1 component hosts an `Md1Ripple` as its first child for this; there is no prop to turn it off.
+Material responds to input exactly where it lands. The guidelines draw that response as a touch ripple: ink that expands outward from the point of contact and confirms the input was received, with reactions near the touch happening before reactions further away. Every interactive Material Design 1 component hosts an `Md1Ripple` as its first child for this; there is no prop to turn it off.
 
 The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, an alias of `--md1-duration-standard`, on the standard curve, and fades over `--md1-duration-leave`, so it follows the device scale with everything else. A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
 
-The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface MD1 does not ship. The guidelines give no ripple timing of their own; the values are the motion page's durations, and the [Ripple](/systems/md1/ripple) page covers the component in full.
+The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface Material Design 1 does not ship. The guidelines give no ripple timing of their own; the values are the motion page's durations, and the [Ripple](/systems/md1/ripple) page covers the component in full.
 :::
 
 ::: ds-example
@@ -104,7 +104,7 @@ The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a s
 
 ### Reduced motion
 
-A reader who asks the operating system to reduce motion gets surfaces that are placed rather than moved. `createMd1Plugin` installs v0's reduced-motion plugin, which writes `data-reduced-motion="reduce"` on `<body>` when the preference is set. MD1's stylesheets read that attribute and fall back to the `prefers-reduced-motion: reduce` media query before the plugin has run. Under either, the ripple draws its ink as a static pressed fill and components that slide, scale or fade drop the transition and land in their final state.
+A reader who asks the operating system to reduce motion gets surfaces that are placed rather than moved. `createMd1Plugin` installs v0's reduced-motion plugin, which writes `data-reduced-motion="reduce"` on `<body>` when the preference is set. Material Design 1's stylesheets read that attribute and fall back to the `prefers-reduced-motion: reduce` media query before the plugin has run. Under either, the ripple draws its ink as a static pressed fill and components that slide, scale or fade drop the transition and land in their final state.
 
 The attribute wins over the media query in both directions, so `createMd1Plugin({ reducedMotion: { mode: 'never' } })` keeps motion for an app that must animate, and `mode: 'always'` removes it regardless of the system setting. The example provides its own reduced-motion context and writes the attribute on its wrapper instead of `<body>`, so the switch affects only the sheet below it. Follow the same pattern in your own CSS:
 
@@ -145,4 +145,4 @@ The same values are exported from `@paper/md1` as `easing`, `duration`, `duratio
 
 ## Accessibility
 
-Motion must never be the only signal that something happened: a sheet that slides in is also a focused dialog, and an ink ripple is also a pressed button. The guidelines cap motion in two places. Content that moves, scrolls or blinks on its own for more than 5 seconds needs a way to pause, stop or hide it, and nothing may flash more than 3 times in any one second. MD1's indeterminate progress indicators run until the work ends, so give the region around them an accessible status rather than relying on the animation.
+Motion must never be the only signal that something happened: a sheet that slides in is also a focused dialog, and an ink ripple is also a pressed button. The guidelines cap motion in two places. Content that moves, scrolls or blinks on its own for more than 5 seconds needs a way to pause, stop or hide it, and nothing may flash more than 3 times in any one second. Material Design 1's indeterminate progress indicators run until the work ends, so give the region around them an accessible status rather than relying on the animation.

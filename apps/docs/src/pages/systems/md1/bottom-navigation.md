@@ -1,5 +1,5 @@
 ---
-title: Md1BottomNavigation - MD1 Bottom Navigation for Vue
+title: Md1BottomNavigation - Material Design 1 Bottom Navigation for Vue
 meta:
 - name: description
   content: The Material Design 1 bottom navigation bar for three to five top-level destinations, fixed or shifting, on the surface or the primary colour, with hide on scroll. Built on Vuetify0's createSingle and Button.
@@ -28,7 +28,7 @@ related:
 The Material Design 1 bottom navigation bar. Three to five top-level destinations in a 56 dp bar along the bottom of the screen, fixed or shifting, that one tap switches between.
 
 > [!NOTE]
-> Reference: [Bottom navigation, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-navigation.html), the archived page MD1 is pinned to. Types, metrics, colour, elevation and behavior. This page is the Vue.
+> Reference: [Bottom navigation, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-navigation.html), the archived page Material Design 1 is pinned to. Types, metrics, colour, elevation and behavior. This page is the Vue.
 
 ## Usage
 
@@ -58,7 +58,7 @@ Use bottom navigation for three to five top-level destinations of similar import
 
 The bar holds a v0 [createSingle](/composables/selection/create-single) selection with `mandatory: 'force'`, bound to `v-model` through [useProxyModel](/composables/reactivity/use-proxy-model). Each action registers its `value` with that selection and selects it on click; tapping the active action keeps it active, because the guidelines send the user to the top of the current view instead, and that scroll is the app's. There is no `Tabs` underneath: destinations are views, not panels in the same document, so there is no `tablist` semantics to borrow.
 
-Each action is a v0 [Button](/components/actions/button) `Button.Root`, rendered renderless so MD1 can put the selection state on the native `<button>`: `Button.Root` emits `data-selected` only inside a v0 `Button.Group`. With `href` the action is a plain link instead, because `Button.Root` would give it `role="button"`. Native activation, the `disabled` attribute and the tab order come from `Button.Root`; `data-shifting`, `data-variant`, `data-hidden` and the actions' `data-selected` are MD1's own.
+Each action is a v0 [Button](/components/actions/button) `Button.Root`, rendered renderless so Material Design 1 can put the selection state on the native `<button>`: `Button.Root` emits `data-selected` only inside a v0 `Button.Group`. With `href` the action is a plain link instead, because `Button.Root` would give it `role="button"`. Native activation, the `disabled` attribute and the tab order come from `Button.Root`; `data-shifting`, `data-variant`, `data-hidden` and the actions' `data-selected` are Material Design 1's own.
 
 Every action hosts a [Md1Ripple](/systems/md1/ripple) as its first child and draws its glyph through [Md1Icon](/systems/md1/icon). Hide on scroll listens to scroll events through v0's `useEventListener`.
 
@@ -83,7 +83,7 @@ The hidden labels are hidden from sight only. They stay in the accessibility tre
 
 `shifting` is the second form the guidelines define for four or five destinations: the active action is wider and shows its label, the inactive ones narrow to their icon. Active actions measure 96 dp to 168 dp and inactive ones 56 dp to 96 dp. Selecting a destination moves the wide slot and the label to it, on the standard curve over the standard duration.
 
-The guidelines give only those bounds, not how the bar divides its width. MD1 gives the active action one and a half shares of the bar against one share for each inactive action, which lands inside the stated bounds at every count on a 360 dp handset (120 dp and 80 dp with four actions, about 98 dp and 65 dp with five). That ratio is an MD1 decision.
+The guidelines give only those bounds, not how the bar divides its width. Material Design 1 gives the active action one and a half shares of the bar against one share for each inactive action, which lands inside the stated bounds at every count on a 360 dp handset (120 dp and 80 dp with four actions, about 98 dp and 65 dp with five). That ratio is a Material Design 1 decision.
 
 Prefer the fixed bar for three destinations; the shifting bar is for when four or five crowd it.
 :::
@@ -93,7 +93,7 @@ Prefer the fixed bar for three destinations; the shifting bar is for when four o
 
 ### Coloured bar
 
-`variant="primary"` fills the bar with the primary colour instead of the surface. The guidelines then make the active icon and label black or white, whichever reads against the bar; MD1 uses `--md1-on-primary`, the palette's ink for the primary swatch, white for Indigo 500 and black for a light primary such as Amber. Inactive actions take that ink at 70%, the secondary text opacity for white ink; the page shows the coloured bar only as an image, so the 70% is an MD1 decision.
+`variant="primary"` fills the bar with the primary colour instead of the surface. The guidelines then make the active icon and label black or white, whichever reads against the bar; Material Design 1 uses `--md1-on-primary`, the palette's ink for the primary swatch, white for Indigo 500 and black for a light primary such as Amber. Inactive actions take that ink at 70%, the secondary text opacity for white ink; the page shows the coloured bar only as an image, so the 70% is a Material Design 1 decision.
 
 Do not mix colours inside the bar: the guidelines advise against differently coloured icons and labels, and against coloured icons on a coloured bar. The default `surface` variant paints the bar in `--md1-surface`, white on the light theme and Grey 800 on the dark one.
 :::
@@ -125,7 +125,7 @@ The bar itself is `position: fixed` to the bottom of the viewport with an 8 dp s
 | `hideOnScroll` | `boolean` | `false` | Hide the bar on a downward scroll and reveal it on an upward scroll or when focus moves into it |
 | `namespace` | `string` | `'md1:bottom-navigation'` | The context key the actions read. Set the same key on the actions, and only to nest two bars |
 
-The default slot holds the actions, three to five; outside that range MD1 warns in development. Pass `aria-label` to name the navigation landmark. There are no named slots.
+The default slot holds the actions, three to five; outside that range Material Design 1 warns in development. Pass `aria-label` to name the navigation landmark. There are no named slots.
 
 ### Parts
 
@@ -139,7 +139,7 @@ The root is a native `<nav>` landmark. Name it with `aria-label` ("Main") when t
 
 ### Naming
 
-Each action's name is its label. Labels hidden by the fixed bar with four or five actions, or by the shifting bar, are hidden visually only and still name the action. The icon is `aria-hidden`. An action with no label must pass `ariaLabel`; without it MD1 warns in development.
+Each action's name is its label. Labels hidden by the fixed bar with four or five actions, or by the shifting bar, are hidden visually only and still name the action. The icon is `aria-hidden`. An action with no label must pass `ariaLabel`; without it Material Design 1 warns in development.
 
 ### Keyboard
 
@@ -153,7 +153,7 @@ Every enabled action is its own tab stop, in source order.
 
 ### Focus
 
-The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover draws MD1's 6% overlay; a mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
+The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover draws Material Design 1's 6% overlay; a mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
 
 ### States
 

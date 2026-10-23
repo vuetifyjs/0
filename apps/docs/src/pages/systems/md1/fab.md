@@ -1,5 +1,5 @@
 ---
-title: Md1Fab - MD1 Floating Action Button for Vue
+title: Md1Fab - Material Design 1 Floating Action Button for Vue
 meta:
 - name: description
   content: The Material Design 1 floating action button in default and mini sizes, fixed at the keyline margin or attached to a seam, with the speed dial as a menu of mini FABs. Built on Vuetify0's Button and Menu.
@@ -27,7 +27,7 @@ related:
 The Material Design 1 floating action button. A circled icon floating above the interface for the one promoted action on a screen, which can fling out a short set of related actions.
 
 > [!NOTE]
-> Reference: [Buttons: Floating Action Button, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons-floating-action-button.html), the archived page MD1 is pinned to. Sizes, placement, elevation and transitions. This page is the Vue.
+> Reference: [Buttons: Floating Action Button, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons-floating-action-button.html), the archived page Material Design 1 is pinned to. Sizes, placement, elevation and transitions. This page is the Vue.
 
 ## Usage
 
@@ -57,9 +57,9 @@ Use one per screen, for a positive action such as create, share or navigate. Not
 
 ## Composed on Vuetify0
 
-On its own, `Md1Fab` renders v0's [Button](/components/actions/button) compound, `Button.Root` with a renderless `Button.Icon` around a [Md1Icon](/systems/md1/icon). Activation, the native `disabled` attribute and the focus order come from `Button.Root`, which also emits the `data-disabled` attribute the stylesheet reads. `data-mini` and `data-position` are MD1's own.
+On its own, `Md1Fab` renders v0's [Button](/components/actions/button) compound, `Button.Root` with a renderless `Button.Icon` around a [Md1Icon](/systems/md1/icon). Activation, the native `disabled` attribute and the focus order come from `Button.Root`, which also emits the `data-disabled` attribute the stylesheet reads. `data-mini` and `data-position` are Material Design 1's own.
 
-With `Md1Fab.Action` children it becomes a speed dial on v0's [Menu](/components/disclosure/menu). The FAB is the `Menu.Activator`, the actions sit in a `Menu.Content` native popover anchored above it, and each action is a `Menu.Item`. The menu button pattern, arrow-key focus, Escape, light dismiss and focus return are all v0's. MD1 adds the root's `data-open`, the action count check and the `select` event.
+With `Md1Fab.Action` children it becomes a speed dial on v0's [Menu](/components/disclosure/menu). The FAB is the `Menu.Activator`, the actions sit in a `Menu.Content` native popover anchored above it, and each action is a `Menu.Item`. The menu button pattern, arrow-key focus, Escape, light dismiss and focus return are all v0's. Material Design 1 adds the root's `data-open`, the action count check and the `select` event.
 
 The first child of the FAB and of every action is a [Md1Ripple](/systems/md1/ripple). There is no prop to remove it: the page describes the ripple as the force that causes changes to the interface.
 
@@ -72,7 +72,7 @@ The first child of the FAB and of every action is a [Md1Ripple](/systems/md1/rip
 
 The default FAB is a 56 dp circle; the mini FAB is 40 dp. Both carry the same 24 dp glyph, white on the accent colour (`--md1-accent`, Pink A200 in the default theme), the colour the colour page reserves for the primary action. Use the mini size only to create visual continuity with other elements on the screen, such as a row of 40 dp avatars.
 
-The page makes the mini size mandatory on screens 460 dp wide or less, so MD1 forces it there with a media query whatever `mini` says. The 40 dp circle still answers to the 48 dp minimum touch target: a transparent hit area extends 4 dp beyond it on every side without taking layout space.
+The page makes the mini size mandatory on screens 460 dp wide or less, so Material Design 1 forces it there with a media query whatever `mini` says. The 40 dp circle still answers to the 48 dp minimum touch target: a transparent hit area extends 4 dp beyond it on every side without taking layout space.
 :::
 
 ::: ds-example
@@ -102,9 +102,9 @@ The host must be a positioned box: an element with `position: relative`, marked 
 
 Put `Md1Fab.Action` children inside the FAB and pressing it flings out related actions as 40 dp mini FABs above it, each with its label at the start side. The FAB stays on screen; pressing it again closes the dial, and so does choosing an action, Escape or a press anywhere else. `v-model` holds the open state, and `select` reports the chosen action's `value` (its `label` when it has none). A press on a label counts as a press on its action.
 
-The page limits a speed dial to three to six options including the FAB itself, so MD1 warns in development for fewer than two or more than five actions. The options must be specific destinations reached in at most two taps; overflow menus and unrelated actions belong in the toolbar instead. Change `icon` from the `v-model` value when the open FAB should show a different glyph.
+The page limits a speed dial to three to six options including the FAB itself, so Material Design 1 warns in development for fewer than two or more than five actions. The options must be specific destinations reached in at most two taps; overflow menus and unrelated actions belong in the toolbar instead. Change `icon` from the `v-model` value when the open FAB should show a different glyph.
 
-The page states no spacing, colour or label style for the actions, so these are MD1 decisions: 16 dp between the 40 dp circles and between a label and its circle, white surface circles with the active icon ink, and labels in Body 1 on a small 2 dp sheet. The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
+The page states no spacing, colour or label style for the actions, so these are Material Design 1 decisions: 16 dp between the 40 dp circles and between a label and its circle, white surface circles with the active icon ink, and labels in Body 1 on a small 2 dp sheet. The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
 :::
 
 ::: ds-example
@@ -112,7 +112,7 @@ The page states no spacing, colour or label style for the actions, so these are 
 
 ### Disabled
 
-The page states no disabled appearance, so MD1 gives the FAB the raised button's: a 12% black container (12% white on the dark theme), 26% ink (30% white on the dark theme) and no shadow, so it reads as part of the sheet beneath it. `disabled` sets the native attribute; the button leaves the tab order and draws no ink. A disabled speed dial does not open.
+The page states no disabled appearance, so Material Design 1 gives the FAB the raised button's: a 12% black container (12% white on the dark theme), 26% ink (30% white on the dark theme) and no shadow, so it reads as part of the sheet beneath it. `disabled` sets the native attribute; the button leaves the tab order and draws no ink. A disabled speed dial does not open.
 
 A FAB is the promoted action of its screen, so a disabled one is rare. Prefer hiding it while the action is unavailable, or keep it enabled and explain the precondition on press.
 :::
@@ -162,7 +162,7 @@ Alone, the FAB is a native `<button type="button">` named by `ariaLabel`. As a s
 
 ### Focus
 
-The page says the FAB changes colour on focus. MD1 lays the 12% focus overlay (`--md1-focus`) over the accent for `:focus-visible` only, so keyboard focus shows it and a press does not. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+The page says the FAB changes colour on focus. Material Design 1 lays the 12% focus overlay (`--md1-focus`) over the accent for `:focus-visible` only, so keyboard focus shows it and a press does not. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
 
 ### Motion
 

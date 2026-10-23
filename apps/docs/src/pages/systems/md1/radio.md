@@ -1,5 +1,5 @@
 ---
-title: Md1Radio - MD1 Radio Button for Vue
+title: Md1Radio - Material Design 1 Radio Button for Vue
 meta:
 - name: description
   content: The Material Design 1 radio button, a 20 dp ring with a 10 dp dot in the accent colour, grouped in a radiogroup with roving focus and arrow-key selection. Built on Vuetify0's Radio.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 radio button. It selects exactly one option from a set that the user needs to see side by side.
 
 > [!NOTE]
-> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page MD1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
+> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
 
 ## Usage
 
@@ -54,7 +54,7 @@ Use radio buttons when every option should stay visible. When space is short, th
 
 ## Composed on Vuetify0
 
-`Md1Radio.Group` renders v0's `Radio.Group`, a `<div role="radiogroup">` backed by single selection. Each `Md1Radio` renders `Radio.Root` and `Radio.Indicator` inside a native `<label>`: the root is a `<button role="radio">` that registers with the group, and the indicator is the dot, hidden while the radio is off. Selection, the roving tabindex, the arrow keys and the hidden form inputs are all v0's; MD1 binds no handler of its own.
+`Md1Radio.Group` renders v0's `Radio.Group`, a `<div role="radiogroup">` backed by single selection. Each `Md1Radio` renders `Radio.Root` and `Radio.Indicator` inside a native `<label>`: the root is a `<button role="radio">` that registers with the group, and the indicator is the dot, hidden while the radio is off. Selection, the roving tabindex, the arrow keys and the hidden form inputs are all v0's; Material Design 1 binds no handler of its own.
 
 `Radio.Root` emits the `data-state` (`checked`, `unchecked`) and `data-disabled` attributes the stylesheet hangs off. An `Md1Radio` rendered outside a group throws, as v0's `Radio.Root` does, rather than rendering a control that can never be selected.
 
@@ -108,7 +108,7 @@ The default slot is the label. There are no named slots.
 
 ## Accessibility
 
-The group is a `radiogroup` and each control a `<button role="radio">` with `aria-checked`, the WAI-ARIA Radio Group pattern. Each radio is named by its visible label through `aria-labelledby`. A radio with no visible label takes `ariaLabel`, or an `aria-labelledby` naming text elsewhere, which MD1 moves from the `<label>` root onto the control. MD1 warns in development when a radio has no name.
+The group is a `radiogroup` and each control a `<button role="radio">` with `aria-checked`, the WAI-ARIA Radio Group pattern. Each radio is named by its visible label through `aria-labelledby`. A radio with no visible label takes `ariaLabel`, or an `aria-labelledby` naming text elsewhere, which Material Design 1 moves from the `<label>` root onto the control. Material Design 1 warns in development when a radio has no name.
 
 ### Keyboard
 
@@ -121,7 +121,7 @@ The group is a `radiogroup` and each control a `<button role="radio">` with `ari
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction around the ring: 6% black off (10% white on dark) and 10% of the accent on. MD1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink.
+Keyboard focus draws the 48 dp radial reaction around the ring: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink.
 
 ### Disabled
 

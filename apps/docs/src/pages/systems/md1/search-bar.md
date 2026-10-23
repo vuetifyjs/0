@@ -1,5 +1,5 @@
 ---
-title: Md1SearchBar - MD1 Search Bar for Vue
+title: Md1SearchBar - Material Design 1 Search Bar for Vue
 meta:
 - name: description
   content: The Material Design 1 persistent search bar. A raised 48 dp inset box with the search glyph that becomes the up arrow, clear and voice actions, recent queries and completions, and the desktop Search button. Built on Vuetify0's Combobox.
@@ -26,7 +26,7 @@ related:
 The persistent search of Material Design 1. A raised inset box that is always on screen, with recent queries on focus, completions as the user types, and results laid out as cards below it.
 
 > [!NOTE]
-> Reference: [Search, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/search.html), the archived pattern page MD1 is pinned to, with the solo field of [Text fields](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
+> Reference: [Search, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/search.html), the archived pattern page Material Design 1 is pinned to, with the solo field of [Text fields](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
 
 ## Usage
 
@@ -56,9 +56,9 @@ Use it when search is the primary focus of the screen. When search is secondary,
 
 ## Composed on Vuetify0
 
-`Md1SearchBar` renders v0's [Combobox](/components/forms/combobox) parts against one combobox that MD1's `useSearch` creates, the same core the expandable search of `Md1Toolbar` uses. `Combobox.Activator` is the inset box, `Combobox.Control` is the field, `Combobox.Content` is the suggestion list, and every `Md1SearchBar.Item` is a `Combobox.Item`. Filtering is v0's client adapter: rows that do not contain the query stay registered and hide.
+`Md1SearchBar` renders v0's [Combobox](/components/forms/combobox) parts against one combobox that Material Design 1's `useSearch` creates, the same core the expandable search of `Md1Toolbar` uses. `Combobox.Activator` is the inset box, `Combobox.Control` is the field, `Combobox.Content` is the suggestion list, and every `Md1SearchBar.Item` is a `Combobox.Item`. Filtering is v0's client adapter: rows that do not contain the query stay registered and hide.
 
-v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendant`), the popover the list opens in and the outside click that closes it. MD1 adds the search pattern on top: Enter or a chosen row submits, the X clears, the up arrow releases. The nav, clear, voice and Search actions are [Md1Button](/systems/md1/button)s, so each one carries a [Md1Ripple](/systems/md1/ripple). The box itself is the solo anatomy of [Md1TextField](/systems/md1/text-field): the field's editable element is `Combobox.Control`, not `Input.Control`, so the bar reuses the solo values rather than mounting an `Md1TextField`.
+v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendant`), the popover the list opens in and the outside click that closes it. Material Design 1 adds the search pattern on top: Enter or a chosen row submits, the X clears, the up arrow releases. The nav, clear, voice and Search actions are [Md1Button](/systems/md1/button)s, so each one carries a [Md1Ripple](/systems/md1/ripple). The box itself is the solo anatomy of [Md1TextField](/systems/md1/text-field): the field's editable element is `Combobox.Control`, not `Input.Control`, so the bar reuses the solo values rather than mounting an `Md1TextField`.
 
 ## Examples
 
@@ -67,7 +67,7 @@ v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendan
 
 ### The persistent bar
 
-The search box is an inset sheet presented ready to receive focus. MD1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric), on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu. The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
+The search box is an inset sheet presented ready to receive focus. Material Design 1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric), on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu. The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
 
 Focus turns the search glyph into the up arrow and opens the suggestions. Enter submits the query, and so does choosing a suggestion; either way the field keeps the query and gives up focus, so the results show with the bar visible but not focused, as the pattern prescribes. The `submit` event carries the trimmed query; a blank query submits nothing.
 :::
@@ -97,7 +97,7 @@ The X clear action appears beside it as soon as the field has characters, emptie
 
 ### Desktop Search button
 
-The text fields page puts a raised search button to the right of the field on desktop. MD1 renders it as a raised `Md1Button` labelled Search, 16 dp after the box, and shows it whenever the pointer is fine (mouse and keyboard), whatever `button` says. `button` forces it on for touch layouts too and sets `data-button` on the root.
+The text fields page puts a raised search button to the right of the field on desktop. Material Design 1 renders it as a raised `Md1Button` labelled Search, 16 dp after the box, and shows it whenever the pointer is fine (mouse and keyboard), whatever `button` says. `button` forces it on for touch layouts too and sets `data-button` on the root.
 
 The button submits the typed query exactly as Enter does. On a fine pointer it follows the raised button's desktop rule, resting at 0 dp and lifting to 2 dp on hover.
 :::

@@ -1,8 +1,8 @@
 ---
-title: Confirmation - MD1 Material Design 1 Confirmation and Acknowledgement for Vue
+title: Confirmation - Material Design 1 Confirmation and Acknowledgement for Vue
 meta:
 - name: description
-  content: The Material Design 1 confirmation and acknowledgement pattern in MD1. Confirm a destructive action in a dialog, acknowledge an implicit one in a snackbar, offer undo.
+  content: The Material Design 1 confirmation and acknowledgement pattern. Confirm a destructive action in a dialog, acknowledge an implicit one in a snackbar, offer undo.
 - name: keywords
   content: md1 confirmation, material design 1 confirmation, acknowledgement, confirm dialog, undo snackbar, toast, vue confirm delete, paper md1
 features:
@@ -26,7 +26,7 @@ related:
 Ask before an action the user may regret, and say so after an action the app took on its own, with a way back when there is one.
 
 > [!NOTE]
-> Reference: [Confirmation and acknowledgement, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/confirmation-acknowledgement.html), the archived page MD1 is pinned to. When to confirm, when to acknowledge, and how long each stays. This page is the Vue.
+> Reference: [Confirmation and acknowledgement, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/confirmation-acknowledgement.html), the archived page Material Design 1 is pinned to. When to confirm, when to acknowledge, and how long each stays. This page is the Vue.
 
 ## Usage
 
@@ -73,7 +73,7 @@ Title the dialog with the action, never with "Are you sure?". A title that repea
 
 Saving a draft when the user navigates back or up from the compose screen is an implicit operation: the user did not press Save, so they may wonder whether their text survived. Press the Up arrow in the app bar. The compose screen closes and a toast says "Draft saved".
 
-A toast is a snackbar with no action. It fades after a few seconds; MD1's snackbar leaves after its 6000 ms default (`timeout`), a duration the guidelines do not state. Hovering or focusing the snackbar pauses the timer, so it does not disappear while it is being read.
+A toast is a snackbar with no action. It fades after a few seconds; Material Design 1's snackbar leaves after its 6000 ms default (`timeout`), a duration the guidelines do not state. Hovering or focusing the snackbar pauses the timer, so it does not disappear while it is being read.
 
 Keep the message short and in the past tense. It reports a fact, not a choice, so it needs no button.
 :::
@@ -85,7 +85,7 @@ Keep the message short and in the past tense. It reports a fact, not a choice, s
 
 Delete a conversation. It leaves the list at once, and the snackbar acknowledges it with an Undo action. Undo puts the conversation back where it was. Because the action can be reversed, it is not confirmed first: undo is cheaper for the user than a dialog on every delete.
 
-The guidelines keep this acknowledgement on screen until the user takes an unrelated action, such as scrolling the list. The example closes the snackbar on the list's `scroll` event for that reason. MD1's snackbar is never persistent (the snackbars page), so it also leaves after the 6000 ms default; keep your undo window at least that long in the data layer, and commit the delete only when the snackbar is gone.
+The guidelines keep this acknowledgement on screen until the user takes an unrelated action, such as scrolling the list. The example closes the snackbar on the list's `scroll` event for that reason. Material Design 1's snackbar is never persistent (the snackbars page), so it also leaves after the 6000 ms default; keep your undo window at least that long in the data layer, and commit the delete only when the snackbar is gone.
 
 Each row's delete button is an `Md1Button` icon in `Md1List.Action`, the end column that is its own target, and carries an `aria-label` that names the conversation.
 :::

@@ -4,7 +4,7 @@
 
   import { toRef } from 'vue'
 
-  // The two queries every MD1 metric hangs off.
+  // The two queries every Material Design 1 metric hangs off.
   const tablet = useMediaQuery('(min-width: 600px)')
   const fine = useMediaQuery('(pointer: fine)')
 

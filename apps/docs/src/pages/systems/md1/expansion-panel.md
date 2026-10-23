@@ -1,5 +1,5 @@
 ---
-title: Md1ExpansionPanel - MD1 Expansion Panel for Vue
+title: Md1ExpansionPanel - Material Design 1 Expansion Panel for Vue
 meta:
 - name: description
   content: The Material Design 1 expansion panel. 48 dp rows stacked on one card that open into a 64 dp header and an editing body, detached 16 dp from their neighbours and lifted to 8 dp, with a CANCEL and SAVE row. Built on Vuetify0's ExpansionPanel.
@@ -26,7 +26,7 @@ related:
 The Material Design 1 expansion panel. A stack of 48 dp summary rows on one card; selecting a row opens it into a 64 dp header and a body for editing, lifted off the card so the open panel reads as the sheet being worked on.
 
 > [!NOTE]
-> Reference: [Expansion panels, Material Design 1 guidelines](http://web.archive.org/web/20181225002242/https://material.io/archive/guidelines/components/expansion-panels.html), the archived page MD1 is pinned to. Metrics, type, colour and the redline of the expanded panel. This page is the Vue.
+> Reference: [Expansion panels, Material Design 1 guidelines](http://web.archive.org/web/20181225002242/https://material.io/archive/guidelines/components/expansion-panels.html), the archived page Material Design 1 is pinned to. Metrics, type, colour and the redline of the expanded panel. This page is the Vue.
 
 ## Usage
 
@@ -64,7 +64,7 @@ The parts are also exported under their flat names: `Md1ExpansionPanelItem`, `Md
 
 `Md1ExpansionPanel` renders v0's [ExpansionPanel](/components/disclosure/expansion-panel) compound part for part: the root is `ExpansionPanel.Group`, `Item` is `ExpansionPanel.Root`, `Header` is `ExpansionPanel.Header` (the `h3`) around `ExpansionPanel.Activator` (the `button`) and `ExpansionPanel.Cue` (the expand glyph), and `Content` is `ExpansionPanel.Content` (the region). Selection, the accordion rule, `v-model`, the ids that tie the header to its region, `aria-expanded`, `aria-controls` and the native `disabled` attribute all come from v0. `Actions` is a layout-only part with no v0 counterpart.
 
-v0 publishes `data-selected` on the item, `data-selected` and `data-disabled` on the header button, and `data-state` on the cue; MD1 adds `data-state` on the header button and `data-disabled` on the item, folding the root's `disabled` in so the whole sheet dims as one. The first child of every header is a [Md1Ripple](/systems/md1/ripple), and the glyph draws through [Md1Icon](/systems/md1/icon) as the `expand-more` role, so a consumer who overrides that role restyles every panel.
+v0 publishes `data-selected` on the item, `data-selected` and `data-disabled` on the header button, and `data-state` on the cue; Material Design 1 adds `data-state` on the header button and `data-disabled` on the item, folding the root's `disabled` in so the whole sheet dims as one. The first child of every header is a [Md1Ripple](/systems/md1/ripple), and the glyph draws through [Md1Icon](/systems/md1/icon) as the `expand-more` role, so a consumer who overrides that role restyles every panel.
 
 ## Examples
 
@@ -85,7 +85,7 @@ The surface rests at 2 dp, the card's elevation, on touch devices. Where the poi
 
 The collapsed row is the panel's summary, laid out on the guidelines' redline: 24 dp of side padding, the label column, the value column 16 dp after it, and the 24 dp expand icon 16 dp after that, 24 dp from the right edge. `label` is the list content in Roboto Regular, 15 sp on desktop and 16 sp on handsets (the 2016 revision's size), at 87% ink. `summary` is the value column in the secondary ink at the label's size.
 
-The usage figure shows three layouts and all three are props or the default slot. A single value is `summary`. Two labelled values side by side, a start and an end date, are markup in the default slot, which replaces `summary`. A second line under the label, such as "Optional", is `secondary`: Caption, 12 sp at 54%, which grows the row to the 64 dp two-line height. Under 600 px the value column drops below the label, an MD1 decision where the page draws no handset layout.
+The usage figure shows three layouts and all three are props or the default slot. A single value is `summary`. Two labelled values side by side, a start and an end date, are markup in the default slot, which replaces `summary`. A second line under the label, such as "Optional", is `secondary`: Caption, 12 sp at 54%, which grows the row to the 64 dp two-line height. Under 600 px the value column drops below the label, a Material Design 1 decision where the page draws no handset layout.
 :::
 
 ::: ds-example
@@ -105,7 +105,7 @@ An expanded panel is where the user adds or edits information. The body takes 24
 
 `multiple` lets more than one panel stay open, and `v-model` becomes an array of the open values. Panels shown in sequence form a creation flow, the second use the guidelines name: a tool for creating an ad campaign can keep the finished steps open for review while the next one is filled in.
 
-Every expanded panel detaches 16 dp from the panels above and below it and lifts to 8 dp: the 2 dp card plus the 6 dp dynamic offset the elevation page gives a raised sheet, an MD1 decision where the expansion-panels page draws the gap but states no elevation. Two open panels next to each other share one 16 dp gap rather than two, and an open panel at either end of the stack stays flush with the card's edge.
+Every expanded panel detaches 16 dp from the panels above and below it and lifts to 8 dp: the 2 dp card plus the 6 dp dynamic offset the elevation page gives a raised sheet, a Material Design 1 decision where the expansion-panels page draws the gap but states no elevation. Two open panels next to each other share one 16 dp gap rather than two, and an open panel at either end of the stack stays flush with the card's edge.
 :::
 
 ::: ds-example
@@ -161,7 +161,7 @@ The button's accessible name is its text: the label, then the secondary line and
 
 ### Focus
 
-The guidelines give the focused item a Grey 200 background. MD1 paints it for `:focus-visible` only, so keyboard focus shows it and a click does not leave it behind: exactly `#EEEEEE` on the light sheet, and the same share of white over Grey 800 on the dark one, where the page states no value. Under forced colours, where backgrounds are dropped, a 2 px outline draws instead.
+The guidelines give the focused item a Grey 200 background. Material Design 1 paints it for `:focus-visible` only, so keyboard focus shows it and a click does not leave it behind: exactly `#EEEEEE` on the light sheet, and the same share of white over Grey 800 on the dark one, where the page states no value. Under forced colours, where backgrounds are dropped, a 2 px outline draws instead.
 
 ### Disabled
 

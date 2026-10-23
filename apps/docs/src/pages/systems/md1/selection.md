@@ -1,8 +1,8 @@
 ---
-title: Selection - MD1 Material Design 1 Selection Pattern for Vue
+title: Selection - Material Design 1 Selection Pattern for Vue
 meta:
 - name: description
-  content: The Material Design 1 selection pattern in MD1. Selected lists, grid lists, cards and table rows, the contextual action bar, and text selection in the accent colour.
+  content: The Material Design 1 selection pattern. Selected lists, grid lists, cards and table rows, the contextual action bar, and text selection in the accent colour.
 - name: keywords
   content: md1 selection, material design 1 selection, multi select list, contextual action bar, selected state, text selection color, vue selection, paper md1
 features:
@@ -24,10 +24,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Selection lets the reader pick items and then act on them together, or highlight a run of text. MD1 draws the selected state on lists, grid lists, cards and table rows, and turns the app bar into a contextual action bar while anything is selected.
+Selection lets the reader pick items and then act on them together, or highlight a run of text. Material Design 1 draws the selected state on lists, grid lists, cards and table rows, and turns the app bar into a contextual action bar while anything is selected.
 
 > [!NOTE]
-> Reference: [Selection, Material Design 1 guidelines](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html), the archived page MD1 is pinned to, with the [Navigation](http://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html) page for the Back rule and [Gestures](http://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html) for the selection gestures. Item selection, text selection and the contextual toolbar. This page is the Vue.
+> Reference: [Selection, Material Design 1 guidelines](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html), the archived page Material Design 1 is pinned to, with the [Navigation](http://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html) page for the Back rule and [Gestures](http://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html) for the selection gestures. Item selection, text selection and the contextual toolbar. This page is the Vue.
 
 ## Usage
 
@@ -47,13 +47,13 @@ Selection lets the reader pick items and then act on them together, or highlight
 | Data table | `selectable` on `Md1DataTable` with `v-model:selected` | A checkbox column; selected rows turn Grey 100 in the light theme |
 | Actions on the selection | `Md1Toolbar.Contextual` (app bar) or `Md1DataTable.Contextual` (table header) | Replaces the bar's normal content while anything is selected |
 
-The selection scrim is `--md1-selection`: the accent at 30%, Pink A200 in the default theme, the same in both themes. The guidelines name the accent for selection and state no opacity; 30% is MD1's decision.
+The selection scrim is `--md1-selection`: the accent at 30%, Pink A200 in the default theme, the same in both themes. The guidelines name the accent for selection and state no opacity; 30% is Material Design 1's decision.
 
 ### How selection starts
 
-The guidelines' gesture is a long press, or a press held in place, on touch, and a check mark revealed on hover on desktop. MD1 keeps the desktop rule as the default for every pointer, because a long press on the web collides with the browser's context menu and text selection:
+The guidelines' gesture is a long press, or a press held in place, on touch, and a check mark revealed on hover on desktop. Material Design 1 keeps the desktop rule as the default for every pointer, because a long press on the web collides with the browser's context menu and text selection:
 
-| Rule | MD1 |
+| Rule | Material Design 1 |
 |------|---------|
 | Hovering an item reveals a single check mark you can click (desktop) | Under `(pointer: fine)`, `Md1List` shows the mark on the hovered or focused item |
 | After one item is selected, check marks appear on every remaining item in the set | `Md1List` marks every item while the selection is not empty |
@@ -63,11 +63,11 @@ The guidelines' gesture is a long press, or a press held in place, on touch, and
 
 ### Leaving selection mode
 
-Selection mode ends when the reader deselects every item or performs an action from the contextual bar. The Back button dismisses the contextual action bar and clears the highlight; in MD1 the bar's close button and Escape inside the bar do the same, and an app adds Escape on the selectable content.
+Selection mode ends when the reader deselects every item or performs an action from the contextual bar. The Back button dismisses the contextual action bar and clears the highlight; in Material Design 1 the bar's close button and Escape inside the bar do the same, and an app adds Escape on the selectable content.
 
 ## Text selection
 
-Text selection is the browser's: a contiguous highlight, with handles and a floating Cut, Copy, Paste toolbar on mobile. Those are browser chrome and MD1 does not draw them. The guidelines ask only that the highlight use the accent colour and keep the text legible.
+Text selection is the browser's: a contiguous highlight, with handles and a floating Cut, Copy, Paste toolbar on mobile. Those are browser chrome and Material Design 1 does not draw them. The guidelines ask only that the highlight use the accent colour and keep the text legible.
 
 ```css
 ::selection {
@@ -127,7 +127,7 @@ Select cards when the collection supports acting on several at once, such as arc
 
 `selectable` adds a checkbox column with a select-all box in the header row; `v-model:selected` holds the selected row records. A selected row turns Grey 100, the data tables page's value; the page gives no dark value, so the dark theme takes Vuetify 1.5's near-`#505050`. While rows are selected, `Md1DataTable.Contextual` replaces the title header: "2 items selected" on the accent's light value (`--md1-accent-light`), with the actions that apply to the rows.
 
-The data tables page draws the checkbox column at all times, and MD1 follows that page rather than the selection pattern's hover-only check mark. Escape inside the contextual header clears the selection, the keyboard counterpart of Back.
+The data tables page draws the checkbox column at all times, and Material Design 1 follows that page rather than the selection pattern's hover-only check mark. Escape inside the contextual header clears the selection, the keyboard counterpart of Back.
 :::
 
 ::: ds-example

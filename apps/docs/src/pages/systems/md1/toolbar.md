@@ -1,5 +1,5 @@
 ---
-title: Md1Toolbar - MD1 Toolbar and App Bar for Vue
+title: Md1Toolbar - Material Design 1 Toolbar and App Bar for Vue
 meta:
 - name: description
   content: The Material Design 1 toolbar and app bar with nav icon, title and actions, dense and prominent heights, tabs, flexible space, scroll behaviors, expandable search and selection mode. Built on Vuetify0.
@@ -29,7 +29,7 @@ related:
 The Material Design 1 toolbar and app bar. A sheet one step above the content it acts on, with the navigation control, the title and the action icons in one row, and an extension for tabs, a large title or an image.
 
 > [!NOTE]
-> Reference: [Toolbars, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/toolbars.html), the archived page MD1 is pinned to, read with [Layout structure](http://web.archive.org/web/20181225002252/https://material.io/archive/guidelines/layout/structure.html) for the app bar metrics, [Scrolling techniques](http://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html), [Search](http://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html) and [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html). This page is the Vue.
+> Reference: [Toolbars, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/toolbars.html), the archived page Material Design 1 is pinned to, read with [Layout structure](http://web.archive.org/web/20181225002252/https://material.io/archive/guidelines/layout/structure.html) for the app bar metrics, [Scrolling techniques](http://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html), [Search](http://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html) and [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html). This page is the Vue.
 
 ## Usage
 
@@ -67,7 +67,7 @@ The Material Design 1 toolbar and app bar. A sheet one step above the content it
 
 The toolbar is presentational: the root renders v0's [Atom](/components/primitives/atom) as a `div`, or a `header` for an app bar, and draws the row and the extension inside it. Whatever order the parts arrive in, the extension renders after the row.
 
-`Md1Toolbar.Nav` is a v0 [Button](/components/actions/button) root with a [Md1Ripple](/systems/md1/ripple) first and its glyph drawn through [Md1Icon](/systems/md1/icon). `Md1Toolbar.Actions` is a `role="toolbar"` that roves focus over its children with [useRovingFocus](/composables/system/use-roving-focus): your `Md1Button`s stay your components, and the toolbar only manages their tab order. `Md1Toolbar.Search` runs on v0's [Combobox](/components/forms/combobox) parts through `useSearch`, the search core MD1 shares with `Md1SearchBar`.
+`Md1Toolbar.Nav` is a v0 [Button](/components/actions/button) root with a [Md1Ripple](/systems/md1/ripple) first and its glyph drawn through [Md1Icon](/systems/md1/icon). `Md1Toolbar.Actions` is a `role="toolbar"` that roves focus over its children with [useRovingFocus](/composables/system/use-roving-focus): your `Md1Button`s stay your components, and the toolbar only manages their tab order. `Md1Toolbar.Search` runs on v0's [Combobox](/components/forms/combobox) parts through `useSearch`, the search core Material Design 1 shares with `Md1SearchBar`.
 
 The root publishes `data-variant`, `data-position`, `data-scroll`, `data-app-bar`, `data-dense`, `data-prominent`, `data-floating`, `data-contextual` and `data-search` from its props and parts, and `data-scrolled`, `data-hidden` and `data-collapsed` from the scroll state. `Md1Toolbar.Nav` carries `data-icon`, the glyph it currently shows. The extension marks what it holds with `data-tabs`, `data-title`, `data-image` or `data-related`.
 
@@ -142,7 +142,7 @@ The flexible space with overlapping content is this behavior with an image in th
 
 `scroll="collapse"` with an `Md1Toolbar.Title` inside the extension is the flexible space. The extended bar is the default height plus one increment, the large title sits on the content keyline at the bottom of it, and as the content scrolls the space shrinks 1:1 until only the row remains. The title shrinks with it to the Title style's 20 sp and lands in the row; scrolling back to the top grows both into place again.
 
-The guidelines give only the collapsed size. The expanded title is Display 1, 34 sp, an MD1 decision. The title keeps the Medium weight throughout so it reads as the same object at every size.
+The guidelines give only the collapsed size. The expanded title is Display 1, 34 sp, a Material Design 1 decision. The title keeps the Medium weight throughout so it reads as the same object at every size.
 :::
 
 ::: ds-example
@@ -190,7 +190,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 
 ### Floating toolbar
 
-`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so MD1 gives it the app bar's heights, 2 dp corners and a 2 dp shadow. A toolbar with only `Md1Toolbar.Actions` is a palette.
+`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so Material Design 1 gives it the app bar's heights, 2 dp corners and a 2 dp shadow. A toolbar with only `Md1Toolbar.Actions` is a palette.
 :::
 
 ::: ds-example

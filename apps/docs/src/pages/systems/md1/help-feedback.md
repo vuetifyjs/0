@@ -1,8 +1,8 @@
 ---
-title: Help and Feedback - MD1 Material Design 1 Help and Feedback for Vue
+title: Help and Feedback - Material Design 1 Help and Feedback for Vue
 meta:
 - name: description
-  content: The Material Design 1 help and feedback pattern in MD1. Where Help and Send feedback go in the drawer, overflow menu and app bar, the help screen, the feedback dialog and help tooltips.
+  content: The Material Design 1 help and feedback pattern. Where Help and Send feedback go in the drawer, overflow menu and app bar, the help screen, the feedback dialog and help tooltips.
 - name: keywords
   content: md1 help, material design 1 help and feedback, send feedback, help screen, overflow menu, navigation drawer order, help tooltip, vue help, paper md1
 features:
@@ -24,10 +24,10 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Where people find answers inside an MD1 app, and how they send comments, bug reports and questions the answers do not cover.
+Where people find answers inside a Material Design 1 app, and how they send comments, bug reports and questions the answers do not cover.
 
 > [!NOTE]
-> Reference: [Help and feedback, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/help-feedback.html), the archived page MD1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
+> Reference: [Help and feedback, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/help-feedback.html), the archived page Material Design 1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
 
 ## Usage
 
@@ -56,7 +56,7 @@ Help and Send feedback icons are 24 dp. Help tooltip icons are 18 dp. Use the st
 | Feedback | `feedback` | 24 dp | Send feedback |
 | Help outline | `help-outline` | 18 dp | Help tooltips, and nothing else |
 
-Icon opacity follows the icons page, and MD1 carries it as theme tokens:
+Icon opacity follows the icons page, and Material Design 1 carries it as theme tokens:
 
 | Theme | Active (`--md1-icon-active`) | Inactive (`--md1-icon-inactive`) |
 |-------|----------------------------------|--------------------------------------|
@@ -64,7 +64,7 @@ Icon opacity follows the icons page, and MD1 carries it as theme tokens:
 | Dark | White at 100% | White at 50% |
 
 > [!WARNING]
-> MD1's pinned icon set ships `help` but not `feedback` or `help-outline`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
+> Material Design 1's pinned icon set ships `help` but not `feedback` or `help-outline`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
 
 ## Examples
 
@@ -129,7 +129,7 @@ A help tooltip explains one field in place. Its activator is the help-outline gl
 
 The activator is an icon-only `Md1Button` with an `aria-label` that states the question, wrapped in `Md1Tooltip`, so the tip opens on hover, on focus and on long press. Keep the tip to a sentence; anything longer belongs in the help screen.
 
-Unsolicited help, content that appears without being asked for, is limited to new features and new gestures, because it interrupts. MD1's [feature discovery](/systems/md1/feature-discovery) component is the surface for it.
+Unsolicited help, content that appears without being asked for, is limited to new features and new gestures, because it interrupts. Material Design 1's [feature discovery](/systems/md1/feature-discovery) component is the surface for it.
 :::
 
 ## Accessibility
