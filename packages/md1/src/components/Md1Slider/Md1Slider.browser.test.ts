@@ -837,5 +837,24 @@ describe('quSlider', () => {
       expect(getComputedStyle(dark!.rest).backgroundColor).toBe('rgba(255, 255, 255, 0.3)')
       expect(getComputedStyle(dark!.host.querySelector('.md1-slider__tick')!).backgroundColor).toBe('rgb(255, 255, 255)')
     })
+
+    it('should set dark digits on the 200 pin of the dark theme, white on the light accent', async () => {
+      style(new Md1StyleSheetAdapter().generate({
+        'md1-light': md1Colors,
+        'md1-dark': md1DarkColors,
+      }))
+
+      const host = mount(() => h('div', [
+        h('div', { 'data-theme': 'md1-light' }, [h(Md1Slider, { modelValue: 50, discrete: true, step: 10 })]),
+        h('div', { 'data-theme': 'md1-dark' }, [h(Md1Slider, { modelValue: 50, discrete: true, step: 10 })]),
+      ]))
+      await settle()
+
+      const [light, dark] = [...host.querySelectorAll<HTMLElement>('.md1-slider__pin')]
+
+      expect(getComputedStyle(light!).color).toBe('rgb(255, 255, 255)')
+      // color-mix serializes as color(srgb ...).
+      expect(getComputedStyle(dark!).color).toBe('color(srgb 0 0 0 / 0.87)')
+    })
   })
 })

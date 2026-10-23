@@ -422,6 +422,14 @@
     background: var(--md1-button-disabled-text, rgba(0, 0, 0, 0.26));
   }
 
+  /*
+   * Dark theme: the pin takes the accent's 200 swatch (--md1-accent-control), and white
+   * digits on it read at about 2:1; they take the dark ink the pickers set on the same swatch.
+   */
+  [data-theme='md1-dark'] .md1-slider:not([data-zero]) .md1-slider__pin {
+    color: color-mix(in srgb, var(--md1-black, #000000) 87%, transparent);
+  }
+
   /* Discrete: the pin replaces the thumb while focused or pressed; no halo. */
   .md1-slider[data-discrete][data-dragging] .md1-slider__pin,
   .md1-slider[data-discrete]:not([data-disabled]) .md1-slider__thumb:focus-visible .md1-slider__pin {
