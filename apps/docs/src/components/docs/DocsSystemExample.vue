@@ -24,11 +24,11 @@
   // (`/systems/<system>/...`), with the theme ids their adapter token sheet in
   // App.vue scopes colors to. A system's tokens must not reset host elements
   // to be listed here. There is no per-example flag: an example that shows a
-  // viewport-fixed component contains it in a `quantum-docs-screen` wrapper
+  // viewport-fixed component contains it in a `md1-docs-screen` wrapper
   // (`contain: layout paint`) instead.
   const INLINE: Record<string, { light: string, dark: string }> = {
     emerald: { light: 'emerald-light', dark: 'emerald-dark' },
-    quantum: { light: 'quantum-light', dark: 'quantum-dark' },
+    md1: { light: 'md1-light', dark: 'md1-dark' },
   }
 
   let store: StorageContext | null = null
@@ -110,7 +110,7 @@
 
   const { filePath, filePaths } = defineProps<DocsSystemExampleProps>()
 
-  // The systems in INLINE (Emerald, Quantum) mount inline under their own
+  // The systems in INLINE (Emerald, MD1) mount inline under their own
   // `[data-theme]`: their tokens do not reset host elements, so they can share
   // the docs document. Systems that reset `button`/`input` (Bulma) cannot;
   // those run in an iframe against `sandbox/<system>.html`. Source is still

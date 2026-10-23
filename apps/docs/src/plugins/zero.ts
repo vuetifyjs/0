@@ -1,6 +1,6 @@
 import { createEmeraldIconsPlugin } from '@paper/emerald'
 import { provideGnIcons, type GnIconRole } from '@paper/genesis'
-import { createQuantumIconsPlugin } from '@paper/quantum'
+import { createMd1IconsPlugin } from '@paper/md1'
 
 // Framework
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createRtlPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, createTooltipPlugin, IN_BROWSER, useFeatures, V0UnheadThemeAdapter } from '@vuetify/v0'
@@ -46,7 +46,7 @@ export default function zero (app: App) {
     render: (role, { size = 16 } = {}) => h(AppIcon, { icon: gnIcons[role], size }),
   }, app)
   app.use(createEmeraldIconsPlugin())
-  app.use(createQuantumIconsPlugin())
+  app.use(createMd1IconsPlugin())
   app.use(createLoggerPlugin({ devtools: true }))
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin({ mobileBreakpoint: 768, devtools: true }))

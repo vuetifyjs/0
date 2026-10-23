@@ -179,14 +179,14 @@ export default defineConfig({
       '@paper/genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       '@paper/bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
       '@paper/emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
-      '@paper/quantum': fileURLToPath(new URL('../../packages/quantum/src', import.meta.url)),
+      '@paper/md1': fileURLToPath(new URL('../../packages/md1/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       '#genesis': fileURLToPath(new URL('../../packages/genesis/src', import.meta.url)),
       '#bulma': fileURLToPath(new URL('../../packages/bulma/src', import.meta.url)),
       '#emerald': fileURLToPath(new URL('../../packages/emerald/src', import.meta.url)),
-      '#quantum': fileURLToPath(new URL('../../packages/quantum/src', import.meta.url)),
+      '#md1': fileURLToPath(new URL('../../packages/md1/src', import.meta.url)),
     },
   },
   server: {

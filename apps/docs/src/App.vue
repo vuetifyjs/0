@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Baked theme.css must not be imported here — it paints `--v0-*` on `:root`.
   import { EmeraldStyleSheetAdapter, emeraldColors, emeraldDarkColors } from '@paper/emerald'
-  import { QuantumStyleSheetAdapter, quantumColors, quantumDarkColors } from '@paper/quantum'
+  import { Md1StyleSheetAdapter, md1Colors, md1DarkColors } from '@paper/md1'
   import { useHead } from '@unhead/vue'
   import faqs from 'virtual:faqs'
   import mdRoutes from 'virtual:md-routes'
@@ -39,12 +39,12 @@
   })
 
   // Same path as Emerald: the adapter's generated sheet, scoped to
-  // `[data-theme="quantum-*"]`, never the package CSS and never
-  // `createQuantumPlugin` (its theme plugin would fight V0UnheadThemeAdapter
+  // `[data-theme="md1-*"]`, never the package CSS and never
+  // `createMd1Plugin` (its theme plugin would fight V0UnheadThemeAdapter
   // for `data-theme` on <html>).
-  const quantumAdapter = new QuantumStyleSheetAdapter({
+  const md1Adapter = new Md1StyleSheetAdapter({
     v0Aliases: true,
-    stylesheetId: 'quantum-docs-tokens',
+    stylesheetId: 'md1-docs-tokens',
   })
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
@@ -215,11 +215,11 @@
         'emerald-dark': emeraldDarkColors,
       }),
     }, {
-      key: 'quantum-docs-tokens',
-      id: 'quantum-docs-tokens',
-      innerHTML: quantumAdapter.generate({
-        'quantum-light': quantumColors,
-        'quantum-dark': quantumDarkColors,
+      key: 'md1-docs-tokens',
+      id: 'md1-docs-tokens',
+      innerHTML: md1Adapter.generate({
+        'md1-light': md1Colors,
+        'md1-dark': md1DarkColors,
       }),
     }],
     script: toRef(() => [
@@ -341,7 +341,7 @@
       );
     }
 
-    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]):not([data-theme="emerald-light"]):not([data-theme="bulma-light"]):not([data-theme="quantum-light"]) &.dot-grid::before {
+    [data-theme]:not([data-theme="light"]):not([data-theme="odyssey"]):not([data-theme="tailwind-light"]):not([data-theme="material-3-light"]):not([data-theme="ant-design-light"]):not([data-theme="radix-light"]):not([data-theme="emerald-light"]):not([data-theme="bulma-light"]):not([data-theme="md1-light"]) &.dot-grid::before {
       --dot-opacity: 10%;
     }
 

@@ -1,0 +1,27 @@
+<script setup lang="ts">
+  import { Md1Checkbox } from '@paper/md1'
+  import { shallowRef } from 'vue'
+
+  const off = shallowRef(false)
+  const on = shallowRef(true)
+</script>
+
+<template>
+  <div class="md1-docs-controls">
+    <Md1Checkbox v-model="off" label="Off" />
+
+    <Md1Checkbox v-model="on" label="On" />
+
+    <Md1Checkbox disabled label="Disabled" :model-value="false" />
+
+    <Md1Checkbox disabled label="Disabled on" :model-value="true" />
+  </div>
+</template>
+
+<style>
+  .md1-docs-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+</style>

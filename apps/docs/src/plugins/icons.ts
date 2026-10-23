@@ -201,9 +201,9 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     },
     // Bulma mark (simple-icons), 24×24
     'theme-bulma': 'M11.25 0l-6 6-1.5 10.5 7.5 7.5 9-6-6-6 4.5-4.5-7.5-7.5Z',
-    // Quantum mark: Material Icons `layers` (filled, 24px) at the pinned
-    // google/material-design-icons commit 49d4db35, the set QuIcon draws from
-    'theme-quantum': 'M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',
+    // MD1 mark: Material Icons `layers` (filled, 24px) at the pinned
+    // google/material-design-icons commit 49d4db35, the set Md1Icon draws from
+    'theme-md1': 'M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',
     'arrow-left': mdiArrowLeft,
     'arrow-right': mdiArrowRight,
     'plus': mdiPlus,

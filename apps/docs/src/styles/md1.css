@@ -1,0 +1,41 @@
+/**
+ * Docs-only layout for @paper/md1 examples (pages/systems/md1).
+ * MD1 examples mount inline in the docs document (DocsSystemExample), so
+ * a viewport-fixed component (an app bar, a bottom navigation, a positioned
+ * FAB, a snackbar portal, a persistent bottom sheet) would paint over the
+ * docs shell. Containment makes this wrapper the containing block of its
+ * `position: fixed` descendants, so the component ships no docs-only
+ * attribute and the example still shows the real fixed positioning.
+ * A snackbar portal inside it passes `:teleport="false"` so it stays inside.
+ */
+
+.md1-docs-screen {
+  position: relative;
+  height: 360px;
+  overflow: clip;
+  contain: layout paint;
+}
+
+/*
+ * Docs links on the dark theme. The shell colours prose, table and footnote
+ * links with `--v0-primary`, Indigo 500, which reads at about 1.5:1 on the
+ * Grey 800 sheet and 1.9:1 on the #303030 background. They take the
+ * primary's 100 instead, the package's own rule for primary ink on a dark
+ * surface (Md1Subheader, Md1List). Links inside a live example keep the
+ * example's colours.
+ */
+:root[data-theme="md1-dark"] .markdown-body .v0-link:not(.genesis-docs-example-preview *) {
+  color: var(--md1-primary-light, #C5CAE9);
+}
+
+/*
+ * Inline code on the light theme. The shell's chip pairs `--v0-surface-tint`,
+ * Indigo 100, with secondary ink, 54% black, which reads at 4.0:1. The chip
+ * takes the Grey 100 surface variant and primary ink instead, 15:1; secondary
+ * ink on Grey 100 would land at 4.496:1, just under the 4.5:1 floor. Code
+ * inside a live example keeps the example's colours.
+ */
+:root[data-theme="md1-light"] .markdown-body :not(pre) > code:not(.genesis-docs-example-preview *) {
+  background: var(--v0-surface-variant);
+  color: var(--v0-on-surface);
+}

@@ -87,7 +87,12 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
   guide: ['essentials', 'fundamentals', 'features', 'integration', 'tooling'],
   components: ['primitives', 'providers', 'actions', 'disclosure', 'forms', 'data', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'data', 'semantic', 'reactivity', 'system', 'plugins', 'transformers'],
-  systems: ['bulma', 'emerald', 'quantum'],
+  systems: ['bulma', 'emerald', 'md1'],
+}
+
+// Subcategory names that title case gets wrong
+const SUBCATEGORY_NAMES: Record<string, string> = {
+  md1: 'MD1',
 }
 
 // Design-system pages stay one folder per system. `features.group` is the
@@ -252,7 +257,7 @@ function buildSubcategories (section: string, pages: PageInfo[]): NavItem[] {
     ...roots.toSorted(comparePages).map(toNavLink),
     ...Array.from(subcategories.entries())
       .toSorted(createSubcategoryComparator(order))
-      .map(([subcategory, subPages]) => toSubcategory(titleCase(subcategory), subPages, collapsible)),
+      .map(([subcategory, subPages]) => toSubcategory(SUBCATEGORY_NAMES[subcategory] ?? titleCase(subcategory), subPages, collapsible)),
   ]
 }
 

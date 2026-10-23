@@ -74,7 +74,7 @@
           <AppPaletteAntDesignButton />
           <AppPaletteEmeraldButton />
           <AppPaletteBulmaButton />
-          <AppPaletteQuantumButton />
+          <AppPaletteMd1Button />
         </div>
       </div>
 

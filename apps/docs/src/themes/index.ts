@@ -824,18 +824,18 @@ export const themes = {
       'github': '#24292f',
     },
   },
-  // Values mirror the @paper/quantum token sheet injected in App.vue (its
+  // Values mirror the @paper/md1 token sheet injected in App.vue (its
   // `--v0-*` bridge, SPEC.md "The v0 bridge"), so both stylesheets agree on
-  // `[data-theme="quantum-*"]`. Material Design 1 colors: Indigo 500 primary,
+  // `[data-theme="md1-*"]`. Material Design 1 colors: Indigo 500 primary,
   // Pink A200 accent (the bridge's secondary), Red A400 error; surfaces from
   // the theme figures (Grey 50 / white / Grey 100 light, #303030 / Grey 800 /
   // Grey 900 dark); ink as black or white at the spec's opacities. Info,
   // success and warning are bridge-only values (Vuetify 1.5 defaults): MD1
   // defines no such roles.
-  'quantum-dark': {
-    id: 'quantum-dark',
-    label: 'Quantum',
-    icon: 'theme-quantum',
+  'md1-dark': {
+    id: 'md1-dark',
+    label: 'MD1',
+    icon: 'theme-md1',
     dark: true,
     colors: {
       'primary': '#3F51B5',
@@ -850,7 +850,7 @@ export const themes = {
       'surface-tint': '#303F9F',
       'surface-variant': '#212121',
       'divider': 'rgba(255, 255, 255, 0.12)',
-      'pre': '{quantum-dark.colors.surface-variant}',
+      'pre': '{md1-dark.colors.surface-variant}',
       'on-primary': '#FFFFFF',
       'on-secondary': '#FFFFFF',
       'on-accent': '#FFFFFF',
@@ -869,10 +869,10 @@ export const themes = {
       'github': '#24292f',
     },
   },
-  'quantum-light': {
-    id: 'quantum-light',
-    label: 'Quantum',
-    icon: 'theme-quantum',
+  'md1-light': {
+    id: 'md1-light',
+    label: 'MD1',
+    icon: 'theme-md1',
     dark: false,
     colors: {
       'primary': '#3F51B5',
@@ -887,7 +887,7 @@ export const themes = {
       'surface-tint': '#C5CAE9',
       'surface-variant': '#F5F5F5',
       'divider': 'rgba(0, 0, 0, 0.12)',
-      'pre': '{quantum-light.colors.surface-variant}',
+      'pre': '{md1-light.colors.surface-variant}',
       'on-primary': '#FFFFFF',
       'on-secondary': '#FFFFFF',
       'on-accent': '#FFFFFF',
