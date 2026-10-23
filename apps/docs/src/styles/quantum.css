@@ -27,3 +27,15 @@
 :root[data-theme="quantum-dark"] .markdown-body .v0-link:not(.genesis-docs-example-preview *) {
   color: var(--quantum-primary-light, #C5CAE9);
 }
+
+/*
+ * Inline code on the light theme. The shell's chip pairs `--v0-surface-tint`,
+ * Indigo 100, with secondary ink, 54% black, which reads at 4.0:1. The chip
+ * takes the Grey 100 surface variant and primary ink instead, 15:1; secondary
+ * ink on Grey 100 would land at 4.496:1, just under the 4.5:1 floor. Code
+ * inside a live example keeps the example's colours.
+ */
+:root[data-theme="quantum-light"] .markdown-body :not(pre) > code:not(.genesis-docs-example-preview *) {
+  background: var(--v0-surface-variant);
+  color: var(--v0-on-surface);
+}
