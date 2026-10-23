@@ -25,7 +25,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { DateAdapter } from './adapter'
 
 // Utilities
-import { isNaN, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+import { isNaN, isNull, isNullOrUndefined, isNumber, isString, V0Error } from '#v0/utilities'
 
 // Week info
 import { deriveWeekInfo } from '../weekinfo'
@@ -124,7 +124,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     if (OFFSET.test(dateString)) {
       const parsed = new Date(dateString)
 
-      if (isNaN(parsed.getTime())) throw new Error('Invalid date')
+      if (isNaN(parsed.getTime())) this.invalid(dateString)
 
       return this.stamp(
         parsed.getFullYear(),
@@ -155,7 +155,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
       )
     }
 
-    throw new Error('Invalid date')
+    return this.invalid(dateString)
   }
 
   /** `YYYY-MM-DD` from local calendar fields. Time is dropped. */
@@ -652,12 +652,22 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     )
   }
 
+  private invalid (value: string): never {
+    throw new V0Error('Invalid date', {
+      code: 'V0_DATE_INVALID',
+      value,
+    })
+  }
+
   /** Local calendar day. Rejects a day the month does not contain. */
   private civil (year: number, month: number, day: number): Date {
     const date = new Date(year, month - 1, day)
 
     if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-      throw new Error('Invalid date')
+      const monthText = String(month).padStart(2, '0')
+      const dayText = String(day).padStart(2, '0')
+
+      this.invalid(`${year}-${monthText}-${dayText}`)
     }
 
     return date

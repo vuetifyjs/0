@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { PlainDateAdapter } from './plain'
 
+// Utilities
+import { isV0Error } from '#v0/utilities'
+
 describe('plainDateAdapter', () => {
   function setup () {
     return new PlainDateAdapter('en-US')
@@ -25,6 +28,17 @@ describe('plainDateAdapter', () => {
 
       expect(() => adapter.parseISO('2026-02-31')).toThrow('Invalid date')
       expect(() => adapter.parseISO('2026-02-31T10:00:00')).toThrow('Invalid date')
+      expect(() => adapter.parseISO('not-a-dateZ')).toThrow('Invalid date')
+      expect(() => adapter.parseISO('nope')).toThrow('Invalid date')
+
+      try {
+        adapter.parseISO('2026-02-31')
+      } catch (error) {
+        expect(isV0Error(error, 'V0_DATE_INVALID')).toBe(true)
+        if (isV0Error(error, 'V0_DATE_INVALID')) {
+          expect(error.value).toBe('2026-02-31')
+        }
+      }
     })
 
     it('should rebuild an offset string from local fields', () => {
