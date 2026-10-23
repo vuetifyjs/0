@@ -174,7 +174,7 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Quantum mak
 
 ### Solo
 
-`solo` is the guidelines' field "for a single action such as search": the text field elevated on its own 2 dp sheet, with no input line and no floating label, its icons placed inside. The sheet is 48 dp tall with 2 dp corners, and rises to 3 dp when `scrolled` marks the content beneath it as scrolled, the quick entry and search bar rows of the elevation page. The label is kept for assistive technology and hidden visually, so the placeholder carries the visible prompt.
+`solo` is the guidelines' field "for a single action such as search": the text field elevated on its own 2 dp sheet, with no input line and no floating label, its icons placed inside. The sheet is 48 dp tall with 2 dp corners, and rises to 3 dp when `scrolled` marks the content beneath it as scrolled, the quick entry and search bar rows of the elevation page. Under a fine pointer both sit 2 dp lower, 0 dp and 1 dp, the desktop rule every resting elevation follows and the values `QuSearchBar` draws. The label is kept for assistive technology and hidden visually, so the placeholder carries the visible prompt.
 
 `QuSearchBar` composes this field for the persistent search pattern.
 :::
@@ -234,8 +234,8 @@ The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu
 | `multiline` | `boolean` | `false` | Wraps and grows downward |
 | `textarea` | `boolean` | `false` | Five lines tall with a 1 dp border; scrolls |
 | `fullWidth` | `boolean` | `false` | Spans the container: 56 dp (48 dp dense), the divider as its line |
-| `solo` | `boolean` | `false` | The raised 48 dp sheet with no line and no visible label, 2 dp |
-| `scrolled` | `boolean` | `false` | A solo field over scrolled content: 3 dp |
+| `solo` | `boolean` | `false` | The raised 48 dp sheet with no line and no visible label, 2 dp (0 dp under a fine pointer) |
+| `scrolled` | `boolean` | `false` | A solo field over scrolled content: 3 dp (1 dp under a fine pointer) |
 | `dropdown` | `boolean` | `false` | A readonly select whose `QuTextField.Item` children fill the menu |
 | `picker` | `'date' \| 'time'` | | The signifier opens a date or time picker in a confirmation dialog |
 | `mask` | `string` | | Grouped characters: `#` digit, `A` letter, `*` either; `v-model` stays unformatted |
