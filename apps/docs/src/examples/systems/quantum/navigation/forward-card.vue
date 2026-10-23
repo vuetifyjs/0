@@ -13,7 +13,7 @@
 </script>
 
 <template>
-  <div class="quantum-docs-screen quantum-docs-nav-screen">
+  <div class="quantum-docs-screen quantum-docs-nav-screen quantum-docs-nav-card-screen">
     <QuToolbar variant="primary">
       <QuToolbar.Nav v-if="place" aria-label="Places" icon="up" @click="current = undefined" />
 
@@ -53,6 +53,15 @@
     flex-direction: column;
     max-width: 360px;
     background: var(--quantum-background, #FAFAFA);
+  }
+
+  /*
+   * Taller than the shared 360 px frame: one 16:9 card is about 318 px, so
+   * under a 56 px bar it would hide its own Explore action at first paint.
+   * 420 px shows the first card whole and a peek of the next.
+   */
+  .quantum-docs-screen.quantum-docs-nav-card-screen {
+    height: 420px;
   }
 
   /* A scrolling column of cards, 8 dp apart and 8 dp from the screen edge. */

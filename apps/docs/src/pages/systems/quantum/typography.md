@@ -46,23 +46,23 @@ The classes ship in `@paper/quantum/style.css`. Quantum's components set their o
 
 ## Type scale
 
-"The basic set of styles are based on a typographic scale of 12, 14, 16, 20, and 34." Sizes are in sp and leading in dp, both written as px on the web, one to one. Where two sizes are given, the first is for touch devices and the second for desktop.
+"The basic set of styles are based on a typographic scale of 12, 14, 16, 20, and 34." Sizes are in sp and leading in dp, both written as px on the web, one to one. Where two sizes are given, the first is for touch devices and the second for desktop. Each style's class is `quantum-type-` and the style's name in kebab case: `quantum-type-display-4` to `quantum-type-menu`.
 
-| Style | Class | Weight | Size (sp) | Leading (dp) | Tracking | Case | Ink |
-|-------|-------|--------|-----------|--------------|----------|------|-----|
-| Display 4 | `quantum-type-display-4` | Light 300 | 112 | single line | -10 | Sentence | 54% |
-| Display 3 | `quantum-type-display-3` | Regular 400 | 56 | single line | -5 | Sentence | 54% |
-| Display 2 | `quantum-type-display-2` | Regular 400 | 45 | 48 | 0 | Sentence | 54% |
-| Display 1 | `quantum-type-display-1` | Regular 400 | 34 | 40 | 0 | Sentence | 54% |
-| Headline | `quantum-type-headline` | Regular 400 | 24 | 32 | 0 | Sentence | 87% |
-| Title | `quantum-type-title` | Medium 500 | 20 | single line | 5 | Sentence | 87% |
-| Subheading | `quantum-type-subheading` | Regular 400 | 16 / 15 | 24 | 10 | Sentence | 87% |
-| Subheading 2 | `quantum-type-subheading-2` | Regular 400 | 16 / 15 | 28 | 10 | Sentence | 87% |
-| Body 2 | `quantum-type-body-2` | Medium 500 | 14 / 13 | 24 | 10 | Sentence | 87% |
-| Body 1 | `quantum-type-body-1` | Regular 400 | 14 / 13 | 20 | 10 | Sentence | 87% |
-| Caption | `quantum-type-caption` | Regular 400 | 12 | single line | 20 | Sentence | 54% |
-| Button | `quantum-type-button` | Medium 500 | 14 | single line | 10 | All caps | 87% |
-| Menu | `quantum-type-menu` | Medium 500 | 14 / 13 | single line | 10 | Sentence | 87% |
+| Style | Weight | Size (sp) | Leading (dp) | Tracking | Case | Ink |
+|-------|--------|-----------|--------------|----------|------|-----|
+| Display 4 | Light 300 | 112 | single line | -10 | Sentence | 54% |
+| Display 3 | Regular 400 | 56 | single line | -5 | Sentence | 54% |
+| Display 2 | Regular 400 | 45 | 48 | 0 | Sentence | 54% |
+| Display 1 | Regular 400 | 34 | 40 | 0 | Sentence | 54% |
+| Headline | Regular 400 | 24 | 32 | 0 | Sentence | 87% |
+| Title | Medium 500 | 20 | single line | 5 | Sentence | 87% |
+| Subheading | Regular 400 | 16 / 15 | 24 | 10 | Sentence | 87% |
+| Subheading 2 | Regular 400 | 16 / 15 | 28 | 10 | Sentence | 87% |
+| Body 2 | Medium 500 | 14 / 13 | 24 | 10 | Sentence | 87% |
+| Body 1 | Regular 400 | 14 / 13 | 20 | 10 | Sentence | 87% |
+| Caption | Regular 400 | 12 | single line | 20 | Sentence | 54% |
+| Button | Medium 500 | 14 | single line | 10 | All caps | 87% |
+| Menu | Medium 500 | 14 / 13 | single line | 10 | Sentence | 87% |
 
 Ink is the style's opacity of black on a light theme, from the page's contrast figure; on a dark theme the same two tiers become white at 70% and 100% through `--quantum-text-secondary` and `--quantum-text-primary` (see [Color](/systems/quantum/color)).
 
