@@ -503,6 +503,7 @@
     aspect-ratio: 16 / 9;
     padding: var(--quantum-spacing-2, 16px) var(--quantum-spacing-2, 16px) 0;
     overflow: hidden;
+    isolation: isolate;
     background: var(--quantum-primary, #3F51B5);
     color: var(--quantum-on-primary, #FFFFFF);
   }
@@ -517,8 +518,24 @@
     object-fit: cover;
   }
 
+  /*
+   * Text protection (imagery page): the white name and email sit on an
+   * arbitrary photograph, so an image header lays a dark scrim under the
+   * account row only, 40% at the bottom edge fading out over 168 dp (three
+   * app bar heights) with its centre three tenths of the way toward the dark
+   * end. The primary fill needs none: white on the primary is the spec's pair.
+   */
+  .quantum-navigation-drawer__header[data-image]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--quantum-black, #000000) 40%, transparent), 50px, transparent 168px);
+    pointer-events: none;
+  }
+
   .quantum-navigation-drawer__avatar {
     position: relative;
+    z-index: 1;
     display: block;
     width: 64px;
     height: 64px;
@@ -528,6 +545,7 @@
 
   .quantum-navigation-drawer__account {
     position: relative;
+    z-index: 1;
     display: flex;
     flex: none;
     align-items: center;
