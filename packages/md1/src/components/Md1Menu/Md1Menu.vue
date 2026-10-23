@@ -142,6 +142,14 @@
     min-inline-size: calc(2 * var(--md1-increment, 56px));
     max-inline-size: min(calc(5 * var(--md1-increment, 56px)), calc(100vw - 2 * var(--md1-keyline-margin, 16px)));
     max-block-size: calc(100vh - 2 * var(--md1-keyline-margin, 16px) - var(--md1-touch-target, 48px));
+    /*
+     * The screen margin, on the screen side of the position area only: the
+     * insets shrink the area from the screen edges, never from the emitting
+     * element, and the flip fallbacks mirror them with the area. Without them a
+     * sheet pushed in from the edge stopped flush against it.
+     */
+    inset-inline-end: var(--md1-keyline-margin, 16px);
+    inset-block-end: var(--md1-keyline-margin, 16px);
     padding: 0;
     border: 0;
     border-radius: var(--md1-radius, 2px);
@@ -207,44 +215,52 @@
   @position-try --md1-menu-wide {
     position-area: block-end span-all;
     justify-self: anchor-center;
+    inset-inline: var(--md1-keyline-margin, 16px);
   }
 
   @position-try --md1-menu-wide-flip {
     position-area: block-start span-all;
     justify-self: anchor-center;
+    inset-inline: var(--md1-keyline-margin, 16px);
+    inset-block: var(--md1-keyline-margin, 16px) 0;
   }
 
   @position-try --md1-menu-fit {
     position-area: block-end span-inline-end;
-    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+    max-block-size: 100%;
   }
 
   @position-try --md1-menu-fit-wide {
     position-area: block-end span-all;
     justify-self: anchor-center;
-    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+    inset-inline: var(--md1-keyline-margin, 16px);
+    max-block-size: 100%;
   }
 
   @position-try --md1-menu-sub-fit {
     position-area: inline-end span-block-end;
-    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+    max-block-size: 100%;
   }
 
   /* A sub menu with no room beside its parent on either side drops below its parent row, over the parent sheet, or rises above it; capped as the last resort. */
   @position-try --md1-menu-sub-wide {
     position-area: block-end span-all;
     justify-self: anchor-center;
+    inset-inline: var(--md1-keyline-margin, 16px);
   }
 
   @position-try --md1-menu-sub-wide-flip {
     position-area: block-start span-all;
     justify-self: anchor-center;
+    inset-inline: var(--md1-keyline-margin, 16px);
+    inset-block: var(--md1-keyline-margin, 16px) 0;
   }
 
   @position-try --md1-menu-sub-wide-fit {
     position-area: block-end span-all;
     justify-self: anchor-center;
-    max-block-size: calc(100% - var(--md1-keyline-margin, 16px));
+    inset-inline: var(--md1-keyline-margin, 16px);
+    max-block-size: 100%;
   }
 
   /* Elevation: 8 dp for the menu, 9 dp for a sub menu and one more per level; every resting value is 2 dp lower on desktop. */

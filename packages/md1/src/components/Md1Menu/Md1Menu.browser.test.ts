@@ -243,8 +243,20 @@ describe('quMenu', () => {
 
       expect(rect.bottom).toBeLessThanOrEqual(anchor.top + 1)
       expect(rect.top).toBeGreaterThanOrEqual(0)
-      expect(rect.left).toBeGreaterThanOrEqual(0)
-      expect(rect.right).toBeLessThanOrEqual(window.innerWidth)
+      // ...and keeps the screen margin (16 dp, 24 dp from 600 px) instead of stopping flush against the edge.
+      expect(rect.left).toBeGreaterThanOrEqual(16)
+      expect(rect.right).toBeLessThanOrEqual(document.documentElement.clientWidth - 16)
+    })
+
+    it('should keep the screen margin when a start-aligned sheet would reach the trailing edge', async () => {
+      const host = menu(simple)
+      Object.assign(host.style, { position: 'fixed', padding: '0', right: '24px', top: '8px' })
+      await settle()
+
+      await show(host)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      expect(sheet().getBoundingClientRect().right).toBeLessThanOrEqual(document.documentElement.clientWidth - 16)
     })
   })
 
