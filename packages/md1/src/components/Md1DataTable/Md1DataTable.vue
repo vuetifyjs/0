@@ -3,7 +3,7 @@
   import { createContext, createDataTable, isNull, isUndefined, provideDataTableRoot, useLogger } from '@vuetify/v0'
 
   // Utilities
-  import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
+  import { computed, shallowReactive, shallowRef, toRaw, toRef, watch } from 'vue'
 
   // Types
   import type { DataTableContext, ID } from '@vuetify/v0'
@@ -55,8 +55,12 @@
     if (__DEV__ && isNull(context)) useLogger().warn(`[${part}] rendered outside <Md1DataTable>; its state is inert`)
   }
 
+  // Records compare by their raw object: a consumer's `ref` hands the model reactive
+  // proxies while plain row arrays pass raw records, and the two must still match.
   function same (a: readonly object[], b: readonly object[]): boolean {
-    return a.length === b.length && a.every(record => b.includes(record))
+    const set = new Set(b.map(record => toRaw(record)))
+
+    return a.length === b.length && a.every(record => set.has(toRaw(record)))
   }
 </script>
 
@@ -129,11 +133,11 @@
   }
 
   function apply (wanted: readonly object[]) {
-    const set = new Set(wanted)
+    const set = new Set(wanted.map(record => toRaw(record)))
 
     for (const ticket of table.values()) {
       const has = ids.has(ticket.id)
-      const want = set.has(ticket.value) && !excluded.has(ticket.value)
+      const want = set.has(toRaw(ticket.value)) && !excluded.has(ticket.value)
 
       if (want && !has) table.selection.select(ticket.id)
       else if (!want && has) table.selection.unselect(ticket.id)
@@ -150,7 +154,9 @@
 
   // Rows register after the root's setup, so an initial model is applied as they arrive.
   table.on('register:ticket', ticket => {
-    if (selected.value.includes(ticket.value) && !excluded.has(ticket.value)) table.selection.select(ticket.id)
+    const value = toRaw(ticket.value)
+
+    if (selected.value.some(record => toRaw(record) === value) && !excluded.has(ticket.value)) table.selection.select(ticket.id)
   })
 
   const title = shallowRef<string>()

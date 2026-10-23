@@ -18,7 +18,7 @@ import {
 } from './index'
 
 // Utilities
-import { createApp, h, nextTick, shallowRef } from 'vue'
+import { createApp, h, nextTick, ref, shallowRef } from 'vue'
 
 // Types
 import type { App, Component, VNode } from 'vue'
@@ -651,6 +651,20 @@ describe('quDataTable', () => {
 
       expect(checkboxes(host)[2]!.getAttribute('aria-checked')).toBe('true')
       expect(all(host).getAttribute('aria-checked')).toBe('mixed')
+    })
+
+    it('should keep a selection held in a ref when a row is clicked', async () => {
+      // A `ref` wraps each record in a proxy; the rows below stay raw, so identity alone never matches.
+      const rows = desserts()
+      const selected = ref<Dessert[]>([rows[1]!, rows[2]!])
+      const host = table({ rows, selectable: true, selected })
+      await settle()
+
+      await userEvent.click(checkboxes(host)[0]!)
+      await settle()
+
+      expect(checkboxes(host).slice(0, 3).map(box => box.getAttribute('aria-checked'))).toEqual(['true', 'true', 'true'])
+      expect(selected.value.map(item => item.id).toSorted()).toEqual([rows[0]!.id, rows[1]!.id, rows[2]!.id].toSorted())
     })
 
     it('should leave a row with selectable false out of the checkboxes and out of select-all', async () => {
