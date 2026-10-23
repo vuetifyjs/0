@@ -96,14 +96,14 @@
   }
 
   .md1-docs-choice[data-state="checked"] .md1-docs-radio {
-    border-color: var(--md1-accent-control, #FF4081);
+    border-color: var(--md1-accent, #FF4081);
   }
 
   .md1-docs-radio-dot {
     position: absolute;
     inset: 3px;
     border-radius: 50%;
-    background: var(--md1-accent-control, #FF4081);
+    background: var(--md1-accent, #FF4081);
   }
 
   .md1-docs-choice-text {
