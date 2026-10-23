@@ -1,4 +1,5 @@
 export * from './QuButton'
+export * from './QuCard'
 export * from './QuChip'
 export * from './QuDivider'
 export * from './QuExpansionPanel'
