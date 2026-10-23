@@ -1,8 +1,12 @@
 <script setup lang="ts">
   import { Md1Button, Md1DatePicker, Md1Dialog } from '@paper/md1'
+  import { useMediaQuery } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
   const date = shallowRef<unknown>('2017-04-13')
+
+  // The picker follows the device's orientation; a phone held upright gets the portrait sheet.
+  const { matches: landscape } = useMediaQuery('(orientation: landscape)')
 </script>
 
 <template>
@@ -10,11 +14,11 @@
   <div class="md1-docs-row" data-grid>
     <Md1Dialog v-model:value="date" variant="confirmation">
       <Md1Dialog.Activator v-slot="{ attrs }">
-        <Md1Button v-bind="attrs" icon="event">Landscape</Md1Button>
+        <Md1Button v-bind="attrs" icon="event">Pick a date</Md1Button>
       </Md1Dialog.Activator>
 
       <Md1Dialog.Content aria-label="Pick a date">
-        <Md1DatePicker landscape />
+        <Md1DatePicker :landscape="landscape" />
 
         <Md1Dialog.Actions>
           <Md1Dialog.Cancel />
