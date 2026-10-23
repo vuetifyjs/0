@@ -37,7 +37,8 @@
     padding: var(--md1-spacing-2, 16px);
   }
 
-  .md1-docs-search-line {
+  /* Two classes: the docs shell's `.markdown-body p` margin would otherwise win. */
+  .md1-docs-search-scroller .md1-docs-search-line {
     margin: 0;
     padding: var(--md1-spacing-1, 8px) var(--md1-spacing-2, 16px);
   }

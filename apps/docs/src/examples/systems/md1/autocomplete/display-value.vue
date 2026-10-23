@@ -47,7 +47,8 @@
     max-width: 360px;
   }
 
-  .md1-docs-departure {
+  /* Two classes: the docs shell's `.markdown-body p` margin would otherwise win. */
+  .md1-docs-fields .md1-docs-departure {
     margin: 0;
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-body-1-size, 14px);
