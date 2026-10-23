@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-row">
+  <div class="md1-docs-tooltip-actions">
     <Md1Tooltip v-for="action in actions" :key="action.icon">
       <Md1Tooltip.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" :aria-label="action.label" :icon="action.icon" />
@@ -23,10 +23,11 @@
 </template>
 
 <style>
-  .md1-docs-row {
+  /* Icon buttons in an action row touch: each 48 dp target already carries its own 12 dp padding around the 24 dp glyph. */
+  .md1-docs-tooltip-actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    gap: var(--md1-spacing-1, 8px);
   }
 </style>
