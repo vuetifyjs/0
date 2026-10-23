@@ -76,7 +76,9 @@
     position?: QuToolbarPosition
   }
 
-  export const [useQuToolbar, provideQuToolbar] = createContext<QuToolbarContext | null>('quantum:toolbar', null)
+  const [useQuToolbar, provideQuToolbar] = createContext<QuToolbarContext | null>('quantum:toolbar', null)
+
+  export { useQuToolbar }
 
   /** Dev-time guard for the parts: an orphan renders, but the toolbar state it reads is inert. */
   export function orphan (part: string, context: QuToolbarContext | null): void {

@@ -36,7 +36,9 @@
 
   export type QuTooltipSlotProps = TooltipRootSlotProps
 
-  export const [useQuTooltip, provideQuTooltip] = createContext<QuTooltipContext | null>('quantum:tooltip', null)
+  const [useQuTooltip, provideQuTooltip] = createContext<QuTooltipContext | null>('quantum:tooltip', null)
+
+  export { useQuTooltip }
 
   /** Dev warning for a part rendered outside QuTooltip: it keeps rendering, with no touch metrics to read. */
   export function orphan (part: string, context: QuTooltipContext | null): void {

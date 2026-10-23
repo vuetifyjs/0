@@ -124,7 +124,9 @@
     errorMessages?: string | string[]
   }
 
-  export const [useQuTextField, provideQuTextField] = createContext<QuTextFieldContext | null>('quantum:text-field', null)
+  const [useQuTextField, provideQuTextField] = createContext<QuTextFieldContext | null>('quantum:text-field', null)
+
+  export { useQuTextField }
 
   /** Stands in for `Select.Root` when the field is not a dropdown, so one template serves both. */
   function Pass (_props: unknown, { slots }: SetupContext) {

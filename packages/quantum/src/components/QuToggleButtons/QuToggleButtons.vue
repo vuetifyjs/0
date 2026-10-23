@@ -24,7 +24,9 @@
     'disabled' | 'multiple' | 'mandatory' | 'label' | 'ariaLabelledby' | 'ariaDescribedby' | 'namespace'
   > {}
 
-  export const [useQuToggleButtons, provideQuToggleButtons] = createContext<QuToggleButtonsContext | null>('quantum:toggle-buttons', null)
+  const [useQuToggleButtons, provideQuToggleButtons] = createContext<QuToggleButtonsContext | null>('quantum:toggle-buttons', null)
+
+  export { useQuToggleButtons }
 </script>
 
 <script lang="ts" setup generic="T = unknown">

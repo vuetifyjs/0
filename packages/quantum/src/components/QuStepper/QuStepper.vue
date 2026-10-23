@@ -57,7 +57,9 @@
     namespace?: string
   }
 
-  export const [useQuStepper, provideQuStepper] = createContext<QuStepperContext | null>('quantum:stepper', null)
+  const [useQuStepper, provideQuStepper] = createContext<QuStepperContext | null>('quantum:stepper', null)
+
+  export { useQuStepper }
 
   /** Dev warning for a part rendered outside the compound; the part then renders inert. */
   export function orphan (part: string, parent: string, missing: boolean) {

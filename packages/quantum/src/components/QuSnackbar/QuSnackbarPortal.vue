@@ -21,7 +21,9 @@
    */
   export interface QuSnackbarPortalProps extends Pick<SnackbarPortalProps, 'teleport' | 'namespace'> {}
 
-  export const [useQuSnackbarPortal, provideQuSnackbarPortal] = createContext<QuSnackbarPortalContext | null>('quantum:snackbar-portal', null)
+  const [useQuSnackbarPortal, provideQuSnackbarPortal] = createContext<QuSnackbarPortalContext | null>('quantum:snackbar-portal', null)
+
+  export { useQuSnackbarPortal }
 
   /** Dev warning for a part rendered outside QuSnackbarPortal: it renders, but nothing positions or announces it. */
   export function orphan (part: string, context: QuSnackbarPortalContext | null): void {

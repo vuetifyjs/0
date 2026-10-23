@@ -23,7 +23,9 @@
     title: () => () => void
   }
 
-  export const [useQuToolbarExtension, provideQuToolbarExtension] = createContext<QuToolbarExtensionContext | null>('quantum:toolbar:extension', null)
+  const [useQuToolbarExtension, provideQuToolbarExtension] = createContext<QuToolbarExtensionContext | null>('quantum:toolbar:extension', null)
+
+  export { useQuToolbarExtension }
 
   /** A tab bar from `QuTabs`, whichever of its parts the consumer placed here. */
   const TABS = '.quantum-tabs, .quantum-tabs__bar'

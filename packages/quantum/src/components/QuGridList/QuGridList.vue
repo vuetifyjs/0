@@ -39,7 +39,9 @@
     horizontal?: boolean
   }
 
-  export const [useQuGridList, provideQuGridList] = createContext<QuGridListContext | null>('quantum:grid-list', null)
+  const [useQuGridList, provideQuGridList] = createContext<QuGridListContext | null>('quantum:grid-list', null)
+
+  export { useQuGridList }
 
   /** Dev-time guard for a part whose parent context is optional: an orphan still renders, but its grid state is inert. */
   export function orphan (part: string, parent: string, context: unknown): void {

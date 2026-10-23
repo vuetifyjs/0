@@ -46,7 +46,9 @@
     track: () => () => void
   }
 
-  export const [useQuSearchBar, provideQuSearchBar] = createContext<QuSearchBarContext | null>('quantum:search-bar', null)
+  const [useQuSearchBar, provideQuSearchBar] = createContext<QuSearchBarContext | null>('quantum:search-bar', null)
+
+  export { useQuSearchBar }
 
   /** Dev warning for a part rendered outside QuSearchBar: the part renders nothing. */
   export function orphan (part: string, context: QuSearchBarContext | null): void {

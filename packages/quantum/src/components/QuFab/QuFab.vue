@@ -74,7 +74,9 @@
 
   const TRY = 'flip-inline, flip-block, flip-block flip-inline'
 
-  export const [useQuFab, provideQuFab] = /* @__PURE__ */ createContext<QuFabContext | null>('quantum:fab', null)
+  const [useQuFab, provideQuFab] = /* @__PURE__ */ createContext<QuFabContext | null>('quantum:fab', null)
+
+  export { useQuFab }
 
   /** Dev warning for a part rendered outside the FAB; the part then renders nothing. */
   export function orphan (part: string, context: QuFabContext | null): void {

@@ -66,7 +66,9 @@
     ariaLabel?: string
   }
 
-  export const [useQuDropdownButton, provideQuDropdownButton] = createContext<QuDropdownButtonContext | null>('quantum:dropdown-button', null)
+  const [useQuDropdownButton, provideQuDropdownButton] = createContext<QuDropdownButtonContext | null>('quantum:dropdown-button', null)
+
+  export { useQuDropdownButton }
 </script>
 
 <script setup lang="ts">

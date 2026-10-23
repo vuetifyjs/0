@@ -46,7 +46,9 @@
     namespace?: string
   }
 
-  export const [useQuDataTable, provideQuDataTable] = /* @__PURE__ */ createContext<QuDataTableContext | null>('quantum:data-table', null)
+  const [useQuDataTable, provideQuDataTable] = /* @__PURE__ */ createContext<QuDataTableContext | null>('quantum:data-table', null)
+
+  export { useQuDataTable }
 
   /** Dev warning for a part rendered outside the compound; the part then renders inert. */
   export function orphan (part: string, context: QuDataTableContext | null) {

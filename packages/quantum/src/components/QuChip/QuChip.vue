@@ -58,7 +58,9 @@
     contact?: boolean
   }
 
-  export const [useQuChip, provideQuChip] = createContext<QuChipContext | null>('quantum:chip', null)
+  const [useQuChip, provideQuChip] = createContext<QuChipContext | null>('quantum:chip', null)
+
+  export { useQuChip }
 
   /** Dev-time guard for the parts: an orphan renders, but its chip state is inert. */
   export function orphan (part: string, context: QuChipContext | null): void {

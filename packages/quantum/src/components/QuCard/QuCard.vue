@@ -49,7 +49,9 @@
    */
   export const QU_CARD_COLLAPSIBLE = 'quantum:card:collapsible'
 
-  export const [useQuCard, provideQuCard] = createContext<QuCardContext | null>('quantum:card', null)
+  const [useQuCard, provideQuCard] = createContext<QuCardContext | null>('quantum:card', null)
+
+  export { useQuCard }
 
   /** Dev-time guard for the parts whose card context is optional: an orphan renders, but its card state is inert. */
   export function orphan (part: string, context: QuCardContext | null): void {

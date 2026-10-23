@@ -36,7 +36,9 @@
 
   export const QU_BOTTOM_NAVIGATION_NAMESPACE = 'quantum:bottom-navigation'
 
-  export const [useQuBottomNavigation, provideQuBottomNavigation] = createContext<QuBottomNavigationContext | null>()
+  const [useQuBottomNavigation, provideQuBottomNavigation] = createContext<QuBottomNavigationContext | null>()
+
+  export { useQuBottomNavigation }
 
   /** Dev-time guard for an action rendered without a bar: it renders, but selects nothing. */
   export function orphan (part: string, context: QuBottomNavigationContext | null): void {

@@ -48,7 +48,9 @@
     id?: string
   }
 
-  export const [useQuStepperStep, provideQuStepperStep] = createContext<QuStepperStepContext | null>('quantum:stepper-step', null)
+  const [useQuStepperStep, provideQuStepperStep] = createContext<QuStepperStepContext | null>('quantum:stepper-step', null)
+
+  export { useQuStepperStep }
 </script>
 
 <script lang="ts" setup generic="V = unknown">

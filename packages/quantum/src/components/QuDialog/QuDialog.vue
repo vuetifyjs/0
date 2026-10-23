@@ -64,7 +64,9 @@
     commit: (value: unknown) => void
   }
 
-  export const [useQuDialog, provideQuDialog] = createContext<QuDialogContext | null>('quantum:dialog', null)
+  const [useQuDialog, provideQuDialog] = createContext<QuDialogContext | null>('quantum:dialog', null)
+
+  export { useQuDialog }
 
   /**
    * Parts read the root through the optional context, so a part placed outside

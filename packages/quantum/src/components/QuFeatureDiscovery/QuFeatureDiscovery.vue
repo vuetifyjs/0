@@ -124,7 +124,9 @@
   /** Room kept between the text and the background's edge: one step of the 8 dp grid. */
   const PADDING = 8
 
-  export const [useQuFeatureDiscovery, provideQuFeatureDiscovery] = createContext<QuFeatureDiscoveryContext | null>('quantum:feature-discovery', null)
+  const [useQuFeatureDiscovery, provideQuFeatureDiscovery] = createContext<QuFeatureDiscoveryContext | null>('quantum:feature-discovery', null)
+
+  export { useQuFeatureDiscovery }
 
   /**
    * Parts read the root through the optional context, so a part placed outside

@@ -48,7 +48,9 @@
     desktop?: boolean
   }
 
-  export const [useQuMenu, provideQuMenu] = createContext<QuMenuContext | null>('quantum:menu', null)
+  const [useQuMenu, provideQuMenu] = createContext<QuMenuContext | null>('quantum:menu', null)
+
+  export { useQuMenu }
 
   /** Dev warning for a part rendered outside QuMenu: the part keeps rendering, with no metrics or selection to read. */
   export function orphan (part: string, context: QuMenuContext | null): void {

@@ -43,7 +43,9 @@
     scrollable?: boolean
   }
 
-  export const [useQuTabs, provideQuTabs] = createContext<QuTabsContext | null>('quantum:tabs', null)
+  const [useQuTabs, provideQuTabs] = createContext<QuTabsContext | null>('quantum:tabs', null)
+
+  export { useQuTabs }
 </script>
 
 <script lang="ts" setup generic="T">

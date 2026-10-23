@@ -16,7 +16,7 @@ const SLOTS = new Map<string, RegExp>([
 
 const SIGNIFICANT = /[\da-z]/i
 
-export function slot (mask: string, index: number): boolean {
+function slot (mask: string, index: number): boolean {
   return SLOTS.has(mask.charAt(index))
 }
 

@@ -37,7 +37,9 @@
     alt?: string
   }
 
-  export const [useQuGridListTile, provideQuGridListTile] = createContext<QuGridListTileContext | null>('quantum:grid-list:tile', null)
+  const [useQuGridListTile, provideQuGridListTile] = createContext<QuGridListTileContext | null>('quantum:grid-list:tile', null)
+
+  export { useQuGridListTile }
 </script>
 
 <script setup lang="ts">

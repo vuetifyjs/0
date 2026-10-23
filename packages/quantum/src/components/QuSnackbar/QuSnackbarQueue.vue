@@ -35,7 +35,9 @@
     item: NotificationTicket
   }
 
-  export const [useQuSnackbarQueue, provideQuSnackbarQueue] = createContext<QuSnackbarQueueContext | null>('quantum:snackbar-queue', null)
+  const [useQuSnackbarQueue, provideQuSnackbarQueue] = createContext<QuSnackbarQueueContext | null>('quantum:snackbar-queue', null)
+
+  export { useQuSnackbarQueue }
 </script>
 
 <script setup lang="ts">
