@@ -1,5 +1,6 @@
 export * from './QuButton'
 export * from './QuDivider'
+export * from './QuFab'
 export * from './QuIcon'
 export * from './QuRipple'
 export * from './QuSubheader'
