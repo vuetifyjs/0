@@ -32,9 +32,17 @@
 </template>
 
 <style>
+  /*
+   * The hint lines up with the typed text, not with the field box: the box
+   * carries the floating label above and the helper row below, so centring on
+   * it lifts the icon 10 px over the input. The 48 dp target centred on the
+   * 20 px input line ends 14 px under the text, which is 2 px above the
+   * field's bottom edge (the line at 7 px under the text, then the 8 px
+   * helper row).
+   */
   .quantum-docs-help-field {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: var(--quantum-spacing-1, 8px);
     max-width: 360px;
   }
@@ -47,6 +55,10 @@
   /* A help hint is an icon in the active icon ink, not an accent-coloured flat button. */
   .quantum-docs-help-tip.quantum-button[data-solo]:not([data-disabled]) {
     color: var(--quantum-icon-active, rgba(0, 0, 0, 0.54));
+  }
+
+  .quantum-docs-help-tip.quantum-button {
+    margin-block-end: 2px;
   }
 
   /* Help tooltip icons are 18 dp, under the 24 dp system icon (help and feedback page). */
