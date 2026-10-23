@@ -10,6 +10,7 @@ features:
   label: 'C: QuButton'
   level: 2
   renderless: false
+  group: actions
   order: 1
 related:
   - /systems/quantum
