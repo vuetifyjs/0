@@ -15,3 +15,15 @@
   overflow: clip;
   contain: layout paint;
 }
+
+/*
+ * Docs links on the dark theme. The shell colours prose, table and footnote
+ * links with `--v0-primary`, Indigo 500, which reads at about 1.5:1 on the
+ * Grey 800 sheet and 1.9:1 on the #303030 background. They take the
+ * primary's 100 instead, the package's own rule for primary ink on a dark
+ * surface (QuSubheader, QuList). Links inside a live example keep the
+ * example's colours.
+ */
+:root[data-theme="quantum-dark"] .markdown-body .v0-link:not(.genesis-docs-example-preview *) {
+  color: var(--quantum-primary-light, #C5CAE9);
+}
