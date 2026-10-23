@@ -55,15 +55,23 @@
     :namespace
     :sortable
   >
-    <Tooltip.Root v-if="tooltip">
+    <!-- Below the name, flipping above near the bottom edge: QuTooltip's placement (tooltips page). -->
+    <Tooltip.Root
+      v-if="tooltip"
+      position-area="bottom"
+      position-try="flip-block"
+    >
+      <!-- Renderless, so the anchor styles have to be bound by hand; `as` keeps button-only attrs off the plain label. -->
       <Tooltip.Activator
-        v-slot="{ attrs }"
+        v-slot="{ attrs, styles }"
+        :as="isSortable ? 'button' : 'span'"
         renderless
       >
         <Button.Root
           v-if="isSortable"
           v-bind="attrs"
           class="quantum-data-table__sort"
+          :style="styles"
           @click="toggle"
         >
           <QuRipple />
@@ -81,6 +89,7 @@
           v-else
           v-bind="attrs"
           class="quantum-data-table__label"
+          :style="styles"
           tabindex="0"
         >
           <slot />
@@ -88,7 +97,7 @@
       </Tooltip.Activator>
 
       <Tooltip.Content class="quantum-data-table__tooltip">
-        {{ tooltip }}
+        <span class="quantum-data-table__tile">{{ tooltip }}</span>
       </Tooltip.Content>
     </Tooltip.Root>
 
@@ -213,13 +222,27 @@
    * The column definition tooltip, the tooltips page's values: desktop tile
    * 22 dp with 8 dp side padding in Medium 10 sp, 14 dp below the name;
    * touch tile 32 dp, 16 dp, Medium 14 sp, 24 dp below. Grey 700 at 90%, white ink.
+   *
+   * The popover is a transparent frame whose block padding is the gap, as in
+   * QuTooltip: v0's positioning writes `margin: unset` inline, which rules out
+   * a margin, and symmetric padding keeps the gap after a flip above. No
+   * `display` of its own, so the UA's `display: none` still hides it closed.
    */
   .quantum-data-table__tooltip {
     box-sizing: border-box;
-    height: 32px;
-    margin: var(--quantum-spacing-3, 24px) 0 0;
-    padding: 0 var(--quantum-spacing-2, 16px);
+    margin: 0;
+    padding: var(--quantum-spacing-3, 24px) 0;
     border: 0;
+    background: transparent;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .quantum-data-table__tile {
+    display: block;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0 var(--quantum-spacing-2, 16px);
     border-radius: var(--quantum-radius, 2px);
     background: var(--quantum-tooltip, rgba(97, 97, 97, 0.9));
     font-family: var(--quantum-font-family, Roboto, Noto, sans-serif);
@@ -228,13 +251,15 @@
     line-height: 32px;
     white-space: nowrap;
     color: var(--quantum-tooltip-text, #FFFFFF);
-    overflow: visible;
   }
 
   @media (pointer: fine) {
     .quantum-data-table__tooltip {
+      padding: 14px 0;
+    }
+
+    .quantum-data-table__tile {
       height: 22px;
-      margin-top: 14px;
       padding: 0 var(--quantum-spacing-1, 8px);
       font-size: 10px;
       line-height: 22px;

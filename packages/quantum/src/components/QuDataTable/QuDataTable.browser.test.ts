@@ -501,6 +501,27 @@ describe('quDataTable', () => {
       expect(document.activeElement).toBe(sort)
       await expect.poll(() => tooltip.matches(':popover-open')).toBe(true)
     })
+
+    // The activator is renderless, so the anchor-name style has to be bound by
+    // hand; unbound, the open tooltip sat at the viewport's top left corner.
+    it('should anchor the column tooltip under its column name', async () => {
+      const host = table()
+      await settle()
+
+      const sort = columns(host)[1]!.querySelector<HTMLButtonElement>('button')!
+      const tooltip = host.querySelector<HTMLElement>('.quantum-data-table__tooltip')!
+
+      expect(sort.style.getPropertyValue('anchor-name')).not.toBe('')
+
+      sort.focus()
+      await expect.poll(() => tooltip.matches(':popover-open')).toBe(true)
+
+      const anchor = sort.getBoundingClientRect()
+      const tile = tooltip.querySelector<HTMLElement>('.quantum-data-table__tile')!.getBoundingClientRect()
+
+      expect(tile.top).toBeGreaterThanOrEqual(anchor.bottom)
+      expect(Math.abs((tile.left + tile.right) / 2 - (anchor.left + anchor.right) / 2)).toBeLessThan(1)
+    })
   })
 
   describe('selection', () => {
