@@ -71,11 +71,13 @@
     background: var(--md1-background, #FAFAFA);
   }
 
+  /* The content beside the drawer; on a frame too narrow for both it clips under the drawer's edge. */
   .md1-docs-offline-column {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
     min-width: 0;
+    overflow: hidden;
   }
 
   .md1-docs-offline-text {

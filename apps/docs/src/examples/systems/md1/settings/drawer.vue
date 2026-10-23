@@ -57,9 +57,11 @@
     background: var(--md1-background, #FAFAFA);
   }
 
+  /* The content beside the drawer; on a frame too narrow for both it clips under the drawer's edge. */
   .md1-docs-settings-text {
     flex: 1 1 auto;
     min-width: 0;
+    overflow: hidden;
     margin: 0;
     padding: var(--md1-spacing-2, 16px);
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
