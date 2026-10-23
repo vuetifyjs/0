@@ -25,7 +25,7 @@ related:
 The Material Design 1 divider. A 1 dp rule in the 12% divider ink, full bleed between distinct sections or inset to the content keyline beside the avatars and icons of related content.
 
 > [!NOTE]
-> Reference: [Dividers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dividers.html), the archived page Material Design 1 is pinned to. Types, placement and the 12% ink. This page is the Vue.
+> Reference: [Dividers, Material Design 1 guidelines](https://m1.material.io/components/dividers.html), the archived page Material Design 1 is pinned to. Types, placement and the 12% ink. This page is the Vue.
 
 ## Usage
 

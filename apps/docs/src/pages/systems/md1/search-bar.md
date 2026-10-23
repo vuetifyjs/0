@@ -26,7 +26,7 @@ related:
 The persistent search of Material Design 1. A raised inset box that is always on screen, with recent queries on focus, completions as the user types, and results laid out as cards below it.
 
 > [!NOTE]
-> Reference: [Search, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/search.html), the archived pattern page Material Design 1 is pinned to, with the solo field of [Text fields](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
+> Reference: [Search, Material Design 1 guidelines](https://m1.material.io/patterns/search.html), the archived pattern page Material Design 1 is pinned to, with the solo field of [Text fields](https://m1.material.io/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
 
 ## Usage
 

@@ -26,7 +26,7 @@ related:
 The Material Design 1 slider. Pick a value from a range by moving the thumb, continuously or snapped to evenly spaced ticks, with optional intensity icons and an editable numeric value.
 
 > [!NOTE]
-> Reference: [Sliders, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/sliders.html), the archived page Material Design 1 is pinned to. Usage, colour and the measured spec sheets. This page is the Vue.
+> Reference: [Sliders, Material Design 1 guidelines](https://m1.material.io/components/sliders.html), the archived page Material Design 1 is pinned to. Usage, colour and the measured spec sheets. This page is the Vue.
 
 ## Usage
 

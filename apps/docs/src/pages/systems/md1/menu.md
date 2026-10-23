@@ -26,7 +26,7 @@ related:
 The Material Design 1 menu: a temporary sheet of choices that opens from a button and closes once one is chosen. It comes in handset, dense and desktop metrics, with check items, grouped sections and cascading sub menus.
 
 > [!NOTE]
-> Reference: [Menus, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/menus.html), the archived page Material Design 1 is pinned to. Metrics, widths, elevation, states and behavior. This page is the Vue.
+> Reference: [Menus, Material Design 1 guidelines](https://m1.material.io/components/menus.html), the archived page Material Design 1 is pinned to. Metrics, widths, elevation, states and behavior. This page is the Vue.
 
 ## Usage
 

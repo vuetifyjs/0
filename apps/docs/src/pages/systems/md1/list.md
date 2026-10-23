@@ -27,7 +27,7 @@ related:
 The Material Design 1 list. One continuous column of one-, two- and three-line tiles, with an avatar or icon at the edge, text on the content keyline, a secondary action at the end, dense metrics for desktop, expandable groups, and the selection pattern's selected state.
 
 > [!NOTE]
-> Reference: [Lists](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists.html) and [Lists: controls](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/lists-controls.html), Material Design 1 guidelines, the archived pages Material Design 1 is pinned to. Tile types, metrics, keylines, controls and the expand pattern. The selected state follows the [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html) pattern. This page is the Vue.
+> Reference: [Lists](https://m1.material.io/components/lists.html) and [Lists: controls](https://m1.material.io/components/lists-controls.html), Material Design 1 guidelines, the archived pages Material Design 1 is pinned to. Tile types, metrics, keylines, controls and the expand pattern. The selected state follows the [Selection](https://m1.material.io/patterns/selection.html) pattern. This page is the Vue.
 
 ## Usage
 

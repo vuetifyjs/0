@@ -26,7 +26,7 @@ related:
 The Material Design 1 system icon: ask for a role, such as `menu` or `search`, and get the filled Material Icons glyph on the 24 dp grid. Every Material Design 1 component that draws a mark draws it through this one.
 
 > [!NOTE]
-> Reference: [Icons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html), the archived page Material Design 1 is pinned to, with [Bidirectionality](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/usability/bidirectionality.html) for the RTL rules. Grid, sizes, ink and mirroring. This page is the Vue.
+> Reference: [Icons, Material Design 1 guidelines](https://m1.material.io/style/icons.html), the archived page Material Design 1 is pinned to, with [Bidirectionality](https://m1.material.io/usability/bidirectionality.html) for the RTL rules. Grid, sizes, ink and mirroring. This page is the Vue.
 
 ## Usage
 

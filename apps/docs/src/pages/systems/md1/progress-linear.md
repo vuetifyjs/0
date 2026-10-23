@@ -26,7 +26,7 @@ related:
 The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a header or sheet that appears while content loads and disappears when it is done.
 
 > [!NOTE]
-> Reference: [Progress and activity, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/progress-activity.html), the archived page Material Design 1 is pinned to. Types, placement and behavior. This page is the Vue.
+> Reference: [Progress and activity, Material Design 1 guidelines](https://m1.material.io/components/progress-activity.html), the archived page Material Design 1 is pinned to. Types, placement and behavior. This page is the Vue.
 
 ## Usage
 

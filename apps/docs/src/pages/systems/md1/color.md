@@ -25,7 +25,7 @@ related:
 The Material Design 1 color system: a 256-swatch palette, a primary and an accent hue picked from it, and black or white ink at fixed opacities over light and dark surfaces.
 
 > [!NOTE]
-> Reference: [Color, Material Design 1 guidelines](http://web.archive.org/web/20181225002149/https://material.io/archive/guidelines/style/color.html), the archived page Material Design 1 is pinned to, with the [2016 capture](http://web.archive.org/web/20160604084405/http://www.google.com/design/spec/style/color.html) for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
+> Reference: [Color, Material Design 1 guidelines](https://m1.material.io/style/color.html), the archived page Material Design 1 is pinned to, with the 2016 revision of the color page for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
 
 ## Usage
 
@@ -169,7 +169,7 @@ The guidelines suggest the 500 shades as primary colors and the other shades as 
 
 ### Contested ink
 
-Two captures of the color page disagree about the ink on six swatches. The 2016 capture, carrying the original 2014 wording, prints white text on Pink 300, Blue 500, Light Blue 600, Light Green 700, Orange 800 and Deep Orange 500; the 2018 archive prints black. Material Design 1 pins the 2018 page, so `md1PaletteInk` returns `#000000` for all six, and a theme derived from Blue or Deep Orange puts black ink on its primary.
+Two revisions of the color page disagree about the ink on six swatches. The 2016 revision, carrying the original 2014 wording, prints white text on Pink 300, Blue 500, Light Blue 600, Light Green 700, Orange 800 and Deep Orange 500; the archived page prints black. Material Design 1 pins the archived page, so `md1PaletteInk` returns `#000000` for all six, and a theme derived from Blue or Deep Orange puts black ink on its primary.
 
 Each tile shows both readings side by side. If your brand follows the older page, override `on-primary` (or `on-accent`) for that theme; the role is a single token and nothing else derives from it.
 :::

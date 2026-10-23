@@ -30,7 +30,7 @@ related:
 The Material Design 1 navigation drawer. The sheet along the start edge that holds an app's destinations: temporary over a scrim on a handset, persistent beside the content on a tablet, permanent on a desktop.
 
 > [!NOTE]
-> Reference: [Navigation drawer, Material Design 1 guidelines](http://web.archive.org/web/20181225002300/https://material.io/archive/guidelines/patterns/navigation-drawer.html), the archived page Material Design 1 is pinned to. Types, widths, keylines, the account header, elevation and ordering. This page is the Vue.
+> Reference: [Navigation drawer, Material Design 1 guidelines](https://m1.material.io/patterns/navigation-drawer.html), the archived page Material Design 1 is pinned to. Types, widths, keylines, the account header, elevation and ordering. This page is the Vue.
 
 ## Usage
 

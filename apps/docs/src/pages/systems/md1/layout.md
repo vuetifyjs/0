@@ -25,7 +25,7 @@ related:
 Material Design 1 lays every surface on an 8 dp grid, aligns content to two keylines, and sizes bars and panels in increments, with one switch at 600 px between handset and tablet metrics.
 
 > [!NOTE]
-> Reference: [Metrics and keylines, Material Design 1 guidelines](http://web.archive.org/web/20181225002221/https://material.io/archive/guidelines/layout/metrics-keylines.html), the archived page Material Design 1 is pinned to, with [Units and measurements](https://web.archive.org/web/20210308145521/https://material.io/archive/guidelines/layout/units-measurements.html) and [Responsive UI](http://web.archive.org/web/20181225002227/https://material.io/archive/guidelines/layout/responsive-ui.html). This page is the Vue.
+> Reference: [Metrics and keylines, Material Design 1 guidelines](https://m1.material.io/layout/metrics-keylines.html), the archived page Material Design 1 is pinned to, with [Units and measurements](https://m1.material.io/layout/units-measurements.html) and [Responsive UI](https://m1.material.io/layout/responsive-ui.html). This page is the Vue.
 
 ## Usage
 

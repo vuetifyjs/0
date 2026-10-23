@@ -27,7 +27,7 @@ related:
 The Material Design 1 chip: a small block that stands for an entity, such as a filter, a rule or a contact. Chips can carry an icon or a photo, can be deleted, and the contact chip opens to show the contact's other addresses.
 
 > [!NOTE]
-> Reference: [Chips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/chips.html), the archived page Material Design 1 is pinned to. Metrics, contact chips, deletion and behavior. This page is the Vue.
+> Reference: [Chips, Material Design 1 guidelines](https://m1.material.io/components/chips.html), the archived page Material Design 1 is pinned to. Metrics, contact chips, deletion and behavior. This page is the Vue.
 
 ## Usage
 

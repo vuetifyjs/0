@@ -26,7 +26,7 @@ related:
 The Material Design 1 tooltip: a short text label that identifies a control when the pointer rests on it, when it takes keyboard focus, or when a finger presses and holds it.
 
 > [!NOTE]
-> Reference: [Tooltips, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/tooltips.html), the archived page Material Design 1 is pinned to. Metrics, colour, motion and the touch behavior. This page is the Vue.
+> Reference: [Tooltips, Material Design 1 guidelines](https://m1.material.io/components/tooltips.html), the archived page Material Design 1 is pinned to. Metrics, colour, motion and the touch behavior. This page is the Vue.
 
 ## Usage
 

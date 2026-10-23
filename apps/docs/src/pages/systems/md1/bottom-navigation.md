@@ -28,7 +28,7 @@ related:
 The Material Design 1 bottom navigation bar. Three to five top-level destinations in a 56 dp bar along the bottom of the screen, fixed or shifting, that one tap switches between.
 
 > [!NOTE]
-> Reference: [Bottom navigation, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/bottom-navigation.html), the archived page Material Design 1 is pinned to. Types, metrics, colour, elevation and behavior. This page is the Vue.
+> Reference: [Bottom navigation, Material Design 1 guidelines](https://m1.material.io/components/bottom-navigation.html), the archived page Material Design 1 is pinned to. Types, metrics, colour, elevation and behavior. This page is the Vue.
 
 ## Usage
 

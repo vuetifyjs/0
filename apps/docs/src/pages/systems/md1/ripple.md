@@ -27,7 +27,7 @@ related:
 The ink reaction Material Design 1 draws on every press. It spreads from the point of contact in the pressed overlay colour and fades when the press ends.
 
 > [!NOTE]
-> Reference: [Material motion, Material Design 1 guidelines](https://web.archive.org/web/20181225002146/https://material.io/archive/guidelines/motion/material-motion.html) for the responsive principle, [Choreography](https://web.archive.org/web/20210805004105/https://material.io/archive/guidelines/motion/choreography.html) for the radial reaction, and [Buttons](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html) for the pressed overlay, all from the archived pages Material Design 1 is pinned to. This page is the Vue.
+> Reference: [Material motion, Material Design 1 guidelines](https://m1.material.io/motion/material-motion.html) for the responsive principle, [Choreography](https://m1.material.io/motion/choreography.html) for the radial reaction, and [Buttons](https://m1.material.io/components/buttons.html) for the pressed overlay, all from the archived pages Material Design 1 is pinned to. This page is the Vue.
 
 ## Usage
 

@@ -27,7 +27,7 @@ related:
 Selection lets the reader pick items and then act on them together, or highlight a run of text. Material Design 1 draws the selected state on lists, grid lists, cards and table rows, and turns the app bar into a contextual action bar while anything is selected.
 
 > [!NOTE]
-> Reference: [Selection, Material Design 1 guidelines](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html), the archived page Material Design 1 is pinned to, with the [Navigation](http://web.archive.org/web/20181225002243/https://material.io/archive/guidelines/patterns/navigation.html) page for the Back rule and [Gestures](http://web.archive.org/web/20181225002235/https://material.io/archive/guidelines/patterns/gestures.html) for the selection gestures. Item selection, text selection and the contextual toolbar. This page is the Vue.
+> Reference: [Selection, Material Design 1 guidelines](https://m1.material.io/patterns/selection.html), the archived page Material Design 1 is pinned to, with the [Navigation](https://m1.material.io/patterns/navigation.html) page for the Back rule and [Gestures](https://m1.material.io/patterns/gestures.html) for the selection gestures. Item selection, text selection and the contextual toolbar. This page is the Vue.
 
 ## Usage
 

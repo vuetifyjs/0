@@ -27,7 +27,7 @@ related:
 The Material Design 1 text field. A label that floats above the input, a line that takes the accent colour on focus, and helper, error and counter text beneath it.
 
 > [!NOTE]
-> Reference: [Text fields, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html), the archived page Material Design 1 is pinned to. Anatomy, metrics, the light and dark state tables, and the formatted inputs. This page is the Vue.
+> Reference: [Text fields, Material Design 1 guidelines](https://m1.material.io/components/text-fields.html), the archived page Material Design 1 is pinned to. Anatomy, metrics, the light and dark state tables, and the formatted inputs. This page is the Vue.
 
 ## Usage
 

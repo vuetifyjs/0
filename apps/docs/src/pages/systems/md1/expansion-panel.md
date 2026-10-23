@@ -26,7 +26,7 @@ related:
 The Material Design 1 expansion panel. A stack of 48 dp summary rows on one card; selecting a row opens it into a 64 dp header and a body for editing, lifted off the card so the open panel reads as the sheet being worked on.
 
 > [!NOTE]
-> Reference: [Expansion panels, Material Design 1 guidelines](http://web.archive.org/web/20181225002242/https://material.io/archive/guidelines/components/expansion-panels.html), the archived page Material Design 1 is pinned to. Metrics, type, colour and the redline of the expanded panel. This page is the Vue.
+> Reference: [Expansion panels, Material Design 1 guidelines](https://m1.material.io/components/expansion-panels.html), the archived page Material Design 1 is pinned to. Metrics, type, colour and the redline of the expanded panel. This page is the Vue.
 
 ## Usage
 

@@ -26,7 +26,7 @@ related:
 The Material Design 1 dialog. A 24 dp sheet that interrupts with a decision: an alert, a list that commits on a tap, a choice that waits for OK, or a full-screen task on a handset.
 
 > [!NOTE]
-> Reference: [Dialogs, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/dialogs.html), the archived page Material Design 1 is pinned to. Types, metrics, actions, scrolling and dismissal. This page is the Vue.
+> Reference: [Dialogs, Material Design 1 guidelines](https://m1.material.io/components/dialogs.html), the archived page Material Design 1 is pinned to. Types, metrics, actions, scrolling and dismissal. This page is the Vue.
 
 ## Usage
 

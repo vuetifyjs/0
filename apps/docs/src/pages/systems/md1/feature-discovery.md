@@ -26,7 +26,7 @@ related:
 The Material Design 1 feature discovery prompt. A large circle in the app's colour draws attention to one action, with a short title and a line of text that say what it does for the user.
 
 > [!NOTE]
-> Reference: [Feature discovery, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/growth-communications/feature-discovery.html), the archived page Material Design 1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
+> Reference: [Feature discovery, Material Design 1 guidelines](https://m1.material.io/growth-communications/feature-discovery.html), the archived page Material Design 1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
 
 ## Usage
 

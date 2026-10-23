@@ -27,7 +27,7 @@ related:
 Keep an app useful without a connection: show what is available, say what is not, and let people save content for later.
 
 > [!NOTE]
-> Reference: [Offline states, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/offline-states.html), the archived page Material Design 1 is pinned to. Principles, states and settings, icons and the download interaction. This page is the Vue.
+> Reference: [Offline states, Material Design 1 guidelines](https://m1.material.io/patterns/offline-states.html), the archived page Material Design 1 is pinned to. Principles, states and settings, icons and the download interaction. This page is the Vue.
 
 ## Usage
 

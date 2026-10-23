@@ -27,7 +27,7 @@ related:
 The Material Design 1 card. A sheet of material that is the entry point to more detail, assembled from the content blocks the guidelines define: a header, rich media, a primary title, supporting text, actions and an expandable region.
 
 > [!NOTE]
-> Reference: [Cards, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/cards.html), the archived page Material Design 1 is pinned to. Content blocks, metrics, elevation and behavior. This page is the Vue.
+> Reference: [Cards, Material Design 1 guidelines](https://m1.material.io/components/cards.html), the archived page Material Design 1 is pinned to. Content blocks, metrics, elevation and behavior. This page is the Vue.
 
 ## Usage
 

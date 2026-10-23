@@ -26,7 +26,7 @@ related:
 The Material Design 1 radio button. It selects exactly one option from a set that the user needs to see side by side.
 
 > [!NOTE]
-> Reference: [Selection controls, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
+> Reference: [Selection controls, Material Design 1 guidelines](https://m1.material.io/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
 
 ## Usage
 

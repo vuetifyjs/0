@@ -27,7 +27,7 @@ related:
 How a Material Design 1 app reports what went wrong: next to the field that caused it, in a dialog when work cannot continue, or in a snackbar when it can.
 
 > [!NOTE]
-> Reference: [Errors, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/errors.html), the archived page Material Design 1 is pinned to. Error types, form rules, text metrics and app errors. This page is the Vue.
+> Reference: [Errors, Material Design 1 guidelines](https://m1.material.io/patterns/errors.html), the archived page Material Design 1 is pinned to. Error types, form rules, text metrics and app errors. This page is the Vue.
 
 ## Usage
 

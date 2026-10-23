@@ -27,7 +27,7 @@ related:
 Where people find answers inside a Material Design 1 app, and how they send comments, bug reports and questions the answers do not cover.
 
 > [!NOTE]
-> Reference: [Help and feedback, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/help-feedback.html), the archived page Material Design 1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
+> Reference: [Help and feedback, Material Design 1 guidelines](https://m1.material.io/patterns/help-feedback.html), the archived page Material Design 1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
 
 ## Usage
 

@@ -29,7 +29,7 @@ related:
 The Material Design 1 stepper. Progress through a sequence of numbered steps, on a horizontal bar or stacked down the page, with the bottom-bar forms for mobile.
 
 > [!NOTE]
-> Reference: [Steppers, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/steppers.html), the archived page Material Design 1 is pinned to. Metrics, colour, states and the mobile forms. This page is the Vue.
+> Reference: [Steppers, Material Design 1 guidelines](https://m1.material.io/components/steppers.html), the archived page Material Design 1 is pinned to. Metrics, colour, states and the mobile forms. This page is the Vue.
 
 ## Usage
 

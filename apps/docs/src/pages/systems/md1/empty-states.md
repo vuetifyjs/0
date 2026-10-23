@@ -27,7 +27,7 @@ related:
 An empty state is what a screen shows when its content cannot be shown: a list with no items, a search with no results. Material Design 1 has no empty state component; the screen is an `Md1Icon` and a line of type, or one of the alternatives the guidelines prefer, built from `Md1Card`, `Md1List` and `Md1Button`.
 
 > [!NOTE]
-> Reference: [Empty states, Material Design 1 guidelines](http://web.archive.org/web/20181225002248/https://material.io/archive/guidelines/patterns/empty-states.html), the archived page Material Design 1 is pinned to. Image, tagline, and the three alternatives to a truly empty screen. This page is the Vue.
+> Reference: [Empty states, Material Design 1 guidelines](https://m1.material.io/patterns/empty-states.html), the archived page Material Design 1 is pinned to. Image, tagline, and the three alternatives to a truly empty screen. This page is the Vue.
 
 ## Usage
 

@@ -25,7 +25,7 @@ related:
 Material Design 1 moves on four easing curves and four durations, scaled for the device, so every surface that enters, leaves or transforms does it at the same speed and in the same way.
 
 > [!NOTE]
-> Reference: [Duration and easing, Material Design 1 guidelines](http://web.archive.org/web/20181225002212/https://material.io/archive/guidelines/motion/duration-easing.html), the archived page Material Design 1 is pinned to, with [Movement](http://web.archive.org/web/20181225002141/https://material.io/archive/guidelines/motion/movement.html) and [Choreography](https://web.archive.org/web/20210805004105/https://material.io/archive/guidelines/motion/choreography.html). This page is the Vue.
+> Reference: [Duration and easing, Material Design 1 guidelines](https://m1.material.io/motion/duration-easing.html), the archived page Material Design 1 is pinned to, with [Movement](https://m1.material.io/motion/movement.html) and [Choreography](https://m1.material.io/motion/choreography.html). This page is the Vue.
 
 ## Usage
 

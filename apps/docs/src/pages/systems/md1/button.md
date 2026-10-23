@@ -26,7 +26,7 @@ related:
 The Material Design 1 button. Flat ink or a raised sheet, in the standard, dense and persistent footer forms, with an optional glyph ahead of the label.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to. Metrics, states, colour and placement. This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to. Metrics, states, colour and placement. This page is the Vue.
 
 ## Usage
 

@@ -29,7 +29,7 @@ related:
 The Material Design 1 toolbar and app bar. A sheet one step above the content it acts on, with the navigation control, the title and the action icons in one row, and an extension for tabs, a large title or an image.
 
 > [!NOTE]
-> Reference: [Toolbars, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/toolbars.html), the archived page Material Design 1 is pinned to, read with [Layout structure](http://web.archive.org/web/20181225002252/https://material.io/archive/guidelines/layout/structure.html) for the app bar metrics, [Scrolling techniques](http://web.archive.org/web/20181225002145/https://material.io/archive/guidelines/patterns/scrolling-techniques.html), [Search](http://web.archive.org/web/20210805023955/https://material.io/archive/guidelines/patterns/search.html) and [Selection](http://web.archive.org/web/20181225002148/https://material.io/archive/guidelines/patterns/selection.html). This page is the Vue.
+> Reference: [Toolbars, Material Design 1 guidelines](https://m1.material.io/components/toolbars.html), the archived page Material Design 1 is pinned to, read with [Layout structure](https://m1.material.io/layout/structure.html) for the app bar metrics, [Scrolling techniques](https://m1.material.io/patterns/scrolling-techniques.html), [Search](https://m1.material.io/patterns/search.html) and [Selection](https://m1.material.io/patterns/selection.html). This page is the Vue.
 
 ## Usage
 

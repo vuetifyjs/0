@@ -27,7 +27,7 @@ related:
 The Material Design 1 icon toggle. One choice, selected or deselected, drawn as a glyph in a 48 dp touch target: the star on a message, the bookmark on an article.
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/buttons.html), the archived page Material Design 1 is pinned to (the icon toggles section). Icon opacities come from the [icons page](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/icons.html). This page is the Vue.
+> Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to (the icon toggles section). Icon opacities come from the [icons page](https://m1.material.io/style/icons.html). This page is the Vue.
 
 ## Usage
 

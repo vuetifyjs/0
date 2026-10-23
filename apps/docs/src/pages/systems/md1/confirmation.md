@@ -26,7 +26,7 @@ related:
 Ask before an action the user may regret, and say so after an action the app took on its own, with a way back when there is one.
 
 > [!NOTE]
-> Reference: [Confirmation and acknowledgement, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/confirmation-acknowledgement.html), the archived page Material Design 1 is pinned to. When to confirm, when to acknowledge, and how long each stays. This page is the Vue.
+> Reference: [Confirmation and acknowledgement, Material Design 1 guidelines](https://m1.material.io/patterns/confirmation-acknowledgement.html), the archived page Material Design 1 is pinned to. When to confirm, when to acknowledge, and how long each stays. This page is the Vue.
 
 ## Usage
 

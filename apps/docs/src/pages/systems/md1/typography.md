@@ -24,7 +24,7 @@ related:
 The Material Design 1 type scale: thirteen named styles set in Roboto and Noto, from Display 4 at 112 sp down to the 12 sp Caption, with desktop sizes and rules for dense and tall scripts.
 
 > [!NOTE]
-> Reference: [Typography, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/style/typography.html), the archived page Material Design 1 is pinned to. Typeface, scale, leading, tracking, language categories and text opacity. This page is the Vue.
+> Reference: [Typography, Material Design 1 guidelines](https://m1.material.io/style/typography.html), the archived page Material Design 1 is pinned to. Typeface, scale, leading, tracking, language categories and text opacity. This page is the Vue.
 
 ## Usage
 
