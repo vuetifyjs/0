@@ -65,10 +65,14 @@
 </template>
 
 <style>
+  /* The panel centres its child at max-content; the cap keeps the nowrap samples from pushing it past a phone's width. */
   .md1-docs-scale {
     display: flex;
     flex-direction: column;
     gap: var(--md1-spacing-3, 24px);
+    min-width: 0;
+    /* The panel centres its child at fit-content, which min-width cannot lower; the cap holds the column to the panel. */
+    max-width: 100%;
   }
 
   /* Single-line styles stay on one line (the typography page); the narrowest screens clip the largest. */
