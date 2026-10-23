@@ -369,8 +369,9 @@
   /*
    * The field: the text at the table's 13 sp over the text-fields page's
    * line, 1 dp at 42% black (70% white) rising to 2 dp in the accent on focus.
-   * No token carries that pair; the hover overlay (6% black, 10% white) is a
-   * seventh of it in both themes, so the line derives from it (as Md1TextField).
+   * No token carries that pair; the line derives it from the primary text
+   * channel (0 for black, 255 for white), as Md1TextField does. Scaling the
+   * hover token by 7 drifted to 41% / 71%: the 8-digit hex rounds 10% white.
    */
   .md1-data-table__control {
     box-sizing: border-box;
@@ -382,7 +383,7 @@
     border-radius: 0;
     outline: 0;
     background: transparent;
-    box-shadow: inset 0 -1px 0 rgb(from var(--md1-hover, rgba(0, 0, 0, 0.06)) r g b / calc(alpha * 7));
+    box-shadow: inset 0 -1px 0 rgb(from var(--md1-text-primary, rgba(0, 0, 0, 0.87)) r g b / calc(0.42 + 0.28 * r / 255));
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: 13px;
     line-height: 20px;

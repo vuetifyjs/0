@@ -485,7 +485,7 @@
   /* The editable value: a 24 dp underlined field, right-aligned, accent line while focused or pressed. */
   .md1-slider__field {
     flex: 0 0 auto;
-    border-bottom: 1px solid rgb(from var(--md1-hover, rgba(0, 0, 0, 0.06)) r g b / calc(alpha * 7));
+    border-bottom: 1px solid rgb(from var(--md1-text-primary, rgba(0, 0, 0, 0.87)) r g b / calc(0.42 + 0.28 * r / 255));
     transition:
       border-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       box-shadow var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
