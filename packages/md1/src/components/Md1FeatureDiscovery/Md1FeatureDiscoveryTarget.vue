@@ -70,12 +70,17 @@
     animation: md1-feature-discovery-pulse 2s var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) infinite;
   }
 
-  /* A flat icon button on the light disc takes the prompt colour, so the glyph reads on white. */
-  .md1-feature-discovery__action[data-active] .md1-button[data-variant='flat'] {
+  /*
+   * A flat icon button on the light disc takes the prompt colour, so the glyph
+   * reads on white. The data-color attribute lifts the rule over the app bar's
+   * icon inks (Md1Toolbar), which would otherwise paint 54% black or, on a
+   * coloured bar, white on the white disc.
+   */
+  .md1-feature-discovery__action[data-active][data-color] .md1-button[data-variant='flat']:not([data-disabled]) {
     color: var(--md1-primary, #3F51B5);
   }
 
-  .md1-feature-discovery__action[data-active][data-color='accent'] .md1-button[data-variant='flat'] {
+  .md1-feature-discovery__action[data-active][data-color='accent'] .md1-button[data-variant='flat']:not([data-disabled]) {
     color: var(--md1-accent, #FF4081);
   }
 

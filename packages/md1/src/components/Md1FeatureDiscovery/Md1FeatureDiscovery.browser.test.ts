@@ -18,6 +18,7 @@ import { Md1StyleSheetAdapter } from '../../adapter'
 import { md1Colors, md1DarkColors } from '../../colors'
 // Components
 import { Md1Button } from '../Md1Button'
+import { Md1Toolbar } from '../Md1Toolbar'
 
 const teardowns: (() => void)[] = []
 
@@ -805,6 +806,26 @@ describe('quFeatureDiscovery', () => {
       await ready()
 
       expect(getComputedStyle(document.querySelector('#action')!).color).toBe('rgb(255, 64, 129)')
+    })
+
+    it('should ink the glyph in the prompt colour over an app bar\'s icon inks', async () => {
+      for (const variant of ['surface', 'primary'] as const) {
+        mount(() => h(Md1Toolbar, { variant }, () => [
+          h(Md1Toolbar.Title, null, () => 'Inbox'),
+          h(Md1Toolbar.Actions, null, () => [
+            h(Md1FeatureDiscovery, { modelValue: true }, () => [
+              h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search', id: 'action' })),
+              h(Md1FeatureDiscovery.Title, null, () => 'Title'),
+              h(Md1FeatureDiscovery.Text, null, () => 'Text'),
+            ]),
+          ]),
+        ]))
+        await ready()
+
+        // Not the bar's 54% black, and not white on the white disc (polled past the button's colour transition).
+        await expect.poll(() => getComputedStyle(document.querySelector('#action')!).color).toBe('rgb(63, 81, 181)')
+        teardowns.pop()!()
+      }
     })
   })
 
