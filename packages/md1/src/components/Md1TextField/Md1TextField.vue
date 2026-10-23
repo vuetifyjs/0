@@ -773,16 +773,18 @@
   }
 
   /*
-   * The input line: 1 dp at 42% black, 70% white. No token carries that pair;
-   * the hover overlay (6% black, 10% white) is exactly a seventh of it in both
-   * themes, so the line derives from it rather than hard-coding one theme.
+   * The input line: 1 dp at 42% black, 70% white. No token carries that pair,
+   * so the line takes the primary ink's channels (black or white) and maps the
+   * red channel onto the alpha: 0 gives 42%, 255 gives 70%. Scaling the hover
+   * token by 7 drifted to 41% / 71%, because the 8-digit hex rounds 10% white
+   * to 26/255.
    */
   .md1-text-field__line {
     position: absolute;
     inset-inline: 0;
     bottom: 0;
     height: 1px;
-    background: rgb(from var(--md1-hover, rgba(0, 0, 0, 0.06)) r g b / calc(alpha * 7));
+    background: rgb(from var(--md1-text-primary, rgba(0, 0, 0, 0.87)) r g b / calc(0.42 + 0.28 * r / 255));
     pointer-events: none;
     transition:
       height var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
@@ -828,7 +830,7 @@
   /* Disabled: a 1 dp dotted line, label and text at the disabled opacity. */
   .md1-text-field[data-disabled] .md1-text-field__line {
     height: 0;
-    border-top: 1px dotted rgb(from var(--md1-hover, rgba(0, 0, 0, 0.06)) r g b / calc(alpha * 7));
+    border-top: 1px dotted rgb(from var(--md1-text-primary, rgba(0, 0, 0, 0.87)) r g b / calc(0.42 + 0.28 * r / 255));
     background: none;
   }
 
@@ -1168,7 +1170,7 @@
     height: 118px;
     padding: var(--md1-spacing-1, 8px);
     overflow-y: auto;
-    border: 1px solid rgb(from var(--md1-hover, rgba(0, 0, 0, 0.06)) r g b / calc(alpha * 7));
+    border: 1px solid rgb(from var(--md1-text-primary, rgba(0, 0, 0, 0.87)) r g b / calc(0.42 + 0.28 * r / 255));
     border-radius: var(--md1-radius, 2px);
   }
 

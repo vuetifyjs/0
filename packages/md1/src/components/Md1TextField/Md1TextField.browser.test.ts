@@ -952,6 +952,9 @@ describe('quTextField', () => {
 
       near(getComputedStyle(light!.querySelector('.md1-text-field__line')!).backgroundColor, [0, 0, 0, 0.42])
       near(getComputedStyle(dark!.querySelector('.md1-text-field__line')!).backgroundColor, [255, 255, 255, 0.7])
+      // The line is exactly 42% / 70%: scaling the hex-rounded hover token by 7 drifted to 41.2% / 71.4%.
+      expect(Math.abs(ink(getComputedStyle(light!.querySelector('.md1-text-field__line')!).backgroundColor)[3]! - 0.42)).toBeLessThan(0.005)
+      expect(Math.abs(ink(getComputedStyle(dark!.querySelector('.md1-text-field__line')!).backgroundColor)[3]! - 0.7)).toBeLessThan(0.005)
       expect(getComputedStyle(dark!.querySelector('.md1-text-field__label')!).color).toBe('rgba(255, 255, 255, 0.7)')
       expect(getComputedStyle(dark!.querySelector('.md1-text-field__input')!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(dark!.querySelector('.md1-text-field__field')!).backgroundColor).toBe('rgba(255, 255, 255, 0.1)')
