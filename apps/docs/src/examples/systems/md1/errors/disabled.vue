@@ -19,7 +19,7 @@
   }
 
   /* The explanation sits centred under the button it explains, so a wrapped line stays with it on a narrow screen. */
-  .md1-docs-errors-caption {
+  .md1-docs-errors-stack > .md1-docs-errors-caption {
     max-width: 360px;
     margin: 0;
     text-align: center;
