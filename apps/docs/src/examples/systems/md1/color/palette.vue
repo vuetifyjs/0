@@ -75,11 +75,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--md1-spacing-2, 16px);
-    overflow-x: auto;
-  }
-
-  .md1-docs-palette-row {
-    min-width: 560px;
+    container-type: inline-size;
   }
 
   .md1-docs-palette-name {
@@ -99,11 +95,20 @@
     grid-template-columns: repeat(14, minmax(0, 1fr));
   }
 
+  /* Under 560 px the fourteen columns fold into two rows of seven: 50 to 600, then 700 to A700. */
+  @container (width < 560px) {
+    .md1-docs-palette-strip {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+
   .md1-docs-palette-swatch {
     display: flex;
     align-items: flex-end;
     height: 48px;
     padding: 4px;
     letter-spacing: 0;
+    /* A 12% hairline keeps a swatch that matches the surface (Grey 50 on white, Grey 800 on the dark card) visible. */
+    box-shadow: inset 0 0 0 1px var(--md1-divider, rgba(0, 0, 0, 0.12));
   }
 </style>
