@@ -19,8 +19,15 @@
 
   export interface QuTabsItemProps extends Pick<
     TabsItemProps,
-    'value' | 'disabled' | 'ariaLabel' | 'namespace'
+    'value' | 'ariaLabel' | 'namespace'
   > {
+    /**
+     * Takes the tab out of use: skipped by the arrow keys, inert to a press,
+     * drawn at the disabled ink. Declared as a plain boolean rather than
+     * v0's `MaybeRefOrGetter<boolean>`, which compiles to an untyped runtime
+     * prop and leaves the bare `disabled` attribute as an empty, falsy string.
+     */
+    disabled?: boolean
     /**
      * A glyph role drawn through `QuIcon`. With a label the tab is the 72 dp
      * icon-and-text form, icon above text; without one it is a 48 dp icon-only

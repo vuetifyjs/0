@@ -435,6 +435,22 @@ describe('quTabs', () => {
       expect(tab.querySelectorAll('.quantum-ripple__ink')).toHaveLength(0)
     })
 
+    it('should disable a tab written as the bare disabled attribute', async () => {
+      // A template's `<QuTabs.Item disabled>` passes an empty string; it must cast to true.
+      const host = mount(() => h(QuTabs, { modelValue: 'songs' }, () => [
+        h(QuTabs.List, {}, () => [
+          h(QuTabs.Item, { label: 'Songs', value: 'songs' }),
+          h(QuTabs.Item as Component, { disabled: '', label: 'Albums', value: 'albums' }),
+        ]),
+      ]))
+      await settle()
+
+      const tab = items(host)[1]!
+
+      expect(tab.disabled).toBe(true)
+      expect(tab.getAttribute('aria-disabled')).toBe('true')
+    })
+
     it('should disable every tab from the root', async () => {
       const host = tabs({ props: { disabled: true } })
       await settle()
