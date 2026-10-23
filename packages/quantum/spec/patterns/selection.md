@@ -1,6 +1,6 @@
 # Selection (pattern)
 
-Pattern page `patterns/selection.html`. Ruling (see `rulings.md`): **item selection** is a selected state (checkmark plus scrim or tint) on `QuList` items, `QuGridList` tiles and `QuCard`, plus a **contextual** mode of `QuToolbar` that replaces the app bar while items are selected; **text selection** is browser-native on the web and yields only a theme `::selection` rule (accent color). The floating text-selection toolbar is out of scope (OS and browser chrome); its metrics are recorded below because the page states them.
+Pattern page `patterns/selection.html`. Ruling (see `rulings.md`): **item selection** is a selected state (checkmark plus scrim or tint) on `QuList` items, `QuGridList` tiles and `QuCard`, plus a **contextual** mode of `QuToolbar` that replaces the app bar while items are selected; **text selection** is browser-native on the web and yields only a theme `::selection` rule (accent color) (not shipped: see SPEC.md, Known limitations, Text selection highlight). The floating text-selection toolbar is out of scope (OS and browser chrome); its metrics are recorded below because the page states them.
 
 ## Sources
 
@@ -128,7 +128,7 @@ Item selection has no numeric values on the page. The text-selection figure carr
 |---|---|
 | Maps 1:1 | Hover-revealed checkbox (desktop rule) is the natural web affordance; tap-to-toggle while in selection mode; check mark replacing the avatar; contextual toolbar replacing the app bar; exit on deselect-all or on action. |
 | Needs interpretation | Long press on the web collides with the browser context menu and text selection; implement it with pointer timers only where the consumer opts in, and treat the desktop hover checkbox as the default. Two-finger touch is not reliably detectable through pointer events. Drag-to-select boxes are a composition, not a component. Scrim opacity and check mark size are not in the spec; the implementer must source them from the lists and grid lists notes or record `not found`. |
-| Text selection | Browser-native. The design system ships one theme rule: `::selection { background: var(--quantum-accent ...) }` with a legible foreground. Handles and the floating Cut/Copy/Paste toolbar are OS chrome; do not build them. |
+| Text selection | Browser-native. The design system ships one theme rule: `::selection { background: var(--quantum-accent ...) }` with a legible foreground (not shipped: see SPEC.md, Known limitations, Text selection highlight). Handles and the floating Cut/Copy/Paste toolbar are OS chrome; do not build them. |
 | Contextual action bar | A `contextual` mode of `QuToolbar`: leading close (X) action, selected count as the title, trailing actions; replaces the standard app bar while `selected.length > 0`; Escape and the close action clear the selection. Host color is not on this page (toolbar note). |
 | WAI-ARIA pattern | Listbox (multi-select) for lists of selectable items, Grid for grid lists, with `aria-selected`; a checkbox per item when the hover-checkbox rendering is used (`aria-checked`). The contextual toolbar follows the Toolbar pattern. |
 | v0 primitives | `createSelection` / `Selection` component for the selected set; `Checkbox` for the hover affordance; `useRovingFocus` for the item set. |
