@@ -462,9 +462,9 @@
   }
 
   /*
-   * The primary 500 reads at under 2:1 on the dark sheet. The navigation
-   * drawer page asks for a lighter or darker tint of the primary when the
-   * colour does not contrast, so the dark theme takes the primary's 100.
+   * The primary 500 reads at under 2:1 on the dark sheet, below the 4.5:1
+   * contrast floor, so the dark theme takes the primary's 100 (Lead
+   * decision 12).
    */
   [data-theme='quantum-dark'] .quantum-list[data-select='none'] .quantum-list__item[data-selected] .quantum-list__primary,
   [data-theme='quantum-dark'] .quantum-list[data-select='none'] .quantum-list__item[data-selected] .quantum-list__icon,
