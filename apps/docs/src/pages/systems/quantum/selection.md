@@ -11,7 +11,7 @@ features:
   level: 2
   renderless: false
   group: 'patterns'
-  order: 9
+  order: 4
 related:
   - /systems/quantum
   - /systems/quantum/list

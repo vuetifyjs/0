@@ -11,7 +11,7 @@ features:
   level: 2
   renderless: false
   group: 'patterns'
-  order: 8
+  order: 9
 related:
   - /systems/quantum
   - /systems/quantum/tabs

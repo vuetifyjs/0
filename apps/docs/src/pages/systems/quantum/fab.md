@@ -11,7 +11,7 @@ features:
   level: 2
   renderless: false
   group: actions
-  order: 2
+  order: 3
 related:
   - /systems/quantum
   - /systems/quantum/button

@@ -11,7 +11,7 @@ features:
   level: 2
   renderless: false
   group: actions
-  order: 5
+  order: 6
 related:
   - /systems/quantum
   - /systems/quantum/icon-toggle
