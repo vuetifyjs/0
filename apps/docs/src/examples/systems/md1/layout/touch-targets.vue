@@ -37,6 +37,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
+    /* The button wraps alone on a phone; it centres under the icon and the avatar. */
+    justify-content: center;
     gap: var(--md1-spacing-3, 24px);
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
