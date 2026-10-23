@@ -61,13 +61,28 @@
   .md1-docs-drawer-screen {
     display: flex;
     background: var(--md1-background, #FAFAFA);
+    container-type: inline-size;
   }
 
+  /*
+   * The frame stands in for the device screen, so a drawer laid out in it
+   * takes the drawer width rule (the screen less one increment, at most five
+   * increments) from the frame, not the viewport, and never spills past its
+   * edge. A temporary drawer opens over the whole page, so it keeps the rule
+   * against the viewport.
+   */
+  .md1-docs-drawer-screen .md1-navigation-drawer:not([data-type='temporary']),
+  .md1-docs-drawer-screen .md1-navigation-drawer:not([data-type='temporary']) .md1-navigation-drawer__sheet {
+    width: min(calc(100cqw - var(--md1-increment, 56px)), calc(5 * var(--md1-increment, 56px)));
+  }
+
+  /* The content beside the drawer; on a frame too narrow for both it clips under the drawer's edge. */
   .md1-docs-drawer-column {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
     min-width: 0;
+    overflow: hidden;
   }
 
   .md1-docs-drawer-text {
