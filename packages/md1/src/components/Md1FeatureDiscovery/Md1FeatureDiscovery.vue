@@ -105,6 +105,8 @@
     offset: number
     /** Horizontal nudge that keeps the text inside the screen, or inside the surface it is limited to. */
     shift: number
+    /** The widest the text may be: the screen, or the surface it is limited to, less its 16 dp margins. */
+    room: number
   }
 
   /** Target circle diameter: the page's own 88 dp edge threshold (decision, low). */
@@ -123,6 +125,8 @@
   const SMALL_WIDTH = 360
   /** Room kept between the text and the background's edge: one step of the 8 dp grid. */
   const PADDING = 8
+  /** The text's margin from the screen, or from the surface it is limited to. */
+  const MARGIN = 16
 
   const [useMd1FeatureDiscovery, provideMd1FeatureDiscovery] = createContext<Md1FeatureDiscoveryContext | null>('md1:feature-discovery', null)
 
@@ -295,8 +299,8 @@
 
       if (box.width > 0 && box.height > 0) {
         const left = box.left - (geometry.value?.shift ?? 0)
-        const min = area.left + 16
-        const max = area.right - 16 - box.width
+        const min = area.left + MARGIN
+        const max = area.right - MARGIN - box.width
 
         shift = Math.round(max < min ? min - left : Math.min(Math.max(left, min), max) - left)
 
@@ -322,6 +326,7 @@
       placement: y < area.top + area.height / 2 ? 'bottom' : 'top',
       offset: Math.max(16, Math.ceil((size - action.height) / 2) + PADDING),
       shift,
+      room: Math.max(0, Math.floor(area.width - MARGIN * 2)),
     }
 
     if (!same(geometry.value, next)) geometry.value = next
@@ -436,7 +441,17 @@
   const offset = toRef(() => geometry.value?.offset ?? 16)
   const where = toRef((): TourPlacement => geometry.value?.placement ?? 'bottom')
   // v0 owns the content's position; `translate` is the one positioning property it leaves free.
-  const nudge = toRef((): CSSProperties | undefined => geometry.value?.shift ? { translate: `${geometry.value.shift}px 0` } : undefined)
+  // The text also narrows to the screen it is drawn on, so a screen under 312 px never pushes it off the edge.
+  const nudge = toRef((): CSSProperties | undefined => {
+    const shape = geometry.value
+
+    if (isNull(shape)) return undefined
+
+    return {
+      'translate': shape.shift ? `${shape.shift}px 0` : undefined,
+      '--md1-feature-discovery-room': `${shape.room}px`,
+    }
+  })
 </script>
 
 <template>
@@ -579,7 +594,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--md1-spacing-1, 8px);
-    max-width: 280px;
+    max-width: min(280px, var(--md1-feature-discovery-room, 280px));
   }
 
   @keyframes md1-feature-discovery-appear {

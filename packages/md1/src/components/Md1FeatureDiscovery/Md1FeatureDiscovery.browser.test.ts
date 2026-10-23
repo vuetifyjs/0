@@ -338,6 +338,28 @@ describe('quFeatureDiscovery', () => {
       await expect.poll(() => content()!.getBoundingClientRect().right).toBeLessThanOrEqual(innerWidth - 16)
     })
 
+    it('should narrow the text to a screen under 312 px so it never runs off the edge', async () => {
+      // A contained screen, like a docs frame: the fixed layer is drawn inside it.
+      mount(() => h('div', {
+        id: 'screen',
+        style: { position: 'absolute', left: '100px', top: '100px', width: '270px', height: '360px', contain: 'layout paint' },
+      }, [
+        h('div', { style: { position: 'absolute', right: '8px', top: '8px' } }, [
+          h(Md1FeatureDiscovery, { modelValue: true, contained: false }, () => [
+            h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search' })),
+            h(Md1FeatureDiscovery.Title, null, () => 'Find mail fast'),
+            h(Md1FeatureDiscovery.Text, null, () => 'Tap the search icon to look up messages by sender, subject or date.'),
+          ]),
+        ]),
+      ]))
+      await ready()
+
+      const screen = document.querySelector('#screen')!.getBoundingClientRect()
+
+      await expect.poll(() => content()!.getBoundingClientRect().right).toBeLessThanOrEqual(screen.right - 16)
+      await expect.poll(() => content()!.getBoundingClientRect().left).toBeGreaterThanOrEqual(screen.left + 16)
+    })
+
     it('should clear the target disc with the text', async () => {
       prompt({ at: { x: 640, y: 300 } })
       await ready()
