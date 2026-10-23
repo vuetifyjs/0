@@ -192,8 +192,8 @@
     ref="bar"
     class="md1-tabs__bar"
     :data-centered="centered || undefined"
-    :style="width ? { '--md1-tabs-view': `${width}px` } : undefined"
     :data-overflow="overflowing || undefined"
+    :style="width ? { '--md1-tabs-view': `${width}px` } : undefined"
   >
     <Button.Root
       v-if="overflowing"
