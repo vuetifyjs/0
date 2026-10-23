@@ -25,7 +25,7 @@ import { Tabs, Dialog } from '@vuetify/v0/components'
 
 In this repo, import internals from `#v0/` (`#v0/composables`, `#v0/utilities`, `#v0/constants/globals`). Published imports are `@vuetify/v0`, `@vuetify/v0/components`, `@vuetify/v0/utilities`, and `@vuetify/v0/constants`.
 
-Most `use*` composables run without a plugin and fall back to defaults. `useDate` does not: install `createDatePlugin` with an adapter, or the call throws. For app-wide theme, locale, storage, or breakpoints, install `createThemePlugin`, `createLocalePlugin`, `createStoragePlugin`, or `createBreakpointsPlugin`.
+Most `use*` composables run without a plugin and fall back to defaults. Inside a component, `useDate` does too: with no plugin it uses `PlainDateAdapter`. Outside a component it still throws. Pass `V0DateAdapter` when you want Temporal. For app-wide theme, locale, storage, or breakpoints, install `createThemePlugin`, `createLocalePlugin`, `createStoragePlugin`, or `createBreakpointsPlugin`.
 
 Selection and a button. Neither needs a plugin.
 
@@ -243,7 +243,7 @@ Public composables and utilities. `(mature)`, `(stable)`, and `(draft)` are mark
 **Plugins:**
 
 - `useBreakpoints` — Reactive viewport detection for building responsive layouts with named breakpoints. (stable)
-- `useDate` — Date manipulation using the Temporal API with locale-aware formatting and adapter support.
+- `useDate` — Date manipulation with a plain JavaScript Date default. Pass V0DateAdapter for Temporal. Locale-aware formatting through an adapter.
 - `useFeatures` — Manage feature flags and variations across your application.
 - `useHydration` — Control SSR hydration timing to prevent mismatches and optimize client-side rendering.
 - `useLocale` — i18n plugin with message translation, number formatting, and locale switching.

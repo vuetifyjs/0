@@ -207,7 +207,7 @@
       "level": "preview",
       "since": "0.1.0",
       "category": "plugins",
-      "description": "Date manipulation using the Temporal API with locale-aware formatting and adapter support."
+      "description": "Date manipulation with a plain JavaScript Date default. Pass V0DateAdapter for Temporal. Locale-aware formatting through an adapter."
     },
     "useFeatures": {
       "level": "preview",

@@ -14,4 +14,5 @@
  * ```
  */
 
+export { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 export { V0DateAdapter } from '#v0/composables/useDate/adapters/v0'
