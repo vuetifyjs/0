@@ -61,6 +61,13 @@
     margin: 0;
   }
 
+  /* Menu is a single-line style (typography page): it truncates instead of wrapping at its 1.0 leading. */
+  .md1-docs-device-sample.md1-type-menu {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .md1-docs-device-sizes {
     display: flex;
     gap: var(--md1-spacing-2, 16px);
