@@ -1,0 +1,184 @@
+---
+title: QuSearchBar - Quantum Search Bar for Vue
+meta:
+- name: description
+  content: The Material Design 1 persistent search bar. A raised 48 dp inset box with the search glyph that becomes the up arrow, clear and voice actions, recent queries and completions, and the desktop Search button. Built on Vuetify0's Combobox.
+- name: keywords
+  content: quantum search bar, material design 1 search, persistent search, search suggestions, vue search bar, vuetify0 combobox, paper quantum
+features:
+  category: Component
+  label: 'C: QuSearchBar'
+  level: 2
+  renderless: false
+  group: navigation
+  order: 4
+related:
+  - /systems/quantum
+  - /systems/quantum/toolbar
+  - /systems/quantum/text-field
+  - /components/forms/combobox
+---
+
+# QuSearchBar
+
+<DocsPageFeatures :frontmatter />
+
+The persistent search of Material Design 1. A raised inset box that is always on screen, with recent queries on focus, completions as the user types, and results laid out as cards below it.
+
+> [!NOTE]
+> Reference: [Search, Material Design 1 guidelines](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/patterns/search.html), the archived pattern page Quantum is pinned to, with the solo field of [Text fields](http://web.archive.org/web/20181225002255/https://material.io/archive/guidelines/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
+
+## Usage
+
+`QuSearchBar` is a compound. The root is the bar; its default slot is the suggestion list, filled with `QuSearchBar.Item` rows and an optional `QuSearchBar.Empty`. `v-model` holds the query and `submit` reports it.
+
+Use it when search is the primary focus of the screen. When search is secondary, use the expandable search of [QuToolbar](/systems/quantum/toolbar) instead.
+
+::: ds-example
+/systems/quantum/search-bar/basic
+:::
+
+## Anatomy
+
+```vue Anatomy no-filename
+<script setup lang="ts">
+  import { QuSearchBar } from '@paper/quantum'
+</script>
+
+<template>
+  <QuSearchBar>
+    <QuSearchBar.Item />
+
+    <QuSearchBar.Empty />
+  </QuSearchBar>
+</template>
+```
+
+## Composed on Vuetify0
+
+`QuSearchBar` renders v0's [Combobox](/components/forms/combobox) parts against one combobox that Quantum's `useSearch` creates, the same core the expandable search of `QuToolbar` uses. `Combobox.Activator` is the inset box, `Combobox.Control` is the field, `Combobox.Content` is the suggestion list, and every `QuSearchBar.Item` is a `Combobox.Item`. Filtering is v0's client adapter: rows that do not contain the query stay registered and hide.
+
+v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendant`), the popover the list opens in and the outside click that closes it. Quantum adds the search pattern on top: Enter or a chosen row submits, the X clears, the up arrow releases. The nav, clear, voice and Search actions are [QuButton](/systems/quantum/button)s, so each one carries a [QuRipple](/systems/quantum/ripple). The box itself is the solo anatomy of [QuTextField](/systems/quantum/text-field): the field's editable element is `Combobox.Control`, not `Input.Control`, so the bar reuses the solo values rather than mounting a `QuTextField`.
+
+## Examples
+
+::: ds-example
+/systems/quantum/search-bar/basic
+
+### The persistent bar
+
+The search box is an inset sheet presented ready to receive focus. Quantum draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric), on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu. The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
+
+Focus turns the search glyph into the up arrow and opens the suggestions. Enter submits the query, and so does choosing a suggestion; either way the field keeps the query and gives up focus, so the results show with the bar visible but not focused, as the pattern prescribes. The `submit` event carries the trimmed query; a blank query submits nothing.
+:::
+
+::: ds-example
+/systems/quantum/search-bar/suggestions
+
+### Recent queries and completions
+
+The pattern orders suggestions by intent. Before a query is complete the field shows historical suggestions, the user's recent queries; as the user types it shifts to auto-completion against the app's data. `history` marks a recent query: it draws the history glyph and is offered from focus. An item without it is a completion with the search glyph, shown only once something is typed. Both filter as the user types, so recent matches stay first.
+
+Rows are 48 dp single-line list rows with the glyph on the 16 dp keyline and the text on the 72 dp keyline, the list and navigation drawer metrics. The list opens directly under the box at its width, squaring the box's lower corners so the two read as one expanded card. `QuSearchBar.Empty` is the row for a typed query nothing matches; it never shows before something is typed, and with no Empty part and nothing to offer the list stays shut.
+:::
+
+::: ds-example
+/systems/quantum/search-bar/voice
+
+### Voice search
+
+`voice` adds the microphone at the end of the box. The guidelines show it only when voice search is supported, and touching it initiates a voice search; on the web that means the app's own speech capture, so the bar only emits `voice` and leaves the transcript to the app, which writes it back through `v-model`. The microphone keeps the caret in the field.
+
+The X clear action appears beside it as soon as the field has characters, empties the query, emits `clear` and keeps focus in the field so the user can type again.
+:::
+
+::: ds-example
+/systems/quantum/search-bar/button
+
+### Desktop Search button
+
+The text fields page puts a raised search button to the right of the field on desktop. Quantum renders it as a raised `QuButton` labelled Search, 16 dp after the box, and shows it whenever the pointer is fine (mouse and keyboard), whatever `button` says. `button` forces it on for touch layouts too and sets `data-button` on the root.
+
+The button submits the typed query exactly as Enter does. On a fine pointer it follows the raised button's desktop rule, resting at 0 dp and lifting to 2 dp on hover.
+:::
+
+::: ds-example
+/systems/quantum/search-bar/scrolled
+
+### Scrolled
+
+The elevation page gives the search bar two values: 2 dp at rest and 3 dp when content scrolls under it. `scrolled` is that state: it sets `data-scrolled` and lifts the box and an open list to 3 dp. Under a fine pointer the closed box sits 2 dp lower, at 1 dp. The bar does not watch scrolling itself, since only the app knows which container scrolls under it; this example sets it from the scroll position of the region the bar is pinned to.
+:::
+
+::: ds-example
+/systems/quantum/search-bar/results
+
+### Results as cards
+
+The pattern formats results as cards to match the inset look of the search box. Results are not part of the bar: listen for `submit`, run the search and render [QuCard](/systems/quantum/card)s below it. The bar stays visible, unfocused, with the query in place, ready for the next search.
+:::
+
+## Props
+
+<!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
+     @paper/* packages; once the generator covers the design systems this table
+     is replaced by <DocsApi />. Keep it in sync with QuSearchBar.vue until then. -->
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modelValue` | `string` | `''` | The query: the text in the field. Use `v-model` |
+| `placeholder` | `string` | `'Search'` | Hint text in the empty field; also the accessible name of the field and the search landmark. The default comes from the locale key `Quantum.search` |
+| `voice` | `boolean` | `false` | The microphone action; emits `voice` |
+| `button` | `boolean` | `false` | The raised Search button to the right of the box on any pointer. It always shows under a fine pointer |
+| `scrolled` | `boolean` | `false` | Content scrolls under the bar: 3 dp instead of 2 dp (closed under a fine pointer: 1 dp instead of 0 dp) |
+| `disabled` | `boolean` | `false` | Disables the field and every action; nothing opens |
+| `id` | `string` | | Root id: the field is `${id}-input` and the list `${id}-listbox` |
+| `namespace` | `string` | `'quantum:search-bar:combobox'` | The combobox context key the parts join. Change it only to nest two bars |
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `submit` | `string` | The trimmed query, on Enter, the Search button or a chosen suggestion |
+| `voice` | | The microphone was pressed |
+| `clear` | | The X emptied the field |
+
+The default slot is the suggestion list. There are no named slots.
+
+### Parts
+
+| Part | Props | Notes |
+|------|-------|-------|
+| `QuSearchBar.Item` | `value: string`, `history?: boolean`, `icon?: QuIconName`, `disabled?: boolean` | A 48 dp suggestion row (`Combobox.Item`). `history` marks a recent query, shown from focus with the history glyph; without it the row is a completion, shown once something is typed, with the search glyph. `icon` replaces the glyph; the slot replaces the text, which defaults to `value`. Choosing it submits `value` |
+| `QuSearchBar.Empty` | | The row for a typed query nothing matches (`Combobox.Empty`). The default text comes from `Quantum.noResults` (`'No results'`); the slot receives `{ query }` |
+
+Both parts render nothing and warn in development when placed outside `QuSearchBar`.
+
+### Data attributes
+
+| Attribute | On | Set when |
+|-----------|----|----------|
+| `data-focused` | root | The field has focus, or focus moved from the field to one of the box's actions. Focus that lands on the search glyph at rest does not set it |
+| `data-open` | root | The suggestion list is showing |
+| `data-scrolled` | root | `scrolled` is set |
+| `data-button` | root | `button` is set |
+| `data-disabled` | root | `disabled` is set |
+| `data-history` | item | The row is a recent query |
+
+## Accessibility
+
+The root is a `<form role="search">`, a search landmark named by `placeholder`. The field is a WAI-ARIA combobox from v0: `role="combobox"` with `aria-expanded`, `aria-controls` pointing at the `role="listbox"` list, and `aria-activedescendant` following the highlighted row while DOM focus stays in the field. Every icon action is a native button with its own name: Search or Back for the nav glyph, Clear, and Voice search, from the locale keys `Quantum.search`, `Quantum.back`, `Quantum.clear` and `Quantum.voice`.
+
+### Keyboard
+
+| Key | Behavior |
+|-----|----------|
+| Arrow Down, Arrow Up | Opens the suggestions, then moves the highlight through the visible rows |
+| Enter | Submits the highlighted row, or the typed query when nothing is highlighted, and releases the field |
+| Escape | Closes the suggestions; focus stays in the field |
+| Home, End | Clears the highlight, so the caret keys edit the query again |
+| Tab | From the field, closes the suggestions and moves to the clear and voice actions, then to the Search button when it shows |
+| Shift+Tab | From the field, reaches the up arrow; Enter on it releases the bar |
+| Tab into the bar | Lands on the search glyph, which stays the search glyph; Enter on it moves focus into the field |
+
+### Focus
+
+The field draws no focus ring: the caret in the accent colour and the up arrow mark focus inside the box. Pointer presses on the nav, clear and voice actions keep the caret in the field. Releasing the bar, by the up arrow or a submit, moves focus out, the web counterpart of the pattern dismissing the on-screen keyboard.
