@@ -1,3 +1,4 @@
+export * from './QuAutocomplete'
 export * from './QuBottomNavigation'
 export * from './QuBottomSheet'
 export * from './QuButton'
