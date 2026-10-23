@@ -259,10 +259,14 @@
     else lower()
   }
 
-  releases.set(token, () => {
-    post({ type: 'v0:sandbox:dismiss' })
-    release()
-  })
+  // Browser only: the server never disposes a scope, so a module-level entry
+  // made during SSR would keep every rendered page's app alive.
+  if (IN_BROWSER) {
+    releases.set(token, () => {
+      post({ type: 'v0:sandbox:dismiss' })
+      release()
+    })
+  }
 
   onScopeDispose(() => {
     releases.delete(token)
