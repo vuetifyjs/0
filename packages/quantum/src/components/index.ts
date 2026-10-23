@@ -1,5 +1,6 @@
 export * from './QuButton'
 export * from './QuCard'
+export * from './QuCheckbox'
 export * from './QuChip'
 export * from './QuDataTable'
 export * from './QuDialog'
