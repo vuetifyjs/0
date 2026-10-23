@@ -486,10 +486,13 @@ export const layoutTablet = {
 } as const satisfies Partial<Record<keyof typeof layout, string>>
 
 /**
- * The responsive-ui page's named breakpoint widths, keyed by the nominal dp
- * value; the desktop rows (1024 and above) carry the page's 16 px reduction
- * for browser chrome. Breakpoints cannot be custom properties, so they ship as
- * this map for `useBreakpoints` and as the documented table.
+ * The responsive-ui page's breakpoint widths, keyed by the nominal dp value;
+ * the desktop rows (1024 and above) carry the page's 16 px reduction for
+ * browser chrome. Breakpoints cannot be custom properties, so they ship as this
+ * map and as the documented table. v0's `useBreakpoints` has its own named
+ * breakpoints (`xs` to `xxl`) and takes nothing from Quantum: a consumer that
+ * needs the spec's widths assigns these values to those names through
+ * `createBreakpointsPlugin({ breakpoints })`, or reads one with `useMediaQuery`.
  */
 export const quantumBreakpoints = {
   480: 480,
