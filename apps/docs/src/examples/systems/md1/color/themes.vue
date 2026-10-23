@@ -68,7 +68,9 @@
     display: flex;
     align-items: center;
     height: 24px;
-    padding: 0 var(--md1-spacing-2, 16px);
+    padding: 0 var(--md1-keyline-margin, 16px);
+    /* The caption's 54% measures 4.3:1 on Grey 300; the label reads at the primary ink. */
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   .md1-docs-theme-bar {
@@ -83,7 +85,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--md1-spacing-1, 8px);
-    padding: var(--md1-spacing-2, 16px);
+    padding: var(--md1-spacing-2, 16px) var(--md1-keyline-margin, 16px);
   }
 
   .md1-docs-theme-card {
@@ -99,6 +101,6 @@
 
   .md1-docs-theme-name {
     margin: 0;
-    padding: 0 var(--md1-spacing-2, 16px) var(--md1-spacing-2, 16px);
+    padding: 0 var(--md1-keyline-margin, 16px) var(--md1-spacing-2, 16px);
   }
 </style>
