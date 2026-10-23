@@ -19,6 +19,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: var(--md1-spacing-2, 16px);
   }
 </style>
