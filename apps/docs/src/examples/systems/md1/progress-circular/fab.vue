@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Md1Fab, Md1ProgressCircular } from '@paper/md1'
   import { useTimer } from '@vuetify/v0'
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   const progress = shallowRef(0)
   const uploading = shallowRef(false)
@@ -13,14 +13,18 @@
 
   const step = useTimer(() => {
     progress.value = Math.min(progress.value + 4 + Math.round(Math.random() * 8), 100)
-
-    if (progress.value === 100) {
-      step.stop()
-      uploading.value = false
-      done.value = true
-      reset.start()
-    }
   }, { duration: 300, repeat: true })
+
+  // A repeating timer re-arms after its handler returns, so a stop() inside the
+  // handler does nothing; the end is watched from outside instead.
+  watch(progress, value => {
+    if (value < 100) return
+
+    step.stop()
+    uploading.value = false
+    done.value = true
+    reset.start()
+  })
 
   const label = toRef(() => done.value ? 'Uploaded' : (uploading.value ? `Uploading, ${progress.value}%` : 'Ready to upload 8 photos'))
 

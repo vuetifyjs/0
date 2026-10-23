@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Md1Button, Md1ProgressLinear } from '@paper/md1'
   import { useTimer } from '@vuetify/v0'
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   const played = shallowRef(0)
   const loaded = shallowRef(10)
@@ -11,12 +11,16 @@
   const clock = useTimer(() => {
     loaded.value = Math.min(loaded.value + 3, 100)
     played.value = Math.min(played.value + 1, loaded.value)
-
-    if (played.value === 100) {
-      clock.stop()
-      playing.value = false
-    }
   }, { duration: 150, repeat: true })
+
+  // A repeating timer re-arms after its handler returns, so a stop() inside the
+  // handler does nothing; the end is watched from outside instead.
+  watch(played, value => {
+    if (value < 100) return
+
+    clock.stop()
+    playing.value = false
+  })
 
   const label = toRef(() => playing.value ? 'Pause' : (played.value === 100 ? 'Replay' : 'Play'))
 

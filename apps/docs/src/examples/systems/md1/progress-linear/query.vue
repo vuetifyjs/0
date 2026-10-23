@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Md1Button, Md1ProgressLinear } from '@paper/md1'
   import { useTimer } from '@vuetify/v0'
-  import { shallowRef } from 'vue'
+  import { shallowRef, watch } from 'vue'
 
   const loading = shallowRef(false)
   const answered = shallowRef(false)
@@ -14,12 +14,16 @@
   // Once the server answers, the size of the response is known and the page loads in steps.
   const step = useTimer(() => {
     progress.value = Math.min(progress.value + 10, 100)
-
-    if (progress.value === 100) {
-      step.stop()
-      finish.start()
-    }
   }, { duration: 200, repeat: true })
+
+  // A repeating timer re-arms after its handler returns, so a stop() inside the
+  // handler does nothing; the end is watched from outside instead.
+  watch(progress, value => {
+    if (value < 100) return
+
+    step.stop()
+    finish.start()
+  })
 
   // The request itself: no measurable progress until the first byte arrives.
   const request = useTimer(() => {

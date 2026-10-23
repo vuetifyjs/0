@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { Md1Button, Md1ProgressLinear } from '@paper/md1'
   import { useTimer } from '@vuetify/v0'
-  import { shallowRef } from 'vue'
+  import { shallowRef, watch } from 'vue'
 
   const uploading = shallowRef(false)
   const progress = shallowRef(0)
@@ -14,12 +14,16 @@
   // Uneven steps, as a real upload reports them; the value only ever grows.
   const step = useTimer(() => {
     progress.value = Math.min(progress.value + 4 + Math.round(Math.random() * 12), 100)
-
-    if (progress.value === 100) {
-      step.stop()
-      finish.start()
-    }
   }, { duration: 400, repeat: true })
+
+  // A repeating timer re-arms after its handler returns, so a stop() inside the
+  // handler does nothing; the end is watched from outside instead.
+  watch(progress, value => {
+    if (value < 100) return
+
+    step.stop()
+    finish.start()
+  })
 
   function onUpload () {
     progress.value = 0
