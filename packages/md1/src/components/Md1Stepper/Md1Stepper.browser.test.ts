@@ -584,6 +584,43 @@ describe('quStepper', () => {
     })
   })
 
+  describe('narrow header', () => {
+    it('should keep only the current label under 600 dp, every step inside the bar and clear of the next', async () => {
+      const root = stepper({ steps: [STEPS[0]!, { ...STEPS[1]!, error: 'Budget is below the daily minimum' }, STEPS[2]!] })
+      root.parentElement!.style.width = '270px'
+      await settle()
+
+      const header = root.querySelector('.md1-stepper__header')!.getBoundingClientRect()
+      const [first, failed, last] = items(root)
+      const hidden = (el: HTMLElement) => el.querySelector('.md1-stepper__text')!.getBoundingClientRect().width <= 1
+
+      expect(hidden(first!)).toBe(false)
+      expect(hidden(failed!)).toBe(true)
+      expect(hidden(last!)).toBe(true)
+      // The hidden text still names the step.
+      expect(last!.querySelector('.md1-stepper__name')!.textContent).toBe('Create an ad')
+      expect(header.height).toBe(72)
+      expect(getComputedStyle(failed!.querySelector('.md1-stepper__note')!).whiteSpace).toBe('nowrap')
+
+      const labels = [...root.querySelectorAll('.md1-stepper__label')].map(el => el.getBoundingClientRect())
+
+      for (const [index, rect] of labels.entries()) {
+        expect(rect.right).toBeLessThanOrEqual(header.right + 0.5)
+        if (index > 0) expect(rect.left).toBeGreaterThanOrEqual(labels[index - 1]!.right)
+      }
+    })
+
+    it('should keep every label from 600 dp up', async () => {
+      const root = stepper()
+      root.parentElement!.style.width = '600px'
+      await settle()
+
+      for (const el of items(root)) {
+        expect(el.querySelector('.md1-stepper__text')!.getBoundingClientRect().width).toBeGreaterThan(1)
+      }
+    })
+  })
+
   describe('alternative labels', () => {
     it('should centre the labels under their circles in a 104 dp bar of equal parts', async () => {
       const root = stepper({ props: { alternativeLabels: true } })

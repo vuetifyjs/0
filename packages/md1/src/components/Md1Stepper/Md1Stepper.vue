@@ -170,11 +170,13 @@
   /*
    * The horizontal header: a 72 dp bar holding the steps, lifted 2 dp off the
    * content under it (the sheets draw it as its own card; value a decision).
+   * It is a size container so the steps can drop their labels when it is narrow.
    */
   .md1-stepper__header {
     display: flex;
     align-items: stretch;
     box-sizing: border-box;
+    container: md1-stepper-header / inline-size;
     height: 72px;
     margin: 0;
     padding: 0;

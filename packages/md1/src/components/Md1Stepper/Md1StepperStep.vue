@@ -328,6 +328,44 @@
     color: var(--md1-error, #FF1744);
   }
 
+  /* Horizontal: the sub-label is the step's second line inside the 72 dp bar, never a third. */
+  .md1-stepper:not([data-vertical]):not([data-alternative]) .md1-stepper__note {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*
+   * A horizontal header narrower than the 600 dp tablet breakpoint has no room
+   * for every label (the page sends narrow screens to the vertical or mobile
+   * stepper). Only the current step keeps its text; the others show the circle
+   * or the red warning glyph alone, as Vuetify 1.5 does below its small
+   * breakpoint, and the step cells tighten to 12 dp sides (a 48 dp target).
+   * The text stays in the accessibility tree, so each step keeps its name.
+   */
+  @container md1-stepper-header (max-width: 599px) {
+    .md1-stepper:not([data-vertical]) .md1-stepper__step:not([data-state='active']) .md1-stepper__text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .md1-stepper:not([data-vertical], [data-alternative]) .md1-stepper__label {
+      padding-inline: 12px;
+    }
+
+    .md1-stepper:not([data-vertical], [data-alternative]) .md1-stepper__step:not([data-state='active']) .md1-stepper__circle {
+      margin-inline-end: 0;
+    }
+
+    .md1-stepper:not([data-vertical], [data-alternative]) .md1-stepper__connector {
+      margin: 0 -4px;
+    }
+  }
+
   /*
    * The 1 dp connector in Grey 400 (the page's text; the sheets render Grey 300),
    * 8 dp clear of the label before it and the circle after it: it reaches 16 dp
