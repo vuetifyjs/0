@@ -41,7 +41,8 @@ const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|
 
 /**
  * Colour keys mirrored onto `--v0-*` under their own name, for the kits
- * (Genesis) a Quantum page hosts. The severities exist for this table alone.
+ * (Genesis) a Quantum page hosts. The severities and `surface-tint` exist for
+ * this table alone.
  */
 const V0_ALIAS_KEYS = [
   'primary',
@@ -49,6 +50,7 @@ const V0_ALIAS_KEYS = [
   'accent',
   'on-accent',
   'surface',
+  'surface-tint',
   'background',
   'divider',
   'error',
@@ -72,7 +74,6 @@ const V0_REMAP_KEYS = {
   'on-surface': 'text-primary',
   'surface-variant': 'app-bar',
   'on-surface-variant': 'text-secondary',
-  'surface-tint': 'primary-light',
   'on-background': 'text-primary',
   'border': 'divider',
   'pre': 'app-bar',

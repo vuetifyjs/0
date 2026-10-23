@@ -35,7 +35,7 @@ export interface QuantumHueRoles {
   'primary': string
   /** 700: the status bar and the pressed raised button. */
   'primary-dark': string
-  /** 100: related information under a primary region, and the `--v0-surface-tint` bridge. */
+  /** 100: related information under a primary region. */
   'primary-light': string
   /** The accent hue's A200: FAB, action buttons, text fields, selection, links. */
   'accent': string
@@ -49,6 +49,13 @@ export interface QuantumHueRoles {
   'on-accent': string
   /** Text selection: the accent at 30% (the alpha is a decision). */
   'selection': string
+  /**
+   * The kit bridge's `--v0-surface-tint` (SPEC.md "The v0 bridge"): the primary
+   * hue's 100 on the light theme and its 700 on the dark one, so kit chrome
+   * tints toward the primary without paling under white ink. MD1 names no
+   * such role and no `Qu*` component reads it.
+   */
+  'surface-tint': string
 }
 
 /**
@@ -83,8 +90,16 @@ export function quantumHueTheme (primary: QuantumHue, accent: QuantumAccentHue):
   }
 
   return {
-    light: { ...roles, 'accent-control': quantumPalette[`${accent}-a200`] },
-    dark: { ...roles, 'accent-control': quantumPalette[`${accent}-200`] },
+    light: {
+      ...roles,
+      'accent-control': quantumPalette[`${accent}-a200`],
+      'surface-tint': quantumPalette[`${primary}-100`],
+    },
+    dark: {
+      ...roles,
+      'accent-control': quantumPalette[`${accent}-200`],
+      'surface-tint': quantumPalette[`${primary}-700`],
+    },
   }
 }
 
