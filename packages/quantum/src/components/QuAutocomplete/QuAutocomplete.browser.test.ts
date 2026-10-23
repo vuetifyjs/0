@@ -93,6 +93,13 @@ function visible (items: HTMLElement[]): string[] {
   return items.filter(shown).map(item => item.textContent!.trim())
 }
 
+/** A rule as authored, read from the stylesheet: for values outside the test browser's media (handset, coarse pointer). */
+function rule (selector: string): CSSStyleRule | undefined {
+  const rules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules])
+
+  return rules.find((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule && rule.selectorText.replaceAll('"', '\'') === selector)
+}
+
 afterEach(() => {
   while (teardowns.length > 0) {
     teardowns.pop()!()
@@ -641,12 +648,15 @@ describe('quAutocomplete', () => {
       expect(getComputedStyle(field).borderTopLeftRadius).toBe('4px')
     })
 
-    it('should raise the solo field to 2 dp with no visible label', async () => {
+    it('should raise the solo field to 2 dp with no visible label, 0 dp under a fine pointer', async () => {
       const { chrome, field } = autocomplete({ props: { solo: true, placeholder: 'Search' } })
       await settle()
 
       expect(chrome.dataset.solo).toBe('true')
-      expect(getComputedStyle(field).boxShadow).not.toBe('none')
+      // The test browser is a fine pointer: the desktop rule drops the 2 dp rest to 0 dp. The handset value is read as authored.
+      expect(matchMedia('(pointer: fine)').matches).toBe(true)
+      expect(getComputedStyle(field).boxShadow).toBe('none')
+      expect(rule('.quantum-text-field[data-solo] .quantum-text-field__field')!.style.boxShadow).toContain('--quantum-elevation-2')
       expect(field.getBoundingClientRect().height).toBe(48)
     })
   })
