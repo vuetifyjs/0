@@ -574,7 +574,7 @@ The default theme is the spec's own worked example (Indigo primary, Pink accent,
 | `--quantum-text-secondary` | 54% | 70% | colour page |
 | `--quantum-text-disabled`, `--quantum-text-hint` | 38% | 50% | colour page |
 | `--quantum-divider` | black 12% | white 12% | colour page |
-| `--quantum-icon-active` / `-inactive` / `-focused` | 54% / 38% / 87% | 100% / 50% / 100% | icons page |
+| `--quantum-icon-active` / `-inactive` / `-focused` | 54% / 38% / 87% | 100% / 50% / 100% | icons page (dark active: its Color section and the colour page; the state table's 70% is open, see Known limitations) |
 | `--quantum-focus` | black 12% | white 12% | buttons page |
 | `--quantum-pressed` | `#999999` 40% | `#CCCCCC` 25% | buttons page |
 | `--quantum-hover` | black 6% | white 10% | steppers page (light, high); dark measured halo (`moderate`); not stated for buttons |
@@ -676,6 +676,7 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 - **Editable segmented dropdown button.** Definition only in the spec; deferred as a `QuTextField` + `QuDropdownButton` composition.
 - **Values the spec never states**, filled by the decisions recorded above and in the notes: hover overlay, scrim alpha, card, menu and tooltip radius, chip fill, grid-list bar scrim, snackbar timeout, ripple timing, mini drawer width, speed-dial spacing, expanded-panel elevation, dialog desktop width and body text style, tab colours on surface bars, tooltip open delay and long-press threshold, control-to-label gap, indeterminate cycle durations. Each is tagged in the component section; none is `high`.
 - **Measured geometry.** Selection controls, sliders, pickers, progress thickness and the snackbar line pitch come from the spec's own artwork at 2 px per dp (`measured`), not from text.
+- **Dark active icon opacity.** `--quantum-icon-active` is 100% white on the dark theme: the icons page's Color section, the colour page (2016 and 2018) and Vuetify 1.5 agree. The icons page's state table gives 70% for an active icon that is not focused (100% focused, 50% inactive), the dark counterpart of the light 54% the token already uses. Both readings are `high` (`spec/iconography.md`), so the token stays at 100% until the lead rules on the 70%.
 - **Desktop and dense mapping.** `(pointer: fine)` stands in for the spec's "mouse and keyboard"; a touch laptop gets device metrics. There is no runtime override in v1.
 - **Vuetify 1.5 disagreements** with the spec (switch thumb 4 dp, bottom navigation single-layer shadow, bottom sheet at 24 dp, 300 px drawer, 64 dp "prominent", swing curve, 7 px progress bar, 290 px picker, 42 px snackbar gap, 22 px dense list icons, 12% hover) are resolved in the spec's favour; the notes list every one.
 - **Bottom, floating and column toolbars.** The structure page names them and gives no metrics; `QuToolbar position="bottom"` and `floating` ship with the app bar heights and a 2 dp floating elevation as decisions; the bottom toolbar shelf is a `QuBottomSheet persistent` composition, not a component. `QuBottomNavigation` is the bar for destinations.
