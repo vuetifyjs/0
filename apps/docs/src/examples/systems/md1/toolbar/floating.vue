@@ -19,7 +19,10 @@
 </template>
 
 <style>
+  /* A detached palette keeps its own width, so the canvas centres it. */
   .md1-docs-toolbar-canvas {
+    display: flex;
+    justify-content: center;
     padding: var(--md1-spacing-3, 24px);
     background: var(--md1-background, #FAFAFA);
   }
