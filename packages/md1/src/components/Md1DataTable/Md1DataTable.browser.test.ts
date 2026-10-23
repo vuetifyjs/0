@@ -860,6 +860,30 @@ describe('quDataTable', () => {
       expect(visible(host).length).toBe(5)
     })
 
+    // Kept, page 2 at 10 rows ("11-20") became page 2 at 25 rows, rows the reader never saw.
+    it('should return to the first page when the rows per page change', async () => {
+      const perPage = shallowRef(5)
+      const host = table({ perPage })
+      await settle()
+
+      await userEvent.click([...host.querySelectorAll<HTMLButtonElement>('.md1-data-table__pager button')][1]!)
+      await settle()
+
+      expect(range(host)).toBe('6-10 of 12')
+
+      await userEvent.click(host.querySelector<HTMLElement>('.md1-data-table__rows')!)
+
+      const menu = document.querySelector<HTMLElement>('.md1-data-table__menu')!
+
+      await expect.poll(() => menu.matches(':popover-open')).toBe(true)
+
+      await userEvent.click([...menu.querySelectorAll<HTMLElement>('.md1-data-table__option')].find(el => el.textContent!.trim() === '10')!)
+      await settle()
+
+      expect(perPage.value).toBe(10)
+      expect(range(host)).toBe('1-10 of 12')
+    })
+
     it('should follow a rows-per-page model written from outside', async () => {
       const perPage = shallowRef(5)
       const host = table({ perPage })

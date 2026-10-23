@@ -46,8 +46,13 @@
     next: locale.ti('Md1.nextPage') ?? 'Next page',
   }))
 
+  // A new page size starts over at the first page, as Vuetify 1.5's footer does; kept, the
+  // page index would land on rows the reader never saw ("11-20" at 10 becomes "26-32" at 25).
   function onRows (value: unknown) {
-    if (context && isNumber(value)) context.rowsPerPage.value = value
+    if (!context || !isNumber(value) || value === context.rowsPerPage.value) return
+
+    context.rowsPerPage.value = value
+    pagination.value?.first()
   }
 
   function onPrevious () {
