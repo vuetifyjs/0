@@ -12,7 +12,7 @@
 
     <Md1Snackbar.Portal :teleport="false">
       <Md1Snackbar v-model="open" action="Retry" multiline>
-        Connection timed out. Showing limited messages until the network is back.
+        Connection lost. Showing saved messages.
       </Md1Snackbar>
     </Md1Snackbar.Portal>
   </div>
