@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "tsdown && pnpm bake:theme",
-    "bake:theme": "tsx scripts/bake-theme.ts",
+    "bake:theme": "tsx -C development scripts/bake-theme.ts",
     "typecheck": "vue-tsc --noEmit --incremental",
     "test:browser": "vitest run --config vitest.browser.config.ts"
   },

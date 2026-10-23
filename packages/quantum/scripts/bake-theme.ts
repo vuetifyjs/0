@@ -22,9 +22,10 @@
  *   fails the build (`strict: true`) rather than shipping a hollow stylesheet.
  *
  * The import graph reaches `@vuetify/v0` (the md1 palette and `hexToRgb`)
- * through `src/design-system.ts`, which Node resolves to `packages/0/dist`:
- * build `@vuetify/v0` first (the root `pnpm build` is topological; locally,
- * `pnpm build:0`).
+ * through `src/design-system.ts`. `package.json` runs this script as
+ * `tsx -C development`, so Node applies the `development` export condition
+ * and resolves it to `packages/0/src`; without the flag it resolves to
+ * `packages/0/dist` and needs `pnpm build:0` first.
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
