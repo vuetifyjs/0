@@ -141,8 +141,13 @@
     border-radius: 50%;
   }
 
+  /* The current dot takes the primary, as in the handset carousel; the primary's 100 on the dark theme, where 500 falls under 2:1. */
   .md1-docs-carousel-dot[data-active] {
-    background: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+    background: var(--md1-primary, #3F51B5);
+  }
+
+  [data-theme='md1-dark'] .md1-docs-carousel-dot[data-active] {
+    background: var(--md1-primary-light, #C5CAE9);
   }
 
   /* The 1:1 illustration, centred at the top of the card. A glyph on the primary 100 tint stands in for the artwork. */
