@@ -8,9 +8,9 @@
 
 <template>
   <div class="md1-docs-controls">
-    <Md1Checkbox v-model="off" label="Off" />
+    <Md1Checkbox v-model="off" :label="off ? 'On' : 'Off'" />
 
-    <Md1Checkbox v-model="on" label="On" />
+    <Md1Checkbox v-model="on" :label="on ? 'On' : 'Off'" />
 
     <Md1Checkbox disabled label="Disabled" :model-value="false" />
 

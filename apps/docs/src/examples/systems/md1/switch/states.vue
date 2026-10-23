@@ -8,9 +8,9 @@
 
 <template>
   <div class="md1-docs-controls">
-    <Md1Switch v-model="off" label="Off" />
+    <Md1Switch v-model="off" :label="off ? 'On' : 'Off'" />
 
-    <Md1Switch v-model="on" label="On" />
+    <Md1Switch v-model="on" :label="on ? 'On' : 'Off'" />
 
     <Md1Switch disabled label="Disabled" :model-value="false" />
 
