@@ -85,7 +85,9 @@
     background: var(--md1-background, #FAFAFA);
   }
 
+  /* The screen's content sheet fills the frame under the bar. */
   .md1-docs-nav-sheet {
+    flex: 1 1 auto;
     background: var(--md1-surface, #FFFFFF);
   }
 
