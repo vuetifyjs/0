@@ -54,6 +54,7 @@
  *   bottom sheets) keep the full width.
  * - Examples that would collapse when shrunk (auto-fill grids, wrapping swatch
  *   rows, a query container) keep the full width and centre their tracks.
+ *   Card backdrops fit their tracks to the cards so a lone card centres.
  */
 .genesis-docs-example-preview__panel[data-theme^="md1-"] {
   display: grid;
@@ -100,11 +101,8 @@
   .md1-docs-palette,
   .md1-docs-leading,
   .md1-docs-layout-breakpoints,
-  .md1-docs-layout-increments,
   .md1-docs-layout-keylines,
-  .md1-docs-layout-spacing,
   .md1-docs-motion-easing,
-  .md1-docs-motion-reduced,
   [class*="md1-docs-grid-list"]
 ),
 .genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :has(.md1-grid-list) {
@@ -114,7 +112,7 @@
   justify-self: center;
 }
 
-.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) {
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger, .md1-docs-motion-reduced, .md1-docs-motion-stage-wrap, .md1-docs-layout-increments, .md1-docs-layout-spacing) {
   width: -webkit-fill-available;
   width: -moz-available;
   width: stretch;
@@ -122,13 +120,13 @@
   align-items: center;
 }
 
-.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) > :is([class*="-screen"], [class*="-sheet"], [class*="-card"], [class*="-frame"], [class*="-grid"], [class*="-text"], [class*="-pad"], .md1-grid-list) {
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger, .md1-docs-motion-reduced, .md1-docs-motion-stage-wrap, .md1-docs-layout-increments, .md1-docs-layout-spacing) > :is([class*="-screen"], [class*="-sheet"], [class*="-card"], [class*="-frame"], [class*="-grid"], [class*="-text"], [class*="-pad"], .md1-grid-list) {
   width: -webkit-fill-available;
   width: -moz-available;
   width: stretch;
 }
 
-.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) > :is(.md1-toolbar, [class*="md1-docs-toolbar"], .md1-tabs, .md1-data-table) {
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger, .md1-docs-motion-reduced, .md1-docs-motion-stage-wrap, .md1-docs-layout-increments, .md1-docs-layout-spacing) > :is(.md1-toolbar, [class*="md1-docs-toolbar"], .md1-tabs, .md1-data-table) {
   align-self: stretch;
 }
 
@@ -161,4 +159,9 @@
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-cards, .md1-docs-selection-cards) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 344px));
+  justify-content: center;
 }
