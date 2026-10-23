@@ -1,4 +1,5 @@
 export * from './QuBottomNavigation'
+export * from './QuBottomSheet'
 export * from './QuButton'
 export * from './QuCard'
 export * from './QuCheckbox'
