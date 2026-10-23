@@ -33,7 +33,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `QuList` is a compound: the root is the `ul`, every row is a `QuList.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. On the dark theme the primary 500 would read at under 2:1, so the current item takes the primary's 100 instead, the lighter tint the navigation drawer page asks for when the colour does not contrast.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. On the dark theme the primary 500 would read at under 2:1, below the 4.5:1 contrast floor, so the current item takes the primary's 100 instead, a Quantum decision.
 
 ::: ds-example
 /systems/quantum/list/basic
