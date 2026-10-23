@@ -41,7 +41,7 @@
 
         <Md1Dialog.Text>Nothing is saved until you tap Save. Closing with unsaved changes asks before discarding them.</Md1Dialog.Text>
 
-        <div class="md1-docs-row md1-docs-inset">
+        <div class="md1-docs-inset">
           <Md1Button icon="add" @click="onAdd">Add reminder</Md1Button>
 
           <span class="md1-docs-note" role="status">{{ reminders }} reminders</span>
@@ -99,7 +99,13 @@
     padding-top: var(--md1-spacing-3, 24px);
   }
 
+  /* Its own row rather than .md1-docs-row: example styles are document-global, and other pages centre that class. Content starts at the sheet's keyline. */
   .md1-docs-inset {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--md1-spacing-2, 16px);
     padding: 0 var(--md1-spacing-3, 24px) var(--md1-spacing-3, 24px) var(--md1-spacing-1, 8px);
   }
 </style>
