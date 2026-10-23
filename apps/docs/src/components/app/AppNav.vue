@@ -81,7 +81,7 @@
     let index = 0
 
     for (const [i, item] of visibleNav.value.entries()) {
-      if ('divider' in item || 'to' in item) continue
+      if ('divider' in item || 'to' in item || 'subheader' in item) continue
 
       ids.set(i, `category-root-${index++}`)
     }
@@ -255,7 +255,7 @@
             />
 
             <AppNavLink
-              v-else
+              v-else-if="'name' in nav"
               :id="categories.get(i)!"
               class="px-4"
               :name="nav.name"

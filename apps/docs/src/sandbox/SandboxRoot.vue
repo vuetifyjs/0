@@ -12,22 +12,29 @@
     is,
     name,
     themes = { light: 'light', dark: 'dark' },
+    themeAttribute = 'data-theme',
   } = defineProps<{
     /** Resolved example component, or undefined when the query names nothing. */
     is?: Component
     /** Example path from the query string, shown when resolution fails. */
     name: string
     /**
-     * What each scheme is called in `data-theme`. The docs page only ever speaks
-     * in light and dark; a design system is free to name its themes something
-     * else, and Emerald does (`emerald-light` / `emerald-dark`) because those are the
-     * ids its stylesheet keys on. Defaulting to the scheme names themselves
-     * keeps every system that agrees with the docs — Bulma — untouched.
+     * What each scheme is called on `themeAttribute`. The docs page only ever
+     * speaks in light and dark; a design system is free to name its themes
+     * something else, and Emerald does (`emerald-light` / `emerald-dark`)
+     * because those are the ids its stylesheet keys on. Defaulting to the
+     * scheme names themselves keeps every system that agrees with the docs —
+     * Bulma — untouched.
      *
      * Upstream candidate: this is the one piece of the sandbox that is not
      * system-agnostic, and it belongs next to the entry that owns the frame.
      */
     themes?: Record<'light' | 'dark', string>
+    /**
+     * Attribute the scheme is written to. Bulma and Emerald use `data-theme`.
+     * Bootstrap 6 keys its stylesheet on `data-bs-theme`.
+     */
+    themeAttribute?: string
   }>()
 
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
@@ -128,13 +135,18 @@
   //
   //   overlay  something is laid out against the viewport (a modal and its
   //            backdrop). Meant to cover everything, page chrome included.
+  //            Bulma: `position: fixed`. Bootstrap 6: an open `<dialog>`, a
+  //            dialog still exiting under `.hiding`, or `.drawer.show`.
   //   float    out-of-flow content spilled past the example's box AND is owned
-  //            by component state — Bulma marks that with `is-active`, which
-  //            only this package's JS sets. It belongs to the page, so page
-  //            chrome occludes it.
+  //            by component state. Bulma marks that with `is-active`. Bootstrap
+  //            6 marks it with `.tooltip.show`, `.popover.show`, a menu that
+  //            spills sideways, or the `show` class on the absolute element.
+  //            It belongs to the page, so page chrome occludes it. A menu that
+  //            only hangs below the box grows the frame instead: promoting it
+  //            makes the anchor jump to page coordinates for a frame.
   //   grow     everything else, including a pure-CSS `:hover` reveal
-  //            (`is-hoverable`), which carries no `is-active` anywhere. The
-  //            frame makes room for it instead of being promoted.
+  //            (`is-hoverable`), which carries neither `is-active` nor `show`.
+  //            The frame makes room for it instead of being promoted.
   //
   // `escaping` is reported either way: promotion clips to it, growth sizes
   // around it.
@@ -147,30 +159,69 @@
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
 
+      // A closed `<dialog>` stays `position: absolute` (author `display` beats
+      // the UA `display: none`) and `checkVisibility()` still counts it.
+      // Its box is the modal, not the example, and reserving it leaves an
+      // empty band under the trigger.
+      // `.hiding` is the exit. The frame stays promoted until the class
+      // comes off, or a slide that has already dropped `open` runs inside
+      // the example card and the panel sweeps the trigger.
+      if (
+        node instanceof HTMLDialogElement
+        && !node.open
+        && !node.classList.contains('hiding')
+      ) continue
+
       const style = getComputedStyle(node)
       const position = style.position
+      // The open dialog itself, not its descendants. Children that are merely
+      // in normal flow must not each become their own overlay. A dialog can
+      // sit inside the example box and still cover the viewport via
+      // `::backdrop`, so ownership does not require the box to be escaped.
+      // `.hiding` keeps that ownership after `open` has dropped.
+      const owner = (node instanceof HTMLDialogElement && (node.open || node.classList.contains('hiding')))
+        || (node.classList.contains('drawer') && node.classList.contains('show'))
 
-      if (position !== 'fixed' && position !== 'absolute') continue
+      if (position !== 'fixed' && position !== 'absolute' && !owner) continue
 
-      if (position === 'fixed' && inert(node, style)) continue
+      if (position === 'fixed' && !owner && inert(node, style)) continue
 
       const rect = node.getBoundingClientRect()
+      // CSS-anchor tooltips and popovers are `position: fixed` and still page
+      // content. Fixed positioning is the overlay signal for a dialog. A tip
+      // stays float, and only a rect that spills the box counts as escaped.
+      // A closed tip stays `display: block` at opacity 0; it must not reserve
+      // space or promote the frame. A menu that only spills downward is grown
+      // into, further down in `measure`.
+      const menu = node.closest('.menu')
+      const tip = node.closest('.tooltip, .popover')
+      if (tip && !tip.classList.contains('show')) continue
+
+      const anchored = menu ?? tip
+      const spillsX = rect.left < box.left - SLACK || rect.right > box.right + SLACK
+      const spillsY = rect.top < box.top - SLACK || rect.bottom > box.bottom + SLACK
+
+      // A closed menu is `display: none`. An open one that only needs room
+      // below the card must not promote: the fixed frame moves the anchor.
+      if (menu && !menu.classList.contains('show')) continue
 
       // Laid out against the viewport (a modal backdrop), or out-of-flow and
-      // spilling past the box the example occupies inline. A menu that fits
-      // inside the box needs nothing — it is already painted there.
-      const escapes = position === 'fixed'
-        || rect.top < box.top - SLACK
-        || rect.bottom > box.bottom + SLACK
-        || rect.left < box.left - SLACK
-        || rect.right > box.right + SLACK
+      // spilling past the box the example occupies inline. A menu or tip that
+      // fits inside the box needs nothing — it is already painted there.
+      const escapes = (position === 'fixed' && !anchored)
+        || spillsX
+        || spillsY
 
-      if (!escapes) continue
+      if (!escapes && !owner) continue
 
-      escaping.push(toRect(rect))
+      if (rect.width > 0 || rect.height > 0) escaping.push(toRect(rect))
 
-      if (position === 'fixed') tier = 'overlay'
-      else if (node.closest('.is-active')) tier ??= 'float'
+      if (menu) {
+        if (spillsX) tier ??= 'float'
+      } else if (tip) {
+        if (tip.classList.contains('show')) tier ??= 'float'
+      } else if (position === 'fixed' || owner) tier = 'overlay'
+      else if (node.closest('.is-active, .menu.show') || node.classList.contains('show')) tier ??= 'float'
     }
 
     return {
@@ -178,6 +229,19 @@
       rects: tier ? [toRect(box), ...escaping] : [],
       escaping,
     }
+  }
+
+  // The close fade outlives `.show`. One follow-up read, after Bootstrap's
+  // 150ms menu transition, drops the extra height once the menu is `display:
+  // none`. Measuring on the class change alone shrinks the frame mid-fade.
+  let exitMeasure: ReturnType<typeof setTimeout> | undefined
+
+  function queueExit () {
+    if (exitMeasure !== undefined) return
+    exitMeasure = setTimeout(() => {
+      exitMeasure = undefined
+      measure()
+    }, 200)
   }
 
   function measure () {
@@ -248,10 +312,33 @@
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
+    // An open menu is `position: fixed`, so it is missing from offsetHeight.
+    // Once the frame has grown to fit it, the menu no longer spills and would
+    // drop out of `escaping`, and the next measure would shrink the frame
+    // back. Keep a visible menu in the height until it is actually gone.
+    // Closing drops `.show` immediately, while the 150ms fade is still on
+    // screen. Shrinking on that class change is what throws the menu to the
+    // top of the frame.
+    let exiting = false
+
+    for (const menu of el.querySelectorAll<HTMLElement>('.menu')) {
+      if (!menu.checkVisibility()) continue
+      const rect = menu.getBoundingClientRect()
+      const host = el.getBoundingClientRect()
+      if (rect.left < host.left - SLACK) continue
+      if (rect.right > host.right + SLACK) continue
+      height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
+      if (!menu.classList.contains('show')) exiting = true
+    }
+
+    if (exiting) queueExit()
+
     // `grown` marks a height that only exists because something is spilling out
     // of the box right now. The docs page still applies it — the frame has to
     // make room — but it must not remember it as what this example rests at.
-    send({ type: 'v0:sandbox:size', height, grown: found.escaping.length > 0 })
+    const grown = found.escaping.length > 0 || height > el.offsetHeight + 1
+
+    send({ type: 'v0:sandbox:size', height, grown })
   }
 
   useResizeObserver(root, () => measure())
@@ -277,7 +364,7 @@
 
     switch (event.data?.type) {
       case 'v0:sandbox:theme': {
-        document.documentElement.dataset.theme = event.data.dark ? themes.dark : themes.light
+        document.documentElement.setAttribute(themeAttribute, event.data.dark ? themes.dark : themes.light)
         break
       }
       // Also the parent's acknowledgement that the frame has settled: re-pin
@@ -300,6 +387,10 @@
       }
     }
   })
+
+  // Same gutter the preflight stamps on this document. Inline, so it wins
+  // even when the injected stylesheet lands later. See bootstrap.html.
+  document.documentElement.style.scrollbarGutter = 'auto'
 
   // The frame loads lazily, so the theme carried on the URL can be stale by the
   // time it does — ask the parent for the current one. The example is resolved

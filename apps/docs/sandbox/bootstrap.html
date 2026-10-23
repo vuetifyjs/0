@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+
+    <title>Bootstrap example</title>
+    <link rel="icon" type="image/png" href="/0.png">
+
+    <script>
+      // Blocking, and first: an iframe composites an opaque canvas as soon as
+      // it is attached, so anything that decides the scheme later decides it
+      // after the reader has already seen a white frame. Bootstrap 6 keys the
+      // scheme on data-bs-theme, not data-theme.
+      document.documentElement.setAttribute(
+        'data-bs-theme',
+        new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light',
+      )
+    </script>
+
+    <style>
+      /* Bootstrap's --bs-bg-body / --bs-fg-body, inlined so the document paints
+         the right surface while the stylesheet request is in flight. :where()
+         keeps specificity at zero, so Bootstrap takes these back when it lands.
+         Values match the pin: light-dark white / gray-975 and gray-900 / gray-050. */
+      :where(html[data-bs-theme="dark"]) {
+        background-color: color-mix(in oklch, #000 76%, oklch(60% .02 245));
+        color: color-mix(in oklch, #fff 90%, oklch(60% .02 245));
+        color-scheme: dark;
+      }
+
+      :where(html[data-bs-theme="light"]) {
+        background-color: #fff;
+        color: color-mix(in oklch, #000 64%, oklch(60% .02 245));
+        color-scheme: light;
+      }
+    </style>
+
+    <!--
+      The user's own Bootstrap CSS is the styling source — @paper/bootstrap
+      ships none. This URL is the commit in packages/bootstrap/harness/PIN.md.
+      Replace it with the npm release when bootstrap@6 exists. Do not load
+      bootstrap.bundle.js.
+    -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/twbs/bootstrap@f6cc0f2cde9cbf3d73759ada24a39555d2de3a12/dist/css/bootstrap.min.css">
+
+    <style>
+      /* `clip`, not `auto` / `hidden`: no scroll container exists, so a resize
+         reflow that briefly outgrows the held height cannot paint a root
+         scrollbar or leave the document at a stale offset. */
+      html {
+        overflow: clip;
+        /* The docs Uno preflight sets `scrollbar-gutter: stable` on every
+           document this app serves, including this frame. The gutter is empty
+           canvas, and a dialog backdrop cannot paint into it. */
+        scrollbar-gutter: auto !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sandbox"></div>
+    <script type="module" src="/src/sandbox/bootstrap.ts"></script>
+  </body>
+</html>

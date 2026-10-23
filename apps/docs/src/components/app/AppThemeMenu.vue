@@ -45,6 +45,7 @@
         <AppPaletteAntDesignButton />
         <AppPaletteEmeraldButton />
         <AppPaletteBulmaButton />
+        <AppPaletteBootstrapButton />
       </div>
 
       <slot name="palettes-footer" />

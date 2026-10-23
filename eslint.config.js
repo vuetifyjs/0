@@ -183,8 +183,8 @@ export default vuetify({
   },
 },
 {
-  // @paper/bulma conformance tests: conform() throws on mismatch — it IS the assertion
-  files: ['packages/bulma/**/*.browser.test.ts'],
+  // @paper/bulma and @paper/bootstrap conformance tests: conform() throws on mismatch — it IS the assertion
+  files: ['packages/bulma/**/*.browser.test.ts', 'packages/bootstrap/**/*.browser.test.ts'],
   rules: {
     'vitest/expect-expect': ['error', { assertFunctionNames: ['expect', 'conform'] }],
   },

@@ -1,0 +1,34 @@
+<!--
+  Bootstrap 6 menu markup from the pinned v6-dev docs.
+  data-bs-toggle is the bundle's behavior hook and is not part of the
+  rendered contract — this package does not emit it.
+  data-bs-placement is a styling hook (transform-origin). The docs snippet
+  omits it because Bootstrap's JS writes it when the menu opens; this
+  package writes the placement it was given.
+-->
+
+<!-- fixture: trigger -->
+<button type="button" class="btn-solid theme-primary" aria-expanded="false" aria-haspopup="menu">
+  Toggle menu
+</button>
+
+<!-- fixture: basic -->
+<div class="menu show" data-bs-placement="bottom-start">
+  <a class="menu-item" href="#">Menu item 1</a>
+  <a class="menu-item" href="#">Menu item 2</a>
+  <a class="menu-item" href="#">Menu item 3</a>
+</div>
+
+<!-- fixture: parts -->
+<div class="menu show" data-bs-placement="bottom-start">
+  <h6 class="menu-header">Account</h6>
+  <a class="menu-item" href="#">Profile</a>
+  <hr class="menu-divider">
+  <a class="menu-item" href="#">Sign out</a>
+  <div class="submenu">
+    <button type="button" class="menu-item" aria-haspopup="true" aria-expanded="false">File</button>
+    <div class="menu" data-bs-placement="right-start">
+      <a class="menu-item" href="#">New</a>
+    </div>
+  </div>
+</div>
