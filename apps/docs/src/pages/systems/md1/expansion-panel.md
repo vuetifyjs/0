@@ -93,7 +93,7 @@ The usage figure shows three layouts and all three are props or the default slot
 
 ### Editing and actions
 
-An expanded panel is where the user adds or edits information. The body takes 24 dp of side padding and 16 dp below its content, and holds whatever control the setting needs: here a toggle button group picks the cabin class, with helper text under it in the secondary ink.
+An expanded panel is where the user adds or edits information. The body takes 24 dp of side padding and 16 dp below its content, and holds whatever control the setting needs: here a radio group picks the cabin class, stacked so it fits the narrowest panel, with helper text under it in the secondary ink.
 
 `Actions` is the CANCEL and SAVE row of the guidelines' figure. It draws a 1 dp divider at 12% across the full width of the sheet, then 16 dp above and below the 36 dp flat buttons, which sit at the end of the row 8 dp apart. It emits nothing: the buttons are yours, so you decide what SAVE commits and that CANCEL reverts and closes the panel, which the page shows but does not describe. Dismissive comes before affirmative, as on the buttons page.
 :::

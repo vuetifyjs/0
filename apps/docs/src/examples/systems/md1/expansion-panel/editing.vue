@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Md1Button, Md1ExpansionPanel, Md1ToggleButtons } from '@paper/md1'
+  import { Md1Button, Md1ExpansionPanel, Md1Radio } from '@paper/md1'
   import { shallowRef } from 'vue'
 
   const LABELS: Record<string, string> = {
@@ -37,13 +37,13 @@
       <Md1ExpansionPanel.Header label="Cabin class" :summary="LABELS[cabin]" />
 
       <Md1ExpansionPanel.Content>
-        <Md1ToggleButtons v-model="draft" label="Cabin class" mandatory>
-          <Md1ToggleButtons.Item value="economy">Economy</Md1ToggleButtons.Item>
+        <Md1Radio.Group v-model="draft" aria-label="Cabin class">
+          <Md1Radio label="Economy" value="economy" />
 
-          <Md1ToggleButtons.Item value="premium">Premium</Md1ToggleButtons.Item>
+          <Md1Radio label="Premium" value="premium" />
 
-          <Md1ToggleButtons.Item value="business">Business</Md1ToggleButtons.Item>
-        </Md1ToggleButtons>
+          <Md1Radio label="Business" value="business" />
+        </Md1Radio.Group>
 
         <p class="md1-docs-panel-helper">The fare difference is charged at check-in.</p>
 
