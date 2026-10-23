@@ -14,6 +14,7 @@
   // Components
   import QuButton from '../QuButton/QuButton.vue'
   import QuIcon from '../QuIcon/QuIcon.vue'
+  import QuRipple from '../QuRipple/QuRipple.vue'
 
   export interface QuToolbarSearchProps {
     /** Field placeholder. Defaults to the locale's "Search". */
@@ -179,6 +180,8 @@
         :value
         @click="onPick"
       >
+        <QuRipple />
+
         <QuIcon name="history" />
 
         <span class="quantum-toolbar__suggestion-text">{{ value }}</span>
@@ -193,6 +196,8 @@
           :value
           @click="onPick"
         >
+          <QuRipple />
+
           <QuIcon name="search" />
 
           <span class="quantum-toolbar__suggestion-text">{{ value }}</span>
@@ -305,6 +310,7 @@
   }
 
   .quantum-toolbar__suggestion {
+    position: relative;
     display: flex;
     align-items: center;
     box-sizing: border-box;
