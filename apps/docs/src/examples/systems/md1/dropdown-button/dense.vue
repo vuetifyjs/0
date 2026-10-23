@@ -23,9 +23,9 @@
   .md1-docs-dropdown-stage {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    place-content: center;
+    align-items: center;
     gap: var(--md1-spacing-3, 24px);
     min-block-size: 240px;
-    padding-block-start: var(--md1-spacing-2, 16px);
   }
 </style>
