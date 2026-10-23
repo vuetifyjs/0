@@ -123,6 +123,11 @@
     color: var(--quantum-primary, #3F51B5);
   }
 
+  /* Primary 500 on the dark surface falls under 2:1; the dark theme takes the primary's 100, as QuList does for its current item. */
+  [data-theme='quantum-dark'] .quantum-docs-quickstart-key-art {
+    color: var(--quantum-primary-light, #C5CAE9);
+  }
+
   .quantum-docs-quickstart-key-text {
     max-width: 280px;
     margin: 0;

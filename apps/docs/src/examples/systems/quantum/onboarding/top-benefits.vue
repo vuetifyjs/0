@@ -222,6 +222,15 @@
     outline-offset: -2px;
   }
 
+  /* Primary 500 on the dark surface falls under 2:1, so the current dot and the focus ring take the primary's 100 there. */
+  [data-theme='quantum-dark'] .quantum-docs-benefits-dot[data-active] {
+    color: var(--quantum-primary-light, #C5CAE9);
+  }
+
+  [data-theme='quantum-dark'] .quantum-docs-benefits-dot:focus-visible {
+    outline-color: var(--quantum-primary-light, #C5CAE9);
+  }
+
   .quantum-docs-onboarding-note {
     font-family: var(--quantum-font-family, Roboto, Noto, sans-serif);
     font-size: var(--quantum-type-caption-size, 12px);
