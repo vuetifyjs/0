@@ -847,7 +847,7 @@ export const themes = {
       'warning': '#FB8C00',
       'background': '#303030',
       'surface': '#424242',
-      'surface-tint': '#C5CAE9',
+      'surface-tint': '#303F9F',
       'surface-variant': '#212121',
       'divider': 'rgba(255, 255, 255, 0.12)',
       'pre': '{quantum-dark.colors.surface-variant}',
