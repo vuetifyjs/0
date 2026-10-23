@@ -9,14 +9,15 @@
     fat: number
   }
 
-  const desserts: Dessert[] = [
+  // Rows and selection are both reactive, so a row's value and its entry in the selection are the same proxy.
+  const desserts = ref<Dessert[]>([
     { id: 1, name: 'Frozen yogurt', calories: 159, fat: 6 },
     { id: 2, name: 'Ice cream sandwich', calories: 237, fat: 9 },
     { id: 3, name: 'Eclair', calories: 262, fat: 16 },
     { id: 4, name: 'Cupcake', calories: 305, fat: 3.7 },
-  ]
+  ])
 
-  const selected = ref<Dessert[]>([desserts[1]!, desserts[2]!])
+  const selected = ref<Dessert[]>([desserts.value[1]!, desserts.value[2]!])
 </script>
 
 <template>
