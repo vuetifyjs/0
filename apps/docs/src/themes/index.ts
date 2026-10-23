@@ -831,7 +831,9 @@ export const themes = {
   // the theme figures (Grey 50 / white / Grey 100 light, #303030 / Grey 800 /
   // Grey 900 dark); ink as black or white at the spec's opacities. Info,
   // success and warning are bridge-only values (Vuetify 1.5 defaults): MD1
-  // defines no such roles.
+  // defines no such roles. The docs shell repaints its ink roles on `:root`
+  // in styles/md1.css; the scrollbar thumb is not bridged, so its dark value
+  // lives here as the primary's 100.
   'md1-dark': {
     id: 'md1-dark',
     label: 'Material Design 1',
@@ -862,7 +864,7 @@ export const themes = {
       'on-surface': '#FFFFFF',
       'on-surface-variant': 'rgba(255, 255, 255, 0.7)',
       'glass-surface': 'rgba(66, 66, 66, 0.7)',
-      'scrollbar-thumb': 'rgba(63, 81, 181, 0.4)',
+      'scrollbar-thumb': 'rgba(197, 202, 233, 0.5)',
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
