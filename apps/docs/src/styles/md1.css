@@ -39,3 +39,126 @@
   background: var(--v0-surface-variant);
   color: var(--v0-on-surface);
 }
+
+/*
+ * Centred examples. A Material Design 1 example sits in its preview panel as
+ * a grid item, centred across the panel and down it when the panel has spare
+ * height, and its visible content is centred as one group:
+ *
+ * - Most examples shrink to their content.
+ * - Examples with a designed width (a max-width, or children sized in
+ *   percentages) fill the panel up to that width and centre inside it.
+ * - Stacks span the panel and centre each child. Screens, sheets, cards,
+ *   frames and grids keep their designed width; toolbars span the stack.
+ * - Full-bleed examples (toolbars, data tables, drawers, bottom navigation,
+ *   bottom sheets) keep the full width.
+ * - Examples that would collapse when shrunk (auto-fill grids, wrapping swatch
+ *   rows, a query container) keep the full width and centre their tracks.
+ */
+.genesis-docs-example-preview__panel[data-theme^="md1-"] {
+  display: grid;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > * {
+  min-width: 0;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is([class*="md1-docs-toolbar"], .md1-toolbar, .md1-data-table, .md1-docs-table),
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :has(.md1-toolbar, .md1-data-table, .md1-navigation-drawer, .md1-bottom-navigation, .md1-bottom-sheet) {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+  justify-self: center;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(
+  .md1-docs-screen,
+  .md1-docs-nav-frame,
+  .md1-docs-fields,
+  .md1-docs-fields-dense,
+  .md1-docs-field,
+  .md1-docs-errors-fields,
+  .md1-docs-errors-sheet,
+  .md1-docs-errors-article,
+  .md1-docs-help-field,
+  .md1-docs-search,
+  .md1-docs-search-scroller,
+  .md1-docs-compose,
+  .md1-docs-sliders,
+  .md1-docs-progress-sheet,
+  .md1-docs-progress-video,
+  .md1-docs-fab-sheet,
+  .md1-docs-offline-empty,
+  .md1-docs-cards,
+  .md1-docs-selection-cards,
+  .md1-docs-palette,
+  .md1-docs-leading,
+  .md1-docs-layout-breakpoints,
+  .md1-docs-layout-increments,
+  .md1-docs-layout-keylines,
+  .md1-docs-layout-spacing,
+  .md1-docs-motion-easing,
+  .md1-docs-motion-reduced,
+  [class*="md1-docs-grid-list"]
+),
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :has(.md1-grid-list) {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+  justify-self: center;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+  justify-self: center;
+  align-items: center;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) > :is([class*="-screen"], [class*="-sheet"], [class*="-card"], [class*="-frame"], [class*="-grid"], [class*="-text"], [class*="-pad"], .md1-grid-list) {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(.md1-docs-stack, [class*="md1-docs-"][class*="-stack"], .md1-docs-motion-stagger) > :is(.md1-toolbar, [class*="md1-docs-toolbar"], .md1-tabs, .md1-data-table) {
+  align-self: stretch;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > :is(
+  .md1-docs-collection,
+  .md1-docs-roles,
+  .md1-docs-ink,
+  .md1-docs-inks,
+  .md1-docs-themes,
+  .md1-docs-states,
+  .md1-docs-hues,
+  .md1-docs-elevation-levels,
+  .md1-docs-elevation-components,
+  .md1-docs-elevation-recipe,
+  .md1-docs-elevation-themes,
+  .md1-docs-icon-gallery,
+  .md1-docs-layout-devices,
+  .md1-docs-motion-ink,
+  .md1-docs-scripts,
+  .md1-docs-landscape
+) {
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
+  justify-self: center;
+  justify-content: center;
+}
+
+.genesis-docs-example-preview__panel[data-theme^="md1-"] > [data-theme^="md1-"] > .md1-docs-landscape > * {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
