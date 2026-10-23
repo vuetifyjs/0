@@ -574,7 +574,7 @@ The default theme is the spec's own worked example (Indigo primary, Pink accent,
 | `--quantum-text-secondary` | 54% | 70% | colour page |
 | `--quantum-text-disabled`, `--quantum-text-hint` | 38% | 50% | colour page |
 | `--quantum-divider` | black 12% | white 12% | colour page |
-| `--quantum-icon-active` / `-inactive` / `-focused` | 54% / 38% / 87% | 100% / 50% / 100% | icons page (dark active: its Color section and the colour page; the state table's 70% is open, see Known limitations) |
+| `--quantum-icon-active` / `-inactive` / `-focused` | 54% / 38% / 87% | 100% / 50% / 100% | icons page; dark active 100%, Lead decision 13 |
 | `--quantum-focus` | black 12% | white 12% | buttons page |
 | `--quantum-pressed` | `#999999` 40% | `#CCCCCC` 25% | buttons page |
 | `--quantum-hover` | black 6% | white 10% | steppers page (light, high); dark measured halo (`moderate`); not stated for buttons |
@@ -676,7 +676,6 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 - **Editable segmented dropdown button.** Definition only in the spec; deferred as a `QuTextField` + `QuDropdownButton` composition.
 - **Values the spec never states**, filled by the decisions recorded above and in the notes: hover overlay, scrim alpha, card, menu and tooltip radius, chip fill, grid-list bar scrim, snackbar timeout, ripple timing, mini drawer width, speed-dial spacing, expanded-panel elevation, dialog desktop width and body text style, tab colours on surface bars, tooltip open delay and long-press threshold, control-to-label gap, indeterminate cycle durations. Each is tagged in the component section; none is `high`.
 - **Measured geometry.** Selection controls, sliders, pickers, progress thickness and the snackbar line pitch come from the spec's own artwork at 2 px per dp (`measured`), not from text.
-- **Dark active icon opacity.** `--quantum-icon-active` is 100% white on the dark theme: the icons page's Color section, the colour page (2016 and 2018) and Vuetify 1.5 agree. The icons page's state table gives 70% for an active icon that is not focused (100% focused, 50% inactive), the dark counterpart of the light 54% the token already uses. Both readings are `high` (`spec/iconography.md`), so the token stays at 100% until the lead rules on the 70%.
 - **Text selection highlight.** `style.css` ships no `::selection` rule. The selection page's accent highlight covers every selectable text on the page, which a package stylesheet reaches only with a global rule, and the docs app loads `style.css` on every page; a rule scoped to Quantum parts would give one page two highlight colours. The app sets it on its root, `::selection { background: var(--quantum-selection); color: var(--quantum-text-primary) }`, the recipe on the selection docs page.
 - **List reorder handle.** `QuList` ships no `reorder` handle: no keyboard move-up and move-down and no live region, and pick-up-and-move is a gesture (above). An app that reorders a list puts its own buttons in `QuList.Action` and keeps the order in its state, for example v0's `createSortable`.
 - **Desktop and dense mapping.** `(pointer: fine)` stands in for the spec's "mouse and keyboard"; a touch laptop gets device metrics. There is no runtime override in v1.
@@ -688,7 +687,7 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 
 ## Lead decisions
 
-The eleven questions the synthesis raised, answered by the lead on 2026-10-22, and the rulings the lead added after the integration sweeps (row 12, 2026-10-23). Each answer is binding for the implementation; each is tagged with the confidence of its basis.
+The eleven questions the synthesis raised, answered by the lead on 2026-10-22, and the rulings the lead added after the integration sweeps (rows 12 and 13, 2026-10-23). Each answer is binding for the implementation; each is tagged with the confidence of its basis.
 
 | # | Question | Decision | Basis |
 |---|---|---|---|
@@ -704,6 +703,7 @@ The eleven questions the synthesis raised, answered by the lead on 2026-10-22, a
 | 10 | Persistent-drawer breakpoint | `type` is explicit; no default mapping in the plugin; the docs page shows the `useBreakpoints` composition (temporary under 600, persistent under 1280, permanent above) as the recommended recipe | the pattern page gives no pixel values |
 | 11 | Utility classes | the 38 `quantum-type-*` and `quantum-elevation-*` classes ship in `style.css` as the declared deviation | the MD1 type scale is a set of named styles; the escape hatch needs them |
 | 12 | Primary ink on dark surfaces | on a dark-theme surface, primary-coloured ink (text and icons, not fills) takes the primary's 100, `--quantum-primary-light`, through a `[data-theme='quantum-dark']` rule: the `primary` `QuSubheader`, the current item and the open group title of `QuList`, the current destination of `QuNavigationDrawer`, the active action of the surface `QuBottomNavigation`; primary fills (app bars, buttons, the coloured bottom navigation bar, the drawer header) keep the primary 500 and its on-primary ink | the 4.5:1 contrast floor (`high`): Indigo 500 measures about 1.5:1 on the Grey 800 surface, Indigo 100 about 6.2:1; MD1 states no dark-theme primary ink, so the tone is a decision |
+| 13 | Dark active icon opacity | `--quantum-icon-active` stays at 100% white on the dark theme (inactive 50%, focused 100%); the icons page's state table gives 70% for an active, unfocused icon, the rejected reading: 70% is the dark secondary-text value, so the cell is likely a transcription of that | the icons page's Color section and the 2016 and 2018 colour pages (`high`); Vuetify 1.5's `$material-dark.icons` active `#fff` agrees as a numeric cross-check (`moderate`) |
 
 ## Open rulings
 
