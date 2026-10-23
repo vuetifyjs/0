@@ -156,7 +156,10 @@
    * inset is added below the 56 dp so the actions stay clear of a home
    * indicator (the page predates safe areas). z-index 4 is Vuetify 1.5's fixed
    * bottom navigation value: above content and the 6 dp snackbar, below sheets,
-   * drawers and dialogs, which the page puts in front of the bar.
+   * drawers and dialogs, which the page puts in front of the bar. The bar is
+   * its actions' size container, so a bar narrower than the actions' minimums
+   * can share itself out (see Md1BottomNavigationAction); `safe` keeps the first
+   * action on screen if they still overflow.
    */
   .md1-bottom-navigation {
     position: fixed;
@@ -164,9 +167,10 @@
     inset-block-end: 0;
     z-index: 4;
     display: flex;
-    justify-content: center;
+    justify-content: safe center;
     box-sizing: content-box;
     height: 56px;
+    container: md1-bottom-navigation / inline-size;
     padding-block-end: env(safe-area-inset-bottom, 0px);
     background: var(--md1-surface, #FFFFFF);
     box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));

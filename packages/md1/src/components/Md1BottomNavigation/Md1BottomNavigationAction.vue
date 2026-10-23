@@ -289,6 +289,20 @@
     max-width: 168px;
   }
 
+  /*
+   * The minimum widths fill a 320 dp handset exactly at the largest counts
+   * (four fixed actions at 80 dp; a shifting 96 dp action beside four at 56 dp).
+   * A narrower bar cannot hold them, so the actions share it out instead of
+   * running past its edge.
+   */
+  @container md1-bottom-navigation (max-width: 319px) {
+    .md1-bottom-navigation__action,
+    .md1-bottom-navigation[data-shifting] .md1-bottom-navigation__action,
+    .md1-bottom-navigation[data-shifting] .md1-bottom-navigation__action[data-selected] {
+      min-width: 0;
+    }
+  }
+
   body[data-reduced-motion='reduce'] .md1-bottom-navigation__action,
   body[data-reduced-motion='reduce'] .md1-bottom-navigation__label {
     transition: none;

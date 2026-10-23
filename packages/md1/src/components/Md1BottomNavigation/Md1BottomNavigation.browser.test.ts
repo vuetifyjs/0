@@ -356,6 +356,24 @@ describe('quBottomNavigation', () => {
       expect(getComputedStyle(label(list[2]!)).opacity).toBe('1')
       expect(getComputedStyle(label(list[0]!)).opacity).toBe('0')
     })
+
+    // Under 320 px the minimums overflowed the bar, and the centred group
+    // pushed the first action past the start edge.
+    it('should share a bar narrower than the minimum widths instead of overflowing it', async () => {
+      const fixed = bar({ count: 4, width: 270 })
+      const shifting = bar({ count: 5, props: { shifting: true }, width: 270 })
+      await settle()
+
+      for (const { nav, items } of [fixed, shifting]) {
+        const box = nav.getBoundingClientRect()
+        const list = items()
+
+        expect(list[0]!.getBoundingClientRect().left).toBeGreaterThanOrEqual(box.left)
+        expect(list.at(-1)!.getBoundingClientRect().right).toBeLessThanOrEqual(box.right + 0.5)
+      }
+
+      expect(shifting.items()[0]!.getBoundingClientRect().width).toBeCloseTo(270 / 5.5 * 1.5, 1)
+    })
   })
 
   describe('variants', () => {
