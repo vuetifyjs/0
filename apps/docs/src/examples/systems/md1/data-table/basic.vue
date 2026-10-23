@@ -2,11 +2,11 @@
   import { Md1Button, Md1DataTable } from '@paper/md1'
 
   const desserts = [
-    { id: 1, name: 'Frozen yogurt', calories: 159, fat: 6, carbs: 24, protein: 4 },
-    { id: 2, name: 'Ice cream sandwich', calories: 237, fat: 9, carbs: 37, protein: 4.3 },
-    { id: 3, name: 'Eclair', calories: 262, fat: 16, carbs: 24, protein: 6 },
-    { id: 4, name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3 },
-    { id: 5, name: 'Gingerbread', calories: 356, fat: 16, carbs: 49, protein: 3.9 },
+    { id: 1, name: 'Frozen yogurt', calories: 159, fat: 6, carbs: 24 },
+    { id: 2, name: 'Ice cream sandwich', calories: 237, fat: 9, carbs: 37 },
+    { id: 3, name: 'Eclair', calories: 262, fat: 16, carbs: 24 },
+    { id: 4, name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67 },
+    { id: 5, name: 'Gingerbread', calories: 356, fat: 16, carbs: 49 },
   ]
 </script>
 
@@ -29,8 +29,6 @@
           <Md1DataTable.Column id="fat" numeric sortable>Fat (g)</Md1DataTable.Column>
 
           <Md1DataTable.Column id="carbs" numeric sortable>Carbs (g)</Md1DataTable.Column>
-
-          <Md1DataTable.Column id="protein" numeric sortable>Protein (g)</Md1DataTable.Column>
         </Md1DataTable.Head>
 
         <Md1DataTable.Body v-slot="{ rank }">
@@ -47,8 +45,6 @@
             <Md1DataTable.Cell numeric>{{ dessert.fat }}</Md1DataTable.Cell>
 
             <Md1DataTable.Cell numeric>{{ dessert.carbs }}</Md1DataTable.Cell>
-
-            <Md1DataTable.Cell numeric>{{ dessert.protein }}</Md1DataTable.Cell>
           </Md1DataTable.Row>
         </Md1DataTable.Body>
       </Md1DataTable.Table>
