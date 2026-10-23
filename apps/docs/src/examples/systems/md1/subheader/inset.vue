@@ -36,8 +36,12 @@
     padding-inline: var(--md1-keyline-margin, 16px);
   }
 
-  /* Tiles whose text sits at the content keyline, in line with the inset subheader. */
-  .md1-docs-subheader-inset {
+  /*
+   * Tiles whose text sits at the content keyline, in line with the inset
+   * subheader. Compound so the shared tile rule, restated later by the other
+   * subheader examples on the page, cannot reset the inset.
+   */
+  .md1-docs-subheader-tile.md1-docs-subheader-inset {
     padding-inline-start: var(--md1-keyline-content, 72px);
   }
 
