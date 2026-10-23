@@ -687,6 +687,21 @@ describe('quSlider', () => {
       expect(line(field)).toBeCloseTo(0.42, 1)
     })
 
+    it('should keep a host focus ring off the field, the accent line being its focus indicator', async () => {
+      style(':focus-visible { outline: 2px solid rgb(0, 0, 255); }')
+      const { root } = bound({ editable: true }, 50)
+      await settle()
+
+      const input = root.querySelector<HTMLInputElement>('.md1-slider__input')!
+
+      await userEvent.click(input)
+      await settle()
+
+      expect(input.matches(':focus-visible')).toBe(true)
+      expect(getComputedStyle(input).outlineStyle).toBe('none')
+      expect(getComputedStyle(root.querySelector('.md1-slider__field')!).borderBottomColor).toBe('rgb(255, 64, 129)')
+    })
+
     it('should warn in dev when editable is paired with discrete', async () => {
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 

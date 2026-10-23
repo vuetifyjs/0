@@ -506,6 +506,11 @@
     caret-color: var(--md1-accent, #FF4081);
   }
 
+  /* The accent line is the focus indicator; a host's generic focus ring would draw a box around the digits. */
+  .md1-slider__input:focus-visible {
+    outline: none;
+  }
+
   .md1-slider[data-disabled] .md1-slider__field {
     border-bottom-style: dotted;
   }
