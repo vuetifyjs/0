@@ -100,7 +100,7 @@ Copy-pasteable. Every devDependency must be `catalog:` (`pnpm/json-enforce-catal
   ],
   "scripts": {
     "build": "tsdown && pnpm bake:theme",
-    "bake:theme": "tsx scripts/bake-theme.ts",
+    "bake:theme": "tsx -C development scripts/bake-theme.ts",
     "typecheck": "vue-tsc --noEmit --incremental",
     "test:browser": "vitest run --config vitest.browser.config.ts"
   },
@@ -141,6 +141,8 @@ Copy-pasteable. Every devDependency must be `catalog:` (`pnpm/json-enforce-catal
 ```
 
 Facts behind it (all `high`): Emerald's `exports` has the same four keys; `dist/style.css` is written by tsdown from the SFC `<style>` blocks (`exports.devExports: 'development'` regenerates the map on every build); `dist/theme.css` is written after tsdown by the bake script, so it survives only through `customExports` in `tsdown.config.mts` (memory `emerald-feedback-from-onyx` item 1, confirmed by the comment in Emerald's `tsdown.config.mts`). Bootstrap's `package.json` is the source of the `test:browser` script and the two browser dev deps.
+
+`bake:theme` runs under the `development` export condition (`tsx -C development scripts/bake-theme.ts`), so the script's import graph (`src/design-system.ts` reaching `@vuetify/v0/palettes/md1` and `@vuetify/v0/utilities`) resolves to `packages/0/src` and the bake needs no `packages/0/dist`. Without the flag Node takes the `default` condition and the import fails with `ERR_MODULE_NOT_FOUND` on `dist/palettes/md1` until `pnpm build:0` has run. Verified on 2026-10-22 with `packages/0/dist` renamed: `tsdown` (whose dts build follows the tsconfig `customConditions`) and the `-C development` bake both pass, the plain `tsx scripts/bake-theme.ts` fails.
 
 After creating the package run `pnpm install` once from the worktree root (not `--frozen-lockfile`: the lockfile gains a workspace project).
 
@@ -1383,7 +1385,7 @@ Run from the worktree root unless stated. The quantum worktree already has `node
 |---|---|---|---|
 | Package typecheck | `pnpm --filter @paper/quantum typecheck` | `vue-tsc --noEmit --incremental`; delete `packages/quantum/node_modules/.tmp/*.tsbuildinfo` when the output quotes a type you already changed | high |
 | Package build | `pnpm --filter @paper/quantum build` | tsdown then the bake; check `dist/index.mjs`, `dist/style.css`, `dist/theme.css`, `dist/index.d.mts`; the build is the only gate that catches an unresolvable `defineProps` type | high |
-| Tarball contents | `pnpm --filter @paper/quantum pack --dry-run` | proves `dist/**` and `LICENSE-ICONS` are in the tarball and nothing else is | high |
+| Tarball contents | `pnpm --filter @paper/quantum pack --pack-destination /tmp/quantum-pack` then `tar -tzf /tmp/quantum-pack/paper-quantum-<version>.tgz` | lists what ships: `dist/**`, `LICENSE-ICONS`, plus the `package.json` and `README.md` every tarball carries, and nothing else; read the listing from the written tarball rather than from the `--dry-run` summary | high |
 | Browser tests | section 3.4 | | high |
 | Lint | none to run; the PostToolUse hook runs `eslint --fix` on every written `.ts` / `.vue`; run `pnpm lint:fix` once before committing because the pre-push hook fixes the working tree, not the commit | high |
 | Docs typecheck | `pnpm --filter docs typecheck` | `vue-tsc --noEmit -p tsconfig.examples.json`: covers `src/examples/**` and the packages listed in `include`, nothing under `apps/docs/src/components` (memory `docs-app-typecheck-gap`; use the `tsconfig.app.json` before/after differential for shell edits) | high |

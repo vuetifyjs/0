@@ -117,13 +117,13 @@ Visual values are CSS custom properties named `--quantum-*`, generated from `col
 
 Each color is emitted as its value and as space-separated RGB channels. Use `--quantum-primary-channels` in `rgb(... / 0.4)` when you need a translucent overlay. The ink tokens are already translucent: black at 87%, 54%, 38% and 12% on the light theme, white at 100%, 70%, 50% and 12% on the dark one.
 
-Breakpoints are not custom properties. They ship as the documented table and as the `quantumBreakpoints` map for `useBreakpoints`.
+Breakpoints are not custom properties. They ship as `quantumBreakpoints`, the documented dp table in JS: 480, 600, 840, 960, 1280, 1440, 1600 and 1920, keyed by the nominal width, with the 16 px desktop reduction on 1024 and above. Vuetify0's `useBreakpoints` has its own named breakpoints and takes no Quantum input, so map the table onto those names yourself when a layout needs the spec's widths.
 
 ### The v0 bridge
 
 Quantum also writes its color roles onto the `--v0-*` names that Vuetify0 kits read, so a kit written against those names picks up Quantum's colors.
 
-Most names match: `--v0-primary` copies `--quantum-primary` and `--v0-background` copies `--quantum-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads the light primary, `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no Quantum component reads them.
+Most names match: `--v0-primary` copies `--quantum-primary` and `--v0-background` copies `--quantum-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads a bridge-only tint (the primary's 100 on the light theme, its 700 on the dark one, so code chips and table headers keep their contrast under white ink), `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no Quantum component reads them.
 
 Pass `{ v0Aliases: false }` to the adapter to skip the `--v0-*` names.
 
