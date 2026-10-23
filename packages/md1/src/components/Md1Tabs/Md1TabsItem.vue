@@ -40,6 +40,9 @@
 
   /** Width of the 24 dp tab glyph; an icon-only tab's content box. */
   const GLYPH = 24
+
+  /** The tabs page's maximum tab width, padding included. */
+  const MAX = 264
 </script>
 
 <script setup lang="ts">
@@ -87,12 +90,29 @@
 
   /*
    * Labels wrap to a second line at 12 sp when they do not fit, then truncate
-   * (tabs page). One line clips with no wrap, so an overflowing scrollWidth is
-   * the signal to wrap; the unwrapped width is kept so the label unwraps only
-   * once the tab is wide enough for it again, never oscillating at the edge.
+   * (tabs page). The unwrapped width is read while the label is on one line and
+   * kept, then compared with the room inside the tab's padding: the label box
+   * shrinks to its text, so its own width cannot say whether the tab has room,
+   * and a wrapped 12 sp label is narrower than the one-line label it replaced.
    */
   const lines = shallowRef<1 | 2>(1)
   let natural = 0
+
+  /*
+   * The widest the tab may grow, padding included. A full-width fixed tab owns
+   * its share of the bar. Scrollable and centred fixed tabs size to their label,
+   * so a wrapped label narrows them: their ceiling is the page's maximum, 264 dp
+   * (for scrollable tabs, or the view less 56 dp when that is smaller).
+   */
+  function room (el: HTMLElement): number {
+    const bar = el.closest('.md1-tabs__bar')
+
+    if (context?.scrollable.value && bar) return Math.min(MAX, bar.clientWidth - 56)
+
+    if (el.closest('.md1-tabs__bar[data-centered]')) return MAX
+
+    return el.clientWidth
+  }
 
   function measure () {
     const el = button.value
@@ -100,21 +120,16 @@
     if (!el) return
 
     const span = text.value
+    const style = getComputedStyle(el)
+    const padding = pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
 
     if (span) {
-      if (lines.value === 1) {
-        natural = span.scrollWidth
+      if (lines.value === 1) natural = span.scrollWidth
 
-        if (span.scrollWidth > span.clientWidth + 1) lines.value = 2
-      } else if (span.clientWidth >= natural) {
-        lines.value = 1
-      }
+      lines.value = natural > room(el) - padding + 1 ? 2 : 1
     }
 
     if (!context) return
-
-    const style = getComputedStyle(el)
-    const padding = pxToNumber(style.paddingLeft) + pxToNumber(style.paddingRight)
 
     context.items.upsert(id, {
       value: {
@@ -227,9 +242,13 @@
     transition: color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
-  /* Scrollable tabs size to their label, up to 264 dp or the view less 56 dp, whichever is smaller. */
+  /*
+   * Scrollable tabs size to their label, up to 264 dp or the view less 56 dp,
+   * whichever is smaller. The view is the bar's width, which the list writes:
+   * the tablist itself is narrowed by the keyline padding and the arrows.
+   */
   .md1-tabs[data-scrollable] .md1-tabs__item {
-    max-width: min(264px, calc(100% - 56px));
+    max-width: min(264px, calc(var(--md1-tabs-view, 100%) - 56px));
   }
 
   @media (min-width: 600px) {
@@ -297,11 +316,15 @@
     position: relative;
   }
 
-  /* One line clips while the bar decides whether the label wraps. */
+  /*
+   * One line clips while the bar decides whether the label wraps. A word wider
+   * than the tab truncates with an ellipsis on either line, never a bare cut.
+   */
   .md1-tabs__label {
     display: block;
     max-width: 100%;
     overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 

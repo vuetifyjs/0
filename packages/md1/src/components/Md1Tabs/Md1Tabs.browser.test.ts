@@ -690,6 +690,51 @@ describe('quTabs', () => {
       expect(errors).toEqual([])
       expect(items(fixed)[0]!.getBoundingClientRect().width).toBe(160)
     })
+
+    // Fixed tabs measured against the tablist, which the arrows narrow: once
+    // shown, the arrows squeezed every tab to its minimum and never hid again.
+    it('should drop the arrows once fixed tabs fit the bar again', async () => {
+      const host = tabs({ width: 600, panels: false })
+      await frames()
+
+      expect(items(host).map(tab => tab.getBoundingClientRect().width)).toEqual([160, 160, 160])
+
+      // Three 160 dp tabs overflow a 270 px desktop bar: the arrows show.
+      host.style.width = '270px'
+      await frames(10)
+
+      expect(host.querySelectorAll('.md1-tabs__arrow')).toHaveLength(2)
+
+      // Under 600 px the minimum drops to 72 dp, and three of them fit.
+      await handset()
+      await frames(10)
+
+      expect(host.querySelectorAll('.md1-tabs__arrow')).toHaveLength(0)
+      expect(items(host).map(tab => tab.getBoundingClientRect().width)).toEqual([90, 90, 90])
+    })
+
+    // A wrapped 12 sp label is narrower than its one-line form, so measuring the
+    // label box kept a label wrapped after its tab had grown wide enough again.
+    it('should unwrap a label once its tab is wide enough again', async () => {
+      const host = tabs({ width: 600, tabs: [{ value: 'a', label: 'Favorites' }, ...THREE.slice(1)], panels: false })
+      await frames()
+
+      const [tab] = items(host)
+
+      expect(tab!.dataset.lines).toBe('1')
+
+      await handset()
+      host.style.width = '270px'
+      await frames(10)
+
+      expect(tab!.dataset.lines).toBe('2')
+
+      await page.viewport(1280, 800)
+      host.style.width = '600px'
+      await frames(10)
+
+      expect(tab!.dataset.lines).toBe('1')
+    })
   })
 
   describe('indicator', () => {

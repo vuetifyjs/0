@@ -50,7 +50,14 @@
   const bar = useTemplateRef<HTMLElement>('bar')
   const list = useTemplateRef<HTMLElement>('list')
 
-  context?.attach(() => list.value)
+  /*
+   * Fixed tabs measure against the bar, which the arrows do not narrow: shown,
+   * the arrows shrink the tablist and squeeze every fixed tab to its minimum,
+   * so measured against the tablist the tabs would keep overflowing it and the
+   * arrows would never hide again. Scrollable tabs keep their own widths, so
+   * the tablist, the part that actually scrolls, is their container.
+   */
+  context?.attach(() => context.scrollable.value ? list.value : bar.value)
 
   const { width } = useElementSize(bar)
 
@@ -185,6 +192,7 @@
     ref="bar"
     class="md1-tabs__bar"
     :data-centered="centered || undefined"
+    :style="width ? { '--md1-tabs-view': `${width}px` } : undefined"
     :data-overflow="overflowing || undefined"
   >
     <Button.Root

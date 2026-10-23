@@ -24,11 +24,11 @@
     scrollable: Readonly<Ref<boolean>>
     /** The v0 `Tabs` namespace the root provides; parts default to it. */
     namespace: Readonly<Ref<string | undefined>>
-    /** Decides when the desktop pagination arrows show. Its container is the tablist. */
+    /** Decides when the desktop pagination arrows show. Its container is the bar for fixed tabs, the tablist for scrollable ones. */
     overflow: OverflowContext
     /** Every Material Design 1 tab, with what it shows and how wide it wants to be. */
     items: RegistryContext<{ id?: ID, value?: Md1TabsItemMeasure }, Md1TabsItemTicket>
-    /** The List registers the tablist element the overflow measures. */
+    /** The List registers the element the overflow measures against. */
     attach: (list: () => Element | null | undefined) => void
     /** A stable measurement key per tab, independent of registry indexes that shift on removal. */
     key: () => number
