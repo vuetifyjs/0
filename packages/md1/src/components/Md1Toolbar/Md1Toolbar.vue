@@ -179,7 +179,8 @@
     const floor = tabs.value && tabBar === 'staggered' ? Math.min(value, height.value) : 0
 
     offset.value = clamp(offset.value + delta, Math.min(floor, ceiling), ceiling)
-    hidden.value = span > 0 && offset.value >= span
+    // Hidden only once the whole bar is off screen: an anchored tab bar still shows.
+    hidden.value = span > 0 && offset.value >= height.value + natural.value
   }
 
   function onScroll (event: Event) {
@@ -305,6 +306,14 @@
     transition:
       background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  /*
+   * Hidden: the shadow goes with the bar, so no penumbra is left along the edge
+   * it scrolled past (the 4 dp shadow reaches past the bar's own box).
+   */
+  .md1-toolbar[data-hidden] {
+    box-shadow: none;
   }
 
   /* The app bar: fixed to the top of the viewport, content scrolling under it. */

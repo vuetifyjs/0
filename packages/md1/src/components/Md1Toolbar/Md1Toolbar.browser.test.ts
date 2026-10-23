@@ -661,6 +661,23 @@ describe('quToolbar', () => {
       await scrollTo(target, 500)
 
       expect(el.style.transform).toBe('translateY(-64px)')
+      // The tab bar is still on screen, so the bar is not hidden and keeps its shadow.
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(false)
+      expect(getComputedStyle(el).boxShadow).not.toBe('none')
+    })
+
+    // The 4 dp shadow reaches past the bar's box, so a hidden bar left a
+    // penumbra along the top edge of the screen.
+    it('should drop the shadow once the bar is hidden', async () => {
+      const el = basic({ appBar: true, scroll: 'hide' })
+      await settle()
+
+      const target = scroller(el)
+
+      await scrollTo(target, 400)
+
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(true)
+      await expect.poll(() => getComputedStyle(el).boxShadow).toBe('none')
     })
 
     it('should return a staggered tab bar first and the row only at the top', async () => {
