@@ -12,3 +12,4 @@
 
 // Adapters
 export { DateAdapter } from './adapter'
+export { PlainDateAdapter } from './plain'
