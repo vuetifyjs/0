@@ -704,3 +704,85 @@ The eleven questions the synthesis raised, answered by the lead on 2026-10-22, a
 | 10 | Persistent-drawer breakpoint | `type` is explicit; no default mapping in the plugin; the docs page shows the `useBreakpoints` composition (temporary under 600, persistent under 1280, permanent above) as the recommended recipe | the pattern page gives no pixel values |
 | 11 | Utility classes | the 38 `quantum-type-*` and `quantum-elevation-*` classes ship in `style.css` as the declared deviation | the MD1 type scale is a set of named styles; the escape hatch needs them |
 | 12 | Primary ink on dark surfaces | on a dark-theme surface, primary-coloured ink (text and icons, not fills) takes the primary's 100, `--quantum-primary-light`, through a `[data-theme='quantum-dark']` rule: the `primary` `QuSubheader`, the current item and the open group title of `QuList`, the current destination of `QuNavigationDrawer`, the active action of the surface `QuBottomNavigation`; primary fills (app bars, buttons, the coloured bottom navigation bar, the drawer header) keep the primary 500 and its on-primary ink | the 4.5:1 contrast floor (`high`): Indigo 500 measures about 1.5:1 on the Grey 800 surface, Indigo 100 about 6.2:1; MD1 states no dark-theme primary ink, so the tone is a decision |
+
+## Open rulings
+
+What the integration and the docs sweeps of 2026-10-23 left open. Each line says what ships today and what is still undecided or still to do. Docs-shell items are tracked with the docs app, not here.
+
+### Rulings
+
+- **Text field tile heights.** Ships 72 dp plain and 84 dp with a helper, error or counter row, and the box keeps the 1 dp idle line under its fill; undecided: the page's 80 dp (error) and 88 dp (counter), and whether the box drops the line.
+- **Selection-control halo.** Ships the 48 dp focus halo under every pointer and hides the press ripple under `pointer: fine`; undecided: whether desktop keeps the focus halo, which the `QuCheckbox, QuRadio, QuSwitch` section says is drawn only under `pointer: coarse`.
+- **`--quantum-accent-control`.** Ships the accent hue's 200 in dark for the switch, the slider, the pickers, the `QuList` check mark and the `QuDataTable` row checkbox, while `QuCheckbox` and `QuRadio` keep the accent; undecided: the Roles wording ("selection controls") and whether the table checkbox follows `QuCheckbox`.
+- **`QuIconToggle` ink.** Ships off at `--quantum-icon-inactive` (38% / 50%) and on at `--quantum-icon-active`; undecided: whether the icons page's "inactive" means disabled, which would draw off at the active ink and leave the state to the glyph.
+- **Chip delete anatomy.** Ships a `Button.Root` delete on a text chip and a `span` glyph inside the chip's button on a pressable or contact chip (buttons cannot nest), with `Addresses` teleported into an outlet beside the chip; undecided: whether that replaces the `button.quantum-chip__delete` anatomy in the `QuChip` section.
+- **`QuProgressLinear` exit.** Ships the enter animation only: the bar unmounts at once when the consumer's `v-if` drops it, so the 195 ms exit in the `QuProgressLinear` section never runs; undecided: an `active` model or a consumer transition.
+- **Determinate circular track.** Ships a track at 30% of the indicator colour, which the page does not show; undecided: whether it stays.
+- **Slider thumb ripple.** Ships a centred `QuRipple` on the thumb beside the 18 dp pressed thumb and the 32 dp halo, where the sliders page draws no ripple; undecided: whether the thumb keeps it.
+- **Snackbar timeout.** Ships `timeout` (6000 ms) on `QuSnackbar` for `v-model` and on `QuSnackbar.Queue` for queued notifications, where a `send()` timeout wins; undecided: which part owns it.
+- **Snackbar stacked action.** Ships the 112 dp stacked row when `multiline` is set and the action is wider than 128 px; undecided: whether it stays measured or becomes a prop.
+- **Bottom-sheet 16:9 keyline.** Ships the initial height capped at the viewport width x 9 / 16, the keyline read as a height from the bottom edge, never over the app bar; undecided: whether the keyline is measured from the top of the screen instead.
+- **Desktop menu metrics.** Ships the desktop rows (32 px, 15 px type, the 64 px width unit) on `QuMenu` and `QuDropdownButton` through a `desktop` prop, while the `QuTextField` dropdown and the `QuAutocomplete` list keep 48 dp rows under every pointer; undecided: one rule for all three, by prop or by `(pointer: fine)`.
+- **DS-owned date and time headless.** Ships `createDatePickerCore`, `toIso`, `useClock`, `parseTime` and `formatTime` as public exports because v0's `createDatePicker` and `createTimePicker` are not on master yet; undecided: their public names, which may change when Quantum migrates.
+- **`QuStepper` mobile bar on dark.** Ships the Grey 900 bar with the active dot in the primary 500 (about 2.3:1) and a 30% primary progress track that barely shows; Lead decision 12 covers ink, not these fills; undecided: an accent 200 or primary 100 rule, as for the pickers.
+
+### Token gaps
+
+- **Input line.** Ships the 42% black / 70% white line derived from `--quantum-hover` times seven; undecided: a `--quantum-input-line` pair.
+- **Placeholder.** Ships `--quantum-text-hint` (38% black, 50% white) where the text-fields page states 42% black; undecided: a token for the 42%.
+- **Switch.** Ships no switch role tokens; the dark track and thumb values sit under `[data-theme='quantum-dark']` selectors, so a light region nested in a dark one keeps them; undecided: switch tokens.
+- **Contextual header.** Ships `QuDataTable.Contextual` on `--quantum-accent-light` (A100) where the data tables page asks for the accent's 50; undecided: `--quantum-accent-50`.
+- **Chip.** Ships the full-pill radius (16 px) and the 13 sp label as literals; undecided: chip tokens.
+- **Theme-aware primary ink.** Ships Lead decision 12 as `[data-theme='quantum-dark']` rules, not a token, so a light region nested in a dark one still takes the 100; undecided: a per-theme primary-ink token.
+- **Bottom toolbar shadow.** Ships `QuToolbar position="bottom"` with the toolbar's downward 4 dp shadow; undecided: an upward elevation.
+- **Dark focused slider line.** Ships the focused inactive line at `--quantum-text-disabled`, 38% black and 50% white, where the text states only the light value and the dark sheet renders about 28% white; undecided: the dark value.
+
+### Component follow-ups
+
+- **`QuIcon` in RTL.** Ships `data-mirror` flipping under a `[dir='rtl']` ancestor, so an LTR island inside an RTL page still mirrors; open: `:dir(rtl)`.
+- **`QuCard.Media` loading.** Ships the exposure step on `brightness`, with the load phases not staggered; open: contrast for exposure and staggered phases.
+- **`QuGridList.Tile` loading.** Ships the fade and saturation steps with no exposure phase (CSS has no gamma filter); open: an exposure approximation.
+- **`QuTextField` counter.** Ships counter fields at 84 dp; open: the page's extra 16 dp (see the tile-height ruling).
+- **`QuList.Action`.** Ships an icon-only `QuButton` there in its own accent ink; open: the list's icon ink.
+- **`QuList` current text.** Ships the current item's primary colour on `__primary` and `__icon` only, so bare text in `__body` keeps the text ink outside `QuNavigationDrawer`; open: colouring `__body`.
+- **Icon-only `QuButton`.** Ships the accent ink where cards and toolbars expect the icon ink; open: an icon-ink default for icon-only buttons.
+- **Grey flat `QuButton`.** Ships no grey flat variant for the expansion panel's CANCEL; open: the variant.
+- **Glyph roles.** Ships no `offline-pin`, `cloud-off`, `feedback`, `help-outline`, volume or brightness roles; the examples register them locally; open: the roles.
+- **`QuDialog` around a picker.** Ships the standard action row around a picker; open: the picker action-layout metrics.
+- **`QuToolbar.Contextual`.** Ships Escape only while focus is inside the bar, and a live-region count whose announcement timing is unsettled; open: both.
+- **`QuStepper` completion.** Ships no announcement when the flow completes; open: a live-region message.
+- **`QuDataTable` row checkboxes.** Ships one accessible name for every row checkbox; open: a name per row.
+- **Menu alignment.** Ships `QuMenu.Content` start-aligned (`block-end span-inline-end`), flipping inline only at the viewport edge, so an overflow menu on an end-aligned app bar icon spills past any container narrower than the viewport; open: an end placement or a better flip.
+- **Segmented `QuDropdownButton`.** Ships the sheet anchored at the arrow's end and widened to the 56 dp unit with only `flip-block` to try, so near the start edge it passes the edge; open: `flip-inline` or anchoring to the root.
+
+### Examples still on stand-ins
+
+- **Dialog.** `simple` builds its rows from `Button.Root`, `confirmation` and `scrolling` use v0 `Radio`, and `full-screen` hand-builds its bar; open: `QuList`, `QuRadio` and `QuToolbar`.
+- **Card.** The header and actions overflow buttons open nothing; open: a `QuMenu`.
+- **Tabs.** No example puts a primary tab bar inside `QuToolbar`; open: that example.
+- **Text field.** No `picker` example; open: one.
+- **FAB seam.** The example hosts the FAB on a hand-built header with `data-fab-host`; open: the `QuToolbar.Extension`, `QuCard` and `QuBottomSheet` hosts.
+- **Progress timers.** `progress-circular/fab.vue` and `progress-linear/query.vue` call `stop()` inside a repeating `useTimer` handler, which v0 re-arms after the handler returns, so the stop does nothing; open: stopping from outside the handler.
+
+### Locale keys with inline English fallbacks
+
+- **No catalogue.** Ships every key below through `useLocale().ti('Quantum.<key>')` with an inline English fallback, and `createQuantumPlugin` registers no messages; undecided: an English catalogue in the plugin, or a published key list.
+- **Text field and autocomplete:** `clear`, `optional`, `voice`, `hidePassword`, `showPassword`, `chooseDate`, `chooseTime`, `noResults`.
+- **Search bar and toolbar:** `search`, `back`, `clear`, `voice`, `noResults`, `menu`, `actions`, `close`, `selectedCount`.
+- **Data table:** `itemsSelected`, `selectAll`, `selectRow`, `rowsPerPage`, `pageText`, `previousPage`, `nextPage`, `edit`, `save`, `cancel`.
+- **Dialog and snackbar:** `ok`, `cancel`, `discard`, `discardChanges`, `dismiss`.
+- **Stepper:** `continue`, `back`, `next`, `cancel`, `optional`, `steps`, `stepCount`.
+- **Pickers:** `hours`, `minutes`, `time`, `period`, `am`, `pm`, `chooseYear`, `year`, `previousMonth`, `nextMonth`.
+- **Other parts:** `previousTabs` and `nextTabs` (tabs), `options` (dropdown button), `loading` and `buffered` (progress), `navigation` (drawer), `slider`, `delete` (chip), `selected` (card, grid list), `close` (bottom sheet).
+
+### v0 upstream issues
+
+- **`Menu.Item` activation.** v0 has no activation hook and its Enter and Space handler closes the menu without a click; ships `QuMenu.Item` and `QuFab.Action` handling the two keys themselves; open upstream.
+- **Renderless activators.** A renderless `Menu.Activator` or `Tooltip.Activator` gives v0 no anchor element; ships the anchor name on the slot `attrs` and `QuMenu.Activator` returning focus by the trigger id; open upstream.
+- **`Tooltip.Content` popover.** v0 opens it as `popover="auto"`, not `hint`; ships as v0 renders it; open upstream.
+- **`Tour.Content`.** v0 always portals it and restores focus on complete; `QuFeatureDiscovery` ships with both; open upstream.
+- **`Toggle.Group`.** v0 ignores the model when the group is disabled at mount and puts `aria-orientation` on `role=group`; `QuToggleButtons` ships with both; open upstream.
+- **`ClientComboboxAdapter`.** v0 filters object items on `String(value)`; `QuAutocomplete`, `QuSearchBar` and `QuToolbar.Search` ship with it; open upstream.
+- **`Radio` disabled tabindex.** v0 is inconsistent about a disabled radio's tabindex; `QuRadio` ships with it; open upstream.
+- **`Combobox` `close()`.** v0 resets the query on close; `QuAutocomplete`, `QuSearchBar` and `QuToolbar.Search` ship with it; open upstream.
+- **Bare boolean attributes.** v0 props typed `MaybeRefOrGetter<boolean>` (`Menu.Item`, `Checkbox.Root`, `Tabs.Item`, `Input.Root` and 19 more parts) compile to an untyped runtime prop, so a bare `disabled` arrives as `''` and does not disable; every `Qu*` part declares a plain `boolean` instead; open upstream.
