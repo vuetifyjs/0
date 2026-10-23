@@ -58,7 +58,7 @@ The page's figures (`useredu-er-featuredisc-design-01.png`, `useredu-er-feasture
 
 ## 4. Motion
 
-| Phase | Statement | MD1 mapping | Confidence |
+| Phase | Statement | Material Design 1 mapping | Confidence |
 |---|---|---|---|
 | Appear | "The tap target originates on the screen from the highlighted icon using a standard material motion curve." | scale from the promoted icon on `--md1-easing-standard` over `--md1-duration-enter` (duration not stated) | high (curve); not found (duration) |
 | Idle | "While idle, the highlighted action grows by 10% over one second and then shrinks. A material touch ripple emanates from the action as it reaches its largest size." | a 1 s pulse to 110% with an `Md1Ripple` at the peak, repeating; gated by reduced motion | high |
@@ -67,7 +67,7 @@ The page's figures (`useredu-er-featuredisc-design-01.png`, `useredu-er-feasture
 
 ## 5. Guided flows
 
-| Component | Statement | MD1 mapping | Confidence |
+| Component | Statement | Material Design 1 mapping | Confidence |
 |---|---|---|---|
 | 1. Tap target | "Tap targets introduce the task ahead by highlighting the user benefit." | `Md1FeatureDiscovery` | high |
 | 2. Ripple | "Ripples guide users through subsequent steps. The color of the ripple should match the color of the tap target." | `Md1Ripple` with `center` on each following step's control, in the prompt colour | high |
@@ -90,8 +90,8 @@ The page's figures (`useredu-er-featuredisc-design-01.png`, `useredu-er-feasture
 
 | Item | Mapping | Confidence |
 |---|---|---|
-| Pattern | The prompt is a non-modal dialog anchored to one control: `role="dialog"` with `aria-labelledby` (title) and `aria-describedby` (body); the promoted action keeps its own name and stays operable | high (APG dialog pattern); the choice is MD1's |
-| v0 primitive | `Tour.Root` (one step), `Tour.Activator` (renderless, binds the promoted action), `Tour.Highlight` (the portal that draws around the activator; v0 draws a cutout scrim, MD1 restyles it as the two circles), `Tour.Content` (`role="dialog"`, `aria-labelledby`, `aria-describedby`, `placement`, `offset`), `Tour.Title`, `Tour.Description`, `Tour.Skip` (dismiss), `Tour.Keyboard` (Escape); `Tour.Next`, `Tour.Prev` and `Tour.Progress` are not rendered for a single step | high (`packages/0/src/components/Tour/*` props read 2026-10-22) |
+| Pattern | The prompt is a non-modal dialog anchored to one control: `role="dialog"` with `aria-labelledby` (title) and `aria-describedby` (body); the promoted action keeps its own name and stays operable | high (APG dialog pattern); the choice is Material Design 1's |
+| v0 primitive | `Tour.Root` (one step), `Tour.Activator` (renderless, binds the promoted action), `Tour.Highlight` (the portal that draws around the activator; v0 draws a cutout scrim, Material Design 1 restyles it as the two circles), `Tour.Content` (`role="dialog"`, `aria-labelledby`, `aria-describedby`, `placement`, `offset`), `Tour.Title`, `Tour.Description`, `Tour.Skip` (dismiss), `Tour.Keyboard` (Escape); `Tour.Next`, `Tour.Prev` and `Tour.Progress` are not rendered for a single step | high (`packages/0/src/components/Tour/*` props read 2026-10-22) |
 | Dismiss paths | Tap outside (`Tour.Skip` bound on the background), Escape; the swipe dismissal is a gesture and does not ship | high (spec); the swipe omission is SPEC.md's gesture rule |
 | Completion | Tapping the promoted action runs the root's `complete()`; the consumer's own handler on the action still fires | high (`TourRootSlotProps.complete`) |
 

@@ -31,7 +31,7 @@
   }
 
   /**
-   * MD1 withholds `value`, `openOnHover`, `openDelay`, `closeDelay` and
+   * Material Design 1 withholds `value`, `openOnHover`, `openDelay`, `closeDelay` and
    * `namespace` from v0's menu root: a dropdown button opens on a press,
    * never on hover, and owns exactly one layer with no sub menus, so the
    * delays and the layer id are nobody's business. `as` and `renderless` are
@@ -271,7 +271,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet, and on the root file (the EmCard
+  Unscoped, like every Material Design 1 stylesheet, and on the root file (the EmCard
   shape): the items render inside the root's menu sheet, so one sheet styles
   the button, the menu and the rows together.
 -->

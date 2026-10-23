@@ -73,7 +73,7 @@
   const labeled = toRef(() => isString(label) || !!slots.default)
 
   // Button.Root emits `data-selected: undefined` outside a Button.Group, so the
-  // selection state is merged last, onto MD1's own element.
+  // selection state is merged last, onto Material Design 1's own element.
   const state = toRef(() => ({
     'aria-current': selected.value ? 'page' as const : undefined,
     'data-selected': selected.value || undefined,
@@ -141,7 +141,7 @@
   </a>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the bar's own rules are in Md1BottomNavigation.vue. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the bar's own rules are in Md1BottomNavigation.vue. -->
 <style>
   /*
    * A fixed-bar action: an equal share of the bar between 80 and 168 dp, the
@@ -204,7 +204,7 @@
     color: var(--md1-on-primary, #FFFFFF);
   }
 
-  /* Hover: 6% of the ink, the overlay MD1 uses wherever a page states none. */
+  /* Hover: 6% of the ink, the overlay Material Design 1 uses wherever a page states none. */
   @media (hover: hover) {
     .md1-bottom-navigation__action:hover {
       background-color: color-mix(in srgb, currentcolor 6%, transparent);
@@ -276,7 +276,7 @@
   /*
    * Shifting widths: inactive 56 to 96 dp, active 96 to 168 dp. The active
    * action takes one and a half shares of the bar, so it reads wider at every
-   * count; the ratio is an MD1 decision inside the page's bounds.
+   * count; the ratio is a Material Design 1 decision inside the page's bounds.
    */
   .md1-bottom-navigation[data-shifting] .md1-bottom-navigation__action {
     min-width: 56px;

@@ -26,7 +26,7 @@
     namespace: Readonly<Ref<string | undefined>>
     /** Decides when the desktop pagination arrows show. Its container is the tablist. */
     overflow: OverflowContext
-    /** Every MD1 tab, with what it shows and how wide it wants to be. */
+    /** Every Material Design 1 tab, with what it shows and how wide it wants to be. */
     items: RegistryContext<{ id?: ID, value?: Md1TabsItemMeasure }, Md1TabsItemTicket>
     /** The List registers the tablist element the overflow measures. */
     attach: (list: () => Element | null | undefined) => void
@@ -130,7 +130,7 @@
   </div>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the class prefix is the isolation. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the class prefix is the isolation. -->
 <style>
   /*
    * The bar sits in the first row and every panel shares the second, so the

@@ -1,8 +1,8 @@
-# MD1 typography (Material Design 1)
+# Material Design 1 typography
 
 Pinned spec for the `@paper/md1` type system: Roboto and Noto, the MD1 type scale, leading, tracking, script categories, line length, and text opacity. Values are copied from the archived guidelines; Vuetify 1.5.24 is the cross-check and the spec wins where they differ.
 
-Units: the spec writes `sp` for type size and `dp` for leading. On the web both are `px` at 1:1 (family convention). `sp` exists so platforms can scale type for accessibility; whether MD1 expresses sizes in `px` or `rem` is an implementation decision, not a spec value.
+Units: the spec writes `sp` for type size and `dp` for leading. On the web both are `px` at 1:1 (family convention). `sp` exists so platforms can scale type for accessibility; whether Material Design 1 expresses sizes in `px` or `rem` is an implementation decision, not a spec value.
 
 ## Sources
 
@@ -39,7 +39,7 @@ The page opens with a summary block. Copied verbatim.
 | Body 1 | Regular 14sp (device), 13sp (desktop) | Regular 15sp (dense), 14sp (desktop) | Regular 15sp (device), 14sp (desktop) | high |
 | Text contrast ratio | Minimum 4.5:1, preferred 7:1 | same | same | high |
 
-"Device" means phones and tablets (touch); "desktop" means mouse and keyboard layouts. The page does not say how a web implementation should pick between the two; Vuetify 1.5 ships the device sizes everywhere (see cross-check). That choice is open for MD1.
+"Device" means phones and tablets (touch); "desktop" means mouse and keyboard layouts. The page does not say how a web implementation should pick between the two; Vuetify 1.5 ships the device sizes everywhere (see cross-check). That choice is open for Material Design 1.
 
 ## Language categories
 
@@ -142,7 +142,7 @@ The tracking image prints bare numbers (-10, -5, 0, 5, 10, 20) with no unit. The
 | 10 | 0.01em | Subheading, Body 2, Body 1, Button | high raw; low unit |
 | 20 | 0.02em | Caption | high raw; low unit |
 
-Vuetify 1.5 does not use these values (see cross-check); MD1 should carry the raw numbers as tokens and pick the unit once, in one place.
+Vuetify 1.5 does not use these values (see cross-check); Material Design 1 should carry the raw numbers as tokens and pick the unit once, in one place.
 
 ## Type scale, dense scripts (Chinese, Japanese, Korean)
 
@@ -297,7 +297,7 @@ Vuetify 1.5 component text, for the implementers who need a starting point befor
 
 Vuetify 1.5 does not implement the dense and tall script scales, the desktop sizes, or the tracking table.
 
-## Open decisions for MD1 (not decided here)
+## Open decisions for Material Design 1 (not decided here)
 
 1. Device versus desktop sizes on the web: the spec defines both; nothing on the page selects one for browsers.
 2. Tracking unit: the page prints unitless numbers.

@@ -33,7 +33,7 @@
   }
 
   /**
-   * MD1 withholds every v0 button prop but `disabled`: a chip's accessible
+   * Material Design 1 withholds every v0 button prop but `disabled`: a chip's accessible
    * name is its label, it never joins a `Button.Group`, and it has no loading,
    * readonly or passive state on the chips page. The press itself is the
    * consumer's `@click` (the page's "opens a full detail view or a menu") or,
@@ -47,7 +47,7 @@
     /**
      * Shows the delete glyph (`cancel`, 24 dp at 54%) and emits `delete` from
      * it and from the Delete key on the focused chip. Persistent on desktop,
-     * as the page requires: MD1 never hides it on hover.
+     * as the page requires: Material Design 1 never hides it on hover.
      */
     deletable?: boolean
     /**
@@ -335,7 +335,7 @@
   }
 
   /*
-   * Keyboard focus: the 12% overlay every focused MD1 control shows. The
+   * Keyboard focus: the 12% overlay every focused Material Design 1 control shows. The
    * outline is transparent so nothing paints beside the overlay, and solid so
    * forced-colours mode still draws a ring.
    */

@@ -395,7 +395,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. Portrait: 328 dp wide, the 96 dp
+  Unscoped, like every Material Design 1 stylesheet. Portrait: 328 dp wide, the 96 dp
   header over a 48 dp navigation row, a 40 dp weekday row and six 40 dp week
   rows (424 dp; the confirmation dialog's 60 dp action area makes the page's
   484). Landscape: a 168 dp header column beside a 344 dp body of 32 dp rows.

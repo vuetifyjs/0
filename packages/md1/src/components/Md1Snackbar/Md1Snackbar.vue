@@ -20,7 +20,7 @@
   export type Md1SnackbarAlign = 'center' | 'start'
 
   /**
-   * MD1 withholds `urgent`, `as` and `renderless` from v0's root: the
+   * Material Design 1 withholds `urgent`, `as` and `renderless` from v0's root: the
    * snackbars page names no urgency level and critical errors never go in a
    * snackbar, so the root is always `role="status"`.
    */
@@ -37,7 +37,7 @@
     align?: Md1SnackbarAlign
     /**
      * Auto-dismiss in ms for a snackbar driven by `v-model`. The guidelines
-     * give no duration; 6000 ms is MD1's default (Vuetify 1.5's). Inside
+     * give no duration; 6000 ms is Material Design 1's default (Vuetify 1.5's). Inside
      * `Md1Snackbar.Queue` the queue's `timeout` applies instead.
      */
     timeout?: number

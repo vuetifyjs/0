@@ -7,7 +7,7 @@ Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
 Path data was taken from the "materialicons" (filled) 24px SVG sources at
 commit 49d4db35df873165d6bd6ba09b063c7dafbac2f4. Modifications: the 24x24 background
 rectangle was removed from each file and the remaining <path d> strings were
-stored as data; no glyph geometry was changed. Icons are renamed to MD1
+stored as data; no glyph geometry was changed. Icons are renamed to Material Design 1
 role names; the Material Icons source name of every glyph is listed in
 packages/md1/spec/icons.md. Google does not endorse this package.
 

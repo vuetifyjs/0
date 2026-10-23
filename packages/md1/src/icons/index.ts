@@ -104,7 +104,7 @@ let fallback: Md1IconsContext | undefined
 
 /**
  * `useMd1Icons` resolves the installed registry, or the built-in set when no
- * plugin was installed: `Md1Icon` draws in an app with zero MD1 plugins.
+ * plugin was installed: `Md1Icon` draws in an app with zero Material Design 1 plugins.
  *
  * `createMd1Plugin` composes `createMd1IconsPlugin`; `{ icons: false }`
  * there skips the install, not the bundle (DESIGN_SYSTEMS.md ruling 6).

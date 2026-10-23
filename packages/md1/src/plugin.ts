@@ -14,7 +14,7 @@ import type { App, Plugin } from 'vue'
 
 export interface Md1PluginOptions {
   /**
-   * Options for v0's `createThemePlugin`, merged over MD1's defaults
+   * Options for v0's `createThemePlugin`, merged over Material Design 1's defaults
    * (`md1-light` / `md1-dark`, the adapter, `system` following the OS).
    * `false` when the host installs `createThemePlugin` itself and registers
    * `Md1StyleSheetAdapter` plus `md1Colors` / `md1DarkColors`.
@@ -72,7 +72,7 @@ function mergeThemes (defaults: ThemeMap | undefined, overrides: ThemeMap | unde
 }
 
 /**
- * Install MD1 theming, its icon set and reduced-motion detection. This is
+ * Install Material Design 1 theming, its icon set and reduced-motion detection. This is
  * the consumer entry: adapter, the default `md1-light` / `md1-dark`
  * pair following the OS until `useTheme().select`, kit `--v0-*` aliases, the
  * icon roles every `Md1*` component draws from, and the `isReduced` flag
@@ -90,7 +90,7 @@ function mergeThemes (defaults: ThemeMap | undefined, overrides: ThemeMap | unde
  * imports cannot be conditional, so composing the icon plugin here pins the
  * glyph map (DESIGN_SYSTEMS.md ruling 6). Nothing is lost by it in practice:
  * every `Md1*` component that draws a glyph imports `Md1Icon`, so any app using
- * MD1's controls already carries the map. To leave it out entirely,
+ * Material Design 1's controls already carries the map. To leave it out entirely,
  * install `createMd1IconsPlugin` yourself and skip this entry.
  */
 export function createMd1Plugin (options: Md1PluginOptions = {}): Plugin {

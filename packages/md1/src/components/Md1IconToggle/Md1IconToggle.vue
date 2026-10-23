@@ -14,7 +14,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `value` and `groupNamespace` from v0's toggle props: the
+   * Material Design 1 withholds `value` and `groupNamespace` from v0's toggle props: the
    * icon toggle is the buttons page's single choice, selected or deselected
    * (a star, a bookmark); grouped toggles are `Md1ToggleButtons`.
    */
@@ -140,7 +140,7 @@
   }
 
   /*
-   * Dense hosts (an MD1 toolbar or list carrying data-dense): the icons
+   * Dense hosts (a Material Design 1 toolbar or list carrying data-dense): the icons
    * page condenses the system icon to 20 dp in a 40 dp target for mouse and
    * keyboard layouts. The toggle has no dense prop of its own; the host rules.
    */

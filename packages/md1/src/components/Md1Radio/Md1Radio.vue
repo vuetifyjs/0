@@ -12,7 +12,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `id`, `form`, `ariaLabelledby`, `ariaDescribedby` and
+   * Material Design 1 withholds `id`, `form`, `ariaLabelledby`, `ariaDescribedby` and
    * `ariaInvalid` from v0's radio props: the visible `label` names the control
    * through `aria-labelledby`, and the selection controls page has no error
    * state. `groupNamespace` stays so a radio can find an `Md1Radio.Group` given

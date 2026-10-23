@@ -14,7 +14,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `readonly`, `orientation`, `inverted`,
+   * Material Design 1 withholds `readonly`, `orientation`, `inverted`,
    * `minStepsBetweenThumbs`, `crossover`, `form` and `ariaLabelledby` from
    * v0's slider props: MD1 sliders are single-thumb and horizontal (range and
    * vertical sliders are not in the spec, ruling 7), and the axis flips with

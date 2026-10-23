@@ -15,7 +15,7 @@
   import type { SetupContext, VNode } from 'vue'
 
   /**
-   * MD1 withholds every v0 dialog prop: the temporary drawer is always the
+   * Material Design 1 withholds every v0 dialog prop: the temporary drawer is always the
    * native `<dialog>`, its scrim is `::backdrop`, and the outside click, Escape
    * and choosing a destination are its dismissal paths.
    */
@@ -214,7 +214,7 @@
       <slot v-bind="slotProps" />
     </Slice>
 
-    <!-- scrim is false on every Dialog.Content MD1 renders: the backdrop is ::backdrop (#910). -->
+    <!-- scrim is false on every Dialog.Content Material Design 1 renders: the backdrop is ::backdrop (#910). -->
     <Dialog.Content
       v-bind="{ ...attrs, ...hooks }"
       :aria-label="label"
@@ -359,7 +359,7 @@
     }
   }
 
-  /* Native backdrop in the scrim colour, everything behind it darkened but visible: MD1 never mounts v0's Scrim (#910). */
+  /* Native backdrop in the scrim colour, everything behind it darkened but visible: Material Design 1 never mounts v0's Scrim (#910). */
   .md1-navigation-drawer::backdrop {
     background: var(--md1-scrim, rgba(33, 33, 33, 0.46));
     opacity: 0;
@@ -392,7 +392,7 @@
    * Persistent and permanent: part of the layout, beside the content in a
    * flex row, at the content's own elevation, so no shadow. It stretches to
    * the row and stays in view, capped at the screen height. The seam to the
-   * content is a 1 dp divider (an MD1 decision: the page states the
+   * content is a 1 dp divider (a Material Design 1 decision: the page states the
    * elevation, not the edge). Width changes push the content: 300 ms on the
    * standard curve, the motion page's relative movement.
    */
@@ -426,7 +426,7 @@
 
   /*
    * Mini at rest: one standard increment, 56 dp (64 dp from 600 px), the
-   * 24 dp icon column between its 16 dp margins (an MD1 decision; the page
+   * 24 dp icon column between its 16 dp margins (a Material Design 1 decision; the page
    * gives no width). Text past the column is clipped, not reflowed; the
    * subheaders and the account area fade out; the scrollbar stays hidden.
    */
@@ -470,7 +470,7 @@
   /*
    * Floating: the permanent drawer detached from the edge inside a card, so
    * it takes the card's sheet: 2 dp corners and the 2 dp resting elevation
-   * (0 dp under a fine pointer), 8 dp clear of its surroundings (an MD1
+   * (0 dp under a fine pointer), 8 dp clear of its surroundings (a Material Design 1
    * decision; the figure gives no gap), and no seam.
    */
   .md1-navigation-drawer[data-floating]:not([data-type='temporary']) {

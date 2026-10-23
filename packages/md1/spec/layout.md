@@ -1,4 +1,4 @@
-# MD1 spec: Layout
+# Material Design 1 spec: Layout
 
 Material Design 1 (2014 to 2017 "Material Design" guidelines) layout rules for `@paper/md1`. Every value below is pinned to the archived spec text unless the Confidence column says otherwise. dp and sp map 1:1 to CSS px.
 
@@ -266,7 +266,7 @@ Descriptors:
 | lg | 1280px - 16px = 1264px | 1264 <= width < 1920 - 16 | 1280 medium, 1440 large, 1600 large | agrees on the 16 dp reduction; Vuetify applies it to 1280 and 1920 only, the spec applies it to 1024, 1280, 1440, 1600 and 1920 |
 | xl | 1920px - 16px = 1904px | width >= 1904 | 1920 xlarge | agrees |
 
-Other Vuetify 1.5 grid values (moderate): `$grid-columns := 12`; `$grid-gutters` xs 2px, sm 4px, md 8px, lg 16px, xl 24px (these are the `grid-list-*` item gutters, not the spec's 16/24 dp column gutters); `.container` padding 24px, 16px at sm-and-down, `max-width` = breakpoint x 0.9375 at md (900px), lg (1185px) and xl (1785px); `scrollbarWidth: 16`. The spec text wins where they differ: MD1 should expose the full 13-row spec table, not Vuetify's five names.
+Other Vuetify 1.5 grid values (moderate): `$grid-columns := 12`; `$grid-gutters` xs 2px, sm 4px, md 8px, lg 16px, xl 24px (these are the `grid-list-*` item gutters, not the spec's 16/24 dp column gutters); `.container` padding 24px, 16px at sm-and-down, `max-width` = breakpoint x 0.9375 at md (900px), lg (1185px) and xl (1785px); `scrollbarWidth: 16`. The spec text wins where they differ: Material Design 1 should expose the full 13-row spec table, not Vuetify's five names.
 
 ## Structure
 
@@ -379,7 +379,7 @@ Widths:
 | Mini variant width | not found (the pattern page describes the state, not a width) | | not found |
 | Side sheet width | not found (side sheets are not an MD1 component; MD1 has a right nav only) | | not found |
 
-Disagreement inside the spec: the structure page caps the mobile drawer at 320 dp, the navigation-drawer pattern page at 280 dp (320 dp on tablet). Both are archived 2018 text. MD1 should implement the pattern page's increment rule (5 x 56 = 280 dp mobile, 5 x 64 = 320 dp tablet) and document the structure page's 320 dp as the mobile ceiling it must never exceed.
+Disagreement inside the spec: the structure page caps the mobile drawer at 320 dp, the navigation-drawer pattern page at 280 dp (320 dp on tablet). Both are archived 2018 text. Material Design 1 should implement the pattern page's increment rule (5 x 56 = 280 dp mobile, 5 x 64 = 320 dp tablet) and document the structure page's 320 dp as the mobile ceiling it must never exceed.
 
 Drawer keylines (navigation-drawer pattern page):
 
@@ -563,9 +563,9 @@ Vuetify 1.5 cross-check (`_app.styl`, `settings/_rtl.styl`, moderate): RTL is `.
 |---|---|---|---|
 | Breakpoint set | 13 rows, 0 to 1920 dp, desktop rows minus 16 dp | 5 names: 0, 600, 960, 1264, 1904 | Spec wins; expose all rows, keep 16 dp desktop reduction |
 | Prominent app bar | 128 dp (96 dp dense) | `prominent` forces 64 dp | Spec wins |
-| 64 dp app bar trigger | Tablet and desktop devices | width >= 960 px | Spec gives no px width; MD1 must document its own mapping (recommend the 600 dp "small" window, since the spec's 64 dp list items also start at tablet) |
+| 64 dp app bar trigger | Tablet and desktop devices | width >= 960 px | Spec gives no px width; Material Design 1 must document its own mapping (recommend the 600 dp "small" window, since the spec's 64 dp list items also start at tablet) |
 | Mobile drawer max width | 320 dp (structure) versus 280 dp (pattern page) | 300 px default | Pattern page increment rule (280 mobile, 320 tablet), 320 dp as the hard ceiling |
 | Mini variant width | not found | 80 px | Vuetify value, moderate |
 | Bottom navigation shadow | 8 dp elevation | single-layer 12% shadow | Spec wins; use the 8 dp recipe |
-| Side sheets, standard bottom sheet widths | not found in MD1 | n/a | Out of scope for MD1 |
+| Side sheets, standard bottom sheet widths | not found in MD1 | n/a | Out of scope for Material Design 1 |
 | Desktop pointer target, minimum text size | not found | n/a | Leave unspecified |

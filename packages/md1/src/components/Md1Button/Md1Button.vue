@@ -17,7 +17,7 @@
   export type Md1ButtonVariant = 'flat' | 'raised'
 
   /**
-   * MD1 withholds `loading`, `readonly`, `passive`, `grace`, `value`,
+   * Material Design 1 withholds `loading`, `readonly`, `passive`, `grace`, `value`,
    * `groupNamespace` and `form` from v0's button props: MD1 buttons have no
    * loading state (SPEC.md, ruling 7), grouped toggles are `Md1ToggleButtons`,
    * and form association is not part of the MD1 button surface. `name` stays

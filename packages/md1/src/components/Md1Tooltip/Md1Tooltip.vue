@@ -23,7 +23,7 @@
   }
 
   /**
-   * MD1 withholds `interactive`, `positionArea`, `positionTry`, `adapter`,
+   * Material Design 1 withholds `interactive`, `positionArea`, `positionTry`, `adapter`,
    * `as` and `renderless` from v0's tooltip root: an MD1 tooltip is a plain
    * label that never takes input, it sits centred below its target (flipping
    * above when there is no room), and the gap to the target is the tooltips
@@ -56,7 +56,7 @@
 
   const {
     disabled = false,
-    // The tooltips page states no delay before showing; MD1 shows at once (decision).
+    // The tooltips page states no delay before showing; Material Design 1 shows at once (decision).
     openDelay = 0,
     closeDelay,
     namespace = 'v0:tooltip',
@@ -108,7 +108,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet, and on the root file (the EmCard
+  Unscoped, like every Material Design 1 stylesheet, and on the root file (the EmCard
   shape): the content part renders the popover and its tile, styled here.
 -->
 <style>

@@ -5,7 +5,7 @@
  *
  * @remarks
  * Headless state for the Material Design 1 time picker. v0's
- * `createTimePicker` is a draft with no source, so MD1 owns this core
+ * `createTimePicker` is a draft with no source, so Material Design 1 owns this core
  * (SPEC.md, Deviations) until it graduates: the composable holds the time,
  * the hour or minute view, the 12 or 24 hour format and the clock geometry
  * (ring positions and the hand angle) and never touches the DOM. `Md1TimePicker`

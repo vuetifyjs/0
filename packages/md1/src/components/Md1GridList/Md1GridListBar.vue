@@ -123,7 +123,7 @@
   /*
    * A translucent dark band over the image carrying the text and the action
    * icon: 48 dp for one line, 68 dp for two (grid-lists page). The band's own
-   * value is not in the spec; --md1-grid-list-bar is MD1's 60% black,
+   * value is not in the spec; --md1-grid-list-bar is Material Design 1's 60% black,
    * the upper bound of the imagery page's scrim range, with white ink. Pointer
    * events pass through to the tile's primary action beneath; only the icon
    * takes them back.

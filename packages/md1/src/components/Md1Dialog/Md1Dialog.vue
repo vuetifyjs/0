@@ -35,7 +35,7 @@
   }
 
   /**
-   * MD1 withholds `as` and `renderless` from v0's dialog root: the root is
+   * Material Design 1 withholds `as` and `renderless` from v0's dialog root: the root is
    * always the renderless state owner and `Md1Dialog.Content` is the `<dialog>`.
    */
   export interface Md1DialogProps extends Pick<DialogRootProps, 'id' | 'namespace'> {

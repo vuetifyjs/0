@@ -1,6 +1,6 @@
 # Tabs (MD1)
 
-Spec page: `components/tabs.html`. MD1 component: `Md1Tabs` (bar) with `Md1Tab` (item) and the content panels. Composes v0 `Tabs.Root` per DESIGN_SYSTEMS.md ruling 2.
+Spec page: `components/tabs.html`. Material Design 1 component: `Md1Tabs` (bar) with `Md1Tab` (item) and the content panels. Composes v0 `Tabs.Root` per DESIGN_SYSTEMS.md ruling 2.
 
 ## Sources
 
@@ -187,7 +187,7 @@ The tabs page does not define the terms. Responsive UI lists breakpoints at 480,
 ## 10. Web notes
 
 - Maps 1:1: 48dp / 72dp heights, 72dp / 160dp / 264dp widths, 12dp / 24dp text padding, 20dp / 12dp bottom padding, 14sp / 13sp / 12sp Medium all-caps labels, 2dp indicator, 70% inactive opacity on colored bars, 24dp icons, 80dp desktop leading keyline.
-- Needs interpretation: "larger / smaller views" (600dp is the defensible cut, moderate); inactive color on light surfaces (not found: declare the MD1 value in `SPEC.md`, either 54% black secondary text or the accent at 70%); hover and keyboard-focus rendering (not found: reuse the Buttons page overlays, 12% focus, and record the hover value as an MD1 decision); indicator slide timing (not found: global standard curve).
+- Needs interpretation: "larger / smaller views" (600dp is the defensible cut, moderate); inactive color on light surfaces (not found: declare the Material Design 1 value in `SPEC.md`, either 54% black secondary text or the accent at 70%); hover and keyboard-focus rendering (not found: reuse the Buttons page overlays, 12% focus, and record the hover value as a Material Design 1 decision); indicator slide timing (not found: global standard curve).
 - Swipe between tabs is a touch gesture; on the web it needs pointer tracking on the content panel and must not be wired to a panel that itself scrolls horizontally (the spec's own prohibition).
 - Scrollable tabs on desktop need the "More" dropdown or pagination arrows the spec names without metrics; pick one and record it.
 - Text wrapping to two lines at 12sp changes the bottom padding (20dp to 12dp); the implementation needs a line-count-aware layout or a fixed two-line box.

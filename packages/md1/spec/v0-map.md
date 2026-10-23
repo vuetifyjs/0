@@ -1,4 +1,4 @@
-# MD1 v0 primitive map
+# Material Design 1 v0 primitive map
 
 Implementer reference for building `@paper/md1` (prefix `Md1*`, tokens `--md1-*`) on `@vuetify/v0` 1.3.0. Every value is what the v0 source in the md1 worktree does today, not what a docs page promises. Where the two differ, the source wins and the difference is called out.
 
@@ -787,7 +787,7 @@ Vuetify 1.5.24 stylus was not consulted. This note carries no visual metrics; th
 | Slot props | `ticket`, `zIndex` (ticket z-index minus 1), `isBlocking`, `dismiss`, `attrs` (`aria-hidden`, `style.zIndex`, `onClick`) | high |
 | Handlers bound | Click dismisses the ticket unless it is `blocking` | high |
 | Requirement | Reads `useStack()`; install `createStackPlugin` for one shared stack (the fallback is a lazy browser singleton) | high |
-| Conflict | Native `<dialog>` already paints `::backdrop`; mounting `Scrim` as well paints two backdrops (issue #910). MD1 must choose: `Scrim` with `scrim: true` tickets and a transparent `::backdrop`, or `::backdrop` and `scrim: false` on every `Dialog.Content` | high |
+| Conflict | Native `<dialog>` already paints `::backdrop`; mounting `Scrim` as well paints two backdrops (issue #910). Material Design 1 must choose: `Scrim` with `scrim: true` tickets and a transparent `::backdrop`, or `::backdrop` and `scrim: false` on every `Dialog.Content` | high |
 
 ```vue
 <Scrim class="fixed inset-0 bg-black/50" />
@@ -875,7 +875,7 @@ Vuetify 1.5.24 stylus was not consulted. This note carries no visual metrics; th
 | generate() output | For each theme: `[data-theme="<id>"] { --<prefix>-<key>: <value>; ... }`; then `:root { color-scheme: dark \| light }` for the selected theme. Keys and theme ids must pass `SAFE_IDENT`; values matching `UNSAFE_CSS` (`url(`, `@import`, `;`, `{`, `}`, `<`, `>`, `\`, `/*`, ...) are dropped | high |
 | V0StyleSheetThemeAdapter | `new V0StyleSheetThemeAdapter({ prefix: 'md1', cspNonce, stylesheetId })`. Browser: writes the generated CSS into a `CSSStyleSheet` added to `document.adoptedStyleSheets` (`replaceSync` on change), sets `data-theme` on the target synchronously, watches `colors`, `isDark`, `selectedId`. Server: pushes `htmlAttrs['data-theme']` and a `<style id>` through a duck-typed `@unhead` head when one is provided | high |
 | V0UnheadThemeAdapter | Same output through `@unhead` on both server and client (one patch per change); for SSR or SSG apps | high |
-| data-theme | The attribute value is the theme id; an MD1 theme named `md1-light` yields `[data-theme="md1-light"]`. The `Theme` component sets the same attribute for a subtree | high |
+| data-theme | The attribute value is the theme id; a Material Design 1 theme named `md1-light` yields `[data-theme="md1-light"]`. The `Theme` component sets the same attribute for a subtree | high |
 | Semantic floor | `theme/tokens.ts` `SEMANTIC_COLORS` (20 names: `background`, `divider`, `error`, `info`, `on-background`, `on-error`, `on-info`, `on-primary`, `on-secondary`, `on-success`, `on-surface`, `on-surface-variant`, `on-warning`, `primary`, `secondary`, `success`, `surface`, `surface-tint`, `surface-variant`, `warning`); not exported yet | high |
 | Kit bridge | Ruling 1 asks the DS adapter to also emit `--v0-*` aliases for the roles kits read (`surface`, `on-surface`, `surface-tint`, `on-surface-variant`, `primary`, `on-primary`, `pre`, `background`, `on-background`, severities); a subclass can append `--v0-<key>: var(--md1-<key>)` lines inside `generate()` | high |
 | Prebake | `dist/theme.css` for the zero-config path is `adapter.generate(colors, isDark)` run at build time against the default theme (ruling 1); the Emerald pipeline does this (`packages/emerald/SPEC.md` "Pipeline") | moderate |

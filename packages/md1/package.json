@@ -1,7 +1,7 @@
 {
   "name": "@paper/md1",
   "version": "0.0.0",
-  "description": "MD1 design system. Material Design 1 (2014 to 2017), composed on Vuetify0",
+  "description": "Material Design 1 (2014 to 2017) design system, composed on Vuetify0",
   "license": "MIT",
   "repository": {
     "type": "git",

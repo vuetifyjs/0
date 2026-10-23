@@ -9,7 +9,7 @@
   import type { PresenceState, ProgressRootProps, ProgressRootSlotProps } from '@vuetify/v0'
 
   /**
-   * MD1 withholds `min`, `max`, `name`, `id` and `modelValue` from v0's
+   * Material Design 1 withholds `min`, `max`, `name`, `id` and `modelValue` from v0's
    * progress root: the page states progress as a percentage that fills from 0
    * to 100 (so `value` and `buffer` are percentages), the indicator has no
    * text and submits nothing (ruling 7), and the value is an output, so it is
@@ -28,7 +28,7 @@
     query?: boolean
   }
 
-  /** The hooks MD1 binds on the root beside the v0 progressbar attrs. A `type`, so it satisfies `mergeProps`' index signature. */
+  /** The hooks Material Design 1 binds on the root beside the v0 progressbar attrs. A `type`, so it satisfies `mergeProps`' index signature. */
   type Md1ProgressLinearAttrs = {
     'role': 'progressbar'
     'aria-valuemin': number
@@ -61,7 +61,7 @@
 
   // v0 reads a value of 0 as indeterminate (no segment above zero); the spec's
   // determinate bar starts at 0%, so the state hook and the ARIA values come
-  // from MD1's own prop and the root renders through v0's renderless path.
+  // from Material Design 1's own prop and the root renders through v0's renderless path.
   const determinate = toRef(() => isNumber(value))
   const percent = toRef(() => clamp(value ?? 0, 0, 100))
   const buffered = toRef(() => isNumber(buffer))
@@ -127,7 +127,7 @@
   </Progress.Root>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet: the parts are v0 Atoms. -->
+<!-- Unscoped, like every Material Design 1 stylesheet: the parts are v0 Atoms. -->
 <style>
   /*
    * A 4 dp bar the full width of the header or sheet edge it sits on

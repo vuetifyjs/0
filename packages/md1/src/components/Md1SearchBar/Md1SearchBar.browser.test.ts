@@ -167,7 +167,7 @@ describe('quSearchBar', () => {
       expect(input.placeholder).toBe('Search mail')
     })
 
-    it('should take its default copy from the MD1 locale keys', async () => {
+    it('should take its default copy from the Material Design 1 locale keys', async () => {
       const { root, input, nav } = bar({
         props: { voice: true, modelValue: 'x' },
         setup: app => app.use(createLocalePlugin({

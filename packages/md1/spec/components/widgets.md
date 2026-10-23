@@ -1,6 +1,6 @@
 # Widgets (MD1)
 
-Spec page: `components/widgets.html`. MD1 component: none. Ruling: **out of scope on the web** (see section 10).
+Spec page: `components/widgets.html`. Material Design 1 component: none. Ruling: **out of scope on the web** (see section 10).
 
 ## Sources
 
@@ -11,7 +11,7 @@ Spec page: `components/widgets.html`. MD1 component: none. Ruling: **out of scop
 
 ## Summary paragraph
 
-Widgets are Android home-screen widgets: "Widgets display glanceable views of an app's most important data and functionality." They "display your app's new and interesting content in a consolidated form" and "link to richer detail within the app". Users "can move and, if supported, resize widgets across their home screen panels". The page is a usage and behavior guide for the Android launcher surface; it links to the Android developer documentation ("App widgets", "How to publish an app widget") for implementation, and it contains no visual metrics, colors, elevations, or motion values. Everything on the page presumes the Android launcher (home panels, long-press resize mode, drag handles, configuration dialogs shown on placement). None of that exists in a browser document, so MD1 ships no `Md1Widget`; the ruling and the reason are recorded in section 10 and must be copied into `SPEC.md`'s coverage statement as a deliberate "out" item under DESIGN_SYSTEMS.md ruling 7.
+Widgets are Android home-screen widgets: "Widgets display glanceable views of an app's most important data and functionality." They "display your app's new and interesting content in a consolidated form" and "link to richer detail within the app". Users "can move and, if supported, resize widgets across their home screen panels". The page is a usage and behavior guide for the Android launcher surface; it links to the Android developer documentation ("App widgets", "How to publish an app widget") for implementation, and it contains no visual metrics, colors, elevations, or motion values. Everything on the page presumes the Android launcher (home panels, long-press resize mode, drag handles, configuration dialogs shown on placement). None of that exists in a browser document, so Material Design 1 ships no `Md1Widget`; the ruling and the reason are recorded in section 10 and must be copied into `SPEC.md`'s coverage statement as a deliberate "out" item under DESIGN_SYSTEMS.md ruling 7.
 
 ## 1. Purpose and usage
 
@@ -75,9 +75,9 @@ not found. The only motion-adjacent rule is behavioral: "A long press and subseq
 
 ## 10. Web notes
 
-- **Ruling: out of scope on the web.** The component is an Android launcher surface (home panels, resize mode via long press, placement-time configuration). A browser page has no host that places, resizes, or configures a widget, so there is nothing for MD1 to render. MD1 ships no `Md1Widget` and `SPEC.md` lists "Widgets" under deliberately-out coverage with this reason.
+- **Ruling: out of scope on the web.** The component is an Android launcher surface (home panels, resize mode via long press, placement-time configuration). A browser page has no host that places, resizes, or configures a widget, so there is nothing for Material Design 1 to render. Material Design 1 ships no `Md1Widget` and `SPEC.md` lists "Widgets" under deliberately-out coverage with this reason.
 - Nothing maps 1:1; the page has no metrics, colors, or motion to port.
-- Escape hatch (per DESIGN_SYSTEMS.md ruling 7): a consumer wanting a "glanceable summary card" composes `Md1Card` with their own layout; that composition is unsupported as an MD1 component and must not be presented as the MD1 widget.
+- Escape hatch (per DESIGN_SYSTEMS.md ruling 7): a consumer wanting a "glanceable summary card" composes `Md1Card` with their own layout; that composition is unsupported as a Material Design 1 component and must not be presented as the MD1 widget.
 - WAI-ARIA pattern: none applies; there is no interactive web widget to implement.
 
 ## Vuetify 1.5 cross-check

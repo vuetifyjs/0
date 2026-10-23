@@ -286,7 +286,7 @@
   </Atom>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the class prefix is the isolation. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the class prefix is the isolation. -->
 <style>
   /*
    * A sheet a step above the content it affects: 4 dp (toolbars page), in the

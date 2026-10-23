@@ -1,4 +1,4 @@
-# MD1 spec: Elevation and shadows
+# Material Design 1 spec: Elevation and shadows
 
 Material Design 1 (2014 to 2017 "Material Design" guidelines) elevation model for `@paper/md1`. dp maps 1:1 to CSS px. The spec text wins over Vuetify 1.5.24 wherever they differ; every disagreement is recorded in the last section.
 
@@ -146,7 +146,7 @@ The spec states that all components lifting on press share one offset but prints
 
 Component reference shadows (verbatim list): app bar 4 dp; raised button resting 2 dp, pressed 8 dp (desktop only: resting 0 dp, pressed 2 dp); FAB resting 6 dp, pressed 12 dp; card resting 2 dp, raised 8 dp; menus 8 dp; sub menus 9 dp (+1 dp per sub menu); dialogs 24 dp; nav drawer and right drawer 16 dp; modal bottom sheet 16 dp; refresh indicator 3 dp; quick entry / search bar resting 2 dp, scrolled 3 dp; snackbar 6 dp; switch 1 dp (high).
 
-The spec gives no pixel recipe for any shadow (not found). The recipe below is the Vuetify 1.5 implementation of the Material "paper" shadows and is the canonical recipe for MD1.
+The spec gives no pixel recipe for any shadow (not found). The recipe below is the Vuetify 1.5 implementation of the Material "paper" shadows and is the canonical recipe for Material Design 1.
 
 ## Shadow recipe per dp (Vuetify 1.5.24 `_elevations.styl`, verbatim)
 
@@ -201,7 +201,7 @@ elevationTransition($duration = 280ms, $easing = cubic-bezier(.4, 0, .2, 1))
 | Elevation transition | box-shadow 280 ms cubic-bezier(.4, 0, .2, 1) (the standard curve) | moderate |
 | Levels | 0 to 24 inclusive, matching the spec's 24 dp maximum | moderate |
 
-Token plan for MD1: expose `--md1-elevation-0` to `--md1-elevation-24` holding the full three-layer value, and `--md1-shadow-umbra`, `--md1-shadow-penumbra`, `--md1-shadow-ambient` for the three opacities so dark themes can retune them.
+Token plan for Material Design 1: expose `--md1-elevation-0` to `--md1-elevation-24` holding the full three-layer value, and `--md1-shadow-umbra`, `--md1-shadow-penumbra`, `--md1-shadow-ambient` for the three opacities so dark themes can retune them.
 
 ## Vuetify 1.5.24 component elevations (cross-check)
 
@@ -243,7 +243,7 @@ Token plan for MD1: expose `--md1-elevation-0` to `--md1-elevation-24` holding t
 
 ## Disagreements and gaps
 
-| Item | Spec | Vuetify 1.5 | Resolution for MD1 |
+| Item | Spec | Vuetify 1.5 | Resolution for Material Design 1 |
 |---|---|---|---|
 | Switch thumb | 1 dp | 4 dp | Spec wins: 1 dp |
 | Bottom navigation | 8 dp three-layer | single ambient layer | Spec wins: level 8 recipe |

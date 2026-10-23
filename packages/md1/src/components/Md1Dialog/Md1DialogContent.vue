@@ -17,7 +17,7 @@
   import type { DialogContentProps } from '@vuetify/v0'
 
   /**
-   * MD1 withholds `as`, `renderless`, `blocking`, `scrim` and
+   * Material Design 1 withholds `as`, `renderless`, `blocking`, `scrim` and
    * `closeOnClickOutside` from v0's content props: the element is always the
    * native `<dialog>`, the scrim is its `::backdrop`, and dismissal is the
    * root's `dismissible`.
@@ -116,7 +116,7 @@
 
 <!--
   The native <dialog>: showModal() gives focus containment, Escape and the
-  backdrop; scrim is false on every Dialog.Content MD1 renders (#910).
+  backdrop; scrim is false on every Dialog.Content Material Design 1 renders (#910).
 -->
 <template>
   <AlertDialog.Content
@@ -217,7 +217,7 @@
     }
   }
 
-  /* Native backdrop in the scrim colour: MD1 never mounts v0's Scrim (#910). */
+  /* Native backdrop in the scrim colour: Material Design 1 never mounts v0's Scrim (#910). */
   .md1-dialog::backdrop {
     background: var(--md1-scrim, rgba(33, 33, 33, 0.46));
     opacity: 0;
@@ -241,7 +241,7 @@
 
   /*
    * The sheet: a 24 dp surface that sizes to its content between 280 px (five
-   * 56 dp units, the mobile minimum) and 560 px (ten, an MD1 decision), and
+   * 56 dp units, the mobile minimum) and 560 px (ten, a Material Design 1 decision), and
    * scrolls when the content exceeds the height limit. The parts carry the
    * 24 dp content paddings so the action area can sit flush with the edges.
    */

@@ -1,4 +1,4 @@
-# MD1 spec: Motion
+# Material Design 1 spec: Motion
 
 Material Design 1 (2014 to 2017 "Material Design" guidelines) motion rules for `@paper/md1`. All durations are in milliseconds (ms). The spec text wins over Vuetify 1.5.24 wherever they differ; every disagreement is recorded in the last section.
 
@@ -91,7 +91,7 @@ Vuetify 1.5 durations (moderate): `$primary-transition := 0.3s $transition.swing
 
 Vuetify 1.5 `$transition` map (moderate): `fast-out-slow-in: cubic-bezier(0.4, 0.0, 0.2, 1)` (standard), `linear-out-slow-in: cubic-bezier(0.0, 0.0, 0.2, 1)` (deceleration), `fast-out-linear-in: cubic-bezier(0.4, 0.0, 1, 1)` (acceleration), `ease-in-out: cubic-bezier(0.4, 0.0, 0.6, 1)` (sharp), plus two non-spec curves `fast-in-fast-out: cubic-bezier(.25, .8, .25, 1)` and `swing: cubic-bezier(.25, .8, .50, 1)`. Vuetify's default `$primary-transition` uses `swing`, not the standard curve.
 
-Token plan for MD1: `--md1-easing-standard`, `--md1-easing-decelerate`, `--md1-easing-accelerate`, `--md1-easing-sharp`; `--md1-duration-enter: 225ms`, `--md1-duration-leave: 195ms`, `--md1-duration-standard: 300ms`, `--md1-duration-complex: 375ms`, with a desktop scale that lands inside 150 ms to 200 ms.
+Token plan for Material Design 1: `--md1-easing-standard`, `--md1-easing-decelerate`, `--md1-easing-accelerate`, `--md1-easing-sharp`; `--md1-duration-enter: 225ms`, `--md1-duration-leave: 195ms`, `--md1-duration-standard: 300ms`, `--md1-duration-complex: 375ms`, with a desktop scale that lands inside 150 ms to 200 ms.
 
 ## Movement
 
@@ -190,9 +190,9 @@ Token plan for MD1: `--md1-easing-standard`, `--md1-easing-decelerate`, `--md1-e
 
 ## Creative customization
 
-The page covers animated icons and illustrations. It states no duration, size or color; its figures are videos. Only the dual-function system icon has an MD1 surface.
+The page covers animated icons and illustrations. It states no duration, size or color; its figures are videos. Only the dual-function system icon has a Material Design 1 surface.
 
-| Rule | Statement | MD1 surface | Confidence |
+| Rule | Statement | Material Design 1 surface | Confidence |
 |---|---|---|---|
 | Dual-function system icons | "An icon may serve dual functions. For example, a menu icon may smoothly transition to a playback control, and back again. This effect both informs the user of the button's function while adding an element of wonder to the interaction." | `Md1Toolbar.Nav`: the `menu` glyph morphs to `arrow-back` while the navigation drawer is open and back on close, over `--md1-duration-standard` on the standard curve; `data-icon` carries the current glyph | high (rule); the duration is the duration page's standard value, not stated on this page |
 | Menu to back arrow | "Transforming the menu icon into the back arrow signifies that the two actions are connected, and that one cannot exist while the other is present. The back button must be pressed in order to return to the top-level view with the menu icon." | `Md1Toolbar.Nav` as above | high |
@@ -243,9 +243,9 @@ Accessibility limits that bound motion (2016 accessibility page, high): content 
 
 ## Disagreements and gaps
 
-| Item | Spec | Vuetify 1.5 | Resolution for MD1 |
+| Item | Spec | Vuetify 1.5 | Resolution for Material Design 1 |
 |---|---|---|---|
-| Default curve | Standard `cubic-bezier(0.4, 0.0, 0.2, 1)` | `swing cubic-bezier(.25, .8, .5, 1)` | Spec wins; `swing` and `fast-in-fast-out` are not MD1 curves |
+| Default curve | Standard `cubic-bezier(0.4, 0.0, 0.2, 1)` | `swing cubic-bezier(.25, .8, .5, 1)` | Spec wins; `swing` and `fast-in-fast-out` are not Material Design 1 curves |
 | Enter and leave durations | 225 ms and 195 ms | one 300 ms value | Spec wins |
 | Desktop durations | 150 ms to 200 ms | not implemented | Implement a desktop scale |
 | Tablet and wearable scaling | +30% and -30% | not implemented | Implement tablet scale; wearables out of scope for the web |

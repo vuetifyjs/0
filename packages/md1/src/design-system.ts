@@ -1,5 +1,5 @@
 /**
- * MD1 design-system token dictionary: Material Design 1 (2014 to 2017)
+ * Material Design 1 design-system token dictionary (2014 to 2017)
  * as pinned in SPEC.md, every value sourced in the notes under `spec/`
  * (`color.md`, `typography.md`, `elevation.md`, `motion.md`, `layout.md`,
  * `iconography.md`).
@@ -490,7 +490,7 @@ export const layoutTablet = {
  * the desktop rows (1024 and above) carry the page's 16 px reduction for
  * browser chrome. Breakpoints cannot be custom properties, so they ship as this
  * map and as the documented table. v0's `useBreakpoints` has its own named
- * breakpoints (`xs` to `xxl`) and takes nothing from MD1: a consumer that
+ * breakpoints (`xs` to `xxl`) and takes nothing from Material Design 1: a consumer that
  * needs the spec's widths assigns these values to those names through
  * `createBreakpointsPlugin({ breakpoints })`, or reads one with `useMediaQuery`.
  */

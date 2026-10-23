@@ -1,5 +1,5 @@
 /**
- * MD1's icon set: a role vocabulary over Material Icons, not an icon library.
+ * Material Design 1's icon set: a role vocabulary over Material Icons, not an icon library.
  *
  * Every glyph is one or more `<path d>` strings on the 24 x 24 dp system icon
  * grid of MD1 "Style / Icons", delivered as filled shapes (no strokes). Only
@@ -36,7 +36,7 @@ export type Md1IconGlyph = readonly string[]
 export type Md1IconCollection = Record<string, Md1IconGlyph | string>
 
 /**
- * The distinct artwork, grouped by its Material Icons category. Anything a Md1*
+ * The distinct artwork, grouped by its Material Icons category. Anything an Md1*
  * component draws for itself is in here, so a consumer can restyle the whole
  * system's chrome by overriding one role.
  */

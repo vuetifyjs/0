@@ -14,7 +14,7 @@
   /**
    * One panel: the header row and the region it expands. `disabled` is
    * narrowed from v0's `MaybeRefOrGetter<boolean>` to the boolean every
-   * MD1 part takes; the root's `disabled` folds in through the context.
+   * Material Design 1 part takes; the root's `disabled` folds in through the context.
    */
   export interface Md1ExpansionPanelItemProps extends Pick<ExpansionPanelRootProps, 'id' | 'value' | 'namespace'> {
     disabled?: boolean

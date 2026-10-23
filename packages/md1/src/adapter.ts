@@ -25,7 +25,7 @@ import { block, foundations, SAFE_IDENT } from './css'
 import type { Colors } from '@vuetify/v0'
 
 /**
- * Deliberately no `prefix`: every MD1 stylesheet hardcodes `var(--md1-*)`,
+ * Deliberately no `prefix`: every Material Design 1 stylesheet hardcodes `var(--md1-*)`,
  * so a custom prefix would emit variables nothing reads and unstyle the whole
  * design system.
  */
@@ -43,7 +43,7 @@ export interface Md1AdapterOptions {
 /**
  * Stylesheet adapter used by `createMd1Plugin`; not a consumer install step.
  * Apps `app.use(createMd1Plugin())` and/or import `theme.css`. Only a host
- * that already installs `createThemePlugin` needs this class, to wire MD1
+ * that already installs `createThemePlugin` needs this class, to wire Material Design 1
  * as its theme adapter together with `md1Colors` / `md1DarkColors`.
  */
 export class Md1StyleSheetAdapter extends V0StyleSheetThemeAdapter {

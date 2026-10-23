@@ -15,7 +15,7 @@
   }
 
   /**
-   * MD1 withholds `enroll` and `mandatory` from v0's group props: the
+   * Material Design 1 withholds `enroll` and `mandatory` from v0's group props: the
    * expansion-panels page states no auto-expand and no cannot-collapse rule,
    * and whether one or several panels may be open is the one behaviour it
    * leaves to the implementer (single-open by default, `multiple` otherwise).

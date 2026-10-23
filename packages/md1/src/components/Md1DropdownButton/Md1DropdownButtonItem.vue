@@ -17,7 +17,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `id` and `namespace` from v0's radio item: the ticket id
+   * Material Design 1 withholds `id` and `namespace` from v0's radio item: the ticket id
    * is v0's, and a dropdown button owns its menu, so there is no other key to
    * reach. `label` stays as v0's typeahead text, which is also the text the
    * button draws while the state is selected.

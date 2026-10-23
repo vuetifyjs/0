@@ -118,7 +118,7 @@
   </Atom>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the class prefix is the isolation. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the class prefix is the isolation. -->
 <style>
   /*
    * The grid is the container: tiles are its cells. The auto-fill minimum is

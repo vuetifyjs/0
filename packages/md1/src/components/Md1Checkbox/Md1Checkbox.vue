@@ -13,7 +13,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `id`, `form`, `groupNamespace`, `ariaLabelledby`,
+   * Material Design 1 withholds `id`, `form`, `groupNamespace`, `ariaLabelledby`,
    * `ariaDescribedby` and `ariaInvalid` from v0's checkbox props: the visible
    * `label` names the control through `aria-labelledby`, and the selection
    * controls page has no error state. `indeterminate` is the declared

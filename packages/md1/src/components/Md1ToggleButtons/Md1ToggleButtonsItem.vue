@@ -17,7 +17,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `id` and `namespace` from v0's toggle props: the item
+   * Material Design 1 withholds `id` and `namespace` from v0's toggle props: the item
    * hosts no `Toggle.Indicator`, so the root context key is nobody's business,
    * and the ticket id is v0's. `groupNamespace` stays so a custom key on
    * `Md1ToggleButtons` still resolves.

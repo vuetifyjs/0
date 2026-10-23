@@ -9,7 +9,7 @@
   import type { ProgressRootProps, ProgressRootSlotProps } from '@vuetify/v0'
 
   /**
-   * MD1 withholds `min`, `max`, `name`, `id` and `modelValue` from v0's
+   * Material Design 1 withholds `min`, `max`, `name`, `id` and `modelValue` from v0's
    * progress root: the page states progress as a percentage, the indicator has
    * no text and submits nothing (ruling 7), and the value is an output, so it
    * is a prop rather than a model.
@@ -31,7 +31,7 @@
     fab?: boolean
   }
 
-  /** The hooks MD1 binds on the root beside the v0 progressbar attrs. A `type`, so it satisfies `mergeProps`' index signature. */
+  /** The hooks Material Design 1 binds on the root beside the v0 progressbar attrs. A `type`, so it satisfies `mergeProps`' index signature. */
   type Md1ProgressCircularAttrs = {
     'role': 'progressbar'
     'aria-valuemin': number
@@ -65,7 +65,7 @@
 
   // v0 reads a value of 0 as indeterminate (no segment above zero); the spec's
   // determinate arc starts at 0%, so the state hook and the ARIA values come
-  // from MD1's own prop and the root renders through v0's renderless path.
+  // from Material Design 1's own prop and the root renders through v0's renderless path.
   const determinate = toRef(() => isNumber(value))
   const percent = toRef(() => clamp(value ?? 0, 0, 100))
 
@@ -136,7 +136,7 @@
   </Progress.Root>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet. -->
+<!-- Unscoped, like every Material Design 1 stylesheet. -->
 <style>
   /* The indicator colour is the primary (page video: the blue 500 range); the arc and track read it as currentColor. */
   .md1-progress-circular {

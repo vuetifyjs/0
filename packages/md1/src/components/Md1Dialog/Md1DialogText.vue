@@ -46,7 +46,7 @@
 <!-- Unscoped: Dialog.Description is an Atom; a scoped data-v never lands on the element. -->
 <style>
   /*
-   * Body 1 at the secondary ink (an MD1 decision: the page states no body
+   * Body 1 at the secondary ink (a Material Design 1 decision: the page states no body
    * style), inside the 24 dp content keylines, 24 dp above the actions.
    */
   .md1-dialog__text {

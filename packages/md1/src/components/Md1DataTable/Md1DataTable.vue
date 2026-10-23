@@ -184,7 +184,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. The table grid rules live here
+  Unscoped, like every Material Design 1 stylesheet. The table grid rules live here
   because they span the Head, Column, Row and Cell parts; each part keeps the
   rules that are its own.
 -->

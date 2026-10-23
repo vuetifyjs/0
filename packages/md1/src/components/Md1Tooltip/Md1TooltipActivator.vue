@@ -20,7 +20,7 @@
     /**
      * Spread onto the control the tooltip describes: `aria-describedby`,
      * `data-state`, the anchor name the tile positions against (`style`), v0's
-     * hover, focus, click and Escape handlers, and MD1's press-and-hold
+     * hover, focus, click and Escape handlers, and Material Design 1's press-and-hold
      * handlers for touch. A disabled tooltip leaves the control enabled.
      */
     attrs: Omit<TooltipActivatorSlotProps['attrs'], Owned | 'aria-describedby'> & {
@@ -61,7 +61,7 @@
   const root = useTooltipRoot(namespace.value)
 
   // v0 drops touch pointers by design, so the press and hold of the tooltips
-  // page is MD1's: hold shows, lift keeps it for 1.5 s, any other action hides.
+  // page is Material Design 1's: hold shows, lift keeps it for 1.5 s, any other action hides.
   const hold = useTimer(onHold, { duration: HOLD })
   const lift = useTimer(hide, { duration: LIFT })
 

@@ -57,7 +57,7 @@
   }
 
   /**
-   * MD1 keeps v0's validation surface (`rules`, `validateOn`, `required`,
+   * Material Design 1 keeps v0's validation surface (`rules`, `validateOn`, `required`,
    * `error`) and form association (`id`, `name`). `label` is the visible
    * `<label for>`; it is not forwarded to `Input.Root`, which would duplicate
    * the accessible name as an `aria-label`.
@@ -623,7 +623,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. Line and label rhythm (normal field):
+  Unscoped, like every Material Design 1 stylesheet. Line and label rhythm (normal field):
   16 dp above the floating label, the 12 sp label, 8 dp to the input, the 20 px
   input line, 8 dp to the line, 8 dp to the helper. A label-only field is the
   2016 page's 72 dp tile.

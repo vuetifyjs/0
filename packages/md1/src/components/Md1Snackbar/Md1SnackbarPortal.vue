@@ -15,7 +15,7 @@
   }
 
   /**
-   * MD1 withholds `as`, `renderless` and `announcer` from v0's portal:
+   * Material Design 1 withholds `as`, `renderless` and `announcer` from v0's portal:
    * the portal is always the fixed bottom container, and the live-region pair
    * is what makes a freshly mounted snackbar heard, so it always renders.
    */

@@ -13,7 +13,7 @@ import Item from './Md1SearchBarItem.vue'
  * The Material Design 1 persistent search bar: a raised 48 dp inset box with
  * the search glyph that turns into the up arrow on focus, the clear and voice
  * actions, recent queries on focus and completions as the user types, and the
- * desktop Search button. Composes v0 `Combobox.*` through MD1's `useSearch`
+ * desktop Search button. Composes v0 `Combobox.*` through Material Design 1's `useSearch`
  * (the core `Md1Toolbar.Search` shares), drawn with Md1TextField's solo values.
  *
  * Sub-components are attached to the root, so one import reaches the whole

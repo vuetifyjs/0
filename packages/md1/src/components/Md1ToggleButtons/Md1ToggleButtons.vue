@@ -15,7 +15,7 @@
   }
 
   /**
-   * MD1 withholds `orientation` from v0's group props: the buttons page
+   * Material Design 1 withholds `orientation` from v0's group props: the buttons page
    * draws toggle buttons as a row. The accessible-name props stay because the
    * group needs a name of its own (`role="group"`).
    */
@@ -82,10 +82,10 @@
   </Toggle.Group>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the items style themselves in Md1ToggleButtonsItem.vue. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the items style themselves in Md1ToggleButtonsItem.vue. -->
 <style>
   /*
-   * The page shows the group only as an image, so the container is an MD1
+   * The page shows the group only as an image, so the container is a Material Design 1
    * decision: one 2 dp radius shared by the items, edged in the divider colour
    * so the row reads as a single control ("layout and spacing should convey
    * grouping"). Items butt against each other and divide themselves.

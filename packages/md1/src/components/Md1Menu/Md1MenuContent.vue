@@ -12,7 +12,7 @@
   import type { MenuContentProps } from '@vuetify/v0'
 
   /**
-   * MD1 withholds `positionArea` and `positionTry`: the sheet opens below
+   * Material Design 1 withholds `positionArea` and `positionTry`: the sheet opens below
    * the emitting element, aligned to its start edge, and moves as a whole near
    * a screen edge (menus page). `value` stays internal: one Md1Menu is one layer.
    */

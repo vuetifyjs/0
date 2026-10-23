@@ -32,7 +32,7 @@
   }
 
   /**
-   * MD1 withholds `openOnHover` and `value` from v0's menu root: an MD1
+   * Material Design 1 withholds `openOnHover` and `value` from v0's menu root: an MD1
    * menu opens on a press of the emitting control, never on hover (cascading
    * sub menus open on pointer rest, which v0 schedules on its own), and one
    * Md1Menu is one top layer, so its open state is a boolean and the layer id
@@ -79,10 +79,10 @@
   const open = defineModel<boolean>({ default: false })
   const selected = defineModel<unknown>('selected')
 
-  // One Md1Menu is one top layer: v0's model is the open layer's id, MD1's is whether it is open.
+  // One Md1Menu is one top layer: v0's model is the open layer's id, Material Design 1's is whether it is open.
   const layer = useId()
 
-  // Writable, so v0's model writes land on MD1's boolean.
+  // Writable, so v0's model writes land on Material Design 1's boolean.
   const current = computed({
     get: () => open.value ? layer : null,
     set: value => {
@@ -120,7 +120,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet, and on the root file (the EmCard
+  Unscoped, like every Material Design 1 stylesheet, and on the root file (the EmCard
   shape): the content, the cascading sub menu and the rows all style here,
   because a sub sheet renders inside its parent's list, which is what the
   elevation ladder below keys on.

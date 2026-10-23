@@ -24,7 +24,7 @@
   export interface Md1SnackbarQueueProps extends Pick<SnackbarQueueProps, 'namespace'> {
     /**
      * Auto-dismiss in ms for a notification sent without its own `timeout`.
-     * The guidelines give no duration; 6000 ms is MD1's default (Vuetify
+     * The guidelines give no duration; 6000 ms is Material Design 1's default (Vuetify
      * 1.5's). A `timeout` passed to `send()` still wins.
      */
     timeout?: number

@@ -28,7 +28,7 @@
   </div>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet. -->
+<!-- Unscoped, like every Material Design 1 stylesheet. -->
 <style>
   /*
    * The CANCEL / SAVE row (figure spec2): a full-width 1 dp divider, 16 dp

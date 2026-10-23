@@ -148,7 +148,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. One sheet for the compound: the
+  Unscoped, like every Material Design 1 stylesheet. One sheet for the compound: the
   parts are plain elements whose spacing depends on their neighbours (a title
   closes with 24 dp unless text or actions follow), which only one sheet can
   express.

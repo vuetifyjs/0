@@ -7,7 +7,7 @@
  * Headless state for the Material Design 1 date picker: the visible month,
  * the focused day the roving tabindex follows, the six-row matrix, the year
  * view and the selection write. v0's `createDatePicker` is a draft with no
- * source, so MD1 owns this core until it graduates (SPEC.md, Deviations).
+ * source, so Material Design 1 owns this core until it graduates (SPEC.md, Deviations).
  * The approach is Emerald's `createCalendar`, cut to the pickers page: no
  * bounds, no disabled days, no ranges, because the page has none. The
  * composable never touches the DOM; `Md1DatePicker` binds the events.

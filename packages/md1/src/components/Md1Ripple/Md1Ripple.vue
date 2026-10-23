@@ -105,7 +105,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. The host owns `position: relative`
+  Unscoped, like every Material Design 1 stylesheet. The host owns `position: relative`
   (the ripple is absolutely positioned against it) and positions the children
   it wants painted above the ink; Md1Ripple sets nothing on the host.
 -->

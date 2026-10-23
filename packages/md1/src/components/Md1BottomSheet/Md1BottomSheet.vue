@@ -18,7 +18,7 @@
   import Md1Button from '../Md1Button/Md1Button.vue'
 
   /**
-   * MD1 withholds every v0 dialog prop: the modal sheet is always the
+   * Material Design 1 withholds every v0 dialog prop: the modal sheet is always the
    * native `<dialog>`, its scrim is `::backdrop`, and the outside click,
    * Escape and the `X` are its dismissal paths.
    */
@@ -212,7 +212,7 @@
       <slot v-bind="slotProps" />
     </Slice>
 
-    <!-- scrim is false on every Dialog.Content MD1 renders: the backdrop is ::backdrop (#910). -->
+    <!-- scrim is false on every Dialog.Content Material Design 1 renders: the backdrop is ::backdrop (#910). -->
     <Dialog.Content
       v-bind="{ ...attrs, ...hooks }"
       class="md1-bottom-sheet"
@@ -347,7 +347,7 @@
 
   /*
    * Persistent: part of the layout at the app's own elevation, so no shadow;
-   * the seam to the content above is a 1 dp divider (an MD1 decision: the
+   * the seam to the content above is a 1 dp divider (a Material Design 1 decision: the
    * page states the elevation, not the edge).
    */
   .md1-bottom-sheet[data-persistent] {
@@ -562,7 +562,7 @@
     --md1-icon-size: 48px;
   }
 
-  /* The page sizes the label row (16 dp) and not the type; Caption on a 16 dp line is an MD1 decision. */
+  /* The page sizes the label row (16 dp) and not the type; Caption on a 16 dp line is a Material Design 1 decision. */
   .md1-bottom-sheet[data-layout='grid'] .md1-bottom-sheet__label {
     flex: none;
     width: 100%;

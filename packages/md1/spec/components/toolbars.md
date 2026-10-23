@@ -1,6 +1,6 @@
 # Toolbars and the app bar (MD1)
 
-Spec page: `components/toolbars.html`. MD1 components: `Md1Toolbar` (generic toolbar) and `Md1AppBar` (the app bar variant). The archived Toolbars page only covers the toolbar as a sheet of material; every app bar metric lives on `layout/structure.html` and the scroll behaviors on `patterns/scrolling-techniques.html`, both read in full below.
+Spec page: `components/toolbars.html`. Material Design 1 components: `Md1Toolbar` (generic toolbar) and `Md1AppBar` (the app bar variant). The archived Toolbars page only covers the toolbar as a sheet of material; every app bar metric lives on `layout/structure.html` and the scroll behaviors on `patterns/scrolling-techniques.html`, both read in full below.
 
 ## Sources
 
@@ -212,7 +212,7 @@ Overlay opacities for the contained buttons (from the Buttons page, for referenc
 - Flexible space with image: the end-state tint "with the primary color" is a crossfade that completes at the collapse point.
 - Bottom toolbar: height not found; defer to the Bottom navigation page owner for the 56dp bottom bar, and label any `Md1Toolbar` placed at the bottom as the same component with no distinct metrics.
 - WAI-ARIA patterns: the action cluster follows the **Toolbar** pattern (`role="toolbar"`, one tab stop, arrow keys move between controls); the page-level app bar is a `<header>` **banner** landmark; nav and action icons are **Button** pattern; the overflow trigger is **Menu Button** opening a **Menu**; expandable search renders a **Combobox** when suggestions are offered, otherwise a plain search textbox; a selection-mode toolbar is still Toolbar.
-- Compat note for Vuetify wrapping (DESIGN_SYSTEMS.md ruling 8): Vuetify's `prominent` meant "desktop height" in 1.5; MD1's `prominent` must mean the spec's 128dp. The wrapper translates.
+- Compat note for Vuetify wrapping (DESIGN_SYSTEMS.md ruling 8): Vuetify's `prominent` meant "desktop height" in 1.5; Material Design 1's `prominent` must mean the spec's 128dp. The wrapper translates.
 
 ## Vuetify 1.5 cross-check
 

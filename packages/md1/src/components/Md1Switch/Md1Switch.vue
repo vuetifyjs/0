@@ -12,7 +12,7 @@
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
-   * MD1 withholds `id`, `form`, `indeterminate`, `groupNamespace`,
+   * Material Design 1 withholds `id`, `form`, `indeterminate`, `groupNamespace`,
    * `ariaLabelledby`, `ariaDescribedby` and `ariaInvalid` from v0's switch
    * props: a switch is one setting, on or off, named by its inline label
    * (selection controls page).

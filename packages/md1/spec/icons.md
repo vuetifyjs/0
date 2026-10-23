@@ -1,4 +1,4 @@
-# MD1 icons
+# Material Design 1 icons
 
 Role vocabulary, alias map, path data, RTL mirroring rules, licensing, and the renderer contract for the `@paper/md1` icon set. The glyphs are Google Material Icons in the 2014 "filled" style, which is the system icon set Material Design 1 specifies. Nothing here is implemented; this note pins what `Md1Icon` and `md1Icons` must contain.
 
@@ -38,7 +38,7 @@ WebFetch refused every `web.archive.org` URL ("Claude Code is unable to fetch fr
 | 2018 guide wording | adds: "The only thing we ask is that you not re-sell the icons themselves." | S7 | high |
 | License history | "3.0.0 Update, 2016 Aug 25: License change to Apache 2.0!" (the README does not name the prior license) | S8 README changelog | high |
 
-Apache 2.0 section 4 requires a redistributor to ship a copy of the license, keep upstream copyright and attribution notices, and state prominent changes to modified files. MD1 therefore ships the following in `packages/md1/README.md` (the `## Icons` section) and the same text in `packages/md1/LICENSE-ICONS` with the full Apache 2.0 text appended:
+Apache 2.0 section 4 requires a redistributor to ship a copy of the license, keep upstream copyright and attribution notices, and state prominent changes to modified files. Material Design 1 therefore ships the following in `packages/md1/README.md` (the `## Icons` section) and the same text in `packages/md1/LICENSE-ICONS` with the full Apache 2.0 text appended:
 
 ```text
 Icons
@@ -50,7 +50,7 @@ Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
 Path data was taken from the "materialicons" (filled) 24px SVG sources at
 commit 49d4db35df873165d6bd6ba09b063c7dafbac2f4. Modifications: the 24x24 background
 rectangle was removed from each file and the remaining <path d> strings were
-stored as data; no glyph geometry was changed. Icons are renamed to MD1
+stored as data; no glyph geometry was changed. Icons are renamed to Material Design 1
 role names; the Material Icons source name of every glyph is listed in
 packages/md1/spec/icons.md. Google does not endorse this package.
 ```
@@ -89,13 +89,13 @@ Disagreements recorded:
 |---|---|---|---|
 | Icon opacity on light backgrounds | 87% focused, 54% unfocused, 38% inactive | S5 (2016): 54% active, 26% inactive | S2 wins; the 2016 page is the older text |
 | Icon opacity on dark backgrounds | 100% focused, 70% unfocused, 50% inactive | S5 (2016): 100% active, 30% inactive | S2 wins |
-| Icon opacity, implementation | as above | S10: `active-icon-percent` .54 light / 1 dark, `inactive-icon-percent` .38 light / .50 dark; no focused tier; `.v-icon--disabled` opacity .6 on top of the inactive color | Vuetify 1.5 implements the S2 "Color" paragraph (the unfocused light value and the focused dark value) and skips the focused light tier. MD1 tokens carry all three tiers per theme: `--md1-icon-focused`, `--md1-icon-active`, `--md1-icon-inactive` |
-| Icon size scale | 24 dp standard, 20 dp dense | S10 `VIcon` `SIZE_MAP`: small 16 px, default 24 px, medium 28 px, large 36 px, xLarge 40 px; `.v-icon` `font-size: 24px` | The named scale is Vuetify API, not MD1 (ruling 8). MD1 exposes 24 px default and 20 px dense; host components set `--md1-icon-size` for their own slots |
+| Icon opacity, implementation | as above | S10: `active-icon-percent` .54 light / 1 dark, `inactive-icon-percent` .38 light / .50 dark; no focused tier; `.v-icon--disabled` opacity .6 on top of the inactive color | Vuetify 1.5 implements the S2 "Color" paragraph (the unfocused light value and the focused dark value) and skips the focused light tier. Material Design 1 tokens carry all three tiers per theme: `--md1-icon-focused`, `--md1-icon-active`, `--md1-icon-inactive` |
+| Icon size scale | 24 dp standard, 20 dp dense | S10 `VIcon` `SIZE_MAP`: small 16 px, default 24 px, medium 28 px, large 36 px, xLarge 40 px; `.v-icon` `font-size: 24px` | The named scale is Vuetify API, not MD1 (ruling 8). Material Design 1 exposes 24 px default and 20 px dense; host components set `--md1-icon-size` for their own slots |
 | Per-component icon sizes | not stated on S2 (component pages own them) | S10 `_variables.styl`: chip icon 20 px, floating button icon 24 px (small 18 px, large 30 px), dense list icon 22 px | moderate; the component notes must confirm each against its own spec page |
 
 ## Renderer contract (`Md1Icon`)
 
-`Md1Icon` renders one `<svg viewBox="0 0 24 24" fill="currentColor" class="md1-icon">` with one `<path :d>` per entry of the resolved glyph, in order. There are no `stroke`, `stroke-width`, or `stroke-linecap` attributes: the set is filled artwork, so color is the fill and the host sets it through `color`. The root element carries `data-size` (`m` = 24 px default, `s` = 20 px dense; both route through `--md1-icon-size` with those literal fallbacks so a host class can retune the glyph it embeds) and `data-mirror` when the resolved role is in the mirror table, which the stylesheet turns into `transform: scaleX(-1)` under `[dir="rtl"]` (the mechanism Google documents for the web, S7). Icons are decorative by default: with no `label` prop the root gets `aria-hidden="true"` and no `role`; with `label` it gets `role="img"` and `aria-label` with that text and drops `aria-hidden`. Opacity tiers are not baked into the SVG: the renderer draws at full `currentColor` and the host applies `--md1-icon-active`, `--md1-icon-inactive`, or `--md1-icon-focused` by state, so one glyph serves every tier. The glyph map is registered through v0 `createTokens` behind an icons plugin built with `createPluginContext` and a lazy fallback, exactly as Emerald does (`packages/emerald/src/icons/index.ts`); `$value` holds the path array and aliases are `{role}` brace references. A role that resolves to nothing renders nothing and warns in dev. MD1 components never inline SVG; every mark they draw goes through a role in this note (DESIGN_SYSTEMS.md ruling 6).
+`Md1Icon` renders one `<svg viewBox="0 0 24 24" fill="currentColor" class="md1-icon">` with one `<path :d>` per entry of the resolved glyph, in order. There are no `stroke`, `stroke-width`, or `stroke-linecap` attributes: the set is filled artwork, so color is the fill and the host sets it through `color`. The root element carries `data-size` (`m` = 24 px default, `s` = 20 px dense; both route through `--md1-icon-size` with those literal fallbacks so a host class can retune the glyph it embeds) and `data-mirror` when the resolved role is in the mirror table, which the stylesheet turns into `transform: scaleX(-1)` under `[dir="rtl"]` (the mechanism Google documents for the web, S7). Icons are decorative by default: with no `label` prop the root gets `aria-hidden="true"` and no `role`; with `label` it gets `role="img"` and `aria-label` with that text and drops `aria-hidden`. Opacity tiers are not baked into the SVG: the renderer draws at full `currentColor` and the host applies `--md1-icon-active`, `--md1-icon-inactive`, or `--md1-icon-focused` by state, so one glyph serves every tier. The glyph map is registered through v0 `createTokens` behind an icons plugin built with `createPluginContext` and a lazy fallback, exactly as Emerald does (`packages/emerald/src/icons/index.ts`); `$value` holds the path array and aliases are `{role}` brace references. A role that resolves to nothing renders nothing and warns in dev. Material Design 1 components never inline SVG; every mark they draw goes through a role in this note (DESIGN_SYSTEMS.md ruling 6).
 
 | Attribute | Decorative (default) | Labelled (`label` set) | Confidence |
 |---|---|---|---|
@@ -701,7 +701,7 @@ Aliases are brace references resolved by `createTokens` (`{ clear: '{close}' }`)
 | `minus` | `remove` | Paper family vocabulary | Emerald role name |
 | `eye` | `visibility` | Paper family vocabulary | Emerald role name |
 | `user` | `person` | Paper family vocabulary | Emerald role name |
-| `kebab` | `more-vert` | Paper family vocabulary | Emerald role name; Emerald draws its kebab as three horizontal dots, MD1 resolves the name to the vertical Material glyph because the word means vertical |
+| `kebab` | `more-vert` | Paper family vocabulary | Emerald role name; Emerald draws its kebab as three horizontal dots, Material Design 1 resolves the name to the vertical Material glyph because the word means vertical |
 | `keyboard-arrow-down` | `expand-more` | Material Icons name | same geometry as expand_more on master; the path text differs by encoding only |
 | `keyboard-arrow-up` | `expand-less` | Material Icons name | same geometry as expand_less on master; the path text differs by encoding only |
 | `keyboard-arrow-left` | `chevron-left` | Material Icons name | same geometry as chevron_left on master; the path text differs by encoding only |
@@ -752,7 +752,7 @@ Rules, quoted from S1 (capture 2018-12-25) unless marked otherwise, all `high` c
 - S7: "Note: Icons that include a question mark need to be mirrored in Arabic and Farsi, but not in Hebrew."
 - S7, web mechanism: `html[dir="rtl"] .icon { transform: scaleX(-1); }`.
 
-S7 publishes the list of Material Icons "that can be programmatically mirrored to RTL". The names in that list that MD1 ships: `arrow_back`, `arrow_forward`, `arrow_right`, `chevron_left`, `chevron_right`, `first_page`, `last_page`, `help`, `label`, `open_in_new` (and its twin `launch`), `send`, `sort`. Names in that list that MD1 does not ship but would have to mirror if added: `arrow_left`, `arrow_back_ios`, `arrow_forward_ios`, `backspace`, `keyboard_backspace`, `keyboard_tab`, `forward`, `reply`, `reply_all`, `undo`, `redo`, `event_note`, `star_half`, `help_outline`, `live_help`, `label_outline`, `label_important`, `list`, `view_list`, `toc`, `subject`, `short_text`, `wrap_text`, `format_list_bulleted`, `format_indent_increase`, `format_indent_decrease`, `playlist_add`, `queue_music`, `navigate_before`, `navigate_next`, `trending_up`, `trending_down`, `trending_flat`, `show_chart`, `multiline_chart`, `assignment`, `assignment_return`, `call_made`, `call_received`, `call_merge`, `call_split`, `call_missed`, `call_missed_outgoing`, `flight_takeoff`, `flight_land`, `input`, `functions`, `note`, `next_week`, `chrome_reader_mode`, `dvr`, `featured_play_list`, `featured_video`, `screen_share`, `mobile_screen_share`, `device_unknown`, `battery_unknown`, `view_quilt`.
+S7 publishes the list of Material Icons "that can be programmatically mirrored to RTL". The names in that list that Material Design 1 ships: `arrow_back`, `arrow_forward`, `arrow_right`, `chevron_left`, `chevron_right`, `first_page`, `last_page`, `help`, `label`, `open_in_new` (and its twin `launch`), `send`, `sort`. Names in that list that Material Design 1 does not ship but would have to mirror if added: `arrow_left`, `arrow_back_ios`, `arrow_forward_ios`, `backspace`, `keyboard_backspace`, `keyboard_tab`, `forward`, `reply`, `reply_all`, `undo`, `redo`, `event_note`, `star_half`, `help_outline`, `live_help`, `label_outline`, `label_important`, `list`, `view_list`, `toc`, `subject`, `short_text`, `wrap_text`, `format_list_bulleted`, `format_indent_increase`, `format_indent_decrease`, `playlist_add`, `queue_music`, `navigate_before`, `navigate_next`, `trending_up`, `trending_down`, `trending_flat`, `show_chart`, `multiline_chart`, `assignment`, `assignment_return`, `call_made`, `call_received`, `call_merge`, `call_split`, `call_missed`, `call_missed_outgoing`, `flight_takeoff`, `flight_land`, `input`, `functions`, `note`, `next_week`, `chrome_reader_mode`, `dvr`, `featured_play_list`, `featured_video`, `screen_share`, `mobile_screen_share`, `device_unknown`, `battery_unknown`, `view_quilt`.
 
 Per-role ruling. `Basis` cites the spec sentence, the S7 list, and the upstream Android `android:autoMirrored="true"` flag (S8) where each applies:
 
@@ -884,7 +884,7 @@ M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-
 
 `mixins/icons.ts` `ICONS_MATERIAL` maps Vuetify internal names to Material Icons font ligatures. Informational only: these are Vuetify vocabulary, and ruling 8 keeps orchestrator names off the design system. The right column is what a `VIcon` wrapper would translate each to. Confidence `moderate` (S10 only).
 
-| Vuetify 1.5 key | Material ligature | MD1 role |
+| Vuetify 1.5 key | Material ligature | Material Design 1 role |
 |---|---|---|
 | `complete` | `check` | `check` |
 | `cancel` | `cancel` | `cancel` |
@@ -914,7 +914,7 @@ M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-
 | `ratingHalf` | `star_half` | not shipped; MD1 has no rating component |
 | `loading` | `cached` | not shipped; MD1 progress indicators are drawn, not glyphs |
 
-Vuetify 1.5.24 does not mirror any icon in RTL: `VIcon.ts` and `_icons.styl` contain no `scaleX`, `flip`, or `rtl` rule (`moderate`). MD1 does, per the table above.
+Vuetify 1.5.24 does not mirror any icon in RTL: `VIcon.ts` and `_icons.styl` contain no `scaleX`, `flip`, or `rtl` rule (`moderate`). Material Design 1 does, per the table above.
 
 ## Deliberately not shipped
 

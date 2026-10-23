@@ -5,7 +5,7 @@
  *
  * @remarks
  * Headless state for the Material Design 1 ink reaction. v0 ships no ripple
- * primitive, so MD1 owns this one (SPEC.md, Deviations): the composable
+ * primitive, so Material Design 1 owns this one (SPEC.md, Deviations): the composable
  * keeps the list of inks and their lifecycle and never touches the DOM.
  * `Md1Ripple` measures the host, binds the pointer and keyboard events and
  * reports when each CSS animation lands.

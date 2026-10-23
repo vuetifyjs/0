@@ -103,7 +103,7 @@
   </div>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the dialog button rules below reach the Md1Buttons placed inside. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the dialog button rules below reach the Md1Buttons placed inside. -->
 <style>
   /*
    * The 52 dp action area: 8 dp around 36 dp flat buttons, 8 dp between them,

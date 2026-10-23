@@ -15,22 +15,22 @@
 
 # @paper/md1
 
-MD1 design system: Material Design 1 (the 2014 to 2017 guidelines, codename
+Material Design 1 design system (the 2014 to 2017 guidelines, codename
 "Quantum Paper") on **@vuetify/v0**.
 
 The complete, exclusive implementation of one closed specification: the MD1
 palette, type scale, elevation and motion as tokens, and thin `Md1*` wrappers
-that **compose** v0 compounds. Behavior stays headless in v0; MD1 only
+that **compose** v0 compounds. Behavior stays headless in v0; Material Design 1 only
 paints.
 
-## Why MD1
+## Why Material Design 1
 
 | | |
 |---|---|
 | **v0** | Headless OS: state, accessibility, compounds |
-| **MD1** | Design system: tokens, CSS, `Md1*` chrome |
+| **Material Design 1** | Design system: tokens, CSS, `Md1*` chrome |
 
-MD1 proves the Paper design-system contract against a spec Google can no
+Material Design 1 proves the Paper design-system contract against a spec Google can no
 longer move. Full contract: [SPEC.md](./SPEC.md); the family rules:
 [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md).
 
@@ -63,7 +63,7 @@ any subtree; every `--md1-*` color flips and light stays the `:root` default.
 
 | Option | Type | Default | What it does |
 |---|---|---|---|
-| `theme` | `ThemePluginOptions \| false` | MD1 defaults | Merged over the defaults (`md1-light` / `md1-dark`, the adapter, `system` following the OS). `false` when the host installs `createThemePlugin` itself and registers `Md1StyleSheetAdapter` plus `md1Colors` / `md1DarkColors` |
+| `theme` | `ThemePluginOptions \| false` | Material Design 1 defaults | Merged over the defaults (`md1-light` / `md1-dark`, the adapter, `system` following the OS). `false` when the host installs `createThemePlugin` itself and registers `Md1StyleSheetAdapter` plus `md1Colors` / `md1DarkColors` |
 | `icons` | `Md1IconsPluginOptions \| false` | installed | Forwarded to `createMd1IconsPlugin`; `{ icons: { ... } }` overrides or extends roles. `false` skips the install; `Md1Icon` falls back to the built-in set. Skipping does not shrink the bundle (the glyph map survives tree-shaking, ruling 6) |
 | `reducedMotion` | `ReducedMotionPluginOptions \| false` | installed | Forwarded to v0's `createReducedMotionPlugin`; `Md1Ripple` reads `useReducedMotion().isReduced`. `false` when the host installs the plugin itself. The stylesheets stay gated on `prefers-reduced-motion` either way |
 
@@ -117,7 +117,7 @@ The adapter mirrors the color roles kits read onto `--v0-*` on both theme
 blocks (`--v0-primary`, `--v0-surface`, `--v0-on-surface`, `--v0-surface-tint`,
 `--v0-background`, `--v0-divider`, `--v0-border`, `--v0-pre`, `--v0-accent`,
 `--v0-error`, and the kit severities `--v0-info` / `--v0-success` /
-`--v0-warning` with their `on-*`), so Genesis docs chrome hosted on an MD1
+`--v0-warning` with their `on-*`), so Genesis docs chrome hosted on a Material Design 1
 page inherits the theme. Pass `{ v0Aliases: false }` to
 `Md1StyleSheetAdapter` to turn the bridge off.
 
@@ -145,7 +145,7 @@ Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
 Path data was taken from the "materialicons" (filled) 24px SVG sources at
 commit 49d4db35df873165d6bd6ba09b063c7dafbac2f4. Modifications: the 24x24 background
 rectangle was removed from each file and the remaining <path d> strings were
-stored as data; no glyph geometry was changed. Icons are renamed to MD1
+stored as data; no glyph geometry was changed. Icons are renamed to Material Design 1
 role names; the Material Icons source name of every glyph is listed in
 packages/md1/spec/icons.md. Google does not endorse this package.
 
@@ -165,7 +165,7 @@ The full license text ships with the package as
 
 A piece MD1 does not contain is yours to compose: a v0 primitive plus the
 `--md1-*` tokens, the `md1-type-*` and `md1-elevation-*` classes and
-`Md1Ripple`. That composition is unsupported as an MD1 component; the holes
+`Md1Ripple`. That composition is unsupported as a Material Design 1 component; the holes
 are listed under "Known limitations" in [SPEC.md](./SPEC.md).
 
 ## Pinned spec

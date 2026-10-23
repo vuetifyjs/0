@@ -149,7 +149,7 @@
   </nav>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet; the actions style themselves in Md1BottomNavigationAction.vue. -->
+<!-- Unscoped, like every Material Design 1 stylesheet; the actions style themselves in Md1BottomNavigationAction.vue. -->
 <style>
   /*
    * The bar: 56 dp tall across the bottom of the view at 8 dp. The safe-area

@@ -45,7 +45,7 @@ This is a **pnpm monorepo** containing:
 | [`@vuetify/v0`](./packages/0) | Core headless components and composables |
 | [`@vuetify/play`](./packages/play) | Playground hash protocol |
 | [`@paper/emerald`](./packages/emerald) | Emerald design system |
-| [`@paper/md1`](./packages/md1) | MD1 design system (Material Design 1) |
+| [`@paper/md1`](./packages/md1) | Material Design 1 design system |
 | [`@paper/bulma`](./packages/bulma) | Bulma compat design system |
 | [`@paper/genesis`](./packages/genesis) | Genesis design system (docs primitives) |
 | [`@vuetify/paper`](./packages/paper) | Styling primitives (private, dormant) |

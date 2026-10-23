@@ -92,7 +92,7 @@
   /*
    * The large title of an extended bar: Display 1 at the content keyline,
    * centred in one increment so it lands in the row when the space collapses.
-   * The spec states only the collapsed 20 sp; 34 sp is an MD1 decision.
+   * The spec states only the collapsed 20 sp; 34 sp is a Material Design 1 decision.
    */
   .md1-toolbar__extension .md1-toolbar__title {
     flex: none;

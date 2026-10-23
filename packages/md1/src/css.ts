@@ -41,7 +41,7 @@ const UNSAFE_CSS = /url\s*\(|src\s*\(|image\s*\(|image-set\s*\(|cross-fade\s*\(|
 
 /**
  * Colour keys mirrored onto `--v0-*` under their own name, for the kits
- * (Genesis) an MD1 page hosts. The severities and `surface-tint` exist for
+ * (Genesis) a Material Design 1 page hosts. The severities and `surface-tint` exist for
  * this table alone.
  */
 const V0_ALIAS_KEYS = [
@@ -64,7 +64,7 @@ const V0_ALIAS_KEYS = [
 ] as const satisfies readonly (keyof typeof md1Colors)[]
 
 /**
- * Kit alias names whose MD1 source token is named differently. Every
+ * Kit alias names whose Material Design 1 source token is named differently. Every
  * background is paired with its foreground: emitting one without the other
  * hands kits a contrast bug.
  */

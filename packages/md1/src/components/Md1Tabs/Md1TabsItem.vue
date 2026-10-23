@@ -256,7 +256,7 @@
     min-height: 72px;
   }
 
-  /* Ink follows the indicator: the accent on a surface bar (MD1 decision; the page gives "#fff or accent"). */
+  /* Ink follows the indicator: the accent on a surface bar (Material Design 1 decision; the page gives "#fff or accent"). */
   .md1-tabs__item[data-selected] {
     color: var(--md1-accent, #FF4081);
   }

@@ -4,7 +4,7 @@
 
 **Class:** design system (rich). See [DESIGN_SYSTEMS.md](../../DESIGN_SYSTEMS.md).
 
-MD1 is the complete, exclusive implementation of Material Design 1 (the 2014 to 2017 "Material Design" guidelines, internal codename "Quantum Paper") on `@vuetify/v0`. The package is `@paper/md1` (prefix `Md1*`); `@paper/material` and `Md*` stay reserved for the pinned MD3 package in the family catalog. MD1 is the older language in its own right, not a theme of the newer one.
+`@paper/md1` is the complete, exclusive implementation of Material Design 1 (the 2014 to 2017 "Material Design" guidelines, internal codename "Quantum Paper") on `@vuetify/v0`. Its prefix is `Md1*`; `@paper/material` and `Md*` stay reserved for the pinned MD3 package in the family catalog. Material Design 1 is the older language in its own right, not a theme of the newer one.
 
 | Item | Value |
 |---|---|
@@ -19,7 +19,7 @@ MD1 is the complete, exclusive implementation of Material Design 1 (the 2014 to 
 | Installable without Vuetify | required and met: `pnpm add @paper/md1`, `app.use(createMd1Plugin())`, `Md1Button` |
 | Research notes | `packages/md1/spec/**` carries every number with its source and confidence. This file cites those notes and does not repeat their tables |
 
-Purpose: MD1 proves the Paper design-system contract against a specification that is complete, closed and old enough that Google can no longer move it. Every `Md1*` API is judged by one question: is it the spec's vocabulary rendered on v0, and nothing more.
+Purpose: Material Design 1 proves the Paper design-system contract against a specification that is complete, closed and old enough that Google can no longer move it. Every `Md1*` API is judged by one question: is it the spec's vocabulary rendered on v0, and nothing more.
 
 ## Pinned spec
 
@@ -32,15 +32,15 @@ Purpose: MD1 proves the Paper design-system contract against a specification tha
 | Vuetify 1.5.24 | `vuetifyjs/vuetify` tag `v1.5.24`, path `packages/vuetify/src/stylus/**` (https://github.com/vuetifyjs/vuetify/tree/v1.5.24/packages/vuetify/src/stylus) | numeric cross-check only; never a source of API, and never a source of a value the spec states |
 | Material Icons | `google/material-design-icons` at commit `49d4db35df873165d6bd6ba09b063c7dafbac2f4`, `materialicons` (filled) 24px sources, Apache License 2.0 | glyph source for `Md1Icon`: 80 glyphs, 27 aliases (`spec/icons.md`) |
 
-Where the archive served a neighbouring capture (2018-01, 2020-05, 2021-03, 2021-08), the note that read the page records the served timestamp; the content is the frozen archive page in every case. Where a value exists only inside a spec PNG or video, the notes read the artwork at 2 px per dp and this file tags the value `measured`. Where no source states a value, the notes say `not found` and this file records the MD1 decision that fills the gap.
+Where the archive served a neighbouring capture (2018-01, 2020-05, 2021-03, 2021-08), the note that read the page records the served timestamp; the content is the frozen archive page in every case. Where a value exists only inside a spec PNG or video, the notes read the artwork at 2 px per dp and this file tags the value `measured`. Where no source states a value, the notes say `not found` and this file records the Material Design 1 decision that fills the gap.
 
 Confidence legend for this file: `high` = spec text; `moderate` = Vuetify 1.5 stylus only; `measured` = read from spec artwork at 2 px per dp (the notes write "measured" in the value cell and tag such rows `moderate`); `low` = memory.
 
 ### Units and device classes
 
-dp and sp are px, 1:1 (`layout/units-measurements`: "When writing CSS, use px wherever dp or sp is stated"). The spec has three independent axes; MD1 maps each exactly once and every component section below inherits the mapping.
+dp and sp are px, 1:1 (`layout/units-measurements`: "When writing CSS, use px wherever dp or sp is stated"). The spec has three independent axes; Material Design 1 maps each exactly once and every component section below inherits the mapping.
 
-| Spec axis | Spec wording | MD1 mapping |
+| Spec axis | Spec wording | Material Design 1 mapping |
 |---|---|---|
 | Handset vs tablet/desktop layout | 56 vs 64 dp app bar, 16 vs 24 dp margins, 72 vs 80 dp keyline, 280 vs 320 dp drawer, 16 vs 24 dp FAB inset, snackbar and dialog desktop forms | `@media (min-width: 600px)`: the handset/tablet split of `layout/responsive-ui` |
 | Desktop input | "mouse and keyboard are the primary input"; desktop type sizes (15 and 13 sp), desktop menus (32 px rows), resting elevation 2 dp lower, 150 to 200 ms durations, no touch halo, 20 dp icons | `@media (pointer: fine)` |
@@ -137,16 +137,16 @@ MD1 pages with no web surface:
 | Split screen (`layout/split-screen`) | "Android only" on the page: multi-window activation, divider dragging and activity launch placement; the browser owns window management (`spec/layout.md`) |
 | Material design: introduction, environment, material properties | principles carried by the elevation, motion and colour tokens (`spec/elevation.md` and `spec/color.md` read them as supplementary sources); no surface |
 | What's new (`material-design/whats-new`) | the archive's changelog; cited in the Pinned spec table for its "September 2017" last entry |
-| Platform adaptation (`platforms/platform-adaptation`) | MD1 follows the page's Android / Web column: titles always left-aligned, the up button is a thin arrow with a stem (`arrow-back`), the action overflow icon is three vertical dots; the iOS column does not ship |
+| Platform adaptation (`platforms/platform-adaptation`) | Material Design 1 follows the page's Android / Web column: titles always left-aligned, the up button is a thin arrow with a stem (`arrow-back`), the action overflow icon is three vertical dots; the iOS column does not ship |
 | Android (`platforms/android`) | Android-specific guidance; no web surface |
 
-v0 primitives MD1 deliberately does not wrap because MD1 has no such component (a primitive existing is not a reason to ship, ruling 7): `Breadcrumbs`; `Avatar` as a standalone (avatars are parts of `Md1List`, `Md1Card`, `Md1Chip` and `Md1NavigationDrawer.Header`); `Carousel`; `Rating` (the cards page names stars-to-rate only as an example UI control with no spec of its own; consumers compose v0 `Rating` with `Md1Icon star` through the escape hatch); `Kanban`; `Splitter`; `Treeview`; `Otp`; `Alert` (MD1 has no banner; alerts are dialogs and snackbars); `Pagination` as a standalone (it lives inside `Md1DataTable.Footer`); `NumberField`; `Virtualizer`; `Image` and `AspectRatio`; `DataGrid`; `Select` as a standalone (it is the core of `Md1TextField dropdown`, text-fields page "Nested menus & pickers"); `Form` (consumers use v0's `Form` directly; the errors pattern is documented against it); `Menu.Bar` and `Menu.Context` (no menubar and no right-click menu in MD1).
+v0 primitives Material Design 1 deliberately does not wrap because MD1 has no such component (a primitive existing is not a reason to ship, ruling 7): `Breadcrumbs`; `Avatar` as a standalone (avatars are parts of `Md1List`, `Md1Card`, `Md1Chip` and `Md1NavigationDrawer.Header`); `Carousel`; `Rating` (the cards page names stars-to-rate only as an example UI control with no spec of its own; consumers compose v0 `Rating` with `Md1Icon star` through the escape hatch); `Kanban`; `Splitter`; `Treeview`; `Otp`; `Alert` (MD1 has no banner; alerts are dialogs and snackbars); `Pagination` as a standalone (it lives inside `Md1DataTable.Footer`); `NumberField`; `Virtualizer`; `Image` and `AspectRatio`; `DataGrid`; `Select` as a standalone (it is the core of `Md1TextField dropdown`, text-fields page "Nested menus & pickers"); `Form` (consumers use v0's `Form` directly; the errors pattern is documented against it); `Menu.Bar` and `Menu.Context` (no menubar and no right-click menu in MD1).
 
 Vuetify 1.5 features that are not in MD1 and do not ship: range and vertical sliders; large (72 dp) and extended FABs; outline, block, round and depressed buttons; choice, filter, input and small chips; dense subheaders; top-placed snackbars; slider tick labels; vertical dividers; `v-overflow-btn`; `v-badge` ("badge" is not in MD1); expandable data-table rows; calendar; timeline; carousel; `v-img`.
 
 ### Escape hatch
 
-A missing piece is the consumer's: compose a v0 primitive with the `--md1-*` tokens, the `md1-type-*` and `md1-elevation-*` classes and `Md1Ripple`. That composition is unsupported as an MD1 component. The docs index documents it as the way to cover a hole, and every hole is listed under Known limitations instead of being filled with a silent leftover tier.
+A missing piece is the consumer's: compose a v0 primitive with the `--md1-*` tokens, the `md1-type-*` and `md1-elevation-*` classes and `Md1Ripple`. That composition is unsupported as a Material Design 1 component. The docs index documents it as the way to cover a hole, and every hole is listed under Known limitations instead of being filled with a silent leftover tier.
 
 ## Pipeline
 
@@ -163,7 +163,7 @@ The plugin registers `md1-light` as the default and follows the OS through `syst
 
 ## Consumer contract
 
-Emerald's contract, restated where MD1 differs:
+Emerald's contract, restated where Material Design 1 differs:
 
 - Behavioural components compose v0 compounds; presentational ones render `Atom`; nothing routes through `@vuetify/paper`.
 - Never `<style scoped>`. Isolation is the `md1-` class prefix; state hooks are `data-*` (`true | undefined` for booleans, strings for enums); every design value is `var(--md1-*, <literal>)`.
@@ -172,8 +172,8 @@ Emerald's contract, restated where MD1 differs:
 - Glyphs draw through `Md1Icon` roles; no inline glyph SVG in an `Md1*` file. Non-glyph geometry (the circular progress arc, the clock face and hand) is inline SVG, declared under Deviations.
 - Withheld v0 props are withheld at the type level. A shell's `Pick` is the public surface and TypeScript rejects the rest; at runtime the attrs still fall through to the v0 root (`<Md1Button loading>` reaches `Button.Root`), the shape Emerald ships too. No shell filters attrs.
 - Every interactive component hosts an `Md1Ripple`. There is no prop to remove it: the ripple is the spec's press feedback, not an option (ruling 8 keeps Vuetify's `ripple` prop on the wrapper).
-- Native `<dialog>` paints the scrim through `::backdrop` in `--md1-scrim` (`--md1-scrim-sheet` under a bottom sheet, Lead decision 2); MD1 never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
-- Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('MD1.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
+- Native `<dialog>` paints the scrim through `::backdrop` in `--md1-scrim` (`--md1-scrim-sheet` under a bottom sheet, Lead decision 2); Material Design 1 never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
+- Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('Material Design 1.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
 
 ## Compound access
 
@@ -181,7 +181,7 @@ Every compound attaches its parts to the root; the sub-key drops the parent pref
 
 ## Inventory
 
-Pattern vocabulary: shell (one SFC on a v0 compound); compound (one SFC per region, attached to the root); presentational (`Atom`); DS-owned headless (state in an MD1 composable because v0 has no primitive; the component binds the DOM events).
+Pattern vocabulary: shell (one SFC on a v0 compound); compound (one SFC per region, attached to the root); presentational (`Atom`); DS-owned headless (state in a Material Design 1 composable because v0 has no primitive; the component binds the DOM events).
 
 | Component | Spec page | Pattern | v0 primitive(s) | Parts | Key props | `data-*` hooks |
 |---|---|---|---|---|---|---|
@@ -413,8 +413,8 @@ Modal: `dialog.md1-bottom-sheet` > `div.md1-bottom-sheet__content`. Persistent: 
 
 `div.md1-progress-linear[role=progressbar]` > [`div.md1-progress-linear__track`, `div.md1-progress-linear__buffer`, `div.md1-progress-linear__fill`].
 
-- `value` (`undefined`: indeterminate), `buffer` (`undefined`: the buffer variant with a dotted trail for the unbuffered remainder), `query` (`false`: the indeterminate sweep reversed until `value` arrives). No `active`: the page says bars "appear and disappear" at the edge of a header or sheet; the consumer mounts the indicator with `v-if` and MD1 animates it in and out through `Presence` (`data-presence` carries the phase), 225 ms decelerate in and 195 ms accelerate out.
-- Composition: `Progress.Root` + `Track` + `Fill` + `Buffer`; a `value` of `0` is passed as determinate (v0 reports 0 as indeterminate, so MD1 binds `data-state` from its own prop).
+- `value` (`undefined`: indeterminate), `buffer` (`undefined`: the buffer variant with a dotted trail for the unbuffered remainder), `query` (`false`: the indeterminate sweep reversed until `value` arrives). No `active`: the page says bars "appear and disappear" at the edge of a header or sheet; the consumer mounts the indicator with `v-if` and Material Design 1 animates it in and out through `Presence` (`data-presence` carries the phase), 225 ms decelerate in and 195 ms accelerate out.
+- Composition: `Progress.Root` + `Track` + `Fill` + `Buffer`; a `value` of `0` is passed as determinate (v0 reports 0 as indeterminate, so Material Design 1 binds `data-state` from its own prop).
 - Values: `spec/components/progress-activity.md`. 4 dp tall, full width at the edge of a header or sheet; fill `--md1-primary`, track the fill at 30%; never decreases.
 - Decision: the indeterminate cycle is not in the spec: 2 s per sweep on the standard curve.
 
@@ -432,7 +432,7 @@ Modal: `dialog.md1-bottom-sheet` > `div.md1-bottom-sheet__content`. Persistent: 
 
 - Shared: `label` (the visible text; the control's `aria-labelledby` points at it), `value`, `name`, `disabled`, `namespace`. `Md1Checkbox` and `Md1Switch` take `v-model` boolean; `Md1Radio` must sit inside `Md1Radio.Group` (`v-model`, `name`, `mandatory`, `activation`), as v0 requires.
 - `Md1Checkbox` `indeterminate` is a declared extension: MD1 has no mixed state, `Md1DataTable` select-all needs one (see Deviations).
-- Composition: `Checkbox.Root` + `Indicator`; `Radio.Group` + `Radio.Root` + `Indicator`; `Switch.Root` + `Track` + `Thumb` (the Track's hard-coded `dir="ltr"` is counteracted by `transform: scaleX(-1)` on the MD1 track under `[dir="rtl"]`).
+- Composition: `Checkbox.Root` + `Indicator`; `Radio.Group` + `Radio.Root` + `Indicator`; `Switch.Root` + `Track` + `Thumb` (the Track's hard-coded `dir="ltr"` is counteracted by `transform: scaleX(-1)` on the Material Design 1 track under `[dir="rtl"]`).
 - Values: `spec/components/selection-controls.md` (text for colours, measured geometry). Checkbox 18 dp box, 2 dp border, 2 dp radius; radio 20 dp ring, 2 dp stroke, 10 dp dot; switch 36 x 14 dp track, 20 dp thumb at 1 dp elevation, 16 dp travel; on: `--md1-accent` (switch `--md1-accent-control` in dark, track at 50%); off: 54% black / 70% white, switch thumb Grey 50 / Grey 400 on a 38% / 30% track; disabled 26% / 30%, disabled switch thumb Grey 400 / Grey 800 on a 12% / 10% track; 48 dp halo on focus and press (6 to 10%), drawn only under `pointer: coarse`; 48 dp target; 8 dp control-to-label gap (decision).
 
 ### Md1Slider
@@ -626,11 +626,11 @@ Decisions: single-line styles get `line-height: 1`; tracking numbers are Adobe u
 | `--md1-stagger` | 20 ms (the `Md1List` and `Md1GridList` entrance sequences) |
 | `--md1-ripple-duration` | `var(--md1-duration-standard)` (read by `Md1Ripple`) |
 
-Vuetify's `swing` and `fast-in-fast-out` curves are not MD1 curves.
+Vuetify's `swing` and `fast-in-fast-out` curves are not Material Design 1 curves.
 
 ### Layout
 
-`--md1-spacing-1..5` (8, 16, 24, 32, 40 px); `--md1-keyline-margin` (16 px, 24 px from 600 px); `--md1-keyline-content` (72 px, 80 px from 600 px); `--md1-increment` (56 px, 64 px from 600 px); `--md1-touch-target` (48 px); `--md1-radius` (2 px), `--md1-radius-box` (4 px); `--md1-icon-size` (24 px, 20 px in dense hosts). Breakpoints cannot be custom properties: they ship as the documented 13-row table and as `md1Breakpoints`, the documented dp table in JS (480, 600, 840, 960, 1280, 1440, 1600, 1920, keyed by the nominal width, with the 16 px desktop reduction on 1024 and above). v0's `useBreakpoints` has its own named breakpoints and takes no MD1 input; consumers map the table onto those names themselves when a layout needs the spec's widths. The responsive-ui gutter (16 px, 24 px from 960 px) is not a token: no component reads it (`Md1GridList` has its own `gutter` prop, ruling 5); the documented value lives in `spec/layout.md`.
+`--md1-spacing-1..5` (8, 16, 24, 32, 40 px); `--md1-keyline-margin` (16 px, 24 px from 600 px); `--md1-keyline-content` (72 px, 80 px from 600 px); `--md1-increment` (56 px, 64 px from 600 px); `--md1-touch-target` (48 px); `--md1-radius` (2 px), `--md1-radius-box` (4 px); `--md1-icon-size` (24 px, 20 px in dense hosts). Breakpoints cannot be custom properties: they ship as the documented 13-row table and as `md1Breakpoints`, the documented dp table in JS (480, 600, 840, 960, 1280, 1440, 1600, 1920, keyed by the nominal width, with the 16 px desktop reduction on 1024 and above). v0's `useBreakpoints` has its own named breakpoints and takes no Material Design 1 input; consumers map the table onto those names themselves when a layout needs the spec's widths. The responsive-ui gutter (16 px, 24 px from 960 px) is not a token: no component reads it (`Md1GridList` has its own `gutter` prop, ruling 5); the documented value lives in `spec/layout.md`.
 
 ### Theme definitions
 
@@ -638,7 +638,7 @@ Vuetify's `swing` and `fast-in-fast-out` curves are not MD1 curves.
 
 ### The v0 bridge
 
-The adapter also emits, on both theme blocks: `--v0-primary`, `--v0-on-primary`, `--v0-secondary` (= accent), `--v0-on-secondary`, `--v0-surface`, `--v0-on-surface` (= text-primary), `--v0-surface-variant` (= app-bar), `--v0-on-surface-variant` (= text-secondary), `--v0-surface-tint` (= `surface-tint`, a bridge-only key on the hue roles: the primary hue's 100 in the light theme, Indigo 100 `#C5CAE9`, and its 700 in the dark theme, Indigo 700 `#303F9F`, so kit code chips and table headers keep their contrast under white ink), `--v0-background`, `--v0-on-background`, `--v0-divider`, `--v0-border` (= divider), `--v0-pre` (= app-bar), `--v0-accent` (= accent) and `--v0-on-accent` (= on-accent; Genesis `GnDocsCallout` reads `--v0-accent` and would paint its purple fallback without it), `--v0-error` / `--v0-on-error`, and the kit severities `--v0-info` Blue 500 `#2196F3`, `--v0-success` Green 500 `#4CAF50`, `--v0-warning` Orange 600 `#FB8C00` with `--v0-on-info` / `--v0-on-success` / `--v0-on-warning` white (Vuetify 1.5's kit ink, `text.theme: white`, not the palette's recommendation: the colour page marks Green 500 and Orange 600 as black-ink swatches, and Blue 500 black on the 2018 page and white on the 2016 page, one of the six contested cells in `spec/color.md` 1.2) (bridge-only values from Vuetify 1.5's theme defaults, `moderate`; MD1 defines no such roles and MD1 components never read them). The same keys go in the `V0_ALIAS_KEYS` / `V0_REMAP_KEYS` tables (`spec/house-style.md` 1.6 and 1.7). `{ v0Aliases: false }` turns the bridge off.
+The adapter also emits, on both theme blocks: `--v0-primary`, `--v0-on-primary`, `--v0-secondary` (= accent), `--v0-on-secondary`, `--v0-surface`, `--v0-on-surface` (= text-primary), `--v0-surface-variant` (= app-bar), `--v0-on-surface-variant` (= text-secondary), `--v0-surface-tint` (= `surface-tint`, a bridge-only key on the hue roles: the primary hue's 100 in the light theme, Indigo 100 `#C5CAE9`, and its 700 in the dark theme, Indigo 700 `#303F9F`, so kit code chips and table headers keep their contrast under white ink), `--v0-background`, `--v0-on-background`, `--v0-divider`, `--v0-border` (= divider), `--v0-pre` (= app-bar), `--v0-accent` (= accent) and `--v0-on-accent` (= on-accent; Genesis `GnDocsCallout` reads `--v0-accent` and would paint its purple fallback without it), `--v0-error` / `--v0-on-error`, and the kit severities `--v0-info` Blue 500 `#2196F3`, `--v0-success` Green 500 `#4CAF50`, `--v0-warning` Orange 600 `#FB8C00` with `--v0-on-info` / `--v0-on-success` / `--v0-on-warning` white (Vuetify 1.5's kit ink, `text.theme: white`, not the palette's recommendation: the colour page marks Green 500 and Orange 600 as black-ink swatches, and Blue 500 black on the 2018 page and white on the 2016 page, one of the six contested cells in `spec/color.md` 1.2) (bridge-only values from Vuetify 1.5's theme defaults, `moderate`; MD1 defines no such roles and Material Design 1 components never read them). The same keys go in the `V0_ALIAS_KEYS` / `V0_REMAP_KEYS` tables (`spec/house-style.md` 1.6 and 1.7). `{ v0Aliases: false }` turns the bridge off.
 
 ### Prebaked theme.css
 
@@ -670,13 +670,13 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 ## Known limitations
 
 - **Pickers are DS-owned.** `Md1DatePicker` and `Md1TimePicker` carry their own cores until v0 ships the composables; min, max, disabled dates and ranges are not in MD1 and do not ship.
-- **Native `<dialog>` versus the global `Scrim`.** MD1 paints `::backdrop`; an app that also mounts v0's `<Scrim>` paints a second backdrop (#910).
+- **Native `<dialog>` versus the global `Scrim`.** Material Design 1 paints `::backdrop`; an app that also mounts v0's `<Scrim>` paints a second backdrop (#910).
 - **Gestures.** Swipe to dismiss (cards, snackbars, bottom sheets, list leave-behinds), pick-up-and-move (cards, lists), swipe to refresh and edge-swipe drawer opening are not shipped; every one has a button, keyboard or scrim path. Tab panels change on tab activation; panel swipe is deferred.
 - **Menus.** The simple-menu rule that aligns the selected item over the emitting element is not implemented; menus open below the activator. The desktop "More" dropdown for overflowing tabs is deferred in favour of pagination arrows.
 - **Editable segmented dropdown button.** Definition only in the spec; deferred as an `Md1TextField` + `Md1DropdownButton` composition.
 - **Values the spec never states**, filled by the decisions recorded above and in the notes: hover overlay, scrim alpha, card, menu and tooltip radius, chip fill, grid-list bar scrim, snackbar timeout, ripple timing, mini drawer width, speed-dial spacing, expanded-panel elevation, dialog desktop width and body text style, tab colours on surface bars, tooltip open delay and long-press threshold, control-to-label gap, indeterminate cycle durations. Each is tagged in the component section; none is `high`.
 - **Measured geometry.** Selection controls, sliders, pickers, progress thickness and the snackbar line pitch come from the spec's own artwork at 2 px per dp (`measured`), not from text.
-- **Text selection highlight.** `style.css` ships no `::selection` rule. The selection page's accent highlight covers every selectable text on the page, which a package stylesheet reaches only with a global rule, and the docs app loads `style.css` on every page; a rule scoped to MD1 parts would give one page two highlight colours. The app sets it on its root, `::selection { background: var(--md1-selection); color: var(--md1-text-primary) }`, the recipe on the selection docs page.
+- **Text selection highlight.** `style.css` ships no `::selection` rule. The selection page's accent highlight covers every selectable text on the page, which a package stylesheet reaches only with a global rule, and the docs app loads `style.css` on every page; a rule scoped to Material Design 1 parts would give one page two highlight colours. The app sets it on its root, `::selection { background: var(--md1-selection); color: var(--md1-text-primary) }`, the recipe on the selection docs page.
 - **List reorder handle.** `Md1List` ships no `reorder` handle: no keyboard move-up and move-down and no live region, and pick-up-and-move is a gesture (above). An app that reorders a list puts its own buttons in `Md1List.Action` and keeps the order in its state, for example v0's `createSortable`.
 - **Desktop and dense mapping.** `(pointer: fine)` stands in for the spec's "mouse and keyboard"; a touch laptop gets device metrics. There is no runtime override in v1.
 - **Vuetify 1.5 disagreements** with the spec (switch thumb 4 dp, bottom navigation single-layer shadow, bottom sheet at 24 dp, 300 px drawer, 64 dp "prominent", swing curve, 7 px progress bar, 290 px picker, 42 px snackbar gap, 22 px dense list icons, 12% hover) are resolved in the spec's favour; the notes list every one.
@@ -723,7 +723,7 @@ What the integration and the docs sweeps of 2026-10-23 left open. Each line says
 - **Snackbar stacked action.** Ships the 112 dp stacked row when `multiline` is set and the action is wider than 128 px; undecided: whether it stays measured or becomes a prop.
 - **Bottom-sheet 16:9 keyline.** Ships the initial height capped at the viewport width x 9 / 16, the keyline read as a height from the bottom edge, never over the app bar; undecided: whether the keyline is measured from the top of the screen instead.
 - **Desktop menu metrics.** Ships the desktop rows (32 px, 15 px type, the 64 px width unit) on `Md1Menu` and `Md1DropdownButton` through a `desktop` prop, while the `Md1TextField` dropdown and the `Md1Autocomplete` list keep 48 dp rows under every pointer; undecided: one rule for all three, by prop or by `(pointer: fine)`.
-- **DS-owned date and time headless.** Ships `createDatePickerCore`, `toIso`, `useClock`, `parseTime` and `formatTime` as public exports because v0's `createDatePicker` and `createTimePicker` are not on master yet; undecided: their public names, which may change when MD1 migrates.
+- **DS-owned date and time headless.** Ships `createDatePickerCore`, `toIso`, `useClock`, `parseTime` and `formatTime` as public exports because v0's `createDatePicker` and `createTimePicker` are not on master yet; undecided: their public names, which may change when Material Design 1 migrates.
 - **`Md1Stepper` mobile bar on dark.** Ships the Grey 900 bar with the active dot in the primary 500 (about 2.3:1) and a 30% primary progress track that barely shows; Lead decision 12 covers ink, not these fills; undecided: an accent 200 or primary 100 rule, as for the pickers.
 
 ### Token gaps
@@ -766,7 +766,7 @@ What the integration and the docs sweeps of 2026-10-23 left open. Each line says
 
 ### Locale keys with inline English fallbacks
 
-- **No catalogue.** Ships every key below through `useLocale().ti('MD1.<key>')` with an inline English fallback, and `createMd1Plugin` registers no messages; undecided: an English catalogue in the plugin, or a published key list.
+- **No catalogue.** Ships every key below through `useLocale().ti('Material Design 1.<key>')` with an inline English fallback, and `createMd1Plugin` registers no messages; undecided: an English catalogue in the plugin, or a published key list.
 - **Text field and autocomplete:** `clear`, `optional`, `voice`, `hidePassword`, `showPassword`, `chooseDate`, `chooseTime`, `noResults`.
 - **Search bar and toolbar:** `search`, `back`, `clear`, `voice`, `noResults`, `menu`, `actions`, `close`, `selectedCount`.
 - **Data table:** `itemsSelected`, `selectAll`, `selectRow`, `rowsPerPage`, `pageText`, `previousPage`, `nextPage`, `edit`, `save`, `cancel`.

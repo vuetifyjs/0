@@ -1,6 +1,6 @@
 # Text fields (MD1)
 
-Spec page: `components/text-fields.html`. MD1 components: `Md1TextField` (single-line, multi-line, full-width, box, dense), `Md1TextArea` (text area). The archived page is the 2017 revision (it includes "Text field boxes" and the full light/dark state tables); the 2016 revision is read as a cross-check because it carries tile heights (72dp, 48dp, 60dp, 40dp) and icon sizes the 2017 page dropped.
+Spec page: `components/text-fields.html`. Material Design 1 components: `Md1TextField` (single-line, multi-line, full-width, box, dense), `Md1TextArea` (text area). The archived page is the 2017 revision (it includes "Text field boxes" and the full light/dark state tables); the 2016 revision is read as a cross-check because it carries tile heights (72dp, 48dp, 60dp, 40dp) and icon sizes the 2017 page dropped.
 
 ## Sources
 

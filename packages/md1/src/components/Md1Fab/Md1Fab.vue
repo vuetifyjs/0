@@ -33,7 +33,7 @@
   }
 
   /**
-   * MD1 withholds every v0 button prop but `disabled` and `namespace`:
+   * Material Design 1 withholds every v0 button prop but `disabled` and `namespace`:
    * the floating action button page has no loading, readonly or passive
    * state, and the FAB carries no text and submits nothing, so `name` and
    * `form` have no surface either.
@@ -43,7 +43,7 @@
     icon: Md1IconName
     /**
      * The accessible name. Needed on every FAB: it carries no text and its
-     * glyph is aria-hidden, so without it the control has no name and MD1
+     * glyph is aria-hidden, so without it the control has no name and Material Design 1
      * warns in dev. Optional at the type level only so templates can write
      * the attribute form, `aria-label`, which vue-tsc does not map to a
      * required camel-case prop.

@@ -1,6 +1,6 @@
 # Tooltips (MD1)
 
-Spec page: `components/tooltips.html`. MD1 component: `Md1Tooltip`.
+Spec page: `components/tooltips.html`. Material Design 1 component: `Md1Tooltip`.
 
 ## Sources
 
@@ -113,8 +113,8 @@ Vuetify 1.5 draws elevation 2dp; see the cross-check.
 ## 10. Web notes
 
 - Maps 1:1: tile height, side padding, top margin, 10sp / 14sp Medium text, Grey 700 at 90%, 150ms in / 150ms out with the deceleration and acceleration curves.
-- Needs interpretation: desktop vs mobile is a modality split; on the web choose by pointer type (`(hover: hover)` and `(pointer: fine)` media queries give the desktop set, coarse pointers the touch set) rather than by viewport width. Corner radius, max width, elevation, and open delay are not in the spec and must be declared as MD1 decisions in `SPEC.md`.
-- Touch: "press and hold shows, lift keeps it 1.5s" is a long-press interaction; the web has no native long-press, so the implementer must use pointer events with a hold timer. Record the hold threshold as an MD1 decision (not found in the spec).
+- Needs interpretation: desktop vs mobile is a modality split; on the web choose by pointer type (`(hover: hover)` and `(pointer: fine)` media queries give the desktop set, coarse pointers the touch set) rather than by viewport width. Corner radius, max width, elevation, and open delay are not in the spec and must be declared as Material Design 1 decisions in `SPEC.md`.
+- Touch: "press and hold shows, lift keeps it 1.5s" is a long-press interaction; the web has no native long-press, so the implementer must use pointer events with a hold timer. Record the hold threshold as a Material Design 1 decision (not found in the spec).
 - WAI-ARIA pattern: **Tooltip** (`role="tooltip"`, trigger carries `aria-describedby`; the spec is silent on keyboard beyond "focusing on an element with a keyboard (usually the tab key)" so follow the pattern for Escape dismissal).
 - Keyboard focus is a first-class trigger in this spec; the implementation must show the tooltip on `:focus-visible`, not only on hover.
 

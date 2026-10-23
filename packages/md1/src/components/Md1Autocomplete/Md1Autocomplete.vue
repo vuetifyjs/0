@@ -31,7 +31,7 @@
   import '../Md1TextField/Md1TextField.vue'
 
   /**
-   * MD1 keeps v0's selection surface (`strict`, `multiple`, `displayValue`),
+   * Material Design 1 keeps v0's selection surface (`strict`, `multiple`, `displayValue`),
    * form association (`id`, `name`) and the forced error state. It withholds
    * `mandatory`, the filtering `adapter`, the `positionAdapter` and `form`: the
    * suggestions filter on the client as the user types and open under the field
@@ -400,7 +400,7 @@
 </template>
 
 <!--
-  Unscoped, like every MD1 stylesheet. The field itself is Md1TextField's
+  Unscoped, like every Material Design 1 stylesheet. The field itself is Md1TextField's
   anatomy (its stylesheet paints `.md1-text-field*`); this sheet adds the
   chips row, the in-line completion and the suggestion list.
 -->

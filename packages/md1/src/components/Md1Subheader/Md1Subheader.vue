@@ -52,7 +52,7 @@
   </Atom>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet (DESIGN_SYSTEMS.md ruling 3). -->
+<!-- Unscoped, like every Material Design 1 stylesheet (DESIGN_SYSTEMS.md ruling 3). -->
 <style>
   /*
    * A 48 dp tile with the text at the 16 dp avatar keyline, in Body 2 (Roboto

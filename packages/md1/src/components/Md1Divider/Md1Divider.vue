@@ -26,7 +26,7 @@
   />
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet (DESIGN_SYSTEMS.md ruling 3). -->
+<!-- Unscoped, like every Material Design 1 stylesheet (DESIGN_SYSTEMS.md ruling 3). -->
 <style>
   /*
    * A 1 dp rule in the 12% divider ink and nothing else: the dividers page

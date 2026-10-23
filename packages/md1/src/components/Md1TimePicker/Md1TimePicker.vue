@@ -357,7 +357,7 @@
   </div>
 </template>
 
-<!-- Unscoped, like every MD1 stylesheet: Radio.Root renders more than one root node. -->
+<!-- Unscoped, like every Material Design 1 stylesheet: Radio.Root renders more than one root node. -->
 <style>
   /*
    * Portrait (pickers page, measured): 328 dp wide, a 96 dp header band, the

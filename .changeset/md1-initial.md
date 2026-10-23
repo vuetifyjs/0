@@ -2,7 +2,7 @@
 '@paper/md1': minor
 ---
 
-feat(md1): add the MD1 design system (Material Design 1) with 37 components, theme tokens, plugin and icons
+feat(md1): add the Material Design 1 design system with 37 components, theme tokens, plugin and icons
 
 `@paper/md1` is the Material Design 1 (2014 to 2017) design system on Vuetify0: the pinned, archived guidelines rendered on v0's headless compounds. Every component on the guidelines' component pages ships, named and propped in the guidelines' own vocabulary (`dense`, `raised`, `mini`, `shifting`, `prominent`, `inset`, `discrete`, `linear`, `editable`).
 

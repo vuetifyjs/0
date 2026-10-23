@@ -6,7 +6,7 @@
   import type { RadioGroupProps } from '@vuetify/v0'
 
   /**
-   * MD1 withholds `label`, `ariaDescribedby` and `ariaRequired` from v0's
+   * Material Design 1 withholds `label`, `ariaDescribedby` and `ariaRequired` from v0's
    * group props; the group's accessible name is `ariaLabel` (v0's `label`),
    * or `aria-labelledby` pointing at a visible heading.
    */

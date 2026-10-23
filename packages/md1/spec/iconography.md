@@ -1,4 +1,4 @@
-# MD1 iconography, imagery, and writing (Material Design 1)
+# Material Design 1 iconography, imagery, and writing
 
 Pinned spec for the `@paper/md1` icon system (`Md1Icon` and every component that places a glyph), plus the imagery and writing rules that constrain component APIs and default copy. Values are copied from the archived guidelines; Vuetify 1.5.24 is the cross-check and the spec wins where they differ.
 
@@ -96,7 +96,7 @@ Icons page "Color" section and color page "Icons and other elements" (two-state 
 
 The color page adds: "Elements like icons benefit from having a hex value of black or white at 38% opacity so that they work on backgrounds of any color." (high)
 
-The two tables agree where they overlap (54 and 38 on light, 100 and 50 on dark); the three-state table adds the focused value (87% light, 100% dark) and the unfocused active value on dark (70%). MD1 needs tokens for all three states.
+The two tables agree where they overlap (54 and 38 on light, 100 and 50 on dark); the three-state table adds the focused value (87% light, 100% dark) and the unfocused active value on dark (70%). Material Design 1 needs tokens for all three states.
 
 Vuetify 1.5 `$material-light.icons`: active rgba(0,0,0,.54), inactive rgba(0,0,0,.38); `$material-dark.icons`: active #fff, inactive rgba(255,255,255,.5). `.v-icon--disabled` additionally sets `opacity: .6` (Vuetify's own, not in the spec). No focused-state value. (moderate)
 
@@ -118,7 +118,7 @@ Vuetify 1.5 `$material-light.icons`: active rgba(0,0,0,.54), inactive rgba(0,0,0
 
 ## Product icons
 
-Product icons are the visual expression of a brand's products, services, and tools: cut, folded, and lit like paper, with clean folds, crisp edges, and a matte finish. Android expects them at 48dp with 1dp edges; design them on the same 48-unit grid scaled 400% to 192 x 192dp so the edge becomes 4dp, and any later scaling stays proportional (high). Keyline shapes on the product grid: square 152 x 152dp, circle 176dp diameter, vertical rectangle 176dp high by 128dp wide, horizontal rectangle 128dp high by 176dp wide (high). Anatomy, stacked from back to front and always viewed straight on: finish, material background, material foreground, color, shadow; color is either a spot color on part of an element or a flood across a whole element, and colored elements sit flush with the surface with no edges or shadows of their own (high). Material elements are 1dp thick; the top edge carries a tint (1dp, 20% opacity, white #FFFFFF) and the bottom edge a shade (1dp, 20% opacity, color from the tint, shade, and shadow value charts); left and right edges carry neither (high). A top light casts a contact shadow: mode Normal, opacity 20%, X offset 0dp, Y offset 4dp, blur 4dp, contained inside the icon silhouette (high). The finish is a radial gradient from a virtual 45 degree light: white, midpoint at 33%, 10% opacity at location 0% fading to 0% opacity at 100%, confined to the silhouette (high). Composition patterns: layer (few overlaps), elevate (never crop an elevated element inside another shape), score (one centered score on symmetric shapes), fold (no spot colors on folds), overlap (at most two), accordion (at most two folds), and never distort, skew, rotate, bow, warp, or bend an element (high). Human iconography follows the same keyline shapes with simple background silhouettes, balanced curved and straight edges, and no circular arm terminals or cropped arms (high). Product icons are a brand asset, not a component concern; MD1 ships none and `Md1Icon` renders system icons only.
+Product icons are the visual expression of a brand's products, services, and tools: cut, folded, and lit like paper, with clean folds, crisp edges, and a matte finish. Android expects them at 48dp with 1dp edges; design them on the same 48-unit grid scaled 400% to 192 x 192dp so the edge becomes 4dp, and any later scaling stays proportional (high). Keyline shapes on the product grid: square 152 x 152dp, circle 176dp diameter, vertical rectangle 176dp high by 128dp wide, horizontal rectangle 128dp high by 176dp wide (high). Anatomy, stacked from back to front and always viewed straight on: finish, material background, material foreground, color, shadow; color is either a spot color on part of an element or a flood across a whole element, and colored elements sit flush with the surface with no edges or shadows of their own (high). Material elements are 1dp thick; the top edge carries a tint (1dp, 20% opacity, white #FFFFFF) and the bottom edge a shade (1dp, 20% opacity, color from the tint, shade, and shadow value charts); left and right edges carry neither (high). A top light casts a contact shadow: mode Normal, opacity 20%, X offset 0dp, Y offset 4dp, blur 4dp, contained inside the icon silhouette (high). The finish is a radial gradient from a virtual 45 degree light: white, midpoint at 33%, 10% opacity at location 0% fading to 0% opacity at 100%, confined to the silhouette (high). Composition patterns: layer (few overlaps), elevate (never crop an elevated element inside another shape), score (one centered score on symmetric shapes), fold (no spot colors on folds), overlap (at most two), accordion (at most two folds), and never distort, skew, rotate, bow, warp, or bend an element (high). Human iconography follows the same keyline shapes with simple background silhouettes, balanced curved and straight edges, and no circular arm terminals or cropped arms (high). Product icons are a brand asset, not a component concern; Material Design 1 ships none and `Md1Icon` renders system icons only.
 
 ## App shortcut and Android launcher icons
 
@@ -240,7 +240,7 @@ From the "Text for buttons and related elements" table. These are the only sanct
 | Avoid "left" and "right" in copy; RTL interfaces mirror (an Arabic layout is the mirror of the English one), so component copy and icons must respect `dir` | high |
 | Gender: use "they" when the gender is unknown in English; never combine options such as "his/her"; when a specific gender is required, provide translation instructions and use ICU APIs | high |
 
-## Implications for the MD1 icon plugin (derived from ruling 6 of DESIGN_SYSTEMS.md)
+## Implications for the Material Design 1 icon plugin (derived from ruling 6 of DESIGN_SYSTEMS.md)
 
 Guidance only; no new values.
 

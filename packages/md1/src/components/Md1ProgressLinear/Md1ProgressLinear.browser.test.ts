@@ -155,7 +155,7 @@ describe('quProgressLinear', () => {
       expect(before.animationName).toBe('md1-progress-linear-long')
       expect(after.animationName).toBe('md1-progress-linear-short')
       expect(before.backgroundColor).toBe('rgb(63, 81, 181)')
-      // The 2 s cycle on the standard curve is an MD1 decision (the page states none).
+      // The 2 s cycle on the standard curve is a Material Design 1 decision (the page states none).
       expect(before.animationDuration).toBe('2s')
       expect(before.animationTimingFunction).toBe('cubic-bezier(0.4, 0, 0.2, 1)')
       expect(before.animationIterationCount).toBe('infinite')
