@@ -395,7 +395,8 @@
 </template>
 
 <!--
-  Unscoped, like every Material Design 1 stylesheet. Portrait: 328 dp wide, the 96 dp
+  Unscoped, like every Material Design 1 stylesheet. Portrait: 328 dp wide (never wider
+  than its container, so a 320 dp screen or a narrow dialog narrows the day columns), the 96 dp
   header over a 48 dp navigation row, a 40 dp weekday row and six 40 dp week
   rows (424 dp; the confirmation dialog's 60 dp action area makes the page's
   484). Landscape: a 168 dp header column beside a 344 dp body of 32 dp rows.
@@ -406,6 +407,7 @@
     flex-direction: column;
     box-sizing: border-box;
     width: 328px;
+    max-width: 100%;
     overflow: hidden;
     background: var(--md1-surface, #FFFFFF);
     border-radius: var(--md1-radius, 2px);
@@ -416,6 +418,7 @@
   .md1-date-picker[data-landscape] {
     flex-direction: row;
     width: 512px;
+    max-width: none;
   }
 
   /* The header band in the primary colour (Grey 700 on the dark theme): the year above the date, 24 dp from the start edge. */
@@ -608,14 +611,15 @@
     height: 32px;
   }
 
-  /* A day: 12 sp in a 40 dp circle (32 dp landscape), the selection's shape. */
+  /* A day: 12 sp in a 40 dp circle (32 dp landscape), the selection's shape; a column narrower than the circle shrinks it. */
   .md1-date-picker__day {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
-    height: 40px;
+    max-width: 100%;
+    aspect-ratio: 1;
     margin: 0;
     padding: 0;
     border: 0;
@@ -634,7 +638,6 @@
 
   .md1-date-picker[data-landscape] .md1-date-picker__day {
     width: 32px;
-    height: 32px;
   }
 
   /* The current day: "a different color and type weight". */

@@ -261,6 +261,22 @@ describe('quDatePicker', () => {
       expect(getComputedStyle(one).borderRadius).toBe('50%')
     })
 
+    it('should narrow to a container below 328 dp, shrinking the day circles to their columns', async () => {
+      const { root } = picker()
+      root.parentElement!.style.width = '280px'
+      await settle()
+
+      expect(rect(root).width).toBe(280)
+      expect(rect(q(root, '.md1-date-picker__grid')).width).toBe(260)
+
+      const one = day(root, '2017-04-01')
+      const cell = one.closest('td')!
+
+      expect(rect(one).width).toBeLessThanOrEqual(rect(cell).width)
+      expect(rect(one).height).toBe(rect(one).width)
+      expect(rect(q(root, 'tbody tr')).height).toBe(40)
+    })
+
     it('should set the header: primary band, the year at 14 sp and 70%, the date in Display 1, 24 dp from the start', async () => {
       const { root } = picker()
       await settle()

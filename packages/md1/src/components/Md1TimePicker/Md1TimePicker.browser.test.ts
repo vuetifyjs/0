@@ -215,6 +215,21 @@ describe('quTimePicker', () => {
       expect(root.getBoundingClientRect().bottom - face.bottom).toBe(8)
     })
 
+    it('should shrink the face and its ring with a container below 328 dp', async () => {
+      const { root } = picker({}, '03:00')
+      root.parentElement!.style.width = '280px'
+      await settle()
+
+      const face = clock(root).getBoundingClientRect()
+      const scale = face.width / 296
+
+      expect(root.getBoundingClientRect().width).toBe(280)
+      expect(face.width).toBe(248)
+      expect(face.height).toBe(248)
+      expect(offset(root, number(root, '3')).x).toBeCloseTo(272 * scale, 0)
+      expect(offset(root, number(root, '3')).y).toBeCloseTo(148 * scale, 0)
+    })
+
     it('should set the numbers on a 124 dp radius as 40 dp circles', async () => {
       const { root } = picker()
       await settle()

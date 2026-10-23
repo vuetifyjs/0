@@ -109,9 +109,10 @@
     const radius = number.ring === 'inner' ? inner.value : geometry.value.radius
     const radians = number.angle * Math.PI / 180
 
+    // Percentages of the face, so the ring follows the face when a narrow container shrinks it.
     return {
-      left: `${center.value + radius * Math.sin(radians)}px`,
-      top: `${center.value - radius * Math.cos(radians)}px`,
+      left: `${(center.value + radius * Math.sin(radians)) / geometry.value.face * 100}%`,
+      top: `${(center.value - radius * Math.cos(radians)) / geometry.value.face * 100}%`,
     }
   }
 
@@ -369,6 +370,7 @@
     flex-direction: column;
     box-sizing: border-box;
     width: 328px;
+    max-width: 100%;
     overflow: hidden;
     border-radius: var(--md1-radius, 2px);
     background: var(--md1-surface, #FFFFFF);
@@ -381,6 +383,7 @@
   .md1-time-picker[data-landscape] {
     flex-direction: row;
     width: 512px;
+    max-width: none;
   }
 
   .md1-time-picker__header {
@@ -520,11 +523,14 @@
     padding: 20px 60px var(--md1-spacing-1, 8px);
   }
 
-  /* The face owns every pointer press, so a drag can sweep the hand round the ring. */
+  /*
+   * The face owns every pointer press, so a drag can sweep the hand round the ring.
+   * It never outgrows the body: in a sheet narrower than 328 dp it shrinks and the ring scales with it.
+   */
   .md1-time-picker__clock {
     position: relative;
-    width: 296px;
-    height: 296px;
+    width: min(296px, 100%);
+    aspect-ratio: 1;
     margin: 0 auto;
     touch-action: none;
     user-select: none;
@@ -533,7 +539,6 @@
 
   .md1-time-picker[data-landscape] .md1-time-picker__clock {
     width: 224px;
-    height: 224px;
   }
 
   .md1-time-picker__face {
