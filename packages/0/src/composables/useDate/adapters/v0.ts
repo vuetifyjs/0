@@ -42,10 +42,21 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
+export interface V0DateAdapterOptions {
+  /**
+   * Calendar system for date fields, arithmetic and formatting, as a Temporal/Intl
+   * calendar identifier (e.g. 'persian', 'hebrew', 'islamic-umalqura').
+   *
+   * @default 'iso8601'
+   */
+  calendar?: string
+}
+
 export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   private _locale: string
   private _firstDayOfWeek = 0
   private _minimalDays = 1
+  private _calendar: string
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -53,9 +64,11 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   /** Cache for Intl.NumberFormat instances, keyed by locale */
   private numberFormatCache = new Map<string, Intl.NumberFormat>()
 
-  constructor (locale = 'en-US') {
+  constructor (locale = 'en-US', options: V0DateAdapterOptions = {}) {
     super()
     this._locale = locale
+    // Throws on an unknown calendar here instead of on the first date() call
+    this._calendar = new Temporal.PlainDate(1970, 1, 1, options.calendar).calendarId
     const info = deriveWeekInfo(locale)
     this._firstDayOfWeek = info.firstDay
     this._minimalDays = info.minimalDays
@@ -104,98 +117,44 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
    * hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
    */
   date (value?: unknown): PlainDateTime | null {
-    if (isNullOrUndefined(value)) {
-      // SSR safety: Temporal.Now requires browser environment
-      return IN_BROWSER
-        ? Temporal.Now.plainDateTimeISO()
-        : Temporal.PlainDateTime.from({ year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0 })
-    }
+    const date = this.toDateTime(value)
 
-    if (value instanceof Temporal.PlainDateTime) {
-      return value
-    }
-
-    if (value instanceof Temporal.PlainDate) {
-      return value.toPlainDateTime()
-    }
-
-    if (value instanceof Temporal.ZonedDateTime) {
-      return value.toPlainDateTime()
-    }
-
-    if (value instanceof Date) {
-      return Temporal.PlainDateTime.from({
-        year: value.getFullYear(),
-        month: value.getMonth() + 1,
-        day: value.getDate(),
-        hour: value.getHours(),
-        minute: value.getMinutes(),
-        second: value.getSeconds(),
-        millisecond: value.getMilliseconds(),
-      })
-    }
-
-    if (isString(value)) {
-      try {
-        return Temporal.PlainDateTime.from(value)
-      } catch {
-        // Try parsing as ISO date string
-        try {
-          return this.parseISO(value)
-        } catch {
-          return null
-        }
-      }
-    }
-
-    if (isNumber(value)) {
-      const date = new Date(value)
-
-      return Temporal.PlainDateTime.from({
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        second: date.getSeconds(),
-        millisecond: date.getMilliseconds(),
-      })
-    }
-
-    return null
+    return date && this.inCalendar(date)
   }
 
   toJsDate (value: PlainDateTime): Date {
+    const iso = value.withCalendar('iso8601')
+
     return new Date(
-      value.year,
-      value.month - 1,
-      value.day,
-      value.hour,
-      value.minute,
-      value.second,
-      value.millisecond,
+      iso.year,
+      iso.month - 1,
+      iso.day,
+      iso.hour,
+      iso.minute,
+      iso.second,
+      iso.millisecond,
     )
   }
 
   parseISO (dateString: string): PlainDateTime {
     // Handle date-only strings
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      return Temporal.PlainDate.from(dateString).toPlainDateTime()
+      return this.inCalendar(Temporal.PlainDate.from(dateString).toPlainDateTime())
     }
 
     // Handle timezone-aware strings (e.g., "2024-06-15T10:30:00Z" or "2024-06-15T10:30:00+05:00")
     // Convert to Instant first, then to PlainDateTime in UTC
     if (dateString.includes('Z') || /[+-]\d{2}:\d{2}$/.test(dateString)) {
       const instant = Temporal.Instant.from(dateString)
-      return instant.toZonedDateTimeISO('UTC').toPlainDateTime()
+      return this.inCalendar(instant.toZonedDateTimeISO('UTC').toPlainDateTime())
     }
 
     // Handle full datetime strings without timezone
-    return Temporal.PlainDateTime.from(dateString)
+    return this.inCalendar(Temporal.PlainDateTime.from(dateString))
   }
 
   toISO (date: PlainDateTime): string {
-    return date.toPlainDate().toString()
+    return date.toPlainDate().toString({ calendarName: 'never' })
   }
 
   /**
@@ -417,7 +376,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   endOfYear (date: PlainDateTime): PlainDateTime {
-    return this.endOfDay(date.with({ month: 12, day: 31 }))
+    return this.endOfDay(date.with({ month: date.monthsInYear, day: 31 }))
   }
 
   // ============================================
@@ -581,14 +540,14 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
 
     let year = this.getYear(currentWeekStart)
     if (year < this.getYear(currentWeekEnd)) {
-      const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
+      const nextYearStart = this.firstDayOfYear(year + 1)
       const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
       if (nextYearFirstWeekSize >= md) {
         year++
       }
     }
 
-    const yearStart = new Temporal.PlainDateTime(year, 1, 1)
+    const yearStart = this.firstDayOfYear(year)
     const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
     const weekOneStart = firstWeekSize >= md
       ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
@@ -673,11 +632,10 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   getMonthArray (date: PlainDateTime): PlainDateTime[] {
-    const year = date.year
     const months: PlainDateTime[] = []
 
-    for (let month = 1; month <= 12; month++) {
-      months.push(Temporal.PlainDateTime.from({ year, month, day: 1 }))
+    for (let month = 1; month <= date.monthsInYear; month++) {
+      months.push(this.startOfDay(date.with({ month, day: 1 })))
     }
 
     return months
@@ -688,7 +646,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     let current = start.year
 
     while (current <= end.year) {
-      years.push(Temporal.PlainDateTime.from({ year: current, month: 1, day: 1 }))
+      years.push(this.firstDayOfYear(current))
       current++
     }
 
@@ -724,6 +682,76 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   // Private Helpers
   // ============================================
 
+  private toDateTime (value: unknown): PlainDateTime | null {
+    if (isNullOrUndefined(value)) {
+      // SSR safety: Temporal.Now requires browser environment
+      return IN_BROWSER
+        ? Temporal.Now.plainDateTimeISO()
+        : Temporal.PlainDateTime.from({ year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0 })
+    }
+
+    if (value instanceof Temporal.PlainDateTime) {
+      return value
+    }
+
+    if (value instanceof Temporal.PlainDate) {
+      return value.toPlainDateTime()
+    }
+
+    if (value instanceof Temporal.ZonedDateTime) {
+      return value.toPlainDateTime()
+    }
+
+    if (value instanceof Date) {
+      return Temporal.PlainDateTime.from({
+        year: value.getFullYear(),
+        month: value.getMonth() + 1,
+        day: value.getDate(),
+        hour: value.getHours(),
+        minute: value.getMinutes(),
+        second: value.getSeconds(),
+        millisecond: value.getMilliseconds(),
+      })
+    }
+
+    if (isString(value)) {
+      try {
+        return Temporal.PlainDateTime.from(value)
+      } catch {
+        // Try parsing as ISO date string
+        try {
+          return this.parseISO(value)
+        } catch {
+          return null
+        }
+      }
+    }
+
+    if (isNumber(value)) {
+      const date = new Date(value)
+
+      return Temporal.PlainDateTime.from({
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours(),
+        minute: date.getMinutes(),
+        second: date.getSeconds(),
+        millisecond: date.getMilliseconds(),
+      })
+    }
+
+    return null
+  }
+
+  private inCalendar (date: PlainDateTime): PlainDateTime {
+    return date.calendarId === this._calendar ? date : date.withCalendar(this._calendar)
+  }
+
+  private firstDayOfYear (year: number): PlainDateTime {
+    return Temporal.PlainDate.from({ year, month: 1, day: 1, calendar: this._calendar }).toPlainDateTime()
+  }
+
   /**
    * Gets a cached Intl.DateTimeFormat instance or creates one if not cached.
    * Cache is limited to MAX_CACHE_SIZE entries to prevent memory leaks.
@@ -740,7 +768,9 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
         if (firstKey) this.formatCache.delete(firstKey)
       }
 
-      formatter = new Intl.DateTimeFormat(this.locale, options)
+      // Without an explicit calendar Intl uses the locale's default, e.g. persian for fa-IR
+      const calendar = this._calendar === 'iso8601' ? 'gregory' : this._calendar
+      formatter = new Intl.DateTimeFormat(this.locale, { ...options, calendar })
       this.formatCache.set(key, formatter)
     }
 

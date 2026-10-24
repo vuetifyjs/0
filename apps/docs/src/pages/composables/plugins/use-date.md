@@ -426,6 +426,20 @@ app.use(
 
 When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
 
+### Calendars
+
+`V0DateAdapter` takes a calendar identifier (`persian`, `hebrew`, `islamic-umalqura`, …). Years, months, days, arithmetic and formatting follow that calendar, so a Hebrew leap year returns 13 entries from `getMonthArray`. ISO strings and `Date` values stay Gregorian on the way in and out.
+
+```ts src/main.ts
+app.use(
+  createDatePlugin({
+    adapter: new V0DateAdapter('fa-IR', { calendar: 'persian' }),
+  })
+)
+```
+
+Calendar math comes from Temporal, which reads the runtime's Intl calendar data. Without the option the adapter uses `iso8601` and formats in Gregorian, even for locales whose Intl default is another calendar, such as `fa-IR`.
+
 ## FAQ
 
 ::: faq
