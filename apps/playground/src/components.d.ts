@@ -20,6 +20,7 @@ declare module 'vue' {
     AppSkeleton: typeof import('./components/app/AppSkeleton.vue')['default']
     AppThemeToggle: typeof import('./components/app/AppThemeToggle.vue')['default']
     AppTooltip: typeof import('./components/app/AppTooltip.vue')['default']
+    PlaygroundAccount: typeof import('./components/playground/app/PlaygroundAccount.vue')['default']
     PlaygroundApp: typeof import('./components/playground/app/PlaygroundApp.vue')['default']
     PlaygroundAppBar: typeof import('./components/playground/app/PlaygroundAppBar.vue')['default']
     PlaygroundAppContent: typeof import('./components/playground/app/PlaygroundAppContent.vue')['default']

@@ -3,6 +3,7 @@
   import { IN_BROWSER, useEventListener, useHotkey, useTheme, useTimer } from '@vuetify/v0'
 
   // Components
+  import PlaygroundAccount from '@/components/playground/app/PlaygroundAccount.vue'
   import PlaygroundCheatsheet from '@/components/playground/app/PlaygroundCheatsheet.vue'
   import PlaygroundSaveDialog from '@/components/playground/app/PlaygroundSaveDialog.vue'
   import PlaygroundSettings from '@/components/playground/settings/PlaygroundSettings.vue'
@@ -115,18 +116,18 @@
 
 <template>
   <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface" data-playground-bar>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 min-w-0">
       <PlaygroundMenuBar />
 
       <button
         aria-label="Choose a template"
-        class="inline-flex items-center rounded p-1 -m-1 hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer"
+        class="inline-flex items-center min-w-0 rounded p-1 -m-1 hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none cursor-pointer"
         type="button"
         @click="playground.chooseTemplate()"
       >
         <img
           alt=""
-          class="h-7"
+          class="h-7 w-auto max-w-[34vw] sm:max-w-none"
           :src="theme.isDark.value
             ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
             : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
@@ -134,7 +135,7 @@
       </button>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <AppTooltip
         :aria-label="playground.editor.value ? 'Switch to preview' : 'Switch to editor'"
         :aria-pressed="!playground.editor.value"
@@ -241,6 +242,8 @@
       </AppTooltip>
 
       <AppThemeToggle />
+
+      <PlaygroundAccount />
     </div>
 
     <PlaygroundSettings v-if="open" @close="open = false" />
