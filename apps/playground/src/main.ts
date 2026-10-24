@@ -111,7 +111,9 @@ export const createApp = ViteSSG(
     if (!import.meta.env.SSR) {
       await import('./plugins/analytics')
       const { useAuthStore } = await import('@vuetify/auth')
-      useAuthStore().verify()
+      // A signed-in verify is cached for 30s and may be served stale for
+      // 30 minutes. Force the request so a refresh matches the session.
+      await useAuthStore().verify(true)
     }
   },
 )
