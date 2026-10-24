@@ -73,6 +73,28 @@
 }
 
 /*
+ * The dark example canvas. The dark theme figure is a #303030 background
+ * under Grey 800 cards and dialogs and a Grey 900 app bar, so a dark panel
+ * paints the background, not the kit's surface, and each component brings
+ * its own sheet. The frame around the panel takes Grey 900 instead of the
+ * shell's surface tint (Indigo 800 under the Material Design 1 shell), so no
+ * docs colour borders the screen. A surface tab bar has no sheet of its own
+ * (the tabs page draws it on a white or Grey 800 sheet), so a bare one gets
+ * the surface. The light panel is already white, the light surface.
+ */
+.genesis-docs-example-preview:has(.genesis-docs-example-preview__panel[data-theme="md1-dark"]) {
+  --v0-surface-tint: #212121; /* Grey 900 */
+}
+
+.genesis-docs-example-preview .genesis-docs-example-preview__panel[data-theme="md1-dark"] {
+  background: var(--md1-background, #303030);
+}
+
+.genesis-docs-example-preview__panel[data-theme="md1-dark"] > [data-theme="md1-dark"] > .md1-tabs {
+  background: var(--md1-surface, #424242);
+}
+
+/*
  * Centred examples. A Material Design 1 example sits in its preview panel as
  * a grid item, centred across the panel and down it when the panel has spare
  * height, and its visible content is centred as one group:
