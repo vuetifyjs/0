@@ -20,7 +20,6 @@ function subscribe () {
   const holders = (globalThis as Record<string, unknown>)[SETTER_KEY]
   if (!isArray(holders)) return
   const list = holders as Array<(value: unknown) => void>
-  if (list.includes(onInstance)) return
   list.push(onInstance)
 }
 
