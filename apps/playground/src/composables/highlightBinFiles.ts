@@ -60,6 +60,7 @@ class StackState {
 const LOADERS: Record<string, () => Promise<{ default: unknown }>> = {
   markdown: () => import('@shikijs/langs/markdown'),
   sass: () => import('@shikijs/langs/sass'),
+  scss: () => import('@shikijs/langs/scss'),
   shellscript: () => import('@shikijs/langs/shellscript'),
   python: () => import('@shikijs/langs/python'),
   php: () => import('@shikijs/langs/php'),
