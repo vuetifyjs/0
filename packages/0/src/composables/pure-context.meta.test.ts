@@ -4,9 +4,9 @@
  * under `packages/0/src` must be marked @__PURE__.
  *
  * Rolldown (Vite 8) keeps an unannotated top-level `const [a, b] = fn()` and
- * everything `fn` reaches. One miss in a shared dist chunk retains
- * `import * as Vue from 'vue'` (`utilities/instance.ts`) and, on Vue 3.6, the
- * Vapor runtime. esbuild does not drop the destructure either way, so
+ * everything `fn` reaches. One miss in a shared dist chunk retains a namespace
+ * import of `vue`, which keeps `@vue/runtime-vapor`. `instance.ts` must keep a
+ * named import. esbuild does not drop the destructure either way, so
  * `pnpm size` stays green if the marker is forgotten. This scan is the lock.
  *
  * Calls inside functions are exempt. Vue `<script setup>` is compiled into

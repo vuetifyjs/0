@@ -45,7 +45,7 @@ Vuetify0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:
 | Component interop | A classic (vdom) Vuetify0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
 
 [^rc-pin]: Pinned to `vue@3.6.0-rc.11` (`tests/vapor/package.json`). The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships. The interop numbers below were measured on `3.6.0-rc.2` and have not been re-run on the current pin.
-[^instance-shim]: Vapor exposes the active instance on Vue 3.6's `currentInstance` export; `getCurrentInstance()` returns `null` inside a Vapor component by design ([vuejs/core discussion #13629](https://github.com/orgs/vuejs/discussions/13629)). v0 reads `currentInstance` when present and falls back to `getCurrentInstance()` on Vue 3.5 — see `utilities/instance.ts`.
+[^instance-shim]: `getCurrentInstance()` returns `null` inside a Vapor component by design ([vuejs/core discussion #13629](https://github.com/orgs/vuejs/discussions/13629)). v0 still resolves the active instance, so `useId()` keeps working — see `utilities/instance.ts`.
 [^interop-slots]: Interop is directional. A vdom component rendering inside a Vapor parent (the tested path) works; passing Vapor slots *into* a vdom component needs `renderSlot` rather than `slots.default()`, per [Vue's Vapor notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1). Keep a region in one rendering mode where you can.
 
 ## Using composables under Vapor
@@ -69,7 +69,7 @@ Composables need no special handling — call them inside a `<script setup vapor
 
 ### The getCurrentInstance caveat
 
-Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — Vuetify0 does not. Internally it reads Vue 3.6's `currentInstance` export when it is available and falls back to `getCurrentInstance()` on older Vue, so instance-aware helpers like `useId()` continue to resolve correctly under Vapor. If you write your own instance-aware logic, prefer the same pattern over a bare `getCurrentInstance()` call.
+Vapor intentionally makes `getCurrentInstance()` return `null` inside a component. Libraries that call it directly to detect component context can break — Vuetify0 does not. v0 still resolves the active instance, so instance-aware helpers like `useId()` keep working under Vapor.
 
 ## Using components under Vapor
 
