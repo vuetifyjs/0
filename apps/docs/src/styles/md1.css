@@ -90,7 +90,8 @@
   background: var(--md1-background, #303030);
 }
 
-.genesis-docs-example-preview__panel[data-theme="md1-dark"] > [data-theme="md1-dark"] > .md1-tabs {
+.genesis-docs-example-preview__panel[data-theme="md1-dark"] > [data-theme="md1-dark"] > .md1-tabs,
+.genesis-docs-example-preview__panel[data-theme="md1-dark"] > [data-theme="md1-dark"] > .md1-docs-tabs-narrow > .md1-tabs {
   background: var(--md1-surface, #424242);
 }
 
