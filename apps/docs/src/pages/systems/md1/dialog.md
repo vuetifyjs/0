@@ -146,6 +146,26 @@ Full-screen dialogs are a handset form for complex tasks: changes are not saved 
 The app bar has the discard X at the left, the title on the 72 dp keyline and the verb (save, send, create; never done or OK) at the right. The X calls the root's `close`. With `dirty` set, closing by the X, Cancel or Escape first asks "Discard changes?" in a nested alert, the one dialog a dialog may open. Full-screen dialogs ignore taps outside: there is no outside. The app bar in this example is styled by the docs page and stands in for the Material Design 1 toolbar.
 :::
 
+::: ds-example
+/systems/md1/dialog/full-screen-date
+
+### Pickers and long titles
+
+A full-screen dialog can open the simpler dialogs its task needs. The date field here opens the date picker over the full-screen dialog; picking a date returns to the form with the field filled, and nothing is kept until Save.
+
+When the title is too long for the app bar, move it into the content area, where it can wrap, and leave the bar to the X and the verb. A title squeezed into the bar truncates or wraps to two lines and crowds the actions. The content title names the dialog through `aria-labelledby` on `Md1Dialog.Content`.
+:::
+
+::: ds-example
+/systems/md1/dialog/settings
+
+### Changes saved immediately
+
+Some full-screen dialogs save each change the moment it is made, such as a page of settings. They show an up arrow in place of the X and carry no verb: there is nothing left to save or discard, so the arrow only goes back. Turn a switch, go back, and open the dialog again; the change is already there.
+
+Leave `dirty` unset on these dialogs. The discard prompt belongs to dialogs that hold changes until a verb commits them.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
