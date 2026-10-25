@@ -70,7 +70,7 @@
     tabBar?: Md1ToolbarTabBar
     /** Selection mode: the row gives way to `Md1ToolbarContextual`. */
     contextual?: boolean
-    /** A detached 2 dp toolbar with its own width: the floating toolbar and the toolbar palette. */
+    /** A detached toolbar with its own width, 16 px clear of its surroundings: the floating toolbar and the toolbar palette. */
     floating?: boolean
     /** `bottom` fixes the toolbar to the bottom edge, above the on-screen keyboard. */
     position?: Md1ToolbarPosition
@@ -343,13 +343,17 @@
     box-shadow: none;
   }
 
-  /* Floating toolbar and detached palette: its own width and a 2 dp sheet (SPEC.md decision; the page gives no metrics). */
+  /*
+   * Floating toolbar and detached palette: its own width, the page gives no
+   * metrics, so it is Vuetify 1.5's floating toolbar (_toolbar.styl:34,
+   * 153-156): the toolbar's own elevation, square corners and 16 px clear of
+   * its surroundings.
+   */
   .md1-toolbar[data-floating] {
     display: inline-flex;
     width: auto;
-    max-width: 100%;
-    border-radius: var(--md1-radius, 2px);
-    box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+    max-width: calc(100% - 2 * var(--md1-spacing-2, 16px));
+    margin: var(--md1-spacing-2, 16px);
   }
 
   /* Waterfall: seamed with the content until it scrolls under the bar, then a step. */
