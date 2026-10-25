@@ -9,10 +9,14 @@
   import { nextTick, onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { TabsListProps } from '@vuetify/v0'
+  import type { ID, TabsListProps } from '@vuetify/v0'
 
   // Components
   import Md1Icon from '../Md1Icon/Md1Icon.vue'
+  import Md1Menu from '../Md1Menu/Md1Menu.vue'
+  import Md1MenuActivator from '../Md1Menu/Md1MenuActivator.vue'
+  import Md1MenuContent from '../Md1Menu/Md1MenuContent.vue'
+  import Md1MenuItem from '../Md1Menu/Md1MenuItem.vue'
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   export interface Md1TabsListProps extends Pick<TabsListProps, 'label' | 'namespace'> {}
@@ -84,6 +88,32 @@
   })
 
   const overflowing = toRef(() => context?.overflow.isOverflowing.value ?? false)
+
+  /*
+   * The desktop "More" dropdown: the tabs past the bar's capacity, listed in an
+   * Md1Menu behind a "More" control at the bar's end. A collected tab that is
+   * selected names the control and moves the indicator under it (decision: the
+   * page names the pattern, "Tabs with Books selected from a More dropdown
+   * menu", and draws no metrics).
+   */
+  const collapsed = toRef(() => context?.collapsed.value ?? false)
+  const arrows = toRef(() => overflowing.value && !collapsed.value)
+  const more = useTemplateRef<HTMLElement>('more')
+
+  const rest = toRef(() => {
+    if (!context || !collapsed.value) return []
+
+    return context.items.values().filter(ticket => context.hidden(ticket.id))
+  })
+
+  const chosen = toRef(() => rest.value.find(ticket => ticket.id === tabs.selectedId.value))
+  const caption = toRef(() => chosen.value?.value.label || (locale.ti('Md1.more') ?? 'More'))
+
+  const current = toRef(() => tabs.selectedId.value)
+
+  function onMore (id: unknown) {
+    if (!isUndefined(id)) tabs.select(id as ID)
+  }
 
   // Scroll position, for disabling the arrow that has nowhere left to go.
   const start = shallowRef(true)
@@ -170,6 +200,9 @@
   }
 
   watch(() => tabs.selectedId.value, (_, old) => {
+    // The arrow keys can walk onto a collected tab, which has no box to focus: the More control takes focus for it.
+    if (chosen.value && list.value?.contains(document.activeElement)) more.value?.focus()
+
     refresh()
     // The initial selection is not the user's: scrolling then could fight a restored scroll position.
     if (!isUndefined(old)) reveal()
@@ -196,7 +229,7 @@
     :style="width ? { '--md1-tabs-view': `${width}px` } : undefined"
   >
     <Button.Root
-      v-if="overflowing"
+      v-if="arrows"
       v-slot="{ attrs }"
       :aria-label="previous"
       :disabled="start"
@@ -229,7 +262,7 @@
     </Tabs.List>
 
     <Button.Root
-      v-if="overflowing"
+      v-if="arrows"
       v-slot="{ attrs }"
       :aria-label="next"
       :disabled="end"
@@ -247,6 +280,34 @@
         <Md1Icon name="chevron-right" />
       </button>
     </Button.Root>
+
+    <Md1Menu v-if="collapsed" desktop :selected="current" @update:selected="onMore">
+      <Md1MenuActivator v-slot="{ attrs }">
+        <button
+          ref="more"
+          v-bind="attrs"
+          class="md1-tabs__item md1-tabs__more"
+          :data-selected="chosen ? true : undefined"
+        >
+          <Md1Ripple />
+
+          <span class="md1-tabs__label">{{ caption }}</span>
+
+          <Md1Icon class="md1-tabs__cue" name="arrow-drop-down" />
+        </button>
+      </Md1MenuActivator>
+
+      <Md1MenuContent>
+        <Md1MenuItem
+          v-for="ticket in rest"
+          :key="ticket.id"
+          :disabled="ticket.value.disabled"
+          :value="ticket.id"
+        >
+          {{ ticket.value.label }}
+        </Md1MenuItem>
+      </Md1MenuContent>
+    </Md1Menu>
   </div>
 </template>
 
@@ -392,6 +453,41 @@
 
   .md1-tabs__arrow > .md1-icon {
     position: relative;
+  }
+
+  /*
+   * The "More" control is a tab-styled menu button at the bar's end: the tab's
+   * padding, type and inks, its label followed by the arrow-drop-down glyph, at
+   * its own width. Selected, it takes the active ink and the 2 dp indicator.
+   */
+  .md1-tabs__more {
+    flex-direction: row;
+    gap: 0;
+    min-width: 0;
+    padding-inline-end: 12px;
+  }
+
+  @media (min-width: 600px) {
+    .md1-tabs__more {
+      min-width: 0;
+    }
+  }
+
+  .md1-tabs__cue {
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  .md1-tabs__more[data-selected]::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: var(--md1-accent, #FF4081);
+  }
+
+  .md1-toolbar[data-variant='primary'] .md1-tabs__more[data-selected]::after {
+    background: var(--md1-on-primary, #FFFFFF);
   }
 
   /* On a primary bar the tab ink is white: 100% active and 70% inactive (tabs page), 30% disabled (Vuetify 1.5's dark disabled-button ink). */

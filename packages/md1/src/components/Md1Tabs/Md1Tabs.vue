@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { createContext, createOverflow, createRegistry, Tabs, useLogger } from '@vuetify/v0'
+  import { createContext, createOverflow, createRegistry, Tabs, useLogger, useMediaQuery } from '@vuetify/v0'
 
   // Utilities
   import { shallowRef, toRef, watch } from 'vue'
@@ -16,6 +16,10 @@
     kind: Md1TabsItemKind
     /** The tab's unwrapped width at the device type size, padding included. */
     natural: number
+    /** The text the "More" menu lists the tab under: the label, or the accessible name of an icon-only tab. */
+    label?: string
+    /** Whether the tab is disabled, so its "More" menu row is too. */
+    disabled?: boolean
   }
 
   export type Md1TabsItemTicket = RegistryTicket<Md1TabsItemMeasure>
@@ -32,6 +36,10 @@
     attach: (list: () => Element | null | undefined) => void
     /** A stable measurement key per tab, independent of registry indexes that shift on removal. */
     key: () => number
+    /** The desktop "More" dropdown is collecting the tabs past the bar's capacity. */
+    collapsed: Readonly<Ref<boolean>>
+    /** Whether a tab sits in the "More" menu rather than the bar. */
+    hidden: (id: ID) => boolean
   }
 
   export interface Md1TabsProps extends Pick<TabsRootProps, 'disabled' | 'namespace'> {
@@ -41,6 +49,12 @@
      * once the margin to the view edge exceeds 16 dp (tabs page).
      */
     scrollable?: boolean
+    /**
+     * The desktop "More" dropdown (tabs page): with a mouse, the scrollable tabs
+     * that do not fit the bar move into an `Md1Menu` behind a "More" control at
+     * its end, in place of the pagination arrows. Touch screens keep the swipe.
+     */
+    more?: boolean
   }
 
   const [useMd1Tabs, provideMd1Tabs] = createContext<Md1TabsContext | null>('md1:tabs', null)
@@ -60,6 +74,7 @@
     scrollable = false,
     disabled = false,
     namespace,
+    more = false,
   } = defineProps<Md1TabsProps>()
 
   const model = defineModel<T>()
@@ -76,6 +91,25 @@
     // bar can sum past it by under a pixel each; this is that tolerance.
     reserved: () => -Math.ceil(items.size / 2),
   })
+
+  // "Mouse and keyboard" stands in as a fine pointer, as for the pagination arrows.
+  const { matches: fine } = useMediaQuery('(pointer: fine)')
+
+  /*
+   * The More control narrows the tablist, the overflow container, so once the
+   * tabs collapse they stay collapsed until every tab fits beside it: the
+   * hidden tabs keep their last measured width, and the bar never flickers
+   * between the two layouts at the threshold.
+   */
+  const collapsed = toRef(() => more && scrollable && fine.value && overflow.isOverflowing.value)
+
+  function hidden (id: ID): boolean {
+    if (!collapsed.value) return false
+
+    const index = items.get(id)?.index ?? 0
+
+    return index >= Math.max(1, overflow.capacity.value)
+  }
 
   let count = 0
 
@@ -101,6 +135,10 @@
   })
 
   if (__DEV__) {
+    watch(() => more && !scrollable, wrong => {
+      if (wrong) logger.warn('[Md1Tabs] `more` collects overflowing scrollable tabs; fixed tabs share the bar and never move into a "More" menu')
+    }, { immediate: true })
+
     watch(mixed, wrong => {
       if (wrong) logger.warn('[Md1Tabs] a tab bar mixes labelled and icon-only tabs; use either all text labels or all icon labels (tabs page)')
     }, { immediate: true })
@@ -113,6 +151,8 @@
     items,
     attach,
     key,
+    collapsed,
+    hidden,
   })
 </script>
 
@@ -121,6 +161,7 @@
     class="md1-tabs"
     :data-disabled="disabled || undefined"
     :data-fixed="!scrollable || undefined"
+    :data-more="collapsed || undefined"
     :data-overflow="overflow.isOverflowing.value || undefined"
     :data-scrollable="scrollable || undefined"
   >

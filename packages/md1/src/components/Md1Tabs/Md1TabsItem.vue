@@ -114,10 +114,21 @@
     return el.clientWidth
   }
 
+  // In the "More" menu rather than the bar (desktop overflow).
+  const collapsed = toRef(() => context?.hidden(id) ?? false)
+
+  /** The row text the "More" menu lists this tab under. */
+  function name (): string {
+    if (isString(label) && label.length > 0) return label
+
+    return text.value?.textContent?.trim() || ariaLabel || ''
+  }
+
   function measure () {
     const el = button.value
 
-    if (!el) return
+    // A tab in the "More" menu keeps its last width: measured hidden it would read zero and pull every tab back into the bar.
+    if (!el || collapsed.value) return
 
     const span = text.value
     const style = getComputedStyle(el)
@@ -135,16 +146,18 @@
       value: {
         kind: kind.value,
         natural: (span ? natural : GLYPH) + padding,
+        label: name(),
+        disabled,
       },
     })
 
     context.overflow.measure(key, el)
   }
 
-  if (context) context.items.register({ id, value: { kind: kind.value, natural: 0 } })
+  if (context) context.items.register({ id, value: { kind: kind.value, natural: 0, label: label ?? ariaLabel, disabled } })
 
   // New text needs a fresh unwrapped width: drop back to one line and measure again.
-  watch(() => [label, kind.value], () => {
+  watch(() => [label, kind.value, disabled], () => {
     lines.value = 1
     nextTick(measure)
   })
@@ -192,6 +205,7 @@
       ref="button"
       v-bind="mergeProps(attrs, tab)"
       class="md1-tabs__item"
+      :data-collapsed="collapsed || undefined"
       :data-icon="glyph"
       :data-lines="labelled ? lines : undefined"
     >
@@ -290,6 +304,11 @@
     color: var(--md1-button-disabled-text, rgba(0, 0, 0, 0.26));
     cursor: default;
     pointer-events: none;
+  }
+
+  /* A tab the "More" dropdown collected leaves the bar; it stays a tab in the tablist for v0's selection. */
+  .md1-tabs__item[data-collapsed] {
+    display: none;
   }
 
   /* On a primary bar: white at 100% active and 70% inactive (tabs page); disabled 30%, Vuetify 1.5's dark disabled-button ink. */
