@@ -68,7 +68,7 @@ The test is whether the icon communicates direction. Back and forward are the mo
 
 Circular time does not mirror. Clocks turn clockwise for RTL readers too, so `refresh`, `history` and `schedule` stay as drawn. Physical objects such as a keyboard or a headset look the same everywhere, the search handle sits bottom right because most readers are right-handed in RTL countries too, and slashes on off-state icons keep their LTR angle. Media playback icons keep their direction as well; the next example covers them.
 
-The 11 shipped directional roles flip on their own under `dir="rtl"`, through the rule on the [Md1Icon](/systems/md1/icon) page. A glyph you register yourself with `createMd1IconsPlugin({ icons })` is outside that table, so the example flips its own undo, redo, chat and speaker glyphs with `transform: scaleX(-1)` under `[dir="rtl"]`.[^custom-mirror]
+The 11 shipped directional roles flip on their own under `dir="rtl"`, through the rule on the [Md1Icon](/systems/md1/icon) page. A glyph you register yourself with `createMd1IconsPlugin({ icons })` joins that table through the `mirrors` option, so the example's own undo, redo, chat and speaker glyphs flip by the same rule: `mirrors: { 'volume-up': true }`.
 :::
 
 ::: ds-example
@@ -112,8 +112,6 @@ Set `lang` alongside `dir`, so a screen reader switches voice and the conditiona
 [^arabic-copy]: Our call: the Arabic titles, names and times are illustrative copy written for the example. Digits stay Western, as in the guidelines' figure.
 
 [^undo-redo]: Our call: the guidelines allow either reading; the horizontal one matches where the arrows point.
-
-[^custom-mirror]: Our call: the shipped mirror table is fixed and takes no consumer entries, so the example mirrors its own glyphs in CSS.
 
 [^hebrew-copy]: Our call: the Hebrew paragraph is illustrative copy written for the example.
 

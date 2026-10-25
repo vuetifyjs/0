@@ -12,6 +12,13 @@
       'format-indent-decrease': ['M11 17h10v-2H11v2zm-8-5l4 4V8l-4 4zm0 9h18v-2H3v2zM3 3v2h18V3H3zm8 6h10V7H11v2zm0 4h10v-2H11v2z'],
       'format-indent-increase': ['M3 21h18v-2H3v2zM3 8v8l4-4-4-4zm8 9h10v-2H11v2zM3 3v2h18V3H3zm8 6h10V7H11v2zm0 4h10v-2H11v2z'],
     },
+    // Glyphs that describe a line of text mirror; bold and italic do not.
+    mirrors: {
+      'format-align-left': true,
+      'format-list-bulleted': true,
+      'format-indent-decrease': true,
+      'format-indent-increase': true,
+    },
   })
 
   provideIcons()
@@ -21,14 +28,13 @@
     { id: 'he', dir: 'rtl', lang: 'he', label: 'Hebrew paragraph', text: 'זוהי פסקה בעברית בתוך מסמך באנגלית. הכפתורים להזחה ולרשימות פונים לימין.' },
   ]
 
-  // Buttons that describe a line of text mirror; bold and italic do not.
   const tools = [
     { icon: 'format-bold', label: 'Bold' },
     { icon: 'format-italic', label: 'Italic' },
-    { icon: 'format-align-left', label: 'Align to start', mirror: true },
-    { icon: 'format-list-bulleted', label: 'Bulleted list', mirror: true },
-    { icon: 'format-indent-decrease', label: 'Decrease indent', mirror: true },
-    { icon: 'format-indent-increase', label: 'Increase indent', mirror: true },
+    { icon: 'format-align-left', label: 'Align to start' },
+    { icon: 'format-list-bulleted', label: 'Bulleted list' },
+    { icon: 'format-indent-decrease', label: 'Decrease indent' },
+    { icon: 'format-indent-increase', label: 'Increase indent' },
   ]
 
   const active = shallowRef('en')
@@ -42,7 +48,6 @@
         v-for="tool in tools"
         :key="tool.icon"
         :aria-label="tool.label"
-        :class="{ 'md1-docs-bidi-editor-mirror': tool.mirror }"
         :icon="tool.icon"
       />
     </div>
@@ -85,11 +90,6 @@
 
   .md1-docs-bidi-editor-tools .md1-icon {
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
-  }
-
-  /* Editor glyphs are the example's own, outside the shipped mirror table, so they flip here. */
-  [dir='rtl'] > .md1-docs-bidi-editor-mirror .md1-icon {
-    transform: scaleX(-1);
   }
 
   .md1-docs-bidi-editor-page {

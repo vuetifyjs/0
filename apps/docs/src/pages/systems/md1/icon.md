@@ -2,7 +2,7 @@
 title: Md1Icon - Material Design 1 Icon for Vue
 meta:
 - name: description
-  content: The Material Design 1 system icons by role name. 84 filled Material Icons glyphs answer to 111 names through a Vuetify0 token registry, at 24 dp or 20 dp dense, decorative unless labelled, and mirrored in RTL where the glyph points.
+  content: The Material Design 1 system icons by role name. 87 filled Material Icons glyphs answer to 114 names through a Vuetify0 token registry, at 24 dp or 20 dp dense, decorative unless labelled, and mirrored in RTL where the glyph points.
 - name: keywords
   content: md1 icon, material design 1 icons, material icons vue, system icons, icon roles, rtl icons, createTokens, vuetify0 icons, paper md1
 features:
@@ -32,7 +32,7 @@ The Material Design 1 system icon: ask for a role, such as `menu` or `search`, a
 
 `Md1Icon` is a shell component: `name` is a role, `size` picks the 24 dp or the 20 dp dense form, and `label` turns a decorative glyph into an announced image. The glyph draws in `currentColor`, so the colour, and with it the ink tier, comes from where you put it.
 
-84 drawings answer to 111 names. 27 names are aliases: `clear` draws `close`, and `calendar` draws `event`.
+87 drawings answer to 114 names. 27 names are aliases: `clear` draws `close`, and `calendar` draws `event`.
 
 ::: ds-example
 /systems/md1/icon/basic
@@ -135,7 +135,7 @@ The flip is a `transform: scaleX(-1)` keyed off any `[dir="rtl"]` ancestor, the 
 
 ### A custom collection
 
-The set is closed on purpose: it holds the glyphs Material Design 1's own components need. Anything else is yours to add through the plugin. `icons` merges glyphs over the built-in set, where an existing key replaces its artwork and a new key extends the vocabulary. `aliases` adds `role -> target` references, and a bare target is wrapped for you.
+The set is closed on purpose: it holds the glyphs Material Design 1's own components need. Anything else is yours to add through the plugin. `icons` merges glyphs over the built-in set, where an existing key replaces its artwork and a new key extends the vocabulary. `aliases` adds `role -> target` references, and a bare target is wrapped for you. `mirrors` adds RTL rulings to the mirror table: `true` flips a glyph that communicates direction under `dir="rtl"`, `'conditional'` flips it everywhere but Hebrew, and `false` takes a built-in role out.
 
 ```ts main.ts
 import { createMd1Plugin } from '@paper/md1'
@@ -148,7 +148,7 @@ app.use(createMd1Plugin({
 }))
 ```
 
-`createMd1IconsPlugin` takes the same two options on its own. The example cannot install a plugin, so it provides the same registry to its own subtree with `createMd1IconsContext`, and everything inside it resolves against that: `Md1Button icon="print"` draws the new glyph through its own `Md1Icon`. Replacing a role the same way restyles every Material Design 1 component that draws it, which is why no component inlines its own artwork.
+`createMd1IconsPlugin` takes the same options on its own. The example cannot install a plugin, so it provides the same registry to its own subtree with `createMd1IconsContext`, and everything inside it resolves against that: `Md1Button icon="print"` draws the new glyph through its own `Md1Icon`. Replacing a role the same way restyles every Material Design 1 component that draws it, which is why no component inlines its own artwork.
 
 A glyph is an array of path `d` strings drawn into the 24 x 24 viewBox with `fill="currentColor"` and no stroke. Material Icons filled artwork drops in as is; stroked artwork will render as solid shapes.
 :::
@@ -188,7 +188,7 @@ There are no slots.
 | `md1Icons` | The 84 canonical glyphs, role to path data |
 | `md1IconAliases` | The 27 aliases, role to `{target}` reference |
 | `md1IconMirrors` | The 13 roles that flip in RTL, `true` or `'conditional'` |
-| `createMd1IconsPlugin` | Installs the registry on an app; takes `icons`, `aliases` and `namespace` |
+| `createMd1IconsPlugin` | Installs the registry on an app; takes `icons`, `aliases`, `mirrors` and `namespace` |
 | `createMd1IconsContext` | The same registry as a context trinity, for a subtree |
 | `useMd1Icons` | Reads the registry in scope, or the built-in set when none is installed |
 | `createMd1Icons` | Builds a bare registry from the same options, with no context or plugin around it |

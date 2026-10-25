@@ -10,12 +10,17 @@
       'chat': ['M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'],
       'volume-up': ['M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'],
     },
+    // Their RTL rulings join the shipped mirror table.
+    mirrors: {
+      'undo': true,
+      'redo': true,
+      'chat': true,
+      'volume-up': true,
+    },
   })
 
   provideIcons()
 
-  // `mirror` marks the glyphs this example registered itself: they are not in
-  // the shipped mirror table, so the example flips them under RTL on its own.
   const groups = [
     {
       title: 'Mirrored',
@@ -23,9 +28,9 @@
         { icons: ['arrow-back'], caption: 'Back points toward the start' },
         { icons: ['arrow-forward'], caption: 'Forward points toward the end' },
         { icons: ['send'], caption: 'Movement forward' },
-        { icons: ['volume-up'], mirror: true, caption: 'Sound waves leave toward the end' },
-        { icons: ['undo', 'redo'], mirror: true, caption: 'Horizontal direction of time' },
-        { icons: ['chat'], mirror: true, caption: 'Represents text: a ragged end edge' },
+        { icons: ['volume-up'], caption: 'Sound waves leave toward the end' },
+        { icons: ['undo', 'redo'], caption: 'Horizontal direction of time' },
+        { icons: ['chat'], caption: 'Represents text: a ragged end edge' },
       ],
     },
     {
@@ -79,7 +84,7 @@
           <Md1Icon
             v-for="icon in row.icons"
             :key="icon"
-            :class="['md1-docs-bidi-glyph', { 'md1-docs-bidi-mirror': row.mirror }]"
+            class="md1-docs-bidi-glyph"
             :name="icon"
           />
         </span>
@@ -144,11 +149,6 @@
 
   .md1-docs-bidi-glyph {
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
-  }
-
-  /* The shipped roles flip through the package's own [dir='rtl'] rule; these are the example's glyphs. */
-  [dir='rtl'] .md1-docs-bidi-mirror {
-    transform: scaleX(-1);
   }
 
   .md1-docs-bidi-why {
