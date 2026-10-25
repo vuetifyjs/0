@@ -25,40 +25,36 @@
 </script>
 
 <template>
-  <div v-if="visible.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div v-if="visible.length > 0" class="border border-divider rounded-lg overflow-hidden bg-surface">
     <a
-      v-for="post in visible"
+      v-for="(post, index) in visible"
       :key="post.slug"
-      class="flex flex-col overflow-hidden rounded-xl border bg-surface hover:border-primary transition-all duration-150"
+      class="flex flex-col gap-1 px-4 py-3.5 hover:bg-surface-tint transition-colors"
+      :class="index > 0 ? 'border-t border-divider' : undefined"
       :href="post.url"
       rel="noopener noreferrer"
       target="_blank"
     >
-      <img
-        v-if="post.image"
-        alt=""
-        class="aspect-video w-full object-cover"
-        :src="post.image"
-      >
-
-      <div class="flex flex-col gap-3 p-5">
-        <h3 class="font-semibold leading-snug">
-          {{ post.title }}<span aria-hidden="true" class="text-xs opacity-70 ml-0.5">{{ EXTERNAL_LINK_SUFFIX }}</span>
+      <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <h3 class="font-semibold leading-snug min-w-0 sm:order-first order-last">
+          {{ post.title }}<span aria-hidden="true" class="text-xs opacity-70 ml-1">{{ EXTERNAL_LINK_SUFFIX }}</span>
         </h3>
 
-        <div class="flex items-center gap-2 text-sm opacity-60">
-          <img
-            alt=""
-            class="w-6 h-6 rounded-full shrink-0"
-            height="24"
-            :src="post.avatar"
-            width="24"
-          >
+        <time class="order-first self-start shrink-0 rounded-full border border-divider bg-surface px-2 py-0.5 text-xs font-medium sm:order-last">{{ post.date }}</time>
+      </div>
 
-          <span>{{ post.author }} · {{ post.date }}</span>
-        </div>
+      <p class="text-sm opacity-60 leading-relaxed line-clamp-2">{{ post.excerpt }}</p>
 
-        <p class="text-sm opacity-60 leading-relaxed">{{ post.excerpt }}</p>
+      <div class="flex items-center gap-2 text-xs opacity-50 mt-1">
+        <img
+          alt=""
+          class="w-5 h-5 rounded-full shrink-0"
+          height="20"
+          :src="post.avatar"
+          width="20"
+        >
+
+        <span>{{ post.author }}</span>
       </div>
     </a>
   </div>
