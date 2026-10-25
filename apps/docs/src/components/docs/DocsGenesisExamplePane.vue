@@ -100,6 +100,14 @@
     overflow: visible;
   }
 
+  /* The pre is the painted code surface. As a block it is only the scrollport
+     wide, so a long line runs off its background. Grow it to the line. Width
+     stays auto, so a short file still fills the pane. Wrap mode must be able
+     to shrink, so it keeps the default min-width. */
+  .genesis-docs-example-code:not([data-truncated]) .docs-genesis-example-pane:not(.docs-genesis-example-pane--wrap) .docs-genesis-example-pane__scroll :deep(.shiki) {
+    min-width: max-content;
+  }
+
   .docs-genesis-example-pane__actions {
     position: absolute;
     top: 0.5rem;
