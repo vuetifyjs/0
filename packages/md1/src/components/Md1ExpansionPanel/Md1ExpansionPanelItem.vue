@@ -60,7 +60,8 @@
 <style>
   /*
    * Each panel paints its own sheet so that a run of collapsed panels reads as
-   * one 2 dp card and an expanded panel can leave it (the figures show the
+   * one card at Vuetify 1.5's 1 dp (_expansion-panel.styl:34; the page states no
+   * elevation) and an expanded panel can leave it (the figures show the
    * background through the 16 dp gaps). The clip stops a collapsed sheet's
    * shadow from bleeding upward over the panel above; the panel below covers
    * the downward part with its own background, so seams stay clean and only
@@ -71,7 +72,7 @@
     box-sizing: border-box;
     overflow: clip;
     background: var(--md1-surface, #FFFFFF);
-    box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+    box-shadow: var(--md1-elevation-1, 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12));
     clip-path: inset(0 -24px -24px);
     transition:
       margin var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
@@ -79,7 +80,7 @@
       box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
-  /* A sheet with nothing above it keeps its whole 2 dp shadow, the top edge included: the top of the stack and the sheet after an expanded panel. */
+  /* A sheet with nothing above it keeps its whole shadow, the top edge included: the top of the stack and the sheet after an expanded panel. */
   .md1-expansion-panel__item:first-child,
   .md1-expansion-panel__item[data-selected] + .md1-expansion-panel__item {
     clip-path: none;
@@ -90,7 +91,7 @@
     border-top: 1px solid var(--md1-divider, rgba(0, 0, 0, 0.12));
   }
 
-  /* The card's 2 dp corners wherever a sheet starts or ends: the ends of the stack and either side of an expanded panel. */
+  /* The 2 dp corners wherever a sheet starts or ends: the ends of the stack and either side of an expanded panel. */
   .md1-expansion-panel__item:first-child,
   .md1-expansion-panel__item[data-selected] + .md1-expansion-panel__item {
     border-start-start-radius: var(--md1-radius, 2px);
@@ -105,16 +106,16 @@
 
   /*
    * Expanded: a sheet of its own, detached 16 dp from the panels above and
-   * below (figure spec2) and lifted to 8 dp, the 2 dp card plus the elevation
-   * page's 6 dp dynamic offset (lead decision 4). Painted above its
-   * neighbours so the lifted shadow falls on them, as a raised sheet's does.
+   * below (figure spec2) and lifted to 3 dp, Vuetify 1.5's popout and inset
+   * panel (_expansion-panel.styl:75-80; the page states no number). Painted
+   * above its neighbours so the lifted shadow falls on them.
    */
   .md1-expansion-panel__item[data-selected] {
     z-index: 1;
     margin-block: var(--md1-spacing-2, 16px);
     border-top: 0;
     border-radius: var(--md1-radius, 2px);
-    box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
+    box-shadow: var(--md1-elevation-3, 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12));
     clip-path: none;
   }
 
@@ -131,14 +132,14 @@
     margin-block-end: 0;
   }
 
-  /* Desktop (mouse and keyboard): resting elevation sits 2 dp lower (elevation page), so the stack rests seamed at 0 dp; the expanded sheet keeps its 8 dp. */
+  /* Desktop (mouse and keyboard): resting elevation sits 2 dp lower (elevation page), so the stack rests seamed at 0 dp; the expanded sheet keeps its 3 dp. */
   @media (pointer: fine) {
     .md1-expansion-panel__item {
       box-shadow: var(--md1-elevation-0, none);
     }
 
     .md1-expansion-panel__item[data-selected] {
-      box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
+      box-shadow: var(--md1-elevation-3, 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12));
     }
   }
 

@@ -117,18 +117,15 @@
 
   /*
    * Focus: Grey 200 on the focused list item (expansion-panels page), for
-   * keyboard focus only. Grey 200 (#EEEEEE) is the white sheet shaded by 1/15
-   * of opaque black, so the fill mixes 6.667% of the theme's ink, at full
-   * strength through its channels, into the surface: exactly Grey 200 on the
-   * light sheet, and the same share of white over Grey 800 on the dark one,
-   * where the page states no value. The outline is transparent so nothing
-   * paints beside the fill, solid so forced colours still draw a ring, and
-   * inset so the sheet's clip keeps it.
+   * keyboard focus only; the page states no dark value, so the dark sheet takes
+   * Vuetify 1.5's #494949 (th:155), both through --md1-panel-focus. The outline
+   * is transparent so nothing paints beside the fill, solid so forced colours
+   * still draw a ring, and inset so the sheet's clip keeps it.
    */
   .md1-expansion-panel__header:focus-visible {
     outline: 2px solid transparent;
     outline-offset: -2px;
-    background-color: color-mix(in srgb, rgb(var(--md1-text-primary-channels, 0 0 0)) 6.667%, var(--md1-surface, #FFFFFF));
+    background-color: var(--md1-panel-focus, #EEEEEE);
   }
 
   /* Disabled: the page states nothing; the ink drops to the disabled tier and the row answers to nothing. */
