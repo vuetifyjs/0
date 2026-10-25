@@ -61,7 +61,7 @@ Use tabs to move between a small number of equally important, related views, suc
 
 `Md1Tabs` renders v0's [Tabs](/components/disclosure/tabs) compound and adds nothing to its selection or keyboard behavior. `Tabs.Root` owns the selection and the model, `Tabs.List` the `tablist` role and its label, `Tabs.Item` the roving tab stop, the arrow keys, Home and End, and the `aria-selected` and `aria-controls` pair, and `Tabs.Panel` the `tabpanel` role, its `aria-labelledby` and the `hidden` attribute on every panel but the selected one. The first enabled tab is selected when the model is empty, and a tab is selected as soon as it takes focus.
 
-The bar measures its tabs with v0's [createOverflow](/composables/semantic/create-overflow), which decides when the desktop pagination arrows show and sets `data-overflow` on the root. Each arrow is a v0 [Button](/components/actions/button), so a disabled arrow carries `disabled` and `data-disabled` like any other Material Design 1 button. `Tabs.Item` emits the `data-selected` and `data-disabled` attributes the stylesheet hangs off. `data-fixed`, `data-scrollable`, and the item's `data-icon` and `data-lines` are Material Design 1's own.
+The bar measures its tabs with v0's [createOverflow](/composables/semantic/create-overflow), which decides when the desktop pagination arrows show and sets `data-overflow` on the root; under `more` its capacity decides which tabs move into the "More" menu, and the root carries `data-more` while they do. Each arrow is a v0 [Button](/components/actions/button), so a disabled arrow carries `disabled` and `data-disabled` like any other Material Design 1 button. `Tabs.Item` emits the `data-selected` and `data-disabled` attributes the stylesheet hangs off. `data-fixed`, `data-scrollable`, `data-more`, and the item's `data-icon`, `data-lines` and `data-collapsed` are Material Design 1's own.
 
 The first child of every tab is a [Md1Ripple](/systems/md1/ripple), the guidelines' touch target animation: ink from the point of contact across the whole tab cell. Glyphs draw through [Md1Icon](/systems/md1/icon).
 
@@ -86,7 +86,17 @@ The indicator is a 2 dp line under the selected tab, in the accent colour (`--md
 
 Scrollable tabs show a subset at a time and suit many tabs, or a number that changes. Each tab is as wide as its label plus padding, at least 72 dp (160 dp from 600 dp) and at most 264 dp or the width of the view less 56 dp, whichever is smaller. The first tab's text lines up with the screen-edge keyline, 16 dp on a phone and 24 dp from 600 dp; with a mouse it starts on the content keyline instead, 80 dp from 600 dp and 72 dp below.
 
-On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected. The guidelines also name a "More" dropdown for overflowing desktop tabs; Material Design 1 ships the pagination arrows instead.
+On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected. The guidelines also name a "More" dropdown for overflowing desktop tabs; `more` turns it on, below.
+:::
+
+::: ds-example
+/systems/md1/tabs/more
+
+### More dropdown
+
+`more` on scrollable tabs is the guidelines' other desktop overflow affordance, "Tabs with a More dropdown menu". With a mouse, the tabs that do not fit the bar leave it and are listed in an [Md1Menu](/systems/md1/menu) behind a "More" control at the bar's end, which replaces the pagination arrows. The control is styled as a tab with a trailing `arrow-drop-down` glyph; choosing a tab from its menu selects it, and the control then shows that tab's label and carries the 2 dp indicator, the guidelines' "Tabs with Books selected from a More dropdown menu". The menu opens with the selected tab over the control.
+
+The pages draw the pattern without metrics, so the control's place at the bar's end and the label swap are Material Design 1 decisions. The collected tabs stay tabs in the tablist, out of the layout, so v0's selection and the panels are unchanged; when the arrow keys select a collected tab, focus moves to the More control. Once every tab fits beside it the tabs return to the bar. On a touch screen the bar keeps its swipe. Fixed tabs share the bar and never collect.
 :::
 
 ::: ds-example
@@ -141,6 +151,7 @@ Panels change by sliding, the sibling transition of the navigation patterns: the
 |------|------|---------|-------------|
 | `v-model` | `T` | | The selected tab's value. The first enabled tab is selected when it is empty |
 | `scrollable` | `boolean` | `false` | Scrollable tabs: each as wide as its label, the bar scrolls and pages. Unset, fixed tabs share the width and centre from 600 dp |
+| `more` | `boolean` | `false` | With `scrollable` and a mouse, the tabs that do not fit move into a "More" menu at the bar's end, in place of the pagination arrows |
 | `disabled` | `boolean` | `false` | Disables every tab |
 | `namespace` | `string` | | The v0 `Tabs` context key. The parts inherit it, so set it on the root only when a surrounding v0 `Tabs` context must not collide with this one |
 
