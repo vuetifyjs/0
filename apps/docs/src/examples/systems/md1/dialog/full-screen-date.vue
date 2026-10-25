@@ -3,7 +3,9 @@
   import { isString } from '@vuetify/v0'
   import { shallowRef, toRef, watch } from 'vue'
 
-  // The field shows the long date; the picker works in ISO dates. Each shown date remembers its ISO form.
+  // The field shows the long date; the picker works in ISO dates. Each shown
+  // date remembers its ISO form, which the picker opens on; the ISO date the
+  // dialog writes back on OK is turned into the long date again.
   const iso = new Map<string, string>()
 
   const open = shallowRef(false)
@@ -31,8 +33,8 @@
     return isString(value) ? iso.get(value) : undefined
   }
 
-  function onPick (value: unknown, commit: (value: unknown) => void) {
-    if (isString(value)) commit(format(value))
+  function onDate (value: string) {
+    date.value = /^\d{4}-\d{2}-\d{2}$/.test(value) ? format(value) : value
   }
 
   function onSave () {
@@ -60,12 +62,13 @@
 
         <div class="md1-docs-fs-fields">
           <Md1TextField
-            v-slot="{ value, commit }"
-            v-model="date"
+            v-slot="{ value }"
             label="Date"
+            :model-value="date"
             picker="date"
+            @update:model-value="onDate"
           >
-            <Md1DatePicker :model-value="parse(value)" @update:model-value="onPick($event, commit)" />
+            <Md1DatePicker :model-value="parse(value)" />
           </Md1TextField>
 
           <Md1TextField v-model="guests" label="Guests" />
