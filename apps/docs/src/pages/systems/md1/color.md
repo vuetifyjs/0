@@ -216,6 +216,18 @@ Three themes from `md1HueTheme`, side by side: Indigo and Pink (the default), Te
 Amber is one of the hues whose 500 carries black ink, so the derived `on-primary` is `#000000` and the bar title turns black on its own. Choose an accent with enough contrast against your surfaces: the guidelines tell you to fall back to a darker or lighter tone of the accent hue when the A200 is too pale or too dark, and a pale accent such as Lime or Yellow A200 does not read as flat-button text on white.
 :::
 
+::: ds-example
+/systems/md1/color/accents
+
+### Primary and accent in use
+
+Four screens that put the roles where the color page puts them. Bold color: the primary on the app bar under a status bar in its 700 tone, the 100 tone on the related information beneath, the accent on the floating action button, and the primary again as the accent of the phone icons. The settings screen reverses the pairing, the system bar in the primary and the app bar a darker tone, with the switch in the accent and the checkboxes taking the primary as their accent; on the very dark strip the switch picks a lighter tone of the accent by itself, because the dark theme's `accent-control` is the 200.
+
+Text takes accents too. A headline can be set in the primary, linked text in the accent or the primary, and important text on a primary region in a tone of the accent that contrasts with it. The primary action button can take the accent, and a button resting on a primary region a lighter tone of the primary instead of the accent. The last screen does the opposite of the first: colorless bars and a white accent let a photograph carry the color, and a card in the primary's 100 tone with 700 ink is accented without leaving the hue.
+
+Each variation is a role retuned on a subtree, as in the override example above: `--md1-accent` set to the primary for the checkboxes, `--md1-primary` set to the accent around the raised button. Components keep reading the same tokens.
+:::
+
 ## Accessibility
 
 The color page cites WCAG 2.0 AA: 4.5:1 for normal text and 3:1 for large text. The typography page sets 4.5:1 as its minimum and prefers 7:1. Primary text at 87% black on white measures about 16:1 and secondary text at 54% about 4.6:1; disabled text at 38% falls below 4.5:1 by design, because it marks a control that cannot be used.
