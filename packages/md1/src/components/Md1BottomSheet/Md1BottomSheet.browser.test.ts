@@ -671,6 +671,54 @@ describe('quBottomSheet', () => {
       expect(rect.left).toBe(64)
       expect(rect.right).toBe(960 - 64)
     })
+
+    it('should keep a persistent sheet full width unless it is inset', async () => {
+      await page.viewport(1280, 800)
+
+      mount(() => h(Md1BottomSheet, { persistent: true, modelValue: true }, () => [h(Md1BottomSheet.Item, { icon: 'play-arrow' }, () => 'Play')]))
+      await settle()
+
+      const el = aside()!
+      const rect = el.getBoundingClientRect()
+
+      expect(Object.hasOwn(el.dataset, 'inset')).toBe(false)
+      expect(rect.left).toBe(0)
+      expect(rect.width).toBe(1280)
+    })
+
+    it('should inset a persistent sheet with inset by the same increments, seamed on three sides', async () => {
+      mount(() => h(Md1BottomSheet, { persistent: true, inset: true, modelValue: true }, () => [h(Md1BottomSheet.Item, { icon: 'play-arrow' }, () => 'Play')]))
+
+      for (const [width, edge, min] of [[960, 64, 384], [1280, 128, 512], [1440, 192, 576]] as const) {
+        await page.viewport(width, 800)
+        await settle()
+
+        const el = aside()!
+        const rect = el.getBoundingClientRect()
+        const computed = getComputedStyle(el)
+
+        expect(Object.hasOwn(el.dataset, 'inset')).toBe(true)
+        expect(rect.width).toBe(min)
+        expect(rect.left).toBe((width - min) / 2)
+        expect(rect.left).toBeGreaterThanOrEqual(edge)
+        expect(rect.bottom).toBe(800)
+        expect(computed.borderInlineStartWidth).toBe('1px')
+        expect(computed.borderInlineEndWidth).toBe('1px')
+        expect(computed.boxShadow).toBe('none')
+      }
+    })
+
+    it('should keep an inset persistent sheet full width on handsets', async () => {
+      await page.viewport(414, 800)
+
+      mount(() => h(Md1BottomSheet, { persistent: true, inset: true, modelValue: true }, () => [h(Md1BottomSheet.Item, { icon: 'play-arrow' }, () => 'Play')]))
+      await settle()
+
+      const rect = aside()!.getBoundingClientRect()
+
+      expect(rect.left).toBe(0)
+      expect(rect.width).toBe(414)
+    })
   })
 
   describe('persistent', () => {
