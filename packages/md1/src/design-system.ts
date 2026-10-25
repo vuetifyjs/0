@@ -445,10 +445,11 @@ export const durationDesktop = {
   complex: '200ms',
 } as const satisfies Record<keyof typeof duration, string>
 
-/** The choreography page's stagger ceiling, and the ripple's alias of the standard duration (read by `Md1Ripple`). */
+/** The choreography page's stagger ceiling, and Vuetify 1.5's ripple expand and fade (var:342-343; read by `Md1Ripple`). */
 export const motion = {
   'stagger': '20ms',
-  'ripple-duration': 'var(--md1-duration-standard, 300ms)',
+  'ripple-duration': '250ms',
+  'ripple-fade': '300ms',
 } as const
 
 // Layout (spec/layout.md, spec/iconography.md)

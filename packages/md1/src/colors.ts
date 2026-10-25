@@ -4,8 +4,9 @@
  * and the kit roles are mirrored onto `--v0-*` (SPEC.md "The v0 bridge").
  *
  * Values come from the MD1 colour page (spec/color.md), the component pages
- * SPEC.md "Ink and state" cites, and the lead decisions in SPEC.md (two scrim
- * tokens, 6% hover). Shadows ride these per-theme maps rather than the `:root`
+ * SPEC.md "Ink and state" cites, Vuetify 1.5.24's theme where a page is silent
+ * (SPEC.md "Authority order") and the lead decisions in SPEC.md (two scrim
+ * tokens). Shadows ride these per-theme maps rather than the `:root`
  * foundations so a theme can retune them (SPEC.md "Elevation").
  */
 
@@ -35,11 +36,11 @@ export interface Md1HueRoles {
   'primary': string
   /** 700: the status bar and the pressed raised button. */
   'primary-dark': string
-  /** 100: related information under a primary region. */
+  /** 100: related information under a primary region (the extension fill under a primary bar). */
   'primary-light': string
   /** The accent hue's A200: FAB, action buttons, text fields, selection, links. */
   'accent': string
-  /** A100, the spec's lighter contrast fallback; the contextual data-table header. */
+  /** The accent hue's 50: the contextual data-table header (data tables page). */
   'accent-light': string
   /** Selection controls, sliders and picker ink: A200 in light, the accent hue's 200 in dark. */
   'accent-control': string
@@ -60,7 +61,7 @@ export interface Md1HueRoles {
 
 /**
  * Derive the role set for another hue pair from the palette: primary 500 / 700 /
- * 100 and accent A200 / A100, with the swatch ink the colour page recommends.
+ * 100 and accent A200 / 50, with the swatch ink the colour page recommends.
  * Pass the result through `createMd1Plugin({ theme: { themes } })`.
  *
  * @example
@@ -83,7 +84,7 @@ export function md1HueTheme (primary: Md1Hue, accent: Md1AccentHue): { light: Md
     'primary-dark': md1Palette[`${primary}-700`],
     'primary-light': md1Palette[`${primary}-100`],
     'accent': md1Palette[`${accent}-a200`],
-    'accent-light': md1Palette[`${accent}-a100`],
+    'accent-light': md1Palette[`${accent}-50`],
     'on-primary': md1PaletteInk[`${primary}-500`],
     'on-accent': md1PaletteInk[`${accent}-a200`],
     'selection': alpha(md1Palette[`${accent}-a200`], 0.3),
@@ -143,14 +144,19 @@ export const md1Colors = {
   'text-secondary': alpha(black, 0.54),
   'text-disabled': alpha(black, 0.38),
   'text-hint': alpha(black, 0.38),
+  // The text-fields page's placeholder: 42% black (3:1), 50% white.
+  'placeholder': alpha(black, 0.42),
   'divider': alpha(black, 0.12),
   'icon-active': alpha(black, 0.54),
   'icon-inactive': alpha(black, 0.38),
   'icon-focused': alpha(black, 0.87),
-  // State overlays (buttons page; hover from the steppers page).
+  // State overlays (buttons page). `hover` is the text-fields page's box fill
+  // and the selection-control halo the sheets measure; `list-hover` is
+  // Vuetify 1.5's list-tile hover for lists and menus (th:51-52).
   'focus': alpha(black, 0.12),
   'pressed': alpha('#999999', 0.4),
   'hover': alpha(black, 0.06),
+  'list-hover': alpha(black, 0.04),
   'button-disabled': alpha(black, 0.12),
   'button-disabled-text': alpha(black, 0.26),
   // Lead decision 2: Vuetify 1.5's overlay for dialogs and the temporary
@@ -164,6 +170,12 @@ export const md1Colors = {
   'tooltip-text': white,
   'chip': md1Palette['grey-300'],
   'grid-list-bar': alpha(black, 0.6),
+  // Vuetify 1.5 gap fills: the focused expansion-panel header (th:49, the
+  // page's Grey 200), the stepper sheet (`_steppers.styl:4-5`) and the
+  // focused slider line (th:65).
+  'panel-focus': md1Palette['grey-200'],
+  'stepper': white,
+  'slider-focused': alpha(black, 0.38),
   ...bridge,
   ...scale('shadow', shadow),
   ...scale('elevation', elevation),
@@ -188,6 +200,7 @@ export const md1DarkColors = {
   'text-secondary': alpha(white, 0.7),
   'text-disabled': alpha(white, 0.5),
   'text-hint': alpha(white, 0.5),
+  'placeholder': alpha(white, 0.5),
   'divider': alpha(white, 0.12),
   'icon-active': white,
   'icon-inactive': alpha(white, 0.5),
@@ -195,6 +208,7 @@ export const md1DarkColors = {
   'focus': alpha(white, 0.12),
   'pressed': alpha('#CCCCCC', 0.25),
   'hover': alpha(white, 0.1),
+  'list-hover': alpha(white, 0.08),
   'button-disabled': alpha(white, 0.12),
   'button-disabled-text': alpha(white, 0.3),
   'scrim': alpha(md1Palette['grey-900'], 0.46),
@@ -206,6 +220,9 @@ export const md1DarkColors = {
   // Image-only on the chips page; Vuetify 1.5's dark value.
   'chip': '#555555',
   'grid-list-bar': alpha(black, 0.6),
+  'panel-focus': '#494949',
+  'stepper': '#303030',
+  'slider-focused': alpha(white, 0.3),
   ...bridge,
   ...scale('shadow', shadow),
   ...scale('elevation', elevation),
