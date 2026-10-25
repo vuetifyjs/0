@@ -108,6 +108,14 @@ The example tracks the pull with pointer events on the list while it is scrolled
 The guidelines keep swipe to refresh out of navigation drawers and out of content that pans. Always give the same action another path: the example's app bar has a refresh button for keyboard and pointer users who never swipe.
 :::
 
+::: ds-example
+/systems/md1/progress-circular/load-more
+
+### Loading more at the end of a list
+
+The guidelines recommend an indeterminate circular indicator when a list loads more from below. Scroll to the end of the list and the indicator joins it, centred in a footer row, while the next page loads; the new rows then appear in its place. After three pages the footer says the list has ended instead. The indicator takes no disc of its own here, unlike swipe to refresh, because it sits in the list rather than over it. The load is simulated.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
