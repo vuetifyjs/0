@@ -89,6 +89,14 @@ The guidelines adapt the picker to the device's orientation. `landscape` is that
 The orientation is a prop, not a media query, because the right layout depends on the space inside the dialog rather than on the viewport alone. Bind it to `useBreakpoints` or an `(orientation: landscape)` query in the app when the picker should follow the device. Inside a confirmation dialog the action area runs under both the header column and the face, so the header stops 52 dp short of the bottom edge the artwork draws it reaching.
 :::
 
+::: ds-example
+/systems/md1/time-picker/dark
+
+### Dark theme
+
+The portrait and landscape pickers on the dark theme's #303030 canvas. The clock face turns Grey 700 and the hand and its target take the accent control colour with dark digits on the target. The landscape sheet scrolls sideways on a narrow screen rather than squeezing.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
