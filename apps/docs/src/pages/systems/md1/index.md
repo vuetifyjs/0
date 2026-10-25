@@ -1,16 +1,17 @@
 ---
-title: Material Design 1 - Design System for Vue on Vuetify0
+title: Material Design 1 - Vuetify 10th Anniversary Edition for Vue
 meta:
 - name: description
-  content: Material Design 1 is the 2014 to 2017 design system for Vue, built on Vuetify0. Tokens, light and dark themes, the Material Icons set, and Md1* components that wrap v0's headless compounds.
+  content: Material Design 1, the Vuetify 10th Anniversary Edition. The complete 2014 Material Design guidelines as a Vue design system on Vuetify0, tokens to components.
 - name: keywords
-  content: md1, material design 1, material design 2014, quantum paper, vue design system, vuetify0, paper, design tokens, md1 components, material icons
+  content: md1, material design 1, vuetify 10th anniversary edition, material design 2014, quantum paper, vue design system, vuetify0, paper, design tokens, md1 components, material icons
 features:
   category: Guide
   label: 'Material Design 1'
   level: 2
   order: 0
 related:
+  - /systems/md1/edition
   - /systems/md1/button
   - /systems/md1/dialog
   - /systems/md1/icon
@@ -21,11 +22,11 @@ related:
   - /systems/md1/layout
 ---
 
-# Material Design 1
+# Material Design 1 — Vuetify 10th Anniversary Edition
 
 <DocsPageFeatures :frontmatter />
 
-Material Design 1 is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.
+Material Design 1 is the [Vuetify 10th Anniversary Edition](/systems/md1/edition): the complete 2014 Material Design guidelines as a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.
 
 <DocsSystemActivator palette="md1" />
 
@@ -47,7 +48,7 @@ Every value follows one authority order:
 
 The footnotes on each page mark the second and third tiers: a Vuetify 1.5 footnote names the stylesheet and lines the value comes from, and an "Our call" footnote gives the reason. A value without a footnote is the guidelines' own.
 
-Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface (widgets, notifications, launch screens, toasts, split screen) are listed as out, with the reason, in the package's `SPEC.md`.
+Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface (widgets, notifications, fingerprint, toasts, split screen) are listed as out, with the reason, in the package's `SPEC.md`.
 
 ### The escape hatch
 
