@@ -163,9 +163,13 @@
     stroke-width: 4;
   }
 
-  /* The determinate track is the indicator colour at 30%, the linear track's tint (the page shows no track; a decision). */
+  /*
+   * The determinate track: the page shows none, so it is Vuetify 1.5's
+   * underlay, black 10% in both themes (var:288), which nearly vanishes on the
+   * dark theme (SPEC.md Known limitations).
+   */
   .md1-progress-circular__track {
-    opacity: 0.3;
+    stroke: color-mix(in srgb, var(--md1-black, #000000) 10%, transparent);
   }
 
   /* Each value step eases on the standard curve, the page's rule for movement within screen bounds. */

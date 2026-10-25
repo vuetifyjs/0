@@ -201,8 +201,9 @@
    * the track's pseudo-elements, so the fill stays at 0 width (v0 writes no
    * width while indeterminate) and a query bar that turns determinate grows
    * its fill from the start edge instead of shrinking from full width: the
-   * page's determinate bar never decreases. The 2 s cycle is a decision (not
-   * in the spec); the curve is the standard curve.
+   * page's determinate bar never decreases. The page states no cycle, so it is
+   * Vuetify 1.5's 2.2 s, 2 s for query (_progress-linear.styl:33-35, 60-61), on
+   * the standard curve.
    */
   .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before,
   .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::after {
@@ -211,7 +212,7 @@
     top: 0;
     bottom: 0;
     background: var(--md1-primary, #3F51B5);
-    animation-duration: 2s;
+    animation-duration: var(--md1-progress-linear-cycle, 2.2s);
     animation-timing-function: var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
     animation-iteration-count: infinite;
   }
@@ -229,6 +230,10 @@
    * is pending (page: "Query Indeterminate"). A right-to-left document mirrors
    * the sweep the same way, so query under RTL is the forward sweep again.
    */
+  .md1-progress-linear[data-query] {
+    --md1-progress-linear-cycle: 2s;
+  }
+
   .md1-progress-linear[data-state='indeterminate'][data-query] .md1-progress-linear__track::before,
   [dir='rtl'] .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before {
     animation-name: md1-progress-linear-long-reverse;
@@ -348,7 +353,7 @@
 
   body[data-reduced-motion='reduce'] .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before,
   body[data-reduced-motion='reduce'] .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::after {
-    animation-duration: 4s;
+    animation-duration: calc(2 * var(--md1-progress-linear-cycle, 2.2s));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -358,7 +363,7 @@
 
     body:not([data-reduced-motion='no-preference']) .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before,
     body:not([data-reduced-motion='no-preference']) .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::after {
-      animation-duration: 4s;
+      animation-duration: calc(2 * var(--md1-progress-linear-cycle, 2.2s));
     }
   }
 </style>
