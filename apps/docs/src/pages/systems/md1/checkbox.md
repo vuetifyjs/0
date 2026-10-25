@@ -82,6 +82,14 @@ Material Design 1 draws no mixed state, so `indeterminate` is a declared extensi
 The parent here is a computed view of its children: it is indeterminate while some toppings are chosen, on when all are, and a click sets every child to the parent's new value. `indeterminate` is the consumer's to clear; the checkbox never decides it.
 :::
 
+::: ds-example
+/systems/md1/checkbox/themes
+
+### Light and dark themes
+
+The same controls on each theme. On the dark theme the checked box keeps the accent, the empty box's border rises to 70% white, and a disabled box drops to 30% white whether it is checked or not. Focus a box with Tab, or press one on a touch screen, to see the 48 dp halo; the halo is a touch affordance, so a mouse pointer does not draw it.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
