@@ -132,6 +132,16 @@ The primary action of a card is typically the card itself, not a button in this 
 :::
 
 ::: ds-example
+/systems/md1/card/action-areas
+
+### Four action areas
+
+The guidelines number a card's actionable regions. Here the header is the first: the album it names opens from it. The rich media is the second, a grid of photos each of which could open on its own. The two supplemental actions take an area each, full-width rows split by a full-bleed divider, for when two actions are equally important and their labels would crowd one row.
+
+Keep the areas distinct. A card that is itself one big target should not also hold four, and every area needs a label of its own for assistive technology.
+:::
+
+::: ds-example
 /systems/md1/card/controls
 
 ### UI controls
