@@ -546,6 +546,148 @@ describe('quDropdownButton', () => {
     })
   })
 
+  // Buttons page: "Editable segmented dropdown button", the font size picker.
+  describe('editable', () => {
+    const SIZES = [8, 9, 10, 11, 12, 14, 18, 24].map(size => ({ value: size, text: String(size) }))
+
+    function field (root: HTMLElement): HTMLInputElement {
+      return root.querySelector<HTMLInputElement>('.md1-dropdown-button__field')!
+    }
+
+    it('should render a named text field showing the state and the arrow segment, at the editable overflow button metrics', async () => {
+      const { root, trigger } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      const input = field(root)
+      const arrow = trigger()
+
+      expect(root.dataset.editable).toBe('true')
+      expect(root.dataset.segmented).toBe('true')
+      expect(input.tagName).toBe('INPUT')
+      expect(input.value).toBe('11')
+      expect(input.getAttribute('aria-label')).toBe('Font size')
+      expect(arrow.getAttribute('aria-haspopup')).toBe('menu')
+      expect(input.getBoundingClientRect().height).toBe(48)
+      expect(arrow.getBoundingClientRect().width).toBe(48)
+      expect(arrow.getBoundingClientRect().height).toBe(48)
+      expect(getComputedStyle(input).paddingLeft).toBe('16px')
+      expect(getComputedStyle(input).fontSize).toBe('16px')
+      expect(getComputedStyle(input).textTransform).toBe('none')
+      expect(getComputedStyle(arrow).borderInlineStartWidth).toBe('1px')
+      expect(root.getBoundingClientRect().width).toBe(112)
+    })
+
+    it('should fire select with the current state when pressed, then commit a typed state with Enter', async () => {
+      const { root, model, selects } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      const input = field(root)
+
+      await userEvent.click(input)
+      await settle()
+
+      expect(selects).toEqual([11])
+      expect(document.activeElement).toBe(input)
+      expect(input.selectionStart).toBe(0)
+      expect(input.selectionEnd).toBe(2)
+
+      await userEvent.keyboard('13{Enter}')
+      await settle()
+
+      // Every state is a number, so the typed size commits as one.
+      expect(model.value).toBe(13)
+      expect(selects).toEqual([11, 13])
+      expect(input.value).toBe('13')
+    })
+
+    it('should commit a typed state that names an item to that item', async () => {
+      const { root, model } = dropdown({ editable: true, label: 'Style' }, 'normal')
+      await settle()
+
+      const input = field(root)
+
+      await userEvent.click(input)
+      await userEvent.keyboard('title')
+      input.blur()
+      await settle()
+
+      expect(model.value).toBe('title')
+      expect(input.value).toBe('Title')
+    })
+
+    it('should restore the state on Escape and keep an empty field from committing', async () => {
+      const { root, model, selects } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      const input = field(root)
+
+      await userEvent.click(input)
+      await userEvent.keyboard('99{Escape}')
+      await settle()
+
+      expect(model.value).toBe(11)
+      expect(input.value).toBe('11')
+
+      await userEvent.click(input)
+      await userEvent.keyboard('{Backspace}')
+      input.blur()
+      await settle()
+
+      expect(model.value).toBe(11)
+      expect(input.value).toBe('11')
+      expect(selects).toEqual([11, 11])
+    })
+
+    it('should open the options from the arrow, with the current state over the field', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      teardowns.push(() => delete document.body.dataset.reducedMotion)
+      const { root, model, trigger, content, items } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      await userEvent.click(trigger())
+      await settle()
+
+      const menu = content()
+
+      await expect.poll(() => open(menu)).toBe(true)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const box = root.getBoundingClientRect()
+      const row = items()[3]!.getBoundingClientRect()
+
+      expect(items()[3]!.getAttribute('aria-checked')).toBe('true')
+      expect(Math.round(row.top + row.height / 2)).toBe(Math.round(box.top + box.height / 2))
+      expect(Math.round(menu.getBoundingClientRect().right)).toBe(Math.round(box.right))
+
+      await userEvent.click(items()[6]!)
+      await settle()
+
+      expect(model.value).toBe(18)
+      expect(field(root).value).toBe('18')
+    })
+
+    it('should lift onto the surface at 2 dp while focused', async () => {
+      const { root } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      expect(getComputedStyle(root).boxShadow).toContain('inset')
+
+      field(root).focus()
+      await settle()
+
+      await expect.poll(() => getComputedStyle(root).boxShadow).toContain('0px 2px 2px 0px')
+    })
+
+    it('should warn in dev when an editable dropdown has no label', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      dropdown({ editable: true }, 11, SIZES)
+      await settle()
+
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('editable dropdown names its text field with label'))
+    })
+  })
+
   describe('density', () => {
     it('should condense the handset menu under dense: 40 dp rows at 14 sp', async () => {
       const { trigger, content, items } = dropdown({ dense: true }, 'normal')
