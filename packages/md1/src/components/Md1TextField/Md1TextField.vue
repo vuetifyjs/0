@@ -123,6 +123,8 @@
     readonly?: boolean
     /** Error messages to show regardless of the rules. */
     errorMessages?: string | string[]
+    /** Precede the error message with the error icon, the guidelines' alternative to "Error:". */
+    errorIcon?: boolean
   }
 
   const [useMd1TextField, provideMd1TextField] = createContext<Md1TextFieldContext | null>('md1:text-field', null)
@@ -183,6 +185,7 @@
     validateOn = 'blur',
     error = false,
     errorMessages,
+    errorIcon = false,
     namespace,
   } = defineProps<Md1TextFieldProps>()
 
@@ -602,8 +605,13 @@
               {{ helper }}
             </Input.Description>
 
-            <Input.Error v-slot="{ errors: messages }" class="md1-text-field__error" :namespace>
-              {{ messages[0] }}
+            <Input.Error
+              v-slot="{ errors: messages }"
+              class="md1-text-field__error"
+              :data-icon="errorIcon || undefined"
+              :namespace
+            >
+              <Md1Icon v-if="errorIcon && messages.length > 0" class="md1-text-field__alert" name="error-outline" />{{ messages[0] }}
             </Input.Error>
 
             <span v-if="!isUndefined(limit)" class="md1-text-field__counter" :data-over="over || undefined">
@@ -945,6 +953,19 @@
 
   .md1-text-field__error:empty {
     display: none;
+  }
+
+  /* The error icon: a 12 dp glyph level with the line's start, 8 dp before the message (error-icon figure). */
+  .md1-text-field__error[data-icon]:not(:empty) {
+    display: flex;
+    align-items: center;
+    gap: var(--md1-spacing-1, 8px);
+  }
+
+  .md1-text-field__alert {
+    --md1-icon-size: 12px;
+
+    flex: none;
   }
 
   .md1-text-field__counter {
