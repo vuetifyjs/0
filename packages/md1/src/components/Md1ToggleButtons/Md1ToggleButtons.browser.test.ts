@@ -23,7 +23,20 @@ import { md1Icons } from '../../icons'
 
 type ItemSpec = Partial<Md1ToggleButtonsItemProps> & Record<string, unknown> & { label?: string }
 
+/** Vuetify 1.5's pixel recipe for the 2 dp level, the strip's height while an item is selected. */
+const ELEVATION_2 = '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)'
+
 const teardowns: (() => void)[] = []
+
+/** The browser's own serialization of a value, so assertions never guess at shadow formatting. */
+function serialize (property: 'boxShadow', value: string): string {
+  const probe = document.createElement('div')
+  probe.style[property] = value
+  document.body.append(probe)
+  const result = getComputedStyle(probe)[property]
+  probe.remove()
+  return result
+}
 
 function mount (node: () => VNode, setup?: (app: App) => void): HTMLElement {
   const host = document.createElement('div')
@@ -156,41 +169,42 @@ describe('quToggleButtons', () => {
       expect(root.hasAttribute('aria-label')).toBe(false)
     })
 
-    it('should measure 36 dp flat items in a 2 dp container edged and divided in the divider colour', async () => {
+    it('should measure 36 dp flat items in Vuetify 1.5\'s 2 px surface strip, with transparent seams', async () => {
       const { root, buttons } = group()
       await settle()
 
       const container = getComputedStyle(root)
 
+      // _button-toggle.styl:6-7, 19-23: a surface strip, no outline, flat until an item is selected.
       expect(container.display).toBe('inline-flex')
       expect(container.borderRadius).toBe('2px')
-      expect(container.borderTopWidth).toBe('1px')
-      expect(container.borderTopColor).toBe('rgba(0, 0, 0, 0.12)')
-      expect(container.backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      expect(container.borderTopWidth).toBe('0px')
+      expect(container.backgroundColor).toBe('rgb(255, 255, 255)')
       expect(container.boxShadow).toBe('none')
 
       const [first, second, third] = buttons.map(button => getComputedStyle(button))
 
       for (const computed of [first!, second!, third!]) {
-        expect(computed.paddingLeft).toBe('16px')
-        expect(computed.paddingRight).toBe('16px')
+        expect(computed.paddingLeft).toBe('8px')
+        expect(computed.paddingRight).toBe('8px')
         expect(computed.backgroundColor).toBe('rgba(0, 0, 0, 0)')
         expect(computed.boxShadow).toBe('none')
       }
 
       expect(buttons[0]!.getBoundingClientRect().height).toBe(36)
       expect(buttons[0]!.getBoundingClientRect().width).toBeGreaterThanOrEqual(48)
-      // Dividers sit on the start side of every item but the first.
+      // A transparent 1 px seam on the end side of every item but the last (_button-toggle.styl:34-35).
+      expect(first!.borderRightWidth).toBe('1px')
+      expect(first!.borderRightColor).toBe('rgba(0, 0, 0, 0)')
+      expect(second!.borderRightWidth).toBe('1px')
+      expect(third!.borderRightWidth).toBe('0px')
       expect(first!.borderLeftWidth).toBe('0px')
-      expect(second!.borderLeftWidth).toBe('1px')
-      expect(second!.borderLeftColor).toBe('rgba(0, 0, 0, 0.12)')
-      expect(third!.borderLeftWidth).toBe('1px')
-      // The end items carry the container's corners, minus its 1 dp edge; the middle one is square.
-      expect(first!.borderTopLeftRadius).toBe('1px')
+      // The end items carry the strip's corners; the middle one is square.
+      expect(first!.borderTopLeftRadius).toBe('2px')
       expect(first!.borderTopRightRadius).toBe('0px')
       expect(second!.borderTopLeftRadius).toBe('0px')
-      expect(third!.borderTopRightRadius).toBe('1px')
-      expect(third!.borderBottomRightRadius).toBe('1px')
+      expect(third!.borderTopRightRadius).toBe('2px')
+      expect(third!.borderBottomRightRadius).toBe('2px')
     })
 
     it('should set the labels in the Button type style: 14 px Medium, capitals, one line', async () => {
@@ -214,22 +228,22 @@ describe('quToggleButtons', () => {
       const rect = buttons[1]!.getBoundingClientRect()
       const x = rect.left + rect.width / 2
 
-      expect(root.getBoundingClientRect().height).toBe(38)
+      expect(root.getBoundingClientRect().height).toBe(36)
       expect(rect.height).toBe(36)
       expect(document.elementFromPoint(x, rect.top - 4)).toBe(buttons[1])
       expect(document.elementFromPoint(x, rect.bottom + 4)).toBe(buttons[1])
       expect(document.elementFromPoint(x, rect.top - 8)).not.toBe(buttons[1])
     })
 
-    it('should mirror the dividers to the end side under dir="rtl"', async () => {
+    it('should mirror the seams to the end side under dir="rtl"', async () => {
       const host = mount(() => h('div', { dir: 'rtl' }, [h(Md1ToggleButtons, {}, () => PERIODS.map(spec => item(spec)))]))
       await settle()
 
       const [first, second] = [...host.querySelectorAll('button')].map(button => getComputedStyle(button))
 
-      expect(second!.borderRightWidth).toBe('1px')
-      expect(second!.borderLeftWidth).toBe('0px')
-      expect(first!.borderTopRightRadius).toBe('1px')
+      expect(second!.borderLeftWidth).toBe('1px')
+      expect(second!.borderRightWidth).toBe('0px')
+      expect(first!.borderTopRightRadius).toBe('2px')
       expect(first!.borderTopLeftRadius).toBe('0px')
     })
   })
@@ -332,16 +346,22 @@ describe('quToggleButtons', () => {
   })
 
   describe('states', () => {
-    it('should fill the selected item at 12% with the primary ink and leave the rest at the secondary ink', async () => {
-      const { buttons } = group({}, PERIODS, 'week')
+    it('should fade unselected items to 40% and lay the 12% overlay on the selected one, seamed after it, in a raised strip', async () => {
+      const { root, buttons } = group({}, PERIODS, 'week')
       await settle()
 
       const [off, on] = buttons.map(button => getComputedStyle(button))
 
-      expect(off!.color).toBe('rgba(0, 0, 0, 0.54)')
-      expect(off!.backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      // Vuetify 1.5's v-btn-toggle (_button-toggle.styl:9-15, 31-41, 53-54).
+      expect(off!.color).toBe('rgba(0, 0, 0, 0.87)')
+      expect(off!.opacity).toBe('0.4')
+      expect(getComputedStyle(buttons[0]!, '::before').opacity).toBe('0')
       expect(on!.color).toBe('rgba(0, 0, 0, 0.87)')
-      expect(on!.backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
+      expect(on!.opacity).toBe('1')
+      expect(getComputedStyle(buttons[1]!, '::before').opacity).toBe('0.12')
+      expect(on!.borderRightColor).toBe('rgba(0, 0, 0, 0.26)')
+      expect(off!.borderRightColor).toBe('rgba(0, 0, 0, 0)')
+      expect(getComputedStyle(root).boxShadow).toBe(serialize('boxShadow', ELEVATION_2))
     })
 
     it('should draw the 12% focus overlay for keyboard focus only, over the selected fill as well', async () => {
@@ -353,8 +373,6 @@ describe('quToggleButtons', () => {
       expect(document.activeElement).toBe(buttons[0])
       expect(buttons[0]!.matches(':focus-visible')).toBe(true)
       await expect.poll(() => getComputedStyle(buttons[0]!, '::before').opacity).toBe('0.12')
-      // The selected fill stays underneath the overlay.
-      expect(getComputedStyle(buttons[0]!).backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
       expect(getComputedStyle(buttons[1]!, '::before').opacity).toBe('0')
 
       // Chrome keeps :focus-visible on an element that is clicked while it already has focus, so blur it first.
@@ -363,6 +381,13 @@ describe('quToggleButtons', () => {
 
       expect(document.activeElement).toBe(buttons[1])
       expect(buttons[1]!.matches(':focus-visible')).toBe(false)
+
+      // The click selected it, and the pointer rests on it: move off and deselect to see focus alone.
+      await userEvent.unhover(buttons[1]!)
+      await userEvent.click(buttons[1]!)
+      await userEvent.unhover(buttons[1]!)
+
+      expect(buttons[1]!.getAttribute('aria-pressed')).toBe('false')
       await expect.poll(() => getComputedStyle(buttons[1]!, '::before').opacity).toBe('0')
     })
 
@@ -431,7 +456,7 @@ describe('quToggleButtons', () => {
       expect(model.value).toBe('month')
     })
 
-    it('should keep a selected item filled when the group is then disabled, in the disabled ink', async () => {
+    it('should keep a selected item\'s overlay when the group is then disabled, in the disabled ink', async () => {
       // v0's selection refuses to select into a disabled group, so the model is applied before the group disables.
       const disabled = shallowRef(false)
       const host = mount(() => h(Md1ToggleButtons, { disabled: disabled.value, modelValue: 'day' }, () => PERIODS.map(spec => item(spec))))
@@ -446,13 +471,13 @@ describe('quToggleButtons', () => {
       expect(buttons[0]!.disabled).toBe(true)
 
       expect(buttons[0]!.getAttribute('aria-pressed')).toBe('true')
-      expect(computed.backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
+      expect(getComputedStyle(buttons[0]!, '::before').opacity).toBe('0.12')
       expect(computed.color).toBe('rgba(0, 0, 0, 0.26)')
     })
   })
 
   describe('icons', () => {
-    it('should draw the glyph through Md1Icon ahead of the label with the 8 dp gap', async () => {
+    it('should draw the glyph through Md1Icon ahead of the label with Vuetify 1.5\'s 10 px gap', async () => {
       const { buttons } = group({}, [
         { value: 'grid', icon: 'apps', label: 'Grid' },
         { value: 'list', icon: 'reorder', label: 'List' },
@@ -468,7 +493,7 @@ describe('quToggleButtons', () => {
       expect(svg.getAttribute('aria-hidden')).toBe('true')
       expect([...svg.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.apps)
       expect(svg.nextElementSibling).toBe(label)
-      expect(getComputedStyle(label).marginLeft).toBe('8px')
+      expect(getComputedStyle(label).marginLeft).toBe('10px')
       expect(Object.hasOwn(button.dataset, 'solo')).toBe(false)
     })
 
@@ -603,7 +628,7 @@ describe('quToggleButtons', () => {
   })
 
   describe('theme', () => {
-    it('should take its edge, fill and ink from the adapter sheet in both themes', async () => {
+    it('should take its strip, seam and ink from the adapter sheet in both themes', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -620,15 +645,14 @@ describe('quToggleButtons', () => {
       const [darkOn, darkOff] = [...dark!.querySelectorAll('button')]
 
       // The sheet and the stylesheet fallbacks agree on the light theme.
-      expect(getComputedStyle(light!).borderTopColor).toBe('rgba(0, 0, 0, 0.12)')
-      expect(getComputedStyle(lightOn!).backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
-      expect(getComputedStyle(lightOff!).color).toBe('rgba(0, 0, 0, 0.54)')
-      // The dark theme flips the edge, the fill and the ink to white tiers.
-      expect(getComputedStyle(dark!).borderTopColor).toBe('rgba(255, 255, 255, 0.12)')
-      expect(getComputedStyle(darkOn!).backgroundColor).toBe('rgba(255, 255, 255, 0.12)')
+      expect(getComputedStyle(light!).backgroundColor).toBe('rgb(255, 255, 255)')
+      expect(getComputedStyle(lightOn!).borderRightColor).toBe('rgba(0, 0, 0, 0.26)')
+      expect(getComputedStyle(lightOff!).color).toBe('rgba(0, 0, 0, 0.87)')
+      // The dark theme flips the strip to the dark surface and the seam and ink to white tiers.
+      expect(getComputedStyle(dark!).backgroundColor).toBe('rgb(66, 66, 66)')
+      expect(getComputedStyle(darkOn!).borderRightColor).toBe('rgba(255, 255, 255, 0.3)')
       expect(getComputedStyle(darkOn!).color).toBe('rgb(255, 255, 255)')
-      expect(getComputedStyle(darkOff!).color).toBe('rgba(255, 255, 255, 0.7)')
-      expect(getComputedStyle(darkOff!).borderLeftColor).toBe('rgba(255, 255, 255, 0.12)')
+      expect(getComputedStyle(darkOff!).color).toBe('rgb(255, 255, 255)')
     })
   })
 })

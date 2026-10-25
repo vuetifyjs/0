@@ -467,7 +467,7 @@ describe('quFab', () => {
       expect(items.every((item, index) => item.nextElementSibling === labels[index])).toBe(true)
     })
 
-    it('should fly the actions out above the FAB as 40 dp circles centred on it, labels at the start side, 16 dp apart', async () => {
+    it('should fly the actions out above the FAB as 40 dp circles centred on it, 12 px apart, labels 16 dp to the start side', async () => {
       const { host, trigger, menu, items, labels, open } = dial({ props: { position: 'end' } })
       await settle()
 
@@ -492,12 +492,13 @@ describe('quFab', () => {
         expect(labels[index]!.getBoundingClientRect().right).toBeCloseTo(rect.left - 16, 0)
       }
 
-      expect(rects.at(-1)!.bottom).toBeLessThanOrEqual(fabRect.top - 16)
-      expect(rects[1]!.top - rects[0]!.bottom).toBeCloseTo(16, 0)
-      expect(rects[2]!.top - rects[1]!.bottom).toBeCloseTo(16, 0)
+      // Vuetify 1.5's 6 px button margins on each side: 12 px between the circles.
+      expect(rects.at(-1)!.bottom).toBeLessThanOrEqual(fabRect.top - 12)
+      expect(rects[1]!.top - rects[0]!.bottom).toBeCloseTo(12, 0)
+      expect(rects[2]!.top - rects[1]!.bottom).toBeCloseTo(12, 0)
     })
 
-    it('should paint the actions as surface mini FABs and the labels in Body 1', async () => {
+    it('should paint the actions as app-bar mini FABs and the labels in Body 1', async () => {
       const { trigger, items, labels } = dial()
       await settle()
 
@@ -507,7 +508,8 @@ describe('quFab', () => {
       const action = getComputedStyle(items[0]!)
       const label = getComputedStyle(labels[0]!)
 
-      expect(action.backgroundColor).toBe('rgb(255, 255, 255)')
+      // Vuetify 1.5's uncoloured floating button: the app bar colour, Grey 100.
+      expect(action.backgroundColor).toBe('rgb(245, 245, 245)')
       expect(action.color).toBe('rgba(0, 0, 0, 0.54)')
       expect(action.borderRadius).toBe('50%')
       expect(action.boxShadow).toBe(serialize('boxShadow', elevation[4]))
@@ -799,7 +801,7 @@ describe('quFab', () => {
   })
 
   describe('theme', () => {
-    it('should keep the accent FAB in both themes and turn the actions to the dark surface', async () => {
+    it('should keep the accent FAB in both themes and turn the actions to the dark app bar colour', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -815,7 +817,7 @@ describe('quFab', () => {
 
       expect(getComputedStyle(light).backgroundColor).toBe('rgb(255, 64, 129)')
       expect(getComputedStyle(trigger).backgroundColor).toBe('rgb(255, 64, 129)')
-      expect(getComputedStyle(items[0]!).backgroundColor).toBe('rgb(66, 66, 66)')
+      expect(getComputedStyle(items[0]!).backgroundColor).toBe('rgb(33, 33, 33)')
       expect(getComputedStyle(items[0]!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(labels[0]!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(disabled).backgroundColor).toBe('rgba(255, 255, 255, 0.12)')

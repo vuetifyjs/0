@@ -240,6 +240,30 @@ describe('quButton', () => {
       await expect.poll(() => getComputedStyle(el).boxShadow).toBe('none')
     })
 
+    it('should draw Vuetify 1.5\'s 12% hover overlay of the ink: accent on flat, a white wash on raised', async () => {
+      const host = mount(() => h('div', [
+        h(Md1Button, null, () => 'Cancel'),
+        h(Md1Button, { variant: 'raised' }, () => 'Save'),
+      ]))
+      await settle()
+
+      const [flat, raised] = host.querySelectorAll<HTMLElement>('.md1-button')
+
+      await userEvent.hover(flat!)
+
+      await expect.poll(() => getComputedStyle(flat!).backgroundColor)
+        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgb(255, 64, 129) 12%, transparent)'))
+
+      await userEvent.hover(raised!)
+
+      await expect.poll(() => getComputedStyle(raised!).backgroundColor)
+        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgb(255, 255, 255) 12%, #3F51B5)'))
+
+      await userEvent.unhover(raised!)
+
+      await expect.poll(() => getComputedStyle(raised!).backgroundColor).toBe('rgb(63, 81, 181)')
+    })
+
     it('should rest the raised button at 2 dp outside the fine-pointer rule, the handset value', async () => {
       button({ variant: 'raised' }, 'Save')
       await settle()
@@ -315,7 +339,7 @@ describe('quButton', () => {
       expect(svg.classList.contains('md1-icon')).toBe(true)
       expect(svg.dataset.size).toBe('m')
       expect([...svg.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.add)
-      expect(getComputedStyle(icon).marginRight).toBe('8px')
+      expect(getComputedStyle(icon).marginRight).toBe('16px')
       expect(Object.hasOwn(el.dataset, 'solo')).toBe(false)
     })
 
@@ -325,7 +349,7 @@ describe('quButton', () => {
 
       const icon = host.querySelector<HTMLElement>('.md1-button__icon')!
 
-      expect(getComputedStyle(icon).marginLeft).toBe('8px')
+      expect(getComputedStyle(icon).marginLeft).toBe('16px')
       expect(getComputedStyle(icon).marginRight).toBe('0px')
     })
 
@@ -343,6 +367,8 @@ describe('quButton', () => {
       expect(rect.height).toBe(48)
       expect(computed.borderRadius).toBe('50%')
       expect(computed.paddingLeft).toBe('0px')
+      // Vuetify 1.5's icon button inks in the primary text colour, not the accent.
+      expect(computed.color).toBe('rgba(0, 0, 0, 0.87)')
       expect(getComputedStyle(el.querySelector('.md1-button__icon')!).marginRight).toBe('0px')
     })
 
@@ -393,6 +419,10 @@ describe('quButton', () => {
 
       expect(document.activeElement).toBe(el)
       expect(el.matches(':focus-visible')).toBe(false)
+
+      // The pointer that clicked still rests on the button; move it off so only focus is left.
+      await userEvent.unhover(el)
+
       await expect.poll(() => getComputedStyle(el).backgroundColor).toBe('rgba(0, 0, 0, 0)')
     })
 
@@ -451,7 +481,7 @@ describe('quButton', () => {
       await expect.poll(() => getComputedStyle(el).boxShadow).toBe('none')
     })
 
-    it('should keep the held flat button transparent: the ink is its only pressed fill', async () => {
+    it('should keep the held flat button at its hover overlay: the ink is its only pressed fill', async () => {
       const el = button({ id: 'held-flat' }, 'Cancel', app => {
         app.use(createReducedMotionPlugin({ mode: 'never' }))
       })
@@ -461,7 +491,7 @@ describe('quButton', () => {
 
       await expect.poll(() => el.matches(':active')).toBe(true)
       await expect.poll(() => inks(el).length).toBe(1)
-      expect(getComputedStyle(el).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      await expect.poll(() => getComputedStyle(el).backgroundColor).toBe(serialize('backgroundColor', 'color-mix(in srgb, rgb(255, 64, 129) 12%, transparent)'))
       expect(getComputedStyle(el).boxShadow).toBe('none')
 
       await commands.release()
