@@ -82,6 +82,14 @@ A disabled radio drops to 26% black (30% white on dark), its label takes the dis
 Radio groups are mandatory by nature: once an option is chosen the user can change it but not clear it. Start with no selection when the choice must be deliberate, and force one only when there is a sensible default.
 :::
 
+::: ds-example
+/systems/md1/radio/themes
+
+### Light and dark themes
+
+The same groups on each theme. The selected ring and its dot keep the accent on the dark theme, an unselected ring is 70% white, and the disabled group drops to 30% white. Arrow keys move the selection inside a group; on a touch screen a press draws the 48 dp halo around the ring.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
