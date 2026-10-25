@@ -11,6 +11,8 @@ export { default as Md1ListIcon } from './Md1ListIcon.vue'
 export type { Md1ListItemProps } from './Md1ListItem.vue'
 export { default as Md1ListItem } from './Md1ListItem.vue'
 export { default as Md1ListPrimary } from './Md1ListPrimary.vue'
+export type { Md1ListReorderProps } from './Md1ListReorder.vue'
+export { default as Md1ListReorder } from './Md1ListReorder.vue'
 export { default as Md1ListSecondary } from './Md1ListSecondary.vue'
 
 // Context
@@ -22,6 +24,7 @@ import Group from './Md1ListGroup.vue'
 import Icon from './Md1ListIcon.vue'
 import Item from './Md1ListItem.vue'
 import Primary from './Md1ListPrimary.vue'
+import Reorder from './Md1ListReorder.vue'
 import Secondary from './Md1ListSecondary.vue'
 
 /**
@@ -75,4 +78,6 @@ export const Md1List = Object.assign(Root, {
   Action,
   /** An expandable header whose items nest beneath it, indented to the content keyline. */
   Group,
+  /** The reorder handle in the secondary action column: drag it, or move the row with the arrow keys. Needs the root's `v-model:order`. */
+  Reorder,
 })

@@ -4,6 +4,7 @@
 
   // Context
   import Md1ListAction from './Md1ListAction.vue'
+  import Md1ListReorder from './Md1ListReorder.vue'
 
   import { orphan, provideMd1ListItem, useMd1List } from './context'
 
@@ -47,12 +48,13 @@
    * The item's one slot holds the tile's content and its secondary action
    * together. The action is a separate target (lists: controls page), so it
    * renders beside the tile rather than inside it, where a switch or a
-   * checkbox would nest one control inside another.
+   * checkbox would nest one control inside another. The reorder handle is
+   * a secondary action too, in the same column.
    */
   function Slice (props: SliceProps, { slots }: SetupContext): VNode[] {
     const action = props.part === 'action'
 
-    return flatten(slots.default?.() ?? []).filter(node => (node.type === Md1ListAction) === action)
+    return flatten(slots.default?.() ?? []).filter(node => (node.type === Md1ListAction || node.type === Md1ListReorder) === action)
   }
 </script>
 
@@ -181,9 +183,34 @@
     return mergeProps({ 'aria-disabled': disabled || undefined }, attrs)
   })
 
+  // Reorder: the row under a pointer drag follows it, and the row beside the drop slot draws the line.
+  const engine = toRef(() => list?.reordering.value)
+  const dragged = toRef(() => !isUndefined(value) && !isUndefined(engine.value) && engine.value.dragging.value === value)
+
+  const drop = toRef(() => {
+    const indicator = engine.value?.indicator.value
+
+    if (!indicator || isUndefined(value)) return undefined
+
+    const at = engine.value!.index(value)
+
+    if (indicator.index === 0) return at === 0 ? 'before' : undefined
+
+    return at === indicator.index - 1 ? 'after' : undefined
+  })
+
+  const motion = toRef(() => {
+    if (dragged.value) return { transform: `translateY(${engine.value!.offset.value}px)` }
+    if (enter.value && delay) return { animationDelay: delay }
+
+    return undefined
+  })
+
   provideMd1ListItem({
     selected,
     disabled: toRef(() => disabled),
+    value: toRef(() => value),
+    tile,
   })
 </script>
 
@@ -191,12 +218,14 @@
   <li
     class="md1-list__item"
     :data-disabled="disabled || undefined"
+    :data-dragging="dragged || undefined"
+    :data-drop="drop"
     :data-enter="enter || undefined"
     :data-inset="inset || undefined"
     :data-lines="String(count)"
     :data-selected="selected || undefined"
     :role="listbox ? 'none' : undefined"
-    :style="enter && delay ? { animationDelay: delay } : undefined"
+    :style="motion"
     @animationcancel="onAnimationend"
     @animationend="onAnimationend"
   >

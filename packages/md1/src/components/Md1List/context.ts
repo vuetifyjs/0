@@ -2,6 +2,7 @@
 import { createContext, isNull, useLogger } from '@vuetify/v0'
 
 // Types
+import type { Md1ListReorder } from './reorder'
 import type { ID, SelectionContext, SelectionTicket, SelectionTicketInput } from '@vuetify/v0'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -33,11 +34,24 @@ export interface Md1ListContext {
   tabbable: (id: ID) => boolean
   /** Records the option that took focus, so Tab returns to it. */
   focus: (id: ID) => void
+  /**
+   * The reorder engine, built on first use by an `Md1List.Reorder`; undefined
+   * while the list has no bound `v-model:order` to move rows in.
+   */
+  reorder: () => Md1ListReorder | undefined
+  /** The engine once some handle has built it; items read it for their drag state. */
+  reordering: Readonly<Ref<Md1ListReorder | undefined>>
+  /** Names a value for announcements: the handles register their row's name here. */
+  name: (value: unknown, label: () => string) => () => void
 }
 
 export interface Md1ListItemContext {
   selected: Readonly<Ref<boolean>>
   disabled: Readonly<Ref<boolean>>
+  /** The item's `value` prop as given: what the list's order holds. */
+  value: Readonly<Ref<unknown>>
+  /** The tile, whose text names the row when its handle has no `label`. */
+  tile: Readonly<Ref<HTMLElement | null>>
 }
 
 /**

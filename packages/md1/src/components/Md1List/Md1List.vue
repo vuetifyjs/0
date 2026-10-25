@@ -1,16 +1,19 @@
 <script lang="ts">
   // Framework
-  import { Atom, createSelection, isNull, isUndefined, useProxyModel, useRovingFocus } from '@vuetify/v0'
+  import { Atom, createSelection, isNull, isUndefined, toElement, useLocale, useProxyModel, useRovingFocus } from '@vuetify/v0'
 
   // Context
   import { provideMd1List } from './context'
+  import { createMd1ListReorder } from './reorder'
 
   // Utilities
-  import { onMounted, shallowRef, toRef, toValue } from 'vue'
+  import { effectScope, onMounted, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
   import type { Md1ListLines, Md1ListSelect, Md1ListTicket, Md1ListTicketInput } from './context'
+  import type { Md1ListReorder } from './reorder'
   import type { ID, RovingItem } from '@vuetify/v0'
+  import type { ComponentPublicInstance, Ref } from 'vue'
 
   export interface Md1ListProps {
     /**
@@ -56,6 +59,13 @@
 
   const model = defineModel<T | T[]>()
 
+  /**
+   * The rows' values in display order, for a list whose items carry an
+   * `Md1List.Reorder` handle. Render the items from this array; a move
+   * writes the new order back.
+   */
+  const rows = defineModel<T[]>('order')
+
   const listbox = toRef(() => select !== 'none')
   const multiple = toRef(() => select === 'multiple')
 
@@ -90,6 +100,35 @@
 
   const entered = shallowRef(false)
 
+  const root = useTemplateRef<ComponentPublicInstance>('root')
+  const locale = useLocale()
+
+  // Built by the first handle, inside the list's own scope so it stops with the list.
+  const scope = effectScope()
+  const reordering = shallowRef<Md1ListReorder>()
+  const names = new Map<unknown, () => string>()
+
+  function reorder (): Md1ListReorder | undefined {
+    if (isUndefined(rows.value)) return undefined
+
+    reordering.value ??= scope.run(() => createMd1ListReorder({
+      order: rows as Ref<unknown[] | undefined>,
+      el: () => (toElement(root.value) as HTMLElement | undefined) ?? null,
+      locale,
+      name: value => names.get(value)?.() ?? String(value),
+    }))
+
+    return reordering.value
+  }
+
+  function name (value: unknown, label: () => string) {
+    names.set(value, label)
+
+    return () => {
+      if (names.get(value) === label) names.delete(value)
+    }
+  }
+
   onMounted(() => {
     entered.value = true
   })
@@ -112,11 +151,15 @@
     entered,
     tabbable,
     focus,
+    reorder,
+    reordering,
+    name,
   })
 </script>
 
 <template>
   <Atom
+    ref="root"
     :aria-multiselectable="multiple || undefined"
     as="ul"
     class="md1-list"
@@ -127,6 +170,11 @@
     @keydown="onKeydown"
   >
     <slot />
+
+    <!-- The reorder announcements: one polite region per list, after the rows so it never takes a drop slot before them. -->
+    <li v-if="reordering" class="md1-list__status" role="none">
+      <span aria-atomic="true" aria-live="polite" role="status">{{ reordering.message.value }}</span>
+    </li>
   </Atom>
 </template>
 
@@ -454,6 +502,89 @@
   .md1-list__item[data-lines='3'] > .md1-list__action {
     align-self: start;
     margin-block-start: var(--md1-spacing-2, 16px);
+  }
+
+  /*
+   * Reorder handle (lists: controls page): the drag-handle glyph in the
+   * secondary column at the active icon ink, inside a 48 dp target whose
+   * glyph still sits on the 16 dp edge keyline. `touch-action: none` keeps a
+   * touch drag on the handle from scrolling the page instead.
+   */
+  .md1-list__handle {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--md1-touch-target, 48px);
+    height: var(--md1-touch-target, 48px);
+    margin: 0;
+    margin-inline-end: calc((var(--md1-icon-size, 24px) - var(--md1-touch-target, 48px)) / 2);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .md1-list__handle:focus-visible {
+    outline: 2px solid transparent;
+    background: var(--md1-focus, rgba(0, 0, 0, 0.12));
+  }
+
+  .md1-list__handle[data-dragging] {
+    cursor: grabbing;
+  }
+
+  .md1-list__handle:disabled {
+    color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
+    cursor: default;
+  }
+
+  /* The handle's instructions and the list's announcements are for assistive technology only. */
+  .md1-list__hint,
+  .md1-list__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /*
+   * The row under a pointer drag is picked up: it follows the pointer on the
+   * sheet's surface at 8 dp, the elevation page's picked-up card (the page
+   * gives no picked-up list row), above its neighbours.
+   */
+  .md1-list__item[data-dragging] {
+    z-index: 2;
+    background: var(--md1-surface, #FFFFFF);
+    box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
+  }
+
+  /* Where the row will land: a 2 dp line in the primary colour on the edge of the row beside the slot (a decision). */
+  .md1-list__item[data-drop]::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    z-index: 1;
+    height: 2px;
+    background: var(--md1-primary, #3F51B5);
+    pointer-events: none;
+  }
+
+  .md1-list__item[data-drop='before']::after {
+    top: -1px;
+  }
+
+  .md1-list__item[data-drop='after']::after {
+    bottom: -1px;
   }
 
   /*
