@@ -99,6 +99,8 @@ A non-linear stepper cannot infer which steps are done, so mark them with `compl
 `alternative-labels` centres each label 16 dp under its circle and divides the bar into equal parts. The bar grows to 104 dp, with 24 dp above the circle and below the label and 16 dp at the sides, and each connector runs between two circles, 8 dp clear of each.
 
 The guidelines give this placement for horizontal steppers only; on a vertical stepper the prop has no effect. Use it when the labels are long enough to crowd a 72 dp bar, although the guidelines prefer short step names in any horizontal stepper.
+
+The secondary line sits under the label in both states: "Optional" under an `optional` step, and the `error` message under a step in error, in the error red with the label and a warning glyph in place of the circle.
 :::
 
 ::: ds-example
