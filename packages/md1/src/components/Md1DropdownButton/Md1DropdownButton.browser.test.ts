@@ -678,6 +678,17 @@ describe('quDropdownButton', () => {
       await expect.poll(() => getComputedStyle(root).boxShadow).toContain('0px 2px 2px 0px')
     })
 
+    it('should take the surface fill on hover without lifting', async () => {
+      const { root } = dropdown({ editable: true, label: 'Font size' }, 11, SIZES)
+      await settle()
+
+      await userEvent.hover(root)
+      await settle()
+
+      await expect.poll(() => getComputedStyle(root).backgroundColor).toBe('rgb(255, 255, 255)')
+      expect(getComputedStyle(root).boxShadow).not.toContain('0px 2px 2px 0px')
+    })
+
     it('should warn in dev when an editable dropdown has no label', async () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 

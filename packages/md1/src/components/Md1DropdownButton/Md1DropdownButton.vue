@@ -554,9 +554,10 @@
    * 1.5's editable overflow button (_overflow-buttons.styl). A 48 dp field with
    * its text 16 dp in at the 16 sp body size and the primary ink, a 1 dp
    * divider line at its foot, and the 48 x 48 dp arrow segment behind a 1 dp
-   * divider seam (:17-21, 39-46, 52-61). Hover, focus and an open menu lift it
-   * onto the surface at 2 dp (:23-26, 76-79). It is two increments wide by
-   * default, the menu's own minimum, so the sheet covers it (decision).
+   * divider seam (:17-21, 39-46, 52-61). Hover, focus and an open menu put it
+   * on the surface fill (:23-27); only focus and an open menu lift it to 2 dp
+   * (:82-85). It is two increments wide by default, the menu's own minimum, so
+   * the sheet covers it (decision).
    */
   .md1-dropdown-button[data-editable] {
     align-items: center;
@@ -573,6 +574,10 @@
   .md1-dropdown-button[data-editable]:focus-within,
   .md1-dropdown-button[data-editable][data-open] {
     background: var(--md1-surface, #FFFFFF);
+  }
+
+  .md1-dropdown-button[data-editable]:focus-within,
+  .md1-dropdown-button[data-editable][data-open] {
     box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
   }
 
