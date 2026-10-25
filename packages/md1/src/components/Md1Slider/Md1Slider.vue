@@ -11,7 +11,6 @@
 
   // Components
   import Md1Icon from '../Md1Icon/Md1Icon.vue'
-  import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /**
    * Material Design 1 withholds `readonly`, `orientation`, `inverted`,
@@ -182,8 +181,6 @@
         class="md1-slider__thumb"
         :namespace
       >
-        <Md1Ripple center />
-
         <span v-if="discrete" aria-hidden="true" class="md1-slider__pin">{{ value }}</span>
       </Slider.Thumb>
     </span>
@@ -257,14 +254,14 @@
     background: var(--md1-accent-control, #FF4081);
   }
 
-  /* Inactive: 26% black (30% white), rising to 38% while focused or pressed. */
+  /* Inactive: 26% black (30% white), rising while focused or pressed to 38% black, 30% white on dark (Vuetify 1.5, th:65 and 168; the dark sheet measures about 28%). */
   .md1-slider__rest {
     background: var(--md1-button-disabled-text, rgba(0, 0, 0, 0.26));
   }
 
   .md1-slider[data-dragging] .md1-slider__rest,
   .md1-slider:not([data-disabled]):has(.md1-slider__thumb:focus-visible) .md1-slider__rest {
-    background: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
+    background: var(--md1-slider-focused, rgba(0, 0, 0, 0.38));
   }
 
   /* At 0% the thumb is a hollow ring; the line stops at its edge rather than showing through it. */
@@ -300,7 +297,9 @@
 
   /*
    * The thumb is the 32 dp halo footprint centred on the value; the visible
-   * 12 dp dot is its ::after, painted above the ripple ink.
+   * 12 dp dot is its ::after. It hosts no ripple: the sliders page draws none
+   * and Vuetify 1.5 has none (_sliders.styl:53-56, 187-199), so the pressed
+   * 18 dp thumb and the halo are its press feedback.
    */
   .md1-slider__thumb {
     position: absolute;
@@ -420,14 +419,6 @@
 
   .md1-slider[data-zero] .md1-slider__pin::before {
     background: var(--md1-button-disabled-text, rgba(0, 0, 0, 0.26));
-  }
-
-  /*
-   * Dark theme: the pin takes the accent's 200 swatch (--md1-accent-control), and white
-   * digits on it read at about 2:1; they take the dark ink the pickers set on the same swatch.
-   */
-  [data-theme='md1-dark'] .md1-slider:not([data-zero]) .md1-slider__pin {
-    color: color-mix(in srgb, var(--md1-black, #000000) 87%, transparent);
   }
 
   /* Discrete: the pin replaces the thumb while focused or pressed; no halo. */
