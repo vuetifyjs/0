@@ -162,7 +162,7 @@ async function settle () {
 
 describe('quSlider', () => {
   describe('anatomy', () => {
-    it('should render the group, the track and the thumb with the ripple first, and nothing optional', async () => {
+    it('should render the group, the track and a thumb without a ripple, and nothing optional', async () => {
       const { root, track, thumb } = slider({ label: 'Volume' })
       await settle()
 
@@ -173,7 +173,8 @@ describe('quSlider', () => {
       expect(track.tagName).toBe('DIV')
       expect(track.querySelector('.md1-slider__range')!.tagName).toBe('SPAN')
       expect(thumb.classList.contains('md1-slider__thumb')).toBe(true)
-      expect(thumb.firstElementChild!.classList.contains('md1-ripple')).toBe(true)
+      // The sliders page draws no thumb ripple and Vuetify 1.5 has none: the pressed thumb and halo are the feedback.
+      expect(thumb.querySelector('.md1-ripple')).toBeNull()
 
       expect(root.querySelector('.md1-icon')).toBeNull()
       expect(root.querySelector('.md1-slider__ticks')).toBeNull()
@@ -418,7 +419,7 @@ describe('quSlider', () => {
       expect(getComputedStyle(rest).backgroundColor).toBe('rgba(0, 0, 0, 0.26)')
     })
 
-    it('should drag from the thumb without jumping and draw the pressed ink inside it', async () => {
+    it('should drag from the thumb without jumping and draw no ink', async () => {
       const { root, track, thumb, model } = bound({}, 40, never)
       await settle()
 
@@ -429,8 +430,7 @@ describe('quSlider', () => {
 
       expect(model.value).toBe(40)
       expect(Object.hasOwn(root.dataset, 'dragging')).toBe(true)
-      expect(inks(thumb).length).toBe(1)
-      expect(getComputedStyle(inks(thumb)[0]).backgroundColor).toBe('rgba(153, 153, 153, 0.4)')
+      expect(inks(thumb).length).toBe(0)
 
       move(at(track, 60), start.y)
       await settle()
@@ -838,7 +838,7 @@ describe('quSlider', () => {
       expect(getComputedStyle(dark!.host.querySelector('.md1-slider__tick')!).backgroundColor).toBe('rgb(255, 255, 255)')
     })
 
-    it('should set dark digits on the 200 pin of the dark theme, white on the light accent', async () => {
+    it('should set white digits on the pin in both themes and the dark focused line at 30% white', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -853,8 +853,17 @@ describe('quSlider', () => {
       const [light, dark] = [...host.querySelectorAll<HTMLElement>('.md1-slider__pin')]
 
       expect(getComputedStyle(light!).color).toBe('rgb(255, 255, 255)')
-      // color-mix serializes as color(srgb ...).
-      expect(getComputedStyle(dark!).color).toBe('color(srgb 0 0 0 / 0.87)')
+      // White on the Pink 200 pin as well, Vuetify 1.5's _sliders.styl:239 (about 2:1, SPEC.md Known limitations).
+      expect(getComputedStyle(dark!).color).toBe('rgb(255, 255, 255)')
+
+      const thumbs = [...host.querySelectorAll<HTMLElement>('.md1-slider__thumb')]
+
+      await userEvent.tab()
+      await userEvent.tab()
+
+      expect(thumbs[1]!.matches(':focus-visible')).toBe(true)
+      // th:168 (Vuetify 1.5's dark slider.active); the dark sheet measures about 28%.
+      expect(getComputedStyle(host.querySelectorAll<HTMLElement>('.md1-slider__rest')[1]!).backgroundColor).toBe('rgba(255, 255, 255, 0.3)')
     })
   })
 })

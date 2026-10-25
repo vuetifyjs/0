@@ -155,8 +155,8 @@ describe('quProgressLinear', () => {
       expect(before.animationName).toBe('md1-progress-linear-long')
       expect(after.animationName).toBe('md1-progress-linear-short')
       expect(before.backgroundColor).toBe('rgb(63, 81, 181)')
-      // The 2 s cycle on the standard curve is a Material Design 1 decision (the page states none).
-      expect(before.animationDuration).toBe('2s')
+      // The page states no cycle: Vuetify 1.5's 2.2 s (_progress-linear.styl:33-35), on the standard curve.
+      expect(before.animationDuration).toBe('2.2s')
       expect(before.animationTimingFunction).toBe('cubic-bezier(0.4, 0, 0.2, 1)')
       expect(before.animationIterationCount).toBe('infinite')
     })
@@ -171,15 +171,15 @@ describe('quProgressLinear', () => {
       expect(getComputedStyle(track, '::after').animationName).toBe('md1-progress-linear-short-reverse')
     })
 
-    it('should slow the sweep to 4 s under reduced motion rather than freeze it', async () => {
+    it('should slow the sweep to half speed, 4.4 s, under reduced motion rather than freeze it', async () => {
       // The browser context runs with prefers-reduced-motion: reduce.
       expect(matchMedia('(prefers-reduced-motion: reduce)').matches).toBe(true)
 
       const el = bar()
       await settle()
 
-      expect(getComputedStyle(part(el, 'track'), '::before').animationDuration).toBe('4s')
-      expect(getComputedStyle(part(el, 'track'), '::after').animationDuration).toBe('4s')
+      expect(getComputedStyle(part(el, 'track'), '::before').animationDuration).toBe('4.4s')
+      expect(getComputedStyle(part(el, 'track'), '::after').animationDuration).toBe('4.4s')
     })
 
     it('should follow the reduced-motion plugin over the OS setting', async () => {
@@ -189,7 +189,7 @@ describe('quProgressLinear', () => {
       await settle()
 
       expect(document.body.dataset.reducedMotion).toBe('reduce')
-      expect(getComputedStyle(part(el, 'track'), '::before').animationDuration).toBe('4s')
+      expect(getComputedStyle(part(el, 'track'), '::before').animationDuration).toBe('4.4s')
     })
   })
 
@@ -350,6 +350,8 @@ describe('quProgressLinear', () => {
       expect(el.dataset.state).toBe('indeterminate')
       expect(getComputedStyle(track, '::before').animationName).toBe('md1-progress-linear-long-reverse')
       expect(getComputedStyle(track, '::after').animationName).toBe('md1-progress-linear-short-reverse')
+      // Vuetify 1.5's 2 s query cycle (_progress-linear.styl:60-61), at half speed under the context's reduced motion.
+      expect(getComputedStyle(track, '::before').animationDuration).toBe('4s')
 
       value.value = 30
       await settle()

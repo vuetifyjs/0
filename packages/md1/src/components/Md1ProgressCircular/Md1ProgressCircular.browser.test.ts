@@ -200,7 +200,7 @@ describe('quProgressCircular', () => {
   })
 
   describe('determinate', () => {
-    it('should draw the percent as a primary arc over a 30% track', async () => {
+    it('should draw the percent as a primary arc over a black 10% track', async () => {
       const el = ring({ value: 25 })
       await settle()
 
@@ -212,7 +212,8 @@ describe('quProgressCircular', () => {
       expect(getComputedStyle(el).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(arc(el)).stroke).toBe('rgb(63, 81, 181)')
       expect(track(el)).not.toBeNull()
-      expect(getComputedStyle(track(el)!).opacity).toBe('0.3')
+      // Vuetify 1.5's underlay, black 10% in both themes (var:288).
+      expect(getComputedStyle(track(el)!).stroke).toBe('color(srgb 0 0 0 / 0.1)')
       expect(getComputedStyle(arc(el)).animationName).toBe('none')
     })
 
