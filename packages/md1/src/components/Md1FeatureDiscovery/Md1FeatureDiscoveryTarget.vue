@@ -71,16 +71,17 @@
   }
 
   /*
-   * A flat icon button on the light disc takes the prompt colour, so the glyph
-   * reads on white. The data-color attribute lifts the rule over the app bar's
-   * icon inks (Md1Toolbar), which would otherwise paint 54% black or, on a
-   * coloured bar, white on the white disc.
+   * A flat icon button or an app bar's nav icon on the light disc takes the
+   * prompt colour, so the glyph reads on white. The data-color attribute lifts
+   * the rule over the app bar's icon inks (Md1Toolbar, Md1ToolbarNav), which
+   * would otherwise paint 54% black or, on a coloured bar, white on the white
+   * disc.
    */
-  .md1-feature-discovery__action[data-active][data-color] .md1-button[data-variant='flat']:not([data-disabled]) {
+  .md1-feature-discovery__action[data-active][data-color] :is(.md1-button[data-variant='flat'], .md1-toolbar__nav):not([data-disabled]) {
     color: var(--md1-primary, #3F51B5);
   }
 
-  .md1-feature-discovery__action[data-active][data-color='accent'] .md1-button[data-variant='flat']:not([data-disabled]) {
+  .md1-feature-discovery__action[data-active][data-color='accent'] :is(.md1-button[data-variant='flat'], .md1-toolbar__nav):not([data-disabled]) {
     color: var(--md1-accent, #FF4081);
   }
 

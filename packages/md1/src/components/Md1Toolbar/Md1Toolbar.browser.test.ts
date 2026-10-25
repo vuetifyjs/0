@@ -19,6 +19,7 @@ import { md1Colors, md1DarkColors } from '../../colors'
 import { md1Icons } from '../../icons'
 // Components
 import { Md1Button } from '../Md1Button'
+import { Md1SearchBar } from '../Md1SearchBar'
 import { Md1Tabs } from '../Md1Tabs'
 
 /** Vuetify 1.5's pixel recipes for the 2 and 4 dp levels. */
@@ -241,6 +242,26 @@ describe('quToolbar', () => {
 
       expect(getComputedStyle(el).backgroundColor).toBe('rgb(63, 81, 181)')
       await expect.poll(() => icons.map(icon => getComputedStyle(icon).color)).toEqual(['rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)'])
+    })
+
+    it('should keep the bar\'s icon ink to its own actions and off a search bar nested in the row', async () => {
+      for (const variant of ['surface', 'primary'] as const) {
+        const host = mount(() => h(Md1Toolbar, { variant }, () => [
+          h(Md1Toolbar.Nav),
+          h('div', [h(Md1SearchBar, { voice: true, placeholder: 'Search' })]),
+          h(Md1Toolbar.Actions, () => [h(Md1Button, { icon: 'more-vert', ariaLabel: 'More' })]),
+        ]))
+        await settle()
+
+        const own = host.querySelector<HTMLElement>('.md1-toolbar__actions > .md1-button')!
+        const nested = [...host.querySelectorAll<HTMLElement>('.md1-search-bar__field > .md1-button')]
+
+        expect(nested.length).toBeGreaterThan(0)
+        await expect.poll(() => getComputedStyle(own).color).toBe(variant === 'primary' ? 'rgb(255, 255, 255)' : 'rgba(0, 0, 0, 0.54)')
+        // The search sheet is white in both cases; its glyphs keep the sheet's 54% black.
+        await expect.poll(() => nested.map(icon => getComputedStyle(icon).color)).toEqual(nested.map(() => 'rgba(0, 0, 0, 0.54)'))
+        teardowns.pop()!()
+      }
     })
 
     it('should drop the fill and the shadow when transparent', async () => {

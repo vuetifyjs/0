@@ -827,6 +827,28 @@ describe('quFeatureDiscovery', () => {
         teardowns.pop()!()
       }
     })
+
+    it('should ink an app bar\'s nav icon in the prompt colour, and white on the primary bar once closed', async () => {
+      const open = shallowRef(true)
+
+      mount(() => h(Md1Toolbar, { variant: 'primary' }, () => [
+        h(Md1FeatureDiscovery, { 'modelValue': open.value, 'onUpdate:modelValue': (value: boolean) => (open.value = value) }, () => [
+          h(Md1FeatureDiscovery.Target, null, () => h(Md1Toolbar.Nav, { id: 'nav' })),
+          h(Md1FeatureDiscovery.Title, null, () => 'Title'),
+          h(Md1FeatureDiscovery.Text, null, () => 'Text'),
+        ]),
+        h(Md1Toolbar.Title, null, () => 'Inbox'),
+      ]))
+      await ready()
+
+      // Not white on the white disc.
+      expect(getComputedStyle(document.querySelector('#nav')!).color).toBe('rgb(63, 81, 181)')
+
+      open.value = false
+      await settle()
+
+      await expect.poll(() => getComputedStyle(document.querySelector('#nav')!).color).toBe('rgb(255, 255, 255)')
+    })
   })
 
   describe('context', () => {

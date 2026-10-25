@@ -445,13 +445,21 @@
    * Icons: every icon in an app bar shares one colour, 54% black on a light
    * bar and 100% white on a coloured one (colour and icons pages). Text
    * actions take the bar's ink on a coloured bar.
+   *
+   * The inks reach only the bar's own actions: buttons placed straight in the
+   * row, in Actions, Search or Contextual, or wrapped in a feature-discovery
+   * target there (at zero weight, so the target's disc ink wins). A component
+   * nested in the row (a search bar, a dropdown button) sits on its own sheet
+   * and keeps its own icon ink.
    */
-  .md1-toolbar .md1-toolbar__row .md1-button[data-solo]:not([data-disabled]) {
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo]:not([data-disabled]),
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo]:not([data-disabled]) {
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 
   /* Inactive icons: 38% black on a light bar, 50% white on a dark one (colour page, app bar icons). */
-  .md1-toolbar .md1-toolbar__row .md1-button[data-solo][data-disabled] {
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo][data-disabled],
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo][data-disabled] {
     color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
   }
 
@@ -465,18 +473,19 @@
     color: var(--md1-on-primary, #FFFFFF);
   }
 
-  .md1-toolbar[data-variant='primary'] .md1-toolbar__row .md1-button:not([data-disabled]),
-  .md1-toolbar[data-image] .md1-toolbar__row .md1-button:not([data-disabled]) {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button:not([data-disabled]),
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button:not([data-disabled]) {
     color: var(--md1-on-primary, #FFFFFF);
   }
 
   /* Inactive icons on a coloured bar: 50% white (icons page, dark backgrounds). */
-  .md1-toolbar[data-variant='primary'] .md1-toolbar__row .md1-button[data-disabled],
-  .md1-toolbar[data-image] .md1-toolbar__row .md1-button[data-disabled] {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-disabled],
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-disabled] {
     color: color-mix(in srgb, var(--md1-on-primary, #FFFFFF) 50%, transparent);
   }
 
-  .md1-toolbar[data-dense] .md1-toolbar__row .md1-button[data-solo] {
+  .md1-toolbar[data-dense] :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo],
+  .md1-toolbar[data-dense] :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo] {
     width: 40px;
     min-width: 40px;
     height: 40px;
