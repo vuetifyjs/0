@@ -58,7 +58,7 @@ Focus order is source order, so lay the template out in reading order rather tha
 
 ### Magnification and large text
 
-A layout has to survive magnification and large text without overlapping or clipping its content. Material Design 1 writes every size in px, following the units page's rule that dp and sp are written as px, so browser zoom and screen magnifiers scale the whole UI together. The screen keeps its physical width and its content gets fewer pixels to lay out in: at 200% this 360 dp screen has 180 px of room.
+A layout has to survive magnification and large text without overlapping or clipping its content. Material Design 1 writes every size in px, following the units page's rule that dp and sp are written as px, so browser zoom and screen magnifiers scale the whole UI together. The screen keeps its physical width and its content gets fewer pixels to lay out in: at 200% this 360 dp screen has 180 px of room.[^zoom-magnification]
 
 The components take the space they are given. The title truncates in the app bar, the card's actions wrap to a second line, the list's text wraps under its keyline, and the screen scrolls instead of letting content collide. Build app layouts the same way: flexible widths, wrapping rows, and no fixed heights around text.
 :::
@@ -80,3 +80,5 @@ An icon-only control needs a name, and the name should say what happens, not wha
 ## Accessibility
 
 `Md1Button` with `icon` and `Md1IconToggle` warn in development when an icon-only control has no accessible name. `Md1Toolbar.Nav` names itself from its glyph when no `aria-label` is passed; pass one when the button's action needs more words, as the focus order example does. The ink ripple and transitions follow the reduced-motion preference, as the [Motion](/systems/md1/motion) page describes.
+
+[^zoom-magnification]: Our call: the example scales a fixed 360 dp screen with CSS `zoom` at 100%, 150% and 200%, an approximation of browser zoom and magnification.
