@@ -91,6 +91,16 @@ Under a mouse, hovering or focusing an item reveals its check mark before anythi
 :::
 
 ::: ds-example
+/systems/md1/selection/drag
+
+### Dragging across checkboxes
+
+On desktop, people can press on one checkbox and drag across the others to select a run of items in one motion. The first checkbox toggles as usual, and every checkbox the pointer crosses while the button is held takes the same state, so the same drag also clears a run. Releasing the button anywhere ends it.
+
+The drag is a mouse convenience only: touch keeps scrolling, and each checkbox still toggles alone by click, tap or Space. Text selection is suspended while the drag runs so the rows do not highlight.
+:::
+
+::: ds-example
 /systems/md1/selection/contextual
 
 ### Contextual action bar
