@@ -107,6 +107,14 @@ Each row calls `commit(value)` from the root's slot, which writes `v-model:value
 :::
 
 ::: ds-example
+/systems/md1/dialog/varying-rows
+
+### Rows of varying height
+
+A simple dialog's options do not have to share one height. When an option needs a line of explanation, let its row grow to fit it rather than truncating the text or padding every row to the tallest. Here two options carry a description and two do not, so the list mixes one-line and three-line rows: an `Md1List` in the dialog, each item's `lines` set by its content, and each row committing its value on click.
+:::
+
+::: ds-example
 /systems/md1/dialog/confirmation
 
 ### Confirmation dialog
