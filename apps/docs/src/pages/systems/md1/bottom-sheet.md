@@ -108,6 +108,16 @@ A sheet opens at the height of its content, capped at the 16:9 ratio keyline: th
 Choosing an item in a modal sheet dismisses the sheet; choosing one in a persistent sheet leaves it in place, which is the point of a persistent sheet: playback controls that stay, place details beside a map. A persistent sheet portals to the stack target by default. This example passes `:teleport="false"` so the sheet stays inside the preview, where `md1-docs-screen` is the containing block of its fixed position.
 :::
 
+::: ds-example
+/systems/md1/bottom-sheet/inset
+
+### Inset persistent
+
+On a phone a persistent sheet spans the full width. On tablet and desktop the guidelines allow it "full width or inset, as determined by content width, overall UI, underlying content, and stylistic choices", so the choice is yours: `inset` applies the modal sheet's increment rule to a persistent one from 960 px. The sheet stays at least 1 increment (64 dp) from each side edge and at least 6 increments wide at 960 dp, 2 and 8 at 1280 dp, 3 and 9 at 1440 dp, and the content sets the width in between. Inset, the sheet no longer meets the side edges, so its 1 dp seam runs up both sides as well as along the top.
+
+Widen the window past 960 px to see the inset. The breakpoints are viewport media queries, so the sheet measures the window, not the preview.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
@@ -119,6 +129,7 @@ Choosing an item in a modal sheet dismisses the sheet; choosing one in a persist
 | `modelValue` | `boolean` | `false` | Whether the sheet is open (`v-model`) |
 | `expanded` | `boolean` | `false` | Full height with internal scrolling and an X bar (`v-model:expanded`). Reset to `false` on every dismissal |
 | `persistent` | `boolean` | `false` | The non-modal sheet: an `<aside>` at the app's elevation with no scrim or focus trap. Unset, the sheet is a modal `<dialog>` at 16 dp (14 dp under a fine pointer) over a 20% black scrim |
+| `inset` | `boolean` | `false` | Persistent only. From 960 px, insets the sheet by layout increments like the modal sheet instead of spanning the full width |
 | `grid` | `boolean` | `false` | Lays the items out as 48 dp icon tiles with labels instead of 48 dp rows |
 | `teleport` | `boolean` | `true` | Persistent only. `false` renders the sheet where it is declared instead of at the stack target |
 | `id` | `string` | | The sheet element's id; generated when unset |
