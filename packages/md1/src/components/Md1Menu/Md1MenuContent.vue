@@ -4,6 +4,8 @@
 
   // Context
   import { orphan, useMd1Menu } from './Md1Menu.vue'
+
+  // Placement
   import { provideOver } from './over'
 
   // Utilities
@@ -43,7 +45,7 @@
   // The selected row lands on the emitting element (menus page, "Location"). A
   // cascading sub sheet is not a simple menu: it keeps its place beside its row.
   provideOver({
-    item: sheet => sheet.hasAttribute('data-sub')
+    item: sheet => Object.hasOwn(sheet.dataset, 'sub')
       ? null
       : sheet.querySelector<HTMLElement>(':scope > .md1-menu__list > [data-selected]'),
   })
