@@ -71,7 +71,7 @@ The guidelines say a determinate indicator "fills from 0% to 100%, and never dec
 
 ### Indeterminate
 
-Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length; Material Design 1 runs one sweep every 2 seconds on the standard curve, a decision recorded in SPEC.md.
+Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length, so Material Design 1 takes Vuetify 1.5's: one sweep every 2.2 seconds on the standard curve, and every 2 seconds for the query sweep.
 
 The guidelines place linear indicators "on the edge of a header or sheet" and say they "appear and disappear". The example hangs the bar below the header with an absolutely positioned wrapper, so mounting it never shifts the content. On mount the bar grows out of that edge over the 225 ms enter duration on the deceleration curve, the motion page's rule for an element entering the screen. With reduced motion requested, it appears in place and the sweep slows to half speed rather than stopping, because a frozen segment would read as stalled determinate progress.
 :::

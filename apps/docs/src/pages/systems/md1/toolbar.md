@@ -110,7 +110,7 @@ The nav icon opens a navigation drawer, navigates up the hierarchy, or is left o
 
 ### Hide on scroll
 
-`scroll="hide"` is the standard app bar's first option: the bar scrolls off with the content and returns when the reader scrolls back. It moves 1:1 with the content, with no threshold, because the scrolling-techniques page gives none; Vuetify 1.5's 300 px delay has no spec basis.
+`scroll="hide"` is the standard app bar's first option: the bar scrolls off with the content and returns when the reader scrolls back. It moves 1:1 with the content, with no threshold, because the scrolling-techniques page has it scroll off with the content; Vuetify 1.5's 300 px threshold contradicts that, so it does not apply.
 
 The bar follows any scroller inside its own parent, the app shell's content region, and the document while it is pinned to the viewport. Scrollers elsewhere on the page and inside the bar, a tab bar or the search suggestions, are ignored. A hidden bar stays in the tab order: focus moving into it brings it back, so a keyboard user never lands on an off-screen control.
 :::
@@ -142,7 +142,7 @@ The flexible space with overlapping content is this behavior with an image in th
 
 `scroll="collapse"` with an `Md1Toolbar.Title` inside the extension is the flexible space. The extended bar is the default height plus one increment, the large title sits on the content keyline at the bottom of it, and as the content scrolls the space shrinks 1:1 until only the row remains. The title shrinks with it to the Title style's 20 sp and lands in the row; scrolling back to the top grows both into place again.
 
-The guidelines give only the collapsed size. The expanded title is Display 1, 34 sp, a Material Design 1 decision. The title keeps the Medium weight throughout so it reads as the same object at every size.
+The guidelines give only the collapsed size, and say the title shrinks to it, so the expanded title must be larger. It is Display 1, 34 sp, a Material Design 1 decision: Vuetify 1.5's title is always 20 px and has no larger state to take. The title keeps the Medium weight throughout so it reads as the same object at every size.
 :::
 
 ::: ds-example
@@ -190,7 +190,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 
 ### Floating toolbar
 
-`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so Material Design 1 gives it the app bar's heights, 2 dp corners and a 2 dp shadow. A toolbar with only `Md1Toolbar.Actions` is a palette.
+`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so Material Design 1 gives it the app bar's heights and Vuetify 1.5's floating toolbar: the bar's own elevation, square corners and 16 dp clear of what surrounds it. A toolbar with only `Md1Toolbar.Actions` is a palette.
 :::
 
 ::: ds-example
@@ -216,7 +216,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 | `scroll` | `'fixed' \| 'hide' \| 'waterfall' \| 'collapse'` | `'fixed'` | How the app bar answers the content scrolling under it. Honoured only with `appBar` |
 | `tabBar` | `'anchored' \| 'hide' \| 'staggered'` | `'anchored'` | What an Md1Tabs bar in the extension does while the bar hides |
 | `contextual` | `boolean` | `false` | Selection mode: the row gives way to `Md1Toolbar.Contextual` |
-| `floating` | `boolean` | `false` | A detached sheet with its own width, 2 dp corners and a 2 dp shadow |
+| `floating` | `boolean` | `false` | A detached sheet with its own width, square, at the bar's elevation, 16 dp clear of its surroundings |
 | `position` | `'top' \| 'bottom'` | `'top'` | `bottom` fixes the toolbar to the bottom edge, above the on-screen keyboard |
 
 The default slot holds the parts. There are no named slots.

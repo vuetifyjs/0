@@ -63,7 +63,7 @@ The Material Design 1 circular progress indicator. An arc that grows around a ri
 
 The determinate arc starts at the top of the ring and grows clockwise until the ring closes, as in the spec's indicator sheet. The arc is the primary colour (`--md1-primary`, Indigo 500 in the default theme) on a 4 dp stroke, and the ring measures about 40 dp across, both measured from that sheet. Each step eases over the standard duration on the standard curve. Like the linear bar, the value should only grow.
 
-Behind the arc Material Design 1 draws the rest of the ring at 30% of the arc colour, the linear track's tint, so a small value still reads as a fraction of a whole. The spec's videos show no track; this is a Material Design 1 decision, and the indeterminate ring has none.
+Behind the arc Material Design 1 draws the rest of the ring in black at 10%, so a small value still reads as a fraction of a whole. The spec's videos show no track, so this is Vuetify 1.5's underlay, the same in both themes: on the dark theme it nearly disappears. The indeterminate ring has none.
 :::
 
 ::: ds-example
@@ -71,7 +71,7 @@ Behind the arc Material Design 1 draws the rest of the ring at 30% of the arc co
 
 ### Indeterminate
 
-The indeterminate ring rotates while its arc grows and shrinks, the motion of the spec's indicator sheet. The spec states no cycle length; Material Design 1 turns once and completes one sweep every 1.4 seconds, a decision recorded in SPEC.md, with the rotation linear so its speed reads evenly and the sweep on the standard curve. Under reduced motion both slow to half speed rather than stopping.
+The indeterminate ring rotates while its arc grows and shrinks, the motion of the spec's indicator sheet. The spec states no cycle length; Material Design 1 turns once and completes one sweep every 1.4 seconds, Vuetify 1.5's cycle, with the rotation linear so its speed reads evenly and the sweep on the standard curve. Under reduced motion both slow to half speed rather than stopping.
 
 Use one indicator per operation. The guidelines' example is a refresh: show either a refresh bar or an activity circle, never both. Pair the circle with text when the wait is long enough that a reader needs to know what is happening.
 :::

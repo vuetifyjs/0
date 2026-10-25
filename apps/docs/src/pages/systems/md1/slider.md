@@ -54,7 +54,7 @@ The Material Design 1 slider. Pick a value from a range by moving the thumb, con
 
 `Slider.Root` emits `data-disabled`, and the thumb emits `data-state="dragging"`. `data-discrete`, `data-zero`, `data-dragging` and `data-editable` on the root are Material Design 1's own. Material Design 1 never writes a state class; it styles the attributes.
 
-The thumb hosts a [Md1Ripple](/systems/md1/ripple) as its first child, the press feedback every Material Design 1 control carries. Intensity icons draw through [Md1Icon](/systems/md1/icon). Range and vertical sliders are not part of Material Design 1 and do not ship.
+The thumb hosts no [Md1Ripple](/systems/md1/ripple): the sliders page draws none, and neither does Vuetify 1.5, so the thumb growing to 18 dp and its halo are the press feedback. Intensity icons draw through [Md1Icon](/systems/md1/icon). Range and vertical sliders are not part of Material Design 1 and do not ship.
 
 ## Examples
 
@@ -75,7 +75,7 @@ Either end can stand alone. The track takes whatever width is left between the i
 
 A discrete slider picks one value from a set the guidelines call predetermined: the thumb snaps to evenly spaced tick marks, and each tick must change the setting by an amount the user can perceive. `discrete` turns it on, and `step` sets the spacing. Every reachable value, `min` plus a whole number of steps, then gets a 2 x 2 dp tick on the track, drawn in full black (white on dark) while the slider is pressed and hidden otherwise.
 
-On keyboard focus and while dragging, a 26 x 32 dp value pin replaces the thumb. The pin's point sits 8 dp above the track's centreline, its fill is the control accent (grey at the minimum), and the value inside is white, about 10 sp, the size measured from the spec sheet. Use the discrete form when the exact value matters to the user; the guidelines keep its values out of reach of typing, so `discrete` does not pair with `editable`.
+On keyboard focus and while dragging, a 26 x 32 dp value pin replaces the thumb. The pin's point sits 8 dp above the track's centreline, its fill is the control accent (grey at the minimum), and the value inside is white, about 10 sp, the size measured from the spec sheet. White holds on the dark theme too, as in Vuetify 1.5, though it reads at about 2.2:1 on the Pink 200 pin. Use the discrete form when the exact value matters to the user; the guidelines keep its values out of reach of typing, so `discrete` does not pair with `editable`.
 :::
 
 ::: ds-example
@@ -154,7 +154,7 @@ Pass `label` or `ariaLabel`. Without either the thumb falls back to a generic, t
 
 ### Focus
 
-Keyboard focus draws the 32 dp halo around the thumb, 16% of the control accent, and lifts the inactive line from 26% to 38%. At the minimum the halo is the 12% focus overlay instead. A discrete slider shows its value pin rather than a halo. The halo is drawn for `:focus-visible` only, so a mouse press does not leave it behind.
+Keyboard focus draws the 32 dp halo around the thumb, 16% of the control accent, and lifts the inactive line from 26% to 38% (from 30% white, it stays at 30% on the dark theme, Vuetify 1.5's value and close to the dark sheet's). At the minimum the halo is the 12% focus overlay instead. A discrete slider shows its value pin rather than a halo. The halo is drawn for `:focus-visible` only, so a mouse press does not leave it behind.
 
 ### Direction
 

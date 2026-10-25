@@ -81,7 +81,7 @@ The scrim is the dialog's own `::backdrop` in `--md1-scrim`. Material Design 1 p
 
 Most alerts have no title: one or two sentences carry the question, as in the usage example. A title is for high-risk situations, and it must be a clear question or statement ("Erase USB storage?"), never "Warning!" or "Are you sure?".
 
-The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the secondary ink; the page states no body style, so that is a Material Design 1 decision. The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
+The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the primary ink, 87% black; the page states no body style, so it takes Vuetify 1.5's, whose card text inherits the primary ink. The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
 
 The 52 dp action area holds the two flat buttons: 8 dp around them and 8 dp between them, each at least 64 dp wide with 8 dp of internal padding. The affirmative action sits at the right edge and the dismissive action directly to its left. Under the alert, focus starts on the dismissive action, so an accidental Enter cannot erase anything.
 :::
@@ -169,9 +169,9 @@ The root's default slot receives `isOpen`, `open`, `close`, `value` (the choice 
 | Part | Props | Notes |
 |------|-------|-------|
 | `Md1Dialog.Activator` | `namespace` | Renderless. Spread its `attrs` slot prop onto an `Md1Button`: `aria-haspopup`, `aria-expanded` and the open handler |
-| `Md1Dialog.Content` | `namespace` | The `<dialog>`: `::backdrop` in `--md1-scrim`, a sheet between 280 and 560 px at 24 dp (22 dp under a mouse and keyboard), `data-variant`, `data-open`, `data-dismissible`, `data-scrolled`. Names the dialog by its text when there is no title |
+| `Md1Dialog.Content` | `namespace` | The `<dialog>`: `::backdrop` in `--md1-scrim`, a sheet from 280 px wide, sized to its content up to 40 dp from each side, at 24 dp (22 dp under a mouse and keyboard), `data-variant`, `data-open`, `data-dismissible`, `data-scrolled`. Names the dialog by its text when there is no title |
 | `Md1Dialog.Title` | `namespace` | `<h2>`, Medium 20 sp on 28 dp; names the dialog. Pinned in simple and confirmation dialogs |
-| `Md1Dialog.Text` | `namespace` | Body 1 at the secondary ink; describes the dialog. Takes 24 dp from the top when there is no title |
+| `Md1Dialog.Text` | `namespace` | Body 1 at the primary ink; describes the dialog. Takes 24 dp from the top when there is no title |
 | `Md1Dialog.Actions` | `stacked` | The 52 dp action row. Stacks itself when a label exceeds (width - 24) / 2; `stacked` forces either layout (`data-stacked`) |
 | `Md1Dialog.Cancel` | `namespace` | Flat button, "Cancel" by default. Closes and discards; a dirty full-screen dialog prompts first |
 | `Md1Dialog.Confirm` | `namespace`, `disabled` | Flat button, "OK" by default. Commits `value`, emits `confirm` with it and closes. Disabled while a confirmation dialog holds no choice |

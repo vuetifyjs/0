@@ -2,7 +2,7 @@
 title: Md1ExpansionPanel - Material Design 1 Expansion Panel for Vue
 meta:
 - name: description
-  content: The Material Design 1 expansion panel. 48 dp rows stacked on one card that open into a 64 dp header and an editing body, detached 16 dp from their neighbours and lifted to 8 dp, with a CANCEL and SAVE row. Built on Vuetify0's ExpansionPanel.
+  content: The Material Design 1 expansion panel. 48 dp rows stacked on one card that open into a 64 dp header and an editing body, detached 16 dp from their neighbours and lifted to 3 dp, with a CANCEL and SAVE row. Built on Vuetify0's ExpansionPanel.
 - name: keywords
   content: md1 expansion panel, material design 1 expansion panel, accordion, disclosure, creation flow, vue expansion panel, vuetify0 expansion panel, paper md1
 features:
@@ -75,7 +75,7 @@ v0 publishes `data-selected` on the item, `data-selected` and `data-disabled` on
 
 The guidelines name two forms: a panel that stands alone and panels connected to a larger surface. A stand-alone panel is a one-item compound. It paints its own sheet with the card's 2 dp corners and the white card surface (`--md1-surface`, Grey 800 on the dark theme), and opens into the 64 dp header in place, because there are no neighbours to detach from.
 
-The surface rests at 2 dp, the card's elevation, on touch devices. Where the pointer is a mouse the elevation page lowers every resting value by 2 dp, so the panel rests seamed against the background and only its expanded state casts a shadow. Use a stand-alone panel for one setting on a page that otherwise reads, such as a notification preference under an article.
+The surface rests at 1 dp on touch devices, Vuetify 1.5's panel elevation, because the page states none. Where the pointer is a mouse the elevation page lowers every resting value by 2 dp, so the panel rests seamed against the background and only its expanded state casts a shadow. Use a stand-alone panel for one setting on a page that otherwise reads, such as a notification preference under an article.
 :::
 
 ::: ds-example
@@ -105,7 +105,7 @@ An expanded panel is where the user adds or edits information. The body takes 24
 
 `multiple` lets more than one panel stay open, and `v-model` becomes an array of the open values. Panels shown in sequence form a creation flow, the second use the guidelines name: a tool for creating an ad campaign can keep the finished steps open for review while the next one is filled in.
 
-Every expanded panel detaches 16 dp from the panels above and below it and lifts to 8 dp: the 2 dp card plus the 6 dp dynamic offset the elevation page gives a raised sheet, a Material Design 1 decision where the expansion-panels page draws the gap but states no elevation. Two open panels next to each other share one 16 dp gap rather than two, and an open panel at either end of the stack stays flush with the card's edge.
+Every expanded panel detaches 16 dp from the panels above and below it, the gap the expansion-panels page draws, and lifts to 3 dp, the elevation of Vuetify 1.5's detached panels, because the page states no number. Two open panels next to each other share one 16 dp gap rather than two, and an open panel at either end of the stack stays flush with the card's edge.
 :::
 
 ::: ds-example
@@ -161,7 +161,7 @@ The button's accessible name is its text: the label, then the secondary line and
 
 ### Focus
 
-The guidelines give the focused item a Grey 200 background. Material Design 1 paints it for `:focus-visible` only, so keyboard focus shows it and a click does not leave it behind: exactly `#EEEEEE` on the light sheet, and the same share of white over Grey 800 on the dark one, where the page states no value. Under forced colours, where backgrounds are dropped, a 2 px outline draws instead.
+The guidelines give the focused item a Grey 200 background. Material Design 1 paints it for `:focus-visible` only, so keyboard focus shows it and a click does not leave it behind: exactly `#EEEEEE` on the light sheet, and Vuetify 1.5's `#494949` on the dark one, where the page states no value. Under forced colours, where backgrounds are dropped, a 2 px outline draws instead.
 
 ### Disabled
 

@@ -137,4 +137,4 @@ The numbers do not take the pointer; the face does. A press anywhere on the face
 
 ### Focus
 
-A focused number shows the 12% focus overlay as an 8 dp halo round its target; the header buttons show the overlay as a 12% fill of their own ink, and a 6% fill on hover where the device can hover (the guidelines state no hover for pickers, so this is the system's default overlay). The hand sweeps over the standard duration on the standard curve (300 ms on a handset, 200 ms under a mouse), holds still under the finger while dragging, and jumps when reduced motion is requested.
+A focused number shows the 12% focus overlay as an 8 dp halo round its target; the header buttons show the overlay as a 12% fill of their own ink. The guidelines state no hover for pickers, so the header takes Vuetify 1.5's: no overlay, and an inactive segment rises from 70% to full white under the pointer. The hand sweeps over the standard duration on the standard curve (300 ms on a handset, 200 ms under a mouse), holds still under the finger while dragging, and jumps when reduced motion is requested.

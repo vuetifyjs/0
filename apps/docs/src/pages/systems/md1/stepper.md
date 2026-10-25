@@ -86,7 +86,7 @@ The label row starts 24 dp from the top, with 12 dp from the circle to the label
 
 ### Non-linear
 
-A non-linear stepper lets the user enter the flow at any point and complete the steps in any order. Set `:linear="false"`. Every step not reached yet is a button, its label at 54% rather than the linear stepper's 38%, and it takes the 6% hover overlay over the whole step cell and a 6% ripple from the press point.
+A non-linear stepper lets the user enter the flow at any point and complete the steps in any order. Set `:linear="false"`. Every step not reached yet is a button, its label at 54% rather than the linear stepper's 38%, and it takes a 6% hover overlay of the ink over the whole step cell, black on the light theme and white on the dark one, and a 6% ripple from the press point. Keyboard focus draws no fill of its own, as in Vuetify 1.5; the browser's focus ring marks the step.
 
 A non-linear stepper cannot infer which steps are done, so mark them with `complete`: the circle turns to the primary colour with a white check, and a completed step is locked unless it is also `editable`. In a linear stepper `complete` is optional, because every step before the active one is completed.
 :::

@@ -56,7 +56,7 @@ The Material Design 1 tooltip: a short text label that identifies a control when
 
 `Md1Tooltip` renders v0's [Tooltip](/components/disclosure/tooltip) compound and keeps its behavior: `Tooltip.Root` owns the open state and the open and close delays, `Tooltip.Activator` wires hover, keyboard focus, the click that dismisses and Escape, and `Tooltip.Content` is the native popover with `role="tooltip"` that the control points at through `aria-describedby`. The tile is anchored with CSS anchor positioning, centred below the control and flipped above it when the viewport has no room below.
 
-The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; Material Design 1 leaves both at the region's values (150 ms and 300 ms by default) and sets its own open delay of 0 ms, because the tooltips page names no delay before showing. Pass `openDelay` to change that per tooltip.
+The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; Material Design 1 sets its own 200 ms open and close delays, Vuetify 1.5's, because the tooltips page names none, and leaves the skip window at the region's 300 ms. Pass `openDelay` or `closeDelay` to change them per tooltip.
 
 Material Design 1 adds what v0 leaves out. v0 ignores touch pointers on purpose, so the press and hold of the tooltips page is Material Design 1's own: `Md1Tooltip.Activator` binds the pointer handlers that run it, and `data-touch` on the content is Material Design 1's attribute for the touch metrics. The lift lands outside the popover, which the browser's light dismiss would close at once, so the activator shows the label again in the same task and the 1.5 seconds hold. `data-state` (`closed`, `delayed-open`, `instant-open`) is v0's. The activator is renderless and leaves the control's own `disabled`, `type` and `aria-disabled` alone, so a disabled tooltip never disables the button it labels.
 
@@ -69,7 +69,7 @@ Material Design 1 adds what v0 leaves out. v0 ignores touch pointers on purpose,
 
 The tooltips page names the job plainly: tooltips identify an element, and the typical element is an actionable icon. A row of icon-only buttons is the pattern this was written for. Each glyph is a guess until the label appears, so every button gets one, and the label is the same text as the button's `ariaLabel`. The tooltip shows what a sighted pointer user would otherwise have to discover by pressing.
 
-The label shows as soon as the pointer arrives and leaves after v0's 150 ms close delay, with a 150 ms exit of its own. Moving along the row keeps the labels coming: the next tooltip opens inside the skip window of the last one. Keep the text to a word or two in sentence case; the tile is one line of 10 sp Roboto Medium on desktop and never wraps. A label longer than the screen allows is truncated with an ellipsis at the 16 dp screen margins, which is a sign the text belongs somewhere else.
+The label shows once the pointer has rested for 200 ms and leaves 200 ms after it goes, with a 150 ms exit of its own. Moving along the row keeps the labels coming: the next tooltip opens inside the skip window of the last one. Keep the text to a word or two in sentence case; the tile is one line of 10 sp Roboto Medium on desktop and never wraps. A label longer than the screen allows is truncated with an ellipsis at the 16 dp screen margins, which is a sign the text belongs somewhere else.
 
 A tooltip is not a substitute for a name. Assistive technology reads the tooltip as the control's description, after its name, so the icon button still needs its own `ariaLabel`.
 :::
@@ -116,8 +116,8 @@ The usual reason is that the control already says what it does. Here, showing th
 |------|------|---------|-------------|
 | `v-model` | `boolean` | `false` | Whether the label is showing |
 | `disabled` | `boolean` | `false` | Turns the tooltip off and hides it if it is showing. The control stays enabled and loses its `aria-describedby`. A region disabled through `createTooltipPlugin` disables it too |
-| `openDelay` | `number` | `0` | Milliseconds between the pointer arriving and the label showing. Keyboard focus and the press and hold always show at once |
-| `closeDelay` | `number` | the region's (150) | Milliseconds between the pointer leaving and the label hiding; unset, it follows `createTooltipPlugin` |
+| `openDelay` | `number` | `200` | Milliseconds between the pointer arriving and the label showing. Keyboard focus and the press and hold always show at once |
+| `closeDelay` | `number` | `200` | Milliseconds between the pointer leaving and the label hiding |
 | `namespace` | `string` | `'v0:tooltip'` | The context key `Tooltip.Root` provides; the parts read it from the root. Leave it unset unless two tooltips must not resolve the same v0 context |
 
 ### Parts
