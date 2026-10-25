@@ -63,6 +63,10 @@ Icon opacity follows the icons page, and Material Design 1 carries it as theme t
 | Light | Black at 54% | Black at 38% |
 | Dark | White at 100% | White at 50% |
 
+::: ds-example
+/systems/md1/help-feedback/icons
+:::
+
 ## Examples
 
 ::: ds-example
@@ -105,6 +109,14 @@ Help opens on content relevant to where the user was. This user came from the ac
 A Send feedback button sits on the help screen for questions the articles do not answer. Pages people visit less often, About, Privacy policy and Terms of service, go in the screen's overflow menu instead of taking space on the page. The Up arrow in the app bar returns to where the user came from.
 
 Write help content to be scanned: one question per article, short explanations, plain words instead of technical terms, headings, and the labels of buttons and links in bold when the text refers to them. Show images or icons for step-by-step instructions.
+:::
+
+::: ds-example
+/systems/md1/help-feedback/article
+
+### A help article
+
+Headings outline an article so a reader can scan to the part they need. The title is Display 1, a one-line summary under it is Subheading in the secondary ink, sections take the Title style, and subsections take Subheading, each a real heading level so the outline is also the document's. Keep one question per article and short paragraphs under each heading.
 :::
 
 ::: ds-example
