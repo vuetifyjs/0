@@ -72,11 +72,11 @@ The guidelines' table also names Done, Got it, Learn more, No thanks, Not now an
 
 ### Language
 
-The guidelines' language rules, each set in the component that would carry it. Address the user as "you", and use "we" only when a person acts for them, as in the appeal snackbar. Keep sentences short and in the present tense, drop introductory phrases ("Save changes?", "Message sent", "Register to vote") and prefer everyday words: "Turn on", not "Enable"; "Preparing video…", not "Buffering…".
+The guidelines' language rules, each set in the component that would carry it. Address the user as "you", and use "we" only when a person acts for them, as in the appeal snackbar. Keep sentences short and in the present tense, drop introductory phrases ("Save changes?", "Message sent", "Register to vote") and prefer everyday words: "Turn on", not "Enable"; "Preparing video…", not "Buffering…".[^ellipsis]
 
 Name a control by its label, not its type ("Click Continue"), and keep one verb for one action: the list item, the dialog title and its confirm button all say "Remove". Numbers are numerals, the objective comes before the instruction, detail is revealed only when it is needed, and absolutes such as "never" are left out.
 
-The dialogs are drawn in place from the dialog tokens, because a modal dialog shows one at a time; open a real one from the [Dialog](/systems/md1/dialog) page. The snackbars are real `Md1Snackbar`s held on screen.
+The dialogs are drawn in place from the dialog tokens, because a modal dialog shows one at a time[^drawn-dialogs]; open a real one from the [Dialog](/systems/md1/dialog) page. The snackbars are real `Md1Snackbar`s held on screen.
 :::
 
 ::: ds-example
@@ -102,11 +102,19 @@ Sentence case for titles, labels and menu items, as in the "Search settings" pla
 
 ### Global writing
 
-The same screen in English, Japanese, Thai and Arabic. Only the strings and the `lang` and `dir` attributes change: the type scale switches to its dense and tall rules on `lang` (see [Typography](/systems/md1/typography)), and under `dir="rtl"` the Arabic screen mirrors, the navigation and actions trading sides and the directional icons flipping. Dates come from `Intl.DateTimeFormat` in each language rather than from a string.
+The same screen in English, Japanese, Thai and Arabic.[^global-copy] Only the strings and the `lang` and `dir` attributes change: the type scale switches to its dense and tall rules on `lang` (see [Typography](/systems/md1/typography)), and under `dir="rtl"` the Arabic screen mirrors, the navigation and actions trading sides and the directional icons flipping. Dates come from `Intl.DateTimeFormat` in each language rather than from a string.
 
-Write the English in plain words so it translates, and avoid "left" and "right" in copy, since a mirrored interface reverses them. The Japanese and Thai screens load Noto Sans JP and Noto Sans Thai from Google Fonts; your app must load a font for every script it ships.
+Write the English in plain words so it translates, and avoid "left" and "right" in copy, since a mirrored interface reverses them. The Japanese and Thai screens load Noto Sans JP and Noto Sans Thai from Google Fonts[^google-noto]; your app must load a font for every script it ships.
 :::
 
 ## Accessibility
 
 Sentence-case source text is what assistive technology reads: the uppercase button labels are a CSS transform, so "Learn more" is announced as words. Give the Material Design 1 locale keys translations as well as your own strings, because several of them are accessible names, not visible text (`Md1.loading`, `Md1.selectAll`, `Md1.navigation`). Set `lang` on any passage in another language and `dir` on any right-to-left subtree, as the global example does, so a screen reader picks the right voice and the layout mirrors.
+
+[^ellipsis]: Our call: the guidelines print three periods, but their own punctuation table asks for the ellipsis character.
+
+[^drawn-dialogs]: Our call: a gallery has to show every dialog at once. The drawings use the dialog's title, body and action metrics and its 24 dp elevation.
+
+[^global-copy]: Our call: the Japanese, Thai and Arabic strings are illustrative translations written for the example, not copy from the guidelines.
+
+[^google-noto]: Our call: the docs load no fonts, so the example pulls each Noto family from Google Fonts, which names them per script.
