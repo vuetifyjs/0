@@ -521,7 +521,7 @@ describe('quNavigationDrawer', () => {
   })
 
   describe('mini', () => {
-    it('should rest as a 64 dp icon rail from 600 px, still focusable', async () => {
+    it('should rest as Vuetify 1.5\'s 80 px icon rail from 600 px, still focusable', async () => {
       const host = drawer({ props: { type: 'persistent', mini: true } })
       await settle()
 
@@ -530,7 +530,7 @@ describe('quNavigationDrawer', () => {
       expect(Object.hasOwn(el.dataset, 'mini')).toBe(true)
       expect(Object.hasOwn(el.dataset, 'open')).toBe(false)
       expect(el.hasAttribute('inert')).toBe(false)
-      expect(el.clientWidth).toBe(64)
+      expect(el.clientWidth).toBe(80)
 
       const icon = host.querySelector<HTMLElement>('#inbox .md1-list__icon')!
 
@@ -543,13 +543,13 @@ describe('quNavigationDrawer', () => {
       expect(document.activeElement!.id).toBe('inbox')
     })
 
-    it('should rest at 56 dp under 600 px', async () => {
+    it('should rest at 80 px under 600 px too', async () => {
       await page.viewport(414, 700)
 
       const host = drawer({ props: { type: 'persistent', mini: true } })
       await settle()
 
-      expect(sheet(host).clientWidth).toBe(56)
+      expect(sheet(host).clientWidth).toBe(80)
     })
 
     it('should expand to the full drawer on open', async () => {
@@ -752,7 +752,7 @@ describe('quNavigationDrawer', () => {
       expect(host.querySelector('#sent')!.hasAttribute('aria-current')).toBe(false)
     })
 
-    it('should colour a bare-text current destination in the primary colour too, its 100 on the dark theme', async () => {
+    it('should colour a bare-text current destination in the primary colour too, on the dark theme as well', async () => {
       const current = shallowRef<unknown>('inbox')
       const host = mount(() => h(Md1NavigationDrawer, { type: 'permanent' }, () => [
         h(Md1NavigationDrawer.Content, () => h(Md1List, {
@@ -776,7 +776,7 @@ describe('quNavigationDrawer', () => {
 
       expect(getComputedStyle(host.querySelector('#inbox .md1-list__body')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(host.querySelector('#sent .md1-list__body')!).color).toBe('rgba(0, 0, 0, 0.87)')
-      expect(getComputedStyle(dark.querySelector('#dark-inbox .md1-list__body')!).color).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(dark.querySelector('#dark-inbox .md1-list__body')!).color).toBe('rgb(63, 81, 181)')
     })
 
     it('should keep 8 dp above and below a full-bleed divider between groupings', async () => {
@@ -837,7 +837,7 @@ describe('quNavigationDrawer', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes, the current destination in the primary\'s 100 on the dark one', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes, the current destination in the primary 500 on the dark one', async () => {
       style(new Md1StyleSheetAdapter().generate({ 'md1-light': md1Colors, 'md1-dark': md1DarkColors }))
 
       const light = drawer({ bare: true, props: { type: 'permanent' }, host: { 'data-theme': 'md1-light' } })
@@ -848,9 +848,9 @@ describe('quNavigationDrawer', () => {
       expect(getComputedStyle(sheet(dark)).backgroundColor).toBe('rgb(66, 66, 66)')
       expect(getComputedStyle(dark.querySelector('#sent .md1-list__primary')!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(sheet(dark)).borderRightColor).toBe('rgba(255, 255, 255, 0.12)')
-      // Indigo 500 reads at under 2:1 on Grey 800, so the current destination takes Indigo 100 (Lead decision 12).
-      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__primary')!).color).toBe('rgb(197, 202, 233)')
-      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__icon')!).color).toBe('rgb(197, 202, 233)')
+      // Vuetify 1.5 keeps the primary on the dark sheet, Indigo 500 at under 2:1 on Grey 800 (SPEC.md Known limitations).
+      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
       // The header is a primary fill and keeps the primary 500.
       expect(getComputedStyle(dark.querySelector('.md1-navigation-drawer__header')!).backgroundColor).toBe('rgb(63, 81, 181)')
     })

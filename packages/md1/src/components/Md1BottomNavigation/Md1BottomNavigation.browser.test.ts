@@ -291,7 +291,7 @@ describe('quBottomNavigation', () => {
   })
 
   describe('shifting', () => {
-    it('should widen the active action to one and a half shares and narrow the rest to icons', async () => {
+    it('should hold the active action at its 96 dp minimum, share the rest equally and narrow them to icons', async () => {
       const { nav, items } = bar({ count: 4, props: { shifting: true } })
       await settle()
 
@@ -299,12 +299,13 @@ describe('quBottomNavigation', () => {
 
       const [active, ...rest] = items()
 
-      expect(active!.getBoundingClientRect().width).toBe(120)
+      // Equal shares (Vuetify 1.5's flex): 90 dp each, the active one raised to its 96 dp minimum.
+      expect(active!.getBoundingClientRect().width).toBe(96)
       expect(getComputedStyle(label(active!)).opacity).toBe('1')
       expect(getComputedStyle(active!).paddingTop).toBe('6px')
 
       for (const el of rest) {
-        expect(el.getBoundingClientRect().width).toBe(80)
+        expect(el.getBoundingClientRect().width).toBe(88)
         expect(getComputedStyle(label(el)).opacity).toBe('0')
         expect(getComputedStyle(el).paddingTop).toBe('16px')
       }
@@ -316,7 +317,7 @@ describe('quBottomNavigation', () => {
 
       const [active, ...rest] = items()
 
-      expect(active!.getBoundingClientRect().width).toBeCloseTo(360 / 5.5 * 1.5, 1)
+      expect(active!.getBoundingClientRect().width).toBe(96)
 
       for (const el of rest) {
         const width = el.getBoundingClientRect().width
@@ -351,8 +352,8 @@ describe('quBottomNavigation', () => {
 
       const list = items()
 
-      expect(list[2]!.getBoundingClientRect().width).toBe(120)
-      expect(list[0]!.getBoundingClientRect().width).toBe(80)
+      expect(list[2]!.getBoundingClientRect().width).toBe(96)
+      expect(list[0]!.getBoundingClientRect().width).toBe(88)
       expect(getComputedStyle(label(list[2]!)).opacity).toBe('1')
       expect(getComputedStyle(label(list[0]!)).opacity).toBe('0')
     })
@@ -372,7 +373,7 @@ describe('quBottomNavigation', () => {
         expect(list.at(-1)!.getBoundingClientRect().right).toBeLessThanOrEqual(box.right + 0.5)
       }
 
-      expect(shifting.items()[0]!.getBoundingClientRect().width).toBeCloseTo(270 / 5.5 * 1.5, 1)
+      expect(shifting.items()[0]!.getBoundingClientRect().width).toBeCloseTo(270 / 5, 1)
     })
   })
 
@@ -520,18 +521,23 @@ describe('quBottomNavigation', () => {
       expect(getComputedStyle(el).backgroundColor).toBe(serialize('backgroundColor', 'color-mix(in srgb, rgba(0, 0, 0, 0.54) 12%, transparent)'))
     })
 
-    it('should draw the 6% hover overlay of the ink', async () => {
+    it('should draw the 12% hover overlay of the ink on an inactive action and none on the active one', async () => {
       const { items } = bar()
       await settle()
 
-      const el = items()[1]!
+      const [active, el] = items()
 
-      await userEvent.hover(el)
+      await userEvent.hover(el!)
 
-      await expect.poll(() => getComputedStyle(el).backgroundColor)
-        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgba(0, 0, 0, 0.54) 6%, transparent)'))
+      await expect.poll(() => getComputedStyle(el!).backgroundColor)
+        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgba(0, 0, 0, 0.54) 12%, transparent)'))
 
-      await userEvent.unhover(el)
+      await userEvent.hover(active!)
+
+      expect(Object.hasOwn(active!.dataset, 'selected')).toBe(true)
+      await expect.poll(() => getComputedStyle(active!).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+
+      await userEvent.unhover(active!)
     })
   })
 
@@ -889,7 +895,7 @@ describe('quBottomNavigation', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes and lighten the active ink on the dark one', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes and keep the primary active ink on the dark one', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -905,8 +911,8 @@ describe('quBottomNavigation', () => {
       const [active, inactive] = nav!.querySelectorAll<HTMLElement>('.md1-bottom-navigation__action')
 
       expect(getComputedStyle(nav!).backgroundColor).toBe('rgb(66, 66, 66)')
-      // Indigo 500 reads at under 2:1 on Grey 800, so the active action takes the primary's 100 (Lead decision 12).
-      expect(getComputedStyle(active!).color).toBe('rgb(197, 202, 233)')
+      // Vuetify 1.5 keeps the hue on the dark bar, Indigo 500 at under 2:1 on Grey 800 (SPEC.md Known limitations).
+      expect(getComputedStyle(active!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(inactive!).color).toBe('rgba(255, 255, 255, 0.7)')
       // The coloured bar is a primary fill: the fill and its on-primary ink stay as they are.
       expect(getComputedStyle(coloured!).backgroundColor).toBe('rgb(63, 81, 181)')
