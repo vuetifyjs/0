@@ -89,6 +89,24 @@ The page sizes the label row and not its type. Material Design 1 sets the label 
 :::
 
 ::: ds-example
+/systems/md1/bottom-sheet/subtext
+
+### Items with subtext
+
+A modal sheet's menu can carry more than a one-line label: the guidelines show long names, items with subtext and items with a picture. When the rows need a second line, put a two-line `Md1List` in the sheet in place of `Md1BottomSheet.Item`. Each row is a 72 dp tile with its primary and secondary text, and an avatar where the item has an image. Close the sheet from the row's click through the root's `close` slot prop, which an `Md1BottomSheet.Item` would otherwise do for you.
+:::
+
+::: ds-example
+/systems/md1/bottom-sheet/definition
+
+### Deep-linked content
+
+A modal sheet can show content from another app without leaving the current one. Here a term in the text opens the dictionary's definition in a full-width sheet, with the other app's colour on its header and its own actions, such as saving the word. Dismissing the sheet returns to the reading exactly where it was.
+
+A deep link may go deeper into the other app or back to where it started, but not up its hierarchy. When the reader needs the rest of the other app, offer an explicit action to open it.
+:::
+
+::: ds-example
 /systems/md1/bottom-sheet/expanded
 
 ### Expanded
@@ -116,6 +134,22 @@ Choosing an item in a modal sheet dismisses the sheet; choosing one in a persist
 On a phone a persistent sheet spans the full width. On tablet and desktop the guidelines allow it "full width or inset, as determined by content width, overall UI, underlying content, and stylistic choices", so the choice is yours: `inset` applies the modal sheet's increment rule to a persistent one from 960 px. The sheet stays at least 1 increment (64 dp) from each side edge and at least 6 increments wide at 960 dp, 2 and 8 at 1280 dp, 3 and 9 at 1440 dp, and the content sets the width in between. Inset, the sheet no longer meets the side edges, so its 1 dp seam runs up both sides as well as along the top.
 
 Widen the window past 960 px to see the inset. The breakpoints are viewport media queries, so the sheet measures the window, not the preview.
+:::
+
+::: ds-example
+/systems/md1/bottom-sheet/place
+
+### Place details and a floating action button
+
+A persistent sheet keeps place details on screen while the map behind it stays live: press the pin to open or close it. A floating action button on the same screen moves up with the sheet, its centre on the sheet's top edge, and returns to its keyline when the sheet closes. Read the sheet's height from the sheet itself, since the content sets it, and move the button with its inset rather than a transform so it keeps its own motion.
+:::
+
+::: ds-example
+/systems/md1/bottom-sheet/side-sheet
+
+### Side sheet on desktop
+
+On a larger screen the same content does not need to rise from the bottom. The guidelines move what a phone shows in a persistent bottom sheet onto a sheet of its own, on the left of the interface, where it covers less of the map. That sheet is ordinary material at 2 dp, not an `Md1BottomSheet`: choose between the two by layout, with `useBreakpoints` or a container query.
 :::
 
 ## Props
