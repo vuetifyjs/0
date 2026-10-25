@@ -60,6 +60,8 @@ Bind `v-model` on a navigation list and the item whose `value` matches is the cu
       </Md1List.Content>
 
       <Md1List.Action />
+
+      <Md1List.Reorder />
     </Md1List.Item>
 
     <Md1List.Group>
@@ -79,7 +81,9 @@ The root renders v0's [Atom](/components/primitives/atom) as the `ul` and owns a
 
 The first child of every interactive tile is a [Md1Ripple](/systems/md1/ripple). `data-dense`, `data-select` and `data-selecting` on the root, and `data-lines`, `data-selected`, `data-disabled` and `data-inset` on each item, are Material Design 1's own.
 
-A secondary action is a separate target, so `Md1List.Item` renders `Md1List.Action` beside the tile rather than inside it, where a switch or a checkbox would nest one control inside a button. The text column stops short of the action column either way.
+A secondary action is a separate target, so `Md1List.Item` renders `Md1List.Action` beside the tile rather than inside it, where a switch or a checkbox would nest one control inside a button. The text column stops short of the action column either way. `Md1List.Reorder` takes the same column.
+
+Reordering composes two v0 primitives the first handle builds. [createSortable](/composables/data/create-sortable) holds the `v-model:order` array as tickets and performs each move; the new order is written back to the model. [useDragDrop](/composables/system/use-drag-drop) carries the pointer drag with its `PointerAdapter`: each handle registers as a draggable, the `ul` as a vertical drop zone, and the zone's drop slot becomes the item's `data-drop` line. The keyboard path is the handle's own, as in v0's [Kanban](/components/data/kanban): the drag-and-drop keyboard adapter nudges a point by pixels, where a list moves by whole rows. Each item carries `data-dragging` while it is lifted.
 
 ## Examples
 
@@ -123,6 +127,16 @@ The icon stays 24 dp in a dense list. The dense redlines draw it at full size, a
 The column at the end of a tile holds a secondary action or secondary info. The guidelines place a switch, a checkbox, an icon toggle or an expand control there, 16 dp from the end edge, in a column that stops the text 56 dp from the edge for a 24 dp control. Each control is its own target: pressing it never activates the tile, and the tile's primary action never toggles it.
 
 Text in the column is secondary info, set in Caption at 12 sp and 54%. Keep the action consistent across the list and avoid repeating the same action on every row; per-row toggles such as a star are the exception, because they carry information about the row. Give each control its own accessible name, since it sits outside the tile's text.
+:::
+
+::: ds-example
+/systems/md1/list/reorder
+
+### Reorder
+
+The lists: controls page puts a reorder handle in the secondary column, a drag handle that "allows dragging the item to other locations within the list", usually in an editing mode. `Md1List.Reorder` is that handle. Bind the order of the rows to the root with `v-model:order`, render the items from the same array, and give each item the `value` it has there. A move writes the new array back, and Vue moves the row.
+
+Drag the handle with a mouse or a finger: the row lifts to 8 dp and follows the pointer, and a 2 dp line in the primary colour marks where it will land. The page shows the drag in video only; the lifted depth is the elevation page's picked-up card and the line is a decision. From the keyboard, focus the handle and press Arrow Up or Arrow Down to move the row one place, or Home and End to send it to the top or the bottom. Focus stays on the handle as the row moves, and a polite live region announces where it went: "Clair de lune moved to position 2 of 5".
 :::
 
 ::: ds-example
@@ -174,6 +188,7 @@ On desktop the pattern reveals a check mark on hover: the empty checkbox replace
 | `select` | `'none' \| 'single' \| 'multiple'` | `'none'` | `none` renders a plain or navigation list; `single` and `multiple` render a listbox of options with the selection pattern's selected state |
 | `dense` | `boolean` | `false` | 40, 48, 60 and 76 dp tiles, 13 sp text and 4 dp list padding: the condensed metrics for mouse and keyboard layouts |
 | `lines` | `1 \| 2 \| 3` | `1` | The default line count of every item: 48 (56 with an avatar), 72 or 88 dp |
+| `order` | `T[]` | | The rows' values in display order (`v-model:order`). Required for `Md1List.Reorder`: a move writes the new order back |
 | `modelValue` | `T \| T[]` | | The current destination under `none`, the selected value under `single`, the array of selected values under `multiple` |
 
 The root's default slot holds `Md1List.Item` and `Md1List.Group` children. A listbox needs an accessible name: pass `aria-label` or `aria-labelledby`, which land on the `ul`.
@@ -189,6 +204,7 @@ The root's default slot holds `Md1List.Item` and `Md1List.Group` children. A lis
 | `Md1List.Primary` | | The first line: Regular 16 sp (15 sp desktop, 13 sp dense) at 87%, one line with an ellipsis |
 | `Md1List.Secondary` | | The second line, or two lines in a three-line tile: Regular 14 sp (13 sp desktop) at 54% |
 | `Md1List.Action` | | The end column, rendered beside the tile as its own target: an `Md1Checkbox`, `Md1Switch`, `Md1Radio` or `Md1IconToggle`, or Caption text. Warns in development inside a listbox |
+| `Md1List.Reorder` | `label?: string` | The reorder handle in the end column: a 48 dp button with the `reorder` glyph. Drag it, or press Arrow Up, Arrow Down, Home or End on it. `label` names the row in the handle's label and the announcements, defaulting to the row's primary text. Inert without `v-model:order`; warns in development inside a listbox |
 | `Md1List.Group` | `title: string`, `icon?: Md1IconName`, `disabled?: boolean`, `modelValue?: boolean` | The expandable header and its nested `ul`. Warns in development inside a listbox |
 
 Every part warns once in development when it renders outside its parent, and renders inert. There are no named slots.
@@ -208,10 +224,12 @@ A list with `select="single"` or `"multiple"` follows the WAI-ARIA Listbox patte
 | Home, End | In a listbox, moves focus to the first or last enabled option |
 | Space, Enter | Activates the tile. In a listbox, selects the option (`single`) or toggles it (`multiple`) |
 | Enter, Space on a group header | Opens or closes the group |
+| Arrow Up, Arrow Down on a reorder handle | Moves the row one place up or down and announces its new position |
+| Home, End on a reorder handle | Moves the row to the top or the bottom of the list |
 
 ### Naming
 
-A tile's accessible name is its text, primary then secondary. The avatar's image is decorative by default (`alt=""`), and icons and check marks are hidden from assistive technology. A control in `Md1List.Action` sits outside the tile, so it needs its own name, usually `aria-label` repeating the row's primary text. Name a listbox with `aria-label` or `aria-labelledby` on the root.
+A tile's accessible name is its text, primary then secondary. The avatar's image is decorative by default (`alt=""`), and icons and check marks are hidden from assistive technology. A control in `Md1List.Action` sits outside the tile, so it needs its own name, usually `aria-label` repeating the row's primary text. `Md1List.Reorder` names itself "Reorder" plus the row's primary text, describes its keys through `aria-describedby`, and lists them in `aria-keyshortcuts`; its moves are announced through a polite live region at the end of the list. All three strings go through the locale: `Md1.reorder` (`{item}`), `Md1.reorderHint` and `Md1.reordered` (`{item}`, `{position}`, `{size}`). Name a listbox with `aria-label` or `aria-labelledby` on the root.
 
 ### Focus and states
 
@@ -223,4 +241,4 @@ The rows present when the list mounts fade and lift in, top to bottom, each 20 m
 
 ### Not shipped
 
-Swipe gestures (leave-behinds) and pick-up-and-move reordering are touch gestures the package does not ship. Expose the same action through a visible control in the action column instead.
+Swipe gestures (leave-behinds) are touch gestures the package does not ship. Expose the same action through a visible control in the action column instead. Reordering ships through `Md1List.Reorder`, but only from its handle: a long press on the tile does not pick the row up.
