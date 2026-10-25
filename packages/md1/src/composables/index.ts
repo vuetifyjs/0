@@ -1,4 +1,5 @@
 export * from './createDatePickerCore'
 export * from './useClock'
+export * from './useMorph'
 export * from './useRipple'
 export * from './useSearch'
