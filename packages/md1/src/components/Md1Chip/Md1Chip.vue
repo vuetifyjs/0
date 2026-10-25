@@ -327,21 +327,15 @@
     inset: calc((40px - var(--md1-touch-target, 48px)) / 2) 0;
   }
 
-  /* Hover: the page states no value; the 6% overlay of lead decision 3, painted as a layer over the fill. */
-  @media (hover: hover) {
-    button.md1-chip:hover {
-      background-image: linear-gradient(var(--md1-hover, rgba(0, 0, 0, 0.06)), var(--md1-hover, rgba(0, 0, 0, 0.06)));
-    }
-  }
-
   /*
-   * Keyboard focus: the 12% overlay every focused Material Design 1 control shows. The
-   * outline is transparent so nothing paints beside the overlay, and solid so
-   * forced-colours mode still draws a ring.
+   * The page states no hover or focus value. Vuetify 1.5 draws no hover on a
+   * chip and a 13% overlay of the chip's ink on focus (_chips.styl:84-95),
+   * painted as a layer over the fill. The outline is transparent so nothing
+   * paints beside the overlay, and solid so forced-colours mode still draws a ring.
    */
   button.md1-chip:focus-visible {
     outline: 2px solid transparent;
-    background-image: linear-gradient(var(--md1-focus, rgba(0, 0, 0, 0.12)), var(--md1-focus, rgba(0, 0, 0, 0.12)));
+    background-image: linear-gradient(color-mix(in srgb, currentcolor 13%, transparent), color-mix(in srgb, currentcolor 13%, transparent));
   }
 
   /* "Upon focus, the chip rises to an elevation of 2dp" (chips page): any focus, keyboard or pointer, on the chip or its delete control. */
@@ -378,8 +372,8 @@
 
   /*
    * The leading icon has no metrics on the page: a 24 dp glyph at the icon
-   * tier (54%), inset 4 dp like the delete glyph, 8 dp before the label
-   * (decision, SPEC.md).
+   * tier (54%), inset 4 dp like the delete glyph and 12 px before the label,
+   * Vuetify 1.5's chip icon offsets (_chips.styl:156-158, var:208-209).
    */
   .md1-chip:has(> .md1-chip__icon) {
     padding-inline-start: 4px;
@@ -389,7 +383,7 @@
     position: relative;
     display: inline-flex;
     flex: none;
-    margin-inline-end: var(--md1-spacing-1, 8px);
+    margin-inline-end: 12px;
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 
@@ -449,9 +443,10 @@
   }
 
   /*
-   * Disabled: the page states nothing; the text drops to the disabled tier
-   * (38%, 50% dark) and the glyphs to the inactive icon tier, the chip casts
-   * no shadow and takes no pointer. The avatar fades to the same tier (decision).
+   * Disabled: the page states nothing; Vuetify 1.5 drops the ink only
+   * (_chips.styl:8-9): the text to the disabled tier (38%, 50% dark) and the
+   * glyphs to the inactive icon tier, the same values; the avatar stays opaque.
+   * The chip casts no shadow and takes no pointer.
    */
   .md1-chip[data-disabled] {
     color: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
@@ -463,9 +458,5 @@
   .md1-chip[data-disabled] .md1-chip__icon,
   .md1-chip[data-disabled] .md1-chip__delete {
     color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
-  }
-
-  .md1-chip[data-disabled] .md1-chip__avatar {
-    opacity: 0.38;
   }
 </style>
