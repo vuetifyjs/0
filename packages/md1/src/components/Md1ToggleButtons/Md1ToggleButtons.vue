@@ -85,19 +85,22 @@
 <!-- Unscoped, like every Material Design 1 stylesheet; the items style themselves in Md1ToggleButtonsItem.vue. -->
 <style>
   /*
-   * The page shows the group only as an image, so the container is a Material Design 1
-   * decision: one 2 dp radius shared by the items, edged in the divider colour
-   * so the row reads as a single control ("layout and spacing should convey
-   * grouping"). Items butt against each other and divide themselves.
+   * The page shows the group only as an image, so the container is Vuetify
+   * 1.5's v-btn-toggle (_button-toggle.styl:6-7, 19-23, 53-54): a surface strip
+   * with 2 px corners and no outline, raised to 2 dp while any item is selected.
    */
   .md1-toggle-buttons {
     position: relative;
     display: inline-flex;
     align-items: stretch;
     box-sizing: border-box;
-    border: 1px solid var(--md1-divider, rgba(0, 0, 0, 0.12));
     border-radius: var(--md1-radius, 2px);
-    background: transparent;
+    background: var(--md1-surface, #FFFFFF);
     vertical-align: middle;
+    transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .md1-toggle-buttons:has(> .md1-toggle-buttons__item[data-state='on']) {
+    box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
   }
 </style>
