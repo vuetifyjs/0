@@ -305,6 +305,36 @@ A panel that appears changes the grid in one of three ways, set by its behaviour
 The column guides are the grid; the caption reads back the count and the width the grid has. The panel is five increments wide, the side nav width rule, and slides on the standard curve over `--md1-duration-standard`. A temporary panel may push the content sideways instead of covering it; either way the grid underneath does not change.
 :::
 
+::: ds-example
+/systems/md1/layout/regions
+
+### Structure and regions
+
+The structure page divides every screen into the same regions, arranged per device. On mobile a permanent app bar sits over the content area, a FAB floats above it, and an optional bottom bar holds overflow actions; the side nav and the right nav overlay everything and are hidden until called. On a tablet the app bar absorbs the bottom bar's actions and the right nav can be pinned beside the content canvas. On desktop the app bar spans the window, the side nav and the right nav are pinned, and each column gets a toolbar of its own: column-width toolbars at a second level of hierarchy below the app bar.
+
+The example is built from the components, not drawn: `Md1Toolbar` for the app bar, the bottom bar and the column toolbars (`dense` at the second level), `Md1List` in the navs, cards in the canvas and `Md1Fab` at the end keyline. Label regions outlines each region with the name the guidelines give it. The frame is laid out at the device's size and scaled to fit the column.
+:::
+
+::: ds-example
+/systems/md1/layout/app-bars
+
+### App bar colour and extended metrics
+
+Every icon in an app bar takes one colour. The title may take a different one when the bar needs more hierarchy, which works on a bar light enough for black glyphs and dark enough for white ones: here a Light Blue 600 bar with a white title and icons in 54% black. `Md1Toolbar` paints the bar from `--md1-primary` and the icons from `--md1-on-primary`, so both colours are set from the outside on the bar's own element, not through props.
+
+An extended app bar is the default height plus content increments. The structure page's example stacks a 56 dp action area, an 80 dp title area with 8 dp below it, and a 72 dp description area with 16 dp below it, each area holding a field on the content keyline. The redlines mark the five heights. The bar's fields take the dark theme by setting `data-theme="md1-dark"` on the bar, the same way a dark region is themed anywhere in a light page.
+:::
+
+::: ds-example
+/systems/md1/layout/edges
+
+### Breaking an edge
+
+A region's edge can be broken by a card or a FAB rather than by another divider. Here a flexible app bar two increments tall holds only navigation, and the content card starts one increment down, inside the bar, and runs past its bottom edge. The card carries a toolbar of its own, the card toolbar: its title and the actions that apply to its content, separated from the list by a divider.
+
+Breaking the edge keeps the screen to two regions, the bar and the content, where a third strip of toolbar would have sliced it up. The card's inset is the content keyline on each side from 600 px and 8 dp on a handset.
+:::
+
 ## Tokens
 
 | Token | Value | From 600 px |
