@@ -369,6 +369,30 @@ describe('quTextField', () => {
       expect(root.dataset.state).toBe('invalid')
       expect(root.querySelector('.md1-text-field__error')!.textContent!.trim()).toBe('Taken')
     })
+
+    it('should precede the message with a 12 dp error icon 8 dp before the text under errorIcon', async () => {
+      const { root } = field({ error: true, errorIcon: true, errorMessages: 'Taken' })
+      await settle()
+
+      const error = root.querySelector<HTMLElement>('.md1-text-field__error')!
+      const icon = error.querySelector<SVGElement>('.md1-text-field__alert')!
+
+      expect([...icon.querySelectorAll('path')].map(path => path.getAttribute('d'))).toEqual(md1Icons['error-outline'])
+      expect(icon.getAttribute('aria-hidden')).toBe('true')
+      expect(icon.getBoundingClientRect().width).toBe(12)
+      expect(getComputedStyle(error).columnGap).toBe('8px')
+      expect(error.textContent!.trim()).toBe('Taken')
+    })
+
+    it('should keep the error row hidden under errorIcon while the field is valid', async () => {
+      const { root } = field({ errorIcon: true })
+      await settle()
+
+      const error = root.querySelector<HTMLElement>('.md1-text-field__error')!
+
+      expect(error.querySelector('.md1-text-field__alert')).toBeNull()
+      expect(getComputedStyle(error).display).toBe('none')
+    })
   })
 
   describe('counter', () => {
