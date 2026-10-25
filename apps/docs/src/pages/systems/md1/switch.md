@@ -82,6 +82,14 @@ Switches suit independent settings that take effect at once. Each row is 48 dp t
 When a switch sits in a list tile, the tile's text names it: place it in the tile's secondary action column and pass `ariaLabel` instead of `label`, so the setting is not read twice.
 :::
 
+::: ds-example
+/systems/md1/switch/themes
+
+### Light and dark themes
+
+The same switches on each theme. On the dark theme an on switch takes the dark-theme accent control colour, the 200 hue, with its track at 50%; an off thumb is Grey 400 on a 30% white track, and a disabled thumb Grey 800 on a 10% track. The thumb sits at 1 dp on both themes.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
