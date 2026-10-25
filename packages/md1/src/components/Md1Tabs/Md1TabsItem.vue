@@ -210,8 +210,9 @@
 <style>
   /*
    * A tab is its whole cell: 48 dp tall, 12 dp of side padding (24 dp for a
-   * mouse), the label in the Button style, centred both ways, inactive ink at
-   * the secondary text opacity. The width rules belong to the bar mode.
+   * mouse), the label in the Button style, centred both ways. The inactive ink
+   * is Vuetify 1.5's: the primary text ink at 70% (_tabs.styl:139-140, th:70-71),
+   * about 61% black and 70% white. The width rules belong to the bar mode.
    */
   .md1-tabs__item {
     position: relative;
@@ -228,7 +229,7 @@
     padding: 0 12px;
     border: 0;
     background: transparent;
-    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+    color: color-mix(in srgb, var(--md1-text-primary, rgba(0, 0, 0, 0.87)) 70%, transparent);
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-button-size, 14px);
     font-weight: var(--md1-type-button-weight, 500);
@@ -275,18 +276,23 @@
     min-height: 72px;
   }
 
-  /* Ink follows the indicator: the accent on a surface bar (Material Design 1 decision; the page gives "#fff or accent"). */
+  /*
+   * The active label on a surface bar is Vuetify 1.5's tabs.active, the primary
+   * text ink (87% black, white on dark; th:70-71, 173-174); only the indicator
+   * takes the accent. Disabled is the disabled-button ink, 26% black and 30%
+   * white (_tabs.styl:11-12).
+   */
   .md1-tabs__item[data-selected] {
-    color: var(--md1-accent, #FF4081);
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   .md1-tabs__item[data-disabled] {
-    color: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
+    color: var(--md1-button-disabled-text, rgba(0, 0, 0, 0.26));
     cursor: default;
     pointer-events: none;
   }
 
-  /* On a primary bar: white at 100% active, 70% inactive, 60% disabled. */
+  /* On a primary bar: white at 100% active and 70% inactive (tabs page); disabled 30%, Vuetify 1.5's dark disabled-button ink. */
   .md1-toolbar[data-variant='primary'] .md1-tabs__item {
     color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.7);
   }
@@ -296,18 +302,16 @@
   }
 
   .md1-toolbar[data-variant='primary'] .md1-tabs__item[data-disabled] {
-    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.6);
+    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.3);
   }
 
-  /* Hover: the 6% currentColor overlay where a page states none (lead decision 3). Focus: the 12% overlay. */
-  .md1-tabs__item:hover {
-    background-color: color-mix(in srgb, currentcolor 6%, transparent);
-  }
-
+  /*
+   * No hover and no focus fill, as in Vuetify 1.5 (the page states neither):
+   * keyboard focus shows the user agent's focus ring, inset so the bar does not
+   * clip it.
+   */
   .md1-tabs__item:focus-visible {
-    outline: 2px solid transparent;
     outline-offset: -2px;
-    background-color: color-mix(in srgb, currentcolor 12%, transparent);
   }
 
   /* Painted above the ink layer, which is absolutely positioned and would otherwise cover them. */

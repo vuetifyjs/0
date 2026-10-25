@@ -394,7 +394,7 @@
     position: relative;
   }
 
-  /* On a primary bar the tab ink is white: 100% active, 70% inactive, 60% disabled (tabs page, 2015 for disabled). */
+  /* On a primary bar the tab ink is white: 100% active and 70% inactive (tabs page), 30% disabled (Vuetify 1.5's dark disabled-button ink). */
   .md1-toolbar[data-variant='primary'] .md1-tabs__indicator {
     background: var(--md1-on-primary, #FFFFFF);
   }
@@ -404,7 +404,7 @@
   }
 
   .md1-toolbar[data-variant='primary'] .md1-tabs__arrow[data-disabled] {
-    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.6);
+    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.3);
   }
 
   @media (prefers-reduced-motion: reduce) {
