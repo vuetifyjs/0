@@ -30,7 +30,7 @@ The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a hea
 
 ## Usage
 
-`Md1ProgressLinear` is a shell component with no slot content of its own. Leave `value` unset for the indeterminate bar; set it to a percentage for the determinate one. Mount it with `v-if` for the length of the operation.
+`Md1ProgressLinear` is a shell component with no slot content of its own. Leave `value` unset for the indeterminate bar; set it to a percentage for the determinate one. Mount it with `v-if` for the length of the operation, or keep it mounted and bind `active` when the bar should animate out as well as in.
 
 ::: ds-example
 /systems/md1/progress-linear/basic
@@ -52,7 +52,7 @@ The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a hea
 
 `Md1ProgressLinear` renders v0's [Progress](/components/semantic/progress) compound, `Progress.Root` with `Progress.Track` and `Progress.Fill`, plus `Progress.Buffer` when `buffer` is set. `Progress.Root` renders through its renderless path and Material Design 1 binds the progressbar attributes onto its own element, because v0 reads a value of 0 as indeterminate while a Material Design 1 determinate bar starts at 0%. `data-state` therefore comes from Material Design 1's `value` prop: `determinate` whenever a number is set, `indeterminate` otherwise. The width `Progress.Fill` and `Progress.Buffer` write inline is the percentage the stylesheet draws.
 
-The root sits inside a [Presence](/components/primitives/presence), which carries its lifecycle phase in `data-presence` (`mounted` for the one frame before paint, then `present`). The stylesheet hangs the entrance on it. `data-query` and `data-buffer` are Material Design 1's own hooks, and `data-complete` marks a bar at 100%.
+The root sits inside a [Presence](/components/primitives/presence), which carries its lifecycle phase in `data-presence` (`mounted` for the one frame before paint, then `present`, and `leaving` while `active` turns off). The stylesheet hangs the entrance and the exit on it, and the exit's `animationend` tells Presence to unmount. `data-query` and `data-buffer` are Material Design 1's own hooks, and `data-complete` marks a bar at 100%.
 
 ## Examples
 
@@ -96,6 +96,16 @@ The query indicator covers the time before progress is measurable, for example t
 Under `dir="rtl"` the whole bar mirrors, so the determinate fill grows from the right, the indeterminate sweep runs right to left and the query sweep runs left to right.
 :::
 
+::: ds-example
+/systems/md1/progress-linear/active
+
+### Appear and disappear
+
+The guidelines say linear indicators "appear and disappear" at the edge they sit on. A `v-if` can only show half of that: Vue removes the element before any exit can play. Bind `active` instead and leave the bar mounted. Turning it off shrinks the bar back into its edge over the 195 ms leave duration on the acceleration curve, the motion page's rule for an element leaving the screen, and the bar leaves the DOM when that animation ends. Turning it back on mid-exit reverses it in place. Vuetify 1.5 names the same switch `active`.
+
+With reduced motion requested, the bar vanishes in place, as it appears in place.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
@@ -107,15 +117,16 @@ Under `dir="rtl"` the whole bar mirrors, so the determinate fill grows from the 
 | `value` | `number` | | Percent complete, clamped to 0 to 100. Unset is the indeterminate bar; 0 is a determinate bar at its start |
 | `buffer` | `number` | | Percent buffered, clamped to 0 to 100. Setting it turns on the buffer variant: the buffered extent in the track tint and a dotted trail past it |
 | `query` | `boolean` | `false` | The query variant: while `value` is unset the sweep runs in reverse |
+| `active` | `boolean` | `true` | Whether the bar is shown. Turning it off plays the 195 ms exit before the bar leaves the DOM |
 | `ariaLabel` | `string` | | Accessible name. Defaults to the `Md1.loading` locale key, "Loading" in English |
 | `namespace` | `string` | | The context key `Progress.Root` provides to its parts. Leave it unset unless a surrounding v0 `Progress` context must not collide with this one |
 
-There is no slot content and there are no named slots. There is no `active` prop: mount and unmount the bar with `v-if`.
+There is no slot content and there are no named slots. `v-if` still works and skips the exit.
 
 | Hook | Values |
 |------|--------|
 | `data-state` | `determinate`, `indeterminate` |
-| `data-presence` | `mounted`, `present` |
+| `data-presence` | `mounted`, `present`, `leaving` |
 | `data-buffer` | present with `buffer` |
 | `data-query` | present with `query` |
 | `data-complete` | present at 100% |
@@ -134,4 +145,4 @@ Screen readers do not announce progress changes on their own. For a long operati
 
 ### Motion
 
-The indeterminate sweep is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, Material Design 1 drops the entrance animation and halves the sweep speed. The plugin's setting wins over the operating system's.
+The indeterminate sweep is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, Material Design 1 drops the entrance and exit animations and halves the sweep speed. The plugin's setting wins over the operating system's.
