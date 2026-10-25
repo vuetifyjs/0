@@ -100,6 +100,16 @@ The avatar is a 40 dp circle. With `src` it shows an image whose `alt` is empty 
 :::
 
 ::: ds-example
+/systems/md1/list/content
+
+### Tile content and line count
+
+Every tile type in the guidelines is one choice of leading content crossed with one line count: text alone, an icon, an avatar, or an avatar with an icon at the end, each at one, two or three lines. Pick the content and switch `dense` to step through all twenty-four. The leading element never changes the text keyline, so the three lists keep the same text column whatever sits beside it, and only the single-line tile grows, from 48 to 56 dp (40 to 48 dp dense), when an avatar joins it.
+
+The icon at the end of a tile is a secondary action, here an `Md1IconToggle` star in `Md1List.Action`. In a three-line tile it top-aligns with the primary text, like the avatar, rather than centring on the taller tile.
+:::
+
+::: ds-example
 /systems/md1/list/keylines
 
 ### Keylines and inset
