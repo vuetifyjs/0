@@ -108,6 +108,26 @@ On desktop and tablet the guidelines keep a prompt on the surface the target res
 The page lists the exceptions too, and Material Design 1 follows them. A surface smaller than 280 dp tall and 360 dp wide lets the prompt extend past its edges, unconfined. A target within the top or bottom 144 dp, or the left or right 200 dp, of the screen centres the background over everything else. `contained` overrides the automatic choice: `true` limits the prompt at any width, to the card or else to the Target's parent element, and `false` never limits it.
 :::
 
+::: ds-example
+/systems/md1/feature-discovery/hint
+
+### Hint text
+
+For a small prompt that asks for input, hint text replaces the tap target. It is a single line under the element it explains, joined to it by a short connector and marked with a help glyph in a 40 dp circle of the disabled ink. It does not cover the screen or hold focus, and it leaves with the card once the reader answers.
+
+The guidelines' hint asks the reader to swipe the card away; Material Design 1 ships no swipe gesture, so the hint names the button that does the same.
+:::
+
+::: ds-example
+/systems/md1/feature-discovery/guided
+
+### Guided flow
+
+A task that takes more than one tap gets a guided flow of up to three parts. A tap target introduces the task and its benefit: start the flow and the menu icon is promoted. Ripples lead through the following steps, in the tap target's colour: once the drawer opens, Settings pulses; on the settings screen, the backup switch pulses. A completion toast confirms the task when the switch turns on, with an action that returns to where the tap target appeared.
+
+Each ripple is a circle that grows from the next control and fades, repeating until the reader takes the step, and never blocks the tap. Under reduced motion it holds still as a tinted circle. The flow is a composition of `Md1FeatureDiscovery`, a ripple drawn by the app and `Md1Snackbar`; nothing advances on its own, so the reader can leave it at any step.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
