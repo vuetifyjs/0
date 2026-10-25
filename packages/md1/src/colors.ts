@@ -42,7 +42,7 @@ export interface Md1HueRoles {
   'accent': string
   /** The accent hue's 50: the contextual data-table header (data tables page). */
   'accent-light': string
-  /** Selection controls, sliders and picker ink: A200 in light, the accent hue's 200 in dark. */
+  /** The switch, the slider and the picker ink: A200 in light, the accent hue's 200 in dark. */
   'accent-control': string
   /** Ink on the primary 500 swatch. */
   'on-primary': string
