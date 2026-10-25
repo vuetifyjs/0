@@ -106,6 +106,14 @@ The guidelines say linear indicators "appear and disappear" at the edge they sit
 With reduced motion requested, the bar vanishes in place, as it appears in place.
 :::
 
+::: ds-example
+/systems/md1/progress-linear/card-expansion
+
+### Loading an expanding card
+
+The guidelines recommend an indeterminate linear indicator when a card expands on a larger surface such as desktop: press a conversation and it lifts out of the list as a card at 8 dp, with the indicator running along the edge under its header while the thread loads. The card opens at once, so the reader sees where the content will land; the indicator leaves when the messages arrive. The 1.5 second load is simulated.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
