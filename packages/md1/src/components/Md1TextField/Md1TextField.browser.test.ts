@@ -767,6 +767,36 @@ describe('quTextField', () => {
       // The label stays floated above the border.
       expect(getComputedStyle(label!).fontSize).toBe('12px')
     })
+
+    it('should measure a multi-line field again when its width changes', async () => {
+      const { root, input } = field({ multiline: true }, 'one two three four five six seven eight nine ten eleven twelve')
+      await settle()
+
+      const host = root.parentElement!
+      const wide = height(input)
+
+      host.style.width = '160px'
+      await new Promise(resolve => setTimeout(resolve, 100))
+      await settle()
+
+      expect(height(input)).toBeGreaterThan(wide)
+      expect(height(input)).toBe(input.scrollHeight)
+    })
+
+    it('should draw a text box area as the box fill with its line, without the text area border', async () => {
+      const { root, input, field: el, line, label } = field({ box: true, textarea: true })
+      await settle()
+
+      const computed = getComputedStyle(input)
+
+      expect(computed.borderTopWidth).toBe('0px')
+      expect(computed.paddingTop).toBe('0px')
+      expect(height(input)).toBe(124)
+      expect(height(el)).toBe(160)
+      expect(getComputedStyle(line).display).toBe('block')
+      expect(getComputedStyle(label!).fontSize).toBe('12px')
+      expect(root.dataset.box).toBe('true')
+    })
   })
 
   describe('dropdown', () => {
