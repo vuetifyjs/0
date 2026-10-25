@@ -296,6 +296,25 @@ describe('quDropdownButton', () => {
       expect(menu.getBoundingClientRect().width).toBeGreaterThanOrEqual(button.width)
     })
 
+    // Menus page, "Vertical realignment": near a screen edge the whole sheet moves so every item stays visible.
+    it('should shift the sheet up from the bottom edge, keeping the screen margin, when the first state is selected', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      teardowns.push(() => delete document.body.dataset.reducedMotion)
+      const { root, trigger, content } = dropdown({ style: 'position: fixed; left: 120px; bottom: 8px' }, 'normal')
+      await settle()
+
+      await userEvent.click(trigger())
+      await settle()
+
+      const menu = content()
+
+      await expect.poll(() => open(menu)).toBe(true)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      expect(Math.round(menu.getBoundingClientRect().bottom)).toBe(document.documentElement.clientHeight - 16)
+      expect(Math.round(menu.getBoundingClientRect().left)).toBe(Math.round(root.getBoundingClientRect().left))
+    })
+
     it('should size the sheet in whole 56 dp units and leave the screen margins and one row free below it', async () => {
       const { trigger, content } = dropdown({}, 'title')
       await settle()

@@ -1029,6 +1029,152 @@ describe('quMenu', () => {
     })
   })
 
+  // Menus page, "Location": a simple menu opens over the emitting element with the selected item on top of it.
+  describe('selected item over the emitter', () => {
+    function center (rect: DOMRect): number {
+      return Math.round(rect.top + rect.height / 2)
+    }
+
+    function values (count: number) {
+      return () => Array.from({ length: count }, (_, index) => h(Md1MenuItem, { value: index }, () => `Item ${index}`))
+    }
+
+    async function frames () {
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+    }
+
+    it('should centre the selected row on the trigger and line the sheet up with its start edge', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>(2)
+      const host = menu(values(4), { selected })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '120px', top: '240px' })
+      await settle()
+
+      await show(host)
+      await frames()
+
+      const anchor = trigger(host).getBoundingClientRect()
+      const item = row('Item 2')
+
+      expect(item.dataset.selected).toBe('true')
+      expect(center(item.getBoundingClientRect())).toBe(center(anchor))
+      expect(Math.round(sheet().getBoundingClientRect().left)).toBe(Math.round(anchor.left))
+      // Never below: the sheet starts above the trigger and covers it.
+      expect(sheet().getBoundingClientRect().top).toBeLessThan(anchor.top)
+    })
+
+    it('should follow the selection to a later row on the next open', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>(0)
+      const host = menu(values(4), { selected })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '120px', top: '240px' })
+      await settle()
+
+      await show(host)
+      await frames()
+      await userEvent.click(row('Item 3'))
+      await settle()
+
+      expect(selected.value).toBe(3)
+
+      await show(host)
+      await frames()
+
+      expect(center(row('Item 3').getBoundingClientRect())).toBe(center(trigger(host).getBoundingClientRect()))
+    })
+
+    it('should shift the whole sheet down from the top edge and keep the screen margin', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>(3)
+      const host = menu(values(4), { selected })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '120px', top: '8px' })
+      await settle()
+
+      await show(host)
+      await frames()
+
+      const rect = sheet().getBoundingClientRect()
+
+      expect(Math.round(rect.top)).toBe(16)
+      // Every row stays visible; the selected one is still on screen.
+      expect(row('Item 0').getBoundingClientRect().top).toBeGreaterThanOrEqual(rect.top)
+    })
+
+    it('should shift the whole sheet up from the bottom edge and keep the screen margin', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>(0)
+      const host = menu(values(4), { selected })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '120px', bottom: '8px' })
+      await settle()
+
+      await show(host)
+      await frames()
+
+      const rect = sheet().getBoundingClientRect()
+
+      expect(Math.round(rect.bottom)).toBe(document.documentElement.clientHeight - 16)
+    })
+
+    it('should scroll a long sheet so the selected row sits over the trigger', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>(30)
+      const host = menu(values(40), { selected })
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '120px', top: '50%' })
+      await settle()
+
+      await show(host)
+      await frames()
+
+      const el = sheet()
+      const rect = el.getBoundingClientRect()
+      const item = row('Item 30').getBoundingClientRect()
+
+      expect(el.scrollHeight).toBeGreaterThan(el.clientHeight)
+      expect(el.scrollTop).toBeGreaterThan(0)
+      expect(item.top).toBeGreaterThanOrEqual(rect.top)
+      expect(item.bottom).toBeLessThanOrEqual(rect.bottom)
+      expect(Math.abs(center(item) - center(trigger(host).getBoundingClientRect()))).toBeLessThanOrEqual(1)
+      expect(rect.top).toBeGreaterThanOrEqual(16)
+      expect(rect.bottom).toBeLessThanOrEqual(document.documentElement.clientHeight - 16)
+    })
+
+    it('should open below the trigger when no row is selected', async () => {
+      const selected = shallowRef<unknown>('none')
+      const host = menu(values(4), { selected })
+      await settle()
+
+      await show(host)
+      await frames()
+
+      expect(Math.round(sheet().getBoundingClientRect().top)).toBe(Math.round(trigger(host).getBoundingClientRect().bottom))
+    })
+
+    it('should keep a cascading sub menu beside its row when it holds the selected value', async () => {
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>('b')
+      const host = menu(() => [
+        h(Md1MenuItem, null, () => 'Refresh'),
+        h(Md1MenuSub, { label: 'Size' }, () => [
+          h(Md1MenuItem, { value: 'a' }, () => 'Small'),
+          h(Md1MenuItem, { value: 'b' }, () => 'Large'),
+        ]),
+      ], { selected, props: { desktop: true } })
+      await settle()
+
+      await show(host)
+      await userEvent.hover(row('Size'))
+
+      const sub = () => document.querySelector<HTMLElement>('.md1-menu[data-sub]')!
+
+      await expect.poll(() => sub().matches(':popover-open')).toBe(true)
+      await frames()
+
+      const parent = row('Size').getBoundingClientRect()
+
+      expect(Math.round(sub().getBoundingClientRect().left)).toBeGreaterThanOrEqual(Math.round(parent.right) - 1)
+    })
+  })
+
   describe('orphans', () => {
     it('should warn once in dev for a divider outside Md1Menu', () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})

@@ -806,6 +806,44 @@ describe('quTextField', () => {
       expect(input.querySelector('.md1-text-field__value')!.textContent!.trim()).toBe('Medium')
     })
 
+    // Menus page, "Location", kept for the select (accessibility notes): the chosen option opens over the field.
+    it('should open with the chosen option over the field, its text on the field value', async () => {
+      const { root, input } = field({ dropdown: true, style: 'position: fixed; left: 120px; top: 240px; width: 240px' }, 'medium', options)
+      await settle()
+
+      await userEvent.click(input)
+      await settle()
+
+      const list = root.querySelector<HTMLElement>('.md1-text-field__list')!
+      const item = list.querySelectorAll<HTMLElement>('.md1-text-field__item')[1]!
+
+      await expect.poll(() => list.matches(':popover-open')).toBe(true)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const value = input.querySelector('.md1-text-field__value')!.getBoundingClientRect()
+      const anchor = input.getBoundingClientRect()
+      const rect = item.getBoundingClientRect()
+
+      expect(item.dataset.selected).toBe('true')
+      expect(Math.round(rect.top + rect.height / 2)).toBe(Math.round(anchor.top + anchor.height / 2))
+      // The row's 16 dp text padding starts 16 dp before the field's value.
+      expect(Math.round(rect.left + 16)).toBe(Math.round(value.left))
+    })
+
+    it('should open below the field while nothing is chosen', async () => {
+      const { root, input } = field({ dropdown: true, style: 'position: fixed; left: 120px; top: 240px; width: 240px' }, '', options)
+      await settle()
+
+      await userEvent.click(input)
+      await settle()
+
+      const list = root.querySelector<HTMLElement>('.md1-text-field__list')!
+
+      await expect.poll(() => list.matches(':popover-open')).toBe(true)
+
+      expect(list.getBoundingClientRect().top).toBeGreaterThanOrEqual(Math.floor(input.getBoundingClientRect().bottom))
+    })
+
     it('should open with ArrowDown and choose with Enter, skipping nothing it should not', async () => {
       const { root, input, model } = field({ dropdown: true }, 'small', options)
       await settle()
