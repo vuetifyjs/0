@@ -89,9 +89,9 @@ The touch target is not the icon's. A 24 dp icon sits in a 48 dp target and a 20
 
 ### Grid and keylines
 
-The system icon grid, drawn over the real glyphs at 800% and beside them at 100%. Every icon is designed in a 24 x 24 dp trim area; its content stays inside the 20 x 20 dp live area, with 2 dp of padding on each side that a glyph may enter only when it needs the extra weight. The guidelines call that padding 4 dp, the total across the area. Switch on Dense to see the 20 dp form: a 16 x 16 dp live area inside the same 2 dp padding, the artwork scaled rather than redrawn.
+The system icon grid, drawn over the real glyphs at 800% and beside them at 100%. Every icon is designed in a 24 x 24 dp trim area; its content stays inside the 20 x 20 dp live area, with 2 dp of padding on each side that a glyph may enter only when it needs the extra weight. The guidelines call that padding 4 dp, the total across the area.[^icon-padding] Switch on Dense to see the 20 dp form: a 16 x 16 dp live area inside the same 2 dp padding, the artwork scaled rather than redrawn.
 
-The keylines are the four core shapes that keep the set proportional, a square of 18 dp, a circle of 20 dp, and 16 x 20 dp and 20 x 16 dp rectangles, plus the diagonals and centre lines that place strokes. The row underneath matches a glyph to each shape: a check box fills the square, the account glyph the circle, the lock the vertical rectangle and the envelope the horizontal one. On the dense grid the keylines are scaled with the live area; the guidelines draw no dense keylines.
+The keylines are the four core shapes that keep the set proportional, a square of 18 dp, a circle of 20 dp, and 16 x 20 dp and 20 x 16 dp rectangles, plus the diagonals and centre lines that place strokes. The row underneath matches a glyph to each shape: a check box fills the square, the account glyph the circle, the lock the vertical rectangle and the envelope the horizontal one. On the dense grid the keylines are scaled with the live area; the guidelines draw no dense keylines.[^icon-dense-keylines]
 :::
 
 ::: ds-example
@@ -99,7 +99,7 @@ The keylines are the four core shapes that keep the set proportional, a square o
 
 ### Ink
 
-The glyph draws at full `currentColor`; the opacity tier is the host's decision, made by state. The guidelines give three: an active focused icon is 87% black on light backgrounds, an active unfocused one 54%, an inactive one 38%. On dark backgrounds the same table gives 100%, 70% and 50% white, while the page's colour section and the colour page give an active icon 100% white. Material Design 1's dark theme follows the colour section: 100% white for focused and active, 50% for inactive.
+The glyph draws at full `currentColor`; the opacity tier is the host's decision, made by state. The guidelines give three: an active focused icon is 87% black on light backgrounds, an active unfocused one 54%, an inactive one 38%. On dark backgrounds the same table gives 100%, 70% and 50% white, while the page's colour section and the colour page give an active icon 100% white. Material Design 1's dark theme follows the colour section: 100% white for focused and active, 50% for inactive.[^icon-dark-active]
 
 Material Design 1 publishes them as `--md1-icon-focused`, `--md1-icon-active` and `--md1-icon-inactive`, and switches them with the theme. Set `color` on the element around the icon, as the example does, rather than an opacity on the icon itself: an opacity would also fade a coloured glyph, such as an error mark, that should stay at full strength.
 :::
@@ -208,3 +208,9 @@ An empty string counts as absent: `label=""` renders `aria-hidden="true"`.
 Never label an icon inside an interactive element. The element takes the name, `ariaLabel` on an icon-only `Md1Button` or the text of a link; a labelled icon inside it makes the name read twice. Never let a coloured glyph carry state on its own either. A red error mark says nothing to a screen reader, or to a reader who cannot tell the red apart: label it, or put the state in text beside it.
 
 The icon is not focusable and has no keyboard behaviour. Its touch target, 48 dp around a 24 dp icon and 40 dp around a 20 dp one, belongs to the control that hosts it.
+
+[^icon-padding]: Our call: the page says 4 dp of padding around a 20 dp live area in a 24 dp trim, which only adds up as 2 dp per side.
+
+[^icon-dense-keylines]: Our call: the page draws no dense keylines, so the example scales the standard ones by 16/20.
+
+[^icon-dark-active]: Our call: the table's 70% is the dark secondary-text tier, so it is read as a transcription slip. Vuetify 1.5.24 also draws an active dark icon at 100% white (stylus/settings/_theme.styl:136).

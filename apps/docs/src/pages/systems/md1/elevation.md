@@ -64,7 +64,7 @@ Three rules follow from the model, and every Material Design 1 component keeps t
 
 ## Desktop elevation
 
-The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. Material Design 1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations. The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. A laptop with a touch screen reports a coarse pointer and keeps the device values.
+The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. Material Design 1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations.[^pointer-fine] The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. A laptop with a touch screen reports a coarse pointer and keeps the device values.
 
 ## Examples
 
@@ -77,7 +77,7 @@ The elevation page fixes a resting elevation for every component, and the values
 
 Press Lift to move the four components that change elevation to their goal: the FAB to 12 dp and the raised button to 8 dp on press, a card to 8 dp when it is picked up, and the search bar to 3 dp once the content under it scrolls. The other rows have no dynamic elevation. A snackbar at 6 dp passes behind a bottom navigation bar at 8 dp, which is why the two are drawn in that order and not the other way round.
 
-The change animates over 280 ms on the standard curve, the transition the `md1-elevation-*` classes carry. It is a fixed value, Vuetify 1.5's `elevationTransition`, and it does not follow the desktop duration scale on the [Motion](/systems/md1/motion) page, which covers colour and movement. Where the guidelines and Vuetify 1.5 disagree, the guidelines win: the modal bottom sheet is 16 dp (Vuetify paints 24), the switch thumb is 1 dp (Vuetify paints 4), the bottom navigation bar casts the full three-layer 8 dp shadow (Vuetify draws only its ambient layer), and sub menus step up by 1 dp per level.
+The change animates over 280 ms on the standard curve, the transition the `md1-elevation-*` classes carry. It is a fixed value, Vuetify 1.5's `elevationTransition`[^elevation-transition], and it does not follow the desktop duration scale on the [Motion](/systems/md1/motion) page, which covers colour and movement. Where the guidelines and Vuetify 1.5 disagree, the guidelines win: the modal bottom sheet is 16 dp (Vuetify paints 24), the switch thumb is 1 dp (Vuetify paints 4), the bottom navigation bar casts the full three-layer 8 dp shadow (Vuetify draws only its ambient layer), and sub menus step up by 1 dp per level.
 :::
 
 ::: ds-example
@@ -85,7 +85,7 @@ The change animates over 280 ms on the standard curve, the transition the `md1-e
 
 ### The shadow recipe
 
-The guidelines give elevation in dp and never in pixels, so Material Design 1 takes its shadows from Vuetify 1.5's `_elevations.styl`, the reference implementation of the Material paper shadows. Every level is three stacked `box-shadow` layers. The umbra is the dark core of the key light's shadow at black 20%, the penumbra its soft edge at 14%, and the ambient layer the all-round shadow at 12%. The first two together are the key shadow the environment page draws; the third is its ambient shadow.
+The guidelines give elevation in dp and never in pixels, so Material Design 1 takes its shadows from Vuetify 1.5's `_elevations.styl`, the reference implementation of the Material paper shadows.[^shadow-recipe] Every level is three stacked `box-shadow` layers. The umbra is the dark core of the key light's shadow at black 20%, the penumbra its soft edge at 14%, and the ambient layer the all-round shadow at 12%. The first two together are the key shadow the environment page draws; the third is its ambient shadow.
 
 The example pulls the 6 dp and 24 dp levels apart, one layer per sheet, and then stacks them. At 6 dp the umbra is `0px 3px 5px -1px`, the penumbra `0px 6px 10px 0px` and the ambient layer `0px 1px 18px 0px`; by 24 dp the same three layers have grown to `0px 11px 15px -7px`, `0px 24px 38px 3px` and `0px 9px 46px 8px`. That growth is the guidelines' rule made literal: the higher the surface, the softer and larger its shadow.
 
@@ -139,7 +139,7 @@ A tap, a hover and a scroll all go to the topmost sheet under the pointer, which
 
 Sheets at the same elevation can join into one and split apart again. Joining closes the seam, squares off the corners that meet and hands the two shadows over to one around the whole; splitting reverses it. Material never joins across elevations, and it never passes through another sheet on the way.
 
-Material Design 1 ships no surface for this; the example animates the gap and the corner radii on the standard curve over `--md1-duration-standard`, and swaps the elevation classes so the shadow transitions with them.
+Material Design 1 ships no surface for this; the example animates the gap and the corner radii on the standard curve over `--md1-duration-standard`, and swaps the elevation classes so the shadow transitions with them.[^join-timing]
 :::
 
 ## Tokens
@@ -153,10 +153,18 @@ Material Design 1 ships no surface for this; the example animates the gap and th
 
 | Class | Sets |
 |-------|------|
-| `md1-elevation-0` to `md1-elevation-24` | `box-shadow: var(--md1-elevation-<n>)` and `transition: box-shadow 280ms` on `--md1-easing-standard` |
+| `md1-elevation-0` to `md1-elevation-24` | `box-shadow: var(--md1-elevation-<n>)` and `transition: box-shadow 280ms` on `--md1-easing-standard`[^elevation-transition] |
 
 The classes are a declared deviation from the no-utilities rule for design systems: together with the `md1-type-*` classes they are the only utilities Material Design 1 ships, so a composition outside the component set can still render at the system's depth without copying 25 shadow values.
 
 ## Accessibility
 
 A shadow is a visual cue only. Depth tells a sighted reader what floats above what, but nothing in the accessibility tree, so never let elevation carry meaning on its own. A dialog at 24 dp is also a modal `<dialog>` that holds focus and makes the page behind it inert; the shadow only shows what the semantics already say. Under forced colours the browser drops `box-shadow` altogether, so a surface that relies on its shadow to separate it from the page needs a border or a background change there as well.
+
+[^pointer-fine]: Our call: `(pointer: fine)` is the closest CSS test for "mouse and keyboard are the primary input".
+
+[^elevation-transition]: Vuetify 1.5.24, stylus/settings/_elevations.styl:89-90. The 280 ms `box-shadow` transition on `cubic-bezier(.4, 0, .2, 1)`.
+
+[^shadow-recipe]: Vuetify 1.5.24, stylus/settings/_elevations.styl:1-81. The umbra, penumbra and ambient opacities and the 25 offsets per layer.
+
+[^join-timing]: Our call: the page shows joining as motion with no values, so the example uses the standard duration and curve.
