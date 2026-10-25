@@ -172,6 +172,21 @@
   }
 
   /*
+   * Hover: Vuetify 1.5's 12% overlay of the button's own ink (_buttons.styl:54,62-72;
+   * the page states none), dropped where the device cannot hover. A raised
+   * button's ink is white, so it takes a 12% white wash over the primary.
+   */
+  @media (hover: hover) {
+    .md1-button:hover {
+      background-color: color-mix(in srgb, currentcolor 12%, transparent);
+    }
+
+    .md1-button[data-variant='raised']:hover {
+      background-color: color-mix(in srgb, currentcolor 12%, var(--md1-primary, #3F51B5));
+    }
+  }
+
+  /*
    * Focus: the page's 12% overlay, keyboard only. Flat takes 12% of its own
    * ink; raised takes a 12% black shade over the colour. The outline is
    * transparent so nothing paints beside the overlay, and solid so forced
@@ -228,13 +243,21 @@
     border-radius: 0;
   }
 
-  /* Icon-only: Button.Root sets data-solo when Button.Icon is the only child. The glyph sits centred in the touch target. */
+  /*
+   * Icon-only: Button.Root sets data-solo when Button.Icon is the only child.
+   * The glyph sits centred in the touch target, in the primary text ink, not
+   * the accent (Vuetify 1.5's icon button, _buttons.styl:5-6; the page is silent).
+   */
   .md1-button[data-solo] {
     width: var(--md1-touch-target, 48px);
     min-width: var(--md1-touch-target, 48px);
     height: var(--md1-touch-target, 48px);
     padding: 0;
     border-radius: 50%;
+  }
+
+  .md1-button[data-solo]:not([data-disabled], [data-variant='raised']) {
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   /* The icon toggle's dense rule (buttons page): a 20 dp glyph in a 40 dp target. */
@@ -252,9 +275,9 @@
     align-items: center;
   }
 
-  /* The page gives no icon-to-label gap; one step of the 8 dp grid. */
+  /* The page gives no icon-to-label gap: Vuetify 1.5's 16 px `.v-icon--left` margin (_icons.styl:25-26). */
   .md1-button__icon {
-    margin-inline-end: var(--md1-spacing-1, 8px);
+    margin-inline-end: var(--md1-spacing-2, 16px);
   }
 
   .md1-button[data-solo] .md1-button__icon {
