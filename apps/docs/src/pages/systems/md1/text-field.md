@@ -64,6 +64,14 @@ The stable classes are the field's anatomy, and `Md1Autocomplete` and `Md1Search
 ## Examples
 
 ::: ds-example
+/systems/md1/text-field/placeholder
+
+### Placeholder and helper text
+
+`placeholder` is hint text inside the field: it appears once the label floats, so focus a field to read it, and typing replaces it. Helper text under the line supports it, the guidelines' "helper text can support placeholder text in guiding the user": the placeholder shows the shape of an answer, the helper the rule it must meet. The placeholder is 42% black (50% white on the dark theme); helper text is 12 sp at the secondary ink.
+:::
+
+::: ds-example
 /systems/md1/text-field/validation
 
 ### Validation and errors
@@ -73,6 +81,22 @@ Errors show when focus leaves the field, the guidelines' "when the user shifts f
 `rules` takes v0's rule functions, rule aliases or a Standard Schema; a rule returns `true` or the message to show. Start each message with "Error:" or let an error icon carry it, and say how to fix the problem rather than only what is wrong. `required` adds the asterisk the guidelines put after the label, sets `aria-required`, and registers v0's presence rule. When most fields in a form are required, mark the few optional ones with `optional` instead, which appends "(optional)" to the label.
 
 Inside a v0 `Form` every field registers itself, so the form's submit validates them all and reports the aggregate validity. The error text sits in a polite live region and is tied to the input with `aria-errormessage`, and the input carries `aria-invalid` while the field is in error.
+:::
+
+::: ds-example
+/systems/md1/text-field/error-icon
+
+### Error icon
+
+`error-icon` precedes the error message with the `error-outline` glyph, the guidelines' alternative to the word "Error:": either one keeps the error state distinct for readers who cannot tell red from the line's resting grey. The glyph is 12 dp, level with the start of the line, 8 dp before the message, and takes the message's red. It is decorative; the message is still the live-region text. Here the message tracks the value, so finish the address to clear it.
+:::
+
+::: ds-example
+/systems/md1/text-field/themes
+
+### States on light and dark
+
+The same five fields on each theme: empty, filled, in error, disabled and a text area. On the dark theme the line and the label are 70% white, the input 100% white and the placeholder 50% white; hover thickens the line to 2 dp at 100% white, and focus draws it in the accent. A disabled field keeps its value but drops it to the disabled ink, 38% black or 50% white, over a 1 dp dotted line, and leaves the tab order. Hover, press and focus the fields on either side to compare the states.
 :::
 
 ::: ds-example
@@ -180,6 +204,14 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 :::
 
 ::: ds-example
+/systems/md1/text-field/heading
+
+### Labels as headings
+
+When a text field is the primary action on a screen, its label can become the screen's heading. `heading` hides the field's own label visually, keeps it as the accessible name, and shows the placeholder while the field is idle; typing replaces it. The first screen is an onboarding or query step with the line field, the second the same step with a text field box, and the third a dialog whose title asks the question.
+:::
+
+::: ds-example
 /systems/md1/text-field/dropdown
 
 ### Dropdown
@@ -189,24 +221,13 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the menu's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus overlay.
 :::
 
+::: ds-example
+/systems/md1/text-field/picker
+
 ### Pickers
 
-`picker="date"` or `picker="time"` turns the icon signifier into a button (the `event` or `schedule` glyph) that opens an `Md1Dialog` in its confirmation variant, the guidelines' "a calendar icon may be tapped to reveal a date picker". The default slot is the picker inside the dialog; its slot props are `value`, the value the dialog holds, and `commit`, which holds a new one. OK writes the held value to `v-model` and closes; Cancel discards it.
-
-```vue no-filename
-<script setup lang="ts">
-  import { Md1DatePicker, Md1TextField } from '@paper/md1'
-  import { shallowRef } from 'vue'
-
-  const date = shallowRef('')
-</script>
-
-<template>
-  <Md1TextField v-model="date" label="Departure" picker="date" v-slot="{ value, commit }">
-    <Md1DatePicker :model-value="value" @update:model-value="commit" />
-  </Md1TextField>
-</template>
-```
+`picker="date"` or `picker="time"` turns the icon signifier into a button (the `event` or `schedule` glyph) that opens an `Md1Dialog` in its confirmation variant, the guidelines' "a calendar icon may be tapped to reveal a date picker". The default slot is the picker inside the dialog; its slot props are `value`, the value the dialog holds, and `commit`, which holds a new one. OK writes the held value to `v-model` and closes; Cancel discards it. The field takes the date in the long form the data-formats page prefers, so the example keeps the picker's ISO date beside it. A text field box takes a picker the same way; the signifier stays outside the box.
+:::
 
 ## Props
 
@@ -245,6 +266,7 @@ The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu
 | `validateOn` | `ValidateOn` | `'blur'` | When rules run: `'blur'`, `'input'` or `'submit'`, with `lazy` or `eager` |
 | `error` | `boolean` | `false` | Forces the error state |
 | `errorMessages` | `string \| string[]` | | Messages shown regardless of the rules |
+| `errorIcon` | `boolean` | `false` | Precedes the error message with the 12 dp `error-outline` glyph, 8 dp before the text |
 | `id` | `string` | auto | The input id the label points at |
 | `name` | `string` | | Form field name |
 | `namespace` | `string` | | The context key `Input.Root` provides to its parts. Leave it unset unless a surrounding v0 `Input` must not collide with this one |
