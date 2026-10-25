@@ -101,14 +101,14 @@ The state overlays come from the component pages rather than the color page, and
 | Token | Light | Dark | Source |
 |-------|-------|------|--------|
 | `--md1-hover` | black 6% | white 10% | the text-fields page's box fill and the selection controls' measured halo |
-| `--md1-list-hover` | black 4% | white 8% | Vuetify 1.5's list hover: lists, menus and their rows |
+| `--md1-list-hover` | black 4% | white 8% | Vuetify 1.5's list hover: lists, menus and their rows[^list-hover] |
 | `--md1-focus` | black 12% | white 12% | buttons page |
 | `--md1-pressed` | `#999999` 40% | `#CCCCCC` 25% | buttons page |
 | `--md1-button-disabled` | black 12% | white 12% | buttons page, the disabled raised container |
 | `--md1-button-disabled-text` | black 26% | white 30% | buttons page |
-| `--md1-selection` | accent 30% | accent 30% | the accent is the selection page's; the alpha is a decision |
+| `--md1-selection` | accent 30% | accent 30% | the accent is the selection page's; the alpha is a decision[^selection-alpha] |
 | `--md1-scrim-sheet` | black 20% | black 20% | bottom sheets page |
-| `--md1-scrim` | Grey 900 46% | Grey 900 46% | Vuetify 1.5, a lead decision for dialogs and the temporary drawer |
+| `--md1-scrim` | Grey 900 46% | Grey 900 46% | Vuetify 1.5, a lead decision for dialogs and the temporary drawer[^scrim] |
 
 Every theme token in the tables above is also published as `--md1-<role>-channels`, the space-separated RGB triplet with any alpha dropped, so you pick the opacity yourself: `rgb(var(--md1-primary-channels) / 0.12)`. The palette tokens have no triplet.
 
@@ -201,7 +201,7 @@ The guidelines prefer opacity to grey because an opacity keeps its contrast over
 
 ### State overlays
 
-The overlays interactive components lay over their own surface, in both themes. Hover has no single value. The pages that state one win; elsewhere each component takes Vuetify 1.5's: 12% of the ink on buttons, bottom navigation and picker days, 4% black (8% white on dark) on lists and menus, 6% of the ink on steppers, and none on chips and tabs. Two of them are shared tokens: `--md1-list-hover` for the list rows and `--md1-hover`, the 6% black (10% white) that the text-fields page gives the box fill and the selection controls' halo reads at. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
+The overlays interactive components lay over their own surface, in both themes. Hover has no single value. The pages that state one win; elsewhere each component takes Vuetify 1.5's: 12% of the ink on buttons, bottom navigation and picker days, 4% black (8% white on dark) on lists and menus, 6% of the ink on steppers, and none on chips and tabs.[^v15-hover] Two of them are shared tokens: `--md1-list-hover` for the list rows and `--md1-hover`, the 6% black (10% white) that the text-fields page gives the box fill and the selection controls' halo reads at. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
 
 Selection is the accent at 30%: the selection page names the accent and Material Design 1 chose the alpha. A disabled raised button is a 12% fill with its label at 26% black (30% white on dark). The two scrims sit outside this grid: 20% black under a bottom sheet, the only value the guidelines state, and Grey 900 at 46% under dialogs and the temporary drawer.
 :::
@@ -223,7 +223,7 @@ Amber is one of the hues whose 500 carries black ink, so the derived `on-primary
 
 Four screens that put the roles where the color page puts them. Bold color: the primary on the app bar under a status bar in its 700 tone, the 100 tone on the related information beneath, the accent on the floating action button, and the primary again as the accent of the phone icons. The settings screen reverses the pairing, the system bar in the primary and the app bar a darker tone, with the switch in the accent and the checkboxes taking the primary as their accent; on the very dark strip the switch picks a lighter tone of the accent by itself, because the dark theme's `accent-control` is the 200.
 
-Text takes accents too. A headline can be set in the primary, linked text in the accent or the primary, and important text on a primary region in a tone of the accent that contrasts with it. The primary action button can take the accent, and a button resting on a primary region a lighter tone of the primary instead of the accent. The last screen does the opposite of the first: colorless bars and a white accent let a photograph carry the color, and a card in the primary's 100 tone with 700 ink is accented without leaving the hue.
+Text takes accents too. A headline can be set in the primary, linked text in the accent or the primary[^dark-primary-ink], and important text on a primary region in a tone of the accent that contrasts with it.[^accent-tone] The primary action button can take the accent, and a button resting on a primary region a lighter tone of the primary instead of the accent. The last screen does the opposite of the first: colorless bars and a white accent let a photograph carry the color, and a card in the primary's 100 tone with 700 ink is accented without leaving the hue.
 
 Each variation is a role retuned on a subtree, as in the override example above: `--md1-accent` set to the primary for the checkboxes, `--md1-primary` set to the accent around the raised button. Components keep reading the same tokens.
 :::
@@ -233,3 +233,15 @@ Each variation is a role retuned on a subtree, as in the override example above:
 The color page cites WCAG 2.0 AA: 4.5:1 for normal text and 3:1 for large text. The typography page sets 4.5:1 as its minimum and prefers 7:1. Primary text at 87% black on white measures about 16:1 and secondary text at 54% about 4.6:1; disabled text at 38% falls below 4.5:1 by design, because it marks a control that cannot be used.
 
 Color is never the only signal. The guidelines ask for a state change shown in more than one way, an icon or a moved element beside the new color, and Material Design 1's components follow that: an error text field adds helper text under the red line, a selected checkbox draws a check mark as well as the accent. When you override a role, check the new `on-primary` and `on-accent` pairs against those ratios; `md1HueTheme` takes them from the palette's own recommendations, which assume large swatches, not small text.
+
+[^list-hover]: Vuetify 1.5.24, stylus/settings/_theme.styl:52, 146. The `list-tile` hover, black 4% on light and white 8% on dark.
+
+[^selection-alpha]: Our call: the selection page names the accent and states no opacity.
+
+[^scrim]: Vuetify 1.5.24, stylus/components/_overlay.styl:22, 44. The overlay's `rgba(33, 33, 33)` fill at 0.46 opacity.
+
+[^v15-hover]: Vuetify 1.5.24, stylus/components/_buttons.styl:54 (12% on buttons), stylus/settings/_theme.styl:52, 146 (lists and menus) and stylus/components/_steppers.styl:28 (steppers).
+
+[^dark-primary-ink]: Our call: on the dark theme the example sets primary-coloured text and icons in the primary's 100, because Indigo 500 measures under 3:1 on `#303030`. Components keep the 500 on dark.
+
+[^accent-tone]: Our call: the example mixes 35% accent into 65% white, because Pink A200 on Indigo 500 measures under 3:1.

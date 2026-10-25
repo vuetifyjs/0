@@ -130,7 +130,7 @@ Breakpoints are not custom properties. They ship as `md1Breakpoints`, the docume
 
 Material Design 1 also writes its color roles onto the `--v0-*` names that Vuetify0 kits read, so a kit written against those names picks up Material Design 1's colors.
 
-Most names match: `--v0-primary` copies `--md1-primary` and `--v0-background` copies `--md1-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads a bridge-only tint (the primary's 100 on the light theme, its 700 on the dark one, so code chips and table headers keep their contrast under white ink), `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no Material Design 1 component reads them.
+Most names match: `--v0-primary` copies `--md1-primary` and `--v0-background` copies `--md1-background`. The rest are translations into the kit vocabulary. `--v0-secondary` and `--v0-accent` read the accent, `--v0-surface-variant` and `--v0-pre` read the app bar color, `--v0-surface-tint` reads a bridge-only tint (the primary's 100 on the light theme, its 700 on the dark one, so code chips and table headers keep their contrast under white ink), `--v0-on-surface` reads the primary ink, `--v0-on-surface-variant` the secondary ink, and `--v0-border` the divider. Material Design 1 defines no info, success or warning roles, so the bridge supplies the Vuetify 1.5 defaults (Blue 500, Green 500, Orange 600) for `--v0-info`, `--v0-success` and `--v0-warning`; no Material Design 1 component reads them.[^bridge-severities]
 
 Pass `{ v0Aliases: false }` to the adapter to skip the `--v0-*` names.
 
@@ -148,7 +148,7 @@ Icons are named by role. Ask for `menu`, `search` or `close`; the glyph is inlin
 
 Icons are decorative by default and hidden from assistive technology. Pass `label` when an icon should be announced. The 11 directional roles (the back and forward arrows, arrow-right, the left and right chevrons, first and last page, send, sort, open-in-new and label) mirror under `dir="rtl"`; `help` mirrors except in Hebrew. Glyphs that represent time, physical objects or the search handle do not. Roles, aliases, mirroring and the accessibility rules are on the [Md1Icon page](/systems/md1/icon).
 
-The artwork is Material Icons at commit `49d4db35`, used under the Apache License 2.0; the package ships the notice as `LICENSE-ICONS`. The Vue package is MIT.
+The artwork is Material Icons at commit `49d4db35`[^icons-commit], used under the Apache License 2.0; the package ships the notice as `LICENSE-ICONS`. The Vue package is MIT.
 
 ## Components
 
@@ -229,3 +229,7 @@ The pattern pages compose the components above. None of them adds an `Md1*` expo
 
 > [!NOTE]
 > Material Design 1 is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.
+
+[^bridge-severities]: Vuetify 1.5.24, components/Vuetify/mixins/theme.ts:9-11. The info, success and warning defaults; the white ink on them is Vuetify's `text.theme`, stylus/settings/_theme.styl:25.
+
+[^icons-commit]: Our call: the pinned commit is a current master, so two glyphs redrawn after 2017 ship as redrawn; upstream parity wins over period fidelity.
