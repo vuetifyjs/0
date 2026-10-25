@@ -444,6 +444,97 @@ describe('quProgressLinear', () => {
     })
   })
 
+  describe('disappearance', () => {
+    it('should render nothing while active is false', async () => {
+      const host = mount(() => h(Md1ProgressLinear, { active: false }))
+      await settle()
+
+      expect(host.querySelector('.md1-progress-linear')).toBeNull()
+    })
+
+    it('should shrink into its edge over 195 ms on the acceleration curve, then leave the DOM', async () => {
+      const active = shallowRef(true)
+      const host = mount(() => h(Md1ProgressLinear, { active: active.value }), app => {
+        app.use(createReducedMotionPlugin({ mode: 'never' }))
+      })
+      await settle()
+
+      active.value = false
+      await settle()
+
+      const el = host.querySelector<HTMLElement>('.md1-progress-linear')!
+      const computed = getComputedStyle(el)
+
+      expect(el.dataset.presence).toBe('leaving')
+      expect(computed.animationName).toBe('md1-progress-linear-out')
+      expect(computed.animationDuration).toBe('0.195s')
+      expect(computed.animationTimingFunction).toBe('cubic-bezier(0.4, 0, 1, 1)')
+
+      await vi.waitFor(() => {
+        expect(host.querySelector('.md1-progress-linear')).toBeNull()
+      }, { timeout: 1000 })
+    })
+
+    it('should stay through the indeterminate sweep: only its own exit unmounts it', async () => {
+      const active = shallowRef(true)
+      const host = mount(() => h(Md1ProgressLinear, { active: active.value }), app => {
+        app.use(createReducedMotionPlugin({ mode: 'never' }))
+      })
+      await settle()
+
+      const el = host.querySelector<HTMLElement>('.md1-progress-linear')!
+      const track = el.querySelector('.md1-progress-linear__track')!
+
+      // A sweep cycle ending on the track bubbles to the root; it must not count.
+      active.value = false
+      await settle()
+      track.dispatchEvent(new AnimationEvent('animationend', { animationName: 'md1-progress-linear-long', bubbles: true }))
+      await settle()
+
+      expect(el.isConnected).toBe(true)
+    })
+
+    it('should come back mid-exit when active returns', async () => {
+      const active = shallowRef(true)
+      const host = mount(() => h(Md1ProgressLinear, { active: active.value }), app => {
+        app.use(createReducedMotionPlugin({ mode: 'never' }))
+      })
+      await settle()
+
+      active.value = false
+      await settle()
+      active.value = true
+      await settle()
+
+      const el = host.querySelector<HTMLElement>('.md1-progress-linear')!
+
+      expect(el.dataset.presence).toBe('present')
+
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      expect(el.isConnected).toBe(true)
+    })
+
+    it('should vanish in place under reduced motion and still leave the DOM', async () => {
+      const active = shallowRef(true)
+      const host = mount(() => h(Md1ProgressLinear, { active: active.value }), app => {
+        app.use(createReducedMotionPlugin({ mode: 'always' }))
+      })
+      await settle()
+
+      active.value = false
+      await settle()
+
+      const el = host.querySelector<HTMLElement>('.md1-progress-linear')
+
+      if (el) expect(getComputedStyle(el).animationName).toBe('md1-progress-linear-out-reduced')
+
+      await vi.waitFor(() => {
+        expect(host.querySelector('.md1-progress-linear')).toBeNull()
+      }, { timeout: 500 })
+    })
+  })
+
   describe('naming', () => {
     it('should take ariaLabel as the accessible name', async () => {
       const el = bar({ ariaLabel: 'Uploading photos' })
