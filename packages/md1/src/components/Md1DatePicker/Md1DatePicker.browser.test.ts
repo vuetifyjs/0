@@ -812,6 +812,25 @@ describe('quDatePicker', () => {
       expect(Object.hasOwn(day(root, '2017-04-21').dataset, 'selected')).toBe(true)
     })
 
+    it('should open on its model\'s month when the held value is not an ISO date', async () => {
+      // A field showing a long date: the dialog holds that text, the model is the consumer's ISO reading of it.
+      const held = shallowRef<unknown>('Thursday, April 13, 2017')
+      const commit = vi.fn((value: unknown) => {
+        held.value = value
+      })
+      const { root } = host('confirmation', held, commit, shallowRef('2017-04-13'))
+      await settle()
+
+      expect(q(root, '.md1-date-picker__month').textContent).toContain('2017')
+      expect(Object.hasOwn(day(root, '2017-04-13').dataset, 'selected')).toBe(true)
+
+      await userEvent.click(day(root, '2017-04-21'))
+      await settle()
+
+      expect(commit).toHaveBeenCalledWith('2017-04-21')
+      expect(Object.hasOwn(day(root, '2017-04-21').dataset, 'selected')).toBe(true)
+    })
+
     it('should reopen on the calendar', async () => {
       const held = shallowRef<unknown>('2017-04-13')
       const { root, isOpen } = host('confirmation', held, () => {}, shallowRef())

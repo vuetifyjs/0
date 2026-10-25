@@ -48,6 +48,11 @@
   /** Horizontal travel, in px, that turns a press on the grid into a month swipe. */
   const SWIPE = 32
 
+  /** The `YYYY-MM-DD` form the core works in. */
+  function isIsoDate (value: unknown): value is string {
+    return isString(value) && /^\d{4}-\d{2}-\d{2}$/.test(value)
+  }
+
   function rtl (el: EventTarget | null): boolean {
     return el instanceof HTMLElement && getComputedStyle(el).direction === 'rtl'
   }
@@ -65,7 +70,9 @@
   const dialog = useContext<Md1DatePickerHost | null>('md1:dialog', null)
 
   // Inside a confirmation dialog the dialog holds the date until OK; the
-  // picker reads and writes that, never its own model (dialogs page).
+  // picker reads and writes that, never its own model (dialogs page). When
+  // the held value is not an ISO date (a field showing a long date), the
+  // model is the consumer's ISO reading of it, so the picker opens there.
   const hosted = toRef(() => dialog?.variant.value === 'confirmation')
 
   const value = computed<string | undefined>({
@@ -74,7 +81,9 @@
 
       const held = dialog?.value.value
 
-      return isString(held) ? held : undefined
+      if (isIsoDate(held)) return held
+
+      return isIsoDate(model.value) ? model.value : undefined
     },
     set: next => {
       if (hosted.value) dialog?.commit(next)
