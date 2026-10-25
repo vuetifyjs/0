@@ -36,7 +36,7 @@ Syncing is the preferred way to keep content current, and it shows no indicator.
 /systems/md1/progress-circular/swipe-to-refresh
 :::
 
-Pull the list down from its top. The indicator follows the pull on a 40 dp disc at 3 dp, its arc growing with the distance; past the threshold it slows to a third of the pull's speed and turns fully opaque, the cue that letting go now refreshes. Released short of the threshold, it slides back out of sight. The app bar's refresh button is the same action for keyboard and pointer users who never swipe, the guidelines' refresh via an app bar action.
+Pull the list down from its top. The indicator follows the pull on a 40 dp disc at 3 dp, its arc growing with the distance; past the threshold it slows to a third of the pull's speed and turns fully opaque, the cue that letting go now refreshes.[^threshold-cue] Released short of the threshold, it slides back out of sight. The app bar's refresh button is the same action for keyboard and pointer users who never swipe, the guidelines' refresh via an app bar action.
 
 | Rule | Material Design 1 |
 |------|-------------------|
@@ -65,3 +65,5 @@ The indicator's exact resting height may move to sit on a material edge or a gri
 ## Accessibility
 
 The gesture has no keyboard or screen reader equivalent, so every screen with swipe to refresh needs another path to the same action: a refresh button in the app bar or the overflow menu. Mirror the start and the end of the refresh in a polite live region; the examples use a visually hidden `role="status"`. The indicator is hidden from assistive technology while it only tracks a pull, and becomes a named progressbar once the refresh runs.
+
+[^threshold-cue]: Our call: the page names a threshold without values; the 72 dp threshold, the one-third drag and the opacity cue are the example's.

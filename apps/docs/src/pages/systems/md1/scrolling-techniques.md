@@ -90,11 +90,15 @@ An image can fill the flexible space and run under the toolbar row. As the conte
 
 ### Flexible space with overlapping content
 
-Content can start inside the flexible space instead of below it. Here the cards begin one increment above the bottom of a two-increment flexible space in the primary colour, a step higher in z than the space itself. Scrolling moves the cards up over the flexible space, which scrolls away beneath them, while the toolbar row stays in place and the cards pass under it.
+Content can start inside the flexible space instead of below it. Here the cards begin one increment above the bottom of a two-increment flexible space in the primary colour[^overlap-depth], a step higher in z than the space itself. Scrolling moves the cards up over the flexible space, which scrolls away beneath them, while the toolbar row stays in place and the cards pass under it.
 
-At the top the row and the flexible space read as one sheet, so the row casts no shadow; it takes its elevation once content passes under it. The guidelines keep tabs out of this technique, because the overlapping content would cover them. The composition is a sticky `Md1Toolbar` over a coloured block and a negative margin on the content; Material Design 1 ships no prop for it.
+At the top the row and the flexible space read as one sheet, so the row casts no shadow; it takes its elevation once content passes under it.[^row-shadow] The guidelines keep tabs out of this technique, because the overlapping content would cover them. The composition is a sticky `Md1Toolbar` over a coloured block and a negative margin on the content; Material Design 1 ships no prop for it.
 :::
 
 ## Accessibility
 
 A toolbar that scrolls away keeps its controls in the tab order: `Md1Toolbar` brings a hidden bar back when focus moves into it, so a keyboard user never lands on a control that is off-screen. The large title in a flexible space is the same heading as the collapsed one; keep a single heading for the screen rather than one per state.
+
+[^overlap-depth]: Our call: the page shows the overlap in a video without metrics; the two-increment space and one-increment overlap are read from it.
+
+[^row-shadow]: Our call: the video shows the row and the space as one seamless sheet at rest; the shadow on scroll is ours.

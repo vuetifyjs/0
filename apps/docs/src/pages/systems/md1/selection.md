@@ -47,11 +47,11 @@ Selection lets the reader pick items and then act on them together, or highlight
 | Data table | `selectable` on `Md1DataTable` with `v-model:selected` | A checkbox column; selected rows turn Grey 100 in the light theme |
 | Actions on the selection | `Md1Toolbar.Contextual` (app bar) or `Md1DataTable.Contextual` (table header) | Replaces the bar's normal content while anything is selected |
 
-The selection scrim is `--md1-selection`: the accent at 30%, Pink A200 in the default theme, the same in both themes. The guidelines name the accent for selection and state no opacity; 30% is Material Design 1's decision.
+The selection scrim is `--md1-selection`: the accent at 30%, Pink A200 in the default theme, the same in both themes. The guidelines name the accent for selection and state no opacity; 30% is Material Design 1's decision.[^selection-alpha]
 
 ### How selection starts
 
-The guidelines' gesture is a long press, or a press held in place, on touch, and a check mark revealed on hover on desktop. Material Design 1 keeps the desktop rule as the default for every pointer, because a long press on the web collides with the browser's context menu and text selection:
+The guidelines' gesture is a long press, or a press held in place, on touch, and a check mark revealed on hover on desktop. Material Design 1 keeps the desktop rule as the default for every pointer, because a long press on the web collides with the browser's context menu and text selection[^desktop-rule]:
 
 | Rule | Material Design 1 |
 |------|---------|
@@ -95,7 +95,7 @@ Under a mouse, hovering or focusing an item reveals its check mark before anythi
 
 ### Dragging across checkboxes
 
-On desktop, people can press on one checkbox and drag across the others to select a run of items in one motion. The first checkbox toggles as usual, and every checkbox the pointer crosses while the button is held takes the same state, so the same drag also clears a run. Releasing the button anywhere ends it.
+On desktop, people can press on one checkbox and drag across the others to select a run of items in one motion. The first checkbox toggles as usual, and every checkbox the pointer crosses while the button is held takes the same state, so the same drag also clears a run.[^drag-paint] Releasing the button anywhere ends it.
 
 The drag is a mouse convenience only: touch keeps scrolling, and each checkbox still toggles alone by click, tap or Space. Text selection is suspended while the drag runs so the rows do not highlight.
 :::
@@ -135,7 +135,7 @@ Select cards when the collection supports acting on several at once, such as arc
 
 ### Data tables
 
-`selectable` adds a checkbox column with a select-all box in the header row; `v-model:selected` holds the selected row records. A selected row turns Grey 100, the data tables page's value; the page gives no dark value, so the dark theme takes Vuetify 1.5's near-`#505050`. While rows are selected, `Md1DataTable.Contextual` replaces the title header: "2 items selected" on the accent's 50 (`--md1-accent-light`), the data tables page's fill, with the actions that apply to the rows.
+`selectable` adds a checkbox column with a select-all box in the header row; `v-model:selected` holds the selected row records. A selected row turns Grey 100, the data tables page's value; the page gives no dark value, so the dark theme takes Vuetify 1.5's near-`#505050`.[^dark-row] While rows are selected, `Md1DataTable.Contextual` replaces the title header: "2 items selected" on the accent's 50 (`--md1-accent-light`), the data tables page's fill, with the actions that apply to the rows.
 
 The data tables page draws the checkbox column at all times, and Material Design 1 follows that page rather than the selection pattern's hover-only check mark. Escape inside the contextual header clears the selection, the keyboard counterpart of Back.
 :::
@@ -163,3 +163,11 @@ The contextual bar's count is announced through a polite live region. Its close 
 | Escape | Clears the selection when focus is in a contextual action bar or a table's contextual header (and, in the example, in the list) |
 | Shift with the arrow keys | Extends a text selection by character or by line |
 | Ctrl+A, Command+A | Selects all text |
+
+[^selection-alpha]: Our call: the selection page names the accent and states no opacity.
+
+[^desktop-rule]: Our call: the long-press gesture is not shipped, so the hover-revealed check mark serves every pointer.
+
+[^drag-paint]: Our call: the guidelines show the drag without saying what state crossed boxes take; painting the first box's new state is ours.
+
+[^dark-row]: Vuetify 1.5.24, stylus/settings/_theme.styl:189-190. The dark table's `#505050` selected row and Grey 700 hover.
