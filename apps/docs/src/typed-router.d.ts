@@ -1592,9 +1592,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/md1/accessibility': RouteRecordInfo<
+      '/systems/md1/accessibility',
+      '/systems/md1/accessibility',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/md1/autocomplete': RouteRecordInfo<
       '/systems/md1/autocomplete',
       '/systems/md1/autocomplete',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/bidirectionality': RouteRecordInfo<
+      '/systems/md1/bidirectionality',
+      '/systems/md1/bidirectionality',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1651,6 +1665,13 @@ declare module 'vue-router/auto-routes' {
     '/systems/md1/confirmation': RouteRecordInfo<
       '/systems/md1/confirmation',
       '/systems/md1/confirmation',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/data-formats': RouteRecordInfo<
+      '/systems/md1/data-formats',
+      '/systems/md1/data-formats',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1760,6 +1781,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/md1/imagery': RouteRecordInfo<
+      '/systems/md1/imagery',
+      '/systems/md1/imagery',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/launch-screens': RouteRecordInfo<
+      '/systems/md1/launch-screens',
+      '/systems/md1/launch-screens',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/md1/layout': RouteRecordInfo<
       '/systems/md1/layout',
       '/systems/md1/layout',
@@ -1823,6 +1858,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/md1/permissions': RouteRecordInfo<
+      '/systems/md1/permissions',
+      '/systems/md1/permissions',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/md1/progress-circular': RouteRecordInfo<
       '/systems/md1/progress-circular',
       '/systems/md1/progress-circular',
@@ -1847,6 +1889,13 @@ declare module 'vue-router/auto-routes' {
     '/systems/md1/ripple': RouteRecordInfo<
       '/systems/md1/ripple',
       '/systems/md1/ripple',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/scrolling-techniques': RouteRecordInfo<
+      '/systems/md1/scrolling-techniques',
+      '/systems/md1/scrolling-techniques',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1896,6 +1945,13 @@ declare module 'vue-router/auto-routes' {
     '/systems/md1/subheader': RouteRecordInfo<
       '/systems/md1/subheader',
       '/systems/md1/subheader',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/swipe-to-refresh': RouteRecordInfo<
+      '/systems/md1/swipe-to-refresh',
+      '/systems/md1/swipe-to-refresh',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1952,6 +2008,13 @@ declare module 'vue-router/auto-routes' {
     '/systems/md1/typography': RouteRecordInfo<
       '/systems/md1/typography',
       '/systems/md1/typography',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/md1/writing': RouteRecordInfo<
+      '/systems/md1/writing',
+      '/systems/md1/writing',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -3753,9 +3816,25 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/md1/accessibility.md': {
+      routes:
+        | '/systems/md1/accessibility'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/md1/autocomplete.md': {
       routes:
         | '/systems/md1/autocomplete'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/bidirectionality.md': {
+      routes:
+        | '/systems/md1/bidirectionality'
       views:
         | never
       pathParamNames:
@@ -3820,6 +3899,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/md1/confirmation.md': {
       routes:
         | '/systems/md1/confirmation'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/data-formats.md': {
+      routes:
+        | '/systems/md1/data-formats'
       views:
         | never
       pathParamNames:
@@ -3945,6 +4032,22 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/md1/imagery.md': {
+      routes:
+        | '/systems/md1/imagery'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/launch-screens.md': {
+      routes:
+        | '/systems/md1/launch-screens'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/md1/layout.md': {
       routes:
         | '/systems/md1/layout'
@@ -4017,6 +4120,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/md1/permissions.md': {
+      routes:
+        | '/systems/md1/permissions'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/md1/progress-circular.md': {
       routes:
         | '/systems/md1/progress-circular'
@@ -4044,6 +4155,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/md1/ripple.md': {
       routes:
         | '/systems/md1/ripple'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/scrolling-techniques.md': {
+      routes:
+        | '/systems/md1/scrolling-techniques'
       views:
         | never
       pathParamNames:
@@ -4100,6 +4219,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/md1/subheader.md': {
       routes:
         | '/systems/md1/subheader'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/swipe-to-refresh.md': {
+      routes:
+        | '/systems/md1/swipe-to-refresh'
       views:
         | never
       pathParamNames:
@@ -4164,6 +4291,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/md1/typography.md': {
       routes:
         | '/systems/md1/typography'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/md1/writing.md': {
+      routes:
+        | '/systems/md1/writing'
       views:
         | never
       pathParamNames:
