@@ -99,6 +99,16 @@ A tooltip is a supplement, not a label. Keep the column name meaningful on its o
 :::
 
 ::: ds-example
+/systems/md1/data-table/long-header
+
+### Long column names
+
+When a column name does not fit with the recommended 56 dp between columns, the guidelines give two options: show the full name and let the table scroll horizontally, or shorten the name and show it in full on hover. Here the two nutrition columns take the second: each name stops at an ellipsis, and its `tooltip` repeats the full name on hover and keyboard focus.
+
+The cut is a width you choose for the column's label; Material Design 1 does not truncate on its own. Prefer scrolling when the full names matter to every reader, since a touch user never hovers.
+:::
+
+::: ds-example
 /systems/md1/data-table/selection
 
 ### Selection
@@ -128,6 +138,14 @@ The cell takes `v-model` for its value and emits `update:modelValue` only on a s
 ### Edit dialog
 
 `editable="large"` opens the large edit dialog instead, for longer text: a modal dialog that follows the dialogs page, titled by `label`, with the text field, its counter and Cancel and Save actions. Only Save writes the value, as the guidelines confirm the large dialog with its button; Enter in the field does not save, and Cancel and Escape revert. Use it when the edit needs more room than the cell, or when saving should be a deliberate act rather than a keystroke.
+:::
+
+::: ds-example
+/systems/md1/data-table/inline-menu
+
+### Inline menus
+
+When a cell takes one of a fixed set of values, embed a menu in the cell instead of a text field. The cell shows the current value in its own 13 sp at 87% with a drop-down arrow; opening it lays an `Md1Menu` over the cell with the current value under the activator, and choosing an item writes it back to the row. Each activator names its row in its label, because the cell alone does not say which dessert it belongs to.
 :::
 
 ::: ds-example
