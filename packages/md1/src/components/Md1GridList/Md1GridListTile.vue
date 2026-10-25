@@ -259,7 +259,7 @@
     z-index: 1;
   }
 
-  /* Hover is 6% ink (lead decision 3, the page states none); focus is the 12% overlay of the buttons page, keyboard only. */
+  /* Hover is 6% ink (a decision: the page states none and Vuetify 1.5 has no grid list); focus is the 12% overlay of the buttons page, keyboard only. */
   .md1-grid-list__action::after {
     content: '';
     position: absolute;
