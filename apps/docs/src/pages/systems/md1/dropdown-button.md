@@ -75,6 +75,18 @@ The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. 
 :::
 
 ::: ds-example
+/systems/md1/dropdown-button/editable
+
+### Editable segmented
+
+The guidelines' font size picker: a segmented dropdown whose displayed state is text editable. Pressing the current state fires its action and makes the state editable, and pressing the arrow shows all the options. `editable` turns the state segment into a text field named by `label`: pressing it emits `select` with the current value and selects the text; Enter, or leaving the field, commits what was typed to `v-model` and emits `select` with it, and Escape puts the state back. An empty field never commits. `editable` implies `segmented`.
+
+A typed state need not be one of the items: a size the list does not offer is still a size. Text that names an item commits that item's value; when every item's value is a number, a typed number commits as a number; anything else commits as the text, for the app to accept or correct. The field shows the committed state, an item's text or the value itself.
+
+The guidelines give the editable form no metrics, so it takes Vuetify 1.5's editable overflow button: a 48 dp field with its 16 sp text 16 dp in, a 1 dp divider line at its foot, and a 48 dp arrow segment behind a 1 dp seam. Hovered, focused or open, it lifts onto the surface at 2 dp. It is two 56 dp increments wide by default, the menu's own minimum, so the sheet that opens over it covers it; set a width on it for a wider field.
+:::
+
+::: ds-example
 /systems/md1/dropdown-button/icons
 
 ### States as icons
@@ -132,6 +144,7 @@ Show a state as disabled rather than removing it when it exists under the right 
 |------|------|---------|-------------|
 | `modelValue` | `unknown` | | The selected state: the `value` of the item the button displays. Use `v-model` |
 | `segmented` | `boolean` | `false` | Splits the button into a state segment, which emits `select` with the current value, and an arrow segment that opens the menu |
+| `editable` | `boolean` | `false` | The editable segmented dropdown: the state segment is a text field named by `label`; pressing it emits `select`, Enter or blur commits the typed state and emits `select` with it. Implies `segmented` |
 | `dense` | `boolean` | `false` | The dense button (32 dp, 13 sp) over condensed menu rows (40 dp at 14 sp; 24 px at 13 px with `desktop`) |
 | `desktop` | `boolean` | `false` | The desktop dropdown: 16 dp vertical padding, 24 dp before the state, 16 dp after the arrow, over the desktop menu (32 px rows, 15 px type, 6 dp) |
 | `disabled` | `boolean` | `false` | Disables every segment and every item: native `disabled`, 26% ink, no menu |
@@ -154,11 +167,11 @@ The default slot holds the items. There are no named slots.
 
 ## Accessibility
 
-The button is a native `<button>` with `aria-haspopup="menu"`, `aria-expanded` and `aria-controls` from `Menu.Activator`; the sheet is `role="menu"` labelled by the button, and each state is a `menuitemradio` with `aria-checked`. The WAI-ARIA pattern is the Menu Button; the segmented form is a Button beside a Menu Button.
+The button is a native `<button>` with `aria-haspopup="menu"`, `aria-expanded` and `aria-controls` from `Menu.Activator`; the sheet is `role="menu"` labelled by the button, and each state is a `menuitemradio` with `aria-checked`. The WAI-ARIA pattern is the Menu Button; the segmented form is a Button beside a Menu Button. The editable form is a native text field beside the Menu Button rather than the Combobox the guidelines' notes suggest: its popup is a menu of radio items, which a combobox may not own.
 
 ### Naming
 
-The plain button is named by the state it shows, so a screen reader announces the current value. The state segment of a segmented button is named the same way, and the arrow segment by `ariaLabel` or the locale fallback. The generic dropdown has no visible text and needs `ariaLabel`. Glyphs are `aria-hidden`.
+The plain button is named by the state it shows, so a screen reader announces the current value. The state segment of a segmented button is named the same way, and the arrow segment by `ariaLabel` or the locale fallback. The generic dropdown has no visible text and needs `ariaLabel`. The editable field is named by `label`, which is also its placeholder. Glyphs are `aria-hidden`.
 
 ### Keyboard
 
@@ -169,6 +182,8 @@ The plain button is named by the state it shows, so a screen reader announces th
 | A letter | Moves to the next state whose text starts with it |
 | Escape | Closes the menu and returns focus to the button, with the state unchanged |
 | Tab | Closes the menu and moves on |
+| Enter (editable field) | Commits the typed state and emits `select` with it; the text stays selected for the next edit |
+| Escape (editable field) | Puts the state back and leaves the field |
 
 ### Positioning
 
