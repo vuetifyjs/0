@@ -85,6 +85,16 @@ The touch target is not the icon's. A 24 dp icon sits in a 48 dp target and a 20
 :::
 
 ::: ds-example
+/systems/md1/icon/grid
+
+### Grid and keylines
+
+The system icon grid, drawn over the real glyphs at 800% and beside them at 100%. Every icon is designed in a 24 x 24 dp trim area; its content stays inside the 20 x 20 dp live area, with 2 dp of padding on each side that a glyph may enter only when it needs the extra weight. The guidelines call that padding 4 dp, the total across the area. Switch on Dense to see the 20 dp form: a 16 x 16 dp live area inside the same 2 dp padding, the artwork scaled rather than redrawn.
+
+The keylines are the four core shapes that keep the set proportional, a square of 18 dp, a circle of 20 dp, and 16 x 20 dp and 20 x 16 dp rectangles, plus the diagonals and centre lines that place strokes. The row underneath matches a glyph to each shape: a check box fills the square, the account glyph the circle, the lock the vertical rectangle and the envelope the horizontal one. On the dense grid the keylines are scaled with the live area; the guidelines draw no dense keylines.
+:::
+
+::: ds-example
 /systems/md1/icon/ink
 
 ### Ink
