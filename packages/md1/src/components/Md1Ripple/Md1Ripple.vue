@@ -133,12 +133,13 @@
     opacity: 1;
   }
 
+  /* Vuetify 1.5's ripple timing (var:342-343): 250 ms expand, 300 ms fade, on the standard curve. The spec states none. */
   .md1-ripple__ink[data-state='in'] {
-    animation: md1-ripple-in var(--md1-ripple-duration, var(--md1-duration-standard, 300ms)) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) forwards;
+    animation: md1-ripple-in var(--md1-ripple-duration, 250ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) forwards;
   }
 
   .md1-ripple__ink[data-state='out'] {
-    animation: md1-ripple-out var(--md1-duration-leave, 195ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) forwards;
+    animation: md1-ripple-out var(--md1-ripple-fade, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) forwards;
   }
 
   @keyframes md1-ripple-in {
