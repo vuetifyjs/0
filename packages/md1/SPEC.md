@@ -96,7 +96,7 @@ Plus, from the patterns section, `Md1NavigationDrawer` and `Md1SearchBar`; from 
 | style/imagery | the text protection range behind `--md1-grid-list-bar`, the loading-images recipe on `Md1Card.Media` and `Md1GridList.Tile`, avatar and thumbnail sizes (`spec/iconography.md`) |
 | style/writing | the default copy table through `useLocale`, sentence-case source text, uppercase button labels by CSS (`spec/iconography.md`) |
 | material-design/elevation-shadows | `--md1-elevation-0..24`; `md1-elevation-<n>` classes |
-| motion/* | duration and easing tokens; `Md1Ripple`; from `motion/creative-customization` (`spec/motion.md`), `Md1Toolbar.Nav` animates `menu` to `arrow-back` (`data-icon`) over `--md1-duration-standard` when the drawer opens and back on close; product icons and illustrations are out (no surface) |
+| motion/* | duration and easing tokens; `Md1Ripple`; from `motion/creative-customization` (`spec/motion.md`), `Md1Toolbar.Nav` animates `menu` to `arrow-back` (`data-icon`) over `--md1-duration-standard` when the drawer opens and back on close; from `motion/movement` and `motion/transforming-material`, `useMorph` plays arc movement and the radial (`circle()`) and rectangular (`inset()`) transformations (Motion, Transforms); from `motion/choreography`, shared-element continuity is a second `useMorph` call with `scale` (the card example on the navigation docs page); joining and dividing ship no surface or recipe; product icons and illustrations are out (no surface) |
 | layout/* | keyline, increment, spacing and touch target tokens; breakpoints as documented values plus a JS map (`md1Breakpoints`); `layout/split-screen` is out (see Out) |
 | usability/bidirectionality, usability/accessibility | logical properties everywhere; icon mirroring; 48 dp targets; the WCAG opacities |
 
@@ -111,7 +111,7 @@ From `spec/patterns/rulings.md`, which carries the reasons.
 | scrolling-techniques | `Md1Toolbar` props `scroll` and `tabBar`, part `Extension` |
 | selection | selected state on `Md1List.Item`, `Md1GridList.Tile`, `Md1Card`; `Md1Toolbar.Contextual`; the accent text highlight is the app's `::selection` rule (Known limitations) |
 | errors, empty-states, confirmation-acknowledgement, settings, navigation, loading-images, offline-states, help-feedback | documented compositions of shipped components (docs pages, no surface) |
-| navigational-transitions | sibling slide on `Md1Tabs` panels; parent-to-child expansion on `Md1Fab` and `Md1Card` through the motion tokens |
+| navigational-transitions | sibling slide on `Md1Tabs` panels (component behaviour); parent-to-child expansion is a documented composition, not a prop: `useMorph` expands an `Md1Card` into the app's detail screen with an `inset()` clip and carries its image as the shared element (navigation docs page, "Forward through cards"), because only the app knows the destination screen; the list example keeps a consumer `Transition` |
 | swipe-to-refresh | a composition example on `Md1ProgressCircular`; no `Md1SwipeRefresh` (v0 has no swipe primitive, mobile browsers own pull-to-refresh, the spec forbids it in drawers and pannable content) |
 | data-formats, gestures, notifications, launch-screens, permissions, fingerprint, app-shortcuts | out of scope |
 
@@ -312,7 +312,7 @@ Modal: `dialog.md1-bottom-sheet` > `div.md1-bottom-sheet__content`. Persistent: 
 - `Action` children turn the FAB into a speed dial: `icon`, `label`, `value`; items fly out above the FAB as 40 dp mini FABs with a label at the start side; the FAB stays; pressing it again closes. Two to five actions (three to six including the FAB) or a dev warning.
 - Composition: `Button.Root` + `Button.Icon`; speed dial on `Menu.Root` / `Menu.Content` with `positionArea="top span-left"`.
 - Values: `spec/components/buttons-floating-action-button.md`. 56 dp, mini 40 dp (48 dp target), icon 24 dp in both; 6 dp resting, 12 dp pressed; fill `--md1-accent`, white icon; focus "changes colour" (`--md1-focus` overlay); entrance scales from the centre (225 ms decelerate); the FAB moves up by the snackbar height while a snackbar shows.
-- Limits: morph, toolbar and full-screen transforms are documented compositions on `Md1Dialog` and `Md1Toolbar`; speed dial item spacing is not in the spec: 12 px between the 40 dp items, Vuetify 1.5's 6 px button margins on each side (var:169-171); the actions fill with `--md1-app-bar`, Grey 100 / Grey 900, the uncoloured floating button of `_buttons.styl:18-19`; the 16 dp label gap and the 2 dp Body 1 label sheet are decisions (Vuetify 1.5 has no labels).
+- Limits: the transitions are documented compositions on `useMorph`, not props (fab docs page): full-screen (FAB into an `Md1Dialog variant="full-screen"`, handset only, below 600 px, 375 ms, closing with the dialog's own exit because the page calls it usually not reversible), toolbar (FAB into an `Md1Toolbar`, expand then widen, reversible on close or scroll), morph (FAB into an `Md1Card` sheet, reversible) and trigger (a `circle()` reveal from the FAB, which stays); the FAB has no transition prop because the destination surface is the app's; speed dial item spacing is not in the spec: 12 px between the 40 dp items, Vuetify 1.5's 6 px button margins on each side (var:169-171); the actions fill with `--md1-app-bar`, Grey 100 / Grey 900, the uncoloured floating button of `_buttons.styl:18-19`; the 16 dp label gap and the 2 dp Body 1 label sheet are decisions (Vuetify 1.5 has no labels).
 
 ### Md1Card
 
@@ -645,6 +645,27 @@ Decisions: single-line styles get `line-height: 1`, except Display 3, which take
 
 Vuetify's `swing` and `fast-in-fast-out` curves are not Material Design 1 curves.
 
+#### Transforms (`useMorph`)
+
+`useMorph()` returns `morph({ from, to, clip, shape, move, scale, duration, lead, lag, veil, hide, reverse })` and `isReduced`. The destination is laid out at its end state, measured and clipped back to the source; the source is hidden while it runs; the promise resolves with a cleanup that drops the held last frame. Reduced motion (`useReducedMotion`, the OS query in `system` mode) plays nothing. Vuetify 1.5 has no transforms, so every value is the spec's or a decision:
+
+| Value | Source |
+|---|---|
+| Surface transformations and on-screen movement on the standard curve | m1-explicit (movement, transforming-material) |
+| Two-axis movement arcs, shallow first rising and steep first falling; one-axis movement straight | m1-explicit (movement) |
+| The arc: leading axis on the deceleration curve, the other on the standard curve | chosen |
+| Radial (`circle()`) only from a circular source; rectangles use `inset()` | m1-explicit (transforming-material: no radial transform between rectangles) |
+| An expanding rectangle starts its width before its height (`lead`, `lag`) | m1-explicit (transforming-material); the card's 0.15 lag and the toolbar's 0.5 two-phase split are chosen |
+| Contained content keeps its aspect ratio: `scale` is uniform and the clip crops | m1-explicit (transforming-material) |
+| Full-screen transform 375 ms | m1-explicit (duration-easing, large full-screen transitions) |
+| Full-screen transform below 600 px only; from 600 px the dialog's own 225 ms enter | chosen (full-screen dialogs are a handset pattern; the variant is a 560 dp sheet from 600 px) |
+| Toolbar, sheet, trigger and card transforms on `--md1-duration-standard` | chosen (no transform duration on the pages) |
+| Source shadow carried as `drop-shadow()` filters on the moving element, interpolated to the surface's own | chosen |
+| Veil in the source colour: glyph out over the first 20% (after any `rect` lag), veil out over the next 50% | chosen |
+| Full-screen close is the dialog's exit, not a reversed morph | m1-explicit (FAB page: full screen is usually not reversible) |
+
+Limits: the source's `drop-shadow()` drops box-shadow spread, and chained drop-shadows darken slightly; the moving element (`to`) must not be the clipped one for the shadow to show; a transform that travels past a clipping ancestor (`overflow: clip`) is cropped by it.
+
 ### Layout
 
 `--md1-spacing-1..5` (8, 16, 24, 32, 40 px); `--md1-keyline-margin` (16 px, 24 px from 600 px); `--md1-keyline-content` (72 px, 80 px from 600 px); `--md1-increment` (56 px, 64 px from 600 px); `--md1-touch-target` (48 px); `--md1-radius` (2 px), `--md1-radius-box` (4 px); `--md1-icon-size` (24 px, 20 px in dense hosts). Breakpoints cannot be custom properties: they ship as the documented 13-row table and as `md1Breakpoints`, the documented dp table in JS (480, 600, 840, 960, 1280, 1440, 1600, 1920, keyed by the nominal width, with the 16 px desktop reduction on 1024 and above). v0's `useBreakpoints` has its own named breakpoints and takes no Material Design 1 input; consumers map the table onto those names themselves when a layout needs the spec's widths. The responsive-ui gutter (16 px, 24 px from 960 px) is not a token: no component reads it (`Md1GridList` has its own `gutter` prop, ruling 5); the documented value lives in `spec/layout.md`.
@@ -675,6 +696,7 @@ Both exist so the escape hatch composition renders in the system's type and dept
 | Deviation | Reason |
 |---|---|
 | DS-owned headless cores for `Md1DatePicker` and `Md1TimePicker` | v0's `createDatePicker` and `createTimePicker` are `draft` entries in `maturity.json` with no source and no export (`spec/v0-map.md`). Spec-in still ships (Emerald `EmCalendar` precedent); both graduate to v0 when the composables land |
+| DS-owned `useMorph` | v0 has no surface-transform primitive; FLIP on the Web Animations API with `clip-path`, no library and no View Transitions. It touches the DOM (measures, animates, appends a veil), so it is a DOM helper rather than state-only, called from the app's event handler, never from a component |
 | DS-owned headless `useRipple` | v0 has no ink primitive (zero matches for `ripple` in `packages/0/src`); the composable holds state only and the component binds the events, per the house rule |
 | DS-owned non-modal surfaces (persistent and permanent drawers, persistent bottom sheet) | no v0 compound covers a non-modal sheet; built on `Atom`, `Portal` and `Collapsible` |
 | `Md1Checkbox` `indeterminate` | extra-spec under ruling 7, declared here: MD1 has no mixed state, `Md1DataTable` select-all needs one and v0 provides it |
