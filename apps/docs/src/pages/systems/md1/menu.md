@@ -81,7 +81,7 @@ Two seams are Material Design 1's. The activator is renderless, so the menu has 
 
 `icon` draws a glyph role at the leading keyline, 16 dp from the start edge at 54% ink. One icon anywhere in the list moves every row's text to the 72 dp content keyline (80 dp from 600 px), so labels stay aligned whether or not their row has a glyph. Menu items may contain icons, the guidelines say; they are optional, and a menu either uses them as a column or not at all.
 
-`info` is the inline information the lists-controls page puts at the trailing edge: a keyboard shortcut or similar, in the secondary ink (54% black, 70% white), never truncated. Material Design 1 also publishes it as `aria-keyshortcuts` and hides the visible copy from the accessible name,[^1] so a screen reader hears "Share" and is told the shortcut separately. When the visible text is not in the attribute's syntax, pass `aria-keyshortcuts` yourself; the attribute you pass wins.
+`info` is the inline information the lists-controls page puts at the trailing edge: a keyboard shortcut or similar, in the secondary ink (54% black, 70% white), never truncated. Material Design 1 also publishes it as `aria-keyshortcuts` and hides the visible copy from the accessible name,[^keyshortcuts] so a screen reader hears "Share" and is told the shortcut separately. When the visible text is not in the attribute's syntax, pass `aria-keyshortcuts` yourself; the attribute you pass wins.
 :::
 
 ::: ds-example
@@ -119,7 +119,7 @@ A contextual menu changes with the state of the thing it acts on. Each row's ove
 
 `value` on an item and `v-model:selected` on the root make a simple menu that commits a choice. Choosing an option commits it immediately and closes the menu, the guidelines' selection rule; the row whose value matches the model is drawn with the 12% focus shade the buttons page gives a focused surface, and carries `aria-current`.
 
-The guidelines also position a simple menu over the emitting control so the selected item sits on top of it, never below it. `Md1Menu` measures that: when a row is selected, the sheet opens with that row's centre on the trigger's centre and its start edge on the trigger's start edge, and it grows from the trigger. With nothing selected, an action menu, the sheet opens below the trigger as before.[^2] A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
+The guidelines also position a simple menu over the emitting control so the selected item sits on top of it, never below it. `Md1Menu` measures that: when a row is selected, the sheet opens with that row's centre on the trigger's centre and its start edge on the trigger's start edge, and it grows from the trigger. With nothing selected, an action menu, the sheet opens below the trigger as before.[^below] A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
 :::
 
 ::: ds-example
@@ -127,7 +127,7 @@ The guidelines also position a simple menu over the emitting control so the sele
 
 ### Screen edges and long menus
 
-Near a screen edge the whole sheet moves vertically so every item stays visible, and it never crosses the 16 dp screen margin (24 dp from 600 px); the selected row then sits as close to the trigger as the room allows. A sheet taller than the screen less those margins and one 48 dp row scrolls internally, and it opens scrolled so the selected row is in its middle, over the trigger, the way Vuetify 1.5 scrolled its auto menus.[^3]
+Near a screen edge the whole sheet moves vertically so every item stays visible, and it never crosses the 16 dp screen margin (24 dp from 600 px); the selected row then sits as close to the trigger as the room allows. A sheet taller than the screen less those margins and one 48 dp row scrolls internally, and it opens scrolled so the selected row is in its middle, over the trigger, the way Vuetify 1.5 scrolled its auto menus.[^scroll]
 
 The placement is measured when the sheet opens and follows the trigger when the page scrolls or resizes; scrolling inside the sheet does not move it. Cascading sub menus are not simple menus and keep their place beside their parent row.
 :::
@@ -147,7 +147,7 @@ Each row is a `menuitemcheckbox` with `aria-checked`, and `data-state` carries `
 
 ### Dense
 
-`dense` condenses a handset menu to the 14 sp type the menus page names for dense simple menus. The page gives no dense row height; Material Design 1 uses the dense list tile's 40 dp, a decision rather than a spec value.[^4] Text padding and widths stay the same.
+`dense` condenses a handset menu to the 14 sp type the menus page names for dense simple menus. The page gives no dense row height; Material Design 1 uses the dense list tile's 40 dp, a decision rather than a spec value.[^dense] Text padding and widths stay the same.
 
 Use it where many short options must fit on a phone screen at once. Everywhere a finger is the primary input and space is not scarce, keep the 48 dp rows: they are the touch target.
 :::
@@ -159,7 +159,7 @@ Use it where many short options must fit on a phone screen at once. Everywhere a
 
 `desktop` switches to the desktop column of the menus page, for layouts where mouse and keyboard are the primary input: 32 px rows, 24 px text padding, 15 px type and 8 px above the first row and below the last. With `dense` it is the dense desktop menu: 24 px rows, 13 px type and 4 px list padding. A desktop sheet rests 2 dp lower than a handset one, 6 dp in place of 8, the elevation page's desktop rule, and its glyphs drop to the 20 dp dense icon size with the text at the 64 px keyline.
 
-Widths change unit as well: a desktop sheet is a multiple of 64 px, at least 128 px, with no 5x ceiling (the width redline draws 6x and 7x desktop menus). Material Design 1 makes the choice an explicit prop rather than a pointer media query,[^5] so a desktop toolbar opens a desktop menu on a touch laptop too, and a handset layout keeps its 48 dp rows under a mouse.
+Widths change unit as well: a desktop sheet is a multiple of 64 px, at least 128 px, with no 5x ceiling (the width redline draws 6x and 7x desktop menus). Material Design 1 makes the choice an explicit prop rather than a pointer media query,[^desktop] so a desktop toolbar opens a desktop menu on a touch laptop too, and a handset layout keeps its 48 dp rows under a mouse.
 :::
 
 ::: ds-example
@@ -234,8 +234,12 @@ The trigger is a native button carrying `aria-haspopup="menu"`, `aria-expanded` 
 
 A press outside the sheet closes it, the native popover's light dismiss. The rows are 48 dp touch targets on handsets; the desktop and dense forms are for mouse and keyboard layouts.
 
-[^1]: Our call: an accessibility addition; the page specifies only the visible text.
-[^2]: Our call: the over-the-emitter rule is written for the selected item, so a menu with none keeps the anchored placement.
-[^3]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:15-23. `calcScrollPosition` centres the active tile in the scrolled sheet.
-[^4]: Our call: the dense list tile is the nearest stated row height.
-[^5]: Our call: the page names a desktop form, not a device switch, so one layout can choose it.
+[^keyshortcuts]: Our call: an accessibility addition; the page specifies only the visible text.
+
+[^below]: Our call: the over-the-emitter rule is written for the selected item, so a menu with none keeps the anchored placement.
+
+[^scroll]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:15-23. `calcScrollPosition` centres the active tile in the scrolled sheet.
+
+[^dense]: Our call: the dense list tile is the nearest stated row height.
+
+[^desktop]: Our call: the page names a desktop form, not a device switch, so one layout can choose it.

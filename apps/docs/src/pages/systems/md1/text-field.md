@@ -174,7 +174,7 @@ Each trailing glyph is 24 dp inside a 48 dp touch target, 8 dp apart and 8 dp ab
 
 For forms with many or crowded fields, `dense` shortens the field: 13 sp text, 8 dp above the label, 4 dp between the label and the input, and 4 dp between the line and the helper, half the standard spacing. Glyphs drop to the 20 dp dense size.
 
-The guidelines tie the dense field to mouse-and-keyboard layouts, so Material Design 1 makes it an explicit prop rather than switching on the pointer type: the same app can hold a dense settings form beside a standard sign-in form.
+The guidelines tie the dense field to mouse-and-keyboard layouts, so Material Design 1 makes it an explicit prop rather than switching on the pointer type:[^dense] the same app can hold a dense settings form beside a standard sign-in form.
 :::
 
 ::: ds-example
@@ -190,7 +190,7 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 
 ### Text area
 
-`textarea` is the taller field for long input: a fixed height of five 20 px lines with 8 dp of padding, scrolling vertically once the text overflows. The guidelines give it "a visible border, using the same color and thickness as the input line": 1 dp at 42% black (70% white), turning 2 dp in the accent on focus and in red on error. The label stays floated above the border, so the placeholder shows from the start.
+`textarea` is the taller field for long input: a fixed height of five 20 px lines with 8 dp of padding,[^five] scrolling vertically once the text overflows. The guidelines give it "a visible border, using the same color and thickness as the input line": 1 dp at 42% black (70% white), turning 2 dp in the accent on focus and in red on error. The label stays floated above the border, so the placeholder shows from the start.
 :::
 
 ::: ds-example
@@ -226,9 +226,9 @@ When a text field is the primary action on a screen, its label can become the sc
 
 ### Dropdown
 
-`dropdown` makes the field a select, the guidelines' "Nested menus & pickers": the control is readonly, the `arrow-drop-down` glyph sits at its end in a 24 x 24 dp container 8 dp above the line, and pressing the field or the arrow opens a menu of the `Md1TextField.Item` children on an 8 dp sheet at least as wide as the field. Choosing an option writes its `value` to `v-model`, closes the menu and floats the label; the field shows the option's text. Once an option is chosen the menu opens over the field with that option on the field's value, its text lined up with the value's text, the menus page's simple-menu rule that it extends to selects; near a screen edge the sheet shifts to stay on screen, and a long list opens scrolled to the option. With nothing chosen it opens below the field.
+`dropdown` makes the field a select, the guidelines' "Nested menus & pickers": the control is readonly, the `arrow-drop-down` glyph sits at its end in a 24 x 24 dp container 8 dp above the line, and pressing the field or the arrow opens a menu of the `Md1TextField.Item` children on an 8 dp sheet at least as wide as the field. Choosing an option writes its `value` to `v-model`, closes the menu and floats the label; the field shows the option's text. Once an option is chosen the menu opens over the field with that option on the field's value, its text lined up with the value's text, the menus page's simple-menu rule that it extends to selects;[^align] near a screen edge the sheet shifts to stay on screen, and a long list opens scrolled to the option. With nothing chosen it opens below the field.[^below]
 
-The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the menu's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus overlay.
+The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the menu's list hover, 4% black (8% white on the dark theme),[^highlight] and the chosen one the 12% focus overlay.
 :::
 
 ::: ds-example
@@ -312,3 +312,13 @@ Every trailing glyph is a native button with an accessible name from the locale 
 ### Dropdown
 
 The dropdown's control is a `combobox` with `aria-expanded`, `aria-controls` pointing at the `listbox`, and `aria-labelledby` pointing at the visible label. Focus stays on the control while the menu is open; the highlighted option is announced through `aria-activedescendant`, and each option carries `aria-selected` and `aria-disabled`.
+
+[^dense]: Our call: the page names a dense field, not a device switch, so one app can mix both.
+
+[^five]: Our call: the page gives the text area no height; five Body 1 lines hold a short paragraph.
+
+[^align]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:24-28. `calcLeftAuto` offsets the sheet so its text lines up with the activator's.
+
+[^below]: Our call: the over-the-field rule is written for a chosen option, so an empty select keeps the anchored placement.
+
+[^highlight]: Vuetify 1.5.24, stylus/components/_lists.styl:20-23 and stylus/settings/_theme.styl:52,146. A highlighted tile takes `list-tile.hover`, black 4% or white 8%.

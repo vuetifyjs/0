@@ -63,7 +63,7 @@ The root sits inside a [Presence](/components/primitives/presence), which carrie
 
 Use the determinate bar when the percentage complete is detectable: an upload, a download, a known number of steps. The fill is the primary colour (`--md1-primary`, Indigo 500 in the default theme) and the track behind it is the same colour at 30%, the opacity measured from the spec's own indicator sheet. The bar is 4 dp tall, a measurement from that sheet as well, and spans the full width of the edge it sits on.
 
-The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". Material Design 1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps.[^1] The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
+The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". Material Design 1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps.[^step] The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
 :::
 
 ::: ds-example
@@ -71,9 +71,9 @@ The guidelines say a determinate indicator "fills from 0% to 100%, and never dec
 
 ### Indeterminate
 
-Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length, so Material Design 1 takes Vuetify 1.5's: one sweep every 2.2 seconds on the standard curve, and every 2 seconds for the query sweep.[^2]
+Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length, so Material Design 1 takes Vuetify 1.5's: one sweep every 2.2 seconds on the standard curve, and every 2 seconds for the query sweep.[^cycle]
 
-The guidelines place linear indicators "on the edge of a header or sheet" and say they "appear and disappear". The example hangs the bar below the header with an absolutely positioned wrapper, so mounting it never shifts the content. On mount the bar grows out of that edge over the 225 ms enter duration on the deceleration curve, the motion page's rule for an element entering the screen. With reduced motion requested, it appears in place and the sweep slows to half speed rather than stopping,[^3] because a frozen segment would read as stalled determinate progress.
+The guidelines place linear indicators "on the edge of a header or sheet" and say they "appear and disappear". The example hangs the bar below the header with an absolutely positioned wrapper, so mounting it never shifts the content. On mount the bar grows out of that edge over the 225 ms enter duration on the deceleration curve, the motion page's rule for an element entering the screen. With reduced motion requested, it appears in place and the sweep slows to half speed rather than stopping,[^reduced-motion] because a frozen segment would read as stalled determinate progress.
 :::
 
 ::: ds-example
@@ -81,7 +81,7 @@ The guidelines place linear indicators "on the edge of a header or sheet" and sa
 
 ### Buffer
 
-`buffer` adds the buffered extent ahead of the fill, the guidelines' example being a video that downloads faster than it plays. The buffered segment takes the track tint, and the unbuffered remainder past it is drawn as a dotted trail in the same tint. The spec shows the trail only in video; Material Design 1 draws 2 dp dots at an 8 dp pitch, a decision.[^4]
+`buffer` adds the buffered extent ahead of the fill, the guidelines' example being a video that downloads faster than it plays. The buffered segment takes the track tint, and the unbuffered remainder past it is drawn as a dotted trail in the same tint. The spec shows the trail only in video; Material Design 1 draws 2 dp dots at an 8 dp pitch, a decision.[^dots]
 
 Both values are percentages from 0 to 100, clamped. Keep `buffer` at or above `value`: the fill paints over the buffer, so a buffer behind the fill is simply hidden. Assistive technology hears both extents in one `aria-valuetext`, "40%, 70% buffered" in English, translatable through the `Md1.buffered` locale key.
 :::
@@ -101,7 +101,7 @@ Under `dir="rtl"` the whole bar mirrors, so the determinate fill grows from the 
 
 ### Appear and disappear
 
-The guidelines say linear indicators "appear and disappear" at the edge they sit on. A `v-if` can only show half of that: Vue removes the element before any exit can play. Bind `active` instead and leave the bar mounted. Turning it off shrinks the bar back into its edge over the 195 ms leave duration on the acceleration curve, the motion page's rule for an element leaving the screen, and the bar leaves the DOM when that animation ends. Turning it back on mid-exit reverses it in place. Vuetify 1.5 names the same switch `active`.[^5]
+The guidelines say linear indicators "appear and disappear" at the edge they sit on. A `v-if` can only show half of that: Vue removes the element before any exit can play. Bind `active` instead and leave the bar mounted. Turning it off shrinks the bar back into its edge over the 195 ms leave duration on the acceleration curve, the motion page's rule for an element leaving the screen, and the bar leaves the DOM when that animation ends. Turning it back on mid-exit reverses it in place. Vuetify 1.5 names the same switch `active`.[^active]
 
 With reduced motion requested, the bar vanishes in place, as it appears in place.
 :::
@@ -111,7 +111,7 @@ With reduced motion requested, the bar vanishes in place, as it appears in place
 
 ### Loading an expanding card
 
-The guidelines recommend an indeterminate linear indicator when a card expands on a larger surface such as desktop: press a conversation and it lifts out of the list as a card at 8 dp,[^6] with the indicator running along the edge under its header while the thread loads. The card opens at once, so the reader sees where the content will land; the indicator leaves when the messages arrive. The 1.5 second load is simulated.
+The guidelines recommend an indeterminate linear indicator when a card expands on a larger surface such as desktop: press a conversation and it lifts out of the list as a card at 8 dp,[^card] with the indicator running along the edge under its header while the thread loads. The card opens at once, so the reader sees where the content will land; the indicator leaves when the messages arrive. The 1.5 second load is simulated.
 :::
 
 ## Props
@@ -155,9 +155,14 @@ Screen readers do not announce progress changes on their own. For a long operati
 
 The indeterminate sweep is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, Material Design 1 drops the entrance and exit animations and halves the sweep speed. The plugin's setting wins over the operating system's.
 
-[^1]: Our call: the page gives no timing for a value change; the standard duration is the motion page's default for on-screen changes.
-[^2]: Vuetify 1.5.24, stylus/components/_progress-linear.styl:32-35,59-62. The indeterminate animation runs 2.2 s and the query animation 2 s.
-[^3]: Our call: the spec has no reduced-motion rule; half speed keeps the bar reading as busy.
-[^4]: Our call: Vuetify 1.5 draws no trail, and the video gives no dot metrics.
-[^5]: Vuetify 1.5.24, components/VProgressLinear/VProgressLinear.ts:22-25. The `active` prop, default `true`; the name only, not its behaviour.
-[^6]: Our call: read from the page's video frames; the page gives no metrics for the open card.
+[^step]: Our call: the page gives no timing for a value change; the standard duration is the motion page's default for on-screen changes.
+
+[^cycle]: Vuetify 1.5.24, stylus/components/_progress-linear.styl:32-35,59-62. The indeterminate animation runs 2.2 s and the query animation 2 s.
+
+[^reduced-motion]: Our call: the spec has no reduced-motion rule; half speed keeps the bar reading as busy.
+
+[^dots]: Our call: Vuetify 1.5 draws no trail, and the video gives no dot metrics.
+
+[^active]: Vuetify 1.5.24, components/VProgressLinear/VProgressLinear.ts:22-25. The `active` prop, default `true`; the name only, not its behaviour.
+
+[^card]: Our call: read from the page's video frames; the page gives no metrics for the open card.

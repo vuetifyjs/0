@@ -78,7 +78,7 @@ Tap the year in the header to swap the grid for the year list: 44 dp rows in Sub
 
 `landscape` moves the header into a 168 dp column at the start edge, where the date wraps to two lines at the 40 dp leading, and tightens the body to 344 dp with 46 x 32 dp cells and a 32 dp selection circle. The pickers page draws both layouts and says "the picker view adapts to the device's orientation".
 
-Material Design 1 does not switch layouts on its own. The web notes in the spec ask for an explicit choice, not a guess from the viewport width, so bind `landscape` to whatever your app treats as landscape: an `(orientation: landscape)` media query, a short viewport, or a fixed decision for a desktop dialog. This example binds the orientation query through `useMediaQuery`, so a phone held upright opens the portrait sheet instead of a 512 dp one it cannot fit. The surface is 512 dp wide; with the dialog's action row below it the sheet is 324 dp tall, 20 dp over the page's measured 304, because the actions sit under the whole picker rather than inside the body column.
+Material Design 1 does not switch layouts on its own. The web notes in the spec ask for an explicit choice, not a guess from the viewport width, so bind `landscape` to whatever your app treats as landscape: an `(orientation: landscape)` media query, a short viewport, or a fixed decision for a desktop dialog. This example binds the orientation query through `useMediaQuery`, so a phone held upright opens the portrait sheet instead of a 512 dp one it cannot fit. The surface is 512 dp wide; with the dialog's action row below it the sheet is 324 dp tall, 20 dp over the page's measured 304, because the actions sit under the whole picker rather than inside the body column.[^sheet-height]
 :::
 
 ::: ds-example
@@ -138,3 +138,5 @@ The header year is a toggle button named "Choose year" and the year, with `aria-
 ### In a dialog
 
 Opened in a confirmation `Md1Dialog`, the native dialog moves focus straight to the selected day, so the arrows work at once. Escape and Cancel discard the change; OK commits it. The chevrons are named "Previous month" and "Next month" and both, like the year label, are translatable through `useLocale` (`Md1.previousMonth`, `Md1.nextMonth`, `Md1.chooseYear`, `Md1.year`).
+
+[^sheet-height]: Our call: the dialog owns the action row, so it spans the header column too.

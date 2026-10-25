@@ -70,7 +70,7 @@ Under `multiple` each value is a [Md1Chip](/systems/md1/chip) in its `contact` f
 
 The guidelines' first auto-complete rule: "suggest input as it's typed (refreshing suggestions with each keystroke)". Focus opens the list under the field; each keystroke narrows it to the suggestions that contain the typed text. The arrow keys move a highlight through the rows, Enter chooses the highlighted one, and a press on a row chooses it and keeps the caret in the input.
 
-The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners, the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes Vuetify 1.5's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus shade.
+The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners,[^radius] the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes Vuetify 1.5's list hover, 4% black (8% white on the dark theme),[^highlight] and the chosen one the 12% focus shade.
 
 Without `strict`, Enter or leaving the field with text that matches no suggestion keeps that text as the value. Use this form where the suggestions help but do not limit the answer.
 :::
@@ -197,3 +197,7 @@ The input is a `combobox` with `aria-expanded`, `aria-controls` pointing at the 
 | Home, End | Leaves the highlight for the caret |
 | Backspace | In an empty input under `multiple`, moves to the last chip |
 | Delete, Backspace | On a focused chip, removes it |
+
+[^radius]: Vuetify 1.5.24, stylus/components/_menus.styl:21. The menu sheet's 2 px radius; the menus page states none.
+
+[^highlight]: Vuetify 1.5.24, stylus/components/_lists.styl:20-23 and stylus/settings/_theme.styl:52,146. A highlighted tile takes `list-tile.hover`, black 4% or white 8%.

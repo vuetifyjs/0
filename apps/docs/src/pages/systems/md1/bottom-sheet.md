@@ -75,7 +75,7 @@ A list sheet with a header: the `Title` row is 56 dp tall, set in Regular 16 sp 
 
 Each `Item` is a 48 dp row on the 16 dp keyline: a 24 dp icon in the active icon ink (54%), 32 dp of space, then the label in Regular 16 sp at 87%. An `Md1Divider` between items starts a new section and takes 8 dp above and below. `disabled` drops the row to 38% ink and removes it from the tab order; `href` makes the row a link, as the page's "open the application" action is.
 
-The guidelines state no hover, focus or pressed values for the rows, so they take Vuetify 1.5's list tile: a 4% hover overlay (8% white on the dark theme), no fill for keyboard focus, where the browser's focus ring marks the row, and the ripple on press.
+The guidelines state no hover, focus or pressed values for the rows, so they take Vuetify 1.5's list tile: a 4% hover overlay (8% white on the dark theme), no fill for keyboard focus, where the browser's focus ring marks the row, and the ripple on press.[^states]
 :::
 
 ::: ds-example
@@ -85,7 +85,7 @@ The guidelines state no hover, focus or pressed values for the rows, so they tak
 
 `grid` lays the items out as tiles: a 48 dp icon with a 16 dp label 8 dp below it, the icons spread evenly across each row. The grid keeps 24 dp of margin on every side and 24 dp between rows (the 2016 page said 16 dp; Material Design 1 follows the 2018 page). A header runs across the grid, flush with the sheet's edges, with 8 dp between its divider and the first row.
 
-The page sizes the label row and not its type. Material Design 1 sets the label in Caption, 12 sp, on the 16 dp line, centred under the icon; that choice is a decision. Use a grid for a share sheet or an app chooser, where the icons carry recognition; use the list when the labels need room or subtext.
+The page sizes the label row and not its type. Material Design 1 sets the label in Caption, 12 sp, on the 16 dp line, centred under the icon; that choice is a decision.[^caption] Use a grid for a share sheet or an app chooser, where the icons carry recognition; use the list when the labels need room or subtext.
 :::
 
 ::: ds-example
@@ -111,7 +111,7 @@ A deep link may go deeper into the other app or back to where it started, but no
 
 ### Expanded
 
-A sheet opens at the height of its content, capped at the 16:9 ratio keyline: the width times 9/16, 202 dp on a 360 dp phone. It never reaches the app bar either; an increment and 8 dp stay clear above it so there is always somewhere to tap and dismiss. A longer list scrolls inside the sheet.
+A sheet opens at the height of its content, capped at the 16:9 ratio keyline: the width times 9/16, 202 dp on a 360 dp phone. It never reaches the app bar either; an increment and 8 dp stay clear above it so there is always somewhere to tap and dismiss.[^clear] A longer list scrolls inside the sheet.
 
 `v-model:expanded` lifts the cap: the sheet fills the screen, its content scrolls internally, and an X appears in a bar at the top. The X dismisses the sheet, as the page specifies, and every dismissal returns the next opening to the initial height. On a handset the guidelines expand the sheet with an upward swipe. Material Design 1 ships no gestures, so the expanded state is a model and the root's `expand` slot prop, here bound to a footer button.
 :::
@@ -121,7 +121,7 @@ A sheet opens at the height of its content, capped at the 16:9 ratio keyline: th
 
 ### Persistent
 
-`persistent` makes the sheet part of the layout: no scrim, no focus trap, and the content beside it stays interactive. It rests at the app's own elevation, so it casts no shadow; Material Design 1 draws a 1 dp divider seam along its top edge, a decision where the page states only the elevation. The sheet is an `<aside>`, a complementary landmark named by its title. Its `Activator` is a disclosure button with `aria-expanded` and `aria-controls`, and Escape from inside the sheet dismisses it.
+`persistent` makes the sheet part of the layout: no scrim, no focus trap, and the content beside it stays interactive. It rests at the app's own elevation, so it casts no shadow; Material Design 1 draws a 1 dp divider seam along its top edge, a decision where the page states only the elevation.[^seam] The sheet is an `<aside>`, a complementary landmark named by its title. Its `Activator` is a disclosure button with `aria-expanded` and `aria-controls`, and Escape from inside the sheet dismisses it.[^escape]
 
 Choosing an item in a modal sheet dismisses the sheet; choosing one in a persistent sheet leaves it in place, which is the point of a persistent sheet: playback controls that stay, place details beside a map. A persistent sheet portals to the stack target by default. This example passes `:teleport="false"` so the sheet stays inside the preview, where `md1-docs-screen` is the containing block of its fixed position.
 :::
@@ -131,7 +131,7 @@ Choosing an item in a modal sheet dismisses the sheet; choosing one in a persist
 
 ### Inset persistent
 
-On a phone a persistent sheet spans the full width. On tablet and desktop the guidelines allow it "full width or inset, as determined by content width, overall UI, underlying content, and stylistic choices", so the choice is yours: `inset` applies the modal sheet's increment rule to a persistent one from 960 px. The sheet stays at least 1 increment (64 dp) from each side edge and at least 6 increments wide at 960 dp, 2 and 8 at 1280 dp, 3 and 9 at 1440 dp, and the content sets the width in between. Inset, the sheet no longer meets the side edges, so its 1 dp seam runs up both sides as well as along the top.
+On a phone a persistent sheet spans the full width. On tablet and desktop the guidelines allow it "full width or inset, as determined by content width, overall UI, underlying content, and stylistic choices", so the choice is yours: `inset` applies the modal sheet's increment rule to a persistent one from 960 px. The sheet stays at least 1 increment (64 dp) from each side edge and at least 6 increments wide at 960 dp, 2 and 8 at 1280 dp, 3 and 9 at 1440 dp, and the content sets the width in between. Inset, the sheet no longer meets the side edges, so its 1 dp seam runs up both sides as well as along the top.[^side]
 
 Widen the window past 960 px to see the inset. The breakpoints are viewport media queries, so the sheet measures the window, not the preview.
 :::
@@ -201,3 +201,15 @@ Give every sheet a `Title`, or an `aria-label` on the root when it has no header
 ### Dismissal
 
 The guidelines dismiss a sheet by swiping it down, tapping outside it, tapping the X or pressing Back. Swipe gestures are not shipped; tapping the scrim above a modal sheet, the X of the expanded sheet, and Escape are the paths, and every one of them is reachable without a pointer gesture.
+
+[^states]: Vuetify 1.5.24, stylus/settings/_theme.styl:52,146. `list-tile.hover` is black 4% and white 8%; the list tile has no focus fill.
+
+[^caption]: Our call: Caption is the type style that fits the 16 dp label row.
+
+[^clear]: Our call: the page reads the 16:9 keyline as the cap and says nothing about the app bar.
+
+[^seam]: Our call: Vuetify 1.5's persistent sheet is a modal, so there is nothing to borrow; a seam marks the edge a shadow would.
+
+[^escape]: Our call: the page's Back gesture maps to Escape on the web.
+
+[^side]: Our call: an inset sheet has open sides, and the seam follows every exposed edge.

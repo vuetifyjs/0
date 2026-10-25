@@ -70,7 +70,7 @@ v0's portal applies the stack z-index inline and only nudges a static wrapper to
 
 `Md1Snackbar.Queue` shows the notifications sent through `useNotifications().send()`, and only one at a time. The guidelines never stack snackbars: when a second one is sent while the first is up, the first contracts downward and the second animates upward once it has gone. The queue renders the newest notification through its slot as `item`; older ones leave the display queue but stay in the notifications inbox.
 
-The guidelines give no duration. Material Design 1's default is 6000 ms (Vuetify 1.5's value),[^1] set by the queue's `timeout` prop for every notification sent without its own; a `timeout` passed to `send()` still wins. Hovering or focusing the snackbar pauses the timer, so a reader who reaches for the action is never cut off.[^2]
+The guidelines give no duration. Material Design 1's default is 6000 ms (Vuetify 1.5's value),[^timeout] set by the queue's `timeout` prop for every notification sent without its own; a `timeout` passed to `send()` still wins. Hovering or focusing the snackbar pauses the timer, so a reader who reaches for the action is never cut off.[^pause]
 
 An app installs `createNotificationsPlugin()` once and sends from anywhere. This example provides its own notifications context instead because the docs install none. A snackbar inside a queue takes the shown notification's id, so its action dismisses that notification without any wiring.
 :::
@@ -90,7 +90,7 @@ A single-line snackbar is 48 dp, with 14 dp above and below a 20 dp line, and cu
 
 ### Long action
 
-When a two-line snackbar's action is wider than 128 dp, the action moves to its own row: the 112 dp form of the handset specs, the label at the end and 14 dp off the bottom edge. Material Design 1 measures the rendered action and sets `data-stacked`; there is no prop, because the layout follows the label, which a translation can lengthen.[^3]
+When a two-line snackbar's action is wider than 128 dp, the action moves to its own row: the 112 dp form of the handset specs, the label at the end and 14 dp off the bottom edge. Material Design 1 measures the rendered action and sets `data-stacked`; there is no prop, because the layout follows the label, which a translation can lengthen.[^measure]
 
 Otherwise the action sits on the message's line with 24 dp between the two (48 dp from 600 px) and its label 24 dp from the end edge. It is a flat button in the accent colour, uppercased by the stylesheet. Choosing it emits `action` and dismisses the snackbar. "Dismiss" and "Cancel" are not snackbar actions, because a snackbar leaves on its own; Material Design 1 warns in development when the label is either one.
 :::
@@ -146,7 +146,7 @@ The root's default slot is the message; the queue's default slot receives `item`
 
 ## Accessibility
 
-The snackbar is `role="status"`, a polite live region. Freshly inserted live regions are not reliably announced, so the portal keeps a persistent pair of visually hidden regions and the snackbar mirrors its text into them when it appears: the message, then the action label. The guidelines name no urgent level, and critical errors do not belong in a snackbar; there is no `role="alert"` form.[^4]
+The snackbar is `role="status"`, a polite live region. Freshly inserted live regions are not reliably announced, so the portal keeps a persistent pair of visually hidden regions and the snackbar mirrors its text into them when it appears: the message, then the action label. The guidelines name no urgent level, and critical errors do not belong in a snackbar; there is no `role="alert"` form.[^role]
 
 A snackbar does not take focus and does not block the page. Its action is a native button in the tab order. Hovering the snackbar or moving focus into it pauses the timer, and leaving resumes it, so the action stays reachable for as long as a reader needs (WCAG 2.2.1).
 
@@ -157,7 +157,10 @@ A snackbar does not take focus and does not block the page. Its action is a nati
 
 A snackbar times out, so it must never be the only route to something. Put the same action somewhere permanent: an undo in the toolbar, a retry in the list. Swipe to dismiss is not shipped; the timeout and the action cover dismissal.
 
-[^1]: Vuetify 1.5.24, components/VSnackbar/VSnackbar.ts:22-24. `timeout` defaults to 6000.
-[^2]: Our call: the page is silent on pausing; WCAG 2.2.1 asks for it.
-[^3]: Our call: the page draws the 112 dp form but gives no trigger, so the 128 dp threshold is ours.
-[^4]: Our call: the errors pattern keeps critical errors out of snackbars, so the polite role always fits.
+[^timeout]: Vuetify 1.5.24, components/VSnackbar/VSnackbar.ts:22-24. `timeout` defaults to 6000.
+
+[^pause]: Our call: the page is silent on pausing; WCAG 2.2.1 asks for it.
+
+[^measure]: Our call: the page draws the 112 dp form but gives no trigger, so the 128 dp threshold is ours.
+
+[^role]: Our call: the errors pattern keeps critical errors out of snackbars, so the polite role always fits.

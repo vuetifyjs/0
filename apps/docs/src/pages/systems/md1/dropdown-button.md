@@ -71,7 +71,7 @@ Material Design 1 adds three things v0 does not do. A v0 radio item keeps its me
 
 A segmented dropdown button has two sections. Pressing the current state fires that state's action, and pressing the arrow shows all the options; choosing one changes the state the button displays. `segmented` splits the button that way: the state segment emits `select` with the current value and never opens the menu, and the arrow segment is the menu button.
 
-The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are Material Design 1 decisions.[^1] The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet opens from the arrow's end corner, at least as wide as the whole button, so it still covers both segments.
+The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are Material Design 1 decisions.[^segments] The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet opens from the arrow's end corner, at least as wide as the whole button, so it still covers both segments.
 :::
 
 ::: ds-example
@@ -83,7 +83,7 @@ The guidelines' font size picker: a segmented dropdown whose displayed state is 
 
 A typed state need not be one of the items: a size the list does not offer is still a size. Text that names an item commits that item's value; when every item's value is a number, a typed number commits as a number; anything else commits as the text, for the app to accept or correct. The field shows the committed state, an item's text or the value itself.
 
-The guidelines give the editable form no metrics, so it takes Vuetify 1.5's editable overflow button: a 48 dp field with its 16 sp text 16 dp in, a 1 dp divider line at its foot, and a 48 dp arrow segment behind a 1 dp seam.[^2] Hovered, focused or open, it lifts onto the surface at 2 dp.[^3] It is two 56 dp increments wide by default, the menu's own minimum, so the sheet that opens over it covers it;[^4] set a width on it for a wider field.
+The guidelines give the editable form no metrics, so it takes Vuetify 1.5's editable overflow button: a 48 dp field with its 16 sp text 16 dp in, a 1 dp divider line at its foot, and a 48 dp arrow segment behind a 1 dp seam.[^overflow-button] Hovered, focused or open, it lifts onto the surface at 2 dp.[^lift] It is two 56 dp increments wide by default, the menu's own minimum, so the sheet that opens over it covers it;[^width] set a width on it for a wider field.
 :::
 
 ::: ds-example
@@ -111,7 +111,7 @@ The arrow carries no text, so pass `ariaLabel`; without it Material Design 1 war
 
 ### Dense
 
-`dense` condenses both halves. The button becomes the dense button, 32 dp tall with a 13 sp label; the menu takes the 14 sp dense type of the menus page. That page gives no dense row height, so the rows take the 40 dp of the dense list tile, a Material Design 1 decision `Md1Menu` shares.[^5] The 48 dp touch target still extends around the 32 dp button without taking layout space.
+`dense` condenses both halves. The button becomes the dense button, 32 dp tall with a 13 sp label; the menu takes the 14 sp dense type of the menus page. That page gives no dense row height, so the rows take the 40 dp of the dense list tile, a Material Design 1 decision `Md1Menu` shares.[^dense] The 48 dp touch target still extends around the 32 dp button without taking layout space.
 :::
 
 ::: ds-example
@@ -121,7 +121,7 @@ The arrow carries no text, so pass `ariaLabel`; without it Material Design 1 war
 
 `desktop` is the dropdown the buttons page specifies for desktop app bars: 16 dp above and below, 24 dp before the state and 16 dp after the arrow, which makes the button 56 dp tall around its 24 dp glyph. The menu takes the desktop metrics of the menus page: 32 px rows, 15 px type, the text at the 64 px keyline with 24 px after it, in whole 64 px units from 128 px, resting 2 dp lower at 6 dp.
 
-With `dense` as well, the menu drops to 24 px rows of 13 px type with 4 px above the first row and below the last, the dense desktop redline. Desktop is a prop rather than a pointer query, so the same app can mix forms.[^6]
+With `dense` as well, the menu drops to 24 px rows of 13 px type with 4 px above the first row and below the last, the dense desktop redline. Desktop is a prop rather than a pointer query, so the same app can mix forms.[^desktop]
 :::
 
 ::: ds-example
@@ -167,7 +167,7 @@ The default slot holds the items. There are no named slots.
 
 ## Accessibility
 
-The button is a native `<button>` with `aria-haspopup="menu"`, `aria-expanded` and `aria-controls` from `Menu.Activator`; the sheet is `role="menu"` labelled by the button, and each state is a `menuitemradio` with `aria-checked`. The WAI-ARIA pattern is the Menu Button; the segmented form is a Button beside a Menu Button. The editable form is a native text field beside the Menu Button rather than the Combobox the guidelines' notes suggest: its popup is a menu of radio items, which a combobox may not own.[^7]
+The button is a native `<button>` with `aria-haspopup="menu"`, `aria-expanded` and `aria-controls` from `Menu.Activator`; the sheet is `role="menu"` labelled by the button, and each state is a `menuitemradio` with `aria-checked`. The WAI-ARIA pattern is the Menu Button; the segmented form is a Button beside a Menu Button. The editable form is a native text field beside the Menu Button rather than the Combobox the guidelines' notes suggest: its popup is a menu of radio items, which a combobox may not own.[^combobox]
 
 ### Naming
 
@@ -187,13 +187,20 @@ The plain button is named by the state it shows, so a screen reader announces th
 
 ### Positioning
 
-The menu opens over the button rather than below it, as the buttons page describes, with the selected state on the button, as the menus page asks of a simple menu. Near a screen edge the whole sheet moves up or down so every state stays visible, never past the 16 dp screen-edge margin (24 dp from 600 px); a long list opens scrolled so the selected state is in its middle.[^8] The sheet stops one 48 dp row short of the screen's height, so a tap outside it always has somewhere to land, and scrolls inside when its states do not fit. A pointer outside the menu dismisses it without a change.
+The menu opens over the button rather than below it, as the buttons page describes, with the selected state on the button, as the menus page asks of a simple menu. Near a screen edge the whole sheet moves up or down so every state stays visible, never past the 16 dp screen-edge margin (24 dp from 600 px); a long list opens scrolled so the selected state is in its middle.[^scroll] The sheet stops one 48 dp row short of the screen's height, so a tap outside it always has somewhere to land, and scrolls inside when its states do not fit. A pointer outside the menu dismisses it without a change.
 
-[^1]: Our call: the page draws the segments only as an image; a square arrow segment and a 1 dp divider seam read as one button.
-[^2]: Vuetify 1.5.24, stylus/components/_overflow-buttons.styl:16-21,38-46,54-60. The editable `v-overflow-btn`: 48 px field, text 16 px in, 48 px append segment behind a 1 px divider seam.
-[^3]: Vuetify 1.5.24, stylus/components/_overflow-buttons.styl:23-27,82-85. The cards fill on hover, focus and an open menu, and `elevation(2)` on focus and an open menu.
-[^4]: Our call: the menu's two-increment minimum keeps the sheet covering the field.
-[^5]: Our call: the menus page gives no dense row height, so the rows borrow the dense list tile's 40 dp.
-[^6]: Our call: the page names a desktop form, not a device switch, so it is opt-in.
-[^7]: Our call: ARIA lets a combobox own a listbox, not a menu, so the field sits beside the Menu Button.
-[^8]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:15-23. `calcScrollPosition` centres the active tile in a scrolled menu.
+[^segments]: Our call: the page draws the segments only as an image; a square arrow segment and a 1 dp divider seam read as one button.
+
+[^overflow-button]: Vuetify 1.5.24, stylus/components/_overflow-buttons.styl:16-21,38-46,54-60. The editable `v-overflow-btn`: 48 px field, text 16 px in, 48 px append segment behind a 1 px divider seam.
+
+[^lift]: Vuetify 1.5.24, stylus/components/_overflow-buttons.styl:23-27,82-85. The cards fill on hover, focus and an open menu, and `elevation(2)` on focus and an open menu.
+
+[^width]: Our call: the menu's two-increment minimum keeps the sheet covering the field.
+
+[^dense]: Our call: the menus page gives no dense row height, so the rows borrow the dense list tile's 40 dp.
+
+[^desktop]: Our call: the page names a desktop form, not a device switch, so it is opt-in.
+
+[^combobox]: Our call: ARIA lets a combobox own a listbox, not a menu, so the field sits beside the Menu Button.
+
+[^scroll]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:15-23. `calcScrollPosition` centres the active tile in a scrolled menu.

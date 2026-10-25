@@ -69,7 +69,7 @@ A flat button is text printed on the sheet it sits on: no container, no shadow, 
 
 A raised button is a rectangular sheet of its own: the primary colour (`--md1-primary`, Indigo 500) with white ink at 100%, resting at 2 dp. Pressing it lifts the sheet to 8 dp and fills it with the 700 shade (`--md1-primary-dark`); on release it settles back to rest. Raised buttons add dimension to mostly flat layouts and emphasize an action on busy or wide surfaces. The guidelines call them too prominent inside dialogs.
 
-Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. On hover both variants draw a 12% overlay of their own ink, a tint of the accent on a flat button and a white wash on a raised one: the buttons page states no hover, so the button takes Vuetify 1.5's.[^1] A device that cannot hover draws none.
+Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. On hover both variants draw a 12% overlay of their own ink, a tint of the accent on a flat button and a white wash on a raised one: the buttons page states no hover, so the button takes Vuetify 1.5's.[^hover] A device that cannot hover draws none.
 :::
 
 ::: ds-example
@@ -79,7 +79,7 @@ Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding
 
 When mouse and keyboard are the primary input, the guidelines allow button measurements to be slightly reduced. `dense` is that form: 32 dp tall with a 13 sp label, while the 16 dp padding and the 2 dp radius stay. Reach for it in dense desktop surfaces, a data table's toolbar or a desktop dialog, and keep the 36 dp button for anything a finger will touch.
 
-The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be slightly reduced"), so Material Design 1 exposes it as a prop instead of switching on `(pointer: fine)`: the same app can hold a dense toolbar above standard dialog actions.[^2] The touch target still extends to 48 dp around the button; the dense form only condenses what is painted. A glyph inside a dense button drops to the 20 dp dense icon size.
+The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be slightly reduced"), so Material Design 1 exposes it as a prop instead of switching on `(pointer: fine)`: the same app can hold a dense toolbar above standard dialog actions.[^dense] The touch target still extends to 48 dp around the button; the dense form only condenses what is painted. A glyph inside a dense button drops to the 20 dp dense icon size.
 :::
 
 ::: ds-example
@@ -89,7 +89,7 @@ The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be s
 
 `icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so Material Design 1 uses one step of the 8 dp grid; that value is a decision, not a spec number.
 
-Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. Its ink is the primary text ink, 87% black (white on the dark theme), rather than the accent, Vuetify 1.5's icon button.[^3] An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
+Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. Its ink is the primary text ink, 87% black (white on the dark theme), rather than the accent, Vuetify 1.5's icon button.[^icon-ink] An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
 :::
 
 ::: ds-example
@@ -117,7 +117,7 @@ Nothing changes on the button itself: `data-theme="md1-dark"` on any ancestor sw
 
 ### Persistent footer
 
-A persistent footer button is a flat button fixed to the bottom of a screen or a dialog, so the action stays available while the content scrolls. The guidelines fix its height at 48 dp; Material Design 1 renders it the width of its container with square corners, a Material Design 1 decision where the page states only the height.[^4] The guidelines add a divider above it when the content scrolls, and forbid raised buttons in persistent areas; `footer` with `variant="raised"` logs a development warning and is not a spec form.
+A persistent footer button is a flat button fixed to the bottom of a screen or a dialog, so the action stays available while the content scrolls. The guidelines fix its height at 48 dp; Material Design 1 renders it the width of its container with square corners, a Material Design 1 decision where the page states only the height.[^footer] The guidelines add a divider above it when the content scrolls, and forbid raised buttons in persistent areas; `footer` with `variant="raised"` logs a development warning and is not a spec form.
 
 Use it for the one action a sheet must keep reachable: "Got it" under a notice, "Done" under a long form. The 48 dp height is the touch target itself, so no hit area is added around it, and the label is capitalised by the stylesheet while the source text stays sentence case.
 :::
@@ -169,7 +169,7 @@ The accessible name is the default slot's text. The capitals are applied by the 
 
 ### Focus
 
-The guidelines give a focused button a 12% overlay: 12% of the button's own ink on a flat button, a 12% black shade over the colour on a raised one. Material Design 1 draws it for `:focus-visible` only, so keyboard focus shows it and a mouse click does not leave it behind.[^5] Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+The guidelines give a focused button a 12% overlay: 12% of the button's own ink on a flat button, a 12% black shade over the colour on a raised one. Material Design 1 draws it for `:focus-visible` only, so keyboard focus shows it and a mouse click does not leave it behind.[^focus] Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
 
 ### Disabled
 
@@ -182,8 +182,12 @@ The guidelines give a focused button a 12% overlay: 12% of the button's own ink 
 
 The 36 dp button answers to a 48 dp tall hit area, the minimum touch target of the metrics page, without taking that space in the layout. In a row, the 8 dp the guidelines put between buttons keeps the targets apart, because the hit area only extends vertically. Stacked buttons need 20 dp between them (8 dp between the 48 dp targets) or the areas overlap. The dense form extends its area further, and the footer and icon-only forms are 48 dp already.
 
-[^1]: Vuetify 1.5.24, stylus/components/_buttons.styl:54,62-72. The 12% `currentColor` hover overlay on `.v-btn`, cleared under `(hover: none)`.
-[^2]: Our call: the page makes the reduction optional, so it is a prop rather than a `(pointer: fine)` switch.
-[^3]: Vuetify 1.5.24, stylus/components/_buttons.styl:5-6. An uncoloured `.v-btn` takes `text.primary`, which is what an icon button inherits.
-[^4]: Our call: the page fixes only the 48 dp height, and a footer that spans its container reads as part of the edge.
-[^5]: Our call: the page states the overlay, not when it shows; `:focus-visible` keeps it off mouse clicks. The forced-colours outline is ours too.
+[^hover]: Vuetify 1.5.24, stylus/components/_buttons.styl:54,62-72. The 12% `currentColor` hover overlay on `.v-btn`, cleared under `(hover: none)`.
+
+[^dense]: Our call: the page makes the reduction optional, so it is a prop rather than a `(pointer: fine)` switch.
+
+[^icon-ink]: Vuetify 1.5.24, stylus/components/_buttons.styl:5-6. An uncoloured `.v-btn` takes `text.primary`, which is what an icon button inherits.
+
+[^footer]: Our call: the page fixes only the 48 dp height, and a footer that spans its container reads as part of the edge.
+
+[^focus]: Our call: the page states the overlay, not when it shows; `:focus-visible` keeps it off mouse clicks. The forced-colours outline is ours too.

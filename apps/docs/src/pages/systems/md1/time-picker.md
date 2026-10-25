@@ -74,7 +74,7 @@ The dialog sheet rests at 24 dp, the elevation table's value for a picker. Escap
 
 ### 24 hour format
 
-The guidelines say the picker follows the user's preferred clock, 12 hour or 24 hour, and draw only the 12 hour face. `format="24"` is Material Design 1's reading of the other: the outer ring keeps 12 and 1 to 11, and an inner ring at 62% of the radius carries 00 and 13 to 23, set in the 14 sp Body 1 size and the secondary ink so the outer hours lead. The header shows zero-padded hours and drops AM and PM. The inner ring and its sizes are an interpretation (Vuetify 1.5's inner-ring scale), not spec values.
+The guidelines say the picker follows the user's preferred clock, 12 hour or 24 hour, and draw only the 12 hour face. `format="24"` is Material Design 1's reading of the other: the outer ring keeps 12 and 1 to 11, and an inner ring at 62% of the radius carries 00 and 13 to 23, set in the 14 sp Body 1 size and the secondary ink so the outer hours lead.[^inner] The header shows zero-padded hours and drops AM and PM. The inner ring and its sizes are an interpretation (Vuetify 1.5's inner-ring scale), not spec values.[^scale]
 
 A press near the centre picks from the inner ring and a press near the edge from the outer one; the hand shortens to reach the inner ring. The arrow keys walk the day in order, 11 to 12 to 13, so the keyboard never needs to know which ring an hour is on. `v-model` is the same `HH:mm` string in both formats, so switching the display never changes the value.
 :::
@@ -86,7 +86,7 @@ A press near the centre picks from the inner ring and a press near the edge from
 
 The guidelines adapt the picker to the device's orientation. `landscape` is that layout: the header becomes a 168 dp column at the start edge with the time at about 48 sp and AM and PM stacked beneath it, and the face drops to 224 dp, centred 60 dp from each side of the 344 dp body, with a 36 dp target. The sheet is 512 dp wide.
 
-The orientation is a prop, not a media query, because the right layout depends on the space inside the dialog rather than on the viewport alone. Bind it to `useBreakpoints` or an `(orientation: landscape)` query in the app when the picker should follow the device. Inside a confirmation dialog the action area runs under both the header column and the face, so the header stops 52 dp short of the bottom edge the artwork draws it reaching.
+The orientation is a prop, not a media query, because the right layout depends on the space inside the dialog rather than on the viewport alone.[^land] Bind it to `useBreakpoints` or an `(orientation: landscape)` query in the app when the picker should follow the device. Inside a confirmation dialog the action area runs under both the header column and the face, so the header stops 52 dp short of the bottom edge the artwork draws it reaching.
 :::
 
 ::: ds-example
@@ -145,4 +145,14 @@ The numbers do not take the pointer; the face does. A press anywhere on the face
 
 ### Focus
 
-A focused number shows the 12% focus overlay as an 8 dp halo round its target; the header buttons show the overlay as a 12% fill of their own ink. The guidelines state no hover for pickers, so the header takes Vuetify 1.5's: no overlay, and an inactive segment rises from 70% to full white under the pointer. The hand sweeps over the standard duration on the standard curve (300 ms on a handset, 200 ms under a mouse), holds still under the finger while dragging, and jumps when reduced motion is requested.
+A focused number shows the 12% focus overlay as an 8 dp halo round its target; the header buttons show the overlay as a 12% fill of their own ink. The guidelines state no hover for pickers, so the header takes Vuetify 1.5's: no overlay, and an inactive segment rises from 70% to full white under the pointer.[^hover] The hand sweeps over the standard duration on the standard curve (300 ms on a handset, 200 ms under a mouse),[^sweep] holds still under the finger while dragging, and jumps when reduced motion is requested.
+
+[^inner]: Our call: the page names the 24 hour clock but draws no inner ring; the type and ink are ours.
+
+[^scale]: Vuetify 1.5.24, components/VTimePicker/VTimePickerClock.ts:86-87. `innerRadiusScale` is 0.62.
+
+[^land]: Our call: the page adapts to orientation but leaves the trigger to the platform.
+
+[^hover]: Vuetify 1.5.24, stylus/components/_pickers.styl:36-41. An inactive title button rises to full opacity on hover while not focused.
+
+[^sweep]: Our call: the video shows the sweep without a duration; the standard duration is the motion page's default for on-screen changes.

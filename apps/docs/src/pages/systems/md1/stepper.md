@@ -78,7 +78,7 @@ Material Design 1 styles the attributes it publishes: `data-vertical`, `data-lin
 
 Vertical steppers stack the steps and open the active step's content under its label. The guidelines design them for narrow screens and call them ideal for mobile, so keep each step's content responsive.
 
-The label row starts 24 dp from the top, with 12 dp from the circle to the label, and the content is indented to the label's keyline, 60 dp from the edge. The 1 dp connector runs down from each circle, 8 dp clear of it, to the next circle. The CONTINUE and CANCEL row sits 16 dp under the content with 8 dp between the buttons, and the next step's label starts 48 dp below that row. The guidelines state no motion for the content; Material Design 1 opens it as a height change over the standard 300 ms.[^1]
+The label row starts 24 dp from the top, with 12 dp from the circle to the label, and the content is indented to the label's keyline, 60 dp from the edge. The 1 dp connector runs down from each circle, 8 dp clear of it, to the next circle. The CONTINUE and CANCEL row sits 16 dp under the content with 8 dp between the buttons, and the next step's label starts 48 dp below that row. The guidelines state no motion for the content; Material Design 1 opens it as a height change over the standard 300 ms.[^duration]
 :::
 
 ::: ds-example
@@ -86,7 +86,7 @@ The label row starts 24 dp from the top, with 12 dp from the circle to the label
 
 ### Non-linear
 
-A non-linear stepper lets the user enter the flow at any point and complete the steps in any order. Set `:linear="false"`. Every step not reached yet is a button, its label at 54% rather than the linear stepper's 38%, and it takes a 6% hover overlay of the ink over the whole step cell, black on the light theme and white on the dark one,[^2] and a 6% ripple from the press point. Keyboard focus draws no fill of its own, as in Vuetify 1.5;[^3] the browser's focus ring marks the step.
+A non-linear stepper lets the user enter the flow at any point and complete the steps in any order. Set `:linear="false"`. Every step not reached yet is a button, its label at 54% rather than the linear stepper's 38%, and it takes a 6% hover overlay of the ink over the whole step cell, black on the light theme and white on the dark one,[^hover] and a 6% ripple from the press point. Keyboard focus draws no fill of its own, as in Vuetify 1.5;[^focus] the browser's focus ring marks the step.
 
 A non-linear stepper cannot infer which steps are done, so mark them with `complete`: the circle turns to the primary colour with a white check, and a completed step is locked unless it is also `editable`. In a linear stepper `complete` is optional, because every step before the active one is completed.
 :::
@@ -140,7 +140,7 @@ The red is `--md1-error`, Red A400, the colour the text field uses for its error
 
 The guidelines let a stepper show a transient feedback message after a step is saved, and only when there is long latency between steps. While `feedback` holds a message, the active step's content is replaced by an indeterminate circular indicator and the message in Body 1 at 54%; clear it and the content returns.
 
-The guidelines show the feedback in video only, so the layout here, the circle beside the message, is a Material Design 1 decision.[^4] The content stays mounted underneath, so nothing the user typed is lost.
+The guidelines show the feedback in video only, so the layout here, the circle beside the message, is a Material Design 1 decision.[^feedback-layout] The content stays mounted underneath, so nothing the user typed is lost.
 :::
 
 ::: ds-example
@@ -219,7 +219,10 @@ Each step's content is a region named by its step label, so moving into it annou
 
 The feedback message renders in a `role="status"` container beside the indeterminate indicator, which is itself a `progressbar`. The step's content stays mounted but hidden while the message shows, so focus that was inside it is lost; move focus to the next step's content when the feedback clears.
 
-[^1]: Our call: the standard duration is the motion page's default for on-screen changes.
-[^2]: Vuetify 1.5.24, stylus/components/_steppers.styl:27-28. An editable step's hover is the foreground at 6% in either theme, which matches the steppers page's light value.
-[^3]: Vuetify 1.5.24, stylus/components/_steppers.styl:22-28. The step styles active and hover states only; there is no focus rule.
-[^4]: Our call: the indicator beside the message keeps the step's height while it waits.
+[^duration]: Our call: the standard duration is the motion page's default for on-screen changes.
+
+[^hover]: Vuetify 1.5.24, stylus/components/_steppers.styl:27-28. An editable step's hover is the foreground at 6% in either theme, which matches the steppers page's light value.
+
+[^focus]: Vuetify 1.5.24, stylus/components/_steppers.styl:22-28. The step styles active and hover states only; there is no focus rule.
+
+[^feedback-layout]: Our call: the indicator beside the message keeps the step's height while it waits.

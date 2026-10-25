@@ -104,7 +104,7 @@ Put `Md1Fab.Action` children inside the FAB and pressing it flings out related a
 
 The page limits a speed dial to three to six options including the FAB itself, so Material Design 1 warns in development for fewer than two or more than five actions. The options must be specific destinations reached in at most two taps; overflow menus and unrelated actions belong in the toolbar instead. Change `icon` from the `v-model` value when the open FAB should show a different glyph.
 
-The page states no spacing, colour or label style for the actions. The circles take Vuetify 1.5's: 12 dp apart, its 6 dp button margins on each side,[^1] filled with the app bar colour (Grey 100, Grey 900 on the dark theme) and drawn in the active icon ink.[^2] Vuetify 1.5 has no labels, so they are Material Design 1 decisions: Body 1 on a small 2 dp sheet, 16 dp from the circle.[^3] The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
+The page states no spacing, colour or label style for the actions. The circles take Vuetify 1.5's: 12 dp apart, its 6 dp button margins on each side,[^pitch] filled with the app bar colour (Grey 100, Grey 900 on the dark theme) and drawn in the active icon ink.[^fill] Vuetify 1.5 has no labels, so they are Material Design 1 decisions: Body 1 on a small 2 dp sheet, 16 dp from the circle.[^labels] The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
 :::
 
 ::: ds-example
@@ -114,11 +114,11 @@ The page states no spacing, colour or label style for the actions. The circles t
 
 The page's full-screen transition: on a phone the FAB becomes a sheet that spans the screen, for creating content. Here the FAB is the `Md1Dialog.Activator` of a `full-screen` dialog, and `useMorph` plays the transform as the dialog opens. The FAB's circle leaves its corner on an arc and grows into the screen: a circular clip on the dialog's sheet starts at the FAB's radius and ends past the farthest corner, while the dialog travels from the FAB's centre to its own.
 
-The FAB's colour comes along. A veil in the accent colour, carrying the FAB's glyph, covers the sheet: the glyph fades in the first 20% of the transform and the veil between 20% and 70%, so the colour hands over to the app bar and the sheet underneath and the content arrives late.[^4] The FAB's shadow follows the circle as a `drop-shadow()` and fades as the sheet takes the screen.
+The FAB's colour comes along. A veil in the accent colour, carrying the FAB's glyph, covers the sheet: the glyph fades in the first 20% of the transform and the veil between 20% and 70%, so the colour hands over to the app bar and the sheet underneath and the content arrives late.[^veil] The FAB's shadow follows the circle as a `drop-shadow()` and fades as the sheet takes the screen.
 
 It takes 375 ms, the duration page's value for a large, complex, full-screen transition. The page calls this transform usually not reversible, so closing is the dialog's own exit: Discard, Send and Escape fade the sheet out over 195 ms and focus returns to the FAB.
 
-From 600 px the full-screen variant is a 560 dp sheet, and the full-screen pattern belongs to handsets, so the example checks `(max-width: 599.98px)` and plays no transform there: the dialog enters with its own 225 ms fade and scale.[^5] Under reduced motion it appears at once on any screen.
+From 600 px the full-screen variant is a 560 dp sheet, and the full-screen pattern belongs to handsets, so the example checks `(max-width: 599.98px)` and plays no transform there: the dialog enters with its own 225 ms fade and scale.[^handset] Under reduced motion it appears at once on any screen.
 :::
 
 ::: ds-example
@@ -128,9 +128,9 @@ From 600 px the full-screen variant is a 560 dp sheet, and the full-screen patte
 
 The FAB can transform into a toolbar of related actions, and the toolbar turns back into the FAB when the content scrolls. The transform has two phases. First the circle travels to the bar's centre and grows to its height; then it stretches to the bar's full width as its corners square off. The toolbar keeps the FAB's accent colour, and the veil carries the glyph through the first phase, so the actions appear while the bar widens.
 
-`useMorph` runs it as a rectangular transform with `lead: 'height'` and `lag: 0.5`: height and movement take the first half of the duration and the width the second.[^6] The FAB stays in the layout with `visibility: hidden` while the toolbar stands in for it, so the reverse transform can measure the spot it returns to. Close, or any scroll of the content, plays the same keyframes backwards and only then removes the toolbar.
+`useMorph` runs it as a rectangular transform with `lead: 'height'` and `lag: 0.5`: height and movement take the first half of the duration and the width the second.[^phase-split] The FAB stays in the layout with `visibility: hidden` while the toolbar stands in for it, so the reverse transform can measure the spot it returns to. Close, or any scroll of the content, plays the same keyframes backwards and only then removes the toolbar.
 
-The page states no duration for this transform. It runs on `--md1-duration-standard`, 300 ms on a phone and 200 ms under a mouse, on the standard curve, the motion page's value for surface transformations on screen.[^7]
+The page states no duration for this transform. It runs on `--md1-duration-standard`, 300 ms on a phone and 200 ms under a mouse, on the standard curve, the motion page's value for surface transformations on screen.[^duration]
 :::
 
 ::: ds-example
@@ -160,7 +160,7 @@ This is the radial reaction of the choreography page: reactions start at the poi
 
 An app normally has one floating action button. A map is the guidelines' exception: recentring on your location and getting directions are equally important and distinct, so each gets a button. The mini button recentres the map, which slides back under it, and the default one starts directions. Press the map to pan it away first.
 
-Stack the two on the same column, the mini centred over the default with 16 dp between them,[^8] so they read as a pair rather than competing for the corner. Under 460 px both take the 40 dp size and line up on the same edge.
+Stack the two on the same column, the mini centred over the default with 16 dp between them,[^stack] so they read as a pair rather than competing for the corner. Under 460 px both take the 40 dp size and line up on the same edge.
 :::
 
 ::: ds-example
@@ -168,7 +168,7 @@ Stack the two on the same column, the mini centred over the default with 16 dp b
 
 ### Over a list
 
-A list that scrolls under a floating action button needs room beneath its last row, or the button covers it for good. Pad the list by the button's 56 dp plus its 16 dp margin on each side;[^9] scroll to the end and the last note clears the button.
+A list that scrolls under a floating action button needs room beneath its last row, or the button covers it for good. Pad the list by the button's 56 dp plus its 16 dp margin on each side;[^padding] scroll to the end and the last note clears the button.
 :::
 
 ::: ds-example
@@ -176,7 +176,7 @@ A list that scrolls under a floating action button needs room beneath its last r
 
 ### Disabled
 
-The page states no disabled appearance, so Material Design 1 gives the FAB the raised button's:[^10] a 12% black container (12% white on the dark theme), 26% ink (30% white on the dark theme) and no shadow, so it reads as part of the sheet beneath it. `disabled` sets the native attribute; the button leaves the tab order and draws no ink. A disabled speed dial does not open.
+The page states no disabled appearance, so Material Design 1 gives the FAB the raised button's:[^disabled] a 12% black container (12% white on the dark theme), 26% ink (30% white on the dark theme) and no shadow, so it reads as part of the sheet beneath it. `disabled` sets the native attribute; the button leaves the tab order and draws no ink. A disabled speed dial does not open.
 
 A FAB is the promoted action of its screen, so a disabled one is rare. Prefer hiding it while the action is unavailable, or keep it enabled and explain the precondition on press.
 :::
@@ -288,13 +288,22 @@ The FAB enters as an expanding piece of material, scaling from its centre over 2
 
 The 56 dp FAB exceeds the 48 dp minimum. The mini FAB and every speed dial action extend a transparent hit area to 48 dp around their 40 dp circles.
 
-[^1]: Vuetify 1.5.24, stylus/settings/_variables.styl:169-171. `$button-margin-y` is 6 px, so stacked buttons sit 12 px apart.
-[^2]: Vuetify 1.5.24, stylus/components/_buttons.styl:18-19. An uncoloured floating button fills with `app-bar`.
-[^3]: Our call: Vuetify 1.5's speed dial has no labels; a small Body 1 sheet keeps each label legible over any content.
-[^4]: Our call: the page gives no timings for the hand-over; glyph first, then veil, lets the content arrive last.
-[^5]: Our call: full-screen dialogs are a handset pattern, and from 600 px the variant is a 560 dp sheet.
-[^6]: Our call: the page says height leads width but gives no split; half and half keeps both phases readable.
-[^7]: Our call: no transform duration on the page, so it takes the standard duration for on-screen changes.
-[^8]: Our call: the page shows two FABs but no geometry; 16 dp is one keyline margin.
-[^9]: Our call: the page asks for enough padding without a number; this clears the FAB and its margins.
-[^10]: Vuetify 1.5.24, stylus/components/_buttons.styl:8-16. A disabled floating button takes `buttons.disabled` ink and the 12% `buttons.focused` fill, the same values as a raised button.
+[^pitch]: Vuetify 1.5.24, stylus/settings/_variables.styl:169-171. `$button-margin-y` is 6 px, so stacked buttons sit 12 px apart.
+
+[^fill]: Vuetify 1.5.24, stylus/components/_buttons.styl:18-19. An uncoloured floating button fills with `app-bar`.
+
+[^labels]: Our call: Vuetify 1.5's speed dial has no labels; a small Body 1 sheet keeps each label legible over any content.
+
+[^veil]: Our call: the page gives no timings for the hand-over; glyph first, then veil, lets the content arrive last.
+
+[^handset]: Our call: full-screen dialogs are a handset pattern, and from 600 px the variant is a 560 dp sheet.
+
+[^phase-split]: Our call: the page says height leads width but gives no split; half and half keeps both phases readable.
+
+[^duration]: Our call: no transform duration on the page, so it takes the standard duration for on-screen changes.
+
+[^stack]: Our call: the page shows two FABs but no geometry; 16 dp is one keyline margin.
+
+[^padding]: Our call: the page asks for enough padding without a number; this clears the FAB and its margins.
+
+[^disabled]: Vuetify 1.5.24, stylus/components/_buttons.styl:8-16. A disabled floating button takes `buttons.disabled` ink and the 12% `buttons.focused` fill, the same values as a raised button.

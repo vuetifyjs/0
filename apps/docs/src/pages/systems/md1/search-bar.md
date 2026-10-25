@@ -67,7 +67,7 @@ v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendan
 
 ### The persistent bar
 
-The search box is an inset sheet presented ready to receive focus. Material Design 1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric), on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu. The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
+The search box is an inset sheet presented ready to receive focus. Material Design 1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric),[^height] on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu.[^open] The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
 
 Focus turns the search glyph into the up arrow and opens the suggestions. Enter submits the query, and so does choosing a suggestion; either way the field keeps the query and gives up focus, so the results show with the bar visible but not focused, as the pattern prescribes. The `submit` event carries the trimmed query; a blank query submits nothing.
 :::
@@ -79,7 +79,7 @@ Focus turns the search glyph into the up arrow and opens the suggestions. Enter 
 
 The pattern orders suggestions by intent. Before a query is complete the field shows historical suggestions, the user's recent queries; as the user types it shifts to auto-completion against the app's data. `history` marks a recent query: it draws the history glyph and is offered from focus. An item without it is a completion with the search glyph, shown only once something is typed. Both filter as the user types, so recent matches stay first.
 
-Rows are 48 dp single-line list rows with the glyph on the 16 dp keyline and the text on the 72 dp keyline, the list and navigation drawer metrics. The list opens directly under the box at its width, squaring the box's lower corners so the two read as one expanded card. `Md1SearchBar.Empty` is the row for a typed query nothing matches; it never shows before something is typed, and with no Empty part and nothing to offer the list stays shut.
+Rows are 48 dp single-line list rows with the glyph on the 16 dp keyline and the text on the 72 dp keyline, the list and navigation drawer metrics. The list opens directly under the box at its width, squaring the box's lower corners so the two read as one expanded card.[^card] `Md1SearchBar.Empty` is the row for a typed query nothing matches; it never shows before something is typed, and with no Empty part and nothing to offer the list stays shut.
 :::
 
 ::: ds-example
@@ -188,3 +188,9 @@ The root is a `<form role="search">`, a search landmark named by `placeholder`. 
 ### Focus
 
 The field draws no focus ring: the caret in the accent colour and the up arrow mark focus inside the box. Pointer presses on the nav, clear and voice actions keep the caret in the field. Releasing the bar, by the up arrow or a submit, moves focus out, the web counterpart of the pattern dismissing the on-screen keyboard.
+
+[^height]: Vuetify 1.5.24, stylus/components/_text-fields.styl:318-319. The solo field's 48 px minimum height, the same value.
+
+[^open]: Our call: the elevation page gives no open state for the bar.
+
+[^card]: Our call: the pattern page shows the expanded card without metrics.

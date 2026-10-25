@@ -66,7 +66,7 @@ The Material Design 1 dialog. A 24 dp sheet that interrupts with a decision: an 
 
 `Md1Dialog` renders v0's [AlertDialog](/components/disclosure/alert-dialog) compound under `variant="alert"` and v0's [Dialog](/components/disclosure/dialog) compound for the other three types. Every part picks the matching v0 part from the root's variant, so one Material Design 1 tree serves both. `Dialog.Content` opens a native `<dialog>` with `showModal()`, which gives the top layer, focus containment, the inert page behind and Escape. `Title` and `Text` render `Dialog.Title` and `Dialog.Description`, which wire `aria-labelledby` and `aria-describedby` on the dialog only while they are mounted.
 
-The scrim is the dialog's own `::backdrop` in `--md1-scrim`.[^1] Material Design 1 passes `scrim: false` to every `Dialog.Content` it renders and never mounts v0's `Scrim`, so one backdrop paints per dialog. An app that also mounts `<Scrim>` paints a second one.
+The scrim is the dialog's own `::backdrop` in `--md1-scrim`.[^scrim] Material Design 1 passes `scrim: false` to every `Dialog.Content` it renders and never mounts v0's `Scrim`, so one backdrop paints per dialog. An app that also mounts `<Scrim>` paints a second one.
 
 `Cancel` and `Confirm` are flat [Md1Buttons](/systems/md1/button), each with its ripple. Under the alert they sit on the renderless `AlertDialog.Cancel` and `AlertDialog.Action`; otherwise `Cancel` sits on `Dialog.Close` and `Confirm` is a plain button that commits through the root. The root provides a `md1:dialog` context with `value` and `commit(value)`, the hook a list or a radio group inside the dialog calls. `Dialog.Close` names itself "Close" from the locale; Material Design 1 drops that label so the visible text stays the accessible name.
 
@@ -81,9 +81,9 @@ The scrim is the dialog's own `::backdrop` in `--md1-scrim`.[^1] Material Design
 
 Most alerts have no title: one or two sentences carry the question, as in the usage example. A title is for high-risk situations, and it must be a clear question or statement ("Erase USB storage?"), never "Warning!" or "Are you sure?".
 
-The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the primary ink, 87% black; the page states no body style, so it takes Vuetify 1.5's, whose card text inherits the primary ink.[^2] The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
+The title is the Title style, Roboto Medium 20 sp on a 28 dp line, 24 dp from the top edge and 20 dp above the body text. The sheet rests at 24 dp, the elevation page's value for dialogs; under a mouse and keyboard it rests 2 dp lower, at 22 dp, like every resting surface. The text is Body 1 (14 sp) at the primary ink, 87% black; the page states no body style, so it takes Vuetify 1.5's, whose card text inherits the primary ink.[^ink] The sheet keeps 24 dp of padding around its content and 24 dp below the text before the actions.
 
-The 52 dp action area holds the two flat buttons: 8 dp around them and 8 dp between them, each at least 64 dp wide with 8 dp of internal padding. The affirmative action sits at the right edge and the dismissive action directly to its left. Under the alert, focus starts on the dismissive action, so an accidental Enter cannot erase anything.[^3]
+The 52 dp action area holds the two flat buttons: 8 dp around them and 8 dp between them, each at least 64 dp wide with 8 dp of internal padding. The affirmative action sits at the right edge and the dismissive action directly to its left. Under the alert, focus starts on the dismissive action, so an accidental Enter cannot erase anything.[^focus]
 :::
 
 ::: ds-example
@@ -149,7 +149,7 @@ Keep a dismissive action in the row when dismissal is disabled. Without one, a k
 
 ### Full-screen dialog
 
-Full-screen dialogs are a handset form for complex tasks: changes are not saved in real time and nothing is kept until the verb is tapped. Under 600 px the dialog fills the screen with no corners and no shadow; the app bar carries the depth. From 600 px the same tree renders as a 560 px sheet at 24 dp.[^4]
+Full-screen dialogs are a handset form for complex tasks: changes are not saved in real time and nothing is kept until the verb is tapped. Under 600 px the dialog fills the screen with no corners and no shadow; the app bar carries the depth. From 600 px the same tree renders as a 560 px sheet at 24 dp.[^desktop-width]
 
 The app bar has the discard X at the left, the title on the 72 dp keyline and the verb (save, send, create; never done or OK) at the right. The X calls the root's `close`. With `dirty` set, closing by the X, Cancel or Escape first asks "Discard changes?" in a nested alert, the one dialog a dialog may open. Full-screen dialogs ignore taps outside: there is no outside. The app bar in this example is styled by the docs page and stands in for the Material Design 1 toolbar.
 :::
@@ -161,7 +161,7 @@ The app bar has the discard X at the left, the title on the 72 dp keyline and th
 
 A full-screen dialog can open the simpler dialogs its task needs. The date field here opens the date picker over the full-screen dialog; picking a date returns to the form with the field filled, and nothing is kept until Save.
 
-When the title is too long for the app bar, move it into the content area, where it can wrap, and leave the bar to the X and the verb. A title squeezed into the bar truncates or wraps to two lines and crowds the actions. The content title names the dialog through `aria-labelledby` on `Md1Dialog.Content`.[^5]
+When the title is too long for the app bar, move it into the content area, where it can wrap, and leave the bar to the X and the verb. A title squeezed into the bar truncates or wraps to two lines and crowds the actions. The content title names the dialog through `aria-labelledby` on `Md1Dialog.Content`.[^name]
 :::
 
 ::: ds-example
@@ -197,7 +197,7 @@ The root's default slot receives `isOpen`, `open`, `close`, `value` (the choice 
 | Part | Props | Notes |
 |------|-------|-------|
 | `Md1Dialog.Activator` | `namespace` | Renderless. Spread its `attrs` slot prop onto an `Md1Button`: `aria-haspopup`, `aria-expanded` and the open handler |
-| `Md1Dialog.Content` | `namespace` | The `<dialog>`: `::backdrop` in `--md1-scrim`, a sheet from 280 px wide, sized to its content up to 40 dp from each side,[^6] at 24 dp (22 dp under a mouse and keyboard), `data-variant`, `data-open`, `data-dismissible`, `data-scrolled`. Names the dialog by its text when there is no title |
+| `Md1Dialog.Content` | `namespace` | The `<dialog>`: `::backdrop` in `--md1-scrim`, a sheet from 280 px wide, sized to its content up to 40 dp from each side,[^width] at 24 dp (22 dp under a mouse and keyboard), `data-variant`, `data-open`, `data-dismissible`, `data-scrolled`. Names the dialog by its text when there is no title |
 | `Md1Dialog.Title` | `namespace` | `<h2>`, Medium 20 sp on 28 dp; names the dialog. Pinned in simple and confirmation dialogs |
 | `Md1Dialog.Text` | `namespace` | Body 1 at the primary ink; describes the dialog. Takes 24 dp from the top when there is no title |
 | `Md1Dialog.Actions` | `stacked` | The 52 dp action row. Stacks itself when a label exceeds (width - 24) / 2; `stacked` forces either layout (`data-stacked`) |
@@ -226,9 +226,14 @@ An alert focuses its dismissive action on open, so a stray Enter does not confir
 
 The visible label is each action's accessible name. Labels are uppercased by the stylesheet, so assistive technology reads the sentence-case source. A disabled `Confirm` is a native disabled button: skipped by Tab and announced as unavailable.
 
-[^1]: Vuetify 1.5.24, stylus/components/_overlay.styl:22,44. The overlay is `rgb(33, 33, 33)` at .46; the dialogs page states no scrim.
-[^2]: Vuetify 1.5.24, stylus/components/_cards.styl:5-8,44-46. `.v-card` sets `text.primary` and `.v-card__text` adds no colour of its own.
-[^3]: Our call: the page sets no initial focus; the least destructive action is the APG alert dialog's choice.
-[^4]: Our call: the page treats full screen as a handset form; 560 dp is ten of the dialog's 56 dp width units.
-[^5]: Our call: with no title in the bar, the content heading is the only name on screen.
-[^6]: Vuetify 1.5.24, components/VDialog/VDialog.js:44-54. `maxWidth` defaults to `none` and `width` to `auto`; the page gives no desktop width.
+[^scrim]: Vuetify 1.5.24, stylus/components/_overlay.styl:22,44. The overlay is `rgb(33, 33, 33)` at .46; the dialogs page states no scrim.
+
+[^ink]: Vuetify 1.5.24, stylus/components/_cards.styl:5-8,44-46. `.v-card` sets `text.primary` and `.v-card__text` adds no colour of its own.
+
+[^focus]: Our call: the page sets no initial focus; the least destructive action is the APG alert dialog's choice.
+
+[^desktop-width]: Our call: the page treats full screen as a handset form; 560 dp is ten of the dialog's 56 dp width units.
+
+[^name]: Our call: with no title in the bar, the content heading is the only name on screen.
+
+[^width]: Vuetify 1.5.24, components/VDialog/VDialog.js:44-54. `maxWidth` defaults to `none` and `width` to `auto`; the page gives no desktop width.

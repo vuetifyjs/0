@@ -53,7 +53,7 @@ Dividers group content in lists and page layouts. The guidelines warn that heavy
 
 `Md1Divider` renders v0's [Atom](/components/primitives/atom) as an `hr` and adds nothing to its behavior, because the guidelines describe a static rule and there is none to add. No v0 compound is composed and none is invented for it. `Atom` forwards every attribute to the `hr`, which is how `aria-hidden` or `role="presentation"` reach the element.
 
-`data-inset` is Material Design 1's own hook; the stylesheet hangs the keyline off it. The divider has no states, so it has no other attributes: no `data-disabled`, no focus, no ripple. The ink is `--md1-divider`, 12% black on the light theme and 12% white on the dark one, drawn as a 1 px border rather than a fill.[^1]
+`data-inset` is Material Design 1's own hook; the stylesheet hangs the keyline off it. The divider has no states, so it has no other attributes: no `data-disabled`, no focus, no ripple. The ink is `--md1-divider`, 12% black on the light theme and 12% white on the dark one, drawn as a 1 px border rather than a fill.[^border]
 
 ## Examples
 
@@ -74,7 +74,7 @@ The example is the guidelines' contacts list: a 40 dp avatar at the margin keyli
 
 A full-bleed divider separates distinct content: biographic details from contact information in the guidelines' example, or the tiles of a list that has no anchoring element. It can also mark a seam, the place where material will expand when content expands. The example is the guidelines' contact sheet: one rule between the person and the ways to reach them, and white space alone between the related tiles inside each section.
 
-The rule is 1 dp and, in the guidelines' model, sits within the bottom edge of the tile it closes, so a 48 dp tile with a divider stays 48 dp. As a standalone element between sections, Material Design 1 adds exactly 1 dp and no margin;[^2] the space around it belongs to the surrounding layout, not to the divider.
+The rule is 1 dp and, in the guidelines' model, sits within the bottom edge of the tile it closes, so a 48 dp tile with a divider stays 48 dp. As a standalone element between sections, Material Design 1 adds exactly 1 dp and no margin;[^margin] the space around it belongs to the surrounding layout, not to the divider.
 :::
 
 ::: ds-example
@@ -113,5 +113,6 @@ A rule between list items that the markup already separates is decoration, and a
 
 The rule is never focusable and has no keyboard interaction. The WAI-ARIA focusable separator is a movable splitter, which this component is not. In forced-colours mode the rule survives, because it is drawn as a border rather than a background.
 
-[^1]: Our call: a border survives forced-colours mode, where backgrounds are dropped.
-[^2]: Our call: the page places the rule inside a tile and gives no standalone spacing, so the layout owns it.
+[^border]: Our call: a border survives forced-colours mode, where backgrounds are dropped.
+
+[^margin]: Our call: the page places the rule inside a tile and gives no standalone spacing, so the layout owns it.

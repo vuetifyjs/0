@@ -129,7 +129,7 @@ The group is a `radiogroup` and each control a `<button role="radio">` with `ari
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction around the ring: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink.
+Keyboard focus draws the 48 dp radial reaction around the ring: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type;[^halo] the touch-only rule of the guidelines applies to the press ink.
 
 ### Disabled
 
@@ -143,3 +143,5 @@ Keyboard focus draws the 48 dp radial reaction around the ring: 6% black off (10
 ### Touch target
 
 The 24 dp control answers to a 48 dp circle around it, and the whole label row is a click target.
+
+[^halo]: Our call: the page draws the halo for touch; without it, desktop keyboard focus would have no indicator. Still an open ruling in SPEC.

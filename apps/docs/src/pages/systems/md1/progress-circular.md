@@ -61,9 +61,9 @@ The Material Design 1 circular progress indicator. An arc that grows around a ri
 
 ### Determinate
 
-The determinate arc starts at the top of the ring and grows clockwise until the ring closes, as in the spec's indicator sheet. The arc is the primary colour (`--md1-primary`, Indigo 500 in the default theme) on a 4 dp stroke, and the ring measures about 40 dp across, both measured from that sheet. Each step eases over the standard duration on the standard curve.[^1] Like the linear bar, the value should only grow.
+The determinate arc starts at the top of the ring and grows clockwise until the ring closes, as in the spec's indicator sheet. The arc is the primary colour (`--md1-primary`, Indigo 500 in the default theme) on a 4 dp stroke, and the ring measures about 40 dp across, both measured from that sheet. Each step eases over the standard duration on the standard curve.[^step] Like the linear bar, the value should only grow.
 
-Behind the arc Material Design 1 draws the rest of the ring in black at 10%, so a small value still reads as a fraction of a whole. The spec's videos show no track, so this is Vuetify 1.5's underlay, the same in both themes:[^2] on the dark theme it nearly disappears. The indeterminate ring has none.
+Behind the arc Material Design 1 draws the rest of the ring in black at 10%, so a small value still reads as a fraction of a whole. The spec's videos show no track, so this is Vuetify 1.5's underlay, the same in both themes:[^track] on the dark theme it nearly disappears. The indeterminate ring has none.
 :::
 
 ::: ds-example
@@ -71,7 +71,7 @@ Behind the arc Material Design 1 draws the rest of the ring in black at 10%, so 
 
 ### Indeterminate
 
-The indeterminate ring rotates while its arc grows and shrinks, the motion of the spec's indicator sheet. The spec states no cycle length; Material Design 1 turns once and completes one sweep every 1.4 seconds, Vuetify 1.5's cycle,[^3] with the rotation linear so its speed reads evenly and the sweep on the standard curve. Under reduced motion both slow to half speed rather than stopping.[^4]
+The indeterminate ring rotates while its arc grows and shrinks, the motion of the spec's indicator sheet. The spec states no cycle length; Material Design 1 turns once and completes one sweep every 1.4 seconds, Vuetify 1.5's cycle,[^cycle] with the rotation linear so its speed reads evenly and the sweep on the standard curve. Under reduced motion both slow to half speed rather than stopping.[^reduced-motion]
 
 Use one indicator per operation. The guidelines' example is a refresh: show either a refresh bar or an activity circle, never both. Pair the circle with text when the wait is long enough that a reader needs to know what is happening.
 :::
@@ -103,7 +103,7 @@ In the spec's video the FAB fills with the accent colour and shows a check glyph
 
 Swipe to refresh is a composition, not a component. Material Design 1 ships no gesture primitive and mobile browsers own pull-to-refresh on the page itself, so this pattern belongs inside a scrolling region of the app. The refresh indicator is this component inside a 40 dp disc on the surface colour at 3 dp elevation, the elevation page's value for the refresh indicator, centred horizontally near the top of the content it refreshes.
 
-The example tracks the pull with pointer events on the list while it is scrolled to the top. As the pull grows, the disc slides out from under the app bar, its arc grows and it turns with the finger. Past the threshold, a 72 px pull and a Material Design 1 decision,[^5] the disc reaches full opacity and moves and turns more slowly: the cue that releasing now refreshes. Reversing back above the threshold before letting go cancels. On release the indicator settles at its resting position and spins until the new content is in.
+The example tracks the pull with pointer events on the list while it is scrolled to the top. As the pull grows, the disc slides out from under the app bar, its arc grows and it turns with the finger. Past the threshold, a 72 px pull and a Material Design 1 decision,[^pull] the disc reaches full opacity and moves and turns more slowly: the cue that releasing now refreshes. Reversing back above the threshold before letting go cancels. On release the indicator settles at its resting position and spins until the new content is in.
 
 The guidelines keep swipe to refresh out of navigation drawers and out of content that pans. Always give the same action another path: the example's app bar has a refresh button for keyboard and pointer users who never swipe.
 :::
@@ -154,8 +154,12 @@ Screen readers do not announce progress changes on their own. Mirror the start a
 
 The indeterminate ring is continuous motion. Under `prefers-reduced-motion: reduce`, or the `createReducedMotionPlugin` body attribute, Material Design 1 halves its speed. The plugin's setting wins over the operating system's.
 
-[^1]: Our call: the page gives no timing for a value change; the standard duration is the motion page's default for on-screen changes.
-[^2]: Vuetify 1.5.24, stylus/settings/_variables.styl:288. `$progress-circular-underlay-stroke` is black at 10%.
-[^3]: Vuetify 1.5.24, stylus/settings/_variables.styl:285-286. The rotate and dash animations both run 1.4 s.
-[^4]: Our call: a stopped spinner reads as a hang, so reduced motion slows it instead.
-[^5]: Our call: the page gives no distance; 72 px is a deliberate pull on a phone without needing a long drag.
+[^step]: Our call: the page gives no timing for a value change; the standard duration is the motion page's default for on-screen changes.
+
+[^track]: Vuetify 1.5.24, stylus/settings/_variables.styl:288. `$progress-circular-underlay-stroke` is black at 10%.
+
+[^cycle]: Vuetify 1.5.24, stylus/settings/_variables.styl:285-286. The rotate and dash animations both run 1.4 s.
+
+[^reduced-motion]: Our call: a stopped spinner reads as a hang, so reduced motion slows it instead.
+
+[^pull]: Our call: the page gives no distance; 72 px is a deliberate pull on a phone without needing a long drag.

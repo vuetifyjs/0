@@ -54,9 +54,9 @@ The Material Design 1 tooltip: a short text label that identifies a control when
 
 ## Composed on Vuetify0
 
-`Md1Tooltip` renders v0's [Tooltip](/components/disclosure/tooltip) compound and keeps its behavior: `Tooltip.Root` owns the open state and the open and close delays, `Tooltip.Activator` wires hover, keyboard focus, the click that dismisses and Escape, and `Tooltip.Content` is the native popover with `role="tooltip"` that the control points at through `aria-describedby`. The tile is anchored with CSS anchor positioning, centred below the control and flipped above it when the viewport has no room below.[^1]
+`Md1Tooltip` renders v0's [Tooltip](/components/disclosure/tooltip) compound and keeps its behavior: `Tooltip.Root` owns the open state and the open and close delays, `Tooltip.Activator` wires hover, keyboard focus, the click that dismisses and Escape, and `Tooltip.Content` is the native popover with `role="tooltip"` that the control points at through `aria-describedby`. The tile is anchored with CSS anchor positioning, centred below the control and flipped above it when the viewport has no room below.[^flip]
 
-The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; Material Design 1 sets its own 200 ms open and close delays, Vuetify 1.5's, because the tooltips page names none,[^2] and leaves the skip window at the region's 300 ms. Pass `openDelay` or `closeDelay` to change them per tooltip.
+The delays come from v0's tooltip region. Install `createTooltipPlugin` to share a close delay and the skip window across an app; Material Design 1 sets its own 200 ms open and close delays, Vuetify 1.5's, because the tooltips page names none,[^delay] and leaves the skip window at the region's 300 ms. Pass `openDelay` or `closeDelay` to change them per tooltip.
 
 Material Design 1 adds what v0 leaves out. v0 ignores touch pointers on purpose, so the press and hold of the tooltips page is Material Design 1's own: `Md1Tooltip.Activator` binds the pointer handlers that run it, and `data-touch` on the content is Material Design 1's attribute for the touch metrics. The lift lands outside the popover, which the browser's light dismiss would close at once, so the activator shows the label again in the same task and the 1.5 seconds hold. `data-state` (`closed`, `delayed-open`, `instant-open`) is v0's. The activator is renderless and leaves the control's own `disabled`, `type` and `aria-disabled` alone, so a disabled tooltip never disables the button it labels.
 
@@ -79,7 +79,7 @@ A tooltip is not a substitute for a name. Assistive technology reads the tooltip
 
 ### Press and hold
 
-On a touch screen there is no hover. The guidelines trigger the tooltip by tapping and holding the element: the label shows while the finger stays down and remains for 1.5 seconds after the lift, unless the user takes another action first. Material Design 1 shows it once the finger has rested for 500 ms, a threshold the page does not state,[^3] so a quick tap stays a tap and reaches the button's own click (here, it shares).
+On a touch screen there is no hover. The guidelines trigger the tooltip by tapping and holding the element: the label shows while the finger stays down and remains for 1.5 seconds after the lift, unless the user takes another action first. Material Design 1 shows it once the finger has rested for 500 ms, a threshold the page does not state,[^hold] so a quick tap stays a tap and reaches the button's own click (here, it shares).
 
 A hold that showed the tooltip is not a tap. Material Design 1 cancels the browser's context menu during the hold and drops the click the lift would otherwise synthesise, so holding the share button labels it without sharing. A press anywhere, a key or a scroll during the 1.5 seconds hides the label at once.
 
@@ -141,7 +141,7 @@ The default slot of each part is its content. There are no named slots.
 | Escape | Hides the label; focus stays on the control |
 | Enter, Space | Activate the control as usual, which also hides the label |
 
-Keyboard focus is a trigger in its own right on the tooltips page, so the label shows for `:focus-visible` only:[^4] a mouse click that happens to move focus does not leave a label behind.
+Keyboard focus is a trigger in its own right on the tooltips page, so the label shows for `:focus-visible` only:[^focus-visible] a mouse click that happens to move focus does not leave a label behind.
 
 ### Touch
 
@@ -156,7 +156,10 @@ Keyboard focus is a trigger in its own right on the tooltips page, so the label 
 
 The tooltip describes; it does not name. An icon-only control still needs an accessible name of its own (`ariaLabel` on `Md1Button`), or assistive technology announces a nameless button followed by its description. Keep the label plain text: the guidelines rule out images and formatted text, and a description is read as flat text anyway.
 
-[^1]: Our call: the page places the tooltip below its target and says nothing about a full viewport.
-[^2]: Vuetify 1.5.24, components/VTooltip/VTooltip.js:21-37. `openDelay` and `closeDelay` both default to 200.
-[^3]: Our call: Vuetify 1.5 has no touch hold; 500 ms is the common long-press threshold.
-[^4]: Our call: the page makes focus a trigger but does not separate keyboard focus from a click.
+[^flip]: Our call: the page places the tooltip below its target and says nothing about a full viewport.
+
+[^delay]: Vuetify 1.5.24, components/VTooltip/VTooltip.js:21-37. `openDelay` and `closeDelay` both default to 200.
+
+[^hold]: Our call: Vuetify 1.5 has no touch hold; 500 ms is the common long-press threshold.
+
+[^focus-visible]: Our call: the page makes focus a trigger but does not separate keyboard focus from a click.

@@ -77,7 +77,7 @@ Stack switches as this example does: the 48 dp target reaches 14 dp beyond the c
 
 ### A settings column
 
-Switches suit independent settings that take effect at once. Each row is 48 dp tall with the label 8 dp from the control, so a column of switches keeps the touch targets apart without extra spacing; the 8 dp gap is a Material Design 1 decision, as the page gives no value.
+Switches suit independent settings that take effect at once. Each row is 48 dp tall with the label 8 dp from the control, so a column of switches keeps the touch targets apart without extra spacing; the 8 dp gap is a Material Design 1 decision, as the page gives no value.[^gap]
 
 When a switch sits in a list tile, the tile's text names it: place it in the tile's secondary action column and pass `ariaLabel` instead of `label`, so the setting is not read twice.
 :::
@@ -122,7 +122,7 @@ The control is a `<button role="switch">` with `aria-checked`, the WAI-ARIA Swit
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type; the touch-only rule of the guidelines applies to the press ink. A focused disabled switch draws the grey halo, on or off, as the spec sheets draw the disabled focused state.
+Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black off (10% white on dark) and 10% of the accent on. Material Design 1 draws it for `:focus-visible` on every pointer type;[^halo] the touch-only rule of the guidelines applies to the press ink. A focused disabled switch draws the grey halo, on or off, as the spec sheets draw the disabled focused state.
 
 ### Disabled
 
@@ -134,3 +134,7 @@ Keyboard focus draws the 48 dp radial reaction centred on the thumb: 6% black of
 ### Touch target
 
 The radial reaction is also the hit area: a 48 dp circle around the thumb. The whole label row is a click target as well.
+
+[^gap]: Vuetify 1.5.24, stylus/components/_selection-controls.styl:42. Vuetify 1.5 sets the same 8 px between control and label.
+
+[^halo]: Our call: the page draws the halo for touch; without it, desktop keyboard focus would have no indicator. Still an open ruling in SPEC.

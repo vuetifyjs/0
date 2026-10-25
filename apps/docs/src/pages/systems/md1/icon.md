@@ -69,7 +69,7 @@ The whole set, iterated from `md1Icons`, the map the registry is built from and 
 
 Roles are named for what the glyph is, not for the screen that first needed it. The 27 aliases come from three vocabularies: Material Design 1's own words (`clear`, `done`, `calendar`, `clock`, `nearby`), the role names the Paper design systems share (`chevron-down`, `plus`, `eye`, `kebab`), and Material Icons source names whose upstream path data is identical to a shipped role (`launch`, `get-app`, `mode-edit`). Either name is valid at the call site.
 
-The artwork is the `materialicons` filled 24 px set at commit `49d4db35`, each path byte-equal to its upstream `d` attribute. Two glyphs were redrawn upstream after the Material Design 1 era, `settings` and `account-circle`; Material Design 1 ships the current drawings, and `spec/icons.md` keeps both strings from tag `3.0.2`, the last release of the period artwork, for anyone who wants it back through the plugin.
+The artwork is the `materialicons` filled 24 px set at commit `49d4db35`, each path byte-equal to its upstream `d` attribute. Two glyphs were redrawn upstream after the Material Design 1 era, `settings` and `account-circle`; Material Design 1 ships the current drawings,[^icon-redraw] and `spec/icons.md` keeps both strings from tag `3.0.2`, the last release of the period artwork, for anyone who wants it back through the plugin.
 :::
 
 ::: ds-example
@@ -208,6 +208,8 @@ An empty string counts as absent: `label=""` renders `aria-hidden="true"`.
 Never label an icon inside an interactive element. The element takes the name, `ariaLabel` on an icon-only `Md1Button` or the text of a link; a labelled icon inside it makes the name read twice. Never let a coloured glyph carry state on its own either. A red error mark says nothing to a screen reader, or to a reader who cannot tell the red apart: label it, or put the state in text beside it.
 
 The icon is not focusable and has no keyboard behaviour. Its touch target, 48 dp around a 24 dp icon and 40 dp around a 20 dp one, belongs to the control that hosts it.
+
+[^icon-redraw]: Our call: parity with upstream Material Icons over period fidelity; the 3.0.2 strings stay in `spec/icons.md`.
 
 [^icon-padding]: Our call: the page says 4 dp of padding around a 20 dp live area in a 24 dp trim, which only adds up as 2 dp per side.
 

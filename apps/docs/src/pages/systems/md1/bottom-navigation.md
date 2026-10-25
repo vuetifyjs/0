@@ -71,7 +71,7 @@ Every action hosts a [Md1Ripple](/systems/md1/ripple) as its first child and dra
 
 In the fixed bar every action takes the same width: the width of the view divided by the number of actions, between 80 dp and 168 dp. When the cap binds, on a wide screen, the group centres in the bar. A label never sets its action's width, so on desktop every action is as wide as the widest, 168 dp, the guidelines' alternative for desktop and larger views. With three actions every action shows its icon and label. With four or five, as here, only the active action keeps its label and the inactive ones show their icon alone, centred with 16 dp above and below.
 
-The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. The dark theme keeps Indigo 500, as Vuetify 1.5 does, although it reads at under 2:1 on the Grey 800 bar; a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
+The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. The dark theme keeps Indigo 500, as Vuetify 1.5 does,[^dark] although it reads at under 2:1 on the Grey 800 bar; a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
 
 The hidden labels are hidden from sight only. They stay in the accessibility tree as each action's name, so an icon-only inactive action still announces "Alerts" rather than nothing.
 :::
@@ -81,9 +81,9 @@ The hidden labels are hidden from sight only. They stay in the accessibility tre
 
 ### Shifting
 
-`shifting` is the second form the guidelines define for four or five destinations: the active action is wider and shows its label, the inactive ones narrow to their icon. Active actions measure 96 dp to 168 dp and inactive ones 56 dp to 96 dp. Selecting a destination moves the wide slot and the label to it, on the standard curve over the standard duration.
+`shifting` is the second form the guidelines define for four or five destinations: the active action is wider and shows its label, the inactive ones narrow to their icon. Active actions measure 96 dp to 168 dp and inactive ones 56 dp to 96 dp. Selecting a destination moves the wide slot and the label to it, on the standard curve over the standard duration.[^duration]
 
-The guidelines give only those bounds, not how the bar divides its width, so it takes Vuetify 1.5's: every action gets an equal share inside the bounds, and only the active action's 96 dp minimum makes it wider (96 dp and 88 dp with four actions on a 360 dp handset, 96 dp and 66 dp with five).
+The guidelines give only those bounds, not how the bar divides its width, so it takes Vuetify 1.5's:[^share] every action gets an equal share inside the bounds, and only the active action's 96 dp minimum makes it wider (96 dp and 88 dp with four actions on a 360 dp handset, 96 dp and 66 dp with five).
 
 Prefer the fixed bar for three destinations; the shifting bar is for when four or five crowd it.
 :::
@@ -93,7 +93,7 @@ Prefer the fixed bar for three destinations; the shifting bar is for when four o
 
 ### Coloured bar
 
-`variant="primary"` fills the bar with the primary colour instead of the surface. The guidelines then make the active icon and label black or white, whichever reads against the bar; Material Design 1 uses `--md1-on-primary`, the palette's ink for the primary swatch, white for Indigo 500 and black for a light primary such as Amber. Inactive actions take that ink at 70%, the secondary text opacity for white ink; the page shows the coloured bar only as an image, so the 70% is a Material Design 1 decision.
+`variant="primary"` fills the bar with the primary colour instead of the surface. The guidelines then make the active icon and label black or white, whichever reads against the bar; Material Design 1 uses `--md1-on-primary`, the palette's ink for the primary swatch, white for Indigo 500 and black for a light primary such as Amber. Inactive actions take that ink at 70%, the secondary text opacity for white ink; the page shows the coloured bar only as an image, so the 70% is a Material Design 1 decision.[^inactive-ink]
 
 Do not mix colours inside the bar: the guidelines advise against differently coloured icons and labels, and against coloured icons on a coloured bar. The default `surface` variant paints the bar in `--md1-surface`, white on the light theme and Grey 800 on the dark one.
 :::
@@ -105,7 +105,7 @@ Do not mix colours inside the bar: the guidelines advise against differently col
 
 The guidelines let the bar step aside for content: scrolling downward hides it, scrolling upward reveals it. `hideOnScroll` does exactly that, sliding the bar off the bottom edge on the sharp curve at the standard duration, the curve the duration and easing page gives elements that leave temporarily and may return. The bar's shadow goes with it.
 
-The bar listens to any scroller inside its own parent, the app shell's content region, and to the document while the bar is pinned to the viewport. Scrollers elsewhere on the page are ignored, and so is the document once a container holds the fixed bar (a transformed or `contain` ancestor, like the frame of this example), because the page scrolling then moves the bar with its container. A hidden bar stays in the tab order: moving focus into it brings it back, so a keyboard user never tabs onto an off-screen control.
+The bar listens to any scroller inside its own parent, the app shell's content region, and to the document while the bar is pinned to the viewport. Scrollers elsewhere on the page are ignored, and so is the document once a container holds the fixed bar (a transformed or `contain` ancestor, like the frame of this example), because the page scrolling then moves the bar with its container. A hidden bar stays in the tab order: moving focus into it brings it back, so a keyboard user never tabs onto an off-screen control.[^focus]
 
 The bar itself is `position: fixed` to the bottom of the viewport with an 8 dp shadow (6 dp under a mouse, the elevation page's desktop rule), and adds the device's bottom safe-area inset below its 56 dp so its actions clear a home indicator. Give the content beneath it 56 dp of bottom padding so the last line is not covered. Snackbars sit behind the bar; sheets, drawers and dialogs open in front of it.
 :::
@@ -173,7 +173,7 @@ Every enabled action is its own tab stop, in source order.
 
 ### Focus
 
-The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover over an inactive action draws Vuetify 1.5's 12% overlay; the active action takes no hover. A mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
+The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover over an inactive action draws Vuetify 1.5's 12% overlay; the active action takes no hover.[^hover] A mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
 
 ### States
 
@@ -187,3 +187,15 @@ The bottom navigation page gives no focus or hover value. Keyboard focus draws t
 ### Touch target
 
 Every action is 56 dp tall and at least 56 dp wide, above the 48 dp minimum touch target of the metrics page, so no hit area is added around it.
+
+[^dark]: Vuetify 1.5.24, util/theme.ts:50-59. The theme's colour classes are one rule with no dark-theme variant, so an active action keeps its hue on a dark bar.
+
+[^duration]: Our call: the page gives no timing for the shift; the standard duration is the motion page's default for on-screen changes.
+
+[^share]: Vuetify 1.5.24, stylus/components/_bottom-navs.styl:73-84. Shifting actions are equal flex items clamped to 56–96 px, the active one to 96–168 px.
+
+[^inactive-ink]: Our call: 70% is the colour page's secondary opacity for white ink.
+
+[^focus]: Our call: the page describes scrolling only.
+
+[^hover]: Vuetify 1.5.24, stylus/components/_bottom-navs.styl:61-65 and stylus/components/_buttons.styl:62-72. Actions are `v-btn`s with the 12% `currentColor` hover, cleared on the active one.

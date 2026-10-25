@@ -73,7 +73,7 @@ The layer carries `data-open`, `data-color`, `data-contained`, `data-placement`,
 
 When the promoted action sits within 88 dp of the top or bottom of the screen, the guidelines place the tap target directly on top of it and centre the background around it. An app bar action is the common case, so this is the prompt most apps show: the background is centred on the search icon and falls over the content below, and `data-placement` reads `center`.
 
-The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are Material Design 1 decisions, and the background grows further when the text needs the room.
+The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are Material Design 1 decisions,[^size] and the background grows further when the text needs the room.
 
 Tapping the icon runs its own click handler and emits `complete`; tapping anywhere outside the background, or pressing Escape, emits `dismiss`. Either way the model goes back to `false`. Setting the model to `false` yourself closes the prompt without an event.
 :::
@@ -125,7 +125,7 @@ The guidelines' hint asks the reader to swipe the card away; Material Design 1 s
 
 A task that takes more than one tap gets a guided flow of up to three parts. A tap target introduces the task and its benefit: start the flow and the menu icon is promoted. Ripples lead through the following steps, in the tap target's colour: once the drawer opens, Settings pulses; on the settings screen, the backup switch pulses. A completion toast confirms the task when the switch turns on, with an action that returns to where the tap target appeared.
 
-Each ripple is a circle that grows from the next control and fades, repeating until the reader takes the step, and never blocks the tap. Under reduced motion it holds still as a tinted circle. The flow is a composition of `Md1FeatureDiscovery`, a ripple drawn by the app and `Md1Snackbar`; nothing advances on its own, so the reader can leave it at any step.
+Each ripple is a circle that grows from the next control and fades, repeating until the reader takes the step, and never blocks the tap. Under reduced motion it holds still as a tinted circle.[^reduced-motion] The flow is a composition of `Md1FeatureDiscovery`, a ripple drawn by the app and `Md1Snackbar`; nothing advances on its own, so the reader can leave it at any step.
 :::
 
 ## Props
@@ -152,7 +152,7 @@ Each ripple is a circle that grows from the next control and fades, repeating un
 | Part | Props | Notes |
 |------|-------|-------|
 | `Md1FeatureDiscovery.Target` | | A `span` around the promoted action: one icon-only `Md1Button` or an `Md1Fab`. Lifts the action above the circles, pulses it while idle, and completes the prompt on a tap. Outside the root it renders its content inert and warns in development |
-| `Md1FeatureDiscovery.Title` | | The headline, Title 20 sp in the prompt's ink; the dialog's accessible name. Renders into the prompt while it shows and nothing in place |
+| `Md1FeatureDiscovery.Title` | | The headline, Title 20 sp in the prompt's ink;[^type] the dialog's accessible name. Renders into the prompt while it shows and nothing in place |
 | `Md1FeatureDiscovery.Text` | | The supporting line, Subheading 16 sp at 70%; the dialog's accessible description. Always below the title |
 
 Each part has one default slot. There are no named slots.
@@ -175,8 +175,16 @@ When the prompt opens, focus moves to its dialog so a screen reader announces th
 
 ### Motion
 
-The prompt grows out of the promoted icon on the standard curve over the enter duration. While idle the action grows by 10% over one second and shrinks back, and a ripple leaves the target disc as it peaks. A tap on the action expands the prompt and fades it; a tap outside shrinks and fades it, both on the decelerate curve the page calls ease out. Under reduced motion, from the operating system or v0's reduced-motion plugin, the pulse and the ripple stop and the prompt only fades in and out.
+The prompt grows out of the promoted icon on the standard curve over the enter duration.[^duration] While idle the action grows by 10% over one second and shrinks back, and a ripple leaves the target disc as it peaks. A tap on the action expands the prompt and fades it; a tap outside shrinks and fades it, both on the decelerate curve the page calls ease out. Under reduced motion, from the operating system or v0's reduced-motion plugin, the pulse and the ripple stop and the prompt only fades in and out.
 
 ### Not shipped
 
 Swipe to dismiss is a gesture and is not shipped; a tap outside and Escape cover it. The guided flow the page describes for multi-step features (the prompt, then ripples on the following controls, then a completion message with an action back to the origin) is a composition of `Md1FeatureDiscovery`, `Md1Ripple` and `Md1Snackbar`. Hint text for simple input prompts is an `Md1TextField` placeholder. Who sees a prompt and how often is the app's decision.
+
+[^size]: Our call: the page's 88 dp edge threshold doubles as the disc; 2.5 times leaves room for a two-line prompt. Vuetify 1.5 has no equivalent, and confidence is low.
+
+[^reduced-motion]: Our call: the spec has no reduced-motion rule; a still circle keeps the cue without the motion.
+
+[^type]: Our call: the page names no type styles; Title and Subheading are the scale's headline and supporting pair.
+
+[^duration]: Our call: the page gives the curves but no durations, so appear takes `--md1-duration-enter` and the tap and dismiss take `--md1-duration-leave`.

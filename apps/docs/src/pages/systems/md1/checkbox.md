@@ -69,7 +69,7 @@ The box is 18 dp square with a 2 dp border and 2 dp corners, centred in a 24 dp 
 
 Disabled drops the whole control to 26% black (30% white on dark), and the check of a disabled box is cut out of the square in the sheet colour, as the spec sheets draw it. The label takes the disabled text ink. A disabled checkbox ignores clicks on the box and on its label and draws no ripple.
 
-The guidelines give no gap between the control and its label; Material Design 1 uses 8 dp from the 24 dp control, one step of the grid, and each row is 48 dp tall so stacked checkboxes keep their touch targets apart. Those two values are decisions, not spec numbers. Stack checkboxes as this example does: the 48 dp target reaches 12 dp beyond the control, so side by side at an 8 dp gap it would cover the end of the previous label.
+The guidelines give no gap between the control and its label; Material Design 1 uses 8 dp from the 24 dp control, one step of the grid,[^gap] and each row is 48 dp tall so stacked checkboxes keep their touch targets apart.[^row] Those two values are decisions, not spec numbers. Stack checkboxes as this example does: the 48 dp target reaches 12 dp beyond the control, so side by side at an 8 dp gap it would cover the end of the previous label.
 :::
 
 ::: ds-example
@@ -77,7 +77,7 @@ The guidelines give no gap between the control and its label; Material Design 1 
 
 ### Indeterminate
 
-Material Design 1 draws no mixed state, so `indeterminate` is a declared extension: a data table's select-all needs one, and v0 provides it. The box fills as it does when on and draws a dash (the `remove` role) instead of the check, and the button reports `aria-checked="mixed"`.
+Material Design 1 draws no mixed state, so `indeterminate` is a declared extension:[^indeterminate] a data table's select-all needs one, and v0 provides it. The box fills as it does when on and draws a dash (the `remove` role) instead of the check, and the button reports `aria-checked="mixed"`.
 
 The parent here is a computed view of its children: it is indeterminate while some toppings are chosen, on when all are, and a click sets every child to the parent's new value. `indeterminate` is the consumer's to clear; the checkbox never decides it.
 :::
@@ -123,7 +123,7 @@ The control is a `<button role="checkbox">` with `aria-checked`, the WAI-ARIA Ch
 
 ### Focus
 
-Keyboard focus draws the 48 dp radial reaction around the control: 6% black off (10% white on dark) and 10% of the accent on, the values measured from the spec sheets. Material Design 1 draws it for `:focus-visible` on every pointer type, so a keyboard user on a desktop still sees where focus is; the touch-only rule of the guidelines applies to the press ink. A focused disabled checkbox draws the grey halo, on or off, as the spec sheets draw the disabled focused state. Under forced colours a transparent 2 px outline draws in its place.
+Keyboard focus draws the 48 dp radial reaction around the control: 6% black off (10% white on dark) and 10% of the accent on, the values measured from the spec sheets. Material Design 1 draws it for `:focus-visible` on every pointer type,[^halo] so a keyboard user on a desktop still sees where focus is; the touch-only rule of the guidelines applies to the press ink. A focused disabled checkbox draws the grey halo, on or off, as the spec sheets draw the disabled focused state. Under forced colours a transparent 2 px outline draws in its place.
 
 ### Disabled
 
@@ -135,3 +135,11 @@ Keyboard focus draws the 48 dp radial reaction around the control: 6% black off 
 ### Touch target
 
 The 24 dp control answers to a 48 dp circle around it, and the whole label row is a click target.
+
+[^gap]: Vuetify 1.5.24, stylus/components/_selection-controls.styl:42. Vuetify 1.5 sets the same 8 px between control and label.
+
+[^row]: Our call: a 48 dp row is the touch target, so stacked rows never overlap.
+
+[^indeterminate]: Our call: `Md1DataTable`'s select-all needs a mixed state, and v0 provides one.
+
+[^halo]: Our call: the page draws the halo for touch; without it, desktop keyboard focus would have no indicator. Still an open ruling in SPEC.
