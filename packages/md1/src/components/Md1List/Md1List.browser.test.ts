@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { userEvent } from 'vitest/browser'
 
 // Framework
-import { createReducedMotionPlugin } from '@vuetify/v0'
+import { createLocalePlugin, createReducedMotionPlugin } from '@vuetify/v0'
 
 import { Md1List } from './index'
 
@@ -10,7 +10,7 @@ import { Md1List } from './index'
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { App, VNode } from 'vue'
+import type { App, Ref, VNode } from 'vue'
 
 // Theme
 import { Md1StyleSheetAdapter } from '../../adapter'
@@ -1179,5 +1179,194 @@ describe('quList', () => {
       // Pink A200, not the accent's 200: Vuetify 1.5's selectable.js:22.
       expect(getComputedStyle(host.querySelector('.md1-list__mark')!).color).toBe('rgb(255, 64, 129)')
     })
+  })
+})
+
+describe('quList reorder', () => {
+  const SONGS = ['Clair de lune', 'Gymnopédie No. 1', 'Arabesque No. 1', 'Rêverie']
+
+  function playlist (order: Ref<string[]>, extra: { disabled?: string, label?: boolean } = {}) {
+    return mount(() => h(Md1List, {
+      'order': order.value,
+      'onUpdate:order': (value: unknown[] | undefined) => {
+        order.value = value as string[]
+      },
+    }, () => order.value.map(song => h(Md1List.Item, { key: song, value: song, disabled: extra.disabled === song }, () => [
+      text(song),
+      h(Md1List.Reorder, extra.label ? { label: `Song ${song}` } : null),
+    ]))))
+  }
+
+  function handles (host: HTMLElement): HTMLButtonElement[] {
+    return [...host.querySelectorAll<HTMLButtonElement>('.md1-list__handle')]
+  }
+
+  function status (host: HTMLElement): string {
+    return host.querySelector('[role="status"]')?.textContent ?? ''
+  }
+
+  it('should put a 48 dp handle with the reorder glyph in the secondary column, outside the tile', async () => {
+    const host = playlist(shallowRef([...SONGS]))
+    await settle()
+
+    const [first] = handles(host)
+    const item = items(host)[0]!
+
+    expect(first!.tagName).toBe('BUTTON')
+    expect(first!.closest('.md1-list__tile')).toBeNull()
+    expect(first!.closest('.md1-list__action')!.parentElement).toBe(item)
+    expect(first!.getBoundingClientRect().width).toBe(48)
+    expect(first!.querySelector('path')!.getAttribute('d')).toBe(md1Icons.reorder[0])
+    // The glyph keeps the edge keyline, 16 dp (24 dp from 600 px): its end edge sits that far in from the row's.
+    expect(Math.round(item.getBoundingClientRect().right - first!.querySelector('svg')!.getBoundingClientRect().right)).toBe(window.innerWidth >= 600 ? 24 : 16)
+  })
+
+  it('should name the handle after its row and describe the keys', async () => {
+    const host = playlist(shallowRef([...SONGS]))
+    await settle()
+
+    const [first] = handles(host)
+    const hint = document.getElementById(first!.getAttribute('aria-describedby')!)
+
+    expect(first!.getAttribute('aria-label')).toBe('Reorder Clair de lune')
+    expect(hint!.textContent).toBe('Use the up and down arrow keys to move')
+    expect(first!.getAttribute('aria-keyshortcuts')).toBe('ArrowUp ArrowDown Home End')
+  })
+
+  it('should take the row name from label when given', async () => {
+    const host = playlist(shallowRef([...SONGS]), { label: true })
+    await settle()
+
+    expect(handles(host)[0]!.getAttribute('aria-label')).toBe('Reorder Song Clair de lune')
+  })
+
+  it('should move the row one place with the arrow keys, keep focus on its handle and announce the position', async () => {
+    const order = shallowRef([...SONGS])
+    const host = playlist(order)
+    await settle()
+
+    handles(host)[0]!.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await settle()
+
+    expect(order.value).toEqual(['Gymnopédie No. 1', 'Clair de lune', 'Arabesque No. 1', 'Rêverie'])
+    expect(items(host)[1]!.textContent).toContain('Clair de lune')
+    expect(document.activeElement).toBe(handles(host)[1])
+    expect(status(host)).toBe('Clair de lune moved to position 2 of 4')
+
+    await userEvent.keyboard('{ArrowUp}')
+    await settle()
+
+    expect(order.value).toEqual(SONGS)
+    expect(document.activeElement).toBe(handles(host)[0])
+    expect(status(host)).toBe('Clair de lune moved to position 1 of 4')
+  })
+
+  it('should jump to the ends with Home and End and stay put past them', async () => {
+    const order = shallowRef([...SONGS])
+    const host = playlist(order)
+    await settle()
+
+    handles(host)[1]!.focus()
+    await userEvent.keyboard('{End}')
+    await settle()
+
+    expect(order.value.at(-1)).toBe('Gymnopédie No. 1')
+
+    await userEvent.keyboard('{ArrowDown}')
+    await settle()
+
+    expect(order.value.at(-1)).toBe('Gymnopédie No. 1')
+
+    await userEvent.keyboard('{Home}')
+    await settle()
+
+    expect(order.value[0]).toBe('Gymnopédie No. 1')
+  })
+
+  it('should move a row by dragging its handle with the pointer, lifting it at 8 dp and marking the drop', async () => {
+    const order = shallowRef([...SONGS])
+    const host = playlist(order)
+    await settle()
+
+    const handle = handles(host)[0]!
+    const start = handle.getBoundingClientRect()
+    const target = items(host)[2]!.getBoundingClientRect()
+    const x = start.left + start.width / 2
+    const y = start.top + start.height / 2
+    const init = { bubbles: true, pointerId: 7, button: 0, clientX: x }
+
+    handle.dispatchEvent(new PointerEvent('pointerdown', { ...init, clientY: y }))
+    // Past the third row's midpoint: the slot between the third and the fourth.
+    const below = target.top + target.height * 0.75
+    document.dispatchEvent(new PointerEvent('pointermove', { ...init, clientY: y + 10 }))
+    document.dispatchEvent(new PointerEvent('pointermove', { ...init, clientY: below }))
+    await settle()
+
+    const lifted = items(host)[0]!
+
+    expect(lifted.dataset.dragging).toBe('true')
+    expect(getComputedStyle(lifted).transform).not.toBe('none')
+    expect(getComputedStyle(lifted).boxShadow).toContain('rgba(0, 0, 0, 0.2) 0px 5px 5px -3px')
+    expect(items(host)[2]!.dataset.drop).toBe('after')
+
+    document.dispatchEvent(new PointerEvent('pointerup', { ...init, clientY: below }))
+    await settle()
+
+    expect(order.value).toEqual(['Gymnopédie No. 1', 'Arabesque No. 1', 'Clair de lune', 'Rêverie'])
+    expect(status(host)).toBe('Clair de lune moved to position 3 of 4')
+    expect(items(host).some(el => Object.hasOwn(el.dataset, 'dragging'))).toBe(false)
+  })
+
+  it('should leave a disabled row in place', async () => {
+    const order = shallowRef([...SONGS])
+    const host = playlist(order, { disabled: 'Clair de lune' })
+    await settle()
+
+    const [first] = handles(host)
+
+    expect(first!.disabled).toBe(true)
+
+    first!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+    await settle()
+
+    expect(order.value).toEqual(SONGS)
+  })
+
+  it('should translate the label, the instructions and the announcement through the locale', async () => {
+    const order = shallowRef([...SONGS])
+    const host = mount(() => h(Md1List, {
+      'order': order.value,
+      'onUpdate:order': (value: unknown[] | undefined) => {
+        order.value = value as string[]
+      },
+    }, () => order.value.map(song => h(Md1List.Item, { key: song, value: song }, () => [text(song), h(Md1List.Reorder)]))), app => {
+      app.use(createLocalePlugin({
+        default: 'en',
+        messages: { en: { Md1: { reorder: 'Move {item}', reorderHint: 'Arrows move', reordered: '{item}: {position}/{size}' } } },
+      }))
+    })
+    await settle()
+
+    const [first] = handles(host)
+
+    expect(first!.getAttribute('aria-label')).toBe('Move Clair de lune')
+    expect(document.getElementById(first!.getAttribute('aria-describedby')!)!.textContent).toBe('Arrows move')
+
+    first!.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    await settle()
+
+    expect(status(host)).toBe('Clair de lune: 2/4')
+  })
+
+  it('should render an inert handle and warn without v-model:order', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const host = mount(() => h(Md1List, null, () => [h(Md1List.Item, { value: 'a' }, () => [text('A'), h(Md1List.Reorder)])]))
+    await settle()
+
+    expect(handles(host)[0]!.disabled).toBe(true)
+    expect(host.querySelector('[role="status"]')).toBeNull()
+    expect(warn.mock.calls.flat().join(' ')).toContain('v-model:order')
   })
 })
