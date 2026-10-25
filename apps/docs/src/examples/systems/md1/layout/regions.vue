@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Md1Button, Md1Card, Md1Fab, Md1List, Md1NavigationDrawer, Md1Switch, Md1Toolbar, Md1ToggleButtons } from '@paper/md1'
+  import { Md1Button, Md1Card, Md1Fab, Md1List, Md1Switch, Md1Toolbar, Md1ToggleButtons } from '@paper/md1'
   import { useElementSize } from '@vuetify/v0'
   import { shallowRef, toRef, useTemplateRef } from 'vue'
 

@@ -33,7 +33,7 @@
     </div>
 
     <article v-if="shown" class="md1-docs-divide-detail">
-      <Md1Button v-if="!wide" icon="arrow-back" aria-label="Back to inbox" @click="current = undefined" />
+      <Md1Button v-if="!wide" aria-label="Back to inbox" icon="arrow-back" @click="current = undefined" />
 
       <h3 class="md1-type-title">{{ shown.subject }}</h3>
 

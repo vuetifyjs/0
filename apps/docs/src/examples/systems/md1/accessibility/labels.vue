@@ -15,7 +15,7 @@
       if (label) return label
 
       const id = control.getAttribute('aria-labelledby')
-      const text = id ? document.getElementById(id)?.textContent : control.closest('label')?.textContent
+      const text = id ? document.querySelector(`#${CSS.escape(id)}`)?.textContent : control.closest('label')?.textContent
 
       return (text ?? control.textContent ?? '').trim()
     })
