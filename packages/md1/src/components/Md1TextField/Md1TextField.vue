@@ -741,8 +741,9 @@
     outline: none;
   }
 
+  /* Placeholder: 42% black, 50% white (text-fields page state tables). */
   .md1-text-field__input::placeholder {
-    color: var(--md1-text-hint, rgba(0, 0, 0, 0.38));
+    color: var(--md1-placeholder, rgba(0, 0, 0, 0.42));
     opacity: 1;
   }
 
@@ -1221,7 +1222,7 @@
   }
 
   .md1-text-field__placeholder {
-    color: var(--md1-text-hint, rgba(0, 0, 0, 0.38));
+    color: var(--md1-placeholder, rgba(0, 0, 0, 0.42));
   }
 
   .md1-text-field__dropdown {

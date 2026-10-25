@@ -335,7 +335,7 @@
   }
 
   .md1-search-bar__input::placeholder {
-    color: var(--md1-text-hint, rgba(0, 0, 0, 0.38));
+    color: var(--md1-placeholder, rgba(0, 0, 0, 0.42));
     opacity: 1;
   }
 

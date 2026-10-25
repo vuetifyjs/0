@@ -454,7 +454,7 @@
     font: inherit;
     font-size: var(--md1-type-subheading-size, 16px);
     line-height: 20px;
-    color: var(--md1-text-hint, rgba(0, 0, 0, 0.38));
+    color: var(--md1-placeholder, rgba(0, 0, 0, 0.42));
     white-space: pre;
     pointer-events: none;
   }
