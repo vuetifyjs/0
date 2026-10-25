@@ -88,6 +88,20 @@
   })
 
   const url = toRef(() => `${PROD_SITE_URL}${route.path}`)
+
+  // Material Design 1 is set in Roboto and the package loads no fonts, so the
+  // md1 pages load it, and only they: the docs shell's stack names Roboto as a
+  // fallback, so a face declared site-wide would reach the shell wherever the
+  // stack falls through to it.
+  // Every weight and italic is declared; a file downloads only when text uses
+  // it. The typography and writing examples add the Noto families per script.
+  const md1Fonts = toRef(() => route.path.startsWith('/systems/md1')
+    ? [
+      { key: 'md1-fonts-preconnect', rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' as const },
+      { key: 'md1-roboto', rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap' },
+    ]
+    : [])
+
   const breadcrumbs = useBreadcrumbItems()
 
   // Advertise the page's markdown twin so agent fetchers and AI crawlers can
@@ -195,6 +209,7 @@
       { key: 'llms', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms.txt`, title: 'llms.txt' },
       { key: 'llms-full', rel: 'alternate', type: 'text/plain', href: `${PROD_SITE_URL}/llms-full.txt`, title: 'llms-full.txt' },
       ...markdown.value,
+      ...md1Fonts.value,
     ]),
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },

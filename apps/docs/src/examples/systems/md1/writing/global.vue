@@ -6,7 +6,7 @@
   useHead({
     link: [{
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+Thai:wght@400;700&family=Roboto:wght@400;500&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+Thai:wght@400;700&display=swap',
     }],
   })
 

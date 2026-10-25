@@ -117,4 +117,4 @@ Sentence-case source text is what assistive technology reads: the uppercase butt
 
 [^global-copy]: Our call: the Japanese, Thai and Arabic strings are illustrative translations written for the example, not copy from the guidelines.
 
-[^google-noto]: Our call: the docs load no fonts, so the example pulls each Noto family from Google Fonts, which names them per script.
+[^google-noto]: Our call: the docs load only Roboto, so the example pulls each Noto family from Google Fonts, which names them per script.

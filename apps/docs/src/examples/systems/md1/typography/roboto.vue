@@ -1,15 +1,6 @@
 <script setup lang="ts">
-  import { useHead } from '@unhead/vue'
-
-  // Material Design 1 loads no fonts. The specimen loads all six Roboto
-  // weights, upright and italic, from Google Fonts.
-  useHead({
-    link: [{
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap',
-    }],
-  })
-
+  // Material Design 1 loads no fonts; the docs load all six Roboto weights,
+  // upright and italic, on every Material Design 1 page.
   const WEIGHTS = [
     { weight: 100, name: 'Thin' },
     { weight: 300, name: 'Light' },

@@ -6,12 +6,12 @@
 
   const { type, typeDense, typeTall } = md1DesignSystem
 
-  // Material Design 1 loads no fonts; the docs load Roboto and the Noto
-  // family each script needs from Google Fonts.
+  // Material Design 1 loads no fonts; the docs load Roboto on every Material
+  // Design 1 page, and this example adds the Noto family each script needs.
   useHead({
     link: [{
       rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap',
+      href: 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;500&family=Noto+Sans+TC:wght@400;500&family=Noto+Sans+Thai:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap',
     }],
   })
 

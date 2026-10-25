@@ -119,7 +119,7 @@ Noto ships tall scripts in Regular and Bold only, so the page's own table sets e
 
 The standard typeface in its six weights, Thin, Light, Regular, Medium, Bold and Black, upright and italic, with the full alphabet and numerals. The type scale uses three of them: Light for Display 4, Regular for most styles and Medium for Title, Body 2, Button and Menu; Bold is the tall scripts' substitute for Medium.
 
-This example loads Roboto from Google Fonts. Material Design 1 itself loads no fonts, so an app that does not load Roboto renders the scale in the platform's sans-serif.
+These docs load Roboto from Google Fonts on every Material Design 1 page. Material Design 1 itself loads no fonts, so an app that does not load Roboto renders the scale in the platform's sans-serif.
 :::
 
 ::: ds-example
@@ -224,7 +224,7 @@ Sizes are in px, the web reading of sp. The page's reason for sp is that a platf
 
 [^menu-bold]: Our call: the page's tall-script table stops before Menu; Bold follows its rule for every other Medium style.
 
-[^google-noto]: Our call: the docs load no fonts, so the example pulls each Noto family from Google Fonts, which names them per script.
+[^google-noto]: Our call: the docs load only Roboto, so the example pulls each Noto family from Google Fonts, which names them per script.
 
 [^dynamic-stop]: Our call: the page says only that sizes come from the scale by the space available; stopping and wrapping at Headline is the example's choice.
 
