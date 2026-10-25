@@ -69,7 +69,7 @@ Every action hosts a [Md1Ripple](/systems/md1/ripple) as its first child and dra
 
 ### Fixed, four destinations
 
-In the fixed bar every action takes the same width: the width of the view divided by the number of actions, between 80 dp and 168 dp. When the cap binds, on a wide screen, the group centres in the bar. With three actions every action shows its icon and label. With four or five, as here, only the active action keeps its label and the inactive ones show their icon alone, centred with 16 dp above and below.
+In the fixed bar every action takes the same width: the width of the view divided by the number of actions, between 80 dp and 168 dp. When the cap binds, on a wide screen, the group centres in the bar. A label never sets its action's width, so on desktop every action is as wide as the widest, 168 dp, the guidelines' alternative for desktop and larger views. With three actions every action shows its icon and label. With four or five, as here, only the active action keeps its label and the inactive ones show their icon alone, centred with 16 dp above and below.
 
 The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. The dark theme keeps Indigo 500, as Vuetify 1.5 does, although it reads at under 2:1 on the Grey 800 bar; a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
 
