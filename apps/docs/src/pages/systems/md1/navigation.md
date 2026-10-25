@@ -82,7 +82,7 @@ Back also dismisses floating surfaces, clears a contextual action bar along with
 
 | Move | Transition | Material Design 1 |
 |------|------------|---------|
-| Parent to child | The touched surface lifts and expands into place from its origin, on the standard curve; the elevation change marks the shift in focus | Composed by the app; the examples below show it with a Vue `Transition` on `--md1-duration-enter` and `--md1-easing-standard` |
+| Parent to child | The touched surface lifts and expands into place from its origin, on the standard curve; the elevation change marks the shift in focus | Composed by the app. The list example uses a Vue `Transition` on `--md1-duration-enter` and `--md1-easing-standard`; the card example uses `useMorph` for a rectangular transform with a shared image |
 | Sibling to sibling | No elevation change; the new content slides in from the right while the old content leaves to the left | Built into `Md1Tabs.Panel`, mirrored under `dir="rtl"` |
 
 ## Examples
@@ -146,7 +146,11 @@ The parent-to-child transition is the guidelines' marker for going deeper: the s
 
 Cards are entry points too: a collection of cards leads to the detail of one. The card's action, here a flat "Explore" button in `Md1Card.Actions`, opens the child screen, and the up arrow returns to the collection.
 
-The same parent-to-child transition applies: the elevation change says the reader has moved down a level. Keep a card's primary action to one destination, so the transition has a single origin to expand from.
+The card expands into the child screen with `useMorph`, the transform the [FAB](/systems/md1/fab) page uses. The detail screen is laid out in its final place and revealed by an `inset()` clip that starts at the card's rectangle and grows to the screen, the transforming-material page's rectangular transformation. The width starts first and the height 15% of the duration later, the page's rule for an expanding rectangle (`lead: 'width'`, `lag: 0.15`). The centre of the clip travels on an arc, and the whole transform runs on `--md1-duration-standard` and the standard curve.
+
+The card's image is the shared element. The choreography page keeps a focal point by carrying elements across a transition: a collapsed card's elements become the expanded card's header. A second `useMorph` call with `scale: true` moves the header image from the card's media to its place and scales it from the card's width, keeping its aspect ratio as the page requires, with the same lead and lag so it stays inside the growing clip. The text below it is not shared, so it fades in over the last 60% of the transform, cropped by the growing surface. The up arrow plays both transforms backwards into the card.
+
+Parent-to-child expansion is a composition, not a card prop: the destination is the app's own screen, and only the app knows where it is.
 :::
 
 ::: ds-example
