@@ -76,6 +76,16 @@ The keylines are horizontal positions measured from the leading edge. Icons and 
 ## Examples
 
 ::: ds-example
+/systems/md1/layout/paper
+
+### Seams and steps
+
+Material Design 1 lays an app out as sheets of paper. Two sheets that share a whole edge at the same depth form a seam, and a seam binds them: they move together. Two sheets that overlap at different depths form a step, and they move independently, the upper one casting its shadow on the lower. Turn on the switch: the seamed pair rises as one, while the upper sheet of each step rises alone.
+
+A floating action button is a circular sheet of its own. It can straddle a step when it acts on the content that makes the step, as on the third figure, where it rides with the upper sheet; it can straddle a seam when it acts on both sheets. The guidelines rule out a decorative seam added only to anchor an action. `Md1Fab` with `position="seam"` straddles the bottom edge of its positioned host by half its height, at the end keyline.
+:::
+
+::: ds-example
 /systems/md1/layout/spacing
 
 ### The 8 dp grid
@@ -83,6 +93,16 @@ The keylines are horizontal positions measured from the leading edge. Icons and 
 Every component aligns to an 8 dp square baseline grid, on handsets, tablets and desktops alike. Iconography in toolbars and type align to a finer 4 dp grid, which is why type leading values (20, 24, 28, 32 sp) are all multiples of 4. The margins and gutters of the responsive grid follow the 8 dp grid too, and the guidelines allow 8, 16, 24 or 40 dp for them.
 
 Material Design 1 ships the grid as `--md1-spacing-1` to `--md1-spacing-5`: 8, 16, 24, 32 and 40 px, one to five steps. The example draws the 8 dp grid behind the scale so each bar ends on a line. Reach for the tokens for padding, gaps and margins, and use a bare multiple of 8 for anything larger. Values that are not on the grid, such as the 20 dp padding under an app bar title, come from a component page and stay literal in that component.
+:::
+
+::: ds-example
+/systems/md1/layout/baseline
+
+### Baseline grid
+
+Components sit on the 8 dp grid; type and toolbar icons sit on a finer 4 dp baseline grid. A style stays on the grid when its leading is a multiple of 4 and the space above it is too, as Display 1 at 34 sp on 40 and Headline at 24 sp on 32 are. Every line of a paragraph then lands on a grid line, however many lines it wraps to.
+
+The example draws the 4 dp grid behind a type specimen and reads each style's size and leading back from the shipped type utilities, so the labels follow the desktop sizes under a mouse. The sheet's 24 dp padding and the 16 dp between styles are multiples of 4 as well, so the first line of each style starts on a grid line.
 :::
 
 ::: ds-example
@@ -96,6 +116,26 @@ The example builds the guidelines' own cases from the token: an app bar one incr
 :::
 
 ::: ds-example
+/systems/md1/layout/vertical-spacing
+
+### Vertical spacing
+
+The keylines fix horizontal positions; vertical rhythm comes from the heights of the blocks themselves. The metrics page redlines three handset screens. A list: a 24 dp status bar, a 56 dp toolbar, a 48 dp subheader and 72 dp two-line list items. A detail view: the toolbar, 72 dp title and list items, a 48 dp subheader and 8 dp between content areas. A navigation drawer: a 48 dp account row and 48 dp items, 8 dp between groups, and a right margin of one app bar height.
+
+The redlines are measured from the rendered components, not typed in, so they read what Material Design 1 actually draws; from 600 dp the toolbar reads 64. The status bar is the platform's and is drawn only so the stack starts where the figure's does. The drawer's right margin is one increment while the screen is narrow enough: 64 dp from 600 px. On a handset the drawer's other limit, five increments or 280 dp, wins first on a 360 dp screen, so the margin reads 80 dp rather than the figure's 56.
+:::
+
+::: ds-example
+/systems/md1/layout/ratios
+
+### Ratio keylines
+
+An aspect ratio, width:height, fixes an element's height from its width: height = width / ratio. The guidelines recommend 16:9, 3:2, 4:3, 1:1, 3:4 and 2:3, and apply them two ways. A ratio keyline on the screen width sizes an element that spans the screen, so a 360 dp wide image at 2:3 is 540 dp tall. A ratio keyline on the element width sizes something inside the margins, such as a card's media at 328 dp wide on the same screen.
+
+The example applies the chosen ratio both ways with CSS `aspect-ratio` and reads back the resulting size. `Md1Card.Media` and `Md1GridList` take a `ratio` of their own for the same purpose.
+:::
+
+::: ds-example
 /systems/md1/layout/touch-targets
 
 ### Touch targets
@@ -103,6 +143,16 @@ The example builds the guidelines' own cases from the token: an app bar one incr
 A touch target is at least 48 x 48 dp, about 9 mm, with 8 dp or more between targets. Painted elements are often smaller than their targets: a 24 dp icon and a 40 dp avatar each sit in a 48 dp square, and a 36 dp button has a 48 dp tall target. The dashed outlines in the example are the targets; the painted shapes are what the reader sees.
 
 `--md1-touch-target` is the 48 px. `Md1Button` extends its hit area to it without taking the space in the layout, so a row of 36 dp buttons still lines up on the 8 dp grid, and icon-only buttons and icon toggles are 48 dp outright. The guidelines state no smaller target for a mouse, so treat 48 dp as the minimum under `(pointer: fine)` too.
+:::
+
+::: ds-example
+/systems/md1/layout/windows
+
+### Desktop windows
+
+Desktop keylines and spacing inherit from the tablet and handset rules by window size, not by device. A full-screen window and a wide horizontal one take the tablet keylines: 24 dp margins, an 80 dp content keyline and a 64 dp increment. A narrow vertical window takes the handset ones, 16, 72 and 56 dp, even on a large monitor.
+
+Material Design 1's keyline tokens switch on the viewport's width, which is the window's width in a browser, so a real window needs nothing more. The example draws three nominal windows in one page, so each one sets the keyline and increment tokens on itself for its own width and is scaled down to fit the column.
 :::
 
 ::: ds-example
