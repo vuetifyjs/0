@@ -240,16 +240,17 @@
   }
 
   /*
-   * The sheet: a 24 dp surface that sizes to its content between 280 px (five
-   * 56 dp units, the mobile minimum) and 560 px (ten, a Material Design 1 decision), and
-   * scrolls when the content exceeds the height limit. The parts carry the
+   * The sheet: a 24 dp surface that sizes to its content from 280 px (five
+   * 56 dp units, the mobile minimum) with no maximum but the 40 dp side
+   * margins (the page states no desktop width; Vuetify 1.5's maxWidth 'none',
+   * VDialog.js:44-54), and scrolls when the content exceeds the height limit. The parts carry the
    * 24 dp content paddings so the action area can sit flush with the edges.
    */
   .md1-dialog__sheet {
     box-sizing: border-box;
     width: fit-content;
     min-width: min(280px, calc(100vw - 2 * var(--md1-spacing-5, 40px)));
-    max-width: min(560px, calc(100vw - 2 * var(--md1-spacing-5, 40px)));
+    max-width: calc(100vw - 2 * var(--md1-spacing-5, 40px));
     overflow-x: clip;
     overflow-y: auto;
     background: var(--md1-surface, #FFFFFF);

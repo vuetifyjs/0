@@ -46,8 +46,9 @@
 <!-- Unscoped: Dialog.Description is an Atom; a scoped data-v never lands on the element. -->
 <style>
   /*
-   * Body 1 at the secondary ink (a Material Design 1 decision: the page states no body
-   * style), inside the 24 dp content keylines, 24 dp above the actions.
+   * Body 1 in the primary text ink: the page states no body style, so the text
+   * inherits the card's 87% black / white as in Vuetify 1.5 (_cards.styl:5-8,
+   * 44-46). Inside the 24 dp content keylines, 24 dp above the actions.
    */
   .md1-dialog__text {
     margin: 0;
@@ -57,7 +58,7 @@
     font-weight: var(--md1-type-body-1-weight, 400);
     line-height: var(--md1-type-body-1-leading, 20px);
     letter-spacing: var(--md1-type-body-1-tracking, 0.01em);
-    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   /* An alert without a title bar: the text takes the title's 24 dp from the top edge. */
