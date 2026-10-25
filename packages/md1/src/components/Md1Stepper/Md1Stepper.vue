@@ -154,13 +154,14 @@
 <style>
   /*
    * The steppers page draws every stepper as a card; the elevation is not
-   * stated, so it takes the card's 2 dp (Vuetify 1.5 `elevation(2)`, a decision).
+   * stated, so it takes Vuetify 1.5's 2 dp (`_steppers.styl:69`). The sheet is
+   * Vuetify's stepper fill, white and #303030 on dark (`_steppers.styl:4-5`).
    */
   .md1-stepper {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    background: var(--md1-surface, #FFFFFF);
+    background: var(--md1-stepper, #FFFFFF);
     border-radius: var(--md1-radius, 2px);
     box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);

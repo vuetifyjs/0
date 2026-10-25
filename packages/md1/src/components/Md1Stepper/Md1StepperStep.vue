@@ -220,23 +220,27 @@
     user-select: none;
   }
 
-  /* Hover: 6% over the whole step cell on the steps the user can go to (steppers page; lead decision 3). */
+  /*
+   * Hover: 6% of the foreground over the whole step cell on the steps the user
+   * can go to, black on light and white on dark (steppers page for light;
+   * Vuetify 1.5's `_steppers.styl:27-28` for both).
+   */
   button.md1-stepper__label:hover {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: rgb(var(--md1-text-primary-channels, 0 0 0) / 0.06);
   }
 
   /*
-   * Focus is not stated on the steppers page; the buttons page's 12% overlay,
-   * keyboard only. The transparent outline keeps a ring under forced colours.
+   * Focus is not stated on the steppers page and Vuetify 1.5 draws no focus
+   * fill, so keyboard focus shows the user agent's focus ring, inset so the
+   * card does not clip it.
    */
   button.md1-stepper__label:focus-visible {
-    outline: 2px solid transparent;
-    background-color: var(--md1-focus, rgba(0, 0, 0, 0.12));
+    outline-offset: -2px;
   }
 
   /* Pressed: a circular ripple from the press point in the hover tone, not the buttons' grey (steppers page). */
   .md1-stepper__label > .md1-ripple {
-    color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    color: rgb(var(--md1-text-primary-channels, 0 0 0) / 0.06);
   }
 
   /* 24 dp, a 12 sp Regular number in white; 38% while inactive, the primary colour once reached. */
