@@ -662,10 +662,14 @@
     color: var(--md1-black, #000000);
   }
 
-  /* The page states no hover or focus for a day: the 6% hover of lead decision 3 and the buttons page's 12% focus. */
+  /*
+   * The page states no hover or focus for a day: a day is Vuetify 1.5's flat
+   * button, a 12% overlay of its own ink on hover (_buttons.styl:62-68), and
+   * keyboard focus takes the buttons page's 12%.
+   */
   @media (hover: hover) {
     .md1-date-picker__day:not([data-selected]):hover {
-      background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+      background-color: color-mix(in srgb, currentcolor 12%, transparent);
     }
   }
 
@@ -767,9 +771,10 @@
     color: var(--md1-accent-control, #F48FB1);
   }
 
+  /* A year on hover: black 12% in both themes, Vuetify 1.5's year list (_date-picker-years.styl:22-23; the page states none). */
   @media (hover: hover) {
     .md1-date-picker__option:hover {
-      background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+      background-color: color-mix(in srgb, var(--md1-black, #000000) 12%, transparent);
     }
   }
 

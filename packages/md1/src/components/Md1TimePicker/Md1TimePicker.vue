@@ -469,15 +469,15 @@
   }
 
   /*
-   * The pickers page states no hover: lead decision 3's 6% currentColor overlay,
-   * which reads as white 6% on the primary band. Declared before focus so the
-   * 12% focus overlay wins on a hovered, focused button.
+   * The pickers page states no hover. Vuetify 1.5 draws no overlay on the
+   * header buttons: an inactive one rises from its 70% to full opacity under
+   * the pointer while it is not focused (_pickers.styl:36-41).
    */
   @media (hover: hover) {
-    .md1-time-picker__hours:hover,
-    .md1-time-picker__minutes:hover,
-    .md1-time-picker__meridiem:hover {
-      background-color: color-mix(in srgb, currentcolor 6%, transparent);
+    .md1-time-picker__hours:hover:not(:focus),
+    .md1-time-picker__minutes:hover:not(:focus),
+    .md1-time-picker__meridiem:hover:not(:focus) {
+      opacity: 1;
     }
   }
 
