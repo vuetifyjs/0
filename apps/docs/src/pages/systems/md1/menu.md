@@ -105,6 +105,14 @@ A menu may only own items, groups and separators in the accessibility tree, so t
 :::
 
 ::: ds-example
+/systems/md1/menu/contextual
+
+### Contextual menus
+
+A contextual menu changes with the state of the thing it acts on. Each row's overflow button opens the actions for that file: items that do not apply are removed, and items that apply but need a condition met stay in place, disabled. Your own files offer every action; the view-only file shared with you drops Remove, which you cannot do to someone else's file, and disables Share until you have edit access. Keeping a disabled item in place tells the reader the action exists and where to find it once it is available.
+:::
+
+::: ds-example
 /systems/md1/menu/selected
 
 ### The selected value
