@@ -102,6 +102,46 @@ The dark theme changes surfaces and ink, not lights. `md1-dark` keeps every shad
 The result is that depth reads less strongly on the dark theme, because a black shadow has less to contrast with on a dark background. That is the guidelines' choice, not an oversight: the colour page builds the dark theme from darker surfaces and lighter ink and states no separate dark shadow. If your app needs heavier dark shadows, raise the three `--md1-shadow-*` opacities in the `md1-dark` block. Every level follows.
 :::
 
+::: ds-example
+/systems/md1/elevation/layout
+
+### A screen in cross-section
+
+A screen and its side view. The background is 0 dp, the cards rest at 2 dp, the app bar at 4 dp and the floating action button at 6 dp, and the cross-section lays them out on the z axis, which the web can only suggest with shadows. Every sheet is 1 dp thick and holds one position on the axis.
+
+Reading a screen this way is how the guidelines decide what may overlap what: the FAB can pass over the cards because it sits higher, and nothing at 2 dp may slide over the app bar.
+:::
+
+::: ds-example
+/systems/md1/elevation/scroll
+
+### Parents and children
+
+Elevation is relative to the parent. Each raised button rests 2 dp above the card it sits on, so when the cards scroll, their buttons scroll with them. The floating action button's parent is the screen, not the card collection, so it stays where it is while the collection scrolls under it.
+
+Build the relationship with the DOM, not the shadow: put the child inside the element that scrolls if it belongs to that sheet, and outside it if it belongs to the screen.
+:::
+
+::: ds-example
+/systems/md1/elevation/material
+
+### Material properties
+
+The physical properties of material, on plain sheets. Material can take any height and width, any shape and any colour. Its content behaves independently of it: the list scrolls inside a sheet that does not move. Input reaches only the foreground: the front sheet covers part of the back sheet's button, and a tap there lands on the front sheet. Material moves on every axis, along x and y in the plane of the screen and along z, where moving means a change of elevation and so of shadow.
+
+A tap, a hover and a scroll all go to the topmost sheet under the pointer, which is how the DOM behaves already, as long as the stacking order matches the elevation order. Keep `z-index` and elevation in step, and a sheet that looks higher will also be the one that receives input.
+:::
+
+::: ds-example
+/systems/md1/elevation/join
+
+### Joining and splitting
+
+Sheets at the same elevation can join into one and split apart again. Joining closes the seam, squares off the corners that meet and hands the two shadows over to one around the whole; splitting reverses it. Material never joins across elevations, and it never passes through another sheet on the way.
+
+Material Design 1 ships no surface for this; the example animates the gap and the corner radii on the standard curve over `--md1-duration-standard`, and swaps the elevation classes so the shadow transitions with them.
+:::
+
 ## Tokens
 
 | Token | Value | Notes |
