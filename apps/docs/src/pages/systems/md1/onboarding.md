@@ -63,6 +63,16 @@ Material Design 1 ships no pagination dots: the guidelines draw them on the onbo
 ## Examples
 
 ::: ds-example
+/systems/md1/onboarding/sign-in
+
+### Sign-in screen
+
+Self-select often starts by signing in. When the device already knows an account, the screen offers it instead of a form: the account in a sheet at the bottom, under the app's illustration, with one full-width raised button to continue as that person. The arrow beside the account opens an `Md1Menu` of the other accounts on the device.
+
+Name the button for what happens, "Continue as Janelle", and keep the account's name and email visible above it, so the reader can see which identity they are about to use.
+:::
+
+::: ds-example
 /systems/md1/onboarding/self-select
 
 ### Self-select
@@ -70,6 +80,16 @@ Material Design 1 ships no pagination dots: the guidelines draw them on the onbo
 Self-select lets users shape their first run with a short series of choices. The guidelines ask for choices that are meaningful and noticeable, that ask only what normal use would not reveal, and that are short: one screen, or several that feel connected, with fewer than ten choices each. Content apps ask for topics of interest; feed apps ask which topics to bundle.
 
 The example is one screen: a headline in the Headline style (24 sp on 32 sp), a line of Subheading copy in the secondary ink, and six topics in an `Md1List` with `select="multiple"`, the multi-select listbox with the selection pattern's check marks. The guidelines also name a bundled list and a grid view as common designs; the grid view is an `Md1GridList` whose tiles toggle `selected`. "Next" moves on to the first-run experience and is enabled from the start, so a reader who picks nothing can still continue.
+:::
+
+::: ds-example
+/systems/md1/onboarding/designs
+
+### Self-select designs
+
+The guidelines draw three common designs for self-select choices, each with the same six topics here. A bundled list pairs each topic with a switch and says what the switch does in the secondary line: Bundled, or Shown individually. A grid view shows each topic as a 72 dp circle that takes a check mark when chosen. A list shows each topic as a card row with a colour block, and an add mark that turns into a check.
+
+In all three an unchosen topic recedes, its colour dropped to 38% and its label to the disabled ink, so what is chosen reads at a glance. The grid and list tiles are toggle buttons with `aria-pressed`; the bundled list's switches are named for their topic.
 :::
 
 ::: ds-example
@@ -82,6 +102,16 @@ Top user benefits is a brief autoplay carousel of at most three illustrations, e
 The example keeps the slide state in v0's [createStep](/composables/selection/create-step) with `circular` on, and times it with [useTimer](/composables/system/use-timer): 2 s for the first screen and 3 s for the others, values inside the guidelines' range. A `pointerdown` or focus anywhere in the carousel stops the timer. The dots are v0 `Button.Root`s, 8 dp marks in the disabled ink with the current one in the primary colour, so a keyboard user can move between screens; the guidelines also make the screen swipeable, a gesture Material Design 1 does not ship. Once autoplay stops, the copy region becomes a polite live region so a screen reader hears each change.
 
 The layout is the handset portrait redline: a 1:1 illustration, then centred copy and controls built upward from the bottom edge with 24 dp of padding. The headline is 24 sp on a 32 sp leading; the centre of the copy sits 56 dp above the top of the button, which leaves room for one to three lines. The redline sets the subhead at 15 sp where Material Design 1's Subheading token is 16 sp on a touch device; the example uses the token.
+:::
+
+::: ds-example
+/systems/md1/onboarding/layouts
+
+### Layouts and redlines
+
+The same screen of the carousel on each platform the guidelines draw, each device at its size in dp. In portrait the copy and controls are centred beneath the 1:1 illustration and built upward from the bottom edge; in landscape they are left-aligned against the illustration's end edge and vertically centred; on desktop they sit in a centred card with the arrows beside it and the dots beneath it.
+
+Turn on the redlines to number the measures the guidelines give: the headline at 24 sp on 32 sp, the subhead at 15 sp on 24 sp (the Subheading token's 16 sp here), the 32 sp line height, 56 dp from the top of the button to the centre of the copy, 24 dp of vertical padding, and on desktop 48 dp from the card to each arrow.
 :::
 
 ::: ds-example
