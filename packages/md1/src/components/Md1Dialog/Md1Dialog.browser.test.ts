@@ -269,7 +269,7 @@ describe('quDialog', () => {
   })
 
   describe('spec values', () => {
-    it('should paint the 24 dp sheet on the surface between 280 px and 560 px', async () => {
+    it('should paint the 24 dp sheet on the surface from 280 px, capped only by the 40 dp side margins', async () => {
       const host = dialog({ parts: () => h(Md1Dialog.Text, null, () => 'Hi') })
       await settle()
 
@@ -282,7 +282,8 @@ describe('quDialog', () => {
       expect(computed.backgroundColor).toBe('rgb(255, 255, 255)')
       expect(computed.borderRadius).toBe('2px')
       expect(sheet.getBoundingClientRect().width).toBe(280)
-      expect(computed.maxWidth).toBe('560px')
+      // No 560 px cap: Vuetify 1.5's maxWidth 'none', inside the page's 40 dp side margins.
+      expect(computed.maxWidth).toBe(`${document.documentElement.clientWidth - 80}px`)
     })
 
     it('should rest 2 dp lower, at 22 dp, under a mouse and keyboard', async () => {
@@ -328,7 +329,7 @@ describe('quDialog', () => {
       expect(computed.color).toBe('rgba(0, 0, 0, 0.87)')
     })
 
-    it('should set the text in Body 1 at the secondary ink, 24 dp from the edges and the actions', async () => {
+    it('should set the text in Body 1 at the primary ink, 24 dp from the edges and the actions', async () => {
       const host = dialog()
       await settle()
 
@@ -337,7 +338,7 @@ describe('quDialog', () => {
       expect(computed.fontSize).toBe('14px')
       expect(computed.fontWeight).toBe('400')
       expect(computed.lineHeight).toBe('20px')
-      expect(computed.color).toBe('rgba(0, 0, 0, 0.54)')
+      expect(computed.color).toBe('rgba(0, 0, 0, 0.87)')
       expect(computed.paddingTop).toBe('0px')
       expect(computed.paddingLeft).toBe('24px')
       expect(computed.paddingBottom).toBe('24px')
@@ -419,7 +420,7 @@ describe('quDialog', () => {
 
       expect(getComputedStyle(el.querySelector('.md1-dialog__sheet')!).backgroundColor).toBe('rgb(66, 66, 66)')
       expect(getComputedStyle(el.querySelector('.md1-dialog__title')!).color).toBe('rgb(255, 255, 255)')
-      expect(getComputedStyle(el.querySelector('.md1-dialog__text')!).color).toBe('rgba(255, 255, 255, 0.7)')
+      expect(getComputedStyle(el.querySelector('.md1-dialog__text')!).color).toBe('rgb(255, 255, 255)')
     })
   })
 

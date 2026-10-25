@@ -288,14 +288,17 @@ describe('quToolbar', () => {
       expect(el.getBoundingClientRect().height).toBe(96)
     })
 
-    it('should detach as a floating 2 dp toolbar with its own width and 2 dp corners', async () => {
+    it('should float at the toolbar\'s own elevation with its own width, square and 16 px clear', async () => {
       const el = basic({ floating: true })
       await settle()
 
       const computed = getComputedStyle(el)
 
+      // Vuetify 1.5's floating toolbar (_toolbar.styl:34, 153-156): 4 dp, 2 dp under the fine pointer, no corner, 16 px margin.
       expect(Object.hasOwn(el.dataset, 'floating')).toBe(true)
-      expect(computed.borderTopLeftRadius).toBe('2px')
+      expect(computed.borderTopLeftRadius).toBe('0px')
+      expect(computed.marginTop).toBe('16px')
+      expect(computed.marginLeft).toBe('16px')
       expect(computed.boxShadow).toBe(serialize('boxShadow', ELEVATION_2))
       expect(el.getBoundingClientRect().width).toBeLessThan(window.innerWidth)
     })

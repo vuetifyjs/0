@@ -173,7 +173,7 @@ describe('quTooltip', () => {
   })
 
   describe('desktop', () => {
-    it('should show on hover without a delay and hide when the pointer leaves', async () => {
+    it('should show on hover after Vuetify 1.5\'s 200 ms and hide when the pointer leaves', async () => {
       const open = shallowRef(false)
       const host = tooltip({ open })
       await settle()
@@ -181,8 +181,9 @@ describe('quTooltip', () => {
       await userEvent.hover(trigger(host))
       await settle()
 
-      // The 0 ms open delay: shown as soon as the pointer arrives.
-      expect(open.value).toBe(true)
+      // The 200 ms open delay (VTooltip.js:22-37): not yet on arrival, shown once it runs out.
+      expect(open.value).toBe(false)
+      await expect.poll(() => open.value).toBe(true)
       expect(shown(host)).toBe(true)
       expect(content(host).dataset.state).toBe('delayed-open')
       expect(trigger(host).dataset.state).toBe('delayed-open')
@@ -616,7 +617,7 @@ describe('quTooltip', () => {
   })
 
   describe('metrics', () => {
-    it('should draw the desktop tile: 22 dp, 8 dp padding, Medium 10 sp, Grey 700 at 90%, 2 dp corners, no shadow', async () => {
+    it('should draw the desktop tile: 22 dp, 8 dp padding, Medium 10 sp, Grey 700 at 90%, 2 dp corners, 2 dp shadow', async () => {
       // Playwright's desktop Chromium is the spec's mouse-and-keyboard environment.
       expect(matchMedia('(pointer: fine)').matches).toBe(true)
 
@@ -636,7 +637,8 @@ describe('quTooltip', () => {
       expect(computed.backgroundColor).toBe('rgba(97, 97, 97, 0.9)')
       expect(computed.color).toBe('rgb(255, 255, 255)')
       expect(computed.borderTopLeftRadius).toBe('2px')
-      expect(computed.boxShadow).toBe('none')
+      // Vuetify 1.5's 2 dp tile (_tooltips.styl:15); the popover frame casts nothing.
+      expect(computed.boxShadow).toBe('rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px')
       expect(getComputedStyle(content(host)).boxShadow).toBe('none')
       expect(getComputedStyle(content(host)).pointerEvents).toBe('none')
     })

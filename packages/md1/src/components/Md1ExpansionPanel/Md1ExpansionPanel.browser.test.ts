@@ -21,8 +21,8 @@ import { md1Colors, md1DarkColors } from '../../colors'
 import { md1Icons } from '../../icons'
 
 /** Vuetify 1.5's pixel recipe for the 8 dp level: the expanded panel (lead decision 4). */
-const ELEVATION_8 = '0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12)'
-const ELEVATION_2 = '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)'
+const ELEVATION_3 = '0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12)'
+const ELEVATION_1 = '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)'
 
 interface Panel extends Partial<Md1ExpansionPanelHeaderProps> {
   value: string
@@ -408,14 +408,14 @@ describe('quExpansionPanel', () => {
       }
     })
 
-    it('should rest the stack at the 2 dp card elevation outside the fine-pointer rule', async () => {
+    it('should rest the stack at Vuetify 1.5\'s 1 dp outside the fine-pointer rule', async () => {
       panels()
       await settle()
 
       const sheet = rule('.md1-expansion-panel__item')
 
       expect(sheet).toBeDefined()
-      expect(sheet!.style.boxShadow.replaceAll(/\s+/g, ' ')).toBe(`var(--md1-elevation-2, ${ELEVATION_2})`)
+      expect(sheet!.style.boxShadow.replaceAll(/\s+/g, ' ')).toBe(`var(--md1-elevation-1, ${ELEVATION_1})`)
     })
 
     it('should clip the upward shadow only where a sheet continues the one above it', async () => {
@@ -430,7 +430,7 @@ describe('quExpansionPanel', () => {
       expect(getComputedStyle(third).clipPath).toBe('inset(0px -24px -24px)')
     })
 
-    it('should detach the expanded panel 16 dp from its neighbours and lift it to 8 dp', async () => {
+    it('should detach the expanded panel 16 dp from its neighbours and lift it to 3 dp', async () => {
       const root = panels({ modelValue: 'location' })
       await settle()
 
@@ -441,7 +441,7 @@ describe('quExpansionPanel', () => {
 
       expect(b.top - a.bottom).toBe(16)
       expect(c.top - b.bottom).toBe(16)
-      expect(getComputedStyle(second).boxShadow).toBe(serialize('boxShadow', ELEVATION_8))
+      expect(getComputedStyle(second).boxShadow).toBe(serialize('boxShadow', ELEVATION_3))
       expect(getComputedStyle(second).borderTopWidth).toBe('0px')
       expect(getComputedStyle(third).borderTopWidth).toBe('0px')
       expect(getComputedStyle(second).borderTopLeftRadius).toBe('2px')
@@ -548,10 +548,8 @@ describe('quExpansionPanel', () => {
 
       expect(document.activeElement).toBe(button)
       expect(button.matches(':focus-visible')).toBe(true)
-      // color-mix() serialises in color(srgb ...); 238 / 255 on every channel is Grey 200 (#EEEEEE).
-      await expect.poll(() => getComputedStyle(button).backgroundColor)
-        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgb(0 0 0) 6.667%, #FFFFFF)'))
-      expect(getComputedStyle(button).backgroundColor).toBe(`color(srgb ${(238 / 255).toFixed(5)} ${(238 / 255).toFixed(5)} ${(238 / 255).toFixed(5)})`)
+      // Grey 200 (#EEEEEE), the expansion-panels page's focus fill.
+      await expect.poll(() => getComputedStyle(button).backgroundColor).toBe('rgb(238, 238, 238)')
 
       await userEvent.click(document.body)
       await userEvent.click(button)
@@ -915,7 +913,7 @@ describe('quExpansionPanel', () => {
       expect(getComputedStyle(button.querySelector('.md1-expansion-panel__cue')!).color).toBe('rgba(255, 255, 255, 0.5)')
     })
 
-    it('should lift the dark focus fill by the same share of white', async () => {
+    it('should fill the dark focused header with Vuetify 1.5\'s #494949', async () => {
       theme()
 
       const host = mount(() => h('div', { 'data-theme': 'md1-dark' }, [h(Md1ExpansionPanel, () => [item(PANELS[0])])]))
@@ -926,8 +924,7 @@ describe('quExpansionPanel', () => {
       await userEvent.tab()
 
       expect(document.activeElement).toBe(button)
-      await expect.poll(() => getComputedStyle(button).backgroundColor)
-        .toBe(serialize('backgroundColor', 'color-mix(in srgb, rgb(255 255 255) 6.667%, #424242)'))
+      await expect.poll(() => getComputedStyle(button).backgroundColor).toBe('rgb(73, 73, 73)')
     })
   })
 })

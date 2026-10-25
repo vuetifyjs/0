@@ -733,7 +733,8 @@ describe('quDataTable', () => {
       expect(contextual.getAttribute('aria-label')).toBe('2 items selected')
       expect(contextual.querySelector('.md1-data-table__count')!.textContent!.trim()).toBe('2 items selected')
       expect(contextual.getBoundingClientRect().height).toBe(64)
-      expect(getComputedStyle(contextual).backgroundColor).toBe('rgb(255, 128, 171)')
+      // The accent's 50, the data tables page's fill (Pink 50).
+      expect(getComputedStyle(contextual).backgroundColor).toBe('rgb(252, 228, 236)')
       // The table keeps its name while the title is hidden.
       expect(host.querySelector('table')!.getAttribute('aria-labelledby')).toBe(host.querySelector('.md1-data-table__title')!.id)
     })
