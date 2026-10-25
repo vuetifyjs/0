@@ -184,7 +184,7 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 
 ### Dropdown
 
-`dropdown` makes the field a select, the guidelines' "Nested menus & pickers": the control is readonly, the `arrow-drop-down` glyph sits at its end in a 24 x 24 dp container 8 dp above the line, and pressing the field or the arrow opens a menu of the `Md1TextField.Item` children on an 8 dp sheet at least as wide as the field. Choosing an option writes its `value` to `v-model`, closes the menu and floats the label; the field shows the option's text.
+`dropdown` makes the field a select, the guidelines' "Nested menus & pickers": the control is readonly, the `arrow-drop-down` glyph sits at its end in a 24 x 24 dp container 8 dp above the line, and pressing the field or the arrow opens a menu of the `Md1TextField.Item` children on an 8 dp sheet at least as wide as the field. Choosing an option writes its `value` to `v-model`, closes the menu and floats the label; the field shows the option's text. Once an option is chosen the menu opens over the field with that option on the field's value, its text lined up with the value's text, the menus page's simple-menu rule that it extends to selects; near a screen edge the sheet shifts to stay on screen, and a long list opens scrolled to the option. With nothing chosen it opens below the field.
 
 The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the menu's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus overlay.
 :::

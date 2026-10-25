@@ -66,7 +66,7 @@ The Material Design 1 menu: a temporary sheet of choices that opens from a butto
 
 ## Composed on Vuetify0
 
-`Md1Menu` renders v0's [Menu](/components/disclosure/menu) compound and keeps its behavior: `Menu.Root` owns the open path, `Menu.Activator` the trigger wiring, `Menu.Content` the native popover with its roving focus, typeahead, Escape and light dismiss, `Menu.Item` and `Menu.CheckboxItem` the rows, `Menu.Separator` the divider, and `Menu.Sub` with `Menu.SubActivator` and `Menu.SubContent` the cascading layer, folded into the single `Md1Menu.Sub` part. The placement is CSS anchor positioning through v0's popover adapter.
+`Md1Menu` renders v0's [Menu](/components/disclosure/menu) compound and keeps its behavior: `Menu.Root` owns the open path, `Menu.Activator` the trigger wiring, `Menu.Content` the native popover with its roving focus, typeahead, Escape and light dismiss, `Menu.Item` and `Menu.CheckboxItem` the rows, `Menu.Separator` the divider, and `Menu.Sub` with `Menu.SubActivator` and `Menu.SubContent` the cascading layer, folded into the single `Md1Menu.Sub` part. The placement is CSS anchor positioning through v0's popover adapter, except for a simple menu with a selected item: `Md1Menu.Content` wraps the adapter in effect with a measuring one, through the same `v0:popover` seam `createPopoverPlugin` uses, so it can land the selected row on the emitting element.
 
 Material Design 1 adds the spec around it. The sheet's width, elevation and motion are Material Design 1's stylesheet; `data-dense` and `data-desktop` on the sheet and `data-selected` and `data-icon` on a row are Material Design 1's own attributes, while `data-open`, `data-highlighted`, `data-disabled` and `data-state` are v0's. Every row hosts a [Md1Ripple](/systems/md1/ripple), and every glyph (the leading icon, the check, the sub menu triangle) draws through [Md1Icon](/systems/md1/icon).
 
@@ -111,7 +111,17 @@ A menu may only own items, groups and separators in the accessibility tree, so t
 
 `value` on an item and `v-model:selected` on the root make a simple menu that commits a choice. Choosing an option commits it immediately and closes the menu, the guidelines' selection rule; the row whose value matches the model is drawn with the 12% focus shade the buttons page gives a focused surface, and carries `aria-current`.
 
-The guidelines also position a simple menu so the selected item sits over the emitting control. Material Design 1 does not implement that alignment: CSS anchor positioning has no measured offset for it, so the menu opens below its trigger, aligned to its start edge. This is a known limitation. A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
+The guidelines also position a simple menu over the emitting control so the selected item sits on top of it, never below it. `Md1Menu` measures that: when a row is selected, the sheet opens with that row's centre on the trigger's centre and its start edge on the trigger's start edge, and it grows from the trigger. With nothing selected, an action menu, the sheet opens below the trigger as before. A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
+:::
+
+::: ds-example
+/systems/md1/menu/long
+
+### Screen edges and long menus
+
+Near a screen edge the whole sheet moves vertically so every item stays visible, and it never crosses the 16 dp screen margin (24 dp from 600 px); the selected row then sits as close to the trigger as the room allows. A sheet taller than the screen less those margins and one 48 dp row scrolls internally, and it opens scrolled so the selected row is in its middle, over the trigger, the way Vuetify 1.5 scrolled its auto menus.
+
+The placement is measured when the sheet opens and follows the trigger when the page scrolls or resizes; scrolling inside the sheet does not move it. Cascading sub menus are not simple menus and keep their place beside their parent row.
 :::
 
 ::: ds-example
