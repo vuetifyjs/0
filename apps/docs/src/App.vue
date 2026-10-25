@@ -831,6 +831,14 @@
     pointer-events: none;
   }
 
+  /* A wide line scrolls the code window on x. Pin the veil to the inline start
+     so it stays across the visible pane instead of sliding off with the line. */
+  .docs-code-window::before,
+  .docs-code-window::after {
+    inset-inline-start: 0;
+    width: 100%;
+  }
+
   .docs-code-window::before,
   .docs-edge-fade::before {
     top: 0;
