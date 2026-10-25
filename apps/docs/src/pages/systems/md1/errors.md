@@ -102,7 +102,7 @@ Keep form text to the essentials. Not every field needs helper text, and not eve
 
 ### Over the character count
 
-A counter can show before, during and after interaction, but the guidelines suggest holding it back until the user approaches the limit. This example passes `counter` only once the text reaches 80% of the 60-character limit, so a short status never shows "12 / 60".
+A counter can show before, during and after interaction, but the guidelines suggest holding it back until the user approaches the limit. This example passes `counter` only once the text reaches 80% of the 60-character limit[^counter-threshold], so a short status never shows "12 / 60".
 
 The status starts past the limit. Over it, `Md1TextField` turns to its error state on its own: the counter and the underline take the error color and the field reports itself invalid. No rule is needed for the limit. The counter is 12 sp Roboto Regular at the end of the details row, 8 dp under the line. The guidelines also give a field with a counter 16 dp of extra bottom padding and an 88 dp input area (see Text field metrics above). `counter` also takes `{ words: n }` when the limit is a word count.
 :::
@@ -112,7 +112,7 @@ The status starts past the limit. Over it, `Md1TextField` turns to its error sta
 
 ### Error in a single-line list
 
-A full-width field at the top of a list, here a search, reports its error in its own row, under the input, rather than in a dialog or snackbar. One letter matches almost everyone, so the search asks for a second: the error appears under the field and the list behind it recedes to 38% until the query can be answered. Clearing the field or typing a second letter removes the error.
+A full-width field at the top of a list, here a search, reports its error in its own row, under the input, rather than in a dialog or snackbar. One letter matches almost everyone, so the search asks for a second: the error appears under the field and the list behind it recedes to 38% until the query can be answered.[^list-recede] Clearing the field or typing a second letter removes the error.
 :::
 
 ::: ds-example
@@ -148,7 +148,7 @@ Use a dialog only when the app truly cannot continue. Most errors are peripheral
 
 A snackbar carries a peripheral error: something failed, but the rest of the app still works. The feed below is from 10:42 and stays on screen; the snackbar at the bottom edge says the refresh failed and offers Retry. Retry runs the refresh again, with a linear progress indicator across the top edge while it works, and succeeds. Press Refresh to see the failure again: in this example a plain refresh always fails.
 
-Snackbars are transient. This one leaves after Material Design 1's 6000 ms default and never comes back on its own, which is why it suits a failure the user can ignore. Do not use a snackbar for a critical error, for one that persists until the user acts, or for a batch of errors at once.
+Snackbars are transient. This one leaves after Material Design 1's 6000 ms default[^snackbar-timeout] and never comes back on its own, which is why it suits a failure the user can ignore. Do not use a snackbar for a critical error, for one that persists until the user acts, or for a batch of errors at once.
 
 Offer Retry only when it can succeed. When the app can tell the connection is down, it is offline, and the [offline states](/systems/md1/offline-states) pattern applies instead.
 :::
@@ -188,7 +188,7 @@ A disabled control cannot take focus, so the explanation must be visible text, n
 
 When a request conflicts with a mode the user or an administrator has set, say so and point to where the mode is controlled. Press the capture button: a snackbar says screenshots are disabled by the administrator and offers Settings. The mode itself is shown by a persistent indicator, here a lock in the app bar named "Managed by your organization", which stays for as long as the mode does, so the snackbar can leave without the reason disappearing with it.
 
-On a device the indicator lives in the status bar; on the web the app's own bar is the closest persistent surface.
+On a device the indicator lives in the status bar; on the web the app's own bar is the closest persistent surface.[^mode-indicator]
 :::
 
 ## Accessibility
@@ -203,3 +203,11 @@ Error text from `Md1TextField` is tied to its input: the input sets `aria-invali
 | Snackbar | The snackbar's `role="status"` live region; the Retry action is reachable by Tab |
 
 Error text uses the Caption style at 12 sp, so check its contrast against the surface it sits on: the guidelines ask for noticeable contrast, and the 4.5:1 floor applies.
+
+[^counter-threshold]: Our call: the guidelines say to show the counter as the user approaches the limit; 80% is the example's threshold.
+
+[^list-recede]: Our call: the figure dims the list without a value; 38% is the disabled ink. The two-letter minimum is the example's.
+
+[^snackbar-timeout]: Vuetify 1.5.24, components/VSnackbar/VSnackbar.ts:22-24. The 6000 ms `timeout` default.
+
+[^mode-indicator]: Our call: a browser has no status bar, and no briefcase glyph ships, so a lock in the app bar stands in.
