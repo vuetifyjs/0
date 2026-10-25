@@ -1,0 +1,66 @@
+---
+title: Permissions - Material Design 1 Permissions Pattern for Vue
+meta:
+- name: description
+  content: The Material Design 1 permissions pattern. Explain a denied permission with a snackbar, and give a critical one its own screen with a way to Settings.
+- name: keywords
+  content: md1 permissions, material design 1 permissions, denied permission, runtime permissions, permission snackbar, grant access, vue permissions, paper md1
+features:
+  category: Guide
+  label: 'Permissions'
+  level: 2
+  renderless: false
+  group: patterns
+  order: 18
+related:
+  - /systems/md1
+  - /systems/md1/snackbar
+  - /systems/md1/button
+  - /systems/md1/onboarding
+---
+
+# Permissions
+
+<DocsPageFeatures :frontmatter />
+
+Ask for access at the moment it makes sense, explain why, and say what happens when the answer is no.
+
+> [!NOTE]
+> Reference: [Permissions, Material Design 1 guidelines](https://m1.material.io/patterns/permissions.html), the archived page Material Design 1 is pinned to. Permission groups, runtime requests, request patterns and denied permissions. This page is the Vue.
+
+## Usage
+
+The request itself is the platform's dialog, not the app's, so this page shows only what the app draws: what it says after a denial. The guidelines' request patterns still decide when to ask:
+
+- **Ask up-front** only for critical permissions whose purpose is obvious, such as SMS for a messaging app.
+- **Ask in context**, when a feature is first used, for everything else.
+- **Educate** first when the reason is not clear, in a warm welcome for critical permissions and next to the feature for the rest.
+- **Ask only for what is relevant**, and give an immediate benefit for what was granted.
+
+A user's own action, such as taking a picture or choosing a contact, is consent enough; no permission request belongs there.
+
+A permission can be denied by the user in the request, or silently, because the user once chose "Don't ask again". Either way the feature no longer works as intended, so the app says that permission is needed and gives a way to allow it.
+
+## Examples
+
+::: ds-example
+/systems/md1/permissions/denied
+
+### A denied permission
+
+When a secondary feature needs a permission the user has denied, a snackbar says so at the moment the feature is used. Here the microphone in a notes app was turned down: tapping the voice-note button shows "To record voice notes, allow Notes permission to record audio." with a Settings action that leads to the app's permission settings.
+
+The rest of the app keeps working; only the feature that needs the permission stops, and the message names that feature rather than the permission group alone.
+:::
+
+::: ds-example
+/systems/md1/permissions/critical
+
+### A critical permission
+
+When the app cannot run at all without a permission, a snackbar is not enough. A full screen explains why the permission must be allowed and offers a button that opens Settings, with a way out of the app beside it. Here a messenger needs SMS, Phone and Contacts; Exit closes the app and Settings takes the user to grant access.
+:::
+
+## Accessibility
+
+The snackbar is a `role="status"` live region, so the denial is announced when it appears, and its Settings action is a real button reachable by keyboard. On the critical screen the title is a heading, the needed permissions are a labelled list, and both actions are buttons; the glyphs in the discs are decorative and the labels under them carry the meaning.
