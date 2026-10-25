@@ -103,6 +103,16 @@ Prefer explaining the precondition next to a disabled button. A disabled control
 :::
 
 ::: ds-example
+/systems/md1/button/themes
+
+### Light and dark themes
+
+The guidelines draw every button twice, once on each theme. On the dark theme a flat button keeps its transparent container and its coloured ink; its disabled ink drops to 30% white, where the light theme uses 26% black. A raised button keeps its container and its elevation, and a disabled raised button falls to a 12% white fill with no shadow.
+
+Nothing changes on the button itself: `data-theme="md1-dark"` on any ancestor swaps the tokens it reads, so one surface can hold both themes, as this figure does.
+:::
+
+::: ds-example
 /systems/md1/button/footer
 
 ### Persistent footer
@@ -110,6 +120,16 @@ Prefer explaining the precondition next to a disabled button. A disabled control
 A persistent footer button is a flat button fixed to the bottom of a screen or a dialog, so the action stays available while the content scrolls. The guidelines fix its height at 48 dp; Material Design 1 renders it the width of its container with square corners, a Material Design 1 decision where the page states only the height. The guidelines add a divider above it when the content scrolls, and forbid raised buttons in persistent areas; `footer` with `variant="raised"` logs a development warning and is not a spec form.
 
 Use it for the one action a sheet must keep reachable: "Got it" under a notice, "Done" under a long form. The 48 dp height is the touch target itself, so no hit area is added around it, and the label is capitalised by the stylesheet while the source text stays sentence case.
+:::
+
+::: ds-example
+/systems/md1/button/footer-dialog
+
+### Footer button in a dialog
+
+A dialog with a single acknowledgement can end in a persistent footer button instead of an action row. The button spans the dialog and stays pinned to its bottom edge; when the dialog's content is long enough to scroll, a divider appears above the button so the scrolling text has an edge to pass under.
+
+Pressing the footer button closes the dialog through its own `v-model`. Keep it to one action: a dialog that needs a choice between two takes `Md1Dialog.Actions` instead.
 :::
 
 ## Props
