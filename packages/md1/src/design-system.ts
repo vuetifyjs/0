@@ -233,16 +233,19 @@ export const font = {
 
 /**
  * The English type scale at device sizes. Single-line styles take
- * `line-height: 1`; tracking is the page's Adobe unit read as 1/1000 em (the
- * unit is `low`); Menu's metrics are `low` (absent from the archived scale image).
+ * `line-height: 1`, except Display 3, which takes Vuetify 1.5's 1.35 (var:101;
+ * the page gives no number). Tracking is the page's Adobe unit read as 1/1000
+ * em (the unit is `low`), except where Vuetify 1.5 sets a value: Display 4
+ * -0.04em, Display 3 -0.02em, Title 0.02em (var:100-105). Menu's metrics are
+ * `low` (absent from the archived scale image).
  */
 export const type = {
-  'display-4': { size: '112px', weight: font['weight-light'], leading: '1', tracking: '-0.01em', transform: 'none' },
-  'display-3': { size: '56px', weight: font['weight-regular'], leading: '1', tracking: '-0.005em', transform: 'none' },
+  'display-4': { size: '112px', weight: font['weight-light'], leading: '1', tracking: '-0.04em', transform: 'none' },
+  'display-3': { size: '56px', weight: font['weight-regular'], leading: '1.35', tracking: '-0.02em', transform: 'none' },
   'display-2': { size: '45px', weight: font['weight-regular'], leading: '48px', tracking: '0', transform: 'none' },
   'display-1': { size: '34px', weight: font['weight-regular'], leading: '40px', tracking: '0', transform: 'none' },
   'headline': { size: '24px', weight: font['weight-regular'], leading: '32px', tracking: '0', transform: 'none' },
-  'title': { size: '20px', weight: font['weight-medium'], leading: '1', tracking: '0.005em', transform: 'none' },
+  'title': { size: '20px', weight: font['weight-medium'], leading: '1', tracking: '0.02em', transform: 'none' },
   'subheading': { size: '16px', weight: font['weight-regular'], leading: '24px', tracking: '0.01em', transform: 'none' },
   'subheading-2': { size: '16px', weight: font['weight-regular'], leading: '28px', tracking: '0.01em', transform: 'none' },
   'body-2': { size: '14px', weight: font['weight-medium'], leading: '24px', tracking: '0.01em', transform: 'none' },

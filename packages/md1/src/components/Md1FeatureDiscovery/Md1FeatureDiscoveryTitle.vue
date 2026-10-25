@@ -40,7 +40,7 @@
     font-size: var(--md1-type-title-size, 20px);
     font-weight: var(--md1-type-title-weight, 500);
     line-height: 28px;
-    letter-spacing: var(--md1-type-title-tracking, 0.005em);
+    letter-spacing: var(--md1-type-title-tracking, 0.02em);
     color: inherit;
   }
 </style>

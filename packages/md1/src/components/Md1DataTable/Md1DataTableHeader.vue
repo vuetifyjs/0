@@ -86,7 +86,7 @@
     font-size: var(--md1-type-title-size, 20px);
     font-weight: var(--md1-font-weight-regular, 400);
     line-height: 1;
-    letter-spacing: var(--md1-type-title-tracking, 0.005em);
+    letter-spacing: var(--md1-type-title-tracking, 0.02em);
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));

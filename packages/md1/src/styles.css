@@ -14,7 +14,7 @@
   font-size: var(--md1-type-display-4-size, 112px);
   font-weight: var(--md1-type-display-4-weight, 300);
   line-height: var(--md1-type-display-4-leading, 1);
-  letter-spacing: var(--md1-type-display-4-tracking, -0.01em);
+  letter-spacing: var(--md1-type-display-4-tracking, -0.04em);
   text-transform: var(--md1-type-display-4-transform, none);
   color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
 }
@@ -23,8 +23,8 @@
   font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
   font-size: var(--md1-type-display-3-size, 56px);
   font-weight: var(--md1-type-display-3-weight, 400);
-  line-height: var(--md1-type-display-3-leading, 1);
-  letter-spacing: var(--md1-type-display-3-tracking, -0.005em);
+  line-height: var(--md1-type-display-3-leading, 1.35);
+  letter-spacing: var(--md1-type-display-3-tracking, -0.02em);
   text-transform: var(--md1-type-display-3-transform, none);
   color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
 }
@@ -64,7 +64,7 @@
   font-size: var(--md1-type-title-size, 20px);
   font-weight: var(--md1-type-title-weight, 500);
   line-height: var(--md1-type-title-leading, 1);
-  letter-spacing: var(--md1-type-title-tracking, 0.005em);
+  letter-spacing: var(--md1-type-title-tracking, 0.02em);
   text-transform: var(--md1-type-title-transform, none);
   color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
 }
