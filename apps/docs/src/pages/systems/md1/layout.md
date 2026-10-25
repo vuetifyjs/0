@@ -144,6 +144,39 @@ The two media queries from Device classes, read live. Narrow the window past 600
 The split is by viewport, not by the size of the element, so an example on this page shows the keylines of the whole window rather than of its own box. A component that must fit its container rather than the screen, such as a card in a narrow column, keeps its own metrics; the keylines are for screen-level layout.
 :::
 
+::: ds-example
+/systems/md1/layout/grid
+
+### Column grid
+
+The responsive-ui page lays content on a column grid: 4 columns under 600 dp, 8 from 600 dp and 12 from 840 dp, the Columns column of the breakpoint table. Gutters are 16 dp under 600 dp and 24 dp from 960 dp; between the two they are 16 dp on a device whose smallest width is under 600 dp (a handset turned sideways) and 24 dp otherwise. The example stands the window's shorter side in for the device's. Margins and gutters come from the same set, 8, 16, 24 or 40 dp, and need not be equal; the page illustrates 8/8, 16/16, 24/24, 40/40 and 40 dp margins with 24 dp gutters. The example pairs equal margins and gutters, and the caption reads back what the media queries chose.
+
+Content spans whole columns. Here the two cards stack on 4 columns and sit side by side, 5 and 3, then 8 and 4, as the count grows. The page names two kinds of grid. A full-width grid has fluid columns, and the breakpoints decide when the layout changes, as in the example. A centred grid has fixed columns, and the layout reflows when the columns plus a margin no longer fit.
+
+Material Design 1 ships no grid classes or column tokens: no component reads them, and `style.css` ships only the type and elevation utilities. Write the grid with CSS Grid in the app, as the example does: `grid-template-columns: repeat(N, minmax(0, 1fr))` with `column-gap` set to the gutter, under media queries at the spec's widths, or under `useBreakpoints` names mapped from `md1Breakpoints`.
+:::
+
+::: ds-example
+/systems/md1/layout/divide
+
+### Responsive patterns
+
+Under 600 dp a layout shows one level of hierarchy, a summary or a detail; over 600 dp it shows two, the summary and the detail together. The example divides one sheet into a list and the open message from 600 px. Under that width it shows the list, then the message alone with a back arrow. Over 1600 dp a layout grows to a maximum width, then centres with wider margins, stays aligned to the start while the end margin grows, or keeps growing and shows more content.
+
+The page names six patterns for adapting a layout as the window changes. Each maps onto shipped components:
+
+| Pattern | What changes | With Material Design 1 |
+|---------|--------------|------------------------|
+| Reveal | Hidden UI appears, such as a side nav, or a simple UI reveals more options | `Md1NavigationDrawer` going from `temporary` to `persistent` or `permanent` at a breakpoint |
+| Transform | One element becomes another: side navigation becomes tabs, a list becomes a grid list, menu items become toolbar icons | `Md1NavigationDrawer` and `Md1Tabs`, `Md1List` and `Md1GridList`, `Md1Menu` items and `Md1Toolbar.Actions`, swapped by breakpoint |
+| Divide | Stacked views divide to fill one view: side nav, list and detail | List and detail side by side, as in the example |
+| Reflow | Elements rearrange: single-column content reflows into the content area, horizontal tabs reflow into a vertical list | The column grid above, with content that spans more or fewer columns |
+| Expand | Elements grow into new space: cards fill it, dialogs grow proportionally or in increments | `Md1Card` spanning more columns; an `Md1Dialog` sizes to its content, so growing it in increments is the app's width rule |
+| Position | Elements move: a bottom sheet becomes a menu, a FAB moves somewhere more visible | `Md1BottomSheet` on a handset and `Md1Menu` on desktop; `Md1Fab` `position` |
+
+The page also names how surfaces behave. A surface's visibility is permanent (always shown when there is room), persistent (toggled, and left alone by other interaction) or temporary (toggled, and hidden by other interaction), the three `Md1NavigationDrawer` types. Its width is fixed, fluid or sticky (fixed until a panel or a breakpoint changes it). A panel that appears either squeezes the content, pushes it sideways, or overlays it. A permanent panel sits outside the grid and squeezes the content. A persistent panel squeezes both the content and the grid. A temporary panel leaves the grid alone and pushes or overlays the content while it is open.
+:::
+
 ## Tokens
 
 | Token | Value | From 600 px |
