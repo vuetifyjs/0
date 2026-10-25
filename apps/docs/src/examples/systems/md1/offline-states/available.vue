@@ -1,17 +1,5 @@
 <script setup lang="ts">
-  import { createMd1IconsContext, Md1Icon, Md1List } from '@paper/md1'
-
-  // The pinned icon set has no offline-pin role yet, so this example registers
-  // it for its own subtree, the way an app extends the set through
-  // createMd1IconsPlugin({ icons }).
-  const [, provideIcons] = createMd1IconsContext({
-    icons: {
-      // Material Icons action/offline_pin, filled, 24px, commit 49d4db35 (Apache License 2.0)
-      'offline-pin': ['M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M17,18H7v-2h10V18z M10.3,14L7,10.7l1.4-1.4l1.9,1.9 l5.3-5.3L17,7.3L10.3,14z'],
-    },
-  })
-
-  provideIcons()
+  import { Md1Icon, Md1List } from '@paper/md1'
 
   const articles = [
     { id: 1, title: 'Twelve trails for a rainy weekend', source: 'Outdoors', saved: true },

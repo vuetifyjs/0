@@ -23,10 +23,10 @@ Every page above was downloaded with `curl -sL` and reduced to text with a stdli
 
 ## Summary
 
-- 80 canonical glyphs, 27 aliases, 107 resolvable names.
-- 11 glyphs mirror in RTL, 1 mirrors conditionally (`help`), the rest never mirror.
+- 84 canonical glyphs, 27 aliases, 111 resolvable names. `help-outline`, `feedback`, `offline-pin` and `cloud-off` were added 2026-10-25 for the help-feedback and offline-states patterns, from the same S8 commit; the 2026-10-22 fetch counts below cover the first 80.
+- 11 glyphs mirror in RTL, 2 mirror conditionally (`help`, `help-outline`), the rest never mirror.
 - Every glyph is one or more `<path d>` strings on a 24 x 24 grid, filled, no strokes. This differs from Emerald, whose glyphs are stroked; the renderer contract below reflects it.
-- Path data is copied from upstream master exactly. Whitespace normalization (runs of whitespace inside a `d` attribute to one space) was applied as a safeguard and altered none of the 109 files, so every string below is byte-equal to its upstream `d` attribute. Background rectangles (`fill="none"` or `M0 0h24v24H0z` variants) are dropped. Six upstream files wrap their path in `<g>` elements with no attributes (`account_circle`, `settings`, `drag_handle`, `indeterminate_check_box`, `download`, `star_half`); the wrappers carry no transform, so the inner path is taken as is.
+- Path data is copied from upstream master exactly. Whitespace normalization (runs of whitespace inside a `d` attribute to one space) was applied as a safeguard and altered none of the 109 files, so every string below is byte-equal to its upstream `d` attribute. Background rectangles (`fill="none"` or `M0 0h24v24H0z` variants) are dropped. Six upstream files wrap their path in `<g>` elements with no attributes (`account_circle`, `settings`, `drag_handle`, `indeterminate_check_box`, `download`, `star_half`), and `offline_pin` nests its path three `<g>` deep; the wrappers carry no transform, so the inner path is taken as is.
 
 ## License and attribution
 
@@ -147,6 +147,9 @@ Canonical glyphs. `Source` is the Material Icons `category/name`; `Paths` is the
 | `delete` | `action/delete` | 1 | 77 | no | lists demo, bottom sheets demo, data tables toolbar |
 | `info` | `action/info` | 1 | 96 | no | grid lists (tile action), tooltips demo, help and feedback |
 | `help` | `action/help` | 1 | 268 | conditional | help and feedback, navigation drawer demo |
+| `help-outline` | `action/help_outline` | 1 | 243 | conditional | help and feedback (contextual help tooltip) |
+| `feedback` | `action/feedback` | 1 | 104 | no | help and feedback (navigation drawer) |
+| `offline-pin` | `action/offline_pin` | 1 | 137 | no | offline states (available offline) |
 | `settings` | `action/settings` | 1 | 858 | no | settings pattern, bottom navigation demo, navigation drawer demo |
 | `home` | `action/home` | 1 | 35 | no | bottom navigation demo |
 | `account-circle` | `action/account_circle` | 1 | 242 | no | chips (contact placeholder), navigation drawer header, toolbars |
@@ -184,6 +187,7 @@ Canonical glyphs. `Source` is the Material Icons `category/name`; `Paths` is the
 | `email` | `communication/email` | 1 | 109 | no | lists demo, navigation drawer demo, text fields (email) |
 | `folder` | `file/folder` | 1 | 91 | no | lists demo, navigation drawer demo |
 | `cloud-upload` | `file/cloud_upload` | 1 | 180 | no | buttons demo (upload) |
+| `cloud-off` | `file/cloud_off` | 1 | 377 | no | offline states (needs a connection) |
 | `download` | `file/file_download` | 1 | 41 | no | buttons demo (download), lists |
 | `keyboard` | `hardware/keyboard` | 1 | 240 | no | pickers (keyboard input), demo |
 | `edit` | `image/edit` | 1 | 149 | no | floating action button, steppers (editable completed step), bottom sheets demo, text fields |
@@ -395,6 +399,24 @@ M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v
 
 ```text
 M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z
+```
+
+#### `help-outline` (action/help_outline)
+
+```text
+M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z
+```
+
+#### `feedback` (action/feedback)
+
+```text
+M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z
+```
+
+#### `offline-pin` (action/offline_pin)
+
+```text
+M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M17,18H7v-2h10V18z M10.3,14L7,10.7l1.4-1.4l1.9,1.9 l5.3-5.3L17,7.3L10.3,14z
 ```
 
 #### `settings` (action/settings)
@@ -621,6 +643,12 @@ M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2
 M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z
 ```
 
+#### `cloud-off` (file/cloud_off)
+
+```text
+M19.35 10.04C18.67 6.59 15.64 4 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46C10.21 6.23 11.08 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C23.16 18.16 24 16.68 24 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.15 0 10.77 0 14c0 3.31 2.69 6 6 6h11.73l2 2L21 20.73 4.27 4 3 5.27zM7.73 10l8 8H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h1.73z
+```
+
 #### `download` (file/file_download)
 
 ```text
@@ -791,6 +819,9 @@ Per-role ruling. `Basis` cites the spec sentence, the S7 list, and the upstream 
 | `delete` | no | symmetric; not in Google RTL list | high |
 | `info` | no | symmetric; not in Google RTL list | high |
 | `help` | conditional | Google RTL list and autoMirrored; guide: question marks mirror in Arabic and Farsi but not in Hebrew | high |
+| `help-outline` | conditional | autoMirrored at S8; same question mark as `help`, same Hebrew exception | high |
+| `feedback` | no | not autoMirrored at S8; not in Google RTL list | high |
+| `offline-pin` | no | not autoMirrored at S8; symmetric | high |
 | `settings` | no | symmetric; not in Google RTL list | high |
 | `home` | no | symmetric; not in Google RTL list | high |
 | `account-circle` | no | symmetric; not in Google RTL list | high |
@@ -828,6 +859,7 @@ Per-role ruling. `Basis` cites the spec sentence, the S7 list, and the upstream 
 | `email` | no | symmetric; not in Google RTL list | high |
 | `folder` | no | not in Google RTL list | high |
 | `cloud-upload` | no | symmetric; not in Google RTL list | high |
+| `cloud-off` | no | spec: slashes are not mirrored; not autoMirrored at S8 | high |
 | `download` | no | symmetric; not in Google RTL list | high |
 | `keyboard` | no | spec: physical keyboards look the same everywhere and are not mirrored | high |
 | `edit` | no | not in Google RTL list | high |
@@ -849,7 +881,7 @@ Upstream inconsistencies recorded (S7 list vs S8 Android drawables), all `high`:
 | `star_half` | listed | flagged | not shipped (MD1 has no rating component) |
 | `event_note` | listed | flagged | not shipped |
 
-`help` is the one conditional case: mirror under `dir="rtl"` unless the document language is Hebrew (`lang="he"`), per S7. The renderer sets `data-mirror="conditional"` for it and the stylesheet excludes `:lang(he)`.
+`help` and `help-outline` are the conditional cases: mirror under `dir="rtl"` unless the document language is Hebrew (`lang="he"`), per S7. The renderer sets `data-mirror="conditional"` for them and the stylesheet excludes `:lang(he)`.
 
 ## Drift since the MD1 era (master vs tag 3.0.2)
 

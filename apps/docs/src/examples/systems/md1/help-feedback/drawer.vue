@@ -1,18 +1,6 @@
 <script setup lang="ts">
-  import { createMd1IconsContext, Md1Divider, Md1List, Md1NavigationDrawer, Md1Toolbar } from '@paper/md1'
+  import { Md1Divider, Md1List, Md1NavigationDrawer, Md1Toolbar } from '@paper/md1'
   import { shallowRef } from 'vue'
-
-  // The pinned icon set has no feedback role yet, so this example registers
-  // it for its own subtree, the way an app extends the set through
-  // createMd1IconsPlugin({ icons }).
-  const [, provideIcons] = createMd1IconsContext({
-    icons: {
-      // Material Icons action/feedback, filled, 24px, commit 49d4db35 (Apache License 2.0)
-      feedback: ['M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z'],
-    },
-  })
-
-  provideIcons()
 
   const page = shallowRef('inbox')
 </script>

@@ -2,7 +2,7 @@
 title: Md1Icon - Material Design 1 Icon for Vue
 meta:
 - name: description
-  content: The Material Design 1 system icons by role name. 80 filled Material Icons glyphs answer to 107 names through a Vuetify0 token registry, at 24 dp or 20 dp dense, decorative unless labelled, and mirrored in RTL where the glyph points.
+  content: The Material Design 1 system icons by role name. 84 filled Material Icons glyphs answer to 111 names through a Vuetify0 token registry, at 24 dp or 20 dp dense, decorative unless labelled, and mirrored in RTL where the glyph points.
 - name: keywords
   content: md1 icon, material design 1 icons, material icons vue, system icons, icon roles, rtl icons, createTokens, vuetify0 icons, paper md1
 features:
@@ -32,7 +32,7 @@ The Material Design 1 system icon: ask for a role, such as `menu` or `search`, a
 
 `Md1Icon` is a shell component: `name` is a role, `size` picks the 24 dp or the 20 dp dense form, and `label` turns a decorative glyph into an announced image. The glyph draws in `currentColor`, so the colour, and with it the ink tier, comes from where you put it.
 
-80 drawings answer to 107 names. 27 names are aliases: `clear` draws `close`, and `calendar` draws `event`.
+84 drawings answer to 111 names. 27 names are aliases: `clear` draws `close`, and `calendar` draws `event`.
 
 ::: ds-example
 /systems/md1/icon/basic
@@ -115,7 +115,7 @@ The bidirectionality page mirrors icons that communicate direction and leaves th
 
 The rest stay put, each for a reason the page states. Clocks turn clockwise in every language, so `schedule` and `history` do not flip; media controls point the way the media plays, so `play-arrow` does not; the search handle is held in the right hand, so `search` does not; slashes are left as they are, so `visibility-off` does not.
 
-`help` is the one conditional role. A question mark mirrors in Arabic and Farsi but not in Hebrew, so it flips under `dir="rtl"` unless the element sits in `lang="he"`. The second and third rows of the example show the difference. Read the rows from their start edge: the RTL rows also run right to left, so `arrow-back` is the rightmost glyph and points right, toward the start of the line.
+`help` and `help-outline` are the conditional roles. A question mark mirrors in Arabic and Farsi but not in Hebrew, so it flips under `dir="rtl"` unless the element sits in `lang="he"`. The second and third rows of the example show the difference. Read the rows from their start edge: the RTL rows also run right to left, so `arrow-back` is the rightmost glyph and points right, toward the start of the line.
 
 The flip is a `transform: scaleX(-1)` keyed off any `[dir="rtl"]` ancestor, the mechanism Google documents for Material Icons on the web. It needs no plugin, and a `dir="rtl"` subtree inside a left-to-right page mirrors on its own. The reverse does not hold: an icon inside a `dir="ltr"` island of a right-to-left page still flips, because the rule matches any right-to-left ancestor.
 :::
@@ -169,15 +169,15 @@ There are no slots.
 | Attribute | Values | Set when |
 |-----------|--------|----------|
 | `data-size` | `m`, `s` | Always; selects the 24 dp or 20 dp box |
-| `data-mirror` | `true`, `conditional` | The resolved role flips in RTL; `conditional` is `help`, which stays put under `:lang(he)` |
+| `data-mirror` | `true`, `conditional` | The resolved role flips in RTL; `conditional` is `help` and `help-outline`, which stay put under `:lang(he)` |
 
 ### Exports
 
 | Export | What it is |
 |--------|------------|
-| `md1Icons` | The 80 canonical glyphs, role to path data |
+| `md1Icons` | The 84 canonical glyphs, role to path data |
 | `md1IconAliases` | The 27 aliases, role to `{target}` reference |
-| `md1IconMirrors` | The 12 roles that flip in RTL, `true` or `'conditional'` |
+| `md1IconMirrors` | The 13 roles that flip in RTL, `true` or `'conditional'` |
 | `createMd1IconsPlugin` | Installs the registry on an app; takes `icons`, `aliases` and `namespace` |
 | `createMd1IconsContext` | The same registry as a context trinity, for a subtree |
 | `useMd1Icons` | Reads the registry in scope, or the built-in set when none is installed |

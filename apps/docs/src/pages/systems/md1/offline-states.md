@@ -56,9 +56,6 @@ The page names four glyphs and pairs each with a fixed label.
 
 Use the standard glyphs. Never use a toggle for downloading one file: a toggle says a state is on or off, and a download is a one-time action.
 
-> [!WARNING]
-> Material Design 1's pinned icon set ships `download` and `delete` but not `offline-pin` or `cloud-off`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
-
 ## Examples
 
 ::: ds-example

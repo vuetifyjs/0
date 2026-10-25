@@ -63,9 +63,6 @@ Icon opacity follows the icons page, and Material Design 1 carries it as theme t
 | Light | Black at 54% | Black at 38% |
 | Dark | White at 100% | White at 50% |
 
-> [!WARNING]
-> Material Design 1's pinned icon set ships `help` but not `feedback` or `help-outline`. Until it does, register them app-wide through `createMd1IconsPlugin({ icons })`. The examples on this page register them for their own subtree with `createMd1IconsContext({ icons })`, which takes the same options. The path data is the Material Icons source at the commit the set is pinned to.
-
 ## Examples
 
 ::: ds-example
