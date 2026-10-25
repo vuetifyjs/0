@@ -101,7 +101,7 @@ describe('quIcon', () => {
     })
 
     it('should ship the pinned inventory', () => {
-      expect(Object.keys(md1Icons)).toHaveLength(80)
+      expect(Object.keys(md1Icons)).toHaveLength(84)
       expect(Object.keys(md1IconAliases)).toHaveLength(27)
     })
 
@@ -309,6 +309,19 @@ describe('quIcon', () => {
 
       expect(md1IconMirrors.help).toBe('conditional')
       expect(el.dataset.mirror).toBe('conditional')
+    })
+
+    it('should draw the offline and help roles the patterns name', async () => {
+      const roles = ['offline-pin', 'cloud-off', 'feedback', 'help-outline'] as const
+      const els = roles.map(name => svg(icon({ name }))!)
+      await settle()
+
+      for (const el of els) {
+        expect(el.querySelectorAll('path').length).toBeGreaterThan(0)
+      }
+
+      expect(els[3]!.dataset.mirror).toBe('conditional')
+      expect(Object.hasOwn(els[2]!.dataset, 'mirror')).toBe(false)
     })
 
     it('should leave symmetric and right-handed roles unmarked', async () => {
