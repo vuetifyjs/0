@@ -80,6 +80,14 @@ The indicator is a 2 dp line under the selected tab, in the accent colour (`--md
 :::
 
 ::: ds-example
+/systems/md1/tabs/app-bars
+
+### Tabs under an app bar
+
+Tabs sit in the app bar's extension, below the title row, and take the bar's colour: the indicator and the selected label read against the primary colour instead of the sheet. The first screen is an extended app bar, the prominent bar with its large title over fixed tabs; the second replaces the title row with an inset search field, so the search and the tabs share one bar. In both the tabs are fixed and fill the bar's width on a phone; from 600 dp they centre, as above.
+:::
+
+::: ds-example
 /systems/md1/tabs/scrollable
 
 ### Scrollable tabs
