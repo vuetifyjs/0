@@ -266,6 +266,21 @@ describe('quBottomNavigation', () => {
       expect(getComputedStyle(list[0]!).minWidth).toBe('80px')
     })
 
+    it('should make every action as wide as the widest on a desktop bar, whatever its label', async () => {
+      for (const count of [3, 5]) {
+        const { items } = bar({
+          width: 1280,
+          actions: Array.from({ length: count }, (_, index) => ({ label: index === 1 ? 'Recently played' : 'Home' })),
+        })
+        await settle()
+
+        const widths = items().map(el => el.getBoundingClientRect().width)
+
+        expect(new Set(widths).size).toBe(1)
+        expect(widths[0]).toBe(168)
+      }
+    })
+
     it('should drop the inactive labels and centre their icons with four or five actions', async () => {
       const { items } = bar({ count: 4 })
       await settle()
