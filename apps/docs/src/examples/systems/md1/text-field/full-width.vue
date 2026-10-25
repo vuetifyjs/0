@@ -5,19 +5,41 @@
   const to = shallowRef('')
   const subject = shallowRef('')
   const body = shallowRef('')
+
+  const recipient = shallowRef('')
+  const topic = shallowRef('')
+  const note = shallowRef('')
 </script>
 
 <template>
-  <div class="md1-docs-compose">
-    <Md1TextField v-model="to" full-width label="To" />
+  <div class="md1-docs-composes">
+    <div class="md1-docs-compose">
+      <Md1TextField v-model="to" full-width label="To" />
 
-    <Md1TextField v-model="subject" full-width label="Subject" />
+      <Md1TextField v-model="subject" full-width label="Subject" />
 
-    <Md1TextField v-model="body" full-width label="Message" multiline />
+      <Md1TextField v-model="body" full-width label="Message" multiline />
+    </div>
+
+    <div class="md1-docs-compose">
+      <Md1TextField v-model="recipient" dense full-width label="To" />
+
+      <Md1TextField v-model="topic" dense full-width label="Subject" />
+
+      <Md1TextField v-model="note" dense full-width label="Message" multiline />
+    </div>
   </div>
 </template>
 
 <style>
+  .md1-docs-composes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--md1-spacing-3, 24px);
+    align-items: start;
+    width: 100%;
+  }
+
   .md1-docs-compose {
     display: flex;
     flex-direction: column;

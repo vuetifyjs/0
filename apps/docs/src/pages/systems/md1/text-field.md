@@ -199,6 +199,8 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 ### Full width
 
 `fullWidth` spans its container for in-depth entry such as composing a message: 56 dp tall with the text 20 dp from the top and bottom, 48 dp with `dense`. Fields are separated by the 1 dp divider rather than an input line, and the label behaves as a hint that clears once the field is in use.
+
+The second sheet is the same message with `dense`: 48 dp rows with 16 dp above and below the text, for denser desktop layouts.
 :::
 
 ::: ds-example
