@@ -110,6 +110,26 @@ The bar listens to any scroller inside its own parent, the app shell's content r
 The bar itself is `position: fixed` to the bottom of the viewport with an 8 dp shadow (6 dp under a mouse, the elevation page's desktop rule), and adds the device's bottom safe-area inset below its 56 dp so its actions clear a home indicator. Give the content beneath it 56 dp of bottom padding so the last line is not covered. Snackbars sit behind the bar; sheets, drawers and dialogs open in front of it.
 :::
 
+::: ds-example
+/systems/md1/bottom-navigation/views
+
+### Switching views
+
+Each destination is a top-level view with its own content. Moving between them cross-fades the views, the outgoing one fading out as the incoming one fades in, rather than sliding them sideways the way tabs do: the destinations are peers, not a sequence. Reduced motion swaps them at once.
+
+Navigation through the bar resets the task. Open an item, switch to another destination and come back, and the view starts again at its list instead of the item you left. Pressing the action that is already active returns its view to the top: scroll the list, then press its action again. Listen for the action's `click` to do both, since `v-model` does not change when the active action is pressed again.
+:::
+
+::: ds-example
+/systems/md1/bottom-navigation/layering
+
+### Snackbars and sheets
+
+The bar sits at 8 dp, above most of the screen and below the surfaces that interrupt it. A snackbar appears behind the bar: it stands on top of the bar and slides up from behind it, so the bar stays reachable while the message shows. Press Archive to see it. Here the snackbar portal is lifted by the bar's 56 dp and drawn just under the bar's stacking level.
+
+A modal bottom sheet opens in front of the bar and covers it until the sheet is dismissed, as the keyboard does on a phone. Press Share to see it.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
