@@ -3,7 +3,7 @@
   import { createContext, isNull, Snackbar, useLogger } from '@vuetify/v0'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, useAttrs } from 'vue'
 
   // Types
   import type { SnackbarPortalProps } from '@vuetify/v0'
@@ -35,7 +35,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'Md1SnackbarPortal' })
+  defineOptions({ name: 'Md1SnackbarPortal', inheritAttrs: false })
 
   defineSlots<{
     /** An `Md1Snackbar.Queue`, or a single `Md1Snackbar` driven by `v-model`. */
@@ -45,14 +45,25 @@
   // The prop type includes `false`, so Vue casts an absent `teleport` to false (inline); the default restores v0's.
   const { teleport = 'top-layer', namespace = MD1_SNACKBAR_NAMESPACE } = defineProps<Md1SnackbarPortalProps>()
 
+  const attrs = useAttrs()
+
   provideMd1SnackbarPortal({
     namespace: toRef(() => namespace),
   })
 </script>
 
+<!--
+  Renderless, so the container leaves out the stack's inline z-index: v0's
+  stack numbers every portal from 2000 up, which would lift the snackbar over
+  the bottom navigation. The stylesheet places it on the elevation ladder
+  instead. Overlays opened over it still stack above, and a modal dialog
+  still takes it into the top layer through `teleport`.
+-->
 <template>
-  <Snackbar.Portal class="md1-snackbar-portal" :namespace :teleport>
-    <slot />
+  <Snackbar.Portal :namespace renderless :teleport>
+    <div v-bind="attrs" class="md1-snackbar-portal">
+      <slot />
+    </div>
   </Snackbar.Portal>
 </template>
 
@@ -63,7 +74,14 @@
   relative, which would leave the snackbar in the page flow.
 -->
 <style>
+  /*
+   * z-index 3: a 6 dp snackbar sits above content and the 4 dp app bar
+   * (z-index 2) and behind the 8 dp bottom navigation (z-index 4), so it rises
+   * from behind the bar (bottom navigation page, "snackbar-behind-bar");
+   * sheets, drawers and dialogs stack above it through v0's stack.
+   */
   .md1-snackbar-portal {
+    z-index: 3;
     position: fixed;
     inset-inline: 0;
     bottom: 0;

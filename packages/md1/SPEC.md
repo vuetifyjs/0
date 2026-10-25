@@ -457,7 +457,7 @@ Modal: `dialog.md1-bottom-sheet` > `div.md1-bottom-sheet__content`. Persistent: 
 
 ### Md1Snackbar
 
-`div.md1-snackbar[role=status]` > [`span.md1-snackbar__text`, `button.md1-snackbar__action`]; `Portal` is `div.md1-snackbar-portal` fixed at the bottom; `Queue` renders only the newest ticket.
+`div.md1-snackbar[role=status]` > [`span.md1-snackbar__text`, `button.md1-snackbar__action`]; `Portal` is `div.md1-snackbar-portal` fixed at the bottom at z-index 3, rendered through a renderless `Snackbar.Portal` so v0's stack z-index (2000 up) never lands on it: the 6 dp snackbar sits above content and the app bar (2) and behind the 8 dp bottom navigation (4), the bottom navigation page's snackbar behind the bar, while sheets, drawers and dialogs stack above it through `useStack`; `Queue` renders only the newest ticket.
 
 - Root: `action` (label string; emits `action`; "Dismiss" and "Cancel" are refused with a dev warning); `multiline` (`false`: 80 dp, two lines); `align: 'center' | 'start'` (`'center'`; `start` is 24 dp from the start and bottom edges) for the tablet and desktop form. The root is always `role="status"`: the page names no urgency level and the errors pattern keeps critical errors out of snackbars; a consumer who needs an assertive `role="alert"` composes v0 `Snackbar` through the escape hatch. The 112 dp stacked-action layout triggers from the measured action width, not a prop.
 - `Queue` uses `createNotificationsPlugin({ timeout })`: one snackbar at a time; a new one waits for the first to contract downward; hover and focus pause the timer.

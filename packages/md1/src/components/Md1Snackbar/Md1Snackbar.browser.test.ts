@@ -17,6 +17,8 @@ import type { App, ShallowRef, VNode } from 'vue'
 // Theme
 import { Md1StyleSheetAdapter } from '../../adapter'
 import { md1Colors, md1DarkColors } from '../../colors'
+// Components
+import { Md1BottomNavigation } from '../Md1BottomNavigation'
 
 /** Vuetify 1.5's pixel recipes for the 6 dp handset and the 4 dp desktop rest (elevation page, 2 dp lower under a fine pointer). */
 const ELEVATION_6 = '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)'
@@ -586,7 +588,7 @@ describe('quSnackbar', () => {
   })
 
   describe('portal', () => {
-    it('should teleport a fixed bottom container to the body with the stack z-index and the live regions', async () => {
+    it('should teleport a fixed bottom container to the body at the snackbar\'s z-index and with the live regions', async () => {
       const host = mount(() => h(Md1Snackbar.Portal, null, () => h(Md1Snackbar, { timeout: 60_000 }, () => 'Saved')))
       await settle()
 
@@ -597,13 +599,37 @@ describe('quSnackbar', () => {
       expect(portal).not.toBeNull()
       expect(computed.position).toBe('fixed')
       expect(computed.bottom).toBe('0px')
-      expect(Number(portal.style.zIndex)).toBeGreaterThan(0)
+      // Not the stack's inline 2000-range value: the 6 dp snackbar sits under the 8 dp bottom navigation.
+      expect(portal.style.zIndex).toBe('')
+      expect(computed.zIndex).toBe('3')
       expect(portal.querySelector('.md1-snackbar')!.textContent).toBe('Saved')
 
       // The Portal's persistent polite region mirrors the message so a fresh node is heard.
       const polite = document.body.querySelector<HTMLElement>('[aria-live="polite"]')!
 
       await expect.poll(() => polite.textContent).toBe('Saved')
+    })
+
+    it('should sit behind the bottom navigation', async () => {
+      mount(() => h('div', [
+        h(Md1Snackbar.Portal, null, () => h(Md1Snackbar, { timeout: 60_000 }, () => 'Archived')),
+        h(Md1BottomNavigation, { 'modelValue': 'music', 'aria-label': 'Library' }, () => [
+          h(Md1BottomNavigation.Action, { icon: 'mic', label: 'Music', value: 'music' }),
+        ]),
+      ]))
+      await settle()
+
+      const snackbar = document.body.querySelector<HTMLElement>(':scope > .md1-snackbar-portal .md1-snackbar')!
+      const bar = document.querySelector<HTMLElement>('.md1-bottom-navigation')!
+      // Past the slide-in: the snackbar rests on the bottom edge.
+      await expect.poll(() => snackbar.getBoundingClientRect().bottom).toBe(window.innerHeight)
+
+      const box = snackbar.getBoundingClientRect()
+      const point = document.elementFromPoint(box.left + box.width / 2, box.bottom - 4)
+
+      // Both hug the bottom edge; the bar paints over the snackbar where they overlap.
+      expect(bar.contains(point)).toBe(true)
+      expect(Number(getComputedStyle(bar).zIndex)).toBeGreaterThan(Number(getComputedStyle(snackbar.closest('.md1-snackbar-portal')!).zIndex))
     })
 
     it('should announce the message and the action as separate words', async () => {
