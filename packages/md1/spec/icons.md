@@ -23,7 +23,7 @@ Every page above was downloaded with `curl -sL` and reduced to text with a stdli
 
 ## Summary
 
-- 84 canonical glyphs, 27 aliases, 111 resolvable names. `help-outline`, `feedback`, `offline-pin` and `cloud-off` were added 2026-10-25 for the help-feedback and offline-states patterns, from the same S8 commit; the 2026-10-22 fetch counts below cover the first 80.
+- 87 canonical glyphs, 27 aliases, 114 resolvable names. `help-outline`, `feedback`, `offline-pin` and `cloud-off` were added 2026-10-25 for the help-feedback and offline-states patterns, and `error-outline`, `content-copy` and `person-add` later the same day, from the same S8 commit; the 2026-10-22 fetch counts below cover the first 80.
 - 11 glyphs mirror in RTL, 2 mirror conditionally (`help`, `help-outline`), the rest never mirror.
 - Every glyph is one or more `<path d>` strings on a 24 x 24 grid, filled, no strokes. This differs from Emerald, whose glyphs are stroked; the renderer contract below reflects it.
 - Path data is copied from upstream master exactly. Whitespace normalization (runs of whitespace inside a `d` attribute to one space) was applied as a safeguard and altered none of the 109 files, so every string below is byte-equal to its upstream `d` attribute. Background rectangles (`fill="none"` or `M0 0h24v24H0z` variants) are dropped. Six upstream files wrap their path in `<g>` elements with no attributes (`account_circle`, `settings`, `drag_handle`, `indeterminate_check_box`, `download`, `star_half`), and `offline_pin` nests its path three `<g>` deep; the wrappers carry no transform, so the inner path is taken as is.

@@ -101,7 +101,7 @@ describe('quIcon', () => {
     })
 
     it('should ship the pinned inventory', () => {
-      expect(Object.keys(md1Icons)).toHaveLength(84)
+      expect(Object.keys(md1Icons)).toHaveLength(87)
       expect(Object.keys(md1IconAliases)).toHaveLength(27)
     })
 
