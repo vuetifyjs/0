@@ -2,7 +2,7 @@
 
 Vue behavior for [Bootstrap 6](https://getbootstrap.com/)'s markup. Bootstrap ships the CSS; this package is the JavaScript — real Bootstrap 6 classes, driven by [Vuetify0](https://0.vuetifyjs.com).
 
-Nothing about your stylesheet changes. There is no plugin, no `theme.css`, and no CSS in the package.
+Nothing about your stylesheet changes. There is no `theme.css` and no CSS in the package. Components render with no plugin. `createBootstrapPlugin()` is optional: it sets `data-bs-theme` and, when you pass a color, the matching `--bs-*` variable.
 
 The Tier 1 catalog is implemented against the commit in `harness/PIN.md`. `BDatepicker` waits on `createDatePicker`. `BTable` is Tier 2 and is not in this package. Bootstrap 6 is not on npm yet.
 

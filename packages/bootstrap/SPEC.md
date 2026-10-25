@@ -32,9 +32,10 @@ component Bootstrap does not document. Tier 2 is named below and stays labeled.
 - **SHA:** `f6cc0f2cde9cbf3d73759ada24a39555d2de3a12` (`twbs/bootstrap` `v6-dev`,
   2026-10-07). Flip the pin to the published version when one exists.
 - **Docs:** https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/
-- No stylesheet artifact. No owned token prefix. No plugin at Tier 1. A later
-  plugin would drive Bootstrap's own `--bs-*` variables and `data-bs-theme`,
-  never an owned prefix.
+- No stylesheet artifact. No owned token prefix. `createBootstrapPlugin()` is
+  optional. It sets `data-bs-theme` and, when a theme color is passed, the
+  matching `--bs-*` variable. It does not write `--v0-*` or a package prefix.
+  Components render without it.
 
 ## Declared deviations from DESIGN_SYSTEMS.md
 

@@ -26,7 +26,7 @@ Vue components that render Bootstrap 6 markup. You load the stylesheet. This pac
 
 <DocsSystemActivator palette="bootstrap" />
 
-`@paper/bootstrap` renders the elements and classes from the Bootstrap 6 docs, and [Vuetify0](/) supplies the behavior. Your stylesheet does not change. There is no theme to adopt, no class prefix to learn, and no CSS in this package.
+`@paper/bootstrap` renders the elements and classes from the Bootstrap 6 docs, and [Vuetify0](/) supplies the behavior. Your stylesheet does not change. There is no class prefix to learn, and no CSS in this package.
 
 > [!NOTE]
 > Reference: [Bootstrap 6 documentation](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/). The class catalog this package implements.
@@ -66,7 +66,7 @@ Bootstrap itself is an **optional** peer once 6.x is published. Until then, load
 >
 ```
 
-There is no plugin to install and no provider to mount. Import a component and use it:
+Components do not need a plugin. Import one and use it:
 
 ```vue collapse
 <script setup lang="ts">
@@ -98,6 +98,20 @@ There is no plugin to install and no provider to mount. Import a component and u
 Every region Bootstrap documents is an express part, such as `BDialog.Header`, `BDialog.Body`, and `BMenu.Item`. There are no named slots. Import the parent. The parts hang off it. The flat names (`BDialogHeader`) remain exported and valid.
 
 Do not load `bootstrap.bundle.js` next to this package. The two would both try to own the same dialog.
+
+## Theme
+
+`createBootstrapPlugin()` connects the app theme to Bootstrap. It sets `data-bs-theme` to `light` or `dark`. That is the switch the stylesheet already uses for `light-dark()`. The package still ships no CSS.
+
+A color you pass overrides one variable. `primary` writes `--bs-primary-base`, which is what `theme-primary` reads. `blue-500` writes `--bs-blue-500`. One color does not rebuild the rest of that ramp. Nothing here writes `--v0-*`.
+
+```ts
+import { createBootstrapPlugin } from '@paper/bootstrap'
+
+app.use(createBootstrapPlugin())
+```
+
+`{ theme: false }` installs nothing. Use that when the app already has a theme plugin and will attach `BootstrapThemeAdapter` itself.
 
 > [!NOTE]
 > Bootstrap **6** only. The 5.x line is unsupported. 6 is not on npm yet. The sandbox and the conformance fixtures are pinned to `f6cc0f2` on `v6-dev`.

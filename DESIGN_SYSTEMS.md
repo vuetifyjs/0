@@ -53,7 +53,7 @@ wrong class.
 | Intent | Complete, exclusive implementation of **one** specification | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
 | Exemplars | Emerald, Onyx, Material | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external); Bootstrap (`B*`, reserved) |
 | Token namespace | Owns one (`--emerald-*`, `--onyx-*`, `--material-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
-| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | **Forbidden** at Tier 1. A later plugin would drive upstream vars, never an owned prefix |
+| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | Optional. Drives the upstream attribute and variables (`data-bs-theme`, `--bs-*`). Never an owned prefix. Components render without it |
 | Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme | **None** — the user's own upstream CSS is the styling source |
 | Component coverage | The pinned spec, all of it, and nothing else (ruling 7) | Only what the purpose needs | Upstream's documented component / element / form families; composites are labeled Tier 2 |
 | Visual language | Its own | Blends with whatever theme is active | Upstream's, verbatim |
