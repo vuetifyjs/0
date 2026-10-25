@@ -59,7 +59,7 @@
     <Md1Toolbar variant="primary">
       <Md1FeatureDiscovery v-model="prompt" @dismiss="onDismiss">
         <Md1FeatureDiscovery.Target>
-          <Md1Toolbar.Nav aria-label="Open navigation" class="md1-docs-guided-nav" @click="onMenu" />
+          <Md1Toolbar.Nav aria-label="Open navigation" @click="onMenu" />
         </Md1FeatureDiscovery.Target>
 
         <Md1FeatureDiscovery.Title>Just how you want it</Md1FeatureDiscovery.Title>
@@ -136,11 +136,6 @@
   .md1-docs-guided-body {
     flex: 1 1 auto;
     background: var(--md1-surface, #FFFFFF);
-  }
-
-  /* On the white tap target the bar's white menu glyph takes the primary colour, as the guidelines' figure draws it. */
-  .md1-docs-guided .md1-feature-discovery__action[data-active] .md1-toolbar__nav.md1-docs-guided-nav {
-    color: var(--md1-primary, #3F51B5);
   }
 
   .md1-docs-guided-start {

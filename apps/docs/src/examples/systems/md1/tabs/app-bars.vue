@@ -65,24 +65,14 @@
     background: var(--md1-background, #FAFAFA);
   }
 
-  /*
-   * The inset search sits 8 dp inside the bar on each side, the search
-   * pattern's inset sheet. The sheet is the theme's surface, so it takes the
-   * theme's ink back from the bar's white.
-   */
+  /* The inset search sits 8 dp inside the bar on each side, the search pattern's inset sheet. */
   .md1-docs-tab-bar-search {
     flex: 1 1 auto;
     min-width: 0;
     padding: var(--md1-spacing-1, 8px);
-    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
   .md1-docs-tab-bar-field {
     width: 100%;
-  }
-
-  /* The bar paints every button in its row white; the glyphs inside the search sheet keep the sheet's icon ink. */
-  .md1-docs-tab-bar-search :is(.md1-search-bar__nav, .md1-search-bar__voice) {
-    --md1-on-primary: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 </style>
