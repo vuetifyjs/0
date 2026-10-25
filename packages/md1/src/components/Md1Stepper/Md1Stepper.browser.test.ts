@@ -453,7 +453,7 @@ describe('quStepper', () => {
       await userEvent.unhover(label)
     })
 
-    it('should draw the 12% focus overlay for keyboard focus', async () => {
+    it('should draw no focus fill for keyboard focus, only the user agent\'s ring', async () => {
       const root = stepper({ props: { linear: false } })
       await settle()
 
@@ -466,7 +466,9 @@ describe('quStepper', () => {
       await userEvent.tab()
 
       expect(document.activeElement).toBe(label)
-      await expect.poll(() => getComputedStyle(label).backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
+      // Vuetify 1.5 draws no focus fill on a step.
+      await expect.poll(() => getComputedStyle(label).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      expect(getComputedStyle(label).outlineStyle).not.toBe('none')
     })
 
     it('should press a 6% ink from the press point, not the buttons\' grey', async () => {
@@ -1013,7 +1015,8 @@ describe('quStepper', () => {
 
       const [plain, mobile] = host.querySelectorAll<HTMLElement>('.md1-stepper')
 
-      expect(getComputedStyle(plain!).backgroundColor).toBe('rgb(66, 66, 66)')
+      // Vuetify 1.5's stepper sheet on dark, #303030 (_steppers.styl:4-5).
+      expect(getComputedStyle(plain!).backgroundColor).toBe('rgb(48, 48, 48)')
       expect(getComputedStyle(plain!.querySelector('.md1-stepper__connector')!).backgroundColor).toBe('rgba(255, 255, 255, 0.12)')
       expect(getComputedStyle(plain!.querySelector('.md1-stepper__name')!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(mobile!.querySelector('.md1-stepper__bar')!).backgroundColor).toBe('rgb(33, 33, 33)')

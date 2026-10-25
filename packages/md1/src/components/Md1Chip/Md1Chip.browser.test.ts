@@ -203,7 +203,7 @@ describe('quChip', () => {
       expect(document.elementFromPoint(x, rect.top - 10)).not.toBe(el)
     })
 
-    it('should draw the leading icon through Md1Icon at 24 dp in the active icon tier, 8 dp before the label', async () => {
+    it('should draw the leading icon through Md1Icon at 24 dp in the active icon tier, 12 px before the label', async () => {
       const el = chip({ icon: 'label' }, 'Rule')
       await settle()
 
@@ -216,7 +216,7 @@ describe('quChip', () => {
       expect(paths(svg)).toEqual(md1Icons.label)
       expect(getComputedStyle(svg).width).toBe('24px')
       expect(getComputedStyle(icon).color).toBe('rgba(0, 0, 0, 0.54)')
-      expect(getComputedStyle(icon).marginRight).toBe('8px')
+      expect(getComputedStyle(icon).marginRight).toBe('12px')
       expect(getComputedStyle(el).paddingLeft).toBe('4px')
       expect(getComputedStyle(el).paddingRight).toBe('12px')
     })
@@ -370,6 +370,10 @@ describe('quChip', () => {
       expect(deletes).toBe(0)
       expect(getComputedStyle(el).color).toBe('rgba(0, 0, 0, 0.38)')
       expect(getComputedStyle(remove).color).toBe('rgba(0, 0, 0, 0.38)')
+
+      // Vuetify 1.5 drops only the ink of a disabled chip: an avatar stays opaque.
+      const avatar = chip({ avatar: AVATAR, disabled: true }, 'Ada').querySelector<HTMLElement>('.md1-chip__avatar')!
+      expect(getComputedStyle(avatar).opacity).toBe('1')
       expect(getComputedStyle(el).pointerEvents).toBe('none')
       expect(getComputedStyle(el).boxShadow).toBe('none')
     })
@@ -640,23 +644,24 @@ describe('quChip', () => {
   })
 
   describe('states', () => {
-    it('should paint the 6% hover overlay on a pressable chip and none on a text chip', async () => {
+    it('should paint no hover overlay on a pressable chip or a text chip', async () => {
       const pressable = chip({ onClick: () => {} }, 'Open')
       const text = chip({}, 'Free text')
       await settle()
 
       await userEvent.hover(pressable)
 
-      await expect.poll(() => getComputedStyle(pressable).backgroundImage).toContain('rgba(0, 0, 0, 0.06)')
+      // Vuetify 1.5 draws no hover on a chip; the fill stays the chip colour.
+      expect(getComputedStyle(pressable).backgroundImage).toBe('none')
       expect(getComputedStyle(pressable).backgroundColor).toBe('rgb(224, 224, 224)')
 
       await userEvent.hover(text)
 
-      await expect.poll(() => getComputedStyle(pressable).backgroundImage).toBe('none')
       expect(getComputedStyle(text).backgroundImage).toBe('none')
+      await userEvent.unhover(text)
     })
 
-    it('should show the 12% focus overlay and the 2 dp rise for keyboard focus and drop both on blur', async () => {
+    it('should show the 13% focus overlay and the 2 dp rise for keyboard focus and drop both on blur', async () => {
       const el = chip({ onClick: () => {} }, 'Open')
       await settle()
 
@@ -665,7 +670,8 @@ describe('quChip', () => {
       expect(document.activeElement).toBe(el)
       expect(el.matches(':focus-visible')).toBe(true)
       expect(Object.hasOwn(el.dataset, 'focused')).toBe(true)
-      await expect.poll(() => getComputedStyle(el).backgroundImage).toContain('rgba(0, 0, 0, 0.12)')
+      // 13% of the chip's 87% ink, Vuetify 1.5's focus overlay (_chips.styl:84-95).
+      await expect.poll(() => getComputedStyle(el).backgroundImage).toContain('0 0 0 / 0.1131')
       await expect.poll(() => getComputedStyle(el).boxShadow).toBe(serialize('boxShadow', ELEVATION_2))
 
       await userEvent.click(document.body)

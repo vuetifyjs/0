@@ -600,7 +600,7 @@ describe('quTimePicker', () => {
       expect(document.activeElement).toBe(pm)
     })
 
-    it('should show the 12% focus overlay and the 6% hover overlay on the header buttons', async () => {
+    it('should show the 12% focus overlay and lift an inactive header button to full opacity on hover', async () => {
       const { root } = picker({}, '15:30')
       await settle()
 
@@ -613,9 +613,15 @@ describe('quTimePicker', () => {
       expect(hours.matches(':focus-visible')).toBe(true)
       expect(getComputedStyle(hours).backgroundColor).toBe(serialize('color-mix(in srgb, #ffffff 12%, transparent)'))
 
+      expect(getComputedStyle(minutes).opacity).toBe('0.7')
+
       await userEvent.hover(minutes)
 
-      expect(getComputedStyle(minutes).backgroundColor).toBe(serialize('color-mix(in srgb, #ffffff 6%, transparent)'))
+      // Vuetify 1.5 draws no overlay: an inactive title button rises to full opacity (_pickers.styl:36-41).
+      await expect.poll(() => getComputedStyle(minutes).opacity).toBe('1')
+      expect(getComputedStyle(minutes).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+
+      await userEvent.unhover(minutes)
     })
   })
 

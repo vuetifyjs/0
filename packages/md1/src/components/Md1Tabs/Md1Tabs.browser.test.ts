@@ -788,7 +788,7 @@ describe('quTabs', () => {
   })
 
   describe('colour', () => {
-    it('should ink a surface bar in the accent and the secondary text colour', async () => {
+    it('should ink a surface bar in the primary text ink with only the indicator in the accent', async () => {
       const host = tabs({
         model: shallowRef('songs'),
         tabs: [
@@ -802,13 +802,14 @@ describe('quTabs', () => {
       const [selected, idle, disabled] = items(host)
       const indicator = host.querySelector<HTMLElement>('.md1-tabs__indicator')!
 
-      expect(getComputedStyle(selected!).color).toBe('rgb(255, 64, 129)')
+      // Vuetify 1.5: tabs.active 87%, the inactive ink at 70% of it, the disabled-button ink (th:70-71, _tabs.styl:11-12, 139-140).
+      expect(getComputedStyle(selected!).color).toBe('rgba(0, 0, 0, 0.87)')
       expect(getComputedStyle(indicator).backgroundColor).toBe('rgb(255, 64, 129)')
-      expect(getComputedStyle(idle!).color).toBe(color('rgba(0, 0, 0, 0.54)'))
-      expect(getComputedStyle(disabled!).color).toBe(color('rgba(0, 0, 0, 0.38)'))
+      expect(getComputedStyle(idle!).color).toBe(color('color-mix(in srgb, rgba(0, 0, 0, 0.87) 70%, transparent)'))
+      expect(getComputedStyle(disabled!).color).toBe(color('rgba(0, 0, 0, 0.26)'))
     })
 
-    it('should ink a primary bar white: 100% active, 70% inactive, 60% disabled', async () => {
+    it('should ink a primary bar white: 100% active, 70% inactive, 30% disabled', async () => {
       const host = tabs({
         model: shallowRef('songs'),
         tabs: [
@@ -826,7 +827,7 @@ describe('quTabs', () => {
       expect(getComputedStyle(selected!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(indicator).backgroundColor).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(idle!).color).toBe(color('rgba(255, 255, 255, 0.7)'))
-      expect(getComputedStyle(disabled!).color).toBe(color('rgba(255, 255, 255, 0.6)'))
+      expect(getComputedStyle(disabled!).color).toBe(color('rgba(255, 255, 255, 0.3)'))
     })
 
     it('should take its ink from the adapter sheet in both themes', async () => {
@@ -843,8 +844,8 @@ describe('quTabs', () => {
 
       const [selected, idle] = items(host)
 
-      expect(getComputedStyle(selected!).color).toBe('rgb(255, 64, 129)')
-      expect(getComputedStyle(idle!).color).toBe(color('rgba(255, 255, 255, 0.7)'))
+      expect(getComputedStyle(selected!).color).toBe('rgb(255, 255, 255)')
+      expect(getComputedStyle(idle!).color).toBe(color('color-mix(in srgb, rgb(255, 255, 255) 70%, transparent)'))
     })
   })
 
