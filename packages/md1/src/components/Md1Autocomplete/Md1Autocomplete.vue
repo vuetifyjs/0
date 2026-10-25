@@ -507,8 +507,8 @@
 
   /*
    * A row: 48 dp, Subheading text 16 dp from the sheet's edges (menus page).
-   * The highlighted row takes the 6% hover overlay (lead decision 3), the
-   * selected one the 12% focus shade.
+   * The highlighted row takes the list-tile hover, the selected one the 12%
+   * focus shade.
    */
   .md1-autocomplete__item,
   .md1-autocomplete__empty {
@@ -535,9 +535,10 @@
     transition: background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
+  /* Hover and the keyboard highlight: Vuetify 1.5's list-tile hover, 4% black / 8% white (_lists.styl:20-23). */
   .md1-autocomplete__item:not([data-disabled]):hover,
   .md1-autocomplete__item[data-highlighted] {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-autocomplete__item[data-selected],

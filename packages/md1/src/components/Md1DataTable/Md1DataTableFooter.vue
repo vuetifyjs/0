@@ -242,8 +242,9 @@
     }
   }
 
+  /* The menu's keyboard highlight: Vuetify 1.5's list-tile hover, 4% black / 8% white (_lists.styl:20-23). */
   .md1-data-table__option[data-highlighted] {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   /* The current value is highlighted with the focus overlay (menus page). */

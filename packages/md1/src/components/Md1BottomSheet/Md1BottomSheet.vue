@@ -485,14 +485,17 @@
     transition: background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
-  /* The page states no item states; the lists rule applies: 6% hover, 12% keyboard focus. */
+  /*
+   * The page states no item states, so the rows take Vuetify 1.5's list tile:
+   * a 4% black / 8% white hover (th:51-52, 145-146) and no focus fill, so
+   * keyboard focus shows the user agent's focus ring.
+   */
   .md1-bottom-sheet__item:hover {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-bottom-sheet__item:focus-visible {
-    outline: 2px solid transparent;
-    background-color: var(--md1-focus, rgba(0, 0, 0, 0.12));
+    outline-offset: -2px;
   }
 
   .md1-bottom-sheet__item[data-disabled] {

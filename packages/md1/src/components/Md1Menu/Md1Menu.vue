@@ -348,17 +348,18 @@
   }
 
   /*
-   * Hover (6%, lead decision 3) is also the keyboard highlight, which is how
-   * Vuetify 1.5 rendered it, and the row a sub menu opened from keeps it. The
+   * Hover is Vuetify 1.5's list-tile hover, 4% black / 8% white (th:51-52,
+   * 145-146), and it is also the keyboard highlight, as Vuetify rendered it
+   * (_lists.styl:20-23); the row a sub menu opened from keeps it. The
    * selected row carries the 12% focus shade the buttons page states.
    */
   .md1-menu__item:not([data-disabled]):hover,
   .md1-menu__item[data-highlighted],
   .md1-menu__item[data-open] {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
-  /* Listed with :hover so a pointer resting on the selected row keeps the 12% shade rather than dropping to the 6% hover. */
+  /* Listed with :hover so a pointer resting on the selected row keeps the 12% shade rather than dropping to the list-tile hover. */
   .md1-menu__item[data-selected],
   .md1-menu__item[data-selected]:hover {
     background-color: var(--md1-focus, rgba(0, 0, 0, 0.12));

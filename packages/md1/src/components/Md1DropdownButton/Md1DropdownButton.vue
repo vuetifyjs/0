@@ -586,10 +586,10 @@
     padding-inline-start: var(--md1-spacing-3, 24px);
   }
 
-  /* Hover and the keyboard highlight: the 6% overlay (lead decision 3). The current state: the 12% focus shade. */
+  /* Hover and the keyboard highlight: the menu's list-tile hover, 4% black / 8% white (Vuetify 1.5, th:51-52). The current state: the 12% focus shade. */
   .md1-dropdown-button__item:not([data-disabled]):hover,
   .md1-dropdown-button__item[data-highlighted] {
-    background-color: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background-color: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-dropdown-button__item[data-state='checked'],

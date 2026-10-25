@@ -445,10 +445,10 @@
     text-overflow: ellipsis;
   }
 
-  /* The keyboard cursor and the pointer share the 6% hover overlay (lead decision 3). */
+  /* The keyboard cursor and the pointer share Vuetify 1.5's list-tile hover, 4% black / 8% white (_lists.styl:20-23). */
   .md1-search-bar__item:hover,
   .md1-search-bar__item[data-highlighted] {
-    background: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-search-bar__item[data-disabled] {

@@ -54,8 +54,8 @@
 
 <!--
   The dropdown's 48 dp rows: Subheading text 16 dp from the sheet's edges
-  (menus page); hover and the keyboard highlight take the 6% overlay, the
-  chosen option the 12% one.
+  (menus page); hover and the keyboard highlight take the list-tile hover, the
+  chosen option the 12% focus shade.
 -->
 <style>
   .md1-text-field__item {
@@ -75,9 +75,10 @@
     user-select: none;
   }
 
+  /* The menu's hover and keyboard highlight: Vuetify 1.5's list-tile hover, 4% black / 8% white (_lists.styl:20-23). */
   .md1-text-field__item:hover,
   .md1-text-field__item[data-highlighted] {
-    background: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-text-field__item[data-selected] {

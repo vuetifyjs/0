@@ -72,9 +72,10 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* A list row: Vuetify 1.5's list-tile hover, 4% black / 8% white (th:51-52, 145-146). */
   @media (hover: hover) {
     .md1-chip__address:hover {
-      background-image: linear-gradient(var(--md1-hover, rgba(0, 0, 0, 0.06)), var(--md1-hover, rgba(0, 0, 0, 0.06)));
+      background-image: linear-gradient(var(--md1-list-hover, rgba(0, 0, 0, 0.04)), var(--md1-list-hover, rgba(0, 0, 0, 0.04)));
     }
   }
 
