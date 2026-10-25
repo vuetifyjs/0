@@ -36,6 +36,7 @@
   import Md1DialogConfirm from '../Md1Dialog/Md1DialogConfirm.vue'
   import Md1DialogContent from '../Md1Dialog/Md1DialogContent.vue'
   import Md1Icon from '../Md1Icon/Md1Icon.vue'
+  import { createOver } from '../Md1Menu/over'
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /** The two pickers a text field can nest (text-fields page, "Nested menus & pickers"). */
@@ -256,9 +257,21 @@
     : locale.ti('Md1.chooseDate') ?? 'Choose date',
   )
 
+  /*
+   * The select keeps the simple-menu rule (menus page, accessibility notes):
+   * the chosen option opens over the field, its text on the field's value,
+   * which starts 16 dp before the row's text padding (Vuetify 1.5's
+   * `calcLeftAuto`, activator left less 16). With nothing chosen the list
+   * opens below the field.
+   */
+  const placement = dropdown
+    ? createOver({ item: sheet => sheet.querySelector<HTMLElement>('[data-selected]'), inset: -16 })
+    : undefined
+
   const select = toRef(() => dropdown
     ? {
       'id': `${id}-select`,
+      'adapter': placement,
       'modelValue': model.value,
       'onUpdate:modelValue': onSelect,
       'disabled': disabled || readonly,

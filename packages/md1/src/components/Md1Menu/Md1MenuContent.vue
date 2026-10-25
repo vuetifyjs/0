@@ -4,6 +4,7 @@
 
   // Context
   import { orphan, useMd1Menu } from './Md1Menu.vue'
+  import { provideOver } from './over'
 
   // Utilities
   import { toRef } from 'vue'
@@ -12,9 +13,11 @@
   import type { MenuContentProps } from '@vuetify/v0'
 
   /**
-   * Material Design 1 withholds `positionArea` and `positionTry`: the sheet opens below
-   * the emitting element, aligned to its start edge, and moves as a whole near
-   * a screen edge (menus page). `value` stays internal: one Md1Menu is one layer.
+   * Material Design 1 withholds `positionArea` and `positionTry`: a simple menu
+   * with a selected item opens over the emitting element with that item on top
+   * of it, aligned to its start edge; a menu with no selection opens below it.
+   * Either way the sheet moves as a whole near a screen edge (menus page).
+   * `value` stays internal: one Md1Menu is one layer.
    */
   export interface Md1MenuContentProps extends Pick<MenuContentProps, 'eager' | 'namespace'> {}
 </script>
@@ -36,6 +39,14 @@
   const namespace = toRef(() => _namespace ?? context?.namespace.value ?? 'v0:menu')
   const dense = toRef(() => context?.dense.value ?? false)
   const desktop = toRef(() => context?.desktop.value ?? false)
+
+  // The selected row lands on the emitting element (menus page, "Location"). A
+  // cascading sub sheet is not a simple menu: it keeps its place beside its row.
+  provideOver({
+    item: sheet => sheet.hasAttribute('data-sub')
+      ? null
+      : sheet.querySelector<HTMLElement>(':scope > .md1-menu__list > [data-selected]'),
+  })
 </script>
 
 <template>

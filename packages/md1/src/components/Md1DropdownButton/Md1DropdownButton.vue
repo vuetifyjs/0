@@ -11,6 +11,7 @@
 
   // Components
   import Md1Icon from '../Md1Icon/Md1Icon.vue'
+  import { provideOver } from '../Md1Menu/over'
   import Md1Ripple from '../Md1Ripple/Md1Ripple.vue'
 
   /** What an item tells the button about itself, so the button can display the selected state. */
@@ -122,23 +123,28 @@
 
   /*
    * The menu covers the button (buttons page) and puts the selected item over
-   * it (menus page). v0 anchors the sheet on the activator: the plain button
-   * opens from its own start corner, the segmented one from the arrow's end
-   * corner, at least as wide as the whole button so it covers both segments.
-   * That floor rounds up to the sheet's width unit (56 dp, 64 px on
-   * desktop), so the cover keeps the menus page's width rule. The vertical
-   * offset is measured once the sheet is laid out.
+   * it (menus page). With a state selected the shared placement measures the
+   * row and lands it on the whole button: the plain button lines the sheet up
+   * with its start edge, the segmented one with its end edge, so the sheet
+   * covers both segments. With nothing selected v0 anchors the sheet on the
+   * activator from the same corner. The sheet is at least as wide as the whole
+   * button, a floor rounded up to the sheet's width unit (56 dp, 64 px on
+   * desktop), so the cover keeps the menus page's width rule.
    */
   const area = toRef(() => segmented ? 'span-block-end span-inline-start' : 'span-block-end span-inline-end')
   const width = shallowRef(0)
-  const shift = shallowRef(0)
+
+  provideOver({
+    item: sheet => sheet.querySelector<HTMLElement>('[aria-checked="true"]'),
+    emitter: () => root.value,
+    align: () => segmented ? 'end' : 'start',
+  })
 
   const style = toRef(() => {
     const unit = desktop ? '64px' : 'var(--md1-increment, 56px)'
 
     return {
       minInlineSize: width.value > 0 ? `round(up, max(2 * ${unit}, ${width.value}px), ${unit})` : undefined,
-      translate: shift.value > 0 ? `0 ${-shift.value}px` : undefined,
     }
   })
 
@@ -146,30 +152,6 @@
     if ((event as ToggleEvent).newState !== 'open') return
 
     width.value = root.value?.getBoundingClientRect().width ?? 0
-  }
-
-  function onToggle (event: Event) {
-    if ((event as ToggleEvent).newState !== 'open') {
-      shift.value = 0
-      return
-    }
-
-    const sheet = event.currentTarget
-    const host = root.value
-
-    if (!(sheet instanceof HTMLElement) || isNullOrUndefined(host)) return
-
-    const item = sheet.querySelector<HTMLElement>('[aria-checked="true"]')
-    const anchor = host.getBoundingClientRect()
-
-    // A sheet the browser flipped above the button keeps its place; only the downward sheet slides up.
-    if (isNullOrUndefined(item) || Math.abs(sheet.getBoundingClientRect().top - anchor.top) > 1) return
-
-    const margin = Number.parseFloat(getComputedStyle(sheet).getPropertyValue('--md1-keyline-margin')) || 16
-    const offset = item.offsetTop + item.offsetHeight / 2 - anchor.height / 2
-
-    // Never past the screen edge margin: the menu never clips (menus page).
-    shift.value = Math.max(0, Math.min(offset, anchor.top - margin))
   }
 
   // Re-choosing the current state makes v0's single selection clear and
@@ -260,7 +242,6 @@
         position-try="flip-block"
         :style
         @beforetoggle="onBeforetoggle"
-        @toggle="onToggle"
       >
         <Menu.RadioGroup class="md1-dropdown-button__list" :disabled :model-value="model" @update:model-value="onModel">
           <slot />
