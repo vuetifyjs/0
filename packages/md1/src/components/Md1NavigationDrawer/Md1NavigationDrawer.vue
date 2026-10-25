@@ -29,7 +29,7 @@
     type?: Md1NavigationDrawerType
     /**
      * The mini variant of the persistent drawer: at rest only the icon column
-     * shows, one standard increment wide; opening expands it to the full drawer.
+     * shows, 80 px wide; opening expands it to the full drawer.
      */
     mini?: boolean
     /** Starts under the app bar (one increment down) instead of spanning the full height. */
@@ -425,19 +425,13 @@
   }
 
   /*
-   * Mini at rest: one standard increment, 56 dp (64 dp from 600 px), the
-   * 24 dp icon column between its 16 dp margins (a Material Design 1 decision; the page
-   * gives no width). Text past the column is clipped, not reflowed; the
-   * subheaders and the account area fade out; the scrollbar stays hidden.
+   * Mini at rest: 80 px, Vuetify 1.5's mini variant (VNavigationDrawer.ts:54-56;
+   * the page gives no width). Text past the icon column is clipped, not
+   * reflowed; the subheaders and the account area fade out; the scrollbar
+   * stays hidden.
    */
   .md1-navigation-drawer[data-type='persistent'][data-mini]:not([data-open]) {
-    width: var(--md1-increment, 56px);
-  }
-
-  @media (min-width: 600px) {
-    .md1-navigation-drawer[data-type='persistent'][data-mini]:not([data-open]) {
-      width: var(--md1-increment, 64px);
-    }
+    width: 80px;
   }
 
   .md1-navigation-drawer[data-mini]:not([data-open]) .md1-navigation-drawer__sheet {
@@ -468,10 +462,11 @@
   }
 
   /*
-   * Floating: the permanent drawer detached from the edge inside a card, so
-   * it takes the card's sheet: 2 dp corners and the 2 dp resting elevation
-   * (0 dp under a fine pointer), 8 dp clear of its surroundings (a Material Design 1
-   * decision; the figure gives no gap), and no seam.
+   * Floating: the permanent drawer detached from the edge inside a card (the
+   * pattern page's figures), so it takes the card's sheet: 2 dp corners and
+   * the 2 dp resting elevation (0 dp under a fine pointer), 8 dp clear of its
+   * surroundings (a Material Design 1 decision; the figure gives no gap, and
+   * Vuetify 1.5's floating drawer does not detach), and no seam.
    */
   .md1-navigation-drawer[data-floating]:not([data-type='temporary']) {
     margin: var(--md1-spacing-1, 8px);
@@ -602,15 +597,11 @@
   /*
    * The current destination's text takes the primary colour with its icon
    * (pattern page), also when the label is bare text in the item's body;
-   * Md1List colours only the Primary part. The dark sheet takes the primary's
-   * 100, as Md1List does for the icon.
+   * Md1List colours only the Primary part. The dark sheet keeps the primary,
+   * as Vuetify 1.5 does (SPEC.md Known limitations).
    */
   .md1-navigation-drawer__content .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__body {
     color: var(--md1-primary, #3F51B5);
-  }
-
-  [data-theme='md1-dark'] .md1-navigation-drawer__content .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__body {
-    color: var(--md1-primary-light, #C5CAE9);
   }
 
   /* Mouse and keyboard: Body 2 drops to 13 sp (typography page); restated so the rule holds without theme.css. */
