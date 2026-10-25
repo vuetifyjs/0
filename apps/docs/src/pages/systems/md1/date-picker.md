@@ -91,6 +91,14 @@ Material Design 1 does not switch layouts on its own. The web notes in the spec 
 Leave it unset to follow the installed date plugin, whose locale knows its own first weekday; with no plugin the week starts on Sunday. The weekday initials rotate with the columns, and each column header keeps the full weekday name as its accessible name.
 :::
 
+::: ds-example
+/systems/md1/date-picker/dark
+
+### Dark theme
+
+The portrait and landscape pickers on the dark theme's #303030 canvas. The header turns Grey 700, the sheet is the dark theme's Grey 800 card colour, and the selected day takes the accent control colour, the 200 hue that keeps contrast on a dark sheet. The landscape sheet scrolls sideways on a narrow screen rather than squeezing.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
