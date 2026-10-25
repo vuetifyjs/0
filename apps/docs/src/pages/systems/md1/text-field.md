@@ -160,6 +160,14 @@ Each trailing glyph is 24 dp inside a 48 dp touch target, 8 dp apart and 8 dp ab
 :::
 
 ::: ds-example
+/systems/md1/text-field/box-areas
+
+### Multi-line boxes and text box areas
+
+`box` combines with `multiline` and `textarea`. A multi-line box grows downward as the text wraps, the listing form's description; a text box area keeps a fixed height and scrolls once the text passes its last line, the message box. Both keep the box's fill, its 4 dp top corners and the line along the bottom, and the label stays 8 dp from the top of the fill as the content grows.
+:::
+
+::: ds-example
 /systems/md1/text-field/dense
 
 ### Dense
