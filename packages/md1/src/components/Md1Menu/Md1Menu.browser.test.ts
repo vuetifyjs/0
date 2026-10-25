@@ -1164,7 +1164,9 @@ describe('quMenu', () => {
       await show(host)
       await userEvent.hover(row('Size'))
 
-      const sub = () => document.querySelector<HTMLElement>('.md1-menu[data-sub]')!
+      function sub (): HTMLElement {
+        return document.querySelector<HTMLElement>('.md1-menu[data-sub]')!
+      }
 
       await expect.poll(() => sub().matches(':popover-open')).toBe(true)
       await frames()
