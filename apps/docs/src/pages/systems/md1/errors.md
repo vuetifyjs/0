@@ -78,6 +78,14 @@ The errors page restates the text field metrics for the error state. The [text f
 ## Examples
 
 ::: ds-example
+/systems/md1/errors/states
+
+### Field states
+
+The four states a field moves through on the way to an error, side by side: at rest with hint text, with error text, with helper text, and with the helper text replaced by an error. The error state turns the underline and the text below it to the error colour, Red A400 on light and the lighter error tone on dark; the hint and helper keep the hint ink, 38% black or 50% white. Switch the example's theme to see the dark set.
+:::
+
+::: ds-example
 /systems/md1/errors/inline
 
 ### Helper text that becomes error text
@@ -97,6 +105,14 @@ Keep form text to the essentials. Not every field needs helper text, and not eve
 A counter can show before, during and after interaction, but the guidelines suggest holding it back until the user approaches the limit. This example passes `counter` only once the text reaches 80% of the 60-character limit, so a short status never shows "12 / 60".
 
 The status starts past the limit. Over it, `Md1TextField` turns to its error state on its own: the counter and the underline take the error color and the field reports itself invalid. No rule is needed for the limit. The counter is 12 sp Roboto Regular at the end of the details row, 8 dp under the line. The guidelines also give a field with a counter 16 dp of extra bottom padding and an 88 dp input area (see Text field metrics above). `counter` also takes `{ words: n }` when the limit is a word count.
+:::
+
+::: ds-example
+/systems/md1/errors/list-error
+
+### Error in a single-line list
+
+A full-width field at the top of a list, here a search, reports its error in its own row, under the input, rather than in a dialog or snackbar. One letter matches almost everyone, so the search asks for a second: the error appears under the field and the list behind it recedes to 38% until the query can be answered. Clearing the field or typing a second letter removes the error.
 :::
 
 ::: ds-example
@@ -148,6 +164,14 @@ A failed section is an empty state with an action, sized to the container it rep
 :::
 
 ::: ds-example
+/systems/md1/errors/container
+
+### Error in a container, with an action
+
+An error that affects one container belongs at the top of that container. The inbox cannot show new mail until the account syncs, so it says so in a band above the messages, with the two actions that fix it: Settings, and Sync now. The messages already on the device stay readable below. Sync now runs with a linear progress indicator on the band's top edge, and the band leaves when the sync succeeds.
+:::
+
+::: ds-example
 /systems/md1/errors/disabled
 
 ### Unavailable feature
@@ -155,6 +179,16 @@ A failed section is an empty state with an action, sized to the container it rep
 Not every error needs its own surface. A feature that cannot run yet can be shown disabled, paired with text that explains why and when it will be available. Here Export report is disabled while the report processes, and the caption under it gives the reason and the wait.
 
 A disabled control cannot take focus, so the explanation must be visible text, not a tooltip on the button. The caption is also linked to the button with `aria-describedby` for screen readers that read it in browse mode.
+:::
+
+::: ds-example
+/systems/md1/errors/mode
+
+### Incompatible state
+
+When a request conflicts with a mode the user or an administrator has set, say so and point to where the mode is controlled. Press the capture button: a snackbar says screenshots are disabled by the administrator and offers Settings. The mode itself is shown by a persistent indicator, here a lock in the app bar named "Managed by your organization", which stays for as long as the mode does, so the snackbar can leave without the reason disappearing with it.
+
+On a device the indicator lives in the status bar; on the web the app's own bar is the closest persistent surface.
 :::
 
 ## Accessibility
