@@ -67,9 +67,9 @@ The root also counts its items through a registry so it can hold the guidelines'
 
 The default group is exclusive: selecting an option deselects the one before it, and pressing the selected option again clears the selection. That is the guidelines' "exclusive and unselected" combination, and `v-model` reads `undefined` while nothing is chosen.
 
-Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 16 dp of side padding. The page shows the group only as an image, so the container is a Material Design 1 decision: one 2 dp radius shared by the items, a 1 dp edge and 1 dp dividers in `--md1-divider`, so layout reads as one control the way the guidelines ask. Each item still answers to a 48 dp tall hit area.
+Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 8 dp of side padding. The page shows the group only as an image, so the group is Vuetify 1.5's button toggle: a strip in the surface colour with 2 dp corners and no outline, which rises to 2 dp once an option is selected, so layout reads as one control the way the guidelines ask. Each item still answers to a 48 dp tall hit area.
 
-The selected option fills with the 12% overlay of the buttons page (`--md1-focus`) and its ink rises from the secondary tier, 54% black, to the primary tier, 87% black. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
+Unselected options sit at 40% opacity of the primary ink. The selected option returns to full opacity under the buttons' 12% overlay of its own ink, with a 1 dp seam after it in the disabled-button ink; unselected neighbours have no seam between them. The faded options read at about 2.4:1 on white, under the contrast floor, as Vuetify 1.5 drew them. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
 :::
 
 ::: ds-example
@@ -97,7 +97,7 @@ The selected option fills with the 12% overlay of the buttons page (`--md1-focus
 
 ### Icons
 
-`icon` on an item draws a glyph from the Material Design 1 icon set through `Md1Icon` ahead of the label, at 24 dp with the 8 dp gap Md1Button uses (the guidelines state no icon-to-label gap). Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
+`icon` on an item draws a glyph from the Material Design 1 icon set through `Md1Icon` ahead of the label, at 24 dp with Vuetify 1.5's 10 dp gap (the guidelines state no icon-to-label gap). Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
 
 An icon-only item has no text, so it needs `ariaLabel`; without one Material Design 1 warns in development. The glyph is hidden from assistive technology in both forms, so the label in the slot or `ariaLabel` is always the item's whole name.
 :::
@@ -107,7 +107,7 @@ An icon-only item has no text, so it needs `ariaLabel`; without one Material Des
 
 ### Disabled
 
-`disabled` on the root disables every item; on an item it disables that option alone and leaves its siblings selectable. A disabled item takes the native `disabled` attribute, leaves the tab order, ignores clicks, draws no ink and drops its ink to the buttons page's disabled opacity, 26% black (30% white on the dark theme). A selected item keeps its 12% fill when it is disabled.
+`disabled` on the root disables every item; on an item it disables that option alone and leaves its siblings selectable. A disabled item takes the native `disabled` attribute, leaves the tab order, ignores clicks, draws no ink and drops its ink to the buttons page's disabled opacity, 26% black (30% white on the dark theme). A selected item keeps its 12% overlay when it is disabled.
 
 v0 does not select into a disabled group, so a group that is disabled from the start shows no selection even when `v-model` holds a value. To show a locked choice, render the group enabled and disable it afterwards, or disable the items that are not chosen.
 :::
@@ -154,7 +154,7 @@ Every enabled item is its own tab stop; v0's toggle group binds no arrow-key nav
 
 ### Focus
 
-Keyboard focus draws the buttons page's 12% overlay in the item's own ink, over the selected fill when the item is selected; a mouse click leaves nothing behind. Under forced colours a 2 px outline draws in its place.
+Keyboard focus draws the buttons page's 12% overlay in the item's own ink, and hovering an item draws the same overlay; a mouse click leaves nothing behind once the pointer moves away. Under forced colours a 2 px outline draws in its place.
 
 ### States
 

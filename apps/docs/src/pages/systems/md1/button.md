@@ -69,7 +69,7 @@ A flat button is text printed on the sheet it sits on: no container, no shadow, 
 
 A raised button is a rectangular sheet of its own: the primary colour (`--md1-primary`, Indigo 500) with white ink at 100%, resting at 2 dp. Pressing it lifts the sheet to 8 dp and fills it with the 700 shade (`--md1-primary-dark`); on release it settles back to rest. Raised buttons add dimension to mostly flat layouts and emphasize an action on busy or wide surfaces. The guidelines call them too prominent inside dialogs.
 
-Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. Neither variant draws a hover overlay: the buttons page states none, and Material Design 1 keeps it that way.
+Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. On hover both variants draw a 12% overlay of their own ink, a tint of the accent on a flat button and a white wash on a raised one: the buttons page states no hover, so the button takes Vuetify 1.5's. A device that cannot hover draws none.
 :::
 
 ::: ds-example
@@ -89,7 +89,7 @@ The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be s
 
 `icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so Material Design 1 uses one step of the 8 dp grid; that value is a decision, not a spec number.
 
-Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
+Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. Its ink is the primary text ink, 87% black (white on the dark theme), rather than the accent, Vuetify 1.5's icon button. An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
 :::
 
 ::: ds-example

@@ -104,7 +104,7 @@ Put `Md1Fab.Action` children inside the FAB and pressing it flings out related a
 
 The page limits a speed dial to three to six options including the FAB itself, so Material Design 1 warns in development for fewer than two or more than five actions. The options must be specific destinations reached in at most two taps; overflow menus and unrelated actions belong in the toolbar instead. Change `icon` from the `v-model` value when the open FAB should show a different glyph.
 
-The page states no spacing, colour or label style for the actions, so these are Material Design 1 decisions: 16 dp between the 40 dp circles and between a label and its circle, white surface circles with the active icon ink, and labels in Body 1 on a small 2 dp sheet. The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
+The page states no spacing, colour or label style for the actions. The circles take Vuetify 1.5's: 12 dp apart, its 6 dp button margins on each side, filled with the app bar colour (Grey 100, Grey 900 on the dark theme) and drawn in the active icon ink. Vuetify 1.5 has no labels, so they are Material Design 1 decisions: Body 1 on a small 2 dp sheet, 16 dp from the circle. The actions enter at 225 ms on the deceleration curve, the one nearest the FAB first and each one above it 20 ms later, the choreography page's stagger; they leave at 195 ms on the acceleration curve.
 :::
 
 ::: ds-example

@@ -76,7 +76,7 @@ Fixed tabs show every tab at once and give them equal widths. The guidelines res
 
 How the width is shared depends on the view. Under 600 dp, the guidelines' smaller views, the bar is full width and each tab takes an equal share, never less than 72 dp. From 600 dp each tab is at least 160 dp, and the bar centres itself: every tab takes the width of the widest one, between 160 dp and 264 dp, and the row sits in the middle of the bar. When that would leave 16 dp or less between the outer tabs and the edge of the view, the guidelines switch back to full width, and so does Material Design 1. There is no `centered` prop: the rule decides.
 
-The indicator is a 2 dp line under the selected tab, in the accent colour (`--md1-accent`, Pink A200 in the default theme), and the selected label and icon take the same colour. It slides to the new tab on the standard curve; the page states no duration, so it takes the standard 300 ms, 200 ms with a mouse.
+The indicator is a 2 dp line under the selected tab, in the accent colour (`--md1-accent`, Pink A200 in the default theme). Only the indicator takes the accent: the selected label and icon are 87% black (white on the dark theme), as in Vuetify 1.5. It slides to the new tab on the standard curve; the page states no duration, so it takes the standard 300 ms, 200 ms with a mouse.
 :::
 
 ::: ds-example
@@ -122,12 +122,12 @@ The example is narrower than a page, so the fixed tabs share 520 px and the long
 
 ### Disabled
 
-`disabled` on an item takes one tab out of use: the arrow keys skip it, a click does nothing, the ripple draws nothing, and its ink drops to the disabled text colour (38% black, 50% white on the dark theme). `disabled` on the root disables the whole bar. The 2016 and 2018 pages state no disabled tab; the 60% white for a coloured bar comes from the 2015 page.
+`disabled` on an item takes one tab out of use: the arrow keys skip it, a click does nothing, the ripple draws nothing, and its ink drops to the disabled-button ink (26% black, 30% white on the dark theme and on a coloured bar). `disabled` on the root disables the whole bar. The pinned pages state no disabled tab, so these are Vuetify 1.5's values.
 :::
 
 ### Colour and motion
 
-A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink and the indicator are the accent and the inactive ink is the secondary text colour (54% black, 70% white on the dark theme), a Material Design 1 decision where the page gives only the coloured bar's values. Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 60%.
+A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink is the primary text ink, the indicator is the accent, and the inactive ink is the primary text ink at 70% (about 61% black, 70% white on the dark theme): the page gives only the coloured bar's values, so the surface bar takes Vuetify 1.5's. Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 30%.
 
 Panels change by sliding, the sibling transition of the navigation patterns: the new panel comes in from the end side and the old one leaves to the start side, reversed when you move back and mirrored in right-to-left layouts, over 300 ms on the standard curve. With reduced motion the panels swap at once.
 
@@ -170,7 +170,7 @@ Only the selected tab is in the tab order. Selection follows focus, so the panel
 
 ### Focus
 
-A focused tab shows the 12% overlay of the buttons page in its own ink, for `:focus-visible` only, and a hovered tab a 6% overlay. Under forced colours, where backgrounds are dropped, a 2 px outline draws in their place. The outgoing panel is inert while it slides out, so focus cannot land in content that is leaving.
+A tab draws no hover or focus overlay, as in Vuetify 1.5; keyboard focus shows the browser's focus ring, inset so the bar does not clip it. The outgoing panel is inert while it slides out, so focus cannot land in content that is leaving.
 
 ### Disabled
 
