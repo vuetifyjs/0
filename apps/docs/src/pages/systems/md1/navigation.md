@@ -88,6 +88,26 @@ Back also dismisses floating surfaces, clears a contextual action bar along with
 ## Examples
 
 ::: ds-example
+/systems/md1/navigation/clusters
+
+### Bundles
+
+Structure can come from the content itself. The inbox groups related messages into bundles, Promos, Social and Finance, each a single row above the messages that stand alone; each bundle's row is a parent, and choosing it descends into its own list, where the up arrow returns to the inbox.
+
+Each bundle carries its own hue on its icon and title so the three read as separate places at a glance. The 700 shades keep 4.5:1 on the white surface, and the 200 shades replace them on dark.
+:::
+
+::: ds-example
+/systems/md1/navigation/embedded
+
+### Embedded navigation
+
+An app with a strong primary view, few alternate views and short, infrequent sessions needs no navigation component at all. The calculator is one screen: the keypad is the view, and its one alternate view, the advanced functions, slides in over it from the end edge on the standard curve when the handle is pressed. There is no app bar, drawer or tab bar.
+
+Choosing a function applies it and puts the panel away, returning the reader to the primary view. The panel is `inert` while closed, so its keys leave the tab order with it.
+:::
+
+::: ds-example
 /systems/md1/navigation/tabs
 
 ### Tabs
@@ -95,6 +115,14 @@ Back also dismisses floating surfaces, clears a contextual action bar along with
 Tabs move between a small number of equally important views: a group of siblings, or a parent's embedded child views. They suit frequent switching and keep the alternatives in sight. The tab bar sits in the app bar's `Md1Toolbar.Extension`, and the `Md1Tabs` root wraps the whole toolbar so its panels can sit under it.
 
 Switching tabs is a sibling transition: the panels stay at the same elevation, and the new panel slides in from the right while the old one slides off to the left. `Md1Tabs.Panel` draws that slide itself and drops it under reduced motion. Tab switches do not add to navigation history, so Back does not step through tabs.
+:::
+
+::: ds-example
+/systems/md1/navigation/desktop-tabs
+
+### Tabs under an extended header
+
+On desktop the tabs align to the start of the window, under a title in an extended header, instead of centring. `scrollable` tabs start at the 80 dp keyline under a mouse, the keyline of the large title in `Md1Toolbar.Extension`, so the title, the tabs and the content below line up in one column. The actions stay in the toolbar row above.
 :::
 
 ::: ds-example
@@ -120,6 +148,14 @@ On tablets the persistent type opens beside the content and pushes it narrower; 
 :::
 
 ::: ds-example
+/systems/md1/navigation/drawer-scroll
+
+### A drawer that scrolls
+
+When the destinations outgrow the screen, the whole drawer scrolls as one sheet: the account header scrolls away with the list rather than staying pinned, and the sections, dividers and the closing Settings and Help & feedback rows follow in order. Long labels truncate at the drawer's edge with an ellipsis.
+:::
+
+::: ds-example
 /systems/md1/navigation/expanding
 
 ### Expanding drawer
@@ -127,6 +163,16 @@ On tablets the persistent type opens beside the content and pushes it narrower; 
 A deep hierarchy can expand inside the drawer. Each section is an `Md1List.Group`: selecting a collapsed section expands its level in-line. The guidelines ask that opening one section hide every level outside it, so the example holds one open section and closes the others; `Md1List.Group` exposes its open state through `v-model` for exactly this.
 
 The expanded section's title takes the primary colour, and its children indent to the 72 dp keyline. The desktop alternative, the cascading drawer, presents each level in its own panel; compose it from `Md1Menu.Sub` panels, which close a level when a subsection is chosen.
+:::
+
+::: ds-example
+/systems/md1/navigation/cascading
+
+### Cascading drawer
+
+On desktop a deep hierarchy can cascade instead of expanding: choosing World opens its regions as a second sheet beside the pinned drawer, at the drawer's 16 dp elevation over the content. Choosing a region navigates and closes the level it came from; choosing World again closes it without navigating. Sections without children, such as Politics, are pages of their own and close any open level.
+
+The second level is a `nav` landmark named for its section. Material Design 1 ships no cascading part, so the panel is the app's; `Md1Menu.Sub` is the alternative when the levels should behave as a menu.
 :::
 
 ::: ds-example
@@ -151,6 +197,24 @@ The card expands into the child screen with `useMorph`, the transform the [FAB](
 The card's image is the shared element. The choreography page keeps a focal point by carrying elements across a transition: a collapsed card's elements become the expanded card's header. A second `useMorph` call with `scale: true` moves the header image from the card's media to its place and scales it from the card's width, keeping its aspect ratio as the page requires, with the same lead and lag so it stays inside the growing clip. The text below it is not shared, so it fades in over the last 60% of the transform, cropped by the growing surface. The up arrow plays both transforms backwards into the card.
 
 Parent-to-child expansion is a composition, not a card prop: the destination is the app's own screen, and only the app knows where it is.
+:::
+
+::: ds-example
+/systems/md1/navigation/integrated
+
+### Navigation in the content
+
+Navigation can live in the content instead of an app bar. The shop's menu icon and search field sit in the content's own header, and every product card is a link into its detail, where an up arrow returns to the shop. The grid takes two columns on a handset and adds columns as the window widens, so the same composition serves the tablet and desktop figures.
+:::
+
+::: ds-example
+/systems/md1/navigation/combined
+
+### Drawer and tabs
+
+Two levels of navigation combine a drawer and tabs: the drawer chooses the section, and the tabs choose the view inside it. On a handset or tablet the drawer is temporary and opens in front of the tabs from the menu icon. From 600 px the example lays out as a desktop window: the drawer is pinned, and each section expands in-line to its own views, so the drawer and the tabs both show the second level and stay in step.
+
+The width comes from the frame through v0's `useResizeObserver`, so the example switches as the docs column resizes; an app would read `useBreakpoints` instead. The 600 px switch, the tablet breakpoint, is the example's own choice.
 :::
 
 ::: ds-example
