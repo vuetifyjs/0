@@ -925,6 +925,129 @@ describe('quTabs', () => {
     })
   })
 
+  // Tabs page, desktop: "Tabs with a More dropdown menu".
+  describe('more', () => {
+    const MANY: Tab[] = Array.from({ length: 10 }, (_, index) => ({ value: `t${index}`, label: `Tab ${index + 1}` }))
+
+    function shown (host: HTMLElement): HTMLButtonElement[] {
+      return [...host.querySelectorAll<HTMLButtonElement>('.md1-tabs__item:not(.md1-tabs__more)')].filter(el => !el.dataset.collapsed)
+    }
+
+    function control (host: HTMLElement): HTMLButtonElement {
+      return host.querySelector<HTMLButtonElement>('.md1-tabs__more')!
+    }
+
+    function sheet (): HTMLElement {
+      return document.querySelector<HTMLElement>('.md1-menu')!
+    }
+
+    it('should collect the tabs that do not fit into a More menu at the end of the bar, in place of the arrows', async () => {
+      const host = tabs({ props: { scrollable: true, more: true }, tabs: MANY, width: 600 })
+
+      await vi.waitFor(() => {
+        expect(control(host)).not.toBeNull()
+      })
+      await frames()
+
+      const bar = host.querySelector<HTMLElement>('.md1-tabs__bar')!.getBoundingClientRect()
+      const list = host.querySelector<HTMLElement>('.md1-tabs__list')!
+      const visible = shown(host)
+      const more = control(host)
+
+      expect(host.querySelectorAll('.md1-tabs__arrow')).toHaveLength(0)
+      expect((host.firstElementChild as HTMLElement).dataset.more).toBe('true')
+      expect(visible.length).toBeGreaterThan(0)
+      expect(visible.length).toBeLessThan(10)
+      // The visible tabs fit the bar without scrolling, and the control sits at its end.
+      expect(list.scrollWidth).toBeLessThanOrEqual(list.clientWidth + 1)
+      expect(Math.round(more.getBoundingClientRect().right)).toBe(Math.round(bar.right))
+      expect(more.getAttribute('aria-haspopup')).toBe('menu')
+      expect(more.textContent!.trim()).toBe('More')
+      // A collected tab is still a tab for v0's selection, out of the layout.
+      expect(getComputedStyle(items(host)[9]!).display).toBe('none')
+    })
+
+    it('should list the collected tabs in the menu and select one from it', async () => {
+      const model = shallowRef<string | undefined>('t0')
+      const host = tabs({ props: { scrollable: true, more: true }, tabs: MANY, width: 600, model })
+
+      await vi.waitFor(() => {
+        expect(control(host)).not.toBeNull()
+      })
+      await frames()
+
+      const count = shown(host).length
+
+      await userEvent.click(control(host))
+      await vi.waitFor(() => {
+        expect(sheet().matches(':popover-open')).toBe(true)
+      })
+
+      const rows = [...sheet().querySelectorAll<HTMLElement>('.md1-menu__item')]
+
+      expect(rows.map(row => row.textContent!.trim())).toEqual(MANY.slice(count).map(tab => tab.label))
+
+      await userEvent.click(rows.at(-1)!)
+      await frames()
+
+      expect(model.value).toBe('t9')
+      // The control names the chosen tab and carries the indicator.
+      expect(control(host).textContent!.trim()).toBe('Tab 10')
+      expect(control(host).dataset.selected).toBe('true')
+      expect(getComputedStyle(control(host), '::after').height).toBe('2px')
+      expect(host.querySelector<HTMLElement>('.md1-tabs__indicator')!.getBoundingClientRect().width).toBe(0)
+    })
+
+    it('should return every tab to the bar once they fit', async () => {
+      const host = tabs({ props: { scrollable: true, more: true }, tabs: MANY, width: 600 })
+
+      await vi.waitFor(() => {
+        expect(control(host)).not.toBeNull()
+      })
+
+      host.style.width = '2400px'
+
+      await vi.waitFor(() => {
+        expect(control(host)).toBeNull()
+      })
+      await frames()
+
+      expect(shown(host)).toHaveLength(10)
+    })
+
+    it('should move focus to the More control when the arrow keys select a collected tab', async () => {
+      const model = shallowRef<string | undefined>('t0')
+      const host = tabs({ props: { scrollable: true, more: true }, tabs: MANY, width: 600, model })
+
+      await vi.waitFor(() => {
+        expect(control(host)).not.toBeNull()
+      })
+      await frames()
+
+      const visible = shown(host)
+
+      model.value = MANY[visible.length - 1]!.value
+      await frames()
+
+      visible.at(-1)!.focus()
+      await userEvent.keyboard('{ArrowRight}')
+      await frames()
+
+      expect(model.value).toBe(MANY[visible.length]!.value)
+      expect(document.activeElement).toBe(control(host))
+    })
+
+    it('should keep the arrows for scrollable tabs without more', async () => {
+      const host = tabs({ props: { scrollable: true }, tabs: MANY, width: 600 })
+
+      await vi.waitFor(() => {
+        expect(host.querySelectorAll('.md1-tabs__arrow')).toHaveLength(2)
+      })
+
+      expect(control(host)).toBeNull()
+    })
+  })
+
   describe('panels', () => {
     it('should slide the new panel in from the end and the old one out to the start', async () => {
       const model = shallowRef<string | undefined>('songs')
