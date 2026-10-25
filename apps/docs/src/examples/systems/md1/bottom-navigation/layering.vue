@@ -57,13 +57,12 @@
   }
 
   /*
-   * Snackbars sit behind the bar: the queue stands on top of the 56 dp bar and
-   * below its z-index 4, so a snackbar slides up from behind the bar rather than
-   * over it. The stack's inline z-index is replaced for this one portal.
+   * The queue stands on top of the 56 dp bar. The package already stacks
+   * snackbars behind the bottom navigation, so one slides up from behind the
+   * bar rather than over it.
    */
   .md1-docs-bottom-nav-snackbars {
     bottom: 56px;
-    z-index: 3 !important;
   }
 
   .md1-docs-note {
