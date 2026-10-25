@@ -51,6 +51,8 @@ A permission can be denied by the user in the request, or silently, because the 
 When a secondary feature needs a permission the user has denied, a snackbar says so at the moment the feature is used. Here the microphone in a notes app was turned down: tapping the voice-note button shows "To record voice notes, allow Notes permission to record audio." with a Settings action that leads to the app's permission settings.
 
 The rest of the app keeps working; only the feature that needs the permission stops, and the message names that feature rather than the permission group alone.
+
+The copy, the multi-line snackbar and the Settings action are the figure's. The notes app around them is drawn in the app's primary rather than the figure's cyan,[^notes-primary] and its quick-note row uses the nearest glyphs the icon set ships.[^notes-glyphs] At a phone width the message fits its two lines; in a column narrower than a 360 dp phone the snackbar's two-line limit cuts it short.[^snackbar-copy]
 :::
 
 ::: ds-example
@@ -59,8 +61,20 @@ The rest of the app keeps working; only the feature that needs the permission st
 ### A critical permission
 
 When the app cannot run at all without a permission, a snackbar is not enough. A full screen explains why the permission must be allowed and offers a button that opens Settings, with a way out of the app beside it. Here a messenger needs SMS, Phone and Contacts; Exit closes the app and Settings takes the user to grant access.
+
+The layout is the figure's: the headline, the explanation, the two flat actions over a seam, and Settings trailed by a chevron. The figure's illustration does not ship, so three discs with the SMS, Contacts and Phone glyphs stand in for it,[^critical-art] and the screen takes the app's primary in place of the figure's green.[^critical-fill]
 :::
 
 ## Accessibility
 
 The snackbar is a `role="status"` live region, so the denial is announced when it appears, and its Settings action is a real button reachable by keyboard. On the critical screen the title is a heading, the needed permissions are a labelled list, and both actions are buttons; the glyphs in the discs are decorative and the labels under them carry the meaning.
+
+[^notes-primary]: Our call: the app bar takes the docs theme's primary, so the example follows the theme switch like every other Material Design 1 screen.
+
+[^notes-glyphs]: Our call: the figure's note, list, mic and camera glyphs are drawn with the `edit`, `reorder`, `mic` and `photo` roles, the nearest the set ships.
+
+[^snackbar-copy]: Our call: the snackbars page allows two lines on mobile, and the action stacks below the text only when it is wider than 128 px, so a narrow column ellipsizes the figure's copy rather than the example shortening it.
+
+[^critical-art]: Our call: illustration is not in the package; three 56 dp discs at 24% white keep the figure's three-permission motif.
+
+[^critical-fill]: Our call: the figure's green is that app's own colour, and the primary is this one's.
