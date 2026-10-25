@@ -113,6 +113,26 @@ Noto ships tall scripts in Regular and Bold only, so the page's own table sets e
 ## Examples
 
 ::: ds-example
+/systems/md1/typography/roboto
+
+### Roboto
+
+The standard typeface in its six weights, Thin, Light, Regular, Medium, Bold and Black, upright and italic, with the full alphabet and numerals. The type scale uses three of them: Light for Display 4, Regular for most styles and Medium for Title, Body 2, Button and Menu; Bold is the tall scripts' substitute for Medium.
+
+This example loads Roboto from Google Fonts. Material Design 1 itself loads no fonts, so an app that does not load Roboto renders the scale in the platform's sans-serif.
+:::
+
+::: ds-example
+/systems/md1/typography/noto
+
+### Noto
+
+Noto covers every language Roboto does not, with vertical metrics compatible with Roboto so mixed lines sit on one baseline. Noto Sans CJK has seven weights, Thin to Black with a DemiLight between Light and Regular, and its Regular matches Roboto Regular; Noto Sans Thai, Devanagari and the other tall scripts have Regular and Bold only, which is why the tall rules swap Medium for Bold.
+
+Google Fonts publishes the CJK families per locale, Noto Sans SC, TC, JP and KR, and the tall ones per script. The specimens load each from there; the weights shown are the ones each family ships.
+:::
+
+::: ds-example
 /systems/md1/typography/scale
 
 ### The type scale
@@ -120,6 +140,16 @@ Noto ships tall scripts in Regular and Bold only, so the page's own table sets e
 All thirteen styles, each set with its `md1-type-*` class and labelled with the metrics the class applies: weight, size (device and desktop where they differ), leading, the tracking the class sets and the ink opacity. The metrics are read from the same token dictionary the classes are generated from, so the labels and the rendering cannot disagree.
 
 Use the display styles sparingly, for a number or a short heading that is the point of the screen; they read at 54% so their size does the work rather than their weight. Title is the app bar's style "across form factors". Body 1 is running text and Body 2 its emphasised form, Caption is for annotations and image captions, and Button is the label every button uses, capitalised by `text-transform` while the source text stays in sentence case. Single-line styles never wrap; on a narrow screen the sample is cut off with an ellipsis instead.
+:::
+
+::: ds-example
+/systems/md1/typography/context
+
+### The styles in use
+
+The scale set in a screen rather than a specimen, each line tagged with its style. Display carries the one number the screen is about and Headline the place it belongs to; Subheading is the short snippet the guidelines prefer to Body for small pieces of information, Body 2 the emphasised label and Body 1 the running text, Caption the annotation, and Button the label of every button, capitalised by CSS.
+
+Components set their own text from the same tokens, so the toolbar's title is in Title, "across form factors", and the list underneath sets its primary lines in Subheading and its secondary lines in Body 1 with no class from you.
 :::
 
 ::: ds-example
@@ -147,9 +177,29 @@ The guidelines also suggest the larger Subheading in place of Body when informat
 
 ### Dense and tall scripts
 
-The same four styles in English, Japanese (dense) and Vietnamese (tall), with only the `lang` attribute changed. Japanese takes 1 sp more from Title down, 21 sp Title, 17 sp Subheading, 15 sp Body 1 and Button, with the taller leading column. Vietnamese takes the same sizes and leading and sets Title and Button in Bold, because Noto has no Medium for the tall scripts. The labels give the device sizes; under a fine pointer the Subheading renders at 16 sp and Body 1 at 14 sp, the desktop column of the script tables.
+The same four styles in English, Japanese and Traditional Chinese (dense), and Vietnamese, Hindi and Thai (tall), with only the `lang` attribute changed. The dense and tall columns take 1 sp more from Title down, 21 sp Title, 17 sp Subheading, 15 sp Body 1 and Button, with the taller leading column. The tall columns set Title and Button in Bold, because Noto has no Medium for the tall scripts. The labels give the device sizes; under a fine pointer the Subheading renders at 16 sp and Body 1 at 14 sp, the desktop column of the script tables.
 
-Set `lang` correctly and the type follows; there is no prop, class or plugin option for it. Your app must still load a font that covers the script: Noto Sans CJK for Chinese, Japanese and Korean, the matching Noto family for the others. The labels under each line are marked `lang="en"` so assistive technology reads them in English.
+Set `lang` correctly and the type follows; there is no prop, class or plugin option for it. Your app must still load a font that covers the script. The stack names the families a platform installs, "Noto Sans CJK" and "Noto Sans"; Google Fonts serves Noto under a name per script instead (Noto Sans JP, Noto Sans TC, Noto Sans Devanagari, Noto Sans Thai), so this example loads those and puts their names in `--md1-font-family` for each language. The labels under each line are marked `lang="en"` so assistive technology reads them in English.
+:::
+
+::: ds-example
+/systems/md1/typography/dynamic
+
+### Dynamic type
+
+Large type for text whose length is unknown. The guidelines prefer dynamic type to truncation or a single small size: the size is chosen from the scale by the space available. Type digits into the calculator and the result steps down from Display 4 through Display 3, 2 and 1 to Headline as it grows, and only at Headline does it wrap.
+
+Material Design 1 has no dynamic type component; this is a few lines in the example. It renders the largest style, measures whether the line overflows its box, and steps down until it fits, again whenever the value or the box's width changes. Keep the steps on the scale rather than computing an arbitrary size, so the result still reads as part of the type system.
+:::
+
+::: ds-example
+/systems/md1/typography/breaks
+
+### Line breaks
+
+The guidelines ask for line breaks that avoid large gaps, orphans and a short word such as a preposition left at the end of a line, without hyphenation. On the web, `text-wrap: balance` evens out the lines of a heading and `text-wrap: pretty` keeps the last line of a paragraph from holding a single word. Turn the switch off to see the browser's default greedy breaks in the same 288 dp card.
+
+Neither property is in the Material Design 1 classes, because balance and pretty cost layout time and suit headings and short passages rather than every block of text. Add them to your own headings and card copy where the breaks matter. Browsers that do not support them fall back to the default breaks.
 :::
 
 ## Accessibility
