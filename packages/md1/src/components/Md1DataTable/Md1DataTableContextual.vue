@@ -73,13 +73,13 @@
 
 <style>
   /*
-   * The contextual header fills with the accent's lighter contrast value
-   * (the A100, the page's "50-value of the secondary app color"). That fill is
+   * The contextual header fills with the accent hue's 50, the page's
+   * "50-value of the secondary app color" (Pink 50 by default). That fill is
    * the same in both themes and the palette marks it a black-ink swatch, so the
    * ink here is black at the text tiers rather than the theme's ink tokens.
    */
   .md1-data-table__contextual {
-    background: var(--md1-accent-light, #FF80AB);
+    background: var(--md1-accent-light, #FCE4EC);
     color: color-mix(in srgb, var(--md1-black, #000000) 87%, transparent);
   }
 

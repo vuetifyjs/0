@@ -346,7 +346,9 @@
   /*
    * The row and select-all checkbox: an 18 dp box with a 2 dp stroke inside a
    * 24 dp container, in a 48 dp target that overhangs the container by 12 dp
-   * on every side so the row stays 48 dp tall.
+   * on every side so the row stays 48 dp tall. It inks in the accent in both
+   * themes, as Md1Checkbox does (the selection-controls page's checkbox stays
+   * Swatch 500 on dark; Vuetify 1.5's selectable.js:22 agrees).
    */
   .md1-data-table__checkbox {
     position: relative;
@@ -361,7 +363,7 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--md1-accent-control, #FF4081);
+    color: var(--md1-accent, #FF4081);
     cursor: pointer;
     vertical-align: middle;
     -webkit-tap-highlight-color: transparent;
