@@ -1,15 +1,15 @@
 <script lang="ts">
   // Framework
-  import { isArray, useLogger } from '@vuetify/v0'
+  import { isArray, isObject, useLogger } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
 
   // Types
-  import type { Md1IconGlyph, Md1IconName, Md1IconsContext } from '../../icons'
+  import type { Md1IconGlyph, Md1IconMirror, Md1IconName, Md1IconsContext } from '../../icons'
 
   // Icons
-  import { md1IconMirrors, useMd1Icons } from '../../icons'
+  import { useMd1Icons } from '../../icons'
 
   /** `m` is the 24 dp system icon; `s` is the 20 dp dense form for mouse and keyboard layouts. */
   export type Md1IconSize = 'm' | 's'
@@ -33,10 +33,6 @@
     namespace?: string
   }
 
-  type Md1IconMirror = true | 'conditional'
-
-  const MIRRORS = new Map<string, Md1IconMirror>(Object.entries(md1IconMirrors))
-
   /**
    * Follows `{role}` references to the role that owns the artwork, so an alias,
    * built in or consumer registered, inherits that role's mirror ruling.
@@ -56,6 +52,25 @@
     }
 
     return role
+  }
+
+  /**
+   * The registry stores each role's mirror ruling on its artwork token
+   * (`$extensions.mirror`), built in or from the `mirrors` option, so a
+   * consumer glyph mirrors through the same table as the shipped ones.
+   */
+  function toMirror (icons: Md1IconsContext, role: string): Md1IconMirror | undefined {
+    const token: unknown = icons.get(role)?.value
+
+    if (!isObject(token)) return undefined
+
+    const extensions: unknown = token.$extensions
+
+    if (!isObject(extensions)) return undefined
+
+    const mirror: unknown = extensions.mirror
+
+    return mirror === true || mirror === 'conditional' ? mirror : undefined
   }
 </script>
 
@@ -81,7 +96,7 @@
     return glyph
   })
 
-  const mirror = toRef(() => MIRRORS.get(canonical(icons, name)))
+  const mirror = toRef(() => toMirror(icons, canonical(icons, name)))
 </script>
 
 <template>

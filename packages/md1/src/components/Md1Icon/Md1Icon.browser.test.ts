@@ -303,6 +303,35 @@ describe('quIcon', () => {
       expect(consumer.dataset.mirror).toBe('true')
     })
 
+    it('should join a registered glyph to the mirror table through mirrors, and take a built-in role out', async () => {
+      function plugin (app: App) {
+        app.use(createMd1IconsPlugin({
+          icons: { 'volume-up': ['M3 9v6h4l5 5V4L7 9H3z'], 'chat': ['M20 2H4z'] },
+          aliases: { speaker: 'volume-up' },
+          mirrors: { 'volume-up': true, 'chat': 'conditional', 'send': false },
+        }))
+      }
+
+      const host = mount(() => h('div', { dir: 'rtl' }, [
+        h(Md1Icon, { name: 'volume-up' }),
+        h(Md1Icon, { name: 'speaker' }),
+        h(Md1Icon, { name: 'chat' }),
+        h(Md1Icon, { name: 'send' }),
+        h(Md1Icon, { name: 'arrow-back' }),
+      ]), plugin)
+      await settle()
+
+      const [volume, speaker, chat, send, back] = [...host.querySelectorAll<SVGElement>('svg')]
+
+      expect(volume!.dataset.mirror).toBe('true')
+      expect(speaker!.dataset.mirror).toBe('true')
+      expect(chat!.dataset.mirror).toBe('conditional')
+      expect(Object.hasOwn(send!.dataset, 'mirror')).toBe(false)
+      expect(back!.dataset.mirror).toBe('true')
+      expect(getComputedStyle(volume!).transform).toBe('matrix(-1, 0, 0, 1, 0, 0)')
+      expect(getComputedStyle(send!).transform).toBe('none')
+    })
+
     it('should mark the question mark as conditional', async () => {
       const el = svg(icon({ name: 'help' }))!
       await settle()

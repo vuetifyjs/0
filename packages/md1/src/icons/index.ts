@@ -10,15 +10,15 @@
 import { createPluginContext, createTokens, isString } from '@vuetify/v0'
 
 // Glyphs
-import { md1IconAliases, md1Icons } from './glyphs'
+import { md1IconAliases, md1IconMirrors, md1Icons } from './glyphs'
 
 // Types
-import type { Md1IconCollection, Md1IconGlyph } from './glyphs'
+import type { Md1IconCollection, Md1IconGlyph, Md1IconMirror } from './glyphs'
 import type { ContextTrinity, TokenCollection, TokenContext, TokenTicket } from '@vuetify/v0'
 import type { Plugin } from 'vue'
 
 export { md1IconAliases, md1IconMirrors, md1Icons } from './glyphs'
-export type { Md1IconCollection, Md1IconGlyph, Md1IconName } from './glyphs'
+export type { Md1IconCollection, Md1IconGlyph, Md1IconMirror, Md1IconName } from './glyphs'
 
 export type Md1IconsContext = TokenContext<TokenTicket>
 
@@ -36,6 +36,14 @@ export interface Md1IconsOptions {
    * same thing.
    */
   aliases?: Record<string, string>
+  /**
+   * RTL mirror rulings merged over the built-in table, keyed by the role that
+   * owns the artwork. `true` mirrors the glyph under `dir="rtl"`, the
+   * bidirectionality page's "icons that communicate direction"; `'conditional'`
+   * mirrors it except in Hebrew, the question-mark rule; `false` takes a
+   * built-in role out of the table. An alias inherits its target's ruling.
+   */
+  mirrors?: Record<string, Md1IconMirror | false>
 }
 
 export interface Md1IconsContextOptions extends Md1IconsOptions {
@@ -58,11 +66,18 @@ export interface Md1IconsPluginOptions extends Md1IconsContextOptions {
  * collection. Wrapping keeps the map assignable without a cast, and `resolve`
  * unwraps `$value` on the way out, so callers still get `string[]`.
  */
-function collect (icons: Md1IconCollection): TokenCollection {
+function collect (icons: Md1IconCollection, mirrors: Record<string, Md1IconMirror | false> = {}): TokenCollection {
   const tokens: TokenCollection = {}
 
   for (const [role, glyph] of Object.entries(icons)) {
-    tokens[role] = isString(glyph) ? glyph : { $value: glyph }
+    if (isString(glyph)) {
+      tokens[role] = glyph
+      continue
+    }
+
+    const mirror = mirrors[role]
+
+    tokens[role] = mirror ? { $value: glyph, $extensions: { mirror } } : { $value: glyph }
   }
 
   return tokens
@@ -84,10 +99,12 @@ export function createMd1Icons (options: Md1IconsOptions = {}): Md1IconsContext 
     aliases[role] = brace(target)
   }
 
+  const mirrors = { ...md1IconMirrors, ...options.mirrors }
+
   return createTokens({
-    ...collect(md1Icons),
+    ...collect(md1Icons, mirrors),
     ...collect(md1IconAliases),
-    ...collect(options.icons ?? {}),
+    ...collect(options.icons ?? {}, mirrors),
     ...collect(aliases),
   })
 }

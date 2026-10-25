@@ -199,6 +199,9 @@ export const md1IconAliases = {
   'mode-edit': '{edit}',
 } as const satisfies Md1IconCollection
 
+/** An RTL mirror ruling: always under `dir="rtl"`, or everywhere but Hebrew (the question-mark rule). */
+export type Md1IconMirror = true | 'conditional'
+
 /**
  * Roles that flip under `[dir="rtl"]` (MD1 "Usability / Bidirectionality":
  * icons that communicate direction are mirrored; clocks, media controls, slashes
@@ -220,7 +223,7 @@ export const md1IconMirrors = {
   'help-outline': 'conditional',
   'open-in-new': true,
   'label': true,
-} as const satisfies Partial<Record<keyof typeof md1Icons, true | 'conditional'>>
+} as const satisfies Partial<Record<keyof typeof md1Icons, Md1IconMirror>>
 
 /**
  * Any role the set ships, canonical or aliased, with a plain-string escape so a
