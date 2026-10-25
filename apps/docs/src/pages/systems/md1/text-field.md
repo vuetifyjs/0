@@ -186,7 +186,7 @@ The guidelines tie the dense field to mouse-and-keyboard layouts, so Material De
 
 `dropdown` makes the field a select, the guidelines' "Nested menus & pickers": the control is readonly, the `arrow-drop-down` glyph sits at its end in a 24 x 24 dp container 8 dp above the line, and pressing the field or the arrow opens a menu of the `Md1TextField.Item` children on an 8 dp sheet at least as wide as the field. Choosing an option writes its `value` to `v-model`, closes the menu and floats the label; the field shows the option's text.
 
-The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the 6% hover overlay and the chosen one the 12% focus overlay.
+The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu, the arrows move the highlight, Enter or Space chooses, Escape closes, and typing jumps to the first option that starts with the typed letters. Rows are 48 dp with the text 16 dp from the edges; the highlighted row takes the menu's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus overlay.
 :::
 
 ### Pickers
@@ -219,7 +219,7 @@ The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu
 | `label` | `string` | | The visible label: 16 sp at rest, 12 sp floating, in the accent at 87% (100% dark) while focused. Every field needs one; a field without `label` or `aria-label` warns in development |
 | `heading` | `boolean` | `false` | The label became a heading elsewhere: hidden visually, still the accessible name; the placeholder shows at rest |
 | `helper` | `string` | | Helper text 8 dp under the line, 12 sp at the secondary ink. An error replaces it |
-| `placeholder` | `string` | | Hint text, shown once the label floats (always without a visible label) |
+| `placeholder` | `string` | | Hint text at the page's 42% black (50% white), shown once the label floats (always without a visible label) |
 | `prefix` | `string` | | Fixed text before the input, shown when focused or filled |
 | `suffix` | `string` | | Fixed text after the input, shown when focused or filled |
 | `counter` | `number \| { words: number }` | | "used / limit" at the end of the details row; over the limit the field is in error |

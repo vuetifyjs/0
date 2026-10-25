@@ -33,7 +33,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. On the dark theme the primary 500 would read at under 2:1, below the 4.5:1 contrast floor, so the current item takes the primary's 100 instead, a Material Design 1 decision.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does, although it reads at under 2:1 there, below the 4.5:1 contrast floor.
 
 ::: ds-example
 /systems/md1/list/basic
@@ -215,7 +215,7 @@ A tile's accessible name is its text, primary then secondary. The avatar's image
 
 ### Focus and states
 
-Hover lays a 6% overlay over the tile and keyboard focus a 12% overlay, drawn for `:focus-visible` only; pressing draws the ripple from the press point. Under forced colours, a 2 px outline draws in place of the focus overlay. A disabled item drops its text to 38% and its icon to the inactive ink, and its tile answers to nothing: a disabled button is out of the tab order, a disabled link loses its `href`, and a disabled option is skipped by the arrow keys.
+Hover lays Vuetify 1.5's list hover over the tile, 4% black (8% white on the dark theme), and keyboard focus a 12% overlay, drawn for `:focus-visible` only; pressing draws the ripple from the press point. Under forced colours, a 2 px outline draws in place of the focus overlay. A disabled item drops its text to 38% and its icon to the inactive ink, and its tile answers to nothing: a disabled button is out of the tab order, a disabled link loses its `href`, and a disabled option is skipped by the arrow keys.
 
 ### Motion
 

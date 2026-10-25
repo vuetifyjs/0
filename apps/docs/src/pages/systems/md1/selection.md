@@ -125,7 +125,7 @@ Select cards when the collection supports acting on several at once, such as arc
 
 ### Data tables
 
-`selectable` adds a checkbox column with a select-all box in the header row; `v-model:selected` holds the selected row records. A selected row turns Grey 100, the data tables page's value; the page gives no dark value, so the dark theme takes Vuetify 1.5's near-`#505050`. While rows are selected, `Md1DataTable.Contextual` replaces the title header: "2 items selected" on the accent's light value (`--md1-accent-light`), with the actions that apply to the rows.
+`selectable` adds a checkbox column with a select-all box in the header row; `v-model:selected` holds the selected row records. A selected row turns Grey 100, the data tables page's value; the page gives no dark value, so the dark theme takes Vuetify 1.5's near-`#505050`. While rows are selected, `Md1DataTable.Contextual` replaces the title header: "2 items selected" on the accent's 50 (`--md1-accent-light`), the data tables page's fill, with the actions that apply to the rows.
 
 The data tables page draws the checkbox column at all times, and Material Design 1 follows that page rather than the selection pattern's hover-only check mark. Escape inside the contextual header clears the selection, the keyboard counterpart of Back.
 :::

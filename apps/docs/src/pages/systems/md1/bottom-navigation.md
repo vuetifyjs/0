@@ -71,7 +71,7 @@ Every action hosts a [Md1Ripple](/systems/md1/ripple) as its first child and dra
 
 In the fixed bar every action takes the same width: the width of the view divided by the number of actions, between 80 dp and 168 dp. When the cap binds, on a wide screen, the group centres in the bar. With three actions every action shows its icon and label. With four or five, as here, only the active action keeps its label and the inactive ones show their icon alone, centred with 16 dp above and below.
 
-The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. On the dark theme Indigo 500 reads at under 2:1 on the Grey 800 bar, so the active action takes the primary's 100 instead (`--md1-primary-light`, Indigo 100), the rule a list's current item and a primary subheader follow. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
+The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. The dark theme keeps Indigo 500, as Vuetify 1.5 does, although it reads at under 2:1 on the Grey 800 bar; a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
 
 The hidden labels are hidden from sight only. They stay in the accessibility tree as each action's name, so an icon-only inactive action still announces "Alerts" rather than nothing.
 :::
@@ -83,7 +83,7 @@ The hidden labels are hidden from sight only. They stay in the accessibility tre
 
 `shifting` is the second form the guidelines define for four or five destinations: the active action is wider and shows its label, the inactive ones narrow to their icon. Active actions measure 96 dp to 168 dp and inactive ones 56 dp to 96 dp. Selecting a destination moves the wide slot and the label to it, on the standard curve over the standard duration.
 
-The guidelines give only those bounds, not how the bar divides its width. Material Design 1 gives the active action one and a half shares of the bar against one share for each inactive action, which lands inside the stated bounds at every count on a 360 dp handset (120 dp and 80 dp with four actions, about 98 dp and 65 dp with five). That ratio is a Material Design 1 decision.
+The guidelines give only those bounds, not how the bar divides its width, so it takes Vuetify 1.5's: every action gets an equal share inside the bounds, and only the active action's 96 dp minimum makes it wider (96 dp and 88 dp with four actions on a 360 dp handset, 96 dp and 66 dp with five).
 
 Prefer the fixed bar for three destinations; the shifting bar is for when four or five crowd it.
 :::
@@ -153,7 +153,7 @@ Every enabled action is its own tab stop, in source order.
 
 ### Focus
 
-The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover draws Material Design 1's 6% overlay; a mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
+The bottom navigation page gives no focus or hover value. Keyboard focus draws the buttons page's 12% overlay in the action's own ink, and a mouse hover over an inactive action draws Vuetify 1.5's 12% overlay; the active action takes no hover. A mouse click leaves nothing behind. Under forced colours a 2 px outline draws in place of the focus overlay.
 
 ### States
 

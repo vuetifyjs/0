@@ -103,9 +103,9 @@ A tooltip is a supplement, not a label. Keep the column name meaningful on its o
 
 ### Selection
 
-`selectable` adds the checkbox column: a select-all checkbox in the header row and one per data row, 18 dp boxes in 24 dp containers, 24 dp from the card edge and 24 dp from the first column's text, inked in the secondary colour. Under a mouse they draw no radial reaction, as the selection controls page asks; from the keyboard a focused checkbox shows the 48 dp halo. A selected row turns Grey 100; a hovered row Grey 200. `v-model:selected` carries the row records. Select-all covers the visible page and goes mixed when only some of the page is selected.
+`selectable` adds the checkbox column: a select-all checkbox in the header row and one per data row, 18 dp boxes in 24 dp containers, 24 dp from the card edge and 24 dp from the first column's text, inked in the secondary colour on both themes, as `Md1Checkbox` is. Under a mouse they draw no radial reaction, as the selection controls page asks; from the keyboard a focused checkbox shows the 48 dp halo. A selected row turns Grey 100; a hovered row Grey 200. `v-model:selected` carries the row records. Select-all covers the visible page and goes mixed when only some of the page is selected.
 
-`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's light value, with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back. The guidelines' figures keep the checkbox column visible at all times, and Material Design 1 follows them rather than the selection pattern's hover-revealed checkbox.
+`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's 50 value, as the data tables page specifies (Pink 50 in the default theme), with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back. The guidelines' figures keep the checkbox column visible at all times, and Material Design 1 follows them rather than the selection pattern's hover-revealed checkbox.
 
 A row with `selectable` set to `false` keeps its place in the checkbox column but draws no checkbox, and select-all skips it.
 
@@ -160,7 +160,7 @@ The default slot holds the parts. There are no named slots.
 | Part | Props | Notes |
 |------|-------|-------|
 | `Header` | `title?: string` | The 64 dp card header. The title, Regular 20 sp at the 24 dp keyline, also names the table. The slot holds the card actions: icon-only `Md1Button`s draw at 54%, labelled flat buttons (the persistent-actions header) keep the accent |
-| `Contextual` | `count?: number` | Replaces `Header` while rows are selected: the "N selected" label on `--md1-accent-light`, the contextual actions in the slot. `count` overrides the number in the label; the part still shows only while rows are selected. Escape clears the selection |
+| `Contextual` | `count?: number` | Replaces `Header` while rows are selected: the "N selected" label on `--md1-accent-light`, the accent's 50, the contextual actions in the slot. `count` overrides the number in the label; the part still shows only while rows are selected. Escape clears the selection |
 | `Table` | `namespace?: string` | The horizontal scroll container and the `<table>` |
 | `Head` | `namespace?: string` | The 56 dp column header row; renders the select-all cell when the table is selectable |
 | `Column` | `id`, `sortable?: boolean`, `numeric?: boolean`, `tooltip?: string`, `namespace?: string` | A `<th>`. `id` is the record field it sorts by. `numeric` right-aligns it. `tooltip` is the column definition |

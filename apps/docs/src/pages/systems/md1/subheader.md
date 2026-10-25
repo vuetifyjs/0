@@ -53,7 +53,7 @@ Left-align the subheader with the avatar or icon of the list: the margin keyline
 
 `Md1Subheader` renders v0's [Atom](/components/primitives/atom) as a `div` with `role="heading"` and adds nothing to its behavior: a subheader is static text, so no v0 compound is composed and none is invented for it. `Atom` forwards every attribute to the element, which is how a different `aria-level` or an `id` reaches it.
 
-`data-inset`, `data-primary` and `data-sticky` are Material Design 1's own hooks; the stylesheet hangs the keyline, the colour and the pinning off them. The type is the Body 2 token set (`--md1-type-body-2-*`), the ink is `--md1-text-secondary` or `--md1-primary` (`--md1-primary-light` on the dark theme), and the keylines are `--md1-keyline-margin` and `--md1-keyline-content`, so a theme that moves any of them moves the subheader with it.
+`data-inset`, `data-primary` and `data-sticky` are Material Design 1's own hooks; the stylesheet hangs the keyline, the colour and the pinning off them. The type is the Body 2 token set (`--md1-type-body-2-*`), the ink is `--md1-text-secondary` or `--md1-primary`, and the keylines are `--md1-keyline-margin` and `--md1-keyline-content`, so a theme that moves any of them moves the subheader with it.
 
 ## Examples
 
@@ -72,7 +72,7 @@ The example stands a 56 dp accent disc in for the floating action button, centre
 
 ### Coloured subheaders
 
-A subheader is normally set in the secondary ink, 54% black on the light theme and 70% white on the dark one. In long lists of complex information, the guidelines suggest coloured subheaders to delineate content, with the Android settings screen as the example and a files app as the figure. `primary` sets the title in the app's primary colour, Indigo 500 in the default theme (its 100 on the dark theme, where the 500 does not contrast), and leaves everything else unchanged: the tile stays 48 dp, the type stays Body 2, the fill stays absent.
+A subheader is normally set in the secondary ink, 54% black on the light theme and 70% white on the dark one. In long lists of complex information, the guidelines suggest coloured subheaders to delineate content, with the Android settings screen as the example and a files app as the figure. `primary` sets the title in the app's primary colour, Indigo 500 in the default theme on both themes, and leaves everything else unchanged: the tile stays 48 dp, the type stays Body 2, the fill stays absent.
 
 Use it when the sections are the point of the screen rather than a convenience, and use it consistently: a list that mixes grey and coloured subheaders reads as two different kinds of section.
 :::
@@ -96,7 +96,7 @@ A subheader has no fill of its own, so while pinned it inherits its parent's bac
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `inset` | `boolean` | `false` | Moves the title from the avatar keyline (16 dp, 24 dp from 600 px) to the content keyline (72 dp, 80 dp from 600 px), for a list whose avatar column holds a left-aligned floating action button |
-| `primary` | `boolean` | `false` | Sets the title in the primary colour instead of the secondary ink; the primary's 100 on the dark theme |
+| `primary` | `boolean` | `false` | Sets the title in the primary colour instead of the secondary ink |
 | `sticky` | `boolean` | `true` | Pins the tile to the top of its scroll container until the next subheader pushes it off |
 
 The default slot is the title, one line; longer text truncates with an ellipsis. There are no named slots.
@@ -115,4 +115,4 @@ The subheader is never focusable and has no keyboard interaction; the guidelines
 
 ### Contrast
 
-The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. The guidelines give no dark-theme value for the coloured subheader, and Indigo 500 on the Grey 800 surface would read at about 1.5:1, far below the floor. On the dark theme the primary variant takes the primary's 100 instead (`--md1-primary-light`, Indigo 100, about 6.2:1), a Material Design 1 decision that holds primary-coloured text and icons on a dark surface to the floor, and the same rule the current item of a list follows.
+The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. The guidelines give no dark-theme value for the coloured subheader, so it keeps the primary 500 as Vuetify 1.5 does: Indigo 500 on the Grey 800 surface reads at about 1.5:1, far below the floor. That shortfall is faithful to how Material Design 1 rendered, and it is the same for the current item of a list. Use the plain subheader on a dark surface where the title must be read.

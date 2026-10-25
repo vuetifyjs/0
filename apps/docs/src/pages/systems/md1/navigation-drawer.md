@@ -107,7 +107,7 @@ The menu icon here passes `open` to `Md1Toolbar.Nav`, which turns the menu glyph
 
 ### Mini variant
 
-`mini` is the persistent drawer's alternative rest state: only the icon column shows, and opening expands it to the full drawer. The rail is one standard increment wide, 56 dp under 600 px and 64 dp from 600 px: the 24 dp icon between its 16 dp margins. The pattern page describes the state without a width, so this is a Material Design 1 decision; Vuetify's 80 px was not taken.
+`mini` is the persistent drawer's alternative rest state: only the icon column shows, and opening expands it to the full drawer. The rail is 80 dp wide at every screen width. The pattern page describes the state without a width, so it takes Vuetify 1.5's mini variant.
 
 At rest the destinations keep their full-width layout and are clipped at the rail's edge rather than reflowed, so nothing jumps when the drawer expands. Subheaders and the account area fade out, and the icons stay focusable and named by their labels. `mini` applies to the persistent drawer only; on another type it warns in development.
 :::
@@ -119,7 +119,7 @@ At rest the destinations keep their full-width layout and are clipped at the rai
 
 `type="permanent"` is always visible, pinned to its edge at the content's elevation, and cannot be closed: `v-model` and `close` are ignored and an `Activator` inside it warns. The guidelines recommend it as the desktop default. This one is the full-height form, for apps focused on information consumption: the drawer spans the screen and the toolbar sits beside it.
 
-The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. On the dark theme `Md1List` takes the primary's 100 shade instead, a Material Design 1 decision: the page states the selected colour on the light sheet only, and the primary 500 reads at under 2:1 on the dark one, below the 4.5:1 contrast floor. Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
+The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. The page states the selected colour on the light sheet only; on the dark one the primary 500 stays, as Vuetify 1.5 renders it, although it reads at under 2:1 on the Grey 800 sheet, below the 4.5:1 contrast floor. Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
 
 `Md1List.Group` is the expanding drawer of the navigation page: selecting a collapsed section reveals its level in-line. The whole sheet, header included, scrolls as a view when the destinations outgrow the screen.
 :::
@@ -168,7 +168,7 @@ Resize the window to watch the drawer change. The example closes the drawer when
 |------|------|---------|-------------|
 | `modelValue` | `boolean` | `false` | Whether the drawer is open (`v-model`). A permanent drawer is always open |
 | `type` | `'temporary' \| 'persistent' \| 'permanent'` | `'temporary'` | Temporary: a modal `<dialog>` at 16 dp (14 dp under a fine pointer) over the scrim. Persistent: a `<nav>` beside the content that toggles. Permanent: a `<nav>` that is always open |
-| `mini` | `boolean` | `false` | Persistent only. At rest the drawer is a 56 dp (64 dp from 600 px) icon rail that expands on open |
+| `mini` | `boolean` | `false` | Persistent only. At rest the drawer is an 80 dp icon rail that expands on open |
 | `clipped` | `boolean` | `false` | Persistent and permanent. Starts one increment down, under the app bar |
 | `floating` | `boolean` | `false` | Permanent only. Detaches the drawer into a card: 8 dp clear, 2 dp corners, card elevation, no seam |
 | `side` | `'start' \| 'end'` | `'start'` | The edge: `start` is the left nav, `end` the right nav. Both mirror under `dir="rtl"` |

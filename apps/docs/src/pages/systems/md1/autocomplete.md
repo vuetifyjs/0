@@ -70,7 +70,7 @@ Under `multiple` each value is a [Md1Chip](/systems/md1/chip) in its `contact` f
 
 The guidelines' first auto-complete rule: "suggest input as it's typed (refreshing suggestions with each keystroke)". Focus opens the list under the field; each keystroke narrows it to the suggestions that contain the typed text. The arrow keys move a highlight through the rows, Enter chooses the highlighted one, and a press on a row chooses it and keeps the caret in the input.
 
-The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners, the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes the 6% hover overlay and the chosen one the 12% focus shade.
+The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners, the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes Vuetify 1.5's list hover, 4% black (8% white on the dark theme), and the chosen one the 12% focus shade.
 
 Without `strict`, Enter or leaving the field with text that matches no suggestion keeps that text as the value. Use this form where the suggestions help but do not limit the answer.
 :::
@@ -110,7 +110,7 @@ Use it to tell kinds of suggestion apart, here a saved place and recent searches
 
 ### In-line completion
 
-`inline` is the 2016 page's in-line auto-complete: no menu opens, and the first suggestion that starts with the typed text completes it to the right of the cursor. The text-fields page sets the rule: "autocompleted text is displayed to the right of the cursor, using the same font size and color as placeholder text", 38% black on the light theme and 50% white on the dark one, while the typed text keeps its full ink. "Pressing the return button accepts the current autocomplete suggestion."
+`inline` is the 2016 page's in-line auto-complete: no menu opens, and the first suggestion that starts with the typed text completes it to the right of the cursor. The text-fields page sets the rule: "autocompleted text is displayed to the right of the cursor, using the same font size and color as placeholder text", 42% black on the light theme and 50% white on the dark one, while the typed text keeps its full ink. "Pressing the return button accepts the current autocomplete suggestion."
 
 The suggestion is drawn for sighted users only; the input reports `aria-autocomplete="inline"` and `aria-expanded="false"`, and the accepted value is announced as the input's new text.
 :::

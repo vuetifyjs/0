@@ -75,7 +75,7 @@ A list sheet with a header: the `Title` row is 56 dp tall, set in Regular 16 sp 
 
 Each `Item` is a 48 dp row on the 16 dp keyline: a 24 dp icon in the active icon ink (54%), 32 dp of space, then the label in Regular 16 sp at 87%. An `Md1Divider` between items starts a new section and takes 8 dp above and below. `disabled` drops the row to 38% ink and removes it from the tab order; `href` makes the row a link, as the page's "open the application" action is.
 
-The guidelines state no hover, focus or pressed values for the rows, so they take the list rules Material Design 1 uses everywhere: a 6% hover overlay, the 12% focus overlay for keyboard focus, and the ripple on press.
+The guidelines state no hover, focus or pressed values for the rows, so they take Vuetify 1.5's list tile: a 4% hover overlay (8% white on the dark theme), no fill for keyboard focus, where the browser's focus ring marks the row, and the ripple on press.
 :::
 
 ::: ds-example

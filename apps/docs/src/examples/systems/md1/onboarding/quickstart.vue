@@ -123,11 +123,6 @@
     color: var(--md1-primary, #3F51B5);
   }
 
-  /* Primary 500 on the dark surface falls under 2:1; the dark theme takes the primary's 100, as Md1List does for its current item. */
-  [data-theme='md1-dark'] .md1-docs-quickstart-key-art {
-    color: var(--md1-primary-light, #C5CAE9);
-  }
-
   .md1-docs-quickstart-key-text {
     max-width: 280px;
     margin: 0;

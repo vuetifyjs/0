@@ -82,7 +82,7 @@
   }
 
   .md1-docs-option:hover {
-    background: var(--md1-hover, rgba(0, 0, 0, 0.06));
+    background: var(--md1-list-hover, rgba(0, 0, 0, 0.04));
   }
 
   .md1-docs-option:focus-visible {

@@ -222,11 +222,7 @@
     outline-offset: -2px;
   }
 
-  /* Primary 500 on the dark surface falls under 2:1, so the current dot and the focus ring take the primary's 100 there. */
-  [data-theme='md1-dark'] .md1-docs-benefits-dot[data-active] {
-    color: var(--md1-primary-light, #C5CAE9);
-  }
-
+  /* The current dot keeps the primary 500 on dark, as Md1List does; the focus ring takes the primary's 100 there, because a focus indicator needs 3:1. */
   [data-theme='md1-dark'] .md1-docs-benefits-dot:focus-visible {
     outline-color: var(--md1-primary-light, #C5CAE9);
   }
