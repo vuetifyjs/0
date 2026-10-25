@@ -522,7 +522,7 @@ describe('quAutocomplete', () => {
       expect(suggestion.getAttribute('aria-hidden')).toBe('true')
       expect(suggestion.textContent).toBe('apricot')
       expect(suggestion.querySelector('.md1-autocomplete__typed')!.textContent).toBe('apr')
-      expect(getComputedStyle(suggestion).color).toBe('rgba(0, 0, 0, 0.38)')
+      expect(getComputedStyle(suggestion).color).toBe('rgba(0, 0, 0, 0.42)')
       expect(getComputedStyle(suggestion).fontSize).toBe(getComputedStyle(input).fontSize)
       // No menu: the suggestion is in the field.
       expect(shown(list)).toBe(false)
@@ -683,7 +683,7 @@ describe('quAutocomplete', () => {
       expect(getComputedStyle(row).paddingLeft).toBe('16px')
     })
 
-    it('should take the 6% overlay on the highlighted row and 12% on the selected one', async () => {
+    it('should take the 4% list hover on the highlighted row and 12% on the selected one', async () => {
       const { input, items } = autocomplete({ initial: 'Apple' })
       await settle()
 
@@ -695,7 +695,7 @@ describe('quAutocomplete', () => {
 
       const highlighted = items().find(item => Object.hasOwn(item.dataset, 'highlighted'))!
       expect(highlighted.textContent!.trim()).toBe('Apricot')
-      await expect.poll(() => getComputedStyle(highlighted).backgroundColor).toBe('rgba(0, 0, 0, 0.06)')
+      await expect.poll(() => getComputedStyle(highlighted).backgroundColor).toBe('rgba(0, 0, 0, 0.04)')
       await expect.poll(() => getComputedStyle(items()[0]!).backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
     })
 

@@ -375,7 +375,7 @@ describe('quBottomSheet', () => {
       expect(items(dialog(host))[1]!.textContent).toBe('Copy link')
     })
 
-    it('should show the 6% hover overlay and the 12% keyboard focus overlay', async () => {
+    it('should show the 4% list hover and no fill for keyboard focus', async () => {
       const host = share({ open: shallowRef(true) })
       await settle()
 
@@ -383,7 +383,7 @@ describe('quBottomSheet', () => {
 
       await userEvent.hover(link!)
 
-      await expect.poll(() => getComputedStyle(link!).backgroundColor).toBe('rgba(0, 0, 0, 0.06)')
+      await expect.poll(() => getComputedStyle(link!).backgroundColor).toBe('rgba(0, 0, 0, 0.04)')
 
       await userEvent.unhover(link!)
 
@@ -393,7 +393,9 @@ describe('quBottomSheet', () => {
       await userEvent.tab({ shift: true })
 
       expect(email!.matches(':focus-visible')).toBe(true)
-      await expect.poll(() => getComputedStyle(email!).backgroundColor).toBe('rgba(0, 0, 0, 0.12)')
+      // Vuetify 1.5's list tile draws no focus fill: the user agent's focus ring marks it.
+      await expect.poll(() => getComputedStyle(email!).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      expect(getComputedStyle(email!).outlineStyle).not.toBe('none')
     })
 
     it('should draw the pressed ink from the press point', async () => {

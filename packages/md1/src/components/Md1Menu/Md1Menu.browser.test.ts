@@ -499,7 +499,7 @@ describe('quMenu', () => {
   })
 
   describe('states', () => {
-    it('should shade the hovered row 6% and follow the keyboard highlight', async () => {
+    it('should shade the hovered row 4% and follow the keyboard highlight', async () => {
       const host = menu(simple)
       await settle()
 
@@ -510,7 +510,7 @@ describe('quMenu', () => {
       await userEvent.hover(item)
 
       await expect.poll(() => item.dataset.highlighted).toBe('true')
-      expect(getComputedStyle(item).backgroundColor).toBe('rgba(0, 0, 0, 0.06)')
+      expect(getComputedStyle(item).backgroundColor).toBe('rgba(0, 0, 0, 0.04)')
 
       await userEvent.keyboard('{ArrowDown}')
 
@@ -882,7 +882,7 @@ describe('quMenu', () => {
       const rect = nested().getBoundingClientRect()
 
       expect(row('Share').dataset.open).toBe('true')
-      expect(getComputedStyle(row('Share')).backgroundColor).toBe('rgba(0, 0, 0, 0.06)')
+      expect(getComputedStyle(row('Share')).backgroundColor).toBe('rgba(0, 0, 0, 0.04)')
       expect(Math.round(rect.left)).toBe(Math.round(sheet().getBoundingClientRect().right))
       expect(Math.round(rect.top)).toBe(Math.round(parent.top))
 

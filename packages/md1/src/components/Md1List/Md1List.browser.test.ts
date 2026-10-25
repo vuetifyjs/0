@@ -720,7 +720,7 @@ describe('quList', () => {
   })
 
   describe('states', () => {
-    it('should lay the 6% hover overlay over the tile', async () => {
+    it('should lay Vuetify 1.5\'s 4% list hover over the tile', async () => {
       const host = mount(() => h(Md1List, null, () => [h(Md1List.Item, { value: 'a' }, () => 'A')]))
       await settle()
 
@@ -729,7 +729,7 @@ describe('quList', () => {
       await userEvent.hover(tile)
 
       await expect.poll(() => getComputedStyle(tile).backgroundImage)
-        .toBe(serialize('linear-gradient(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06))'))
+        .toBe(serialize('linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04))'))
 
       await userEvent.unhover(tile)
 
@@ -1141,7 +1141,7 @@ describe('quList', () => {
       expect(getComputedStyle(primaries[2]!).color).toBe('rgba(255, 255, 255, 0.5)')
     })
 
-    it('should tint the current item and the open group title with the primary 100 on the dark sheet', async () => {
+    it('should keep the primary 500 on the current item and the open group title on the dark sheet', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -1157,9 +1157,27 @@ describe('quList', () => {
 
       const [current, title] = host.querySelectorAll('.md1-list__primary')
 
-      expect(getComputedStyle(current!).color).toBe('rgb(197, 202, 233)')
-      expect(getComputedStyle(host.querySelector('.md1-list__icon')!).color).toBe('rgb(197, 202, 233)')
-      expect(getComputedStyle(title!).color).toBe('rgb(197, 202, 233)')
+      // Vuetify 1.5 leaves the primary unchanged on dark surfaces (SPEC.md Known limitations: about 1.5:1).
+      expect(getComputedStyle(current!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(host.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(title!).color).toBe('rgb(63, 81, 181)')
+    })
+
+    it('should draw the dark check mark in the accent, as Md1Checkbox does', async () => {
+      style(new Md1StyleSheetAdapter().generate({
+        'md1-light': md1Colors,
+        'md1-dark': md1DarkColors,
+      }))
+
+      const host = mount(() => h('div', { 'data-theme': 'md1-dark' }, [
+        h(Md1List, { 'select': 'multiple', 'aria-label': 'Recipients', 'modelValue': ['ali'] }, () => [
+          h(Md1List.Item, { value: 'ali' }, () => [h(Md1List.Avatar), text('Ali')]),
+        ]),
+      ]))
+      await settle()
+
+      // Pink A200, not the accent's 200: Vuetify 1.5's selectable.js:22.
+      expect(getComputedStyle(host.querySelector('.md1-list__mark')!).color).toBe('rgb(255, 64, 129)')
     })
   })
 })

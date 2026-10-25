@@ -489,7 +489,7 @@ describe('quSearchBar', () => {
 
       expect(Object.hasOwn(first.dataset, 'highlighted')).toBe(true)
       expect(input.getAttribute('aria-activedescendant')).toBe(first.id)
-      expect(getComputedStyle(first).backgroundColor).toBe('rgba(0, 0, 0, 0.06)')
+      expect(getComputedStyle(first).backgroundColor).toBe('rgba(0, 0, 0, 0.04)')
 
       await userEvent.keyboard('{ArrowDown}{Enter}')
       await settle()

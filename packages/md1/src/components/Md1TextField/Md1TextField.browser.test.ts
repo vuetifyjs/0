@@ -213,7 +213,7 @@ describe('quTextField', () => {
       await settle()
 
       expect(input.placeholder).toBe('Ada Lovelace')
-      expect(getComputedStyle(input, '::placeholder').color).toBe('rgba(0, 0, 0, 0.38)')
+      expect(getComputedStyle(input, '::placeholder').color).toBe('rgba(0, 0, 0, 0.42)')
     })
 
     it('should forward non-class attributes to the input and dress the root with class and style', async () => {

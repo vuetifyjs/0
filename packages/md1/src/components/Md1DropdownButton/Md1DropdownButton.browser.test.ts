@@ -380,7 +380,7 @@ describe('quDropdownButton', () => {
       await userEvent.keyboard('{ArrowDown}')
       await expect.poll(() => document.activeElement).toBe(items()[1])
       expect(items()[1]!.dataset.highlighted).toBe('true')
-      await expect.poll(() => getComputedStyle(items()[1]!).backgroundColor).toBe(serialize('backgroundColor', 'rgba(0, 0, 0, 0.06)'))
+      await expect.poll(() => getComputedStyle(items()[1]!).backgroundColor).toBe(serialize('backgroundColor', 'rgba(0, 0, 0, 0.04)'))
 
       await userEvent.keyboard('{Enter}')
       await settle()
