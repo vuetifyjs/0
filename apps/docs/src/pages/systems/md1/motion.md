@@ -72,7 +72,7 @@ The curves apply to position, opacity and scale alike. Vuetify 1.5 defaults to i
 
 The guidelines time motion per device. On a phone a typical transition is 300 ms, an element entering 225 ms, an element leaving 195 ms, and a large full-screen transition 375 ms; transitions past 400 ms start to feel slow. Tablets have more distance to cover, so their motion is about 30% longer, the guidelines' 300 ms becoming 390 ms. Desktop motion is shorter and simpler, 150 to 200 ms, because a pointer expects an immediate response and a short web transition hides dropped frames.
 
-Material Design 1 ships the four phone values as `--md1-duration-enter`, `-leave`, `-standard` and `-complex` and redeclares them twice. Under `(min-width: 600px) and (pointer: coarse)` they are the tablet scale, each value times 1.3: 293, 254, 390 and 488 ms. Under `(pointer: fine)` they are the desktop scale: 150, 150, 200 and 200 ms. The highlighted row is the class this window matches, and Play fills each bar over the value the tokens hold right now. Wearables, 30% shorter, have no web surface and no scale.
+Material Design 1 ships the four phone values as `--md1-duration-enter`, `-leave`, `-standard` and `-complex` and redeclares them twice. Under `(min-width: 600px) and (pointer: coarse)` they are the tablet scale, each value times 1.3: 293, 254, 390 and 488 ms. Under `(pointer: fine)` they are the desktop scale: 150, 150, 200 and 200 ms.[^desktop-durations] The highlighted row is the class this window matches, and Play fills each bar over the value the tokens hold right now. Wearables, 30% shorter, have no web surface and no scale.
 
 The scale covers colour and movement. The 280 ms elevation transition on the [Elevation](/systems/md1/elevation) page is a fixed value outside it.
 :::
@@ -92,7 +92,7 @@ When several surfaces appear at once, the guidelines stagger them along one foca
 
 ### Dynamic durations
 
-A duration is not fixed per component; it follows how far the element travels and how much its surface changes. A long trip or a large change in area takes longer, so it can be followed; a short trip or a small change takes less, so it does not drag. Under Dynamic the short trip takes half the standard duration and the long one the complex duration. Under Fixed both take the standard duration, and the short trip visibly crawls. Slow motion runs the dynamic values four times longer.
+A duration is not fixed per component; it follows how far the element travels and how much its surface changes. A long trip or a large change in area takes longer, so it can be followed; a short trip or a small change takes less, so it does not drag. Under Dynamic the short trip takes half the standard duration and the long one the complex duration.[^dynamic-multipliers] Under Fixed both take the standard duration, and the short trip visibly crawls. Slow motion runs the dynamic values four times longer.
 
 Material Design 1 ships the four durations as tokens; scaling between them for distance is the app's call. `calc()` works on time values, so a scaled duration such as `calc(var(--md1-duration-standard) * 0.5)` still follows the device scale.
 :::
@@ -102,7 +102,7 @@ Material Design 1 ships the four durations as tokens; scaling between them for d
 
 ### Arcs and temporary exits
 
-An element that moves between two points on screen along both axes follows an arc, and the direction sets its shape. Moving diagonally upward, the ascent starts shallow and ends steep; moving diagonally downward, the descent starts steep and ends shallow. The example builds the arc from two layers, one per axis: the leading axis on the deceleration curve and the other on the standard curve, the same pairing `useMorph` uses. The dashed line is the path the forward move takes, computed from the two curves.
+An element that moves between two points on screen along both axes follows an arc, and the direction sets its shape. Moving diagonally upward, the ascent starts shallow and ends steep; moving diagonally downward, the descent starts steep and ends shallow. The example builds the arc from two layers, one per axis: the leading axis on the deceleration curve and the other on the standard curve, the same pairing `useMorph` uses.[^arc-curves] The dashed line is the path the forward move takes, computed from the two curves.
 
 An element that leaves the screen for now, and may come back through the same edge, leaves on the sharp curve and returns on the deceleration curve. The bottom bar does that on Leave and Return.
 :::
@@ -112,9 +112,9 @@ An element that leaves the screen for now, and may come back through the same ed
 
 ### Icon transitions
 
-An icon can transform into another to show that the two actions are linked: play becomes pause, so pressing one reveals the other. The example draws play and pause as two four-point shapes each and transitions the SVG `d` property on the standard curve, so every corner of the triangle travels to a corner of a bar. Browsers that cannot animate `d` swap the glyph at once.
+An icon can transform into another to show that the two actions are linked: play becomes pause, so pressing one reveals the other. The example draws play and pause as two four-point shapes each and transitions the SVG `d` property on the standard curve, so every corner of the triangle travels to a corner of a bar.[^icon-morph] Browsers that cannot animate `d` swap the glyph at once.
 
-On a FAB, the plus can turn into the pencil it stands for, saying the pencil is the main way to create. `Md1Fab` draws one glyph, so the example spins the plus out on the acceleration curve, swaps the icon, and spins the pencil in on the deceleration curve. Both transitions are skipped under reduced motion.
+On a FAB, the plus can turn into the pencil it stands for, saying the pencil is the main way to create. `Md1Fab` draws one glyph, so the example spins the plus out on the acceleration curve, swaps the icon, and spins the pencil in on the deceleration curve.[^fab-spin] Both transitions are skipped under reduced motion.
 :::
 
 ::: ds-example
@@ -122,7 +122,7 @@ On a FAB, the plus can turn into the pencil it stands for, saying the pencil is 
 
 ### Radial reaction
 
-Reactions spread from the point of input, as ink does. Press a photo and the grid fades out in rings around the press, the nearest tiles first. Each tile waits one `--md1-stagger` step for every 24 dp between its centre and the press point, so the fade is a single wave rather than all at once or in reading order. A keyboard press starts the wave from the centre of the focused tile.
+Reactions spread from the point of input, as ink does. Press a photo and the grid fades out in rings around the press, the nearest tiles first. Each tile waits one `--md1-stagger` step for every 24 dp between its centre and the press point, so the fade is a single wave rather than all at once or in reading order.[^radial-ring] A keyboard press starts the wave from the centre of the focused tile.
 :::
 
 ::: ds-example
@@ -132,7 +132,7 @@ Reactions spread from the point of input, as ink does. Press a photo and the gri
 
 Material responds to input exactly where it lands. The guidelines draw that response as a touch ripple: ink that expands outward from the point of contact and confirms the input was received, with reactions near the touch happening before reactions further away. Every interactive Material Design 1 component hosts an `Md1Ripple` as its first child for this; there is no prop to turn it off.
 
-The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, 250 ms, and fades over `--md1-ripple-fade`, 300 ms, both on the standard curve: the motion pages state no ripple numbers, so these are Vuetify 1.5's, and they hold on every device rather than following the duration scale. A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
+The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, 250 ms, and fades over `--md1-ripple-fade`, 300 ms, both on the standard curve: the motion pages state no ripple numbers, so these are Vuetify 1.5's, and they hold on every device rather than following the duration scale.[^ripple-timing] A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
 
 The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface Material Design 1 does not ship. The guidelines give no ripple timing of their own; the values are the motion page's durations, and the [Ripple](/systems/md1/ripple) page covers the component in full.
 :::
@@ -167,8 +167,8 @@ body[data-reduced-motion='reduce'] .my-sheet {
 | `--md1-duration-leave` | 195ms | 254ms | 150ms |
 | `--md1-duration-standard` | 300ms | 390ms | 200ms |
 | `--md1-duration-complex` | 375ms | 488ms | 200ms |
-| `--md1-ripple-duration` | 250ms | same | same |
-| `--md1-ripple-fade` | 300ms | same | same |
+| `--md1-ripple-duration` | 250ms[^ripple-timing] | same | same |
+| `--md1-ripple-fade` | 300ms[^ripple-timing] | same | same |
 | `--md1-stagger` | 20ms | 20ms | 20ms |
 
 Tablet is `(min-width: 600px) and (pointer: coarse)`; desktop is `(pointer: fine)`.
@@ -185,3 +185,17 @@ The same values are exported from `@paper/md1` as `easing`, `duration`, `duratio
 ## Accessibility
 
 Motion must never be the only signal that something happened: a sheet that slides in is also a focused dialog, and an ink ripple is also a pressed button. The guidelines cap motion in two places. Content that moves, scrolls or blinks on its own for more than 5 seconds needs a way to pause, stop or hide it, and nothing may flash more than 3 times in any one second. Material Design 1's indeterminate progress indicators run until the work ends, so give the region around them an accessible status rather than relying on the animation.
+
+[^desktop-durations]: Our call: the page gives desktop a 150 to 200 ms range; enter and leave take its low end, standard and complex its high end. `(pointer: fine)` stands in for "mouse and keyboard".
+
+[^dynamic-multipliers]: Our call: the page asks for longer trips to take longer without numbers; half the standard duration and the complex duration are the example's.
+
+[^arc-curves]: Our call: the page draws the arc shapes; pairing the deceleration and standard curves per axis is ours.
+
+[^icon-morph]: Our call: the page shows the glyphs transforming; the `d` technique and the standard duration are the example's.
+
+[^fab-spin]: Our call: `Md1Fab` draws one glyph, so a 90 degree spin, 100 ms out and 200 ms in, approximates the page's morph.
+
+[^radial-ring]: Our call: the page shows the fade spreading from the press; the 24 dp ring is the example's.
+
+[^ripple-timing]: Vuetify 1.5.24, stylus/settings/_variables.styl:342-343. The ripple's `transform .25s` expand and `opacity .3s` fade.
