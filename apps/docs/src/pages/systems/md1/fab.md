@@ -154,6 +154,24 @@ This is the radial reaction of the choreography page: reactions start at the poi
 :::
 
 ::: ds-example
+/systems/md1/fab/map
+
+### Two floating action buttons
+
+An app normally has one floating action button. A map is the guidelines' exception: recentring on your location and getting directions are equally important and distinct, so each gets a button. The mini button recentres the map, which slides back under it, and the default one starts directions. Press the map to pan it away first.
+
+Stack the two on the same column, the mini centred over the default with 16 dp between them, so they read as a pair rather than competing for the corner. Under 460 px both take the 40 dp size and line up on the same edge.
+:::
+
+::: ds-example
+/systems/md1/fab/list
+
+### Over a list
+
+A list that scrolls under a floating action button needs room beneath its last row, or the button covers it for good. Pad the list by the button's 56 dp plus its 16 dp margin on each side; scroll to the end and the last note clears the button.
+:::
+
+::: ds-example
 /systems/md1/fab/disabled
 
 ### Disabled
