@@ -68,7 +68,7 @@ On a pressable chip `data-disabled` comes from `Button.Root`; on a text chip Mat
 
 ### Text and an icon
 
-`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: the page's "chip with text and an icon". The guidelines show the type but give no icon metrics, so Material Design 1 draws the 24 dp glyph in the active icon tier (54% black, white on the dark theme), 4 dp from the chip's start edge and 12 dp before the label, Vuetify 1.5's chip icon offsets; the 32 dp height, the 13 sp label at 87% and the 12 dp end padding are the page's.
+`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: the page's "chip with text and an icon". The guidelines show the type but give no icon metrics, so Material Design 1 draws the 24 dp glyph in the active icon tier (54% black, white on the dark theme), 4 dp from the chip's start edge and 12 dp before the label, Vuetify 1.5's chip icon offsets;[^1] the 32 dp height, the 13 sp label at 87% and the 12 dp end padding are the page's.
 
 The glyph is hidden from assistive technology, because the label already names the chip. Use an icon to classify a chip (a place, a date, a label) and keep the label as the content. When a chip stands for a person, use `avatar` instead: the photo takes the icon's place.
 :::
@@ -80,7 +80,7 @@ The glyph is hidden from assistive technology, because the label already names t
 
 `deletable` adds the remove glyph: the `cancel` icon at 24 dp in 54% black, with a 4 dp margin to the chip's end edge, which replaces the 12 dp end padding. The guidelines make the icon persistent on desktop, so Material Design 1 never hides it on hover. Pressing it emits `delete`; the chip does not remove itself, because the list it belongs to is yours.
 
-On a text chip the glyph is a real button named "Delete" plus the label ("Delete Toronto"), and Delete or Backspace on it emits `delete` too, as the page states. The page states a 2 dp rise on focus for the contact chip; Material Design 1 extends it to every chip (a decision) and applies it to the whole chip while focus is anywhere inside it, the delete control included. The control keeps a 48 dp tall hit area, so the 24 dp glyph is easy to press on touch.
+On a text chip the glyph is a real button named "Delete" plus the label ("Delete Toronto"), and Delete or Backspace on it emits `delete` too, as the page states. The page states a 2 dp rise on focus for the contact chip; Material Design 1 extends it to every chip (a decision)[^2] and applies it to the whole chip while focus is anywhere inside it, the delete control included. The control keeps a 48 dp tall hit area, so the 24 dp glyph is easy to press on touch.
 :::
 
 ::: ds-example
@@ -88,7 +88,7 @@ On a text chip the glyph is a real button named "Delete" plus the label ("Delete
 
 ### Pressable
 
-Touching a chip, the guidelines say, opens a full detail view in a card or a full screen, or a menu of options for that chip. Bind `@click` and `Md1Chip` renders a native button with a ripple and a 13% keyboard focus overlay of its ink, Vuetify 1.5's, and rises to 2 dp while focused. Vuetify 1.5 draws no hover on a chip, so neither does Material Design 1. Open whatever the press stands for from the handler: an `Md1Dialog`, an `Md1Menu`, or a route change.
+Touching a chip, the guidelines say, opens a full detail view in a card or a full screen, or a menu of options for that chip. Bind `@click` and `Md1Chip` renders a native button with a ripple and a 13% keyboard focus overlay of its ink, Vuetify 1.5's,[^3] and rises to 2 dp while focused. Vuetify 1.5 draws no hover on a chip, so neither does Material Design 1.[^4] Open whatever the press stands for from the handler: an `Md1Dialog`, an `Md1Menu`, or a route change.
 
 The 32 dp chip answers to a 48 dp tall hit area, the touch target minimum of the metrics page, without taking that space in the layout. A pressable chip that is also deletable stays one button: a press on the glyph emits `delete` and never reaches your click handler, and the Delete key on the focused chip does the same, announced through `aria-keyshortcuts`.
 :::
@@ -108,9 +108,9 @@ The photo size is not in the page's text; Material Design 1 follows the figures,
 
 ### Open contact chip
 
-Put an `Md1Chip.Addresses` part inside a contact chip and a press opens it: the chip expands into an 8 dp sheet, its top start corner on the chip's, headed by the photo and the name at 16 sp, with one `Md1Chip.Address` row per address at 14 sp. Mark the address in use with `active`; it is set at Medium weight (a decision: the page shows the activated row only as an image, and Vuetify 1.5 has no contact chip sheet to take a value from) and, as the page says, "the top field is activated and focused by default", so focus lands on it when the sheet opens.
+Put an `Md1Chip.Addresses` part inside a contact chip and a press opens it: the chip expands into an 8 dp sheet, its top start corner on the chip's, headed by the photo and the name at 16 sp, with one `Md1Chip.Address` row per address at 14 sp. Mark the address in use with `active`; it is set at Medium weight (a decision: the page shows the activated row only as an image, and Vuetify 1.5 has no contact chip sheet to take a value from)[^5] and, as the page says, "the top field is activated and focused by default", so focus lands on it when the sheet opens.
 
-A press on the open chip closes it, also as the page says: a press on a row closes it after your `@click` runs, so swapping the address is one handler. Escape and a press outside close it too, and focus returns to the chip. The sheet's width, 280 dp at least, the 40 dp avatar and the 40 dp rows on the 72 dp keyline are decisions; the page states the type sizes and the elevation only. `v-model:open` reads and drives the state.
+A press on the open chip closes it, also as the page says: a press on a row closes it after your `@click` runs, so swapping the address is one handler. Escape and a press outside close it too, and focus returns to the chip. The sheet's width, 280 dp at least, the 40 dp avatar and the 40 dp rows on the 72 dp keyline are decisions;[^6] the page states the type sizes and the elevation only. `v-model:open` reads and drives the state.
 :::
 
 ::: ds-example
@@ -118,7 +118,7 @@ A press on the open chip closes it, also as the page says: a press on a row clos
 
 ### Disabled
 
-The page states no disabled chip. Material Design 1's `disabled` drops the label to the disabled text tier (38% black, 50% white on the dark theme) and the glyphs to the inactive icon tier, and takes the chip out of pointer and keyboard interaction. A disabled delete control is a disabled button, out of the tab order, so `delete` cannot fire.
+The page states no disabled chip. Material Design 1's `disabled` drops the label to the disabled text tier (38% black, 50% white on the dark theme)[^7] and the glyphs to the inactive icon tier, and takes the chip out of pointer and keyboard interaction. A disabled delete control is a disabled button, out of the tab order, so `delete` cannot fire.
 
 Prefer removing a chip that cannot be acted on over disabling it. A disabled chip in a list of filters reads as a filter that is applied but stuck, which is rarely what you mean.
 :::
@@ -179,3 +179,11 @@ The chip carries `aria-expanded` and `aria-controls` while it owns a sheet. The 
 ### Focus
 
 A focused chip rises to 2 dp, the guidelines' rule for the contact chip that Material Design 1 extends to every chip, and keyboard focus on a pressable chip adds the 12% overlay. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+
+[^1]: Vuetify 1.5.24, stylus/components/_chips.styl:156-158 and stylus/settings/_variables.styl:208-209. A left icon takes a -8 px margin inside the 12 px padding and 12 px before the label.
+[^2]: Vuetify 1.5.24, stylus/components/_chips.styl:77-82. Vuetify 1.5 raises every focused chip to `elevation(2)`.
+[^3]: Vuetify 1.5.24, stylus/components/_chips.styl:84-95. A `currentColor` layer at opacity .13 on a focused chip.
+[^4]: Vuetify 1.5.24, stylus/components/_chips.styl:77-95. The chip styles focus, active and selected states only; there is no `:hover` rule.
+[^5]: Our call: Medium marks the active row without a colour the sheet does not have.
+[^6]: Our call: the 280 dp minimum is the dialog's, and the 40 dp avatar and 72 dp keyline are the list's.
+[^7]: Vuetify 1.5.24, stylus/components/_chips.styl:8-9. A disabled chip takes `text.disabled` and leaves the avatar untouched.

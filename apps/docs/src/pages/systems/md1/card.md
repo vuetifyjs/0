@@ -80,7 +80,7 @@ The parts read the card through an optional `md1:card` context. Every part excep
 
 ### Header
 
-`Md1Card.Header` is the avatar, title and subtitle row: 72 dp tall with 16 dp on every side, a 40 dp round avatar at the keyline and the two text lines at the 72 dp content keyline (80 dp from 600 px, where the keyline moves to 24 dp). The title is 14 sp Medium at the primary ink, the subtitle 14 sp Regular at the secondary ink; the guidelines give the sizes and Material Design 1 takes the weights from Body 2 and Body 1. Both lines use a 20 dp leading so the pair fits the avatar's height and the row stays 72 dp.
+`Md1Card.Header` is the avatar, title and subtitle row: 72 dp tall with 16 dp on every side, a 40 dp round avatar at the keyline and the two text lines at the 72 dp content keyline (80 dp from 600 px, where the keyline moves to 24 dp). The title is 14 sp Medium at the primary ink, the subtitle 14 sp Regular at the secondary ink; the guidelines give the sizes and Material Design 1 takes the weights from Body 2 and Body 1.[^1] Both lines use a 20 dp leading so the pair fits the avatar's height and the row stays 72 dp.
 
 The default slot is the end of the row. Put the overflow menu's icon button there: Material Design 1 pulls a 48 dp icon button out by 12 dp so its 24 dp glyph lands on the keyline, the upper-right placement the guidelines give the overflow menu. The avatar image is decorative (`alt=""`), because the title already names the person.
 
@@ -156,7 +156,7 @@ The control changes what the card shows; it never navigates away. Keep it to one
 
 ### Slider and tabs in the action area
 
-The guidelines show two more controls in the action block. On the weather card a discrete `Md1Slider` picks the hour, and the reading above it follows; the stops are labelled under the track because the slider's own value pin only appears while it is pressed. On the stock card `Md1Tabs` switch the range the quote covers. Tabs span the card rather than sitting inside the 8 dp action padding, so the indicator runs edge to edge as it does in an app bar.
+The guidelines show two more controls in the action block. On the weather card a discrete `Md1Slider` picks the hour, and the reading above it follows; the stops are labelled under the track because the slider's own value pin only appears while it is pressed.[^2] On the stock card `Md1Tabs` switch the range the quote covers. Tabs span the card rather than sitting inside the 8 dp action padding, so the indicator runs edge to edge as it does in an app bar.[^3]
 
 The weather card also shows a full-bleed divider that is not an expansion seam: it separates the slider and the forecast list from the action below, for content that needs more distinct separation than spacing gives.
 :::
@@ -176,7 +176,7 @@ The booking section puts an `Md1ToggleButtons` group, the guidelines' segmented 
 
 ### Expandable card
 
-Bind `v-model:expanded` and the card can expand in place to reveal `Md1Card.Expanded`, the expanded supporting text: Body 1 at the secondary ink with 16 dp above, 24 dp below and the content keyline at the sides. A full-bleed divider marks the seam, the guidelines' rule for expansion. The region grows and shrinks over the standard duration on the standard curve and lands at once under reduced motion. While collapsed it is `hidden`, so its contents leave the tab order.
+Bind `v-model:expanded` and the card can expand in place to reveal `Md1Card.Expanded`, the expanded supporting text: Body 1 at the secondary ink with 16 dp above, 24 dp below and the content keyline at the sides. A full-bleed divider marks the seam, the guidelines' rule for expansion. The region grows and shrinks over the standard duration on the standard curve and lands at once under reduced motion.[^4] While collapsed it is `hidden`, so its contents leave the tab order.
 
 Without the model there is no expansion: an unset `expanded` leaves the region hidden, and Material Design 1 warns in development that `Md1Card.Expanded` has nothing to reveal it. The toggle is yours to place. The example uses v0's `Collapsible.Activator`, renderless under `MD1_CARD_COLLAPSIBLE`, with an `Md1Button` as the trigger, which gives the button `aria-expanded` and `aria-controls` pointing at the region. A plain button that flips the model works too, without those attributes.
 
@@ -188,9 +188,9 @@ The expanded card may grow past the view's height and then scrolls with the coll
 
 ### Truncated and scrolling content
 
-Card content that exceeds the card's maximum height is truncated, not scrolled. The recipe card cuts its supporting text at three lines with an ellipsis, and "Read more" expands the card to show all of it along with the expanded region; the card then grows and scrolls with the page, never on its own.
+Card content that exceeds the card's maximum height is truncated, not scrolled. The recipe card cuts its supporting text at three lines with an ellipsis,[^5] and "Read more" expands the card to show all of it along with the expanded region; the card then grows and scrolls with the page, never on its own.
 
-On desktop the guidelines allow the exception the comments card shows: content inside the card can scroll internally under a fixed height, here a comment thread above a field for adding one. Keep it to desktop layouts. On a phone the page already scrolls, and a second scrolling region inside a card puts two scroll bars on one screen. The scrolling region is a focusable, labelled region so a keyboard user can scroll it too.
+On desktop the guidelines allow the exception the comments card shows: content inside the card can scroll internally under a fixed height, here a comment thread above a field for adding one. Keep it to desktop layouts. On a phone the page already scrolls, and a second scrolling region inside a card puts two scroll bars on one screen. The scrolling region is a focusable, labelled region so a keyboard user can scroll it too.[^6]
 :::
 
 ::: ds-example
@@ -198,7 +198,7 @@ On desktop the guidelines allow the exception the comments card shows: content i
 
 ### Selected
 
-`selected` applies the selection pattern: a scrim over the card and a check mark. The scrim is `--md1-selection`, the accent at 30%, and never takes the pointer. Where the card has a header avatar, the check mark replaces it, a 40 dp accent disc, as the selection page asks when there is space; otherwise a compact 24 dp check mark sits 8 dp in from the top end corner. The check mark is named "Selected" for assistive technology, from the `Md1.selected` locale key.
+`selected` applies the selection pattern: a scrim over the card and a check mark. The scrim is `--md1-selection`, the accent at 30%, and never takes the pointer.[^7] Where the card has a header avatar, the check mark replaces it, a 40 dp accent disc, as the selection page asks when there is space; otherwise a compact 24 dp check mark sits 8 dp in from the top end corner. The check mark is named "Selected" for assistive technology, from the `Md1.selected` locale key.
 
 `selected` is a display state, not a selection model: the card does not toggle itself. Hold the selection in your own state and drive a contextual toolbar from it, as the example's buttons do. The guidelines' long press and hover-revealed checkbox are gestures for you to wire to that state.
 :::
@@ -260,3 +260,11 @@ The region has `role="region"` and is labelled by the card's title. A toggle bui
 ### Images and selection
 
 Media and avatar images are decorative by default (`alt=""`). Pass `alt` on `Md1Card.Media` when the image carries information. The selected check mark is an image named "Selected", so the state is announced with the card's content; the scrim alone conveys nothing to assistive technology.
+
+[^1]: Our call: the page gives only sizes; Body 2 and Body 1 are the 14 sp styles of the type scale.
+[^2]: Our call: the figure labels the hours under the track; the discrete pin alone would hide them at rest.
+[^3]: Our call: the figure runs the tab bar full width, so the tabs sit outside `Md1Card.Actions`' padding.
+[^4]: Our call: the page gives no expansion timing; the standard duration is the motion page's default for on-screen changes.
+[^5]: Our call: the page asks for truncation without a length; three lines keeps the card's height steady.
+[^6]: Our call: the page gives no height or focus rule; the example caps the thread at 280 px.
+[^7]: Our call: the selection page names the accent but no alpha; 30% keeps the card's content readable under it.

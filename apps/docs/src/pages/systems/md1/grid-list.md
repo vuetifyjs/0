@@ -71,9 +71,9 @@ The root publishes `data-gutter`, `data-ratio` and `data-horizontal`; a tile pub
 
 The secondary content of a tile sits in a band over the image, at the bottom (`position="footer"`, the default) or at the top (`position="header"`). A `title` alone gives the single-line bar, 48 dp tall with the text in Subheading, 16 sp. Adding a `subtitle` gives the two-line bar, 68 dp tall, with the second line in Caption, 12 sp. The text starts 16 dp from the tile edge and is cut with an ellipsis when it does not fit, since the guidelines ask you to truncate rather than wrap.
 
-The guidelines draw the band as a translucent dark layer and give no value for it. Material Design 1 uses `--md1-grid-list-bar`, 60% black, the upper end of the imagery page's scrim range, so white text stays readable on any photo. The title is white at 100% and the subtitle at 70%, the colour page's primary and secondary values for light text on a dark background. The band stays the same in the dark theme.
+The guidelines draw the band as a translucent dark layer and give no value for it. Material Design 1 uses `--md1-grid-list-bar`, 60% black, the upper end of the imagery page's scrim range, so white text stays readable on any photo.[^1] The title is white at 100% and the subtitle at 70%, the colour page's primary and secondary values for light text on a dark background. The band stays the same in the dark theme.
 
-The guidelines also allow a 14 sp over 14 sp two-line bar. Material Design 1 ships the 16 sp over 12 sp form only.
+The guidelines also allow a 14 sp over 14 sp two-line bar. Material Design 1 ships the 16 sp over 12 sp form only.[^2]
 :::
 
 ::: ds-example
@@ -99,7 +99,7 @@ The guidelines give the grid list two paddings between tiles, 4 dp and 1 dp. `gu
 
 ### Columns, ratio and spans
 
-`columns` fixes the column count. Without it, the grid fills its width with as many columns as fit at a minimum of two layout increments (112 dp, 128 dp from 600 px), a Material Design 1 decision where the page gives no number. `ratio` is the shape every one-cell tile keeps, one of the ratio keylines of the metrics page: 16:9, 3:2, 4:3, 1:1 (the default), 3:4 or 2:3.
+`columns` fixes the column count. Without it, the grid fills its width with as many columns as fit at a minimum of two layout increments (112 dp, 128 dp from 600 px), a Material Design 1 decision where the page gives no number.[^3] `ratio` is the shape every one-cell tile keeps, one of the ratio keylines of the metrics page: 16:9, 3:2, 4:3, 1:1 (the default), 3:4 or 2:3.
 
 A tile can span more than one cell with `span` (across) and `rowSpan` (down). A larger tile draws the eye, which the guidelines recommend for a featured item; consider whether it still needs secondary text once the image is that large. Tiles flow left to right, then top to bottom, and re-sort when the width changes; a grid list never turns into a list.
 :::
@@ -109,7 +109,7 @@ A tile can span more than one cell with `span` (across) and `rowSpan` (down). A 
 
 ### Horizontal gallery
 
-Grid lists scroll vertically. The one exception the guidelines permit is a single-line gallery of images, and `horizontal` is that form: one row that scrolls sideways. Tiles are three increments wide (168 dp, 192 dp from 600 px), a Material Design 1 decision, so the last visible tile is cut off at the initial scroll position. That cut is how the guidelines ask a horizontal list to show that there is more; never align the last tile with the edge of the view. With `columns`, exactly that many tiles share the visible width instead.
+Grid lists scroll vertically. The one exception the guidelines permit is a single-line gallery of images, and `horizontal` is that form: one row that scrolls sideways. Tiles are three increments wide (168 dp, 192 dp from 600 px), a Material Design 1 decision,[^4] so the last visible tile is cut off at the initial scroll position. That cut is how the guidelines ask a horizontal list to show that there is more; never align the last tile with the edge of the view. With `columns`, exactly that many tiles share the visible width instead.
 :::
 
 ::: ds-example
@@ -117,7 +117,7 @@ Grid lists scroll vertically. The one exception the guidelines permit is a singl
 
 ### Selected tiles
 
-`selected` applies the selection pattern of the guidelines: a scrim and a check mark over the item. The scrim is `--md1-selection`, the accent at 30%, and the check is the `check-circle` glyph in white at the start corner, in the same 48 dp box as a bar icon. The scrim does not take pointer events, so the tile stays pressable and a second press can clear the selection.
+`selected` applies the selection pattern of the guidelines: a scrim and a check mark over the item. The scrim is `--md1-selection`, the accent at 30%,[^5] and the check is the `check-circle` glyph in white at the start corner, in the same 48 dp box as a bar icon. The scrim does not take pointer events, so the tile stays pressable and a second press can clear the selection.
 
 Material Design 1 does not own the selection. Keep the selected ids in your own state, toggle them from the tile's click, and pass `selected` back, as this example does. The check mark is labelled "Selected" (`Md1.selected` in the locale) and describes the tile's action, so assistive technology announces the state with the tile.
 :::
@@ -176,7 +176,7 @@ Each tile is its own tab stop, the link-per-tile list the guidelines' web notes 
 
 ### Focus and hover
 
-Keyboard focus lays a 12% overlay over the tile, the focus value of the buttons page; a mouse hover lays 6% (10% on the dark theme), Material Design 1's hover value where a page states none. Both are drawn for `:focus-visible` and `:hover` only. Pressing draws the ripple from the press point.
+Keyboard focus lays a 12% overlay over the tile, the focus value of the buttons page; a mouse hover lays 6% (10% on the dark theme), Material Design 1's hover value where a page states none.[^6] Both are drawn for `:focus-visible` and `:hover` only. Pressing draws the ripple from the press point.
 
 ### Selected
 
@@ -185,3 +185,10 @@ A selected tile's check mark is a labelled image ("Selected") and describes the 
 ### Motion
 
 When a grid list mounts, the tiles fade and lift in left to right, then top to bottom, each 20 ms after the previous, over 225 ms on the decelerate curve, the stagger rule of the choreography page. Images fade in from 20% saturation as they load. Both are skipped under reduced motion.
+
+[^1]: Our call: Vuetify 1.5 has no grid list to take a value from; the imagery page's upper bound favours legibility.
+[^2]: Our call: the page allows both pairings; shipping one keeps every two-line bar alike.
+[^3]: Our call: two 56 dp increments (64 dp from 600 px) keep a tile large enough to read as an image.
+[^4]: Our call: three increments leave the last tile cut off on any phone width, which the page asks for.
+[^5]: Our call: the selection page names the accent but no alpha; 30% keeps the image readable under it.
+[^6]: Our call: Vuetify 1.5 has no grid list, so the tile keeps the `--md1-hover` tier.

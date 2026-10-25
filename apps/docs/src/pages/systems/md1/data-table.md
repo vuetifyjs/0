@@ -85,7 +85,7 @@ A sortable column shows a 16 dp arrow beside its name. At rest the arrow is hidd
 
 Numeric columns are right-aligned and put the arrow ahead of the name, on the inner side, as the sorted-column figure draws it. Text columns are left-aligned. The column header row is 56 dp in Medium 12 sp at 54%; data rows are 48 dp in Regular 13 sp at 87%, with a 1 dp divider at 12% between them.
 
-The guidelines ask for the most important data to be sorted by default. The table starts unsorted; sort the source array you pass to `rank` to give it a meaningful initial order.
+The guidelines ask for the most important data to be sorted by default. The table starts unsorted;[^1] sort the source array you pass to `rank` to give it a meaningful initial order.
 :::
 
 ::: ds-example
@@ -113,9 +113,9 @@ The cut is a width you choose for the column's label; Material Design 1 does not
 
 ### Selection
 
-`selectable` adds the checkbox column: a select-all checkbox in the header row and one per data row, 18 dp boxes in 24 dp containers, 24 dp from the card edge and 24 dp from the first column's text, inked in the secondary colour on both themes, as `Md1Checkbox` is. Under a mouse they draw no radial reaction, as the selection controls page asks; from the keyboard a focused checkbox shows the 48 dp halo. A selected row turns Grey 100; a hovered row Grey 200. `v-model:selected` carries the row records. Select-all covers the visible page and goes mixed when only some of the page is selected.
+`selectable` adds the checkbox column: a select-all checkbox in the header row and one per data row, 18 dp boxes in 24 dp containers, 24 dp from the card edge and 24 dp from the first column's text, inked in the secondary colour on both themes, as `Md1Checkbox` is.[^2] Under a mouse they draw no radial reaction, as the selection controls page asks; from the keyboard a focused checkbox shows the 48 dp halo. A selected row turns Grey 100; a hovered row Grey 200. `v-model:selected` carries the row records. Select-all covers the visible page and goes mixed when only some of the page is selected.
 
-`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's 50 value, as the data tables page specifies (Pink 50 in the default theme), with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back. The guidelines' figures keep the checkbox column visible at all times, and Material Design 1 follows them rather than the selection pattern's hover-revealed checkbox.
+`Contextual` is the alternative header that replaces `Header` while rows are selected: the count ("2 items selected") on the secondary colour's 50 value, as the data tables page specifies (Pink 50 in the default theme), with the actions that apply to the selection. Escape inside it clears the selection, the keyboard counterpart of the navigation page's Back.[^3] The guidelines' figures keep the checkbox column visible at all times, and Material Design 1 follows them rather than the selection pattern's hover-revealed checkbox.
 
 A row with `selectable` set to `false` keeps its place in the checkbox column but draws no checkbox, and select-all skips it.
 
@@ -145,7 +145,7 @@ The cell takes `v-model` for its value and emits `update:modelValue` only on a s
 
 ### Inline menus
 
-When a cell takes one of a fixed set of values, embed a menu in the cell instead of a text field. The cell shows the current value in its own 13 sp at 87% with a drop-down arrow; opening it lays an `Md1Menu` over the cell with the current value under the activator, and choosing an item writes it back to the row. Each activator names its row in its label, because the cell alone does not say which dessert it belongs to.
+When a cell takes one of a fixed set of values, embed a menu in the cell instead of a text field. The cell shows the current value in its own 13 sp at 87% with a drop-down arrow; opening it lays an `Md1Menu` over the cell with the current value under the activator, and choosing an item writes it back to the row. Each activator names its row in its label, because the cell alone does not say which dessert it belongs to.[^4]
 :::
 
 ::: ds-example
@@ -185,7 +185,7 @@ The default slot holds the parts. There are no named slots.
 | `Body` | `namespace?: string` | The `<tbody>`. Slot props: `rank(source)`, `items`, `isEmpty` |
 | `Row` | `id`, `value`, `selectable?: boolean` (`true`), `namespace?: string` | A 48 dp data row. `value` is the row record. `selectable: false` draws no checkbox and leaves the row out of select-all |
 | `Cell` | `numeric?: boolean`, `editable?: 'small' \| 'large'`, `placeholder?: string`, `label?: string`, `counter?: number`, `icon?: boolean`, `v-model?: string` | A `<td>`. `editable` opens the edit sheet (Enter saves) or the dialog (only Save saves); `label` names the field and titles the dialog (default "Edit"); `counter` caps the length; `icon` draws the edit icon |
-| `Footer` | `options?: number[]` (`[5, 10, 25, 50]`) | The 56 dp pagination footer: rows per page, the range text, previous and next |
+| `Footer` | `options?: number[]` (`[5, 10, 25, 50]`)[^5] | The 56 dp pagination footer: rows per page, the range text, previous and next |
 
 ## Accessibility
 
@@ -214,3 +214,9 @@ The checkboxes are `role="checkbox"` buttons named "Select all" and "Select row"
 ### Paging
 
 Previous and next are icon buttons named "Previous page" and "Next page", disabled at the first and last page. The range text announces itself politely when the page changes.
+
+[^1]: Our call: only the app knows which column matters most, so the initial order is the source array's.
+[^2]: Vuetify 1.5.24, mixins/selectable.js:19-22. Selection controls default to `accent` in both themes.
+[^3]: Our call: the page gives the contextual header no keyboard path out.
+[^4]: Our call: an accessibility addition; the page specifies only the cell's type and arrow.
+[^5]: Our call: the figure lists no choices; 5, 10 and 25 follow Vuetify 1.5 (mixins/data-iterable.js:44-55), with 50 in place of its All.

@@ -67,9 +67,9 @@ The root also counts its items through a registry so it can hold the guidelines'
 
 The default group is exclusive: selecting an option deselects the one before it, and pressing the selected option again clears the selection. That is the guidelines' "exclusive and unselected" combination, and `v-model` reads `undefined` while nothing is chosen.
 
-Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 8 dp of side padding. The page shows the group only as an image, so the group is Vuetify 1.5's button toggle: a strip in the surface colour with 2 dp corners and no outline, which rises to 2 dp once an option is selected, so layout reads as one control the way the guidelines ask. Each item still answers to a 48 dp tall hit area.
+Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 8 dp of side padding.[^1] The page shows the group only as an image, so the group is Vuetify 1.5's button toggle: a strip in the surface colour with 2 dp corners and no outline, which rises to 2 dp once an option is selected, so layout reads as one control the way the guidelines ask.[^2] Each item still answers to a 48 dp tall hit area.
 
-Unselected options sit at 40% opacity of the primary ink. The selected option returns to full opacity under the buttons' 12% overlay of its own ink, with a 1 dp seam after it in the disabled-button ink; unselected neighbours have no seam between them. The faded options read at about 2.4:1 on white, under the contrast floor, as Vuetify 1.5 drew them. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
+Unselected options sit at 40% opacity of the primary ink. The selected option returns to full opacity under the buttons' 12% overlay of its own ink, with a 1 dp seam after it in the disabled-button ink; unselected neighbours have no seam between them.[^3] The faded options read at about 2.4:1 on white, under the contrast floor, as Vuetify 1.5 drew them. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
 :::
 
 ::: ds-example
@@ -97,7 +97,7 @@ Unselected options sit at 40% opacity of the primary ink. The selected option re
 
 ### Icons
 
-`icon` on an item draws a glyph from the Material Design 1 icon set through `Md1Icon` ahead of the label, at 24 dp with Vuetify 1.5's 10 dp gap (the guidelines state no icon-to-label gap). Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
+`icon` on an item draws a glyph from the Material Design 1 icon set through `Md1Icon` ahead of the label, at 24 dp with Vuetify 1.5's 10 dp gap (the guidelines state no icon-to-label gap).[^4] Leave the slot empty and the item becomes icon-only: a 48 dp square around the centred glyph, marked `data-solo`.
 
 An icon-only item has no text, so it needs `ariaLabel`; without one Material Design 1 warns in development. The glyph is hidden from assistive technology in both forms, so the label in the slot or `ariaLabel` is always the item's whole name.
 :::
@@ -154,7 +154,7 @@ Every enabled item is its own tab stop; v0's toggle group binds no arrow-key nav
 
 ### Focus
 
-Keyboard focus draws the buttons page's 12% overlay in the item's own ink, and hovering an item draws the same overlay; a mouse click leaves nothing behind once the pointer moves away. Under forced colours a 2 px outline draws in its place.
+Keyboard focus draws the buttons page's 12% overlay in the item's own ink, and hovering an item draws the same overlay;[^5] a mouse click leaves nothing behind once the pointer moves away. Under forced colours a 2 px outline draws in its place.
 
 ### States
 
@@ -163,3 +163,9 @@ Keyboard focus draws the buttons page's 12% overlay in the item's own ink, and h
 | not selected | `aria-pressed="false"`, `data-state="off"` | Yes | Enter, Space, click | The label, toggle button, not pressed |
 | selected | `aria-pressed="true"`, `data-state="on"` | Yes | Enter, Space, click (blocked on the last selected item under `mandatory`) | The label, toggle button, pressed |
 | `disabled` | `disabled`, `data-disabled` | No | Blocked | Disabled, with its pressed state |
+
+[^1]: Vuetify 1.5.24, stylus/components/_button-toggle.styl:29. Items take `padding: 0 8px`.
+[^2]: Vuetify 1.5.24, stylus/components/_button-toggle.styl:6-7,19-23,53-54. The `v-btn-toggle` strip: card fill, 2 px corners, no outline, `elevation(2)` when selected.
+[^3]: Vuetify 1.5.24, stylus/components/_button-toggle.styl:9-15,31-35,40-41. Items at opacity .4, full opacity when active, and a seam in `buttons.disabled` only after an active item.
+[^4]: Vuetify 1.5.24, stylus/components/_button-toggle.styl:43-45. A 10 px margin between label and icon.
+[^5]: Vuetify 1.5.24, stylus/components/_buttons.styl:62-72. Toggle items are `v-btn`s and take its 12% `currentColor` hover.

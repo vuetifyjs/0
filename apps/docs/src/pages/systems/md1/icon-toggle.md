@@ -74,7 +74,7 @@ The glyph is the 24 dp system icon centred in the 48 dp touch target of the metr
 
 ### Bounded and unbounded ink
 
-The buttons page lets an icon toggle's ink run bounded or unbounded. Unbounded is the default: a 48 dp circle of ink centred on the toggle, whatever the press point, reaching past the 24 dp glyph to the edge of the touch target. Set `:unbounded="false"` and the ink grows from the press point and is clipped to the toggle's circle.
+The buttons page lets an icon toggle's ink run bounded or unbounded. Unbounded is the default:[^1] a 48 dp circle of ink centred on the toggle, whatever the press point, reaching past the 24 dp glyph to the edge of the touch target. Set `:unbounded="false"` and the ink grows from the press point and is clipped to the toggle's circle.
 
 Both inks paint the pressed overlay of the buttons page, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. A keyboard press draws the ink from the centre. Under reduced motion the ink is a static fill that clears on release.
 :::
@@ -86,7 +86,7 @@ Both inks paint the pressed overlay of the buttons page, 40% `#999999` on the li
 
 Off, on, and both again disabled. The ink follows the icons page's opacity tiers: an off toggle draws at the inactive tier, 38% black (50% white on the dark theme), and an on toggle at the active tier, 54% black (100% white). Keyboard focus lifts the glyph to the focused tier, 87% black (100% white), and fills the 48 dp circle with 12% of the glyph's own ink: the buttons page ties an icon toggle's focus indicator to the icon's colour and gives focus a 12% overlay. The circle is what shows focus on an on toggle in the dark theme, where the active and focused tiers are both 100% white and the glyph cannot brighten.
 
-The guidelines draw a disabled toggle only as an image, so Material Design 1 gives it the buttons page's disabled ink, 26% black (30% white). A disabled toggle keeps its glyph, so an on toggle still reads as on. It leaves the tab order, ignores clicks and draws no ink.
+The guidelines draw a disabled toggle only as an image, so Material Design 1 gives it the buttons page's disabled ink, 26% black (30% white).[^2] A disabled toggle keeps its glyph, so an on toggle still reads as on. It leaves the tab order, ignores clicks and draws no ink.
 :::
 
 ::: ds-example
@@ -140,3 +140,6 @@ The glyph is `aria-hidden`, so the name must come from `ariaLabel` or from `aria
 | off | `aria-pressed="false"`, `data-state="off"` | Yes | Enter, Space, click | The label, toggle button, not pressed |
 | on | `aria-pressed="true"`, `data-state="on"` | Yes | Enter, Space, click | The label, toggle button, pressed |
 | `disabled` | `disabled`, `data-disabled` | No | Blocked | Disabled, with its pressed state |
+
+[^1]: Our call: the page allows either ink; unbounded matches the icon buttons in every toolbar figure.
+[^2]: Our call: the page draws the disabled toggle only as an image; the buttons page's disabled ink is the nearest stated value.

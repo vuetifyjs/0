@@ -33,7 +33,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does, although it reads at under 2:1 there, below the 4.5:1 contrast floor.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does,[^1] although it reads at under 2:1 there, below the 4.5:1 contrast floor.
 
 ::: ds-example
 /systems/md1/list/basic
@@ -96,7 +96,7 @@ The guidelines define three tile types by their line count. A single-line tile i
 
 Primary text is Roboto Regular 16 sp (15 sp on desktop) on a 24 dp line at 87% ink. Secondary text is Roboto Regular 14 sp (13 sp on desktop) on a 20 dp line at 54%. In a three-line tile the secondary text runs to two lines and ends in an ellipsis after the second, and the avatar or icon top-aligns with the primary text, 16 dp below the tile's top edge. When a row needs more than three lines, the guidelines send you to a card instead.
 
-The avatar is a 40 dp circle. With `src` it shows an image whose `alt` is empty by default, because the primary text already names the person; without one it is a Grey 400 fill under white ink for an icon or initials.
+The avatar is a 40 dp circle. With `src` it shows an image whose `alt` is empty by default, because the primary text already names the person; without one it is a Grey 400 fill under white ink for an icon or initials.[^2]
 :::
 
 ::: ds-example
@@ -124,9 +124,9 @@ The avatar or icon sits on the margin keyline, 16 dp from the edge, and the text
 
 ### Dense
 
-When mouse and keyboard are the primary input, the guidelines condense the measurements: 40, 48, 60 and 76 dp tiles for the four heights above, 13 sp text, and 4 dp of list padding in place of 8. `dense` turns them on for the whole list. The page gives no separate dense secondary size, so both lines take 13 sp.
+When mouse and keyboard are the primary input, the guidelines condense the measurements: 40, 48, 60 and 76 dp tiles for the four heights above, 13 sp text, and 4 dp of list padding in place of 8. `dense` turns them on for the whole list. The page gives no separate dense secondary size, so both lines take 13 sp.[^3]
 
-The icon stays 24 dp in a dense list. The dense redlines draw it at full size, and Material Design 1 follows them over Vuetify 1.5's 22 px dense icon. As with the dense button, Material Design 1 exposes the form as a prop rather than switching on the pointer type, so one surface can mix a dense list with standard controls.
+The icon stays 24 dp in a dense list. The dense redlines draw it at full size, and Material Design 1 follows them over Vuetify 1.5's 22 px dense icon. As with the dense button, Material Design 1 exposes the form as a prop rather than switching on the pointer type,[^4] so one surface can mix a dense list with standard controls.
 :::
 
 ::: ds-example
@@ -146,7 +146,7 @@ Text in the column is secondary info, set in Caption at 12 sp and 54%. Keep the 
 
 The lists: controls page puts a reorder handle in the secondary column, a drag handle that "allows dragging the item to other locations within the list", usually in an editing mode. `Md1List.Reorder` is that handle. Bind the order of the rows to the root with `v-model:order`, render the items from the same array, and give each item the `value` it has there. A move writes the new array back, and Vue moves the row.
 
-Drag the handle with a mouse or a finger: the row lifts to 8 dp and follows the pointer, and a 2 dp line in the primary colour marks where it will land. The page shows the drag in video only; the lifted depth is the elevation page's picked-up card and the line is a decision. From the keyboard, focus the handle and press Arrow Up or Arrow Down to move the row one place, or Home and End to send it to the top or the bottom. Focus stays on the handle as the row moves, and a polite live region announces where it went: "Clair de lune moved to position 2 of 5".
+Drag the handle with a mouse or a finger: the row lifts to 8 dp and follows the pointer, and a 2 dp line in the primary colour marks where it will land. The page shows the drag in video only; the lifted depth is the elevation page's picked-up card and the line is a decision.[^5] From the keyboard, focus the handle and press Arrow Up or Arrow Down to move the row one place, or Home and End to send it to the top or the bottom.[^6] Focus stays on the handle as the row moves, and a polite live region announces where it went: "Clair de lune moved to position 2 of 5".
 :::
 
 ::: ds-example
@@ -164,7 +164,7 @@ A radio in the action column turns the list into a single choice. Wrap the list 
 
 `select="single"` makes the list a listbox. The root renders `ul[role=listbox]`, each tile becomes `role="option"` with `aria-selected`, and `v-model` holds the selected value. Clicking a tile, or pressing Space or Enter on it, selects it and clears the previous one.
 
-The selected tile carries the selection pattern's scrim: the `--md1-selection` token, the accent at 30%, the same fill `Md1GridList` uses. The pattern page gives no scrim value, so the alpha is a Material Design 1 decision recorded on the token. A disabled option stays visible at 38% ink and refuses the selection.
+The selected tile carries the selection pattern's scrim: the `--md1-selection` token, the accent at 30%, the same fill `Md1GridList` uses. The pattern page gives no scrim value, so the alpha is a Material Design 1 decision recorded on the token.[^7] A disabled option stays visible at 38% ink and refuses the selection.
 :::
 
 ::: ds-example
@@ -182,7 +182,7 @@ On desktop the pattern reveals a check mark on hover: the empty checkbox replace
 
 ### Expandable groups
 
-`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve, indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, and its 100 tint on the dark theme.
+`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve,[^8] indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, and its 100 tint on the dark theme.
 
 `v-model` on the group holds its open state. Nested items still register with the root list, so the root's `v-model` marks the current destination wherever it sits in the tree. Groups belong to navigation lists: a listbox may hold options only, and Material Design 1 warns in development when a group is placed inside one.
 :::
@@ -243,7 +243,7 @@ A tile's accessible name is its text, primary then secondary. The avatar's image
 
 ### Focus and states
 
-Hover lays Vuetify 1.5's list hover over the tile, 4% black (8% white on the dark theme), and keyboard focus a 12% overlay, drawn for `:focus-visible` only; pressing draws the ripple from the press point. Under forced colours, a 2 px outline draws in place of the focus overlay. A disabled item drops its text to 38% and its icon to the inactive ink, and its tile answers to nothing: a disabled button is out of the tab order, a disabled link loses its `href`, and a disabled option is skipped by the arrow keys.
+Hover lays Vuetify 1.5's list hover over the tile, 4% black (8% white on the dark theme),[^9] and keyboard focus a 12% overlay, drawn for `:focus-visible` only; pressing draws the ripple from the press point. Under forced colours, a 2 px outline draws in place of the focus overlay. A disabled item drops its text to 38% and its icon to the inactive ink, and its tile answers to nothing: a disabled button is out of the tab order, a disabled link loses its `href`, and a disabled option is skipped by the arrow keys.
 
 ### Motion
 
@@ -252,3 +252,13 @@ The rows present when the list mounts fade and lift in, top to bottom, each 20 m
 ### Not shipped
 
 Swipe gestures (leave-behinds) are touch gestures the package does not ship. Expose the same action through a visible control in the action column instead. Reordering ships through `Md1List.Reorder`, but only from its handle: a long press on the tile does not pick the row up.
+
+[^1]: Vuetify 1.5.24, components/VList/VListTile.ts:29-32 and util/theme.ts:50-59. The active tile takes `primary--text`, one rule with no dark-theme variant.
+[^2]: Our call: Vuetify 1.5's stylesheet sets no avatar fill; Grey 400 under white follows its own list examples.
+[^3]: Our call: the dense redline gives one text size.
+[^4]: Our call: the page says measurements may be condensed, not that they must be, so it is opt-in.
+[^5]: Our call: the page gives no picked-up row and no drop marker; the card's 8 dp and a primary line borrow existing values.
+[^6]: Our call: the notes ask for move-up and move-down actions on the handle; direct arrow moves skip a separate grab mode.
+[^7]: Our call: 30% of the accent keeps the row's text readable under it.
+[^8]: Our call: the lists: controls page gives no timing; the standard duration is the motion page's default for on-screen changes.
+[^9]: Vuetify 1.5.24, stylus/settings/_theme.styl:52,146. `list-tile.hover` is black 4% in the light theme and white 8% in the dark.
