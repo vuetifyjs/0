@@ -174,25 +174,18 @@
       color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       padding var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
-      flex-grow var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       min-width var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       max-width var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
-  /* Active: the icon and label take the primary colour, the icon rises to 6 dp. */
+  /*
+   * Active: the icon and label take the primary colour, the icon rises to 6 dp.
+   * The dark theme keeps the hue, as Vuetify 1.5 does, at under 2:1 on the
+   * Grey 800 bar (SPEC.md Known limitations).
+   */
   .md1-bottom-navigation__action[data-selected] {
     padding-top: 6px;
     color: var(--md1-primary, #3F51B5);
-  }
-
-  /*
-   * The primary 500 reads at under 2:1 on the dark theme's Grey 800 bar. The
-   * dark theme takes the primary's 100 instead (Lead decision 12), the rule of
-   * Md1Subheader and the current item of an Md1List; the coloured bar is a primary
-   * fill and keeps its on-primary ink.
-   */
-  [data-theme='md1-dark'] .md1-bottom-navigation[data-variant='surface'] .md1-bottom-navigation__action[data-selected] {
-    color: var(--md1-primary-light, #C5CAE9);
   }
 
   /* The coloured bar: active ink is black or white by contrast, the rest at the secondary 70%. */
@@ -204,10 +197,10 @@
     color: var(--md1-on-primary, #FFFFFF);
   }
 
-  /* Hover: 6% of the ink, the overlay Material Design 1 uses wherever a page states none. */
+  /* Hover: the page states none; Vuetify 1.5's 12% of the ink on an inactive action and none on the active one (_bottom-navs.styl:62-65). */
   @media (hover: hover) {
-    .md1-bottom-navigation__action:hover {
-      background-color: color-mix(in srgb, currentcolor 6%, transparent);
+    .md1-bottom-navigation__action:not([data-selected]):hover {
+      background-color: color-mix(in srgb, currentcolor 12%, transparent);
     }
   }
 
@@ -274,9 +267,9 @@
   }
 
   /*
-   * Shifting widths: inactive 56 to 96 dp, active 96 to 168 dp. The active
-   * action takes one and a half shares of the bar, so it reads wider at every
-   * count; the ratio is a Material Design 1 decision inside the page's bounds.
+   * Shifting widths: inactive 56 to 96 dp, active 96 to 168 dp. Every action
+   * takes an equal share inside those bounds, as Vuetify 1.5's flex does
+   * (_bottom-navs.styl:73-84); only the minimum makes the active one wider.
    */
   .md1-bottom-navigation[data-shifting] .md1-bottom-navigation__action {
     min-width: 56px;
@@ -284,7 +277,6 @@
   }
 
   .md1-bottom-navigation[data-shifting] .md1-bottom-navigation__action[data-selected] {
-    flex-grow: 1.5;
     min-width: 96px;
     max-width: 168px;
   }
