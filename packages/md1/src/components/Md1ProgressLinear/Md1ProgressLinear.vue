@@ -26,6 +26,12 @@
     buffer?: number
     /** The query variant: the indeterminate sweep runs in reverse until `value` arrives. */
     query?: boolean
+    /**
+     * Whether the bar is shown. Turning it off plays the 195 ms exit (the bar
+     * shrinks into the edge it is attached to) before it leaves the DOM; a
+     * `v-if` removes it at once, with no exit. Vuetify 1.5's `active`.
+     */
+    active?: boolean
   }
 
   /** The hooks Material Design 1 binds on the root beside the v0 progressbar attrs. A `type`, so it satisfies `mergeProps`' index signature. */
@@ -52,6 +58,7 @@
     value,
     buffer,
     query = false,
+    active = true,
     ariaLabel: _ariaLabel,
     namespace,
   } = defineProps<Md1ProgressLinearProps>()
@@ -83,6 +90,14 @@
     return locale.ti('Md1.buffered', { value: done, buffer: ahead }) ?? `${done}%, ${ahead}% buffered`
   })
 
+  // Presence holds the bar in the DOM while it leaves; the exit's own
+  // animationend releases it. Enter and the indeterminate sweep (on the track's
+  // pseudo-elements, bubbling up) end too, so only the root's exit counts.
+  function onAnimationend (event: AnimationEvent, leaving: boolean, done: () => void) {
+    if (event.target !== event.currentTarget) return
+    if (leaving && event.animationName.startsWith('md1-progress-linear-out')) done()
+  }
+
   function bind (root: ProgressRootSlotProps['attrs'], presence: PresenceState) {
     const own: Md1ProgressLinearAttrs = {
       'role': root.role,
@@ -110,8 +125,16 @@
     :namespace
     renderless
   >
-    <Presence v-slot="{ attrs: phase }" :model-value="true">
-      <div v-bind="bind(root, phase['data-state'])" class="md1-progress-linear">
+    <Presence
+      v-slot="{ attrs: phase, isLeaving, done }"
+      :immediate="false"
+      :model-value="active"
+    >
+      <div
+        v-bind="bind(root, phase['data-state'])"
+        class="md1-progress-linear"
+        @animationend="onAnimationend($event, isLeaving, done)"
+      >
         <Progress.Track class="md1-progress-linear__track" :namespace />
 
         <Progress.Buffer
@@ -342,6 +365,32 @@
   }
 
   /*
+   * Disappear: the reverse, an element leaving the screen, so it shrinks back
+   * into its edge over the leave duration on the acceleration curve (motion
+   * page). `both` holds the collapsed frame until Presence unmounts the bar.
+   */
+  .md1-progress-linear[data-presence='leaving'] {
+    animation: md1-progress-linear-out var(--md1-duration-leave, 195ms) var(--md1-easing-accelerate, cubic-bezier(0.4, 0, 1, 1)) both;
+  }
+
+  @keyframes md1-progress-linear-out {
+    to {
+      opacity: 0;
+      transform: scaleY(0);
+    }
+  }
+
+  /*
+   * Under reduced motion the bar vanishes in place, but the leave still needs
+   * an animationend to unmount on, so it is a 1 ms step rather than none.
+   */
+  @keyframes md1-progress-linear-out-reduced {
+    to {
+      opacity: 0;
+    }
+  }
+
+  /*
    * Reduced motion: the bar appears in place and the sweep slows to half speed
    * so it still reads as activity (web notes: slow or freeze; a frozen segment
    * would read as stalled determinate progress). The plugin's body attribute
@@ -349,6 +398,10 @@
    */
   body[data-reduced-motion='reduce'] .md1-progress-linear[data-presence='present'] {
     animation: none;
+  }
+
+  body[data-reduced-motion='reduce'] .md1-progress-linear[data-presence='leaving'] {
+    animation: md1-progress-linear-out-reduced 1ms step-end both;
   }
 
   body[data-reduced-motion='reduce'] .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before,
@@ -359,6 +412,10 @@
   @media (prefers-reduced-motion: reduce) {
     body:not([data-reduced-motion='no-preference']) .md1-progress-linear[data-presence='present'] {
       animation: none;
+    }
+
+    body:not([data-reduced-motion='no-preference']) .md1-progress-linear[data-presence='leaving'] {
+      animation: md1-progress-linear-out-reduced 1ms step-end both;
     }
 
     body:not([data-reduced-motion='no-preference']) .md1-progress-linear[data-state='indeterminate'] .md1-progress-linear__track::before,
