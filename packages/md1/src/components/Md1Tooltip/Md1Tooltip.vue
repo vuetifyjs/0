@@ -56,9 +56,9 @@
 
   const {
     disabled = false,
-    // The tooltips page states no delay before showing; Material Design 1 shows at once (decision).
-    openDelay = 0,
-    closeDelay,
+    // The tooltips page states no delays: Vuetify 1.5's 200 ms to open and to close (VTooltip.js:22-37).
+    openDelay = 200,
+    closeDelay = 200,
     namespace = 'v0:tooltip',
   } = defineProps<Md1TooltipProps>()
 
@@ -156,8 +156,9 @@
 
   /*
    * The tile: Grey 700 at 90% with white text, one line of Roboto Medium.
-   * Touch metrics by default: 32 dp tall, 16 dp side padding, 14 sp. The
-   * corner is a decision (the page states none); there is no shadow and no arrow.
+   * Touch metrics by default: 32 dp tall, 16 dp side padding, 14 sp. The page
+   * states no corner or depth: Vuetify 1.5's 2 px corner and 2 dp elevation
+   * (_tooltips.styl:7, 15). There is no arrow.
    */
   .md1-tooltip__tile {
     display: block;
@@ -167,6 +168,7 @@
     padding: 0 var(--md1-spacing-2, 16px);
     border-radius: var(--md1-radius, 2px);
     background: var(--md1-tooltip, rgba(97, 97, 97, 0.9));
+    box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
     font-size: 14px;
     font-weight: var(--md1-font-weight-medium, 500);
     line-height: 32px;
