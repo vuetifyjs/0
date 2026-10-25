@@ -110,6 +110,14 @@ The discrete slider is drawn differently at its minimum. Its sheets show no ring
 An editable field disables with the slider: its underline turns dotted and its value drops to the same disabled ink. As with any disabled control, explain the precondition nearby, because a keyboard user never reaches the thumb to discover why it does not move.
 :::
 
+::: ds-example
+/systems/md1/slider/themes
+
+### Light and dark themes
+
+A continuous and a discrete slider on each theme. On the dark theme the filled track and the thumb take the accent control colour and the unfilled track is 30% white; the discrete pin keeps its white value text. Drag or use the arrow keys to compare the pressed thumb and the pin on both canvases.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
