@@ -17,6 +17,8 @@
     useId,
     useLocale,
     useLogger,
+    useRaf,
+    useResizeObserver,
   } from '@vuetify/v0'
 
   import { caret, format, unmask } from './mask'
@@ -313,6 +315,19 @@
 
   onMounted(grow)
   watch(display, grow, { flush: 'post' })
+
+  // A width change rewraps the text, so the height is measured again on the next frame; height changes alone are ignored.
+  let width = 0
+  const regrow = useRaf(grow)
+
+  useResizeObserver(() => multiline ? target() : undefined, entries => {
+    const next = entries[0]?.contentRect.width ?? 0
+
+    if (next === width) return
+
+    width = next
+    regrow()
+  })
 
   function onText (value: string) {
     if (mask) {
@@ -1231,6 +1246,29 @@
 
   .md1-text-field[data-textarea] .md1-text-field__line {
     display: none;
+  }
+
+  /*
+   * A text box area: the box's fill is the area, so the input drops its own
+   * border and padding and the box keeps its line; 124 px of text makes the
+   * 160 dp box of the figure (28 dp above, 8 dp below).
+   */
+  .md1-text-field[data-box][data-textarea] .md1-text-field__label {
+    transform: translateY(-10px);
+  }
+
+  .md1-text-field[data-box][data-textarea] .md1-text-field__input,
+  .md1-text-field[data-box][data-textarea][data-focused] .md1-text-field__input,
+  .md1-text-field[data-box][data-textarea][data-state='invalid'] .md1-text-field__input {
+    height: 124px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .md1-text-field[data-box][data-textarea] .md1-text-field__line {
+    display: block;
   }
 
   /* Dropdown: the readonly control is the select's activator; the arrow sits at its end. */
