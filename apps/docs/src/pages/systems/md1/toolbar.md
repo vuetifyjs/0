@@ -78,7 +78,7 @@ The root publishes `data-variant`, `data-position`, `data-scroll`, `data-app-bar
 
 ### Surface, primary and transparent
 
-The structure page names four app bar colors: light, dark, colored and transparent. Light and dark are one variant here, `surface`, because the theme decides them: the app-bar role is Grey 100 on the light theme and Grey 900 on the dark one, with 87% black or 100% white text and icons at 54% black or 100% white. `primary` is the colored bar, the primary 500 with white text and icons at 100%, the color page's rule for large areas. `transparent` drops the fill and the shadow, for a bar over an image or a sheet that already supplies the color.
+The structure page names four app bar colors: light, dark, colored and transparent. Light and dark are one variant here, `surface`, because the theme decides them:[^1] the app-bar role is Grey 100 on the light theme and Grey 900 on the dark one, with 87% black or 100% white text and icons at 54% black or 100% white. `primary` is the colored bar, the primary 500 with white text and icons at 100%, the color page's rule for large areas. `transparent` drops the fill and the shadow, for a bar over an image or a sheet that already supplies the color.
 
 An app bar defaults to `primary`, because every app bar figure on the toolbars page is primary and the color page gives large areas the primary color. A plain toolbar defaults to `surface`. Every icon in one bar shares one color, the page's own rule, so `Md1Button` icon children lose their accent ink inside a toolbar and take the bar's.
 :::
@@ -90,7 +90,7 @@ An app bar defaults to `primary`, because every app bar figure on the toolbars p
 
 The bar is 56 dp on a handset and 64 dp from 600 px, the increment that sets the vertical keylines; a handset in landscape drops to 48 dp. Icons are 24 dp glyphs in 48 dp targets, the first one on the 16 dp keyline (24 dp from 600 px). The title is the Title style, Medium 20 sp, on the 72 dp content keyline (80 dp from 600 px) and on one line, truncated with an ellipsis.
 
-`dense` is the desktop app bar for mouse and keyboard layouts: 48 dp with 40 dp icon targets. `prominent` is the 128 dp bar of the structure page, the icons in the top increment and the title at the bottom, 20 dp above the edge; dense and prominent together give 96 dp. Both are explicit props rather than a pointer media query, because a desktop app can still want the standard bar.
+`dense` is the desktop app bar for mouse and keyboard layouts: 48 dp with 40 dp icon targets. `prominent` is the 128 dp bar of the structure page, the icons in the top increment and the title at the bottom, 20 dp above the edge; dense and prominent together give 96 dp. Both are explicit props rather than a pointer media query, because a desktop app can still want the standard bar.[^2]
 
 The bar rests at 4 dp. Under a fine pointer it rests at 2 dp, the elevation page's rule that desktop surfaces sit 2 dp below the listed values.
 :::
@@ -100,7 +100,7 @@ The bar rests at 4 dp. Under a fine pointer it rests at 2 dp, the elevation page
 
 ### Navigation icon
 
-The nav icon opens a navigation drawer, navigates up the hierarchy, or is left out. `icon="menu"` is the drawer control; bind `open` to the drawer's model and the menu glyph turns into the back arrow while the drawer is open and back on close, over the standard 300 ms and the standard curve. That is the creative-customization page's dual-function icon: the two actions are connected, and one cannot exist while the other is present.
+The nav icon opens a navigation drawer, navigates up the hierarchy, or is left out. `icon="menu"` is the drawer control; bind `open` to the drawer's model and the menu glyph turns into the back arrow while the drawer is open and back on close, over the standard 300 ms and the standard curve.[^3] That is the creative-customization page's dual-function icon: the two actions are connected, and one cannot exist while the other is present.
 
 `icon="up"` is the up arrow and `icon="close"` the X a full-screen dialog uses to discard. The accessible name follows the glyph, Menu, Back or Close, and the drawer control also reports `aria-expanded`. Pass `ariaLabel` for a more specific name.
 :::
@@ -112,7 +112,7 @@ The nav icon opens a navigation drawer, navigates up the hierarchy, or is left o
 
 `scroll="hide"` is the standard app bar's first option: the bar scrolls off with the content and returns when the reader scrolls back. It moves 1:1 with the content, with no threshold, because the scrolling-techniques page has it scroll off with the content; Vuetify 1.5's 300 px threshold contradicts that, so it does not apply.
 
-The bar follows any scroller inside its own parent, the app shell's content region, and the document while it is pinned to the viewport. Scrollers elsewhere on the page and inside the bar, a tab bar or the search suggestions, are ignored. A hidden bar stays in the tab order: focus moving into it brings it back, so a keyboard user never lands on an off-screen control.
+The bar follows any scroller inside its own parent, the app shell's content region, and the document while it is pinned to the viewport. Scrollers elsewhere on the page and inside the bar, a tab bar or the search suggestions, are ignored. A hidden bar stays in the tab order: focus moving into it brings it back, so a keyboard user never lands on an off-screen control.[^4]
 :::
 
 ::: ds-example
@@ -138,7 +138,7 @@ On a primary bar the tabs take white ink: the selected tab and the indicator in 
 
 ### Waterfall
 
-A waterfall toolbar shares a seam with the content and lifts into a step when the content scrolls under it. `scroll="waterfall"` rests at 0 dp at the top of the page and takes the bar's elevation from the first scrolled pixel, with the 280 ms elevation transition. It reads best when the page and the bar share one fill, so the seam is invisible until the step appears.
+A waterfall toolbar shares a seam with the content and lifts into a step when the content scrolls under it. `scroll="waterfall"` rests at 0 dp at the top of the page and takes the bar's elevation from the first scrolled pixel, with the 280 ms elevation transition.[^5] It reads best when the page and the bar share one fill, so the seam is invisible until the step appears.
 
 The flexible space with overlapping content is this behavior with an image in the extension, and the guidelines forbid tabs in it; a waterfall bar with an image extension and a tab bar warns in development.
 :::
@@ -150,7 +150,7 @@ The flexible space with overlapping content is this behavior with an image in th
 
 `scroll="collapse"` with an `Md1Toolbar.Title` inside the extension is the flexible space. The extended bar is the default height plus one increment, the large title sits on the content keyline at the bottom of it, and as the content scrolls the space shrinks 1:1 until only the row remains. The title shrinks with it to the Title style's 20 sp and lands in the row; scrolling back to the top grows both into place again.
 
-The guidelines give only the collapsed size, and say the title shrinks to it, so the expanded title must be larger. It is Display 1, 34 sp, a Material Design 1 decision: Vuetify 1.5's title is always 20 px and has no larger state to take. The title keeps the Medium weight throughout so it reads as the same object at every size.
+The guidelines give only the collapsed size, and say the title shrinks to it, so the expanded title must be larger. It is Display 1, 34 sp, a Material Design 1 decision: Vuetify 1.5's title is always 20 px and has no larger state to take. The title keeps the Medium weight throughout so it reads as the same object at every size.[^6]
 :::
 
 ::: ds-example
@@ -172,7 +172,7 @@ Expandable search is for apps where search is not the primary focus: a search ic
 
 `history` lists recent queries, offered with the history glyph before a query is complete; `suggestions` lists completions from your data, offered with the search glyph while the reader types. Both filter as the reader types. Enter submits the query and choosing a suggestion submits it, each through the `submit` event; the field then keeps the query and gives up focus, so the results show with the search bar visible but unfocused, the search page's rule. The X clears the query and emits `clear`; `voice` adds the microphone, which emits `voice` for your speech handler.
 
-The page states no metrics for the field, so the query is set in Subheading 16 sp and the suggestions are 48 dp list rows with the text on the 72 dp keyline. For persistent search, where search is the point of the app, use `Md1SearchBar`.
+The page states no metrics for the field, so the query is set in Subheading 16 sp and the suggestions are 48 dp list rows with the text on the 72 dp keyline.[^7] For persistent search, where search is the point of the app, use `Md1SearchBar`.
 :::
 
 ::: ds-example
@@ -182,7 +182,7 @@ The page states no metrics for the field, so the query is set in Subheading 16 s
 
 While items are selected the app bar carries the actions that apply to them. Set `contextual` and `Md1Toolbar.Contextual` replaces the row: a close action, the count as "N selected" in the title's place and style, and your actions. Exiting selection mode, by the close action or by Escape anywhere in the bar, emits `clear`; clear your selection in the handler, which also turns `contextual` off.
 
-The selection page names no color for this bar, so it keeps the toolbar's own variant.
+The selection page names no color for this bar, so it keeps the toolbar's own variant.[^8]
 :::
 
 ::: ds-example
@@ -198,7 +198,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 
 ### Floating toolbar
 
-`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so Material Design 1 gives it the app bar's heights and Vuetify 1.5's floating toolbar: the bar's own elevation, square corners and 16 dp clear of what surrounds it. A toolbar with only `Md1Toolbar.Actions` is a palette.
+`floating` is the structure page's floating toolbar and detached toolbar palette: a sheet with its own width, not the column's. The page names it and states no metrics, so Material Design 1 gives it the app bar's heights and Vuetify 1.5's floating toolbar:[^9] the bar's own elevation, square corners and 16 dp clear of what surrounds it. A toolbar with only `Md1Toolbar.Actions` is a palette.
 :::
 
 ::: ds-example
@@ -206,7 +206,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 
 ### Bottom toolbar
 
-`position="bottom"` fixes the toolbar to the bottom edge, where it clings to the top of the on-screen keyboard through `env(keyboard-inset-height)`. The structure page names the bottom toolbar and its shelf and gives no metrics, so the heights follow the app bar. The shelf it launches is an `Md1BottomSheet` with `persistent`. For top-level destinations use `Md1BottomNavigation` instead.
+`position="bottom"` fixes the toolbar to the bottom edge, where it clings to the top of the on-screen keyboard through `env(keyboard-inset-height)`. The structure page names the bottom toolbar and its shelf and gives no metrics, so the heights follow the app bar.[^10] The shelf it launches is an `Md1BottomSheet` with `persistent`. For top-level destinations use `Md1BottomNavigation` instead.
 :::
 
 ## Props
@@ -267,3 +267,14 @@ The actions remember the last one focused, so tabbing back into the toolbar retu
 ### Motion
 
 The nav icon's morph and the image tint are the only timed animations. Under reduced motion the morph is instant; the scroll behaviors follow the scroll position and have no duration of their own.
+
+[^1]: Our call: the light and dark bars are the theme's app-bar role, so a variant per theme would duplicate the theme switch.
+[^2]: Our call: the pages name these forms but do not tie them to an input device.
+[^3]: Our call: the creative-customization page shows the morph without a duration; the standard duration is the motion page's default for on-screen changes.
+[^4]: Our call: the scrolling-techniques page covers touch scrolling only.
+[^5]: Vuetify 1.5.24, stylus/settings/_elevations.styl:89. `elevationTransition` is 280 ms on the standard curve; the spec gives no shadow transition.
+[^6]: Our call: the page gives only the collapsed 20 sp, so the expanded title takes Display 1 from the type scale and keeps one weight.
+[^7]: Our call: the field and rows borrow the text field's 16 sp input and the list's single-line tile.
+[^8]: Our call: keeping the variant avoids a colour change the page does not ask for.
+[^9]: Vuetify 1.5.24, stylus/components/_toolbar.styl:34,153-156. `.v-toolbar` keeps `elevation(4)`, and `--floating` adds a `$grid-gutters.lg` margin and its own width.
+[^10]: Our call: the app bar table is the only toolbar height the pages state.

@@ -103,7 +103,7 @@ The default slot is the title, one line; longer text truncates with an ellipsis.
 
 ## Accessibility
 
-`Md1Subheader` renders a `div` with `role="heading"` and `aria-level="2"`, so a screen reader lists it among the headings of the page and heading navigation reaches it. A heading needs a level and user agents assume 2 when none is given; Material Design 1 sets it explicitly. Pass `aria-level` to place the subheader in the document's hierarchy, for instance `aria-level="3"` under a level 2 section title.
+`Md1Subheader` renders a `div` with `role="heading"` and `aria-level="2"`, so a screen reader lists it among the headings of the page and heading navigation reaches it. A heading needs a level and user agents assume 2 when none is given; Material Design 1 sets it explicitly.[^1] Pass `aria-level` to place the subheader in the document's hierarchy, for instance `aria-level="3"` under a level 2 section title.
 
 ```vue
 <template>
@@ -115,4 +115,7 @@ The subheader is never focusable and has no keyboard interaction; the guidelines
 
 ### Contrast
 
-The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. The guidelines give no dark-theme value for the coloured subheader, so it keeps the primary 500 as Vuetify 1.5 does: Indigo 500 on the Grey 800 surface reads at about 1.5:1, far below the floor. That shortfall is faithful to how Material Design 1 rendered, and it is the same for the current item of a list. Use the plain subheader on a dark surface where the title must be read.
+The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. The guidelines give no dark-theme value for the coloured subheader, so it keeps the primary 500 as Vuetify 1.5 does:[^2] Indigo 500 on the Grey 800 surface reads at about 1.5:1, far below the floor. That shortfall is faithful to how Material Design 1 rendered, and it is the same for the current item of a list. Use the plain subheader on a dark surface where the title must be read.
+
+[^1]: Our call: the page gives the subheader no semantics; level 2 is the ARIA default made explicit.
+[^2]: Vuetify 1.5.24, util/theme.ts:50-59. The `primary--text` class is one rule with no dark-theme variant.

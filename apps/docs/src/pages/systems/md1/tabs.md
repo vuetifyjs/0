@@ -76,7 +76,7 @@ Fixed tabs show every tab at once and give them equal widths. The guidelines res
 
 How the width is shared depends on the view. Under 600 dp, the guidelines' smaller views, the bar is full width and each tab takes an equal share, never less than 72 dp. From 600 dp each tab is at least 160 dp, and the bar centres itself: every tab takes the width of the widest one, between 160 dp and 264 dp, and the row sits in the middle of the bar. When that would leave 16 dp or less between the outer tabs and the edge of the view, the guidelines switch back to full width, and so does Material Design 1. There is no `centered` prop: the rule decides.
 
-The indicator is a 2 dp line under the selected tab, in the accent colour (`--md1-accent`, Pink A200 in the default theme). Only the indicator takes the accent: the selected label and icon are 87% black (white on the dark theme), as in Vuetify 1.5. It slides to the new tab on the standard curve; the page states no duration, so it takes the standard 300 ms, 200 ms with a mouse.
+The indicator is a 2 dp line under the selected tab, in the accent colour (`--md1-accent`, Pink A200 in the default theme). Only the indicator takes the accent: the selected label and icon are 87% black (white on the dark theme), as in Vuetify 1.5.[^1] It slides to the new tab on the standard curve; the page states no duration, so it takes the standard 300 ms, 200 ms with a mouse.[^2]
 :::
 
 ::: ds-example
@@ -94,7 +94,7 @@ Tabs sit in the app bar's extension, below the title row, and take the bar's col
 
 Scrollable tabs show a subset at a time and suit many tabs, or a number that changes. Each tab is as wide as its label plus padding, at least 72 dp (160 dp from 600 dp) and at most 264 dp or the width of the view less 56 dp, whichever is smaller. The first tab's text lines up with the screen-edge keyline, 16 dp on a phone and 24 dp from 600 dp; with a mouse it starts on the content keyline instead, 80 dp from 600 dp and 72 dp below.
 
-On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected. The guidelines also name a "More" dropdown for overflowing desktop tabs; `more` turns it on, below.
+On a touch screen the bar scrolls with a swipe, without changing the selection. With a mouse, an overflowing bar shows the pagination arrows the guidelines name for desktop: one at each end, paging the bar by its visible width and disabled when there is nowhere left to go. They stay out of the tab order, because the arrow keys already move through the tabs and every tab scrolls into view as it is selected.[^3] The guidelines also name a "More" dropdown for overflowing desktop tabs; `more` turns it on, below.
 :::
 
 ::: ds-example
@@ -104,7 +104,7 @@ On a touch screen the bar scrolls with a swipe, without changing the selection. 
 
 `more` on scrollable tabs is the guidelines' other desktop overflow affordance, "Tabs with a More dropdown menu". With a mouse, the tabs that do not fit the bar leave it and are listed in an [Md1Menu](/systems/md1/menu) behind a "More" control at the bar's end, which replaces the pagination arrows. The control is styled as a tab with a trailing `arrow-drop-down` glyph; choosing a tab from its menu selects it, and the control then shows that tab's label and carries the 2 dp indicator, the guidelines' "Tabs with Books selected from a More dropdown menu". The menu opens with the selected tab over the control.
 
-The pages draw the pattern without metrics, so the control's place at the bar's end and the label swap are Material Design 1 decisions. The collected tabs stay tabs in the tablist, out of the layout, so v0's selection and the panels are unchanged; when the arrow keys select a collected tab, focus moves to the More control. Once every tab fits beside it the tabs return to the bar. On a touch screen the bar keeps its swipe. Fixed tabs share the bar and never collect.
+The pages draw the pattern without metrics, so the control's place at the bar's end and the label swap are Material Design 1 decisions.[^4] The collected tabs stay tabs in the tablist, out of the layout, so v0's selection and the panels are unchanged; when the arrow keys select a collected tab, focus moves to the More control. Once every tab fits beside it the tabs return to the bar. On a touch screen the bar keeps its swipe. Fixed tabs share the bar and never collect.
 :::
 
 ::: ds-example
@@ -140,12 +140,12 @@ The example is narrower than a page, so the fixed tabs share 520 px and the long
 
 ### Disabled
 
-`disabled` on an item takes one tab out of use: the arrow keys skip it, a click does nothing, the ripple draws nothing, and its ink drops to the disabled-button ink (26% black, 30% white on the dark theme and on a coloured bar). `disabled` on the root disables the whole bar. The pinned pages state no disabled tab, so these are Vuetify 1.5's values.
+`disabled` on an item takes one tab out of use: the arrow keys skip it, a click does nothing, the ripple draws nothing, and its ink drops to the disabled-button ink (26% black, 30% white on the dark theme and on a coloured bar). `disabled` on the root disables the whole bar. The pinned pages state no disabled tab, so these are Vuetify 1.5's values.[^5]
 :::
 
 ### Colour and motion
 
-A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink is the primary text ink, the indicator is the accent, and the inactive ink is the primary text ink at 70% (about 61% black, 70% white on the dark theme): the page gives only the coloured bar's values, so the surface bar takes Vuetify 1.5's. Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 30%.
+A tab bar has no fill of its own: it takes the surface it sits on. On a surface bar the selected ink is the primary text ink, the indicator is the accent, and the inactive ink is the primary text ink at 70% (about 61% black, 70% white on the dark theme): the page gives only the coloured bar's values, so the surface bar takes Vuetify 1.5's.[^6] Inside an `Md1Toolbar` with `variant="primary"`, the guidelines' coloured app bar, the selected ink and the indicator turn white, the inactive ink white at 70%, and a disabled tab white at 30%.
 
 Panels change by sliding, the sibling transition of the navigation patterns: the new panel comes in from the end side and the old one leaves to the start side, reversed when you move back and mirrored in right-to-left layouts, over 300 ms on the standard curve. With reduced motion the panels swap at once.
 
@@ -189,7 +189,7 @@ Only the selected tab is in the tab order. Selection follows focus, so the panel
 
 ### Focus
 
-A tab draws no hover or focus overlay, as in Vuetify 1.5; keyboard focus shows the browser's focus ring, inset so the bar does not clip it. The outgoing panel is inert while it slides out, so focus cannot land in content that is leaving.
+A tab draws no hover or focus overlay, as in Vuetify 1.5;[^7] keyboard focus shows the browser's focus ring, inset so the bar does not clip it. The outgoing panel is inert while it slides out, so focus cannot land in content that is leaving.
 
 ### Disabled
 
@@ -197,3 +197,11 @@ A tab draws no hover or focus overlay, as in Vuetify 1.5; keyboard focus shows t
 |-------|----------------|-----------|------------|
 | enabled | none | Yes, when selected or reached with the arrow keys | Click, focus |
 | `disabled` | `disabled`, `aria-disabled="true"`, `data-disabled` | No | Blocked |
+
+[^1]: Vuetify 1.5.24, stylus/settings/_theme.styl:70-71,173-174 and components/VTabs/VTabsSlider.js:9-11. `tabs.active` is 87% black or white, and only the slider takes the accent.
+[^2]: Our call: the standard duration is the motion page's default for on-screen changes.
+[^3]: Our call: an extra stop per arrow would add nothing a keyboard user can't already reach.
+[^4]: Our call: the bar's end is where the pagination arrows sit, and the label swap shows which collected tab is selected.
+[^5]: Vuetify 1.5.24, stylus/components/_tabs.styl:11-12. A disabled tab takes `buttons.disabled`.
+[^6]: Vuetify 1.5.24, stylus/components/_tabs.styl:139-140. An inactive tab is the active ink at opacity .7.
+[^7]: Vuetify 1.5.24, stylus/components/_tabs.styl:112-144. `.v-tabs__div` and `.v-tabs__item` carry no `:hover` or `:focus` rule.

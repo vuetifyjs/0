@@ -102,7 +102,7 @@ Unbounded ink is drawn with `overflow: visible`, so it only escapes if the host 
 
 `center` starts every ink at the middle of the host, wherever the press lands. The ink still grows to fill the host, now at exactly half its diagonal, and stays clipped to it. Use it where the press point carries no meaning, such as a control whose visible mark is centred: Material Design 1 sets it on the slider thumb.
 
-Keyboard presses are always centred. Enter or Space on a focused host draws one ink from the middle, since a key has no position; holding the key holds the ink and releasing it starts the fade. Auto-repeat while the key is held draws nothing more, and a key event that bubbles up from a focused child is ignored, so only the focused host reacts.
+Keyboard presses are always centred.[^1] Enter or Space on a focused host draws one ink from the middle, since a key has no position; holding the key holds the ink and releasing it starts the fade. Auto-repeat while the key is held draws nothing more, and a key event that bubbles up from a focused child is ignored, so only the focused host reacts.
 :::
 
 ::: ds-example
@@ -110,7 +110,7 @@ Keyboard presses are always centred. Enter or Space on a focused host draws one 
 
 ### Reduced motion
 
-When the reader asks for reduced motion, the ink stops moving but the press still shows. The ink appears at full size and full colour the moment the press starts, holds as a static pressed fill, and disappears at release without a fade. The pressed state is information, so it stays; only the expansion and the fade, the parts that move, are removed.
+When the reader asks for reduced motion, the ink stops moving but the press still shows. The ink appears at full size and full colour the moment the press starts, holds as a static pressed fill, and disappears at release without a fade.[^2] The pressed state is information, so it stays; only the expansion and the fade, the parts that move, are removed.
 
 In an app the switch is v0's reduced-motion plugin. Its adapter writes `data-reduced-motion` on `<body>` and `useRipple` reads `isReduced` from the same context. The `mode` option decides: `system` follows the operating system, `always` and `never` override it. The stylesheet also answers the `prefers-reduced-motion` media query directly, unless the plugin has written `no-preference`, so `mode: 'never'` keeps the motion even on a system that asks for less.
 
@@ -126,7 +126,7 @@ The ink is the spec's pressed overlay, `--md1-pressed`: 40% `#999999` on the lig
 
 The ink paints in the `color` of the `.md1-ripple` layer, so a host that follows another page's values sets `color` on its own ripple child instead. The selection controls do: the selection controls page draws their pressed halo as a faint grey while off and as about 10% of the accent while on (measured from the page's artwork; it states no number), so Material Design 1 paints them in `--md1-hover` (black 6% on the light theme, white 10% on the dark one) and in 10% of the accent. That is why the checkbox in the controls example above presses lighter than the buttons beside it. A composition of your own can do the same with a `> .md1-ripple` rule on its host class.
 
-The motion pages state no ripple numbers, so Material Design 1 takes Vuetify 1.5's. The ink expands over `--md1-ripple-duration`, 250 ms on every device, scaling from nothing to full size on the standard curve while its opacity reaches full in the first 30%. It fades over `--md1-ripple-fade`, 300 ms, on the same curve.
+The motion pages state no ripple numbers, so Material Design 1 takes Vuetify 1.5's.[^3] The ink expands over `--md1-ripple-duration`, 250 ms on every device, scaling from nothing to full size on the standard curve while its opacity reaches full in the first 30%. It fades over `--md1-ripple-fade`, 300 ms, on the same curve.
 
 A press shorter than the expansion still draws the whole reaction: the release is remembered and the fade starts when the expansion lands. Because the tokens are custom properties, a declaration on any ancestor retunes every ripple inside it, which is how the second sheet runs five times slower. Override `--md1-ripple-duration` to change the expansion and `--md1-ripple-fade` to change the fade; the device duration scale does not move them.
 
@@ -199,3 +199,7 @@ Under reduced motion the ink is a static fill for the length of the press; nothi
 ### Contrast
 
 The ink is an overlay, not a carrier of information: the pressed state lasts only while the reader holds the control. Text and glyphs inside a host are positioned above the layer, so a press never lowers their contrast.
+
+[^1]: Our call: a key has no position, and the page describes only touch.
+[^2]: Our call: the spec has no reduced-motion rule; the pressed state is kept because it carries information.
+[^3]: Vuetify 1.5.24, stylus/settings/_variables.styl:342-343. The ink grows on `transform .25s` and fades on `opacity .3s`, both on `fast-out-slow-in`, the standard curve.
