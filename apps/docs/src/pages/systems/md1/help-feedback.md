@@ -61,7 +61,7 @@ Icon opacity follows the icons page, and Material Design 1 carries it as theme t
 | Theme | Active (`--md1-icon-active`) | Inactive (`--md1-icon-inactive`) |
 |-------|----------------------------------|--------------------------------------|
 | Light | Black at 54% | Black at 38% |
-| Dark | White at 100% | White at 50% |
+| Dark | White at 100%[^dark-active-icon] | White at 50% |
 
 ::: ds-example
 /systems/md1/help-feedback/icons
@@ -116,7 +116,7 @@ Write help content to be scanned: one question per article, short explanations, 
 
 ### A help article
 
-Headings outline an article so a reader can scan to the part they need. The title is Display 1, a one-line summary under it is Subheading in the secondary ink, sections take the Title style, and subsections take Subheading, each a real heading level so the outline is also the document's. Keep one question per article and short paragraphs under each heading.
+Headings outline an article so a reader can scan to the part they need. The title is Display 1, a one-line summary under it is Subheading in the secondary ink, sections take the Title style, and subsections take Subheading[^article-type], each a real heading level so the outline is also the document's. Keep one question per article and short paragraphs under each heading.
 :::
 
 ::: ds-example
@@ -152,3 +152,7 @@ Help and Send feedback are destinations, so they are named by their visible labe
 | App bar Help action | `aria-label="Help"` | Arrow keys between app bar actions |
 | Help tooltip | The button's `aria-label`; the tip is its description | Focus opens the tip, Escape closes it |
 | Feedback dialog | The dialog title | Focus moves into the field; Escape cancels |
+
+[^dark-active-icon]: Our call: the icons page's state table gives 70%, which is the dark secondary-text tier, so its colour section's 100% wins.
+
+[^article-type]: Our call: the figure outlines the article without naming styles; the mapping is read from its sizes.

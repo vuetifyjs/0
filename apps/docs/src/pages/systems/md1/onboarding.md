@@ -67,7 +67,7 @@ Material Design 1 ships no pagination dots: the guidelines draw them on the onbo
 
 ### Sign-in screen
 
-Self-select often starts by signing in. When the device already knows an account, the screen offers it instead of a form: the account in a sheet at the bottom, under the app's illustration, with one full-width raised button to continue as that person. The arrow beside the account opens an `Md1Menu` of the other accounts on the device.
+Self-select often starts by signing in. When the device already knows an account, the screen offers it instead of a form: the account in a sheet at the bottom, under the app's illustration[^illustration], with one full-width raised button to continue as that person. The arrow beside the account opens an `Md1Menu` of the other accounts on the device.
 
 Name the button for what happens, "Continue as Janelle", and keep the account's name and email visible above it, so the reader can see which identity they are about to use.
 :::
@@ -87,9 +87,9 @@ The example is one screen: a headline in the Headline style (24 sp on 32 sp), a 
 
 ### Self-select designs
 
-The guidelines draw three common designs for self-select choices, each with the same six topics here. A bundled list pairs each topic with a switch and says what the switch does in the secondary line: Bundled, or Shown individually. A grid view shows each topic as a 72 dp circle that takes a check mark when chosen. A list shows each topic as a card row with a colour block, and an add mark that turns into a check.
+The guidelines draw three common designs for self-select choices, each with the same six topics here. A bundled list pairs each topic with a switch and says what the switch does in the secondary line: Bundled, or Shown individually. A grid view shows each topic as a 72 dp circle that takes a check mark when chosen.[^grid-circle] A list shows each topic as a card row with a colour block, and an add mark that turns into a check.
 
-In all three an unchosen topic recedes, its colour dropped to 38% and its label to the disabled ink, so what is chosen reads at a glance. The grid and list tiles are toggle buttons with `aria-pressed`; the bundled list's switches are named for their topic.
+In all three an unchosen topic recedes, its colour dropped to 38% and its label to the disabled ink, so what is chosen reads at a glance.[^unchosen] The grid and list tiles are toggle buttons with `aria-pressed`; the bundled list's switches are named for their topic.
 :::
 
 ::: ds-example
@@ -99,9 +99,9 @@ In all three an unchosen topic recedes, its colour dropped to 38% and its label 
 
 Top user benefits is a brief autoplay carousel of at most three illustrations, each positioning one benefit of the app at a moment that matters rather than describing a feature. Each screen auto-advances every two to three seconds; the first one advances sooner so it is clear this is not a single screen. Autoplay stops for good once the user touches the carousel, and the carousel loops until "Get started" is pressed. The button and the dots stay fixed while the copy changes on its own field, at the same elevation as the illustration.
 
-The example keeps the slide state in v0's [createStep](/composables/selection/create-step) with `circular` on, and times it with [useTimer](/composables/system/use-timer): 2 s for the first screen and 3 s for the others, values inside the guidelines' range. A `pointerdown` or focus anywhere in the carousel stops the timer. The dots are v0 `Button.Root`s, 8 dp marks in the disabled ink with the current one in the primary colour, so a keyboard user can move between screens; the guidelines also make the screen swipeable, a gesture Material Design 1 does not ship. Once autoplay stops, the copy region becomes a polite live region so a screen reader hears each change.
+The example keeps the slide state in v0's [createStep](/composables/selection/create-step) with `circular` on, and times it with [useTimer](/composables/system/use-timer): 2 s for the first screen and 3 s for the others, values inside the guidelines' range. A `pointerdown` or focus anywhere in the carousel stops the timer. The dots are v0 `Button.Root`s, 8 dp marks in the disabled ink with the current one in the primary colour[^dots], so a keyboard user can move between screens; the guidelines also make the screen swipeable, a gesture Material Design 1 does not ship. Once autoplay stops, the copy region becomes a polite live region so a screen reader hears each change.
 
-The layout is the handset portrait redline: a 1:1 illustration, then centred copy and controls built upward from the bottom edge with 24 dp of padding. The headline is 24 sp on a 32 sp leading; the centre of the copy sits 56 dp above the top of the button, which leaves room for one to three lines. The redline sets the subhead at 15 sp where Material Design 1's Subheading token is 16 sp on a touch device; the example uses the token.
+The layout is the handset portrait redline: a 1:1 illustration, then centred copy and controls built upward from the bottom edge with 24 dp of padding. The headline is 24 sp on a 32 sp leading; the centre of the copy sits 56 dp above the top of the button, which leaves room for one to three lines. The redline sets the subhead at 15 sp where Material Design 1's Subheading token is 16 sp on a touch device; the example uses the token.[^subhead-token]
 :::
 
 ::: ds-example
@@ -109,7 +109,7 @@ The layout is the handset portrait redline: a 1:1 illustration, then centred cop
 
 ### Layouts and redlines
 
-The same screen of the carousel on each platform the guidelines draw, each device at its size in dp. In portrait the copy and controls are centred beneath the 1:1 illustration and built upward from the bottom edge; in landscape they are left-aligned against the illustration's end edge and vertically centred; on desktop they sit in a centred card with the arrows beside it and the dots beneath it.
+The same screen of the carousel on each platform the guidelines draw, each device at its size in dp.[^device-zoom] In portrait the copy and controls are centred beneath the 1:1 illustration and built upward from the bottom edge; in landscape they are left-aligned against the illustration's end edge and vertically centred; on desktop they sit in a centred card with the arrows beside it and the dots beneath it.
 
 Turn on the redlines to number the measures the guidelines give: the headline at 24 sp on 32 sp, the subhead at 15 sp on 24 sp (the Subheading token's 16 sp here), the 32 sp line height, 56 dp from the top of the button to the centre of the copy, 24 dp of vertical padding, and on desktop 48 dp from the card to each arrow.
 :::
@@ -119,9 +119,9 @@ Turn on the redlines to number the measures the guidelines give: the headline at
 
 ### Desktop carousel
 
-On desktop the guidelines put the illustration, the copy and the button in a centred card, with "Previous" and "Next" beside the card and the pagination beneath it. The redline: Headline 24 sp on 32 sp, Subheading 16 sp on 24 sp, 56 dp from the top of the button to the centre of the copy, 24 dp from the card to the dots, and 48 dp from the card to each arrow. Below 600 px, where the handset layouts apply instead, the example moves the arrows into the pagination row so the card keeps its width.
+On desktop the guidelines put the illustration, the copy and the button in a centred card, with "Previous" and "Next" beside the card and the pagination beneath it. The redline: Headline 24 sp on 32 sp, Subheading 16 sp on 24 sp, 56 dp from the top of the button to the centre of the copy, 24 dp from the card to the dots, and 48 dp from the card to each arrow. Below 600 px, where the handset layouts apply instead, the example moves the arrows into the pagination row so the card keeps its width.[^arrows-row]
 
-The card is an `Md1Card` at its resting elevation and the arrows are icon-only `Md1Button`s with the `arrow-back` and `arrow-forward` glyphs, named "Previous" and "Next" through `ariaLabel`. Both glyphs mirror under right-to-left text. The guidelines' figure draws the arrows as white circles with a shadow; Material Design 1 has no such button, so the flat icon button stands in. The dots only reflect the position here (`aria-hidden`), because the arrows already navigate. The carousel is circular, so Next on the last screen returns to the first, matching the mobile carousel's loop.
+The card is an `Md1Card` at its resting elevation and the arrows are icon-only `Md1Button`s with the `arrow-back` and `arrow-forward` glyphs, named "Previous" and "Next" through `ariaLabel`. Both glyphs mirror under right-to-left text. The guidelines' figure draws the arrows as white circles with a shadow; Material Design 1 has no such button, so the flat icon button stands in.[^arrow-buttons] The dots only reflect the position here (`aria-hidden`), because the arrows already navigate. The carousel is circular, so Next on the last screen returns to the first, matching the mobile carousel's loop.
 :::
 
 ## Accessibility
@@ -129,3 +129,19 @@ The card is an `Md1Card` at its resting elevation and the arrows are icon-only `
 A carousel that moves by itself must be stoppable. The top user benefits example stops for good on the first touch, click or focus inside it, which also covers keyboard users who tab into it, and that rule meets WCAG's Pause, Stop, Hide criterion (2.2.2: anything that starts moving on its own and lasts more than five seconds needs a way to pause it). Give the carousel `aria-roledescription="carousel"` and an `aria-label`, and keep its copy region out of the live announcements while it rotates (`aria-live="off"`), switching to `polite` once the reader is in control.
 
 Pagination dots that act as buttons need names that state position, "Benefit 2 of 3", and `aria-current` on the current one. Dots that only mirror the position are `aria-hidden`. The illustration in each screen is decorative when the headline already carries the message. Every call to action is a real button with a text label, and the onboarding copy follows the guidelines' writing table: "Next", "No thanks", "Learn more", and "Get started" from the onboarding page itself.
+
+[^illustration]: Our call: no illustration assets ship with the docs, so a glyph on the background stands in for the figure's artwork.
+
+[^grid-circle]: Our call: the figure draws the circles without metrics; 72 dp at 2 dp elevation is read from it.
+
+[^unchosen]: Our call: the figures dim unchosen topics without a value; 38% is the disabled ink.
+
+[^dots]: Our call: the page draws the dots without metrics; the size and inks are the example's.
+
+[^subhead-token]: Our call: the example keeps the shipped Subheading token rather than a one-off 15 sp size.
+
+[^device-zoom]: Our call: the 360 x 640 to 1024 x 640 devices are laid out at full size and scaled with CSS `zoom` to fit the column, an approximation.
+
+[^arrows-row]: Our call: the guidelines draw the desktop card only at desktop widths; the narrow-window arrangement is the example's.
+
+[^arrow-buttons]: Our call: the figure's white circular arrows are not a Material Design 1 component, so the shipped icon button stands in.

@@ -65,7 +65,7 @@ Use the standard glyphs. Never use a toggle for downloading one file: a toggle s
 
 Content that works offline carries the offline pin with the label "Offline". Two of the three saved articles here can be read without a connection; the third has no mark, so the reader knows before opening it that it needs one.
 
-The pin and its label sit in `Md1List.Action`, the end column of the row, in Caption text at the secondary ink with the glyph at the active icon opacity (`--md1-icon-active`, 54% black on light, 100% white on dark). The label is what a screen reader reads; the glyph is decorative.
+The pin and its label sit in `Md1List.Action`, the end column of the row, in Caption text at the secondary ink with the glyph at the active icon opacity (`--md1-icon-active`, 54% black on light, 100% white on dark[^dark-active-icon]). The label is what a screen reader reads; the glyph is decorative.
 
 The same mark follows the content elsewhere: an offline icon beside a page address when a site is read offline, and on the item the user just acted on while offline.
 :::
@@ -87,7 +87,7 @@ This screen is search in a music app, which needs a connection. Instead of an em
 
 When the connection drops, show the content the app already has rather than an empty screen. The inbox here lists the mail stored on the device. A snackbar explains that the connection is limited and what the user is looking at, and an indeterminate `Md1ProgressLinear` at the top of the list shows the app is still trying.
 
-The snackbar has no action. There is nothing for the user to do: the app reconnects on its own, and a Try again button that cannot succeed is what the errors page tells you not to offer. It leaves after the 6000 ms default; the progress bar stays until the connection is back.
+The snackbar has no action. There is nothing for the user to do: the app reconnects on its own, and a Try again button that cannot succeed is what the errors page tells you not to offer. It leaves after the 6000 ms default[^snackbar-timeout]; the progress bar stays until the connection is back.
 :::
 
 ::: ds-example
@@ -97,7 +97,7 @@ The snackbar has no action. There is nothing for the user to do: the app reconne
 
 To show that something can be downloaded, pair the download glyph with the word "Download" and include the file size, so people can tell whether it is too large before they start. Press Download 32 MB.
 
-While the episode downloads, a determinate `Md1ProgressCircular` takes the button's place, at the 24 dp size of the glyph it replaces. When it completes, the offline pin and "Offline" appear in the same spot. The guidelines describe this as the download glyph turning into the offline pin, with the progress indicator as the transition between the two. The circle is announced with its `aria-label` and value; the final state is a status message.
+While the episode downloads, a determinate `Md1ProgressCircular` takes the button's place, at the 24 dp size of the glyph it replaces.[^download-ring] When it completes, the offline pin and "Offline" appear in the same spot. The guidelines describe this as the download glyph turning into the offline pin, with the progress indicator as the transition between the two. The circle is announced with its `aria-label` and value; the final state is a status message.
 
 While offline, let people pick files to download later, when a connection is back.
 :::
@@ -134,3 +134,9 @@ Offline state is a fact the user needs before they act, so it must be text as we
 | A download is removed | The storage total, in a `role="status"` region |
 
 Do not rely on color or a dimmed row alone to say that something is unavailable offline.
+
+[^dark-active-icon]: Our call: the icons page's state table gives 70%, which is the dark secondary-text tier, so its colour section's 100% wins.
+
+[^snackbar-timeout]: Vuetify 1.5.24, components/VSnackbar/VSnackbar.ts:22-24. The 6000 ms `timeout` default.
+
+[^download-ring]: Our call: the page shows the progress indicator without a size; matching the 24 dp glyph keeps the row still.

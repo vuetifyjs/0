@@ -94,7 +94,7 @@ Back also dismisses floating surfaces, clears a contextual action bar along with
 
 Structure can come from the content itself. The inbox groups related messages into bundles, Promos, Social and Finance, each a single row above the messages that stand alone; each bundle's row is a parent, and choosing it descends into its own list, where the up arrow returns to the inbox.
 
-Each bundle carries its own hue on its icon and title so the three read as separate places at a glance. The 700 shades keep 4.5:1 on the white surface, and the 200 shades replace them on dark.
+Each bundle carries its own hue on its icon and title so the three read as separate places at a glance. The 700 shades keep 4.5:1 on the white surface, and the 200 shades replace them on dark.[^bundle-hues]
 :::
 
 ::: ds-example
@@ -170,7 +170,7 @@ The expanded section's title takes the primary colour, and its children indent t
 
 ### Cascading drawer
 
-On desktop a deep hierarchy can cascade instead of expanding: choosing World opens its regions as a second sheet beside the pinned drawer, at the drawer's 16 dp elevation over the content. Choosing a region navigates and closes the level it came from; choosing World again closes it without navigating. Sections without children, such as Politics, are pages of their own and close any open level.
+On desktop a deep hierarchy can cascade instead of expanding: choosing World opens its regions as a second sheet beside the pinned drawer, at the drawer's 16 dp elevation over the content.[^cascade-sheet] Choosing a region navigates and closes the level it came from; choosing World again closes it without navigating. Sections without children, such as Politics, are pages of their own and close any open level.
 
 The second level is a `nav` landmark named for its section. Material Design 1 ships no cascading part, so the panel is the app's; `Md1Menu.Sub` is the alternative when the levels should behave as a menu.
 :::
@@ -182,7 +182,7 @@ The second level is a `nav` landmark named for its section. Material Design 1 sh
 
 Descending navigation moves from a collection to one of its items. Each `Md1List.Item` with a click listener (or an `href`) is the link to its child. The child screen's app bar swaps the menu icon for the up arrow, named after the parent it returns to.
 
-The parent-to-child transition is the guidelines' marker for going deeper: the surface the reader touched lifts and expands into place on the standard curve. The child here is a raised sheet that scales in from the top over `--md1-duration-enter` (225 ms on handsets, 150 ms under a mouse) with `--md1-easing-standard`. Material Design 1 ships no route transition; this one belongs to the app, and it is dropped under reduced motion.
+The parent-to-child transition is the guidelines' marker for going deeper: the surface the reader touched lifts and expands into place on the standard curve. The child here is a raised sheet that scales in from the top over `--md1-duration-enter` (225 ms on handsets, 150 ms under a mouse) with `--md1-easing-standard`.[^list-transition] Material Design 1 ships no route transition; this one belongs to the app, and it is dropped under reduced motion.
 :::
 
 ::: ds-example
@@ -192,9 +192,9 @@ The parent-to-child transition is the guidelines' marker for going deeper: the s
 
 Cards are entry points too: a collection of cards leads to the detail of one. The card's action, here a flat "Explore" button in `Md1Card.Actions`, opens the child screen, and the up arrow returns to the collection.
 
-The card expands into the child screen with `useMorph`, the transform the [FAB](/systems/md1/fab) page uses. The detail screen is laid out in its final place and revealed by an `inset()` clip that starts at the card's rectangle and grows to the screen, the transforming-material page's rectangular transformation. The width starts first and the height 15% of the duration later, the page's rule for an expanding rectangle (`lead: 'width'`, `lag: 0.15`). The centre of the clip travels on an arc, and the whole transform runs on `--md1-duration-standard` and the standard curve.
+The card expands into the child screen with `useMorph`, the transform the [FAB](/systems/md1/fab) page uses. The detail screen is laid out in its final place and revealed by an `inset()` clip that starts at the card's rectangle and grows to the screen, the transforming-material page's rectangular transformation. The width starts first and the height 15% of the duration later, the page's rule for an expanding rectangle (`lead: 'width'`, `lag: 0.15`).[^card-lag] The centre of the clip travels on an arc, and the whole transform runs on `--md1-duration-standard` and the standard curve.[^transform-duration]
 
-The card's image is the shared element. The choreography page keeps a focal point by carrying elements across a transition: a collapsed card's elements become the expanded card's header. A second `useMorph` call with `scale: true` moves the header image from the card's media to its place and scales it from the card's width, keeping its aspect ratio as the page requires, with the same lead and lag so it stays inside the growing clip. The text below it is not shared, so it fades in over the last 60% of the transform, cropped by the growing surface. The up arrow plays both transforms backwards into the card.
+The card's image is the shared element. The choreography page keeps a focal point by carrying elements across a transition: a collapsed card's elements become the expanded card's header. A second `useMorph` call with `scale: true` moves the header image from the card's media to its place and scales it from the card's width, keeping its aspect ratio as the page requires, with the same lead and lag so it stays inside the growing clip. The text below it is not shared, so it fades in over the last 60% of the transform, cropped by the growing surface.[^text-fade] The up arrow plays both transforms backwards into the card.
 
 Parent-to-child expansion is a composition, not a card prop: the destination is the app's own screen, and only the app knows where it is.
 :::
@@ -214,7 +214,7 @@ Navigation can live in the content instead of an app bar. The shop's menu icon a
 
 Two levels of navigation combine a drawer and tabs: the drawer chooses the section, and the tabs choose the view inside it. On a handset or tablet the drawer is temporary and opens in front of the tabs from the menu icon. From 600 px the example lays out as a desktop window: the drawer is pinned, and each section expands in-line to its own views, so the drawer and the tabs both show the second level and stay in step.
 
-The width comes from the frame through v0's `useResizeObserver`, so the example switches as the docs column resizes; an app would read `useBreakpoints` instead. The 600 px switch, the tablet breakpoint, is the example's own choice.
+The width comes from the frame through v0's `useResizeObserver`, so the example switches as the docs column resizes; an app would read `useBreakpoints` instead. The 600 px switch, the tablet breakpoint, is the example's own choice.[^combined-switch]
 :::
 
 ::: ds-example
@@ -241,3 +241,17 @@ Move focus to the new screen's heading or main region after a descending or asce
 | Arrow Left, Arrow Right | Moves between tabs in an `Md1Tabs` bar |
 | Enter, Space | Follows a list item, a card action, a tab, a bottom navigation action or the up arrow |
 | Escape | Closes a temporary drawer and returns focus to the menu icon |
+
+[^bundle-hues]: Our call: the figure gives each bundle its own hue; Blue, Pink and Green 700 and 200 are chosen for contrast on each theme.
+
+[^cascade-sheet]: Our call: the figure shows a second column without metrics; the 16 dp elevation is the drawer's and the four-increment width is ours.
+
+[^list-transition]: Our call: the page names the standard curve but no duration for this move; the enter duration is ours.
+
+[^card-lag]: Our call: the page says only that width leads height; the 0.15 lag is ours.
+
+[^transform-duration]: Our call: the pages give transforms no duration, so the card uses the standard one.
+
+[^text-fade]: Our call: the fade over the last 60% is the example's.
+
+[^combined-switch]: Our call: the figures show the mobile, tablet and desktop forms without a width; 600 px is the tablet breakpoint.
