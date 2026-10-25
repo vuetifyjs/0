@@ -142,6 +142,26 @@ The control changes what the card shows; it never navigates away. Keep it to one
 :::
 
 ::: ds-example
+/systems/md1/card/inline-controls
+
+### Slider and tabs in the action area
+
+The guidelines show two more controls in the action block. On the weather card a discrete `Md1Slider` picks the hour, and the reading above it follows; the stops are labelled under the track because the slider's own value pin only appears while it is pressed. On the stock card `Md1Tabs` switch the range the quote covers. Tabs span the card rather than sitting inside the 8 dp action padding, so the indicator runs edge to edge as it does in an app bar.
+
+The weather card also shows a full-bleed divider that is not an expansion seam: it separates the slider and the forecast list from the action below, for content that needs more distinct separation than spacing gives.
+:::
+
+::: ds-example
+/systems/md1/card/booking
+
+### Inset divider and segmented times
+
+Use an inset divider to separate related content inside one card. Here it parts the restaurant's details from the booking section below, held on the card's content keyline at both edges, so it reads as a pause within the card rather than a seam where the material could split. Compare the full-bleed dividers of the weather card and the expandable card.
+
+The booking section puts an `Md1ToggleButtons` group, the guidelines' segmented button, in the action block to choose a time, with the action that commits it in its own row underneath.
+:::
+
+::: ds-example
 /systems/md1/card/expanded
 
 ### Expandable card
@@ -151,6 +171,16 @@ Bind `v-model:expanded` and the card can expand in place to reveal `Md1Card.Expa
 Without the model there is no expansion: an unset `expanded` leaves the region hidden, and Material Design 1 warns in development that `Md1Card.Expanded` has nothing to reveal it. The toggle is yours to place. The example uses v0's `Collapsible.Activator`, renderless under `MD1_CARD_COLLAPSIBLE`, with an `Md1Button` as the trigger, which gives the button `aria-expanded` and `aria-controls` pointing at the region. A plain button that flips the model works too, without those attributes.
 
 The expanded card may grow past the view's height and then scrolls with the collection; the guidelines keep scrolling out of the card itself on mobile.
+:::
+
+::: ds-example
+/systems/md1/card/overflow
+
+### Truncated and scrolling content
+
+Card content that exceeds the card's maximum height is truncated, not scrolled. The recipe card cuts its supporting text at three lines with an ellipsis, and "Read more" expands the card to show all of it along with the expanded region; the card then grows and scrolls with the page, never on its own.
+
+On desktop the guidelines allow the exception the comments card shows: content inside the card can scroll internally under a fixed height, here a comment thread above a field for adding one. Keep it to desktop layouts. On a phone the page already scrolls, and a second scrolling region inside a card puts two scroll bars on one screen. The scrolling region is a focusable, labelled region so a keyboard user can scroll it too.
 :::
 
 ::: ds-example
