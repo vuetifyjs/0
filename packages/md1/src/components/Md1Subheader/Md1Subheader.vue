@@ -85,18 +85,13 @@
     padding-inline-start: var(--md1-keyline-content, 72px);
   }
 
-  /* The coloured subheader takes the app's primary colour. */
+  /*
+   * The coloured subheader takes the app's primary colour in both themes:
+   * Vuetify 1.5 leaves the primary unchanged on the dark sheet, where it reads
+   * at about 1.5:1 (SPEC.md Known limitations).
+   */
   .md1-subheader[data-primary] {
     color: var(--md1-primary, #3F51B5);
-  }
-
-  /*
-   * The primary 500 reads at about 1.5:1 on the dark sheet, under the 4.5:1
-   * floor. The dark theme takes the primary's 100 instead (Lead decision 12),
-   * the same rule as the current item of an Md1List.
-   */
-  [data-theme='md1-dark'] .md1-subheader[data-primary] {
-    color: var(--md1-primary-light, #C5CAE9);
   }
 
   /*

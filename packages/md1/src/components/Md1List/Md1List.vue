@@ -207,9 +207,9 @@
     user-select: none;
   }
 
-  /* Hover: the 6% overlay (lead decision 3), drawn as an image so it layers over the selected fill. */
+  /* Hover: Vuetify 1.5's list-tile hover, 4% black / 8% white (th:51-52, 145-146), drawn as an image so it layers over the selected fill. */
   .md1-list__tile:is(a[href], button, [role='option']):hover {
-    background-image: linear-gradient(var(--md1-hover, rgba(0, 0, 0, 0.06)), var(--md1-hover, rgba(0, 0, 0, 0.06)));
+    background-image: linear-gradient(var(--md1-list-hover, rgba(0, 0, 0, 0.04)), var(--md1-list-hover, rgba(0, 0, 0, 0.04)));
   }
 
   /*
@@ -351,8 +351,9 @@
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 
+  /* The check mark is a checkbox: the accent in both themes, as on Md1Checkbox (Vuetify 1.5's selectable.js:22). */
   .md1-list__item[data-selected] .md1-list__mark {
-    color: var(--md1-accent-control, #FF4081);
+    color: var(--md1-accent, #FF4081);
   }
 
   .md1-list__item[data-selected] .md1-list__mark,
@@ -455,21 +456,14 @@
     margin-block-start: var(--md1-spacing-2, 16px);
   }
 
-  /* The current destination of a navigation list takes the primary colour (navigation drawer page). */
+  /*
+   * The current destination of a navigation list takes the primary colour
+   * (navigation drawer page), on the dark sheet too: Vuetify 1.5 leaves the
+   * primary unchanged there, at about 1.5:1 (SPEC.md Known limitations).
+   */
   .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__primary,
   .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__icon {
     color: var(--md1-primary, #3F51B5);
-  }
-
-  /*
-   * The primary 500 reads at under 2:1 on the dark sheet, below the 4.5:1
-   * contrast floor, so the dark theme takes the primary's 100 (Lead
-   * decision 12).
-   */
-  [data-theme='md1-dark'] .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__primary,
-  [data-theme='md1-dark'] .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__icon,
-  [data-theme='md1-dark'] .md1-list__group[data-state='open'] > .md1-list__header .md1-list__primary {
-    color: var(--md1-primary-light, #C5CAE9);
   }
 
   /* A selected option carries the selection pattern's scrim: the selection token, the accent at 30%. */
