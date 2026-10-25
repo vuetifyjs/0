@@ -67,7 +67,7 @@
         <div class="md1-docs-writing-pad">
           <Md1Card>
             <Md1Card.Title>Welcome!</Md1Card.Title>
-  
+
             <Md1Card.Actions>
               <Md1Button>Next</Md1Button>
             </Md1Card.Actions>

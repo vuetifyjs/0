@@ -54,7 +54,7 @@
         <div class="md1-docs-writing-pad">
           <Md1Card>
             <Md1Card.Supporting>Send money to anyone in the US who has an email address. It’s fast, easy, and free.</Md1Card.Supporting>
-  
+
             <Md1Card.Actions>
               <Md1Button>Send money</Md1Button>
             </Md1Card.Actions>
@@ -146,7 +146,7 @@
         <div class="md1-docs-writing-pad">
           <Md1Card>
             <Md1Card.Supporting>Click <strong>Continue</strong></Md1Card.Supporting>
-  
+
             <Md1Card.Actions>
               <Md1Button variant="raised">Continue</Md1Button>
             </Md1Card.Actions>

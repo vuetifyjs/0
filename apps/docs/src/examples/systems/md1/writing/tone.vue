@@ -40,7 +40,7 @@
         <div class="md1-docs-writing-pad">
           <Md1Card>
             <Md1Card.Media ratio="16:9" src="https://picsum.photos/seed/md1-writing-savings/688/387" />
-  
+
             <Md1Card.Title>All your savings in one place</Md1Card.Title>
           </Md1Card>
         </div>
