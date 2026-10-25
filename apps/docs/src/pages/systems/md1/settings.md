@@ -86,7 +86,7 @@ Rows are two-line list tiles, 72 dp tall, with the label in Regular 16 sp at 87%
 
 Secondary text tells the reader the current state of a setting. When the label is enough on its own, leave the secondary line out; never repeat the label's words in it.
 
-A switch shows "On" or "Off" under its label. A switch or checkbox that needs a precise description may carry one line under the label instead: start it with a verb and say what happens when the setting is on, as "Plays a short vibration on every key press" does here. Longer explanations move to a second screen.
+A switch shows "On" or "Off" under its label. A switch or checkbox that needs a precise description may carry one line under the label instead: start it with a verb and say what happens when the setting is on, as "Plays a short vibration on every key press" and NFC's "Allow data exchange when the phone touches another device" do here. Longer explanations move to a second screen.
 
 Every other setting shows only its status, with specific details: "Hotspot off", "After 10 minutes of inactivity". The guidelines' counterexample describes the setting ("Adjust the delay before the screen automatically turns off") and is the thing to avoid. Labels follow the same writing rules: impersonal ("Notifications", not "Notify me"), neutral rather than negative ("Block", not "Never"), and plain unless an acronym such as NFC is better known than its expansion.
 :::

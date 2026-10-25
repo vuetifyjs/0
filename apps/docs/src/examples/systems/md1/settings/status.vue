@@ -4,6 +4,7 @@
 
   const airplane = shallowRef(false)
   const vibrate = shallowRef(true)
+  const nfc = shallowRef(false)
 </script>
 
 <template>
@@ -39,6 +40,18 @@
 
           <Md1List.Secondary>Hotspot off</Md1List.Secondary>
         </Md1List.Content>
+      </Md1List.Item>
+
+      <Md1List.Item :lines="3">
+        <Md1List.Content>
+          <Md1List.Primary>NFC</Md1List.Primary>
+
+          <Md1List.Secondary>Allow data exchange when the phone touches another device</Md1List.Secondary>
+        </Md1List.Content>
+
+        <Md1List.Action>
+          <Md1Switch v-model="nfc" aria-label="NFC" />
+        </Md1List.Action>
       </Md1List.Item>
 
       <Md1List.Item>
