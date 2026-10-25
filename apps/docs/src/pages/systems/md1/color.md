@@ -60,7 +60,7 @@ A Material Design 1 theme is three shades of one primary hue and one accent from
 | `--md1-primary-dark` | 700: the status bar, a pressed raised button | Indigo 700 `#303F9F` | same |
 | `--md1-primary-light` | 100: related information under a primary region | Indigo 100 `#C5CAE9` | same |
 | `--md1-accent` | The accent hue's A200: the FAB, action buttons, text fields, selection, links | Pink A200 `#FF4081` | same |
-| `--md1-accent-light` | A100, the lighter fallback for an accent without enough contrast | Pink A100 `#FF80AB` | same |
+| `--md1-accent-light` | 50, the data tables page's contextual header | Pink 50 `#FCE4EC` | same |
 | `--md1-accent-control` | Selection controls, sliders and pickers | Pink A200 `#FF4081` | Pink 200 `#F48FB1` |
 | `--md1-on-primary`, `--md1-on-accent` | Ink on the 500 and the A200: white at 100%, or black on the swatches the palette marks dark | `#FFFFFF` | same |
 | `--md1-error` | Red A400: the text field error line, the stepper error step | `#FF1744` | same |
@@ -90,6 +90,7 @@ Text, icons and dividers are never a grey from the palette. They are black on li
 | `--md1-text-primary` | 87% | 100% |
 | `--md1-text-secondary` | 54% | 70% |
 | `--md1-text-disabled`, `--md1-text-hint` | 38% | 50% |
+| `--md1-placeholder` | 42% | 50% |
 | `--md1-divider` | 12% | 12% |
 | `--md1-icon-active` | 54% | 100% |
 | `--md1-icon-inactive` | 38% | 50% |
@@ -99,7 +100,8 @@ The state overlays come from the component pages rather than the color page, and
 
 | Token | Light | Dark | Source |
 |-------|-------|------|--------|
-| `--md1-hover` | black 6% | white 10% | steppers page; a lead decision for every page that states none |
+| `--md1-hover` | black 6% | white 10% | the text-fields page's box fill and the selection controls' measured halo |
+| `--md1-list-hover` | black 4% | white 8% | Vuetify 1.5's list hover: lists, menus and their rows |
 | `--md1-focus` | black 12% | white 12% | buttons page |
 | `--md1-pressed` | `#999999` 40% | `#CCCCCC` 25% | buttons page |
 | `--md1-button-disabled` | black 12% | white 12% | buttons page, the disabled raised container |
@@ -199,7 +201,7 @@ The guidelines prefer opacity to grey because an opacity keeps its contrast over
 
 ### State overlays
 
-The overlays interactive components lay over their own surface, in both themes. Hover is 6% black (10% white on dark), the steppers page's value and Material Design 1's rule for every list, menu and tile whose page states none; buttons draw no hover overlay at all. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
+The overlays interactive components lay over their own surface, in both themes. Hover has no single value. The pages that state one win; elsewhere each component takes Vuetify 1.5's: 12% of the ink on buttons, bottom navigation and picker days, 4% black (8% white on dark) on lists and menus, 6% of the ink on steppers, and none on chips and tabs. Two of them are shared tokens: `--md1-list-hover` for the list rows and `--md1-hover`, the 6% black (10% white) that the text-fields page gives the box fill and the selection controls' halo reads at. Focus is a 12% overlay, pressed is `#999999` at 40% (`#CCCCCC` at 25% on dark), both from the buttons page.
 
 Selection is the accent at 30%: the selection page names the accent and Material Design 1 chose the alpha. A disabled raised button is a 12% fill with its label at 26% black (30% white on dark). The two scrims sit outside this grid: 20% black under a bottom sheet, the only value the guidelines state, and Grey 900 at 46% under dialogs and the temporary drawer.
 :::

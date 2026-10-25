@@ -50,12 +50,12 @@ The classes ship in `@paper/md1/style.css`. Material Design 1's components set t
 
 | Style | Weight | Size (sp) | Leading (dp) | Tracking | Case | Ink |
 |-------|--------|-----------|--------------|----------|------|-----|
-| Display 4 | Light 300 | 112 | single line | -10 | Sentence | 54% |
-| Display 3 | Regular 400 | 56 | single line | -5 | Sentence | 54% |
+| Display 4 | Light 300 | 112 | single line | -10 (ships -0.04em) | Sentence | 54% |
+| Display 3 | Regular 400 | 56 | single line (ships 1.35) | -5 (ships -0.02em) | Sentence | 54% |
 | Display 2 | Regular 400 | 45 | 48 | 0 | Sentence | 54% |
 | Display 1 | Regular 400 | 34 | 40 | 0 | Sentence | 54% |
 | Headline | Regular 400 | 24 | 32 | 0 | Sentence | 87% |
-| Title | Medium 500 | 20 | single line | 5 | Sentence | 87% |
+| Title | Medium 500 | 20 | single line | 5 (ships 0.02em) | Sentence | 87% |
 | Subheading | Regular 400 | 16 / 15 | 24 | 10 | Sentence | 87% |
 | Subheading 2 | Regular 400 | 16 / 15 | 28 | 10 | Sentence | 87% |
 | Body 2 | Medium 500 | 14 / 13 | 24 | 10 | Sentence | 87% |
@@ -68,8 +68,8 @@ Ink is the style's opacity of black on a light theme, from the page's contrast f
 
 Three columns carry a Material Design 1 decision where the page is silent:
 
-- **Single-line leading.** The page prints no leading for Display 4, Display 3, Title, Caption, Button and Menu, which "should exist as single lines". Material Design 1 sets `line-height: 1` on them.
-- **Tracking unit.** The page prints bare numbers. Material Design 1 reads them as Adobe tracking units, 1/1000 em, so -10 is `-0.01em` and 20 is `0.02em`.
+- **Single-line leading.** The page prints no leading for Display 4, Display 3, Title, Caption, Button and Menu, which "should exist as single lines". Material Design 1 sets `line-height: 1` on them, except Display 3, which takes Vuetify 1.5's 1.35.
+- **Tracking unit.** The page prints bare numbers and no unit. Where Vuetify 1.5 sets a tracking, Material Design 1 takes it: Display 4 at `-0.04em`, Display 3 at `-0.02em` and Title at `0.02em`. Vuetify sets none on the other styles, and its `normal` would erase the page's numbers, so they are read as Adobe tracking units, 1/1000 em: Subheading's 10 is `0.01em` and Caption's 20 is `0.02em`.
 - **Menu.** The archived scale, leading and tracking images omit Menu, though the contrast figure lists it. Material Design 1 uses Medium 14 sp (13 sp desktop), single line, at tracking 10. Those metrics are a recollection of earlier revisions of the page, not a capture Material Design 1 could read; treat them as the least certain on the page.
 
 ## Typeface
@@ -117,7 +117,7 @@ Noto ships tall scripts in Regular and Bold only, so the page's own table sets e
 
 ### The type scale
 
-All thirteen styles, each set with its `md1-type-*` class and labelled with the metrics the class applies: weight, size (device and desktop where they differ), leading, tracking in the page's units and the ink opacity. The metrics are read from the same token dictionary the classes are generated from, so the labels and the rendering cannot disagree.
+All thirteen styles, each set with its `md1-type-*` class and labelled with the metrics the class applies: weight, size (device and desktop where they differ), leading, the tracking the class sets and the ink opacity. The metrics are read from the same token dictionary the classes are generated from, so the labels and the rendering cannot disagree.
 
 Use the display styles sparingly, for a number or a short heading that is the point of the screen; they read at 54% so their size does the work rather than their weight. Title is the app bar's style "across form factors". Body 1 is running text and Body 2 its emphasised form, Caption is for annotations and image captions, and Button is the label every button uses, capitalised by `text-transform` while the source text stays in sentence case. Single-line styles never wrap; on a narrow screen the sample is cut off with an ellipsis instead.
 :::

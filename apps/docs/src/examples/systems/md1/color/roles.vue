@@ -2,7 +2,7 @@
   import { md1Colors, md1DarkColors } from '@paper/md1'
 
   // Each tile paints the live role token and labels itself with the ink the
-  // role is read under. The 100 and A100 shades take black on every hue (the
+  // role is read under. The 100 and 50 shades take black on every hue (the
   // colour page's swatch table), so the light roles use the black swatch ink.
   // Accent control has no on-role (it paints controls, not text surfaces);
   // black reads on both its A200 and its dark-theme 200.
@@ -11,7 +11,7 @@
     { role: 'primary-dark', name: 'Primary dark', rule: '700', ink: 'var(--md1-on-primary, #FFFFFF)' },
     { role: 'primary-light', name: 'Primary light', rule: '100', ink: 'var(--md1-black, #000000)' },
     { role: 'accent', name: 'Accent', rule: 'A200', ink: 'var(--md1-on-accent, #FFFFFF)' },
-    { role: 'accent-light', name: 'Accent light', rule: 'A100', ink: 'var(--md1-black, #000000)' },
+    { role: 'accent-light', name: 'Accent light', rule: '50', ink: 'var(--md1-black, #000000)' },
     { role: 'accent-control', name: 'Accent control', rule: 'A200 light, 200 dark', ink: 'var(--md1-black, #000000)' },
     { role: 'error', name: 'Error', rule: 'Red A400', ink: 'var(--md1-on-error, #FFFFFF)' },
   ] as const

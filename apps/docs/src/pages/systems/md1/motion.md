@@ -94,7 +94,7 @@ When several surfaces appear at once, the guidelines stagger them along one foca
 
 Material responds to input exactly where it lands. The guidelines draw that response as a touch ripple: ink that expands outward from the point of contact and confirms the input was received, with reactions near the touch happening before reactions further away. Every interactive Material Design 1 component hosts an `Md1Ripple` as its first child for this; there is no prop to turn it off.
 
-The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, an alias of `--md1-duration-standard`, on the standard curve, and fades over `--md1-duration-leave`, so it follows the device scale with everything else. A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
+The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, 250 ms, and fades over `--md1-ripple-fade`, 300 ms, both on the standard curve: the motion pages state no ripple numbers, so these are Vuetify 1.5's, and they hold on every device rather than following the duration scale. A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
 
 The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface Material Design 1 does not ship. The guidelines give no ripple timing of their own; the values are the motion page's durations, and the [Ripple](/systems/md1/ripple) page covers the component in full.
 :::
@@ -129,7 +129,8 @@ body[data-reduced-motion='reduce'] .my-sheet {
 | `--md1-duration-leave` | 195ms | 254ms | 150ms |
 | `--md1-duration-standard` | 300ms | 390ms | 200ms |
 | `--md1-duration-complex` | 375ms | 488ms | 200ms |
-| `--md1-ripple-duration` | `var(--md1-duration-standard)` | follows | follows |
+| `--md1-ripple-duration` | 250ms | same | same |
+| `--md1-ripple-fade` | 300ms | same | same |
 | `--md1-stagger` | 20ms | 20ms | 20ms |
 
 Tablet is `(min-width: 600px) and (pointer: coarse)`; desktop is `(pointer: fine)`.

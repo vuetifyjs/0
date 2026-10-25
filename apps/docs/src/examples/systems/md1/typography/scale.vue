@@ -38,8 +38,11 @@
     const tokens = type[style]
     const desktop = style in typeDesktop ? typeDesktop[style as keyof typeof typeDesktop].size : tokens.size
     const size = desktop === tokens.size ? `${sp(tokens.size)} sp` : `${sp(tokens.size)} / ${sp(desktop)} sp`
-    const leading = tokens.leading === '1' ? 'single line' : `${sp(tokens.leading)} dp leading`
-    const tracking = Math.round(Number.parseFloat(tokens.tracking) * 1000)
+    // Unitless leading other than 1 (Display 3's 1.35) is a ratio of the size, not a dp line.
+    const leading = tokens.leading === '1'
+      ? 'single line'
+      : (tokens.leading.endsWith('px') ? `${sp(tokens.leading)} dp leading` : `${tokens.leading} leading`)
+    const tracking = tokens.tracking === '0' ? '0' : tokens.tracking
     const ink = typeInk[style] === 'primary' ? '87%' : '54%'
     const caps = tokens.transform === 'uppercase' ? ', all caps' : ''
 

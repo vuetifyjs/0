@@ -1,7 +1,8 @@
 <script setup lang="ts">
   // The state overlays each theme publishes, painted over the theme's sheet.
   const STATES = [
-    { token: 'hover', name: 'Hover', light: 'black 6%', dark: 'white 10%' },
+    { token: 'hover', name: 'Box fill and halo', light: 'black 6%', dark: 'white 10%' },
+    { token: 'list-hover', name: 'List hover', light: 'black 4%', dark: 'white 8%' },
     { token: 'focus', name: 'Focus', light: 'black 12%', dark: 'white 12%' },
     { token: 'pressed', name: 'Pressed', light: '#999999 40%', dark: '#CCCCCC 25%' },
     { token: 'selection', name: 'Selection', light: 'accent 30%', dark: 'accent 30%' },

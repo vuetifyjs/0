@@ -126,15 +126,15 @@ The ink is the spec's pressed overlay, `--md1-pressed`: 40% `#999999` on the lig
 
 The ink paints in the `color` of the `.md1-ripple` layer, so a host that follows another page's values sets `color` on its own ripple child instead. The selection controls do: the selection controls page draws their pressed halo as a faint grey while off and as about 10% of the accent while on (measured from the page's artwork; it states no number), so Material Design 1 paints them in `--md1-hover` (black 6% on the light theme, white 10% on the dark one) and in 10% of the accent. That is why the checkbox in the controls example above presses lighter than the buttons beside it. A composition of your own can do the same with a `> .md1-ripple` rule on its host class.
 
-The motion pages state no ripple numbers, so Material Design 1 takes them from the duration and easing page rather than from Vuetify's 250 and 300 ms. The ink expands over `--md1-ripple-duration`, an alias of `--md1-duration-standard` (300 ms on handsets, 390 ms on tablets, 200 ms with a mouse), scaling from nothing to full size on the standard curve while its opacity reaches full in the first 30%. It fades over `--md1-duration-leave` (195 ms, 254 ms on tablets, 150 ms with a mouse) on the same curve.
+The motion pages state no ripple numbers, so Material Design 1 takes Vuetify 1.5's. The ink expands over `--md1-ripple-duration`, 250 ms on every device, scaling from nothing to full size on the standard curve while its opacity reaches full in the first 30%. It fades over `--md1-ripple-fade`, 300 ms, on the same curve.
 
-A press shorter than the expansion still draws the whole reaction: the release is remembered and the fade starts when the expansion lands. Because the tokens are custom properties, a declaration on any ancestor retunes every ripple inside it, which is how the second sheet runs five times slower. Override `--md1-ripple-duration` itself to change the expansion; the alias resolves where the theme declares it, so overriding `--md1-duration-standard` on a subtree leaves the ripple where it was.
+A press shorter than the expansion still draws the whole reaction: the release is remembered and the fade starts when the expansion lands. Because the tokens are custom properties, a declaration on any ancestor retunes every ripple inside it, which is how the second sheet runs five times slower. Override `--md1-ripple-duration` to change the expansion and `--md1-ripple-fade` to change the fade; the device duration scale does not move them.
 
 | Token | Light | Dark | Use |
 |-------|-------|------|-----|
 | `--md1-pressed` | `#999999` at 40% | `#CCCCCC` at 25% | Ink colour |
-| `--md1-ripple-duration` | `var(--md1-duration-standard)` | same | Expansion |
-| `--md1-duration-leave` | 195 ms | same | Fade |
+| `--md1-ripple-duration` | 250 ms | same | Expansion |
+| `--md1-ripple-fade` | 300 ms | same | Fade |
 | `--md1-easing-standard` | `cubic-bezier(0.4, 0, 0.2, 1)` | same | Both curves |
 :::
 
