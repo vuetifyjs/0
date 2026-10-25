@@ -116,6 +116,14 @@ The bar follows any scroller inside its own parent, the app shell's content regi
 :::
 
 ::: ds-example
+/systems/md1/toolbar/cover
+
+### A sheet covering the toolbar
+
+A toolbar sits a step above the sheet its actions affect, and a sheet that scrolls under it is clipped at its edge. A sheet can also be the higher one: here the article sits 2 dp above a prominent toolbar that stays put, and as the article scrolls up it covers the bar instead of passing under it. The toolbar keeps its seam until the sheet has covered it. Nothing passes through either surface; only which one is higher changes.
+:::
+
+::: ds-example
 /systems/md1/toolbar/tabs
 
 ### Tabs in the extension
