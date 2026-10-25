@@ -19,7 +19,7 @@
       <Md1Toolbar.Title>Work files</Md1Toolbar.Title>
 
       <Md1Toolbar.Actions>
-        <span class="md1-docs-errors-mode-badge" role="img" aria-label="Managed by your organization">
+        <span aria-label="Managed by your organization" class="md1-docs-errors-mode-badge" role="img">
           <Md1Icon name="lock" />
         </span>
 
