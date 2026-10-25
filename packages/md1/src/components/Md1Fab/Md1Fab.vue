@@ -404,14 +404,15 @@
    * The flung-out actions: a native popover anchored above the FAB, with no
    * sheet of its own (each action and label is its own surface). Two columns,
    * labels then 40 dp circles; each action precedes its label in the DOM
-   * (SPEC.md anatomy) and the dense flow pairs them on one row. 16 dp between
-   * rows and between a label and its button (both decisions; the page states
-   * no speed dial metrics); the side padding is the half difference of the two
+   * (SPEC.md anatomy) and the dense flow pairs them on one row. The page states
+   * no speed dial metrics: 12 px between rows, Vuetify 1.5's 6 px button
+   * margins on each side (var:169-171); 16 dp between a label and its button
+   * (a decision, Vuetify has no labels); the side padding is the half difference of the two
    * circles, so the 40 dp actions centre on the 56 dp FAB. Layout lives under
    * :popover-open so the UA's display: none still hides a closed dial.
    */
   .md1-fab__actions {
-    padding: 0 calc((56px - 40px) / 2) var(--md1-spacing-2, 16px);
+    padding: 0 calc((56px - 40px) / 2) 12px;
     border: 0;
     background: transparent;
     color: inherit;
@@ -420,7 +421,7 @@
     grid-auto-flow: row dense;
     align-items: center;
     justify-items: end;
-    row-gap: var(--md1-spacing-2, 16px);
+    row-gap: 12px;
     column-gap: var(--md1-spacing-2, 16px);
     transition:
       display var(--md1-duration-leave, 195ms) allow-discrete,
@@ -449,9 +450,10 @@
   }
 
   /*
-   * An action: a 40 dp mini FAB on the surface colour with the active icon
-   * ink at the FAB's 6 dp, the page's "mini FABs" reading of a speed dial
-   * (colours are a decision; the page states none for the items). Closed it
+   * An action: a 40 dp mini FAB at the FAB's 6 dp with the active icon ink,
+   * the page's "mini FABs" reading of a speed dial. The page states no item
+   * colour, so it fills like Vuetify 1.5's uncoloured floating button, the app
+   * bar colour (Grey 100, Grey 900 on dark; _buttons.styl:18-19). Closed it
    * waits at scale 0 and leaves on the acceleration curve; open it grows on
    * the deceleration curve.
    */
@@ -468,7 +470,7 @@
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background-color: var(--md1-surface, #FFFFFF);
+    background-color: var(--md1-app-bar, #F5F5F5);
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
     box-shadow: var(--md1-elevation-6, 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12));
     cursor: pointer;
