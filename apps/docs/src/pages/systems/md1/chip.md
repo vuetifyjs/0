@@ -178,7 +178,7 @@ The chip carries `aria-expanded` and `aria-controls` while it owns a sheet. The 
 
 ### Focus
 
-A focused chip rises to 2 dp, the guidelines' rule for the contact chip that Material Design 1 extends to every chip, and keyboard focus on a pressable chip adds the 12% overlay. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
+A focused chip rises to 2 dp, the guidelines' rule for the contact chip that Material Design 1 extends to every chip, and keyboard focus on a pressable chip adds the 13% overlay of its ink described above. Under forced colours, where backgrounds are dropped, a 2 px outline draws in its place.
 
 [^icon]: Vuetify 1.5.24, stylus/components/_chips.styl:156-158 and stylus/settings/_variables.styl:208-209. A left icon takes a -8 px margin inside the 12 px padding and 12 px before the label.
 

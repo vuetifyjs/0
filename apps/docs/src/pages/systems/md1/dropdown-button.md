@@ -83,7 +83,7 @@ The guidelines' font size picker: a segmented dropdown whose displayed state is 
 
 A typed state need not be one of the items: a size the list does not offer is still a size. Text that names an item commits that item's value; when every item's value is a number, a typed number commits as a number; anything else commits as the text, for the app to accept or correct. The field shows the committed state, an item's text or the value itself.
 
-The guidelines give the editable form no metrics, so it takes Vuetify 1.5's editable overflow button: a 48 dp field with its 16 sp text 16 dp in, a 1 dp divider line at its foot, and a 48 dp arrow segment behind a 1 dp seam.[^overflow-button] Hovered, focused or open, it lifts onto the surface at 2 dp.[^lift] It is two 56 dp increments wide by default, the menu's own minimum, so the sheet that opens over it covers it;[^width] set a width on it for a wider field.
+The guidelines give the editable form no metrics, so it takes Vuetify 1.5's editable overflow button: a 48 dp field with its 16 sp text 16 dp in, a 1 dp divider line at its foot, and a 48 dp arrow segment behind a 1 dp seam.[^overflow-button] Hovered, it takes the surface fill; focused or open, it also lifts to 2 dp.[^lift] It is two 56 dp increments wide by default, the menu's own minimum, so the sheet that opens over it covers it;[^width] set a width on it for a wider field.
 :::
 
 ::: ds-example

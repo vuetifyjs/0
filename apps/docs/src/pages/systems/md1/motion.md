@@ -134,7 +134,7 @@ Material responds to input exactly where it lands. The guidelines draw that resp
 
 The ink is the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one. It expands over `--md1-ripple-duration`, 250 ms, and fades over `--md1-ripple-fade`, 300 ms, both on the standard curve: the motion pages state no ripple numbers, so these are Vuetify 1.5's, and they hold on every device rather than following the duration scale.[^ripple-timing] A keyboard press starts it at the centre. Inside a bounded host the ink fills the surface and is clipped by it; the `unbounded` form is the 48 dp circle an icon toggle draws past its glyph.
 
-The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface Material Design 1 does not ship. The guidelines give no ripple timing of their own; the values are the motion page's durations, and the [Ripple](/systems/md1/ripple) page covers the component in full.
+The example composes `Md1Ripple` on v0's `Button.Root`, the escape hatch for a surface Material Design 1 does not ship. The [Ripple](/systems/md1/ripple) page covers the component in full.
 :::
 
 ::: ds-example

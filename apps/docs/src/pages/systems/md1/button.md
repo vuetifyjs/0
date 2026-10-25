@@ -87,7 +87,7 @@ The guidelines make the reduction optional for mouse-and-keyboard UIs ("can be s
 
 ### Icons
 
-`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so Material Design 1 uses one step of the 8 dp grid; that value is a decision, not a spec number.
+`icon` names a role from the Material Design 1 icon set and draws it through `Md1Icon` ahead of the label: 24 dp, hidden from assistive technology because the label already names the action. The guidelines give no icon-to-label gap, so Material Design 1 takes Vuetify 1.5's 16 dp, two steps of the 8 dp grid.[^icon-gap]
 
 Leave the slot empty and the button becomes icon-only. v0 marks it `data-solo`, and Material Design 1 renders the 48 dp circular target with the glyph centred, the shape of every icon button in a Material Design 1 toolbar. Its ink is the primary text ink, 87% black (white on the dark theme), rather than the accent, Vuetify 1.5's icon button.[^icon-ink] An icon-only button has no text, so its accessible name must come from `ariaLabel`; without it Material Design 1 warns in development and v0 falls back to a generic label. Under `dense` the icon-only form takes the icon toggle's dense rule: a 40 dp target around a 20 dp glyph.
 :::
@@ -185,6 +185,8 @@ The 36 dp button answers to a 48 dp tall hit area, the minimum touch target of t
 [^hover]: Vuetify 1.5.24, stylus/components/_buttons.styl:54,62-72. The 12% `currentColor` hover overlay on `.v-btn`, cleared under `(hover: none)`.
 
 [^dense]: Our call: the page makes the reduction optional, so it is a prop rather than a `(pointer: fine)` switch.
+
+[^icon-gap]: Vuetify 1.5.24, stylus/components/_icons.styl:25-26. `.v-icon--left` takes a `$grid-gutters.lg` (16 px) end margin.
 
 [^icon-ink]: Vuetify 1.5.24, stylus/components/_buttons.styl:5-6. An uncoloured `.v-btn` takes `text.primary`, which is what an icon button inherits.
 

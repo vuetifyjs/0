@@ -37,7 +37,15 @@ Material Design 1 has its own tokens, its own icon set, and its own component na
 
 ### The pinned spec
 
-The guidelines are archived, so the spec cannot move under the package. Material Design 1 is pinned to [m1.material.io](https://m1.material.io/), the Material Design 1 guidelines Google hosts as an archive. The archive's own changelog ends with September 2017, which dates the frozen content. The glyphs are Material Icons at commit `49d4db35`, and Vuetify 1.5.24 is used only as a numeric cross-check, never as a source of API.
+The guidelines are archived, so the spec cannot move under the package. Material Design 1 is pinned to [m1.material.io](https://m1.material.io/), the Material Design 1 guidelines Google hosts as an archive. The archive's own changelog ends with September 2017, which dates the frozen content. The glyphs are Material Icons at commit `49d4db35`.
+
+Every value follows one authority order:
+
+1. **m1.material.io**, wherever it is explicit.
+2. **Vuetify 1.5.24's styling**, where the guidelines are silent: a hover overlay, a radius, a delay. Never its API; every prop name still comes from the guidelines.
+3. **Our own call**, where neither says anything.
+
+The footnotes on each page mark the second and third tiers: a Vuetify 1.5 footnote names the stylesheet and lines the value comes from, and an "Our call" footnote gives the reason. A value without a footnote is the guidelines' own.
 
 Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface (widgets, notifications, launch screens, toasts, split screen) are listed as out, with the reason, in the package's `SPEC.md`.
 

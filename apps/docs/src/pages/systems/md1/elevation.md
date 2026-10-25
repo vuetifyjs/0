@@ -64,7 +64,7 @@ Three rules follow from the model, and every Material Design 1 component keeps t
 
 ## Desktop elevation
 
-The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. Material Design 1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations.[^pointer-fine] The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. A laptop with a touch screen reports a coarse pointer and keeps the device values.
+The guidelines lower every resting elevation by 2 dp where mouse and keyboard are the primary input, because a desktop needs less depth than a hand-held screen. Material Design 1 maps "mouse and keyboard" to `(pointer: fine)`, the same query that switches the desktop type sizes and durations.[^pointer-fine] The raised button is the case the buttons page spells out: it rests seamed at 0 dp and gains its 2 dp on hover and on press. The query reads the primary pointer only: a laptop with a touch screen gets the desktop values while its trackpad or mouse is the primary pointer, and the device values when the browser reports touch as primary, as a 2-in-1 in tablet mode does.
 
 ## Examples
 

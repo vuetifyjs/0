@@ -84,7 +84,7 @@ Material Design 1 does not load fonts. Include Roboto in the weights the scale u
 
 ## Desktop sizes
 
-The page gives two sizes for the body styles: one for phones and tablets and a smaller one where mouse and keyboard are the primary input. Material Design 1 keys that on `(pointer: fine)`.[^pointer-fine] Under it, Subheading and Subheading 2 drop to 15 sp and Body 2, Body 1 and Menu to 13 sp; leading, weight and every other style stay the same. A laptop with a touch screen and a mouse reports a fine pointer and gets the desktop sizes. There is no runtime override.
+The page gives two sizes for the body styles: one for phones and tablets and a smaller one where mouse and keyboard are the primary input. Material Design 1 keys that on `(pointer: fine)`.[^pointer-fine] Under it, Subheading and Subheading 2 drop to 15 sp and Body 2, Body 1 and Menu to 13 sp; leading, weight and every other style stay the same. The query reads the primary pointer only: a laptop with a touch screen gets the desktop sizes while its trackpad or mouse is the primary pointer, and the device sizes when the browser reports touch as primary, as a 2-in-1 in tablet mode does. There is no runtime override.
 
 ## Dense and tall scripts
 

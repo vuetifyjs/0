@@ -182,7 +182,7 @@ On desktop the pattern reveals a check mark on hover: the empty checkbox replace
 
 ### Expandable groups
 
-`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve,[^duration] indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, and its 100 tint on the dark theme.
+`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve,[^duration] indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, the primary 500 on both themes, like the current item.[^dark]
 
 `v-model` on the group holds its open state. Nested items still register with the root list, so the root's `v-model` marks the current destination wherever it sits in the tree. Groups belong to navigation lists: a listbox may hold options only, and Material Design 1 warns in development when a group is placed inside one.
 :::

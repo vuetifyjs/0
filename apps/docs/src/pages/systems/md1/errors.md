@@ -82,7 +82,7 @@ The errors page restates the text field metrics for the error state. The [text f
 
 ### Field states
 
-The four states a field moves through on the way to an error, side by side: at rest with hint text, with error text, with helper text, and with the helper text replaced by an error. The error state turns the underline and the text below it to the error colour, Red A400 on light and the lighter error tone on dark; the hint and helper keep the hint ink, 38% black or 50% white. Switch the example's theme to see the dark set.
+The four states a field moves through on the way to an error, side by side: at rest with hint text, with error text, with helper text, and with the helper text replaced by an error. The error state turns the underline and the text below it to the error colour, Red A400 (`#FF1744`) on both themes; the hint and helper keep the hint ink, 38% black or 50% white. Switch the example's theme to see the dark set.
 :::
 
 ::: ds-example
