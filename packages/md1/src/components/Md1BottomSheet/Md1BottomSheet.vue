@@ -31,6 +31,12 @@
      * sheet is modal: 16 dp over a 20% black scrim.
      */
     persistent?: boolean
+    /**
+     * Persistent only: from 960 px, inset the sheet by layout increments the
+     * way a modal sheet always is, instead of spanning the full width. The
+     * bottom sheets page leaves the choice to the content and the layout.
+     */
+    inset?: boolean
     /** Lays `Item` children out as 48 dp icon tiles with labels instead of 48 dp rows. */
     grid?: boolean
     /**
@@ -92,6 +98,7 @@
   const {
     id: _id,
     persistent = false,
+    inset = false,
     grid = false,
     teleport = true,
   } = defineProps<Md1BottomSheetProps>()
@@ -182,6 +189,7 @@
 
   const hooks = toRef(() => ({
     'data-expanded': expanded.value || undefined,
+    'data-inset': (persistent && inset) || undefined,
     'data-layout': layout.value,
     'data-open': open.value || undefined,
     'data-persistent': persistent || undefined,
@@ -372,28 +380,37 @@
   }
 
   /*
-   * Tablet and desktop: the modal sheet is inset by layout increments (64 dp
-   * from 600 px): at least 1 from each edge and 6 wide at 960 dp, 2 and 8 at
-   * 1280, 3 and 9 at 1440. The content sets the width between the two.
+   * Tablet and desktop: the modal sheet, and the persistent one with `inset`,
+   * is inset by layout increments (64 dp from 600 px): at least 1 from each
+   * edge and 6 wide at 960 dp, 2 and 8 at 1280, 3 and 9 at 1440. The content
+   * sets the width between the two. An inset persistent sheet no longer meets
+   * the side edges, so its 1 dp seam runs up both sides as well.
    */
   @media (min-width: 960px) {
-    .md1-bottom-sheet:not([data-persistent]) {
+    .md1-bottom-sheet:not([data-persistent]),
+    .md1-bottom-sheet[data-inset] {
       width: fit-content;
       min-width: calc(6 * var(--md1-increment, 64px));
       max-width: calc(100% - 2 * var(--md1-increment, 64px));
       margin-inline: auto;
     }
+
+    .md1-bottom-sheet[data-inset] {
+      border-inline: 1px solid var(--md1-divider, rgba(0, 0, 0, 0.12));
+    }
   }
 
   @media (min-width: 1280px) {
-    .md1-bottom-sheet:not([data-persistent]) {
+    .md1-bottom-sheet:not([data-persistent]),
+    .md1-bottom-sheet[data-inset] {
       min-width: calc(8 * var(--md1-increment, 64px));
       max-width: calc(100% - 4 * var(--md1-increment, 64px));
     }
   }
 
   @media (min-width: 1440px) {
-    .md1-bottom-sheet:not([data-persistent]) {
+    .md1-bottom-sheet:not([data-persistent]),
+    .md1-bottom-sheet[data-inset] {
       min-width: calc(9 * var(--md1-increment, 64px));
       max-width: calc(100% - 6 * var(--md1-increment, 64px));
     }
