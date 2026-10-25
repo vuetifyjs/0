@@ -113,7 +113,8 @@ From `spec/patterns/rulings.md`, which carries the reasons.
 | errors, empty-states, confirmation-acknowledgement, settings, navigation, loading-images, offline-states, help-feedback | documented compositions of shipped components (docs pages, no surface) |
 | navigational-transitions | sibling slide on `Md1Tabs` panels (component behaviour); parent-to-child expansion is a documented composition, not a prop: `useMorph` expands an `Md1Card` into the app's detail screen with an `inset()` clip and carries its image as the shared element (navigation docs page, "Forward through cards"), because only the app knows the destination screen; the list example keeps a consumer `Transition` |
 | swipe-to-refresh | a composition example on `Md1ProgressCircular`; no `Md1SwipeRefresh` (v0 has no swipe primitive, mobile browsers own pull-to-refresh, the spec forbids it in drawers and pannable content) |
-| data-formats, gestures, notifications, launch-screens, permissions, fingerprint, app-shortcuts | out of scope |
+| data-formats, permissions, launch-screens | documented compositions on the docs pages: the date, time and redaction rules (data formats), the denied and critical permission screens, and the placeholder UI launch screen; the runtime permission prompt and the branded splash are platform chrome |
+| gestures, notifications, fingerprint, app-shortcuts | out of scope |
 
 ### Growth and communications
 
@@ -133,12 +134,12 @@ MD1 pages with no web surface:
 | Widgets | Android home-screen launcher surface (placement, long-press resize mode, placement-time configuration); a browser document has nothing to host |
 | Notifications | "Android only" on the page; the OS notification drawer; the Web Notifications API renders browser chrome |
 | Fingerprint | Android only; WebAuthn prompts are browser chrome |
-| Permissions | the nine Android runtime permission groups; browser permission prompts are chrome |
-| Launch screens | the cold-launch splash is OS chrome; the PWA manifest owns it on the web |
+| Permissions | the nine Android runtime permission groups and the request prompt; browser permission prompts are chrome (the denied and critical screens are docs compositions, see Pattern rulings) |
+| Launch screens | the branded cold-launch splash is OS chrome; the PWA manifest owns it on the web (the placeholder UI is a docs composition, see Pattern rulings) |
 | App shortcuts | Android launcher feature; the page was never captured on any host |
 | Swipe to refresh | see the rulings table |
 | Toasts | Android system messaging at the bottom of the screen that cannot be swiped off; `Md1Snackbar` is the web surface |
-| Gestures, data formats | rules carried by the owning components and the docs; no surface |
+| Gestures | rules carried by the owning components and the docs; no surface |
 | Text selection handles and the floating Cut / Copy / Paste toolbar | OS and browser chrome; the accent highlight is the app's `::selection` rule (Known limitations) |
 | Split screen (`layout/split-screen`) | "Android only" on the page: multi-window activation, divider dragging and activity launch placement; the browser owns window management (`spec/layout.md`) |
 | Material design: introduction, environment, material properties | principles carried by the elevation, motion and colour tokens (`spec/elevation.md` and `spec/color.md` read them as supplementary sources); no surface |
@@ -179,7 +180,7 @@ Emerald's contract, restated where Material Design 1 differs:
 - Withheld v0 props are withheld at the type level. A shell's `Pick` is the public surface and TypeScript rejects the rest; at runtime the attrs still fall through to the v0 root (`<Md1Button loading>` reaches `Button.Root`), the shape Emerald ships too. No shell filters attrs.
 - Every interactive component hosts an `Md1Ripple`. There is no prop to remove it: the ripple is the spec's press feedback, not an option (ruling 8 keeps Vuetify's `ripple` prop on the wrapper).
 - Native `<dialog>` paints the scrim through `::backdrop` in `--md1-scrim` (`--md1-scrim-sheet` under a bottom sheet, Lead decision 2); Material Design 1 never mounts v0 `Scrim`, and every `Dialog.Content` it renders passes `scrim: false` (issue #910).
-- Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('Material Design 1.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
+- Default copy comes from the writing page's button label table (`spec/iconography.md`: OK, Cancel, Dismiss, Got it, Learn more, Next, Back, Done, Skip, No thanks, Not now) through `useLocale().ti('Md1.<key>') ?? '<English>'`. Button labels are uppercased by CSS; source text stays sentence case.
 
 ## Compound access
 
@@ -219,7 +220,7 @@ Pattern vocabulary: shell (one SFC on a v0 compound); compound (one SFC per regi
 | `Md1Slider` | sliders | shell | `Slider.Root`, `Track`, `Range`, `Thumb` | none | `min`, `max`, `step`, `discrete`, `iconStart`, `iconEnd`, `editable`, `disabled` | `data-discrete`, `data-zero`, `data-dragging`, `data-disabled` |
 | `Md1Snackbar` | snackbars-toasts | compound | `Snackbar.*`, `Presence`, `Button.Root` | `Portal`, `Queue` | `action`, `multiline`, `align` | `data-multiline`, `data-stacked`, `data-align` |
 | `Md1Stepper` | steppers | compound | `Step.Root`, `Step.Item`, `Collapsible.*`, `Button.Root`, `Progress.Root` | `Step`, `Content`, `Actions`, `Bar` | `vertical`, `linear`, `alternativeLabels`, `mobile` | `data-vertical`, `data-linear`, `data-alternative`, `data-mobile`; Step `data-state`, `data-editable`, `data-optional`, `data-error` |
-| `Md1Tabs` | tabs | compound | `Tabs.*`, `createOverflow` | `List`, `Item`, `Panel` | `scrollable` | `data-scrollable`, `data-fixed`, `data-overflow`; Item `data-selected`, `data-icon`, `data-lines` |
+| `Md1Tabs` | tabs | compound | `Tabs.*`, `createOverflow` | `List`, `Item`, `Panel` | `scrollable`, `more` | `data-scrollable`, `data-fixed`, `data-overflow`, `data-more`; Item `data-selected`, `data-icon`, `data-lines` |
 | `Md1TextField` | text-fields | shell; compound under `dropdown` (`Item` children) | `Input.Root`, `Input.Control`, `Input.Description`, `Input.Error`, `Button.Root` (clear, visibility, voice, picker icon), `Select.*` (dropdown) | `Item` (dropdown only) | `label`, `helper`, `placeholder`, `prefix`, `suffix`, `counter`, `required`, `optional`, `icon`, `clearable`, `voice`, `box`, `dense`, `multiline`, `textarea`, `fullWidth`, `solo`, `dropdown`, `picker`, `mask`, `type`, `rules`, `validateOn`, `errorIcon` | `data-state`, `data-focused`, `data-dirty`, `data-disabled`, `data-box`, `data-dense`, `data-full-width`, `data-multiline`, `data-solo`, `data-scrolled`, `data-dropdown`, `data-open`, `data-picker`, `data-mask`, `data-counter` |
 | `Md1Autocomplete` | text-fields | compound | `Combobox.*` | `Item`, `Empty` | the `Md1TextField` text props plus `strict`, `multiple`, `inline` | `data-open`, `data-inline`; Item `data-highlighted`, `data-selected` |
 | `Md1Tooltip` | tooltips | compound | `Tooltip.*`, `createTooltipPlugin` | `Activator`, `Content` | `disabled` | Content `data-state`, `data-touch` |
@@ -710,7 +711,7 @@ Everything else follows the contract: tokens on `theme.ts` through a `V0StyleShe
 
 - **Pickers are DS-owned.** `Md1DatePicker` and `Md1TimePicker` carry their own cores until v0 ships the composables; min, max, disabled dates and ranges are not in MD1 and do not ship.
 - **Native `<dialog>` versus the global `Scrim`.** Material Design 1 paints `::backdrop`; an app that also mounts v0's `<Scrim>` paints a second backdrop (#910).
-- **Gestures.** Swipe to dismiss (cards, snackbars, bottom sheets, list leave-behinds), pick-up-and-move (cards, lists), swipe to refresh and edge-swipe drawer opening are not shipped; every one has a button, keyboard or scrim path. Tab panels change on tab activation; panel swipe is deferred.
+- **Gestures.** Swipe to dismiss (cards, snackbars, bottom sheets, list leave-behinds), pick-up-and-move on cards (a list row moves through its `Md1List.Reorder` handle, by drag or keyboard), swipe to refresh and edge-swipe drawer opening are not shipped; every one has a button, keyboard or scrim path. Tab panels change on tab activation; panel swipe is deferred.
 - **Menus.** A menu with no selected item opens below its emitter rather than over it: the spec's over-the-emitter rule is written for the selected item. The selected-item placement is measured in JS when the sheet opens, so a selected row whose height changes while the menu is open is not re-centred.
 - **Values the spec never states**, filled by Vuetify 1.5's styling (Authority order) and tagged with its `file:line` in the component sections: hover overlays per component, scrim alpha, card, menu and tooltip radius, tooltip elevation and delays, chip fill, focus and icon gap, snackbar timeout, ripple timing, mini drawer width, speed-dial spacing and fill, expansion-panel elevations, dialog desktop width and body ink, toggle-button group, tab colours on surface bars, the stepper sheet, the floating toolbar, control-to-label gap, indeterminate cycle durations, the circular track, display and title tracking. Material Design 1 decisions remain only where Vuetify 1.5 has no equivalent: the grid-list bar scrim, the speed-dial labels, the long-press threshold, the stepper mobile bar, the feature-discovery geometry, the selection alpha, the card selection scrim. None is `high`.
 - **Contrast shortfalls, MD1-faithful.** These gap values come from Vuetify 1.5 and miss the 4.5:1 text floor (or the 3:1 non-text floor); they ship as Vuetify rendered them. Primary 500 ink on dark surfaces (Lead decision 12, reverted): Indigo 500 on Grey 800 is about 1.5:1 (the `primary` `Md1Subheader`, the current item and open group of `Md1List`, the current destination of `Md1NavigationDrawer`, the active action of the surface `Md1BottomNavigation`). White digits on the dark slider pin (Pink 200) are about 2.2:1. The circular determinate track, black 10%, nearly vanishes on the dark theme. Unselected `Md1ToggleButtons` items at 40% opacity read at about 2.4:1 (light) and 3.1:1 (dark). Inactive surface tabs at about 61% black pass (about 5.9:1); disabled tabs at 26% / 30% are exempt as disabled. The 4% / 8% list hover and the 6% stepper hover are fainter state layers than the 6% / 10% they replace.
@@ -790,20 +791,18 @@ What the integration and the docs sweeps of 2026-10-23 left open. Each line says
 
 - **Dialog.** `simple` builds its rows from `Button.Root`, `confirmation` and `scrolling` use v0 `Radio`, and `full-screen` hand-builds its bar; open: `Md1List`, `Md1Radio` and `Md1Toolbar`.
 - **Card.** The header and actions overflow buttons open nothing; open: an `Md1Menu`.
-- **Tabs.** No example puts a primary tab bar inside `Md1Toolbar`; open: that example.
-- **Text field.** No `picker` example; open: one.
 - **FAB seam.** The example hosts the FAB on a hand-built header with `data-fab-host`; open: the `Md1Toolbar.Extension`, `Md1Card` and `Md1BottomSheet` hosts.
 
 ### Locale keys with inline English fallbacks
 
-- **No catalogue.** Ships every key below through `useLocale().ti('Material Design 1.<key>')` with an inline English fallback, and `createMd1Plugin` registers no messages; undecided: an English catalogue in the plugin, or a published key list.
+- **No catalogue.** Ships every key below through `useLocale().ti('Md1.<key>')` with an inline English fallback, and `createMd1Plugin` registers no messages; undecided: an English catalogue in the plugin, or a published key list.
 - **Text field and autocomplete:** `clear`, `optional`, `voice`, `hidePassword`, `showPassword`, `chooseDate`, `chooseTime`, `noResults`.
 - **Search bar and toolbar:** `search`, `back`, `clear`, `voice`, `noResults`, `menu`, `actions`, `close`, `selectedCount`.
 - **Data table:** `itemsSelected`, `selectAll`, `selectRow`, `rowsPerPage`, `pageText`, `previousPage`, `nextPage`, `edit`, `save`, `cancel`.
 - **Dialog and snackbar:** `ok`, `cancel`, `discard`, `discardChanges`, `dismiss`.
 - **Stepper:** `continue`, `back`, `next`, `cancel`, `optional`, `steps`, `stepCount`.
 - **Pickers:** `hours`, `minutes`, `time`, `period`, `am`, `pm`, `chooseYear`, `year`, `previousMonth`, `nextMonth`.
-- **Other parts:** `previousTabs` and `nextTabs` (tabs), `options` (dropdown button), `loading` and `buffered` (progress), `navigation` (drawer), `slider`, `delete` (chip), `selected` (card, grid list), `close` (bottom sheet).
+- **Other parts:** `previousTabs`, `nextTabs` and `more` (tabs), `reorder`, `reorderHint` and `reordered` (list), `options` (dropdown button), `loading` and `buffered` (progress), `navigation` (drawer), `slider`, `delete` (chip), `selected` (card, grid list), `close` (bottom sheet).
 
 ### v0 upstream issues
 

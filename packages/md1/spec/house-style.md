@@ -1069,7 +1069,7 @@ async function settle () {
   await nextTick()
 }
 
-describe('quButton', () => {
+describe('md1Button', () => {
   it('should render a native button with the variant hook', async () => {
     const host = mount(() => h(Md1Button, { variant: 'raised' }, () => 'Save'))
     await settle()
@@ -1145,7 +1145,7 @@ Vitest prints `RUN v4.1.11 <root>` first; confirm the root is the md1 worktree b
 
 ### 3.5 Lint rules on test files (`**/*.test.ts` matches `*.browser.test.ts`)
 
-`it('should ...')` only (`vitest/consistent-test-it`), lowercase first letter in `describe` titles (`describe('quButton')`, the rule autofixes `Md1Button` to `quButton`), hooks on top and in order, at most three nested `describe`s, `toHaveBeenCalledTimes(1)` never `toHaveBeenCalledOnce()`, `any` allowed in tests. Zero stderr output: capture expected warnings with `using spy = vi.spyOn(console, 'warn')` and assert on them. Confidence: high.
+`it('should ...')` only (`vitest/consistent-test-it`), lowercase first letter in `describe` titles (`describe('md1Button')`, the rule autofixes `Md1Button` to `md1Button`), hooks on top and in order, at most three nested `describe`s, `toHaveBeenCalledTimes(1)` never `toHaveBeenCalledOnce()`, `any` allowed in tests. Zero stderr output: capture expected warnings with `using spy = vi.spyOn(console, 'warn')` and assert on them. Confidence: high.
 
 ## 4. Docs recipe
 
@@ -1440,7 +1440,7 @@ Run from the worktree root unless stated. The md1 worktree already has `node_mod
 | 24 | `isVisible()` from test-utils is unreliable for `v-show` under happy-dom | assert on `style` containing `display: none`, after two `nextTick`s; moot under the browser runner | memory `vitest-isvisible-vshow-unreliable` | moderate |
 | 25 | Vite dev in a worktree serves stale scoped `<style>` after edits | restart the dev server; unscoped styles in package source are unaffected | memory `docs-vite-scoped-style-hmr-stale` | low |
 | 26 | `createContext` keys without `:` trigger the `[v0:context]` namespace warning (zero-stderr policy) | `md1:dialog`, `md1:tabs`, tests use `md1:test` | `testing.md` | high |
-| 27 | `vitest/prefer-lowercase-title` rewrites `describe('Md1Button')` to `describe('quButton')`, which breaks a case-sensitive `-t` filter | name tests `should ...` and filter on a mid-string substring | `eslint.config.js`; memory note in `vitest-isvisible-vshow-unreliable` | high |
+| 27 | `vitest/prefer-lowercase-title` rewrites `describe('Md1Button')` to `describe('md1Button')`, which breaks a case-sensitive `-t` filter | name tests `should ...` and filter on a mid-string substring | `eslint.config.js`; memory note in `vitest-isvisible-vshow-unreliable` | high |
 | 28 | `__DEV__` and `process.env` are undefined in the browser runner unless defined at config time | copy Bootstrap's `define` block verbatim | `vitest.browser.config.ts` | high |
 | 29 | `pnpm -C <dir>` is reported to fail on some pnpm 10/11 builds | `pnpm --dir=<dir> exec ...` worked and `-C` also worked here (pnpm 11.16.0) | section 3.4 | high |
 | 30 | `data-bs-theme`-style attribute differences: Material Design 1 keys on `data-theme` like Emerald, so `SandboxRoot`'s `themeAttribute` default is correct and only `themes` needs the name map | | `SandboxRoot.vue` (Bootstrap diff) | high |
