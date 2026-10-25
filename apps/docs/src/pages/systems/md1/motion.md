@@ -88,6 +88,44 @@ When several surfaces appear at once, the guidelines stagger them along one foca
 :::
 
 ::: ds-example
+/systems/md1/motion/distance
+
+### Dynamic durations
+
+A duration is not fixed per component; it follows how far the element travels and how much its surface changes. A long trip or a large change in area takes longer, so it can be followed; a short trip or a small change takes less, so it does not drag. Under Dynamic the short trip takes half the standard duration and the long one the complex duration. Under Fixed both take the standard duration, and the short trip visibly crawls. Slow motion runs the dynamic values four times longer.
+
+Material Design 1 ships the four durations as tokens; scaling between them for distance is the app's call. `calc()` works on time values, so a scaled duration such as `calc(var(--md1-duration-standard) * 0.5)` still follows the device scale.
+:::
+
+::: ds-example
+/systems/md1/motion/arcs
+
+### Arcs and temporary exits
+
+An element that moves between two points on screen along both axes follows an arc, and the direction sets its shape. Moving diagonally upward, the ascent starts shallow and ends steep; moving diagonally downward, the descent starts steep and ends shallow. The example builds the arc from two layers, one per axis: the leading axis on the deceleration curve and the other on the standard curve, the same pairing `useMorph` uses. The dashed line is the path the forward move takes, computed from the two curves.
+
+An element that leaves the screen for now, and may come back through the same edge, leaves on the sharp curve and returns on the deceleration curve. The bottom bar does that on Leave and Return.
+:::
+
+::: ds-example
+/systems/md1/motion/icons
+
+### Icon transitions
+
+An icon can transform into another to show that the two actions are linked: play becomes pause, so pressing one reveals the other. The example draws play and pause as two four-point shapes each and transitions the SVG `d` property on the standard curve, so every corner of the triangle travels to a corner of a bar. Browsers that cannot animate `d` swap the glyph at once.
+
+On a FAB, the plus can turn into the pencil it stands for, saying the pencil is the main way to create. `Md1Fab` draws one glyph, so the example spins the plus out on the acceleration curve, swaps the icon, and spins the pencil in on the deceleration curve. Both transitions are skipped under reduced motion.
+:::
+
+::: ds-example
+/systems/md1/motion/radial
+
+### Radial reaction
+
+Reactions spread from the point of input, as ink does. Press a photo and the grid fades out in rings around the press, the nearest tiles first. Each tile waits one `--md1-stagger` step for every 24 dp between its centre and the press point, so the fade is a single wave rather than all at once or in reading order. A keyboard press starts the wave from the centre of the focused tile.
+:::
+
+::: ds-example
 /systems/md1/motion/ink
 
 ### Ink reaction
