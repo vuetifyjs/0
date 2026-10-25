@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Button, createContext, createRegistry, isNullOrUndefined, isString, isUndefined, Menu, useLocale, useLogger } from '@vuetify/v0'
+  import { Button, createContext, createRegistry, isNullOrUndefined, isNumber, isString, isUndefined, Menu, useLocale, useLogger } from '@vuetify/v0'
 
   // Utilities
   import { onMounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -45,6 +45,14 @@
      * opens the options. Unset, the whole button opens the menu.
      */
     segmented?: boolean
+    /**
+     * The editable segmented dropdown (buttons page, the font size picker): the
+     * state segment is a text field. Pressing it fires `select` with the current
+     * value and makes the state editable; Enter or leaving the field commits the
+     * typed state to the model and fires `select` with it; Escape restores the
+     * state. The arrow segment opens the options. Implies `segmented`.
+     */
+    editable?: boolean
     /** The dense button (32 dp, 13 sp) over the condensed menu: 14 sp rows on handsets, 24 px rows with `desktop`. */
     dense?: boolean
     /**
@@ -90,6 +98,7 @@
     id,
     disabled = false,
     segmented = false,
+    editable = false,
     dense = false,
     desktop = false,
     label,
@@ -108,18 +117,108 @@
     register: input => items.register(input),
   })
 
+  // Two segments: the state and the arrow.
+  const split = toRef(() => segmented || editable)
+
   const current = toRef(() => items.values().find(ticket => ticket.value === model.value))
   const text = toRef(() => current.value?.text() || label || '')
   const glyph = toRef(() => current.value?.icon())
 
   // Nothing selected and no label: the generic dropdown, an arrow alone.
-  const solo = toRef(() => !segmented && text.value.length === 0 && isNullOrUndefined(glyph.value))
+  const solo = toRef(() => !split.value && text.value.length === 0 && isNullOrUndefined(glyph.value))
 
   const name = toRef(() => {
     if (isString(ariaLabel)) return ariaLabel
-    if (segmented) return locale.ti('Md1.options') ?? 'Options'
+    if (split.value) return locale.ti('Md1.options') ?? 'Options'
     return undefined
   })
+
+  /*
+   * The editable state: a typed state need not be one of the items (the font
+   * size picker takes any size), so the field shows the model itself when no
+   * item matches. `draft` is the field's text while it is being edited.
+   */
+  const field = useTemplateRef<HTMLInputElement>('field')
+  /** The text the field shows for a state: its item's text, or the state itself. */
+  function display (value: unknown): string {
+    const item = items.values().find(ticket => ticket.value === value)
+
+    if (item) return item.text()
+    if (isNullOrUndefined(value)) return ''
+    return String(value)
+  }
+
+  const shown = toRef(() => display(model.value))
+
+  const draft = shallowRef('')
+  const editing = shallowRef(false)
+
+  watch(shown, value => {
+    if (!editing.value) draft.value = value
+  }, { immediate: true })
+
+  /** A typed state: the item whose text it names, a number when every item's value is one, otherwise the text. */
+  function parse (raw: string): unknown {
+    const typed = raw.trim()
+    const named = items.values().find(ticket => ticket.text().toLowerCase() === typed.toLowerCase())
+
+    if (named) return named.value
+
+    const numeric = items.size > 0 && items.values().every(ticket => isNumber(ticket.value))
+    const number = Number(typed)
+
+    return numeric && typed.length > 0 && Number.isFinite(number) ? number : typed
+  }
+
+  function onPress () {
+    if (disabled || editing.value) return
+
+    emit('select', model.value)
+  }
+
+  function onFocus () {
+    editing.value = true
+    field.value?.select()
+  }
+
+  function onInput (event: Event) {
+    draft.value = (event.target as HTMLInputElement).value
+  }
+
+  function onCommit () {
+    if (!editing.value) return
+
+    editing.value = false
+
+    if (draft.value.trim().length === 0 || draft.value === shown.value) {
+      draft.value = shown.value
+      return
+    }
+
+    const value = parse(draft.value)
+
+    model.value = value
+    // The parent writes the model back on its next render; the field shows the committed state now.
+    draft.value = display(value)
+    emit('select', value)
+  }
+
+  function onKeydown (event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      onCommit()
+      field.value?.select()
+      editing.value = true
+      return
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      editing.value = false
+      draft.value = shown.value
+      field.value?.blur()
+    }
+  }
 
   /*
    * The menu covers the button (buttons page) and puts the selected item over
@@ -131,13 +230,13 @@
    * button, a floor rounded up to the sheet's width unit (56 dp, 64 px on
    * desktop), so the cover keeps the menus page's width rule.
    */
-  const area = toRef(() => segmented ? 'span-block-end span-inline-start' : 'span-block-end span-inline-end')
+  const area = toRef(() => split.value ? 'span-block-end span-inline-start' : 'span-block-end span-inline-end')
   const width = shallowRef(0)
 
   provideOver({
     item: sheet => sheet.querySelector<HTMLElement>('[aria-checked="true"]'),
     emitter: () => root.value,
-    align: () => segmented ? 'end' : 'start',
+    align: () => split.value ? 'end' : 'start',
   })
 
   const style = toRef(() => {
@@ -175,6 +274,10 @@
       watch(() => solo.value && isNullOrUndefined(ariaLabel), wrong => {
         if (wrong) logger.warn('[Md1DropdownButton] a dropdown with no selection and no label shows its arrow alone and has no accessible name: pass label or ariaLabel')
       }, { immediate: true })
+
+      watch(() => editable && !label, wrong => {
+        if (wrong) logger.warn('[Md1DropdownButton] an editable dropdown names its text field with label: pass label')
+      }, { immediate: true })
     })
   }
 </script>
@@ -192,12 +295,30 @@
       :data-dense="dense || undefined"
       :data-desktop="desktop || undefined"
       :data-disabled="disabled || undefined"
+      :data-editable="editable || undefined"
       :data-open="isOpen || undefined"
-      :data-segmented="segmented || undefined"
+      :data-segmented="split || undefined"
       :data-solo="solo || undefined"
     >
+      <input
+        v-if="editable"
+        ref="field"
+        :aria-label="label"
+        autocomplete="off"
+        class="md1-dropdown-button__state md1-dropdown-button__field"
+        :disabled
+        :placeholder="label"
+        type="text"
+        :value="draft"
+        @blur="onCommit"
+        @focus="onFocus"
+        @input="onInput"
+        @keydown="onKeydown"
+        @pointerdown="onPress"
+      >
+
       <Button.Root
-        v-if="segmented"
+        v-else-if="segmented"
         class="md1-dropdown-button__state"
         :disabled
         @click="onSelect"
@@ -210,7 +331,7 @@
       </Button.Root>
 
       <Menu.Activator
-        v-if="segmented"
+        v-if="split"
         :aria-label="name"
         class="md1-dropdown-button__arrow"
       >
@@ -426,6 +547,91 @@
 
   .md1-dropdown-button[data-solo] .md1-dropdown-button__cue {
     margin: 0;
+  }
+
+  /*
+   * Editable segmented (buttons page, the font size picker; no metrics): Vuetify
+   * 1.5's editable overflow button (_overflow-buttons.styl). A 48 dp field with
+   * its text 16 dp in at the 16 sp body size and the primary ink, a 1 dp
+   * divider line at its foot, and the 48 x 48 dp arrow segment behind a 1 dp
+   * divider seam (:17-21, 39-46, 52-61). Hover, focus and an open menu lift it
+   * onto the surface at 2 dp (:23-26, 76-79). It is two increments wide by
+   * default, the menu's own minimum, so the sheet covers it (decision).
+   */
+  .md1-dropdown-button[data-editable] {
+    align-items: center;
+    inline-size: calc(2 * var(--md1-increment, 56px));
+    border-radius: 0;
+    color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+    box-shadow: inset 0 -1px 0 var(--md1-divider, rgba(0, 0, 0, 0.12));
+    transition:
+      background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+      box-shadow var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .md1-dropdown-button[data-editable]:not([data-disabled]):hover,
+  .md1-dropdown-button[data-editable]:focus-within,
+  .md1-dropdown-button[data-editable][data-open] {
+    background: var(--md1-surface, #FFFFFF);
+    box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+  }
+
+  .md1-dropdown-button[data-editable] .md1-dropdown-button__field {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 0;
+    height: 48px;
+    padding: 0 0 0 var(--md1-spacing-2, 16px);
+    border-radius: 0;
+    font-size: var(--md1-type-subheading-size, 16px);
+    font-weight: var(--md1-type-body-1-weight, 400);
+    letter-spacing: normal;
+    text-transform: none;
+    cursor: text;
+    outline: none;
+    user-select: text;
+  }
+
+  .md1-dropdown-button[data-editable] .md1-dropdown-button__field::placeholder {
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  /* The lift and the caret show focus on the field; the button overlay would read as a selection. */
+  .md1-dropdown-button[data-editable] .md1-dropdown-button__field:focus-visible {
+    background-color: transparent;
+  }
+
+  .md1-dropdown-button[data-editable] .md1-dropdown-button__arrow::after {
+    content: none;
+  }
+
+  .md1-dropdown-button[data-editable] .md1-dropdown-button__arrow {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
+  }
+
+  /* Dense: the dense list tile's 40 dp at the 13 sp dense type (decision; Vuetify 1.5 has no dense overflow button). */
+  .md1-dropdown-button[data-editable][data-dense] .md1-dropdown-button__field,
+  .md1-dropdown-button[data-editable][data-dense] .md1-dropdown-button__arrow {
+    height: 40px;
+  }
+
+  .md1-dropdown-button[data-editable][data-dense] .md1-dropdown-button__field {
+    font-size: 13px;
+  }
+
+  .md1-dropdown-button[data-editable][data-dense] .md1-dropdown-button__arrow {
+    width: 40px;
+  }
+
+  .md1-dropdown-button[data-editable][data-disabled] {
+    color: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
+  }
+
+  .md1-dropdown-button[data-editable][data-disabled] .md1-dropdown-button__arrow {
+    color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
   }
 
   /*
