@@ -108,6 +108,52 @@ The page states no spacing, colour or label style for the actions. The circles t
 :::
 
 ::: ds-example
+/systems/md1/fab/full-screen
+
+### Full-screen transform
+
+The page's full-screen transition: on a phone the FAB becomes a sheet that spans the screen, for creating content. Here the FAB is the `Md1Dialog.Activator` of a `full-screen` dialog, and `useMorph` plays the transform as the dialog opens. The FAB's circle leaves its corner on an arc and grows into the screen: a circular clip on the dialog's sheet starts at the FAB's radius and ends past the farthest corner, while the dialog travels from the FAB's centre to its own.
+
+The FAB's colour comes along. A veil in the accent colour, carrying the FAB's glyph, covers the sheet: the glyph fades in the first 20% of the transform and the veil between 20% and 70%, so the colour hands over to the app bar and the sheet underneath and the content arrives late. The FAB's shadow follows the circle as a `drop-shadow()` and fades as the sheet takes the screen.
+
+It takes 375 ms, the duration page's value for a large, complex, full-screen transition. The page calls this transform usually not reversible, so closing is the dialog's own exit: Discard, Send and Escape fade the sheet out over 195 ms and focus returns to the FAB.
+
+From 600 px the full-screen variant is a 560 dp sheet, and the full-screen pattern belongs to handsets, so the example checks `(max-width: 599.98px)` and plays no transform there: the dialog enters with its own 225 ms fade and scale. Under reduced motion it appears at once on any screen.
+:::
+
+::: ds-example
+/systems/md1/fab/toolbar
+
+### Toolbar transform
+
+The FAB can transform into a toolbar of related actions, and the toolbar turns back into the FAB when the content scrolls. The transform has two phases. First the circle travels to the bar's centre and grows to its height; then it stretches to the bar's full width as its corners square off. The toolbar keeps the FAB's accent colour, and the veil carries the glyph through the first phase, so the actions appear while the bar widens.
+
+`useMorph` runs it as a rectangular transform with `lead: 'height'` and `lag: 0.5`: height and movement take the first half of the duration and the width the second. The FAB stays in the layout with `visibility: hidden` while the toolbar stands in for it, so the reverse transform can measure the spot it returns to. Close, or any scroll of the content, plays the same keyframes backwards and only then removes the toolbar.
+
+The page states no duration for this transform. It runs on `--md1-duration-standard`, 300 ms on a phone and 200 ms under a mouse, on the standard curve, the motion page's value for surface transformations on screen.
+:::
+
+::: ds-example
+/systems/md1/fab/sheet
+
+### Morph into a sheet
+
+The FAB can also transform into a sheet of material that becomes part of the screen's structure, here a short card of people to share with. The circle travels on an arc from the FAB to the card's centre and opens into it, the accent veil fading to the card's surface and the FAB's 6 dp shadow handing over to the card's own. The page asks for a path that is logical and does not pass through other sheets: the card sits in the corner the FAB occupied, so the path is short and crosses nothing.
+
+Unlike the full-screen transform, this one is reversible. Choosing a person, or pressing the screen outside the card, plays the transform backwards and the card folds back into the FAB.
+:::
+
+::: ds-example
+/systems/md1/fab/trigger
+
+### Trigger
+
+The FAB's touch ripple can be the force that changes the screen: here pressing it starts a recording, and the header turns red outward from the FAB. The FAB stays on screen and changes its glyph. The new colour is a layer in the header revealed by a circular clip centred on the FAB, `move: false` so it grows in place and `hide: false` so the FAB stays visible. Pressing again plays it backwards into the FAB.
+
+This is the radial reaction of the choreography page: reactions start at the point of input and spread from it. Red 500 is this example's colour for a live recording; the page names no colour.
+:::
+
+::: ds-example
 /systems/md1/fab/disabled
 
 ### Disabled
@@ -146,6 +192,58 @@ The default slot holds `Md1Fab.Action` parts. There are no named slots.
 |------|-------|-------|
 | `Md1Fab.Action` | `icon` (required), `label` (required), `value` | One speed dial action: a 40 dp `Menu.Item` button named by `label`, with the label sheet beside it. Rendered outside an `Md1Fab`, it warns in development and renders nothing |
 
+### useMorph
+
+The composable behind the transforms above, exported for any surface that becomes another: a FAB into a sheet, a toolbar or a full-screen dialog, a card into its detail, an image into a header. Lay the destination out in its final place, then call `morph`. It measures the source and the destination, clips the destination back to the source's shape and plays it forward on the Web Animations API. It hides the source while it runs and resolves when the transform lands, with a cleanup that drops the held last frame.
+
+```ts no-filename
+import { useMorph } from '@paper/md1'
+
+const { morph } = useMorph()
+
+open.value = true
+await nextTick()
+
+const done = await morph({ from: fab, to: sheet, clip: '.md1-dialog__sheet' })
+
+done()
+```
+
+A reverse transform resolves with the source's shape still held on screen: change the state that removes the destination, wait a tick, then call the cleanup, so nothing flashes between the last frame and the DOM catching up.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `from` | element, component, ref or `DOMRect` | | Where the transform starts. An element is hidden while it runs and lends its colour, glyph and shadow |
+| `to` | element, component or ref | | The element that moves. It carries the `transform` and the `drop-shadow()` filter, so it must not be the clipped element when the shadow should show |
+| `clip` | element, component, ref or selector | `to` | The surface the clip reveals: `to`, a descendant, or a selector inside `to` |
+| `shape` | `'circle' \| 'rect'` | `'circle'` | `circle` grows a `circle()` clip from a circular source; `rect` an `inset()` clip between two rectangles. The transforming-material page forbids a radial transform between rectangles |
+| `move` | `boolean` | `true` | The surface travels from the source on an arc. `false` keeps it in place and grows the shape over it: a circle stays centred on the source |
+| `scale` | `boolean` | `false` | `rect` only: scale the surface uniformly from the source's width instead of cropping it, for a shared element |
+| `duration` | `number \| 'enter' \| 'leave' \| 'standard' \| 'complex'` | `'standard'` | Milliseconds, or a duration token read from the surface so the device scale applies |
+| `lead` | `'width' \| 'height'` | `'width'` | `rect` only: the axis that changes first. The movement runs with it |
+| `lag` | `number` | `0` | `rect` only: the fraction of the duration the other axis starts late |
+| `veil` | `boolean` | `shape === 'circle'` | Cover the surface in the source's colour and glyph, fading the glyph over the first 20% and the veil from 20% to 70% |
+| `hide` | `boolean` | `true` | Hide the source while the transform runs |
+| `reverse` | `boolean` | `false` | Play from the surface back into the source |
+
+| Member | Type | Description |
+|--------|------|-------------|
+| `morph(options)` | `(MorphOptions) => Promise<() => void>` | Plays one transform and resolves with its cleanup |
+| `isReduced` | `Readonly<Ref<boolean>>` | `true` while transforms are skipped: the reduced-motion context, or the operating system's preference while the mode is `system`. `morph` then resolves at once |
+
+The timing is Material Design 1's, and most of it is a decision because the pages give no numbers for transforms:
+
+| Value | Source |
+|-------|--------|
+| All on-screen surface transformations on the standard curve, `cubic-bezier(0.4, 0, 0.2, 1)` | Movement and transforming-material pages |
+| Two-axis movement follows an arc, shallow first when rising and steep first when falling; one-axis movement is straight | Movement page |
+| The arc: the leading axis on the deceleration curve, the other on the standard curve | Decision |
+| 375 ms for the full-screen transform | Duration page, large and complex full-screen transitions |
+| `--md1-duration-standard` (300 ms on a phone, 200 ms under a mouse) for the toolbar, sheet, trigger and card transforms | Decision; the pages state no transform duration |
+| An expanding rectangle starts its width before its height | Transforming-material page |
+| The card's 15% lag and the toolbar's 50% two-phase split | Decision |
+| Glyph out by 20%, veil from 20% to 70% | Decision |
+
 ## Accessibility
 
 Alone, the FAB is a native `<button type="button">` named by `ariaLabel`. As a speed dial it follows the WAI-ARIA menu button pattern: the FAB has `aria-haspopup="menu"`, `aria-expanded` and `aria-controls`, the actions sit in a `role="menu"` labelled by the FAB, and each action is a `role="menuitem"` button named by its `label`. The visible label sheet is `aria-hidden`, so the name is announced once.
@@ -166,7 +264,7 @@ The page says the FAB changes colour on focus. Material Design 1 lays the 12% fo
 
 ### Motion
 
-The FAB enters as an expanding piece of material, scaling from its centre over 225 ms on the deceleration curve, and lifts from 6 dp to 12 dp on press (4 dp at rest and 6 dp on hover where the pointer is a mouse, the elevation page's desktop rule). Under reduced motion the entrance and the dial's fly-out are dropped; the elevation change and the ink stay.
+The FAB enters as an expanding piece of material, scaling from its centre over 225 ms on the deceleration curve, and lifts from 6 dp to 12 dp on press (4 dp at rest and 6 dp on hover where the pointer is a mouse, the elevation page's desktop rule). Under reduced motion the entrance and the dial's fly-out are dropped, and `useMorph` plays no transform, so a destination appears in place; the elevation change and the ink stay.
 
 ### Touch target
 
