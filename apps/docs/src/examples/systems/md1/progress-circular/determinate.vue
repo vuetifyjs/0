@@ -48,7 +48,13 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
+  /*
+   * Wide enough for the longest status, so the percentage counting up never
+   * changes the row's width and slides the button sideways.
+   */
   .md1-docs-progress-label {
+    inline-size: 17ch;
+    text-align: center;
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-body-1-size, 14px);
     line-height: var(--md1-type-body-1-leading, 20px);

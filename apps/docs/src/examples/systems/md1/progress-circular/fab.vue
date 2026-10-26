@@ -45,13 +45,18 @@
       <Md1ProgressCircular v-if="uploading" aria-label="Upload progress" fab :value="progress" />
     </div>
 
-    <span class="md1-docs-progress-fab-note" role="status">{{ label }}</span>
+    <p class="md1-docs-readout md1-docs-progress-fab-note" role="status">{{ label }}</p>
   </div>
 </template>
 
 <style>
+  /*
+   * The FAB on top and its status below, each centred on its own, so the
+   * status changing never moves the FAB.
+   */
   .md1-docs-progress-fab {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-3, 24px);
     padding: var(--md1-spacing-3, 24px);
