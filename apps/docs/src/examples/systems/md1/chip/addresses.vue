@@ -14,22 +14,24 @@
 
 <template>
   <div class="md1-docs-stack">
-    <Md1Chip :avatar contact>
-      Alice Jones
+    <div class="md1-docs-chip-addresses">
+      <Md1Chip :avatar contact>
+        Alice Jones
 
-      <Md1Chip.Addresses>
-        <Md1Chip.Address
-          v-for="item in ADDRESSES"
-          :key="item"
-          :active="item === address"
-          @click="address = item"
-        >
-          {{ item }}
-        </Md1Chip.Address>
-      </Md1Chip.Addresses>
-    </Md1Chip>
+        <Md1Chip.Addresses>
+          <Md1Chip.Address
+            v-for="item in ADDRESSES"
+            :key="item"
+            :active="item === address"
+            @click="address = item"
+          >
+            {{ item }}
+          </Md1Chip.Address>
+        </Md1Chip.Addresses>
+      </Md1Chip>
+    </div>
 
-    <span class="md1-docs-note" role="status">Sending to {{ address }}</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">Sending to {{ address }}</p>
   </div>
 </template>
 
@@ -39,6 +41,23 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--md1-spacing-2, 16px);
+  }
+
+  /*
+   * The room the open sheet takes: 280 dp wide and 200 dp tall (the 72 dp
+   * heading, three 40 dp rows and 8 dp below them), plus room for its 8 dp
+   * shadow. The resting 32 dp chip sits where the sheet's photo opens over it,
+   * the margin keyline plus half the photo, less half the chip, in from the
+   * start and the top, so the open sheet stays inside the panel and neither it
+   * nor the readout below moves the chip.
+   */
+  .md1-docs-chip-addresses {
+    box-sizing: border-box;
+    inline-size: 280px;
+    max-inline-size: 100%;
+    min-block-size: 224px;
+    padding-block-start: calc(var(--md1-spacing-2, 16px) + var(--md1-avatar-size, 40px) / 2 - 16px);
+    padding-inline-start: calc(var(--md1-keyline-margin, 16px) + var(--md1-avatar-size, 40px) / 2 - 16px);
   }
 
   .md1-docs-note {

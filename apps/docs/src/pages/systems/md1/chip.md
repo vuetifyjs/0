@@ -108,9 +108,9 @@ The photo size is not in the page's text; Material Design 1 follows the figures,
 
 ### Open contact chip
 
-Put an `Md1Chip.Addresses` part inside a contact chip and a press opens it: the chip expands into an 8 dp sheet, its top start corner on the chip's, headed by the photo and the name at 16 sp, with one `Md1Chip.Address` row per address at 14 sp. Mark the address in use with `active`; it is set at Medium weight (a decision: the page shows the activated row only as an image, and Vuetify 1.5 has no contact chip sheet to take a value from)[^medium] and, as the page says, "the top field is activated and focused by default", so focus lands on it when the sheet opens.
+Put an `Md1Chip.Addresses` part inside a contact chip and a press opens it: the chip expands into an 8 dp sheet around its photo, headed by that photo, centred where the chip's was, and the name at 16 sp, with one `Md1Chip.Address` row per address at 14 sp. Mark the address in use with `active`; it is set at Medium weight (a decision: the page shows the activated row only as an image, and Vuetify 1.5 has no contact chip sheet to take a value from)[^medium] and, as the page says, "the top field is activated and focused by default", so focus lands on it when the sheet opens.
 
-A press on the open chip closes it, also as the page says: a press on a row closes it after your `@click` runs, so swapping the address is one handler. Escape and a press outside close it too, and focus returns to the chip. The sheet's width, 280 dp at least, the 40 dp avatar and the 40 dp rows on the 72 dp keyline are decisions;[^sheet] the page states the type sizes and the elevation only. `v-model:open` reads and drives the state.
+A press on the open chip closes it, also as the page says: a press on a row closes it after your `@click` runs, so swapping the address is one handler. Escape and a press outside close it too, and focus returns to the chip. The sheet's width, 280 dp at least, the 40 dp avatar and the 40 dp rows, with the name and the addresses on one content keyline (72 dp, 80 dp from 600 px), are decisions;[^sheet] the page states the type sizes and the elevation only. `v-model:open` reads and drives the state.
 :::
 
 ::: ds-example
@@ -190,6 +190,6 @@ A focused chip rises to 2 dp, the guidelines' rule for the contact chip that Mat
 
 [^medium]: Our call: Medium marks the active row without a colour the sheet does not have.
 
-[^sheet]: Our call: the 280 dp minimum is the dialog's, and the 40 dp avatar and 72 dp keyline are the list's.
+[^sheet]: Our call: the 280 dp minimum is the dialog's, and the 40 dp avatar at the margin keyline with the text on the content keyline is the list's avatar row. When the sheet has no room below the chip it opens above it, and when it has no room at the end its end edge rests on the screen's margin.
 
 [^disabled]: Vuetify 1.5.24, stylus/components/_chips.styl:8-9. A disabled chip takes `text.disabled` and leaves the avatar untouched.
