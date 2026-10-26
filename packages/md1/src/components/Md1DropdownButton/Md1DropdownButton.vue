@@ -221,14 +221,33 @@
   }
 
   /*
+   * Every state the button can show, drawn unseen in the label's one grid
+   * cell, so the button holds the width of its longest state and a choice
+   * never resizes it or moves the menu's anchor (decision, as the tabs More
+   * control).
+   */
+  const states = toRef(() => {
+    const all = items.values().map(ticket => ticket.text())
+
+    if (label) all.push(label)
+
+    return [...new Set(all.filter(state => state.length > 0))]
+  })
+
+  // A state that brings a glyph puts the menu's text at the keyline; the
+  // menu holds the keyline for every row then, so the text lines up.
+  const icons = toRef(() => items.values().some(ticket => !isNullOrUndefined(ticket.icon())))
+
+  /*
    * The menu covers the button (buttons page) and puts the selected item over
-   * it (menus page). With a state selected the shared placement measures the
-   * row and lands it on the whole button: the plain button lines the sheet up
-   * with its start edge, the segmented one with its end edge, so the sheet
-   * covers both segments. With nothing selected v0 anchors the sheet on the
-   * activator from the same corner. The sheet is at least as wide as the whole
-   * button, a floor rounded up to the sheet's width unit (56 dp, 64 px on
-   * desktop), so the cover keeps the menus page's width rule.
+   * it (menus page, "Location"), its text left aligned with the text it
+   * covers ("Horizontal alignment"): the selected row lands on the button's
+   * height, and its leading part (the state's glyph, else its text) on the
+   * button's (the glyph, else the label, else the editable field's text).
+   * Near an edge the sheet shifts only as far as the screen margin allows.
+   * With nothing selected v0 anchors the sheet on the activator. The sheet is
+   * at least as wide as the whole button, a floor rounded up to the sheet's
+   * width unit (56 dp, 64 px on desktop), so it covers both segments.
    */
   const area = toRef(() => split.value ? 'span-block-end span-inline-start' : 'span-block-end span-inline-end')
   const width = shallowRef(0)
@@ -236,7 +255,8 @@
   provideOver({
     item: sheet => sheet.querySelector<HTMLElement>('[aria-checked="true"]'),
     emitter: () => root.value,
-    align: () => split.value ? 'end' : 'start',
+    text: row => row.querySelector('.md1-dropdown-button__lead') ?? row.querySelector('.md1-dropdown-button__text'),
+    label: () => root.value?.querySelector('.md1-dropdown-button__glyph, .md1-dropdown-button__label, .md1-dropdown-button__field'),
   })
 
   const style = toRef(() => {
@@ -327,7 +347,17 @@
 
         <Md1Icon v-if="glyph" class="md1-dropdown-button__glyph" :name="glyph" :size="dense ? 's' : 'm'" />
 
-        <span v-if="text" class="md1-dropdown-button__label">{{ text }}</span>
+        <span v-if="text" class="md1-dropdown-button__label">
+          <span
+            v-for="state in states"
+            :key="state"
+            aria-hidden="true"
+            class="md1-dropdown-button__reserve"
+            :data-text="state"
+          />
+
+          <span class="md1-dropdown-button__now">{{ text }}</span>
+        </span>
       </Button.Root>
 
       <Menu.Activator
@@ -349,7 +379,17 @@
 
         <Md1Icon v-if="glyph" class="md1-dropdown-button__glyph" :name="glyph" :size="dense ? 's' : 'm'" />
 
-        <span v-if="text" class="md1-dropdown-button__label">{{ text }}</span>
+        <span v-if="text" class="md1-dropdown-button__label">
+          <span
+            v-for="state in states"
+            :key="state"
+            aria-hidden="true"
+            class="md1-dropdown-button__reserve"
+            :data-text="state"
+          />
+
+          <span class="md1-dropdown-button__now">{{ text }}</span>
+        </span>
 
         <Md1Icon class="md1-dropdown-button__cue" name="arrow-drop-down" :size="dense ? 's' : 'm'" />
       </Menu.Activator>
@@ -358,6 +398,7 @@
         class="md1-dropdown-button__menu"
         :data-dense="dense || undefined"
         :data-desktop="desktop || undefined"
+        :data-icons="icons || undefined"
         eager
         :position-area="area"
         position-try="flip-block"
@@ -545,6 +586,31 @@
     margin-inline: -4px;
   }
 
+  /*
+   * The shown state and the unseen states share one grid cell, so the widest
+   * state sets the label's width. Under the 88 dp minimum the label takes the
+   * spare room, so the text starts at the padding, where the menu's text lands,
+   * and the sheet still covers the button's start edge.
+   */
+  .md1-dropdown-button__label {
+    display: inline-grid;
+    flex: 1 1 auto;
+    text-align: start;
+  }
+
+  .md1-dropdown-button__label > * {
+    grid-area: 1 / 1;
+  }
+
+  /* Generated content, so the reserve never joins the button's text or its accessible name. */
+  .md1-dropdown-button__reserve {
+    visibility: hidden;
+  }
+
+  .md1-dropdown-button__reserve::before {
+    content: attr(data-text);
+  }
+
   .md1-dropdown-button[data-solo] .md1-dropdown-button__cue {
     margin: 0;
   }
@@ -586,7 +652,8 @@
     min-width: 0;
     width: 0;
     height: 48px;
-    padding: 0 0 0 var(--md1-spacing-2, 16px);
+    padding-block: 0;
+    padding-inline: var(--md1-spacing-2, 16px) 0;
     border-radius: 0;
     font-size: var(--md1-type-subheading-size, 16px);
     font-weight: var(--md1-type-body-1-weight, 400);
@@ -724,9 +791,11 @@
   }
 
   /*
-   * The row: 48 dp tall, the Subheading style at 87% ink, never wrapped. The
-   * leading column holds the check of the current state, so every row's text
-   * sits at the 72 dp keyline (80 dp from 600 px).
+   * The row: 48 dp tall, the Subheading style at 87% ink, never wrapped, its
+   * text 16 dp in (menus page). A single-choice menu marks the current state
+   * by the highlight alone: the check belongs to multi-select menus ("Check",
+   * "Selected"). A menu whose states bring glyphs puts every row's text at the
+   * 72 dp keyline (80 dp from 600 px).
    */
   .md1-dropdown-button__item {
     position: relative;
@@ -736,7 +805,7 @@
     gap: var(--md1-spacing-2, 16px);
     box-sizing: border-box;
     height: 48px;
-    padding-inline: var(--md1-keyline-content, 72px) var(--md1-spacing-2, 16px);
+    padding-inline: var(--md1-spacing-2, 16px);
     font-size: var(--md1-type-subheading-size, 16px);
     font-weight: var(--md1-type-subheading-weight, 400);
     line-height: var(--md1-type-subheading-leading, 24px);
@@ -757,25 +826,24 @@
     line-height: var(--md1-type-body-1-leading, 20px);
   }
 
-  /* Desktop: 32 px rows, 15 px type, the text at the 64 px sub-item keyline; dense desktop 24 px rows and 13 px type. */
+  .md1-dropdown-button__menu[data-icons] .md1-dropdown-button__item {
+    padding-inline-start: var(--md1-keyline-content, 72px);
+  }
+
+  /* Desktop: 32 px rows, 15 px type, the text 24 px in, at the 64 px sub-item keyline beside glyphs; dense desktop 24 px rows and 13 px type. */
   .md1-dropdown-button__menu[data-desktop] .md1-dropdown-button__item {
     height: 32px;
-    padding-inline: 64px var(--md1-spacing-3, 24px);
+    padding-inline: var(--md1-spacing-3, 24px);
     font-size: 15px;
+  }
+
+  .md1-dropdown-button__menu[data-desktop][data-icons] .md1-dropdown-button__item {
+    padding-inline-start: 64px;
   }
 
   .md1-dropdown-button__menu[data-desktop][data-dense] .md1-dropdown-button__item {
     height: 24px;
     font-size: 13px;
-  }
-
-  /* The generic dropdown navigates and never shows a check, so its rows keep the plain 16 dp (24 px desktop) text padding. */
-  .md1-dropdown-button[data-solo] .md1-dropdown-button__item {
-    padding-inline-start: var(--md1-spacing-2, 16px);
-  }
-
-  .md1-dropdown-button[data-solo] .md1-dropdown-button__menu[data-desktop] .md1-dropdown-button__item {
-    padding-inline-start: var(--md1-spacing-3, 24px);
   }
 
   /* Hover and the keyboard highlight: the menu's list-tile hover, 4% black / 8% white (Vuetify 1.5, th:51-52). The current state: the 12% focus shade. */
@@ -800,11 +868,7 @@
     flex: 1 1 auto;
   }
 
-  /*
-   * The leading glyph: the check, or the state's own icon, 16 dp from the start
-   * edge (24 px on desktop) at 54% ink, 38% when disabled. A state that brings
-   * an icon moves the check to the trailing edge.
-   */
+  /* The state's glyph, 16 dp from the start edge (24 px on desktop) at 54% ink, 38% when disabled. */
   .md1-dropdown-button__lead {
     position: absolute;
     inset-inline-start: var(--md1-spacing-2, 16px);
@@ -817,15 +881,7 @@
     inset-inline-start: var(--md1-spacing-3, 24px);
   }
 
-  .md1-dropdown-button__trail {
-    position: relative;
-    flex: 0 0 auto;
-    margin-inline-start: auto;
-    color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
-  }
-
-  .md1-dropdown-button__item[data-disabled] .md1-dropdown-button__lead,
-  .md1-dropdown-button__item[data-disabled] .md1-dropdown-button__trail {
+  .md1-dropdown-button__item[data-disabled] .md1-dropdown-button__lead {
     color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
   }
 

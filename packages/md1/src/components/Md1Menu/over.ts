@@ -28,10 +28,17 @@ export interface Md1OverOptions {
   item: (sheet: HTMLElement) => HTMLElement | null
   /** The element the row lands on. Defaults to the popover's anchor. */
   emitter?: () => Element | null | undefined
-  /** Which inline edge of the sheet lines up with the emitter's. @default 'start' */
-  align?: MaybeRefOrGetter<'start' | 'end'>
-  /** Pixels the sheet moves toward the inline end from that edge; negative moves it toward the start. @default 0 */
+  /** Pixels the sheet's start edge moves toward the inline end from the emitter's; negative moves it toward the start. @default 0 */
   inset?: MaybeRefOrGetter<number>
+  /**
+   * The part of the selected row whose start edge lands on `label`'s, so the
+   * row's text sits on the emitter's text across as well as down (menus page,
+   * "Horizontal alignment"). Measured, so it holds for any padding; with both
+   * set it replaces `inset`.
+   */
+  text?: (row: HTMLElement) => Element | null
+  /** The part of the emitter `text` lines up with, at its content-box start edge. */
+  label?: () => Element | null | undefined
 }
 
 /** The screen margin and the dismiss row when the theme sets no tokens: 16 dp and 48 dp. */
@@ -66,11 +73,12 @@ export class Md1OverAdapter extends PopoverAdapter {
   }
 
   setup (context: PopoverAdapterContext): Readonly<Ref<Record<string, string>>> {
-    const { item: find, emitter, align: _align = 'start', inset: _inset = 0 } = this.options
+    const { item: find, emitter, inset: _inset = 0, text, label } = this.options
     const base = this.fallback.setup(context)
     const placed = shallowRef<Record<string, string> | null>(null)
     // Pixels from the sheet's top to the selected row's centre, fixed at open so a scroll inside the sheet does not move it.
     let center: number | null = null
+    let row: HTMLElement | null = null
 
     // A renderless activator registers no element with v0; the control that names the sheet in `aria-controls` is the emitter then.
     function anchor (): Element | null {
@@ -78,6 +86,29 @@ export class Md1OverAdapter extends PopoverAdapter {
       const controls = isNullOrUndefined(sheet) || !sheet.id ? null : document.querySelector(`[aria-controls="${CSS.escape(sheet.id)}"]`)
 
       return emitter?.() ?? context.anchorEl.value ?? controls
+    }
+
+    /*
+     * Where the sheet's left edge goes so the row's text starts where the
+     * emitter's text does, or null without both parts. Measured from rects and
+     * scaled by the sheet's own transform, so the entrance scale and an SVG
+     * glyph (no offsetLeft) measure the same as at rest.
+     */
+    function across (sheet: HTMLElement, rtl: boolean): number | null {
+      const lead = isNull(row) ? null : text?.(row) ?? null
+      const mark = label?.() ?? null
+
+      if (isNull(lead) || isNull(mark)) return null
+
+      const box = sheet.getBoundingClientRect()
+      const scale = box.width > 0 ? sheet.offsetWidth / box.width : 1
+      const part = lead.getBoundingClientRect()
+      const goal = mark.getBoundingClientRect()
+      const pad = Number.parseFloat(getComputedStyle(mark).paddingInlineStart) || 0
+
+      return rtl
+        ? goal.right - pad - (part.right - box.left) * scale
+        : goal.left + pad - (part.left - box.left) * scale
     }
 
     function place () {
@@ -89,7 +120,6 @@ export class Md1OverAdapter extends PopoverAdapter {
       const style = getComputedStyle(sheet)
       const margin = Number.parseFloat(style.getPropertyValue('--md1-keyline-margin')) || MARGIN
       const rtl = style.direction === 'rtl'
-      const align = toValue(_align)
       const inset = toValue(_inset)
       const rect = target.getBoundingClientRect()
       const width = document.documentElement.clientWidth
@@ -98,9 +128,9 @@ export class Md1OverAdapter extends PopoverAdapter {
       const h = sheet.offsetHeight
       const y = rect.top + rect.height / 2
 
-      const start = rtl ? rect.right - inset - w : rect.left + inset
-      const end = rtl ? rect.left - inset : rect.right + inset - w
-      const left = clamp(align === 'start' ? start : end, margin, Math.max(margin, width - margin - w))
+      const start = across(sheet, rtl) ?? (rtl ? rect.right - inset - w : rect.left + inset)
+      // Near an edge the sheet shifts only as far as the margin allows (Vuetify 1.5, menuable.js:193-200).
+      const left = clamp(start, margin, Math.max(margin, width - margin - w))
       const top = clamp(y - center, margin, Math.max(margin, height - margin - h))
 
       placed.value = {
@@ -116,14 +146,17 @@ export class Md1OverAdapter extends PopoverAdapter {
 
     async function open () {
       center = null
+      row = null
       placed.value = null
 
       await nextTick()
 
       const sheet = context.contentEl.value
-      const row = isNullOrUndefined(sheet) ? null : find(sheet)
+      const found = isNullOrUndefined(sheet) ? null : find(sheet)
 
-      if (!context.isOpen.value || isNullOrUndefined(sheet) || isNull(row) || isNull(anchor())) return
+      if (!context.isOpen.value || isNullOrUndefined(sheet) || isNull(found) || isNull(anchor())) return
+
+      row = found
 
       // A provisional place off the anchor areas, so the sheet lays out at its own height before it is measured.
       placed.value = { 'position': 'fixed', 'margin': '0', 'inset': 'auto', 'top': '0px', 'left': '0px', 'position-anchor': context.anchorName }
@@ -133,11 +166,11 @@ export class Md1OverAdapter extends PopoverAdapter {
       if (!context.isOpen.value) return
 
       // A sheet taller than the room scrolls so the selected row sits in its middle (Vuetify 1.5, menu-position.js:15-23).
-      const top = offset(row, sheet)
+      const top = offset(found, sheet)
       const limit = sheet.scrollHeight - sheet.clientHeight
 
-      sheet.scrollTop = clamp(top - sheet.clientHeight / 2 + row.offsetHeight / 2, 0, Math.max(0, limit))
-      center = top - sheet.scrollTop + row.offsetHeight / 2
+      sheet.scrollTop = clamp(top - sheet.clientHeight / 2 + found.offsetHeight / 2, 0, Math.max(0, limit))
+      center = top - sheet.scrollTop + found.offsetHeight / 2
 
       place()
     }

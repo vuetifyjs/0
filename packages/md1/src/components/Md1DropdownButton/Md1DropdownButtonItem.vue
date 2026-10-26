@@ -83,7 +83,6 @@
 <template>
   <Menu.RadioItem
     v-if="context"
-    v-slot="{ isChecked }"
     class="md1-dropdown-button__item"
     :disabled
     :label
@@ -95,10 +94,6 @@
 
     <Md1Icon v-if="icon" class="md1-dropdown-button__lead" :name="icon" />
 
-    <Md1Icon v-else-if="isChecked" class="md1-dropdown-button__lead" name="check" />
-
     <span ref="text" class="md1-dropdown-button__text"><slot /></span>
-
-    <Md1Icon v-if="icon && isChecked" class="md1-dropdown-button__trail" name="check" />
   </Menu.RadioItem>
 </template>
