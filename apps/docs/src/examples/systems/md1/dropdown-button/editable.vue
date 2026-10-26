@@ -20,7 +20,7 @@
 
     <span class="md1-docs-note md1-docs-dropdown-sample" :style="{ fontSize: `${size}px` }">Sample text</span>
 
-    <p class="md1-docs-readout md1-docs-note" role="status">{{ applied ? `Applied ${applied} pt` : '—' }}</p>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ applied ? `Applied ${applied} pt` : 'Pick a size, then press it or type one to apply' }}</p>
   </div>
 </template>
 
