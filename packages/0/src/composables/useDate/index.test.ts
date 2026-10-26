@@ -1189,6 +1189,21 @@ describe('createDate', () => {
       it('should throw on an unknown calendar at construction', () => {
         expect(() => new V0DateAdapter('en-US', { calendar: 'nope' })).toThrow(RangeError)
       })
+
+      it('should add months across a Persian new year and a Hebrew leap month', () => {
+        const persian = new V0DateAdapter('en-US', { calendar: 'persian' })
+
+        expect(persian.toISO(persian.addMonths(persian.date('2025-02-19')!, 1))).toBe('2025-03-21')
+
+        const next = persian.addYears(persian.date('2025-03-20')!, 1)
+
+        expect([next.year, next.month, next.day]).toEqual([1404, 12, 29])
+        expect(persian.toISO(next)).toBe('2026-03-20')
+
+        const hebrew = new V0DateAdapter('en-US', { calendar: 'hebrew' })
+
+        expect(hebrew.toISO(hebrew.addMonths(hebrew.date('2024-02-10')!, 1))).toBe('2024-03-11')
+      })
     })
 
     // eslint-disable-next-line vitest/prefer-lowercase-title
