@@ -160,14 +160,13 @@ describe('quDropdownButton', () => {
       expect(items()[0]!.firstElementChild!.classList.contains('md1-ripple')).toBe(true)
     })
 
-    it('should draw the check of the current state in the leading slot only', async () => {
+    // Menus page: the check belongs to multi-select menus; a single-choice menu marks the current state by its highlight.
+    it('should mark the current state by its highlight alone, with no check glyph', async () => {
       const { items } = dropdown({}, 'heading')
       await settle()
 
-      const leads = items().map(item => item.querySelector('.md1-dropdown-button__lead'))
-
-      expect(leads.map(lead => lead !== null)).toEqual([false, false, true, false])
-      expect([...leads[2]!.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.check)
+      expect(items().map(item => item.querySelector('.md1-dropdown-button__lead'))).toEqual([null, null, null, null])
+      expect(items().map(item => item.querySelector('svg'))).toEqual([null, null, null, null])
     })
 
     it('should fall back to label while nothing is selected', async () => {
@@ -240,8 +239,128 @@ describe('quDropdownButton', () => {
     })
   })
 
+  /*
+   * Menus page, "Location" and "Horizontal alignment": the selected row lands on
+   * the button with its text on the button's text, across as well as down.
+   */
+  describe('placement', () => {
+    /** Opens the menu at rest and returns the button's text box and the selected row's text box. */
+    async function cover (harness: Harness) {
+      document.body.dataset.reducedMotion = 'reduce'
+      teardowns.push(() => delete document.body.dataset.reducedMotion)
+      await settle()
+
+      await userEvent.click(harness.trigger())
+      await settle()
+      await expect.poll(() => open(harness.content())).toBe(true)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const mark = harness.root.querySelector<HTMLElement>('.md1-dropdown-button__label, .md1-dropdown-button__field')!
+      const pad = Number.parseFloat(getComputedStyle(mark).paddingInlineStart)
+      const label = mark.getBoundingClientRect()
+      const row = harness.content().querySelector('[aria-checked="true"] .md1-dropdown-button__text')!.getBoundingClientRect()
+
+      return {
+        label: { left: label.left + pad, right: label.right - pad, middle: label.top + label.height / 2 },
+        row: { left: row.left, right: row.right, middle: row.top + row.height / 2 },
+        sheet: harness.content().getBoundingClientRect(),
+        button: harness.root.getBoundingClientRect(),
+      }
+    }
+
+    it.each([
+      ['plain', {}],
+      ['segmented', { segmented: true }],
+      ['dense', { dense: true }],
+      ['desktop', { desktop: true }],
+      ['dense desktop', { dense: true, desktop: true }],
+    ])('should land the selected text on the button text across and down: %s', async (_, props) => {
+      const { label, row, sheet, button } = await cover(dropdown({ ...props, style: 'margin-inline-start: 160px' }, 'heading'))
+
+      expect(Math.round(row.left)).toBe(Math.round(label.left))
+      expect(Math.round(row.middle)).toBe(Math.round(label.middle))
+      expect(Math.round(sheet.left)).toBeLessThanOrEqual(Math.round(button.left))
+      expect(Math.round(sheet.right)).toBeGreaterThanOrEqual(Math.round(button.right))
+    })
+
+    it('should land the selected text on the editable field text', async () => {
+      const { label, row } = await cover(dropdown({ editable: true, label: 'Font size', style: 'margin-inline-start: 160px' }, 12, [8, 10, 12, 14, 18].map(size => ({ value: size, text: String(size) }))))
+
+      expect(Math.round(row.left)).toBe(Math.round(label.left))
+      expect(Math.round(row.middle)).toBe(Math.round(label.middle))
+    })
+
+    it('should land the selected glyph on the button glyph', async () => {
+      const states = [
+        { value: 'grid', icon: 'apps' as const, text: 'Grid' },
+        { value: 'list', icon: 'reorder' as const, text: 'List' },
+      ]
+      const harness = dropdown({ style: 'margin-inline-start: 160px' }, 'list', states)
+      await cover(harness)
+
+      const glyph = harness.trigger().querySelector('.md1-dropdown-button__glyph')!.getBoundingClientRect()
+      const lead = harness.content().querySelector('[aria-checked="true"] .md1-dropdown-button__lead')!.getBoundingClientRect()
+
+      expect(Math.round(lead.left)).toBe(Math.round(glyph.left))
+      expect(Math.round(lead.top)).toBe(Math.round(glyph.top))
+    })
+
+    it('should mirror under rtl: the selected text starts at the button text start edge', async () => {
+      const harness = dropdown({ style: 'margin-inline-start: 160px' }, 'title')
+      harness.host.dir = 'rtl'
+      const { label, row, sheet, button } = await cover(harness)
+
+      expect(Math.round(row.right)).toBe(Math.round(label.right))
+      expect(Math.round(row.middle)).toBe(Math.round(label.middle))
+      expect(Math.round(sheet.right)).toBeGreaterThanOrEqual(Math.round(button.right))
+    })
+
+    // Vuetify 1.5, menuable.js:193-200 (calcXOverflow): the sheet shifts only as far as fits, inside the 16 dp margin.
+    it('should shift only as far as the screen margin allows at the start edge', async () => {
+      const { sheet } = await cover(dropdown({ style: 'position: fixed; left: 4px; top: 200px' }, 'title'))
+
+      expect(Math.round(sheet.left)).toBe(16)
+    })
+
+    it('should shift back inside the screen margin at the end edge', async () => {
+      const { sheet } = await cover(dropdown({ style: 'position: fixed; right: 0; top: 200px' }, 'title'))
+
+      expect(Math.round(sheet.right)).toBe(document.documentElement.clientWidth - 16)
+    })
+
+    // Stable layout: the button holds the width of its longest state, so a choice never moves it or its menu.
+    it('should keep the button box when the state changes', async () => {
+      const { root, trigger, items } = dropdown({}, 'title')
+      await settle()
+
+      const before = root.getBoundingClientRect()
+
+      for (const index of [0, 2, 3, 1]) {
+        await userEvent.click(trigger())
+        await settle()
+        await userEvent.click(items()[index]!)
+        await settle()
+
+        const after = root.getBoundingClientRect()
+
+        expect([after.left, after.width]).toEqual([before.left, before.width])
+      }
+
+      expect(root.querySelector('.md1-dropdown-button__label')!.textContent).toBe('Title')
+      expect(trigger().textContent!.trim()).toBe('Title')
+    })
+
+    it('should size the button to its longest state', async () => {
+      const { root } = dropdown({}, 'title')
+      const { root: widest } = dropdown({}, 'normal')
+      await settle()
+
+      expect(root.getBoundingClientRect().width).toBe(widest.getBoundingClientRect().width)
+    })
+  })
+
   describe('menu', () => {
-    it('should open on a click: the 8 dp surface sheet with 48 dp rows of 16 sp text at the 72 dp keyline', async () => {
+    it('should open on a click: the 8 dp surface sheet with 48 dp rows of 16 sp text 16 dp in', async () => {
       const { root, trigger, content, items } = dropdown({}, 'title')
       await settle()
 
@@ -268,7 +387,7 @@ describe('quDropdownButton', () => {
 
       expect(row.getBoundingClientRect().height).toBe(48)
       expect(computed.fontSize).toBe('16px')
-      expect(computed.paddingLeft).toBe('72px')
+      expect(computed.paddingLeft).toBe('16px')
       expect(computed.color).toBe('rgba(0, 0, 0, 0.87)')
       expect(getComputedStyle(items()[1]!).backgroundColor).toBe(serialize('backgroundColor', 'rgba(0, 0, 0, 0.12)'))
     })
@@ -529,7 +648,8 @@ describe('quDropdownButton', () => {
       const button = root.getBoundingClientRect()
 
       expect(menu.getBoundingClientRect().width).toBeGreaterThanOrEqual(Math.floor(button.width))
-      expect(Math.round(menu.getBoundingClientRect().right)).toBe(Math.round(button.right))
+      expect(Math.round(menu.getBoundingClientRect().left)).toBeLessThanOrEqual(Math.round(button.left))
+      expect(Math.round(menu.getBoundingClientRect().right)).toBeGreaterThanOrEqual(Math.round(button.right))
 
       await userEvent.click(items()[1]!)
       await settle()
@@ -657,7 +777,8 @@ describe('quDropdownButton', () => {
 
       expect(items()[3]!.getAttribute('aria-checked')).toBe('true')
       expect(Math.round(row.top + row.height / 2)).toBe(Math.round(box.top + box.height / 2))
-      expect(Math.round(menu.getBoundingClientRect().right)).toBe(Math.round(box.right))
+      expect(Math.round(menu.getBoundingClientRect().left)).toBe(Math.round(box.left))
+      expect(Math.round(menu.getBoundingClientRect().right)).toBeGreaterThanOrEqual(Math.round(box.right))
 
       await userEvent.click(items()[6]!)
       await settle()
@@ -713,7 +834,7 @@ describe('quDropdownButton', () => {
       expect(getComputedStyle(items()[0]!).fontSize).toBe('14px')
     })
 
-    it('should use the desktop menu under desktop: 32 px rows, 15 px type, 64 px text keyline, a 6 dp sheet at least 128 px wide', async () => {
+    it('should use the desktop menu under desktop: 32 px rows, 15 px type, 24 px text padding, a 6 dp sheet at least 128 px wide', async () => {
       const { trigger, content, items } = dropdown({ desktop: true }, 'normal')
       await settle()
 
@@ -725,7 +846,7 @@ describe('quDropdownButton', () => {
 
       expect(items()[0]!.getBoundingClientRect().height).toBe(32)
       expect(row.fontSize).toBe('15px')
-      expect(row.paddingLeft).toBe('64px')
+      expect(row.paddingLeft).toBe('24px')
       expect(row.paddingRight).toBe('24px')
       expect(getComputedStyle(content()).boxShadow).toBe(serialize('boxShadow', ELEVATION_6))
       expect(content().getBoundingClientRect().width).toBeGreaterThanOrEqual(128)
@@ -821,7 +942,7 @@ describe('quDropdownButton', () => {
   })
 
   describe('icons', () => {
-    it('should draw a state glyph in its row and on the button, and move the check to the trailing edge', async () => {
+    it('should draw a state glyph in its row and on the button, with the text of every row at the 72 dp keyline', async () => {
       const states = [
         { value: 'grid', icon: 'apps' as const, text: 'Grid' },
         { value: 'list', icon: 'reorder' as const, text: 'List' },
@@ -833,8 +954,8 @@ describe('quDropdownButton', () => {
 
       expect([...glyph.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.reorder)
       expect([...items()[0]!.querySelector('.md1-dropdown-button__lead')!.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.apps)
-      expect(items()[0]!.querySelector('.md1-dropdown-button__trail')).toBeNull()
-      expect([...items()[1]!.querySelector('.md1-dropdown-button__trail')!.querySelectorAll('path')].map(p => p.getAttribute('d'))).toEqual(md1Icons.check)
+      expect(items().map(item => item.querySelectorAll('svg').length)).toEqual([1, 1])
+      expect(items().map(item => getComputedStyle(item).paddingLeft)).toEqual(['72px', '72px'])
     })
 
     it('should become the generic dropdown, an arrow alone in a 48 dp circle, with no selection and no label', async () => {
