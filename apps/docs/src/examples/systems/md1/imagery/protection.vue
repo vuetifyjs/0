@@ -53,7 +53,7 @@
           :step="5"
         />
 
-        <span class="md1-docs-note">{{ opacity }}%</span>
+        <span class="md1-docs-note md1-docs-imagery-value">{{ opacity }}%</span>
       </div>
     </div>
 
@@ -127,6 +127,17 @@
     align-items: center;
     gap: var(--md1-spacing-2, 16px);
     width: min(100%, 280px);
+  }
+
+  /*
+   * A fixed width for the value, so dragging never changes the text's width,
+   * resizes the slider and moves the thumb out from under the pointer.
+   */
+  .md1-docs-imagery-value {
+    flex: none;
+    min-inline-size: 4ch;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
   }
 
   .md1-docs-imagery-slider > :first-child {
