@@ -28,7 +28,7 @@
         </li>
       </ul>
 
-      <p v-if="choice" class="md1-type-caption md1-docs-permission-critical-status" role="status">{{ choice }}</p>
+      <p class="md1-type-caption md1-docs-readout md1-docs-permission-critical-status" role="status">{{ choice }}</p>
     </div>
 
     <div class="md1-docs-permission-critical-actions">
@@ -54,8 +54,15 @@
     color: var(--md1-on-primary, #FFFFFF);
   }
 
+  /*
+   * The body takes what the actions leave and scrolls when a narrow screen
+   * wraps it past that, so the actions stay pinned to the foot and a longer
+   * status never pushes them down.
+   */
   .md1-docs-permission-critical-body {
     flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
     padding: var(--md1-spacing-4, 32px) var(--md1-spacing-5, 40px) 0;
   }
 
@@ -91,8 +98,10 @@
     background: color-mix(in srgb, var(--md1-on-primary, #FFFFFF) 24%, transparent);
   }
 
-  .md1-docs-permission-critical-status {
+  /* Always rendered and one line tall, empty until an action is chosen. */
+  .md1-docs-permission-critical-body > .md1-docs-permission-critical-status {
     margin: var(--md1-spacing-2, 16px) 0 0;
+    text-align: start;
   }
 
   /* A seam above the two actions, the step bar at the foot of a full-screen flow. */
