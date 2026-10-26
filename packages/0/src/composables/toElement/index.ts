@@ -21,10 +21,10 @@
  */
 
 // Utilities
-import { isElement, isFunction, isObject } from '#v0/utilities'
+import { isElement, isFunction, isNullOrUndefined, isObject } from '#v0/utilities'
 
 // Types
-import type { ComponentPublicInstance } from 'vue'
+import type { ComponentPublicInstance, VNode } from 'vue'
 
 type MaybeElementValue = HTMLElement | SVGElement | ComponentPublicInstance | Element | null | undefined
 
@@ -44,11 +44,40 @@ export type MaybeElementRef =
   | MaybeElementValue
 
 /**
+ * Resolves a component instance to its first root Element.
+ *
+ * A single-element root resolves to `$el`. A fragment root (multiple root
+ * nodes, or leading text/comments) has a text anchor as `$el`, so the first
+ * Element between the fragment's start and end anchors is returned. The walk
+ * is bounded by the end anchor so it never escapes into a sibling. A comment
+ * (`v-if` false) or text root resolves to undefined.
+ */
+function fromInstance (instance: ComponentPublicInstance): Element | undefined {
+  const el: unknown = instance.$el
+  if (isElement(el)) return el
+
+  // Descend through component roots to the vnode that owns the DOM range
+  let tree: VNode | null | undefined = instance.$?.subTree
+  while (!isNullOrUndefined(tree?.component)) tree = tree.component.subTree
+
+  const end = tree?.anchor as Node | null | undefined
+  if (isNullOrUndefined(end)) return undefined
+
+  let node = (tree?.el as Node | null | undefined)?.nextSibling
+  while (!isNullOrUndefined(node) && node !== end) {
+    if (isElement(node)) return node
+    node = node.nextSibling
+  }
+
+  return undefined
+}
+
+/**
  * Resolves a {@link MaybeElementRef} to a DOM Element or undefined.
  *
  * Handles:
  * - `Ref<Element>`, `ShallowRef<HTMLElement>`, getter functions
- * - Vue component instances (extracts `$el`)
+ * - Vue component instances (`$el`, or the first root Element of a fragment root)
  * - Raw DOM elements (pass-through)
  * - null/undefined (returns undefined)
  *
@@ -65,7 +94,7 @@ export type MaybeElementRef =
  * toElement(el) // HTMLElement | undefined
  *
  * const component = ref<ComponentPublicInstance>()
- * toElement(component) // Element | undefined (from $el)
+ * toElement(component) // Element | undefined (first root Element)
  * ```
  */
 /* #__NO_SIDE_EFFECTS__ */
@@ -82,7 +111,6 @@ export function toElement (target: MaybeElementRef): Element | undefined {
         : target)
   if (!raw) return undefined
   if (isElement(raw)) return raw
-  // ComponentPublicInstance — extract $el
-  if (isObject(raw) && '$el' in raw) return raw.$el as Element | undefined
+  if (isObject(raw) && '$el' in raw) return fromInstance(raw as ComponentPublicInstance)
   return undefined
 }
