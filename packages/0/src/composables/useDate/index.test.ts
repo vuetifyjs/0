@@ -1156,6 +1156,57 @@ describe('createDate', () => {
       })
     })
 
+    describe('calendar', () => {
+      it('should read and write fields in the calendar while ISO stays Gregorian', () => {
+        const persian = new V0DateAdapter('en-US', { calendar: 'persian' })
+        const date = persian.date('2025-03-21')!
+
+        expect([date.year, date.month, date.day]).toEqual([1404, 1, 1])
+        expect(persian.toISO(date)).toBe('2025-03-21')
+        expect(persian.toJsDate(date).getMonth()).toBe(2)
+        expect(persian.format(date, 'monthAndYear')).toBe('Farvardin 1404 AP')
+        expect(persian.toISO(persian.endOfMonth(persian.date('2025-03-10')!))).toBe('2025-03-20')
+        expect(persian.getYearRange(persian.date('2024-01-01')!, persian.date('2026-01-01')!).map(year => persian.toISO(year)))
+          .toEqual(['2023-03-21', '2024-03-20', '2025-03-21'])
+      })
+
+      it('should cover all months of a 13-month year', () => {
+        const hebrew = new V0DateAdapter('en-US', { calendar: 'hebrew' })
+        const leap = hebrew.date('2024-03-15')!
+
+        expect(hebrew.getMonthArray(leap).map(month => hebrew.format(month, 'month'))).toEqual([
+          'Tishri', 'Heshvan', 'Kislev', 'Tevet', 'Shevat', 'Adar I', 'Adar II', 'Nisan', 'Iyar', 'Sivan', 'Tamuz', 'Av', 'Elul',
+        ])
+        expect(hebrew.toISO(hebrew.endOfYear(leap))).toBe('2024-10-02')
+      })
+
+      it('should format in Gregorian when the locale defaults to another calendar', () => {
+        const adapter = new V0DateAdapter('fa-IR')
+        const expected = new Intl.DateTimeFormat('fa-IR', { calendar: 'gregory', year: 'numeric', month: 'long' }).format(new Date(2025, 5, 15))
+
+        expect(adapter.format(adapter.date('2025-06-15')!, 'monthAndYear')).toBe(expected)
+      })
+
+      it('should throw on an unknown calendar at construction', () => {
+        expect(() => new V0DateAdapter('en-US', { calendar: 'nope' })).toThrow(RangeError)
+      })
+
+      it('should add months across a Persian new year and a Hebrew leap month', () => {
+        const persian = new V0DateAdapter('en-US', { calendar: 'persian' })
+
+        expect(persian.toISO(persian.addMonths(persian.date('2025-02-19')!, 1))).toBe('2025-03-21')
+
+        const next = persian.addYears(persian.date('2025-03-20')!, 1)
+
+        expect([next.year, next.month, next.day]).toEqual([1404, 12, 29])
+        expect(persian.toISO(next)).toBe('2026-03-20')
+
+        const hebrew = new V0DateAdapter('en-US', { calendar: 'hebrew' })
+
+        expect(hebrew.toISO(hebrew.addMonths(hebrew.date('2024-02-10')!, 1))).toBe('2024-03-11')
+      })
+    })
+
     // eslint-disable-next-line vitest/prefer-lowercase-title
     describe('SSR behavior', () => {
       it('should return deterministic date for explicit null/undefined input', () => {
