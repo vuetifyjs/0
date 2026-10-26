@@ -16,6 +16,27 @@
       <Md1Tooltip.Content>Filter list</Md1Tooltip.Content>
     </Md1Tooltip>
 
-    <Md1Button @click="open = !open">{{ open ? 'Hide hint' : 'Show hint' }}</Md1Button>
+    <Md1Button @click="open = !open">
+      <span class="md1-docs-tooltip-swap">
+        <span :data-hidden="open || undefined">Show hint</span>
+
+        <span :data-hidden="!open || undefined">Hide hint</span>
+      </span>
+    </Md1Button>
   </div>
 </template>
+
+<style>
+  /* Both labels share one grid cell, so the button keeps the wider label's width whichever one shows. */
+  .md1-docs-tooltip-swap {
+    display: inline-grid;
+  }
+
+  .md1-docs-tooltip-swap > * {
+    grid-area: 1 / 1;
+  }
+
+  .md1-docs-tooltip-swap > [data-hidden] {
+    visibility: hidden;
+  }
+</style>
