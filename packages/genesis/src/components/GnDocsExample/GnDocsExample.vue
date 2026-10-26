@@ -228,7 +228,7 @@
       </GnDocsExampleTabs>
 
       <template v-else-if="code">
-        <div v-if="!peek" class="genesis-docs-example__code-bar">
+        <div class="genesis-docs-example__code-bar">
           <span v-if="fileName" class="genesis-docs-example__code-filename">
             {{ fileName }}
           </span>
@@ -383,6 +383,11 @@
     background: var(--v0-surface, #fff);
     border-bottom: 1px solid color-mix(in srgb, var(--v0-on-surface, currentcolor) 14%, transparent);
     min-height: 3rem;
+  }
+
+  /* Peek has no Show-code bar, so this row sticks under the app bar. */
+  .genesis-docs-example[data-peek] .genesis-docs-example__code-bar {
+    top: var(--gn-docs-example-sticky-top, 0px);
   }
 
   .genesis-docs-example__code-filename {
