@@ -297,6 +297,7 @@
     -webkit-tap-highlight-color: transparent;
     transition:
       height var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+      border-radius var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       margin var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
@@ -346,7 +347,8 @@
 
   /*
    * The contact chip: the name at 14 sp; focused and activated in its field it
-   * grows to 40 dp. The growth spends 4 dp of the field's room on each side:
+   * grows to 40 dp, a full pill like the resting chip, so its
+   * corners follow the 40 dp avatar. The growth spends 4 dp of the field's room on each side:
    * a -4 dp margin keeps the margin box at the resting 32 dp chip, so focus
    * moves no neighbour. The inline margin only with an avatar: square at the
    * chip's height, it widens the chip by the same 8 dp. At the base chip's
@@ -358,6 +360,7 @@
 
   .md1-chip[data-contact][data-focused] {
     height: 40px;
+    border-radius: 20px;
   }
 
   .md1-chip:where([data-contact][data-focused]) {
