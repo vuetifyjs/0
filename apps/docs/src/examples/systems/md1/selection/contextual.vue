@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <span v-if="removed > 0" class="md1-docs-selection-note" role="status">{{ removed }} deleted</span>
+    <span class="md1-docs-selection-note md1-docs-readout" role="status">{{ removed > 0 ? `${removed} deleted` : 'Nothing deleted' }}</span>
   </div>
 </template>
 
