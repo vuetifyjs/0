@@ -315,4 +315,150 @@ describe('plainDateAdapter', () => {
       expect(adapter.getWeek(adapter.parseISO('2027-01-04'))).toBe(1)
     })
   })
+
+  describe('remaining date-io surface', () => {
+    it('should accept an epoch number and reject other values', () => {
+      const adapter = setup()
+      const morning = adapter.parseISO('2026-02-01T09:05:06')
+      const copy = adapter.toJsDate(morning)
+
+      expect(adapter.date(0)!.getTime()).toBe(0)
+      expect(adapter.date(Number.NaN)).toBeNull()
+      expect(adapter.date(Number.POSITIVE_INFINITY)).toBeNull()
+      expect(adapter.date({})).toBeNull()
+      expect(copy).not.toBe(morning)
+      expect(copy.getTime()).toBe(morning.getTime())
+      expect(adapter.isNullish(null)).toBe(true)
+      expect(adapter.isNullish(morning)).toBe(false)
+      expect(adapter.getCurrentLocaleCode()).toBe('en-US')
+      expect(adapter.is12HourCycleInCurrentLocale()).toBe(true)
+      expect(new PlainDateAdapter('de-DE').is12HourCycleInCurrentLocale()).toBe(false)
+
+      adapter.locale = 'en-US'
+
+      expect(adapter.locale).toBe('en-US')
+    })
+
+    it('should reject an impossible offset and default omitted seconds', () => {
+      const adapter = setup()
+
+      expect(adapter.parseISO('2026-02-01T15:04').getSeconds()).toBe(0)
+      expect(() => adapter.parseISO('2026-02-01T15:04:05+25:00')).toThrow('Invalid date')
+      expect(() => adapter.parseISO('2026-02-01T15:04:05+05:99')).toThrow('Invalid date')
+      expect(adapter.parseISO('2026-02-01T15:04:05-05:30').getTime()).toBe(new Date('2026-02-01T15:04:05-05:30').getTime())
+    })
+
+    it('should format tokens, helpers, and meridiem text', () => {
+      const adapter = setup()
+      const midnight = adapter.parseISO('2026-02-01T00:00:00')
+      const afternoon = adapter.parseISO('2026-02-01T15:05:06')
+      const fallback = adapter.format(afternoon, 'not-a-preset')
+
+      expect(fallback).toContain('2026')
+      expect(adapter.format(afternoon, 'not-a-preset')).toBe(fallback)
+      expect(adapter.format(afternoon, 'year')).toBe('2026')
+      expect(adapter.formatByString(afternoon, 'YY M D HH H hh h m ss s a MMM ddd dddd')).toBe('26 2 1 15 15 03 3 5 06 6 pm Feb Sun Sunday')
+      expect(adapter.formatByString(midnight, 'hh A a')).toBe('12 AM am')
+      expect(adapter.formatByString(afternoon, 'A')).toBe('PM')
+      expect(adapter.getFormatHelperText('keyboardDate')).toBe('mm/dd/yyyy')
+      expect(adapter.getFormatHelperText('keyboardDateTime')).toBe('mm/dd/yyyy hh:mm')
+      expect(adapter.getFormatHelperText('keyboardDateTime12h')).toBe('mm/dd/yyyy hh:mm am/pm')
+      expect(adapter.getFormatHelperText('keyboardDateTime24h')).toBe('mm/dd/yyyy hh:mm')
+      expect(adapter.getFormatHelperText('YYYY-MM-DD HH')).toBe('yyyy-mm-dd hh')
+      expect(adapter.formatNumber('1234')).toBe('1,234')
+      expect(adapter.formatNumber('1234')).toBe('1,234')
+      expect(adapter.getMeridiemText('am').toLowerCase()).toContain('am')
+      expect(adapter.getMeridiemText('pm').toLowerCase()).toContain('pm')
+      expect(new PlainDateAdapter('hu-HU').getMeridiemText('am')).toBe('AM')
+      expect(new PlainDateAdapter('hu-HU').getMeridiemText('pm')).toBe('PM')
+      expect(adapter.getWeekdays('long')[0]).toBe('Sunday')
+      expect(adapter.getWeekdays('short')[0]).toBe('Sun')
+      expect(adapter.getWeekdays()[0]).toBe('S')
+    })
+
+    it('should walk bounds, setters, and ranges', () => {
+      const adapter = setup()
+      const morning = adapter.parseISO('2026-02-01T09:05:06.007')
+      const nextYear = adapter.parseISO('2027-03-02T10:00:00')
+      const laterMonth = adapter.parseISO('2026-03-01T09:05:06')
+
+      expect(adapter.toISO(adapter.startOfYear(morning))).toBe('2026-01-01')
+      expect(adapter.endOfYear(morning).getMonth()).toBe(11)
+      expect(adapter.endOfYear(morning).getDate()).toBe(31)
+      expect(adapter.endOfYear(morning).getHours()).toBe(23)
+      expect(adapter.addSeconds(morning, 1).getSeconds()).toBe(7)
+      expect(adapter.addMinutes(morning, 1).getMinutes()).toBe(6)
+      expect(adapter.addHours(morning, 1).getHours()).toBe(10)
+      expect(adapter.getYear(adapter.setYear(morning, 2027))).toBe(2027)
+      expect(adapter.toISO(adapter.setYear(morning, 10_000))).toBe('10000-02-01')
+      expect(adapter.toISO(adapter.date(new Date(-1, 0, 1))!)).toBe('-1-01-01')
+      expect(adapter.getDate(adapter.setDate(morning, 15))).toBe(15)
+      expect(adapter.getHours(adapter.setHours(morning, 3))).toBe(3)
+      expect(adapter.getMinutes(adapter.setMinutes(morning, 8))).toBe(8)
+      expect(adapter.getSeconds(adapter.setSeconds(morning, 9))).toBe(9)
+      expect(adapter.isAfter(nextYear, morning)).toBe(true)
+      expect(adapter.isAfterMonth(nextYear, morning)).toBe(true)
+      expect(adapter.isAfterMonth(morning, nextYear)).toBe(false)
+      expect(adapter.isAfterMonth(laterMonth, morning)).toBe(true)
+      expect(adapter.isAfterMonth(morning, laterMonth)).toBe(false)
+      expect(adapter.isAfterYear(nextYear, morning)).toBe(true)
+      expect(adapter.isAfterYear(morning, nextYear)).toBe(false)
+      expect(adapter.isBefore(morning, nextYear)).toBe(true)
+      expect(adapter.isBefore(nextYear, morning)).toBe(false)
+      expect(adapter.isBeforeMonth(morning, nextYear)).toBe(true)
+      expect(adapter.isBeforeMonth(morning, laterMonth)).toBe(true)
+      expect(adapter.isBeforeMonth(laterMonth, morning)).toBe(false)
+      expect(adapter.isBeforeYear(morning, nextYear)).toBe(true)
+      expect(adapter.isBeforeYear(nextYear, morning)).toBe(false)
+      expect(adapter.isEqual(morning, adapter.toJsDate(morning))).toBe(true)
+      expect(adapter.isEqual(morning, nextYear)).toBe(false)
+      expect(adapter.isSameMonth(morning, laterMonth)).toBe(false)
+      expect(adapter.isSameMonth(morning, adapter.parseISO('2026-02-15'))).toBe(true)
+      expect(adapter.isSameYear(morning, laterMonth)).toBe(true)
+      expect(adapter.isSameYear(morning, nextYear)).toBe(false)
+      expect(adapter.isSameHour(morning, adapter.parseISO('2026-02-01T09:30:00'))).toBe(true)
+      expect(adapter.isSameHour(morning, nextYear)).toBe(false)
+      expect(adapter.isWithinRange(morning, [adapter.parseISO('2026-01-01'), adapter.parseISO('2026-03-01')])).toBe(true)
+      expect(adapter.isWithinRange(nextYear, [morning, laterMonth])).toBe(false)
+      expect(adapter.getYear(morning)).toBe(2026)
+      expect(adapter.getMonth(morning)).toBe(1)
+      expect(adapter.getDate(morning)).toBe(1)
+      expect(adapter.getHours(morning)).toBe(9)
+      expect(adapter.getMinutes(morning)).toBe(5)
+      expect(adapter.getSeconds(morning)).toBe(6)
+      expect(adapter.getMonthArray(morning)).toHaveLength(12)
+      expect(adapter.toISO(adapter.getMonthArray(morning)[0]!)).toBe('2026-01-01')
+      expect(adapter.toISO(adapter.getMonthArray(morning)[11]!)).toBe('2026-12-01')
+      expect(adapter.getYearRange(morning, nextYear)).toHaveLength(2)
+      expect(adapter.toISO(adapter.getNextMonth(morning))).toBe('2026-03-01')
+      expect(adapter.toISO(adapter.getPreviousMonth(morning))).toBe('2026-01-01')
+
+      const merged = adapter.mergeDateAndTime(morning, nextYear)
+
+      expect(adapter.toISO(merged)).toBe('2026-02-01')
+      expect(merged.getHours()).toBe(10)
+      expect(merged.getMinutes()).toBe(0)
+    })
+
+    it('should diff minutes, seconds, and a same-hour month span', () => {
+      const adapter = setup()
+      const morning = adapter.parseISO('2026-02-01T09:05:06')
+      const afternoon = adapter.parseISO('2026-02-01T15:05:06')
+
+      expect(adapter.getDiff(afternoon, morning, 'minutes')).toBe(360)
+      expect(adapter.getDiff(afternoon, morning, 'seconds')).toBe(21_600)
+      expect(adapter.getDiff(morning, 'not-a-date', 'days')).toBe(0)
+      expect(adapter.getDiff(afternoon, '2026-02-01T15:05:06', 'minutes')).toBe(0)
+      expect(adapter.getDiff(
+        adapter.parseISO('2024-03-20T10:30:00'),
+        adapter.parseISO('2024-01-20T10:00:00'),
+        'months',
+      )).toBe(2)
+      expect(adapter.getDiff(
+        adapter.parseISO('2024-03-20T10:00:00.500'),
+        adapter.parseISO('2024-01-20T10:00:00.100'),
+        'months',
+      )).toBe(2)
+    })
+  })
 })

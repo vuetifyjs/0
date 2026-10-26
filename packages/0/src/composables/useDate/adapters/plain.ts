@@ -264,6 +264,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
         case 'MMM': { return this.getFormatter({ month: 'short' }).format(date) }
         case 'dddd': { return this.getFormatter({ weekday: 'long' }).format(date) }
         case 'ddd': { return this.getFormatter({ weekday: 'short' }).format(date) }
+        /* v8 ignore next -- the token regex only yields the cases above */
         default: { return token }
       }
     }
