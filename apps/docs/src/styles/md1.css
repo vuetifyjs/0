@@ -241,6 +241,18 @@
 }
 
 /*
+ * Example readouts. A readout reports what the control above it holds. It is
+ * always rendered and keeps one line of height, so a value appearing or
+ * changing never re-centres the example and moves the control under the
+ * pointer.
+ */
+:where(.genesis-docs-example-preview__panel[data-theme^="md1-"]) .md1-docs-readout {
+  min-block-size: 1lh;
+  margin: 0;
+  text-align: center;
+}
+
+/*
  * Drawers in a screen frame. The frame stands in for the device screen, so a
  * drawer laid out in it takes the drawer width rule (the screen less one
  * increment, at most five increments) from the frame, not the viewport, and
