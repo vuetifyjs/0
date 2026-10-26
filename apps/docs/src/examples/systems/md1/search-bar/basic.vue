@@ -21,7 +21,7 @@
       <Md1SearchBar.Item v-for="item in places" :key="`place:${item}`" :value="item" />
     </Md1SearchBar>
 
-    <span v-if="submitted" class="md1-docs-note" role="status">Searched for "{{ submitted }}"</span>
+    <span class="md1-docs-note md1-docs-readout" role="status">{{ submitted ? `Searched for "${submitted}"` : 'No search yet' }}</span>
   </div>
 </template>
 

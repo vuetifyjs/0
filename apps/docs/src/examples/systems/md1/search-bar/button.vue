@@ -14,7 +14,7 @@
   <div class="md1-docs-search">
     <Md1SearchBar v-model="query" button placeholder="Search the help center" @submit="onSubmit" />
 
-    <span v-if="submitted" class="md1-docs-note" role="status">Searched for "{{ submitted }}"</span>
+    <span class="md1-docs-note md1-docs-readout" role="status">{{ submitted ? `Searched for "${submitted}"` : 'No search yet' }}</span>
   </div>
 </template>
 

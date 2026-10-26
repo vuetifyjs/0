@@ -16,7 +16,7 @@
   <div class="md1-docs-search">
     <Md1SearchBar v-model="query" placeholder="Search or say a place" voice @voice="onVoice" />
 
-    <span v-if="listening" class="md1-docs-note" role="status">Heard "Coffee near me"</span>
+    <span class="md1-docs-note md1-docs-readout" role="status">{{ listening ? 'Heard "Coffee near me"' : 'Nothing heard yet' }}</span>
   </div>
 </template>
 
