@@ -115,11 +115,11 @@
     gap: var(--md1-spacing-3, 24px);
   }
 
+  /* A column: the language switch on top and the button it translates below, so a longer label never moves the switch. */
   .md1-docs-writing-labels-locale {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: var(--md1-spacing-2, 16px);
   }
 
