@@ -17,8 +17,9 @@
  *   transformation, for a circular source) and `rect` (an `inset()` clip, the
  *   rectangular transformation; the page forbids a radial one between two
  *   rectangles)
- * - Movement on both axes follows an arc: the leading axis on the deceleration
- *   curve and the other on the standard curve; a one-axis move stays straight
+ * - Movement on both axes follows an arc: a quadratic path bowed toward the
+ *   corner between the two centres, travelled on the standard curve so it
+ *   starts and ends at rest; a one-axis move stays straight
  * - `rect` changes width and height asynchronously through `lead` and `lag`
  * - The source's shadow carries over as a `drop-shadow()` on the moving element
  *   and hands over to the surface's own shadow
@@ -120,7 +121,6 @@ function bezier (css: string): Curve {
 }
 
 const standard = bezier(easing.standard)
-const decelerate = bezier(easing.decelerate)
 
 /** A curve played inside part of the duration: 0 before `start`, 1 after `end`. */
 function window (curve: Curve, start: number, end: number): Curve {
@@ -211,14 +211,28 @@ export function useMorph (): MorphContext {
     const dx = end.x - start.x
     const dy = end.y - start.y
 
-    // The movement page: two-axis moves arc, shallow first when rising and steep first when falling.
+    // The movement page: two-axis moves arc, shallow first when rising and steep first when falling. The path is a
+    // quadratic curve bowed halfway toward the corner between the two centres, travelled on the standard curve, so the
+    // surface leaves the source and lands at rest; a deceleration curve on one axis would start (and, reversed, end) at
+    // full speed. Bowed only halfway, the trailing axis still keeps pace with a circle growing from the source.
     const span = shape === 'rect' ? 1 - lag : 1
-    const leading = window(decelerate, 0, span)
-    const trailing = window(standard, 0, span)
-    const arc = Math.abs(dx) > 1 && Math.abs(dy) > 1
-    const px = arc && dy < 0 ? leading : trailing
-    const py = arc && dy >= 0 ? leading : trailing
     const first = window(standard, 0, span)
+    const arc = Math.abs(dx) > 1 && Math.abs(dy) > 1
+
+    function leading (t: number) {
+      const s = first(t)
+
+      return s + s * (1 - s) / 2
+    }
+
+    function trailing (t: number) {
+      const s = first(t)
+
+      return s - s * (1 - s) / 2
+    }
+
+    const px = arc ? (dy < 0 ? leading : trailing) : first
+    const py = arc ? (dy >= 0 ? leading : trailing) : first
     const second = window(standard, lag, 1)
     const pw = lead === 'width' ? first : second
     const ph = lead === 'width' ? second : first

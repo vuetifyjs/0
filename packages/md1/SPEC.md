@@ -654,7 +654,7 @@ Vuetify's `swing` and `fast-in-fast-out` curves are not Material Design 1 curves
 |---|---|
 | Surface transformations and on-screen movement on the standard curve | m1-explicit (movement, transforming-material) |
 | Two-axis movement arcs, shallow first rising and steep first falling; one-axis movement straight | m1-explicit (movement) |
-| The arc: leading axis on the deceleration curve, the other on the standard curve | chosen |
+| The arc: a quadratic path bowed halfway toward the corner between the two centres, travelled on the standard curve, so it leaves and lands at rest | chosen |
 | Radial (`circle()`) only from a circular source; rectangles use `inset()` | m1-explicit (transforming-material: no radial transform between rectangles) |
 | An expanding rectangle starts its width before its height (`lead`, `lag`) | m1-explicit (transforming-material); the card's 0.15 lag and the toolbar's 0.5 two-phase split are chosen |
 | Contained content keeps its aspect ratio: `scale` is uniform and the clip crops | m1-explicit (transforming-material) |

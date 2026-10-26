@@ -127,6 +127,27 @@ describe('useMorph', () => {
     ;(await pending)()
   })
 
+  it('should leave the source and land at rest, so neither direction jumps at its ends', async () => {
+    const { morph } = setup()
+    const fab = box(FAB)
+    const sheet = box(SHEET)
+    const { animations, restore } = capture()
+
+    const pending = morph({ from: fab, to: sheet, duration: 320 })
+    restore()
+
+    const points = frames(sheet, 'transform').map(value => value.match(/-?[\d.]+/g)!.slice(0, 2).map(Number) as [number, number])
+    const steps = points.slice(1).map(([x, y], index) => Math.hypot(x - points[index]![0], y - points[index]![1]))
+    const peak = Math.max(...steps)
+
+    // A deceleration curve on the leading axis made the first step the largest, and the reverse ended on it.
+    expect(steps[0]).toBeLessThan(peak / 4)
+    expect(steps.at(-1)).toBeLessThan(peak / 4)
+
+    for (const animation of animations) animation.finish()
+    ;(await pending)()
+  })
+
   it('should clip with inset() for a rect, the leading axis first', async () => {
     const { morph } = setup()
     const card = box('left:20px;top:100px;width:160px;height:100px')
