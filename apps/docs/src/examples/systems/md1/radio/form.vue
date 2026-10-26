@@ -23,7 +23,7 @@
 
     <Md1Button @click="onSubmit">Continue</Md1Button>
 
-    <span v-if="sent" class="md1-docs-note" role="status">Submitted plan: {{ sent }}</span>
+    <span class="md1-docs-note md1-docs-readout" role="status">{{ sent ? `Submitted plan: ${sent}` : 'Nothing submitted' }}</span>
   </form>
 </template>
 
