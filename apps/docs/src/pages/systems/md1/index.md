@@ -30,6 +30,10 @@ Material Design 1 is the [Vuetify 10th Anniversary Edition](/systems/md1/edition
 
 <DocsSystemActivator palette="md1" />
 
+::: ds-example no-resize
+/systems/md1/overview
+:::
+
 ## What Material Design 1 is
 
 Material Design 1 is the 2014 to 2017 Material Design guidelines, the language Google developed under the codename Quantum Paper. It is the older language in its own right, not a theme of the current one, and `@paper/material` stays reserved for Material Design 3. Every `Md1*` API is the spec's vocabulary rendered on v0, and nothing more. Where the guidelines say `dense`, `raised`, `mini` or `shifting`, the prop is that word.
