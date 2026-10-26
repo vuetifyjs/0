@@ -20,7 +20,7 @@
       <Md1Button footer @click="seen = true">Got it</Md1Button>
     </div>
 
-    <span v-if="seen" class="md1-docs-note" role="status">Dismissed</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ seen ? 'Dismissed' : 'Sheet open' }}</p>
   </div>
 </template>
 
