@@ -65,7 +65,7 @@
     <div class="md1-docs-nav-row">
       <Md1Button :disabled="history.length < 2" icon="arrow-back" @click="onBack">Back</Md1Button>
 
-      <span class="md1-docs-nav-note" role="status">History: {{ trail }}</span>
+      <p class="md1-docs-readout md1-docs-nav-note" role="status">History: {{ trail }}</p>
     </div>
   </div>
 </template>
@@ -102,11 +102,15 @@
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
   }
 
+  /*
+   * Back on top and the history below it, each centred on its own, so the
+   * history growing never moves the button.
+   */
   .md1-docs-nav-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    gap: var(--md1-spacing-2, 16px);
+    gap: var(--md1-spacing-1, 8px);
   }
 
   .md1-docs-nav-note {
