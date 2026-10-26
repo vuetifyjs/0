@@ -69,7 +69,7 @@
       </Md1DataTable.Table>
     </Md1DataTable>
 
-    <span v-if="removed > 0" class="md1-docs-note" role="status">{{ removed }} removed</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ removed > 0 ? `${removed} removed` : 'None removed' }}</p>
   </div>
 </template>
 
