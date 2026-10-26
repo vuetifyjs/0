@@ -51,7 +51,7 @@
       @click="onOpen"
     />
 
-    <div v-if="open" ref="bar" class="md1-docs-fab-bar">
+    <div v-if="open" ref="bar" class="md1-docs-fab-dock">
       <Md1Toolbar class="md1-docs-fab-toolbar">
         <Md1Toolbar.Actions aria-label="Attach">
           <Md1Button aria-label="Photo" icon="photo" />
@@ -80,7 +80,8 @@
     visibility: hidden;
   }
 
-  .md1-docs-fab-bar {
+  /* Docked to the bottom edge. The name is the example's own: the position example's unscoped `.md1-docs-fab-bar` pads its row. */
+  .md1-docs-fab-dock {
     position: absolute;
     inset: auto 0 0;
     z-index: 2;
@@ -92,11 +93,15 @@
     color: var(--md1-on-accent, #FFFFFF);
   }
 
-  .md1-docs-fab-toolbar .md1-toolbar__row {
+  /* The actions spread across the bar, so the widening reveals them one by one from the centre. */
+  .md1-docs-fab-toolbar .md1-toolbar__actions {
+    flex: auto;
     justify-content: space-around;
+    margin-inline-start: 0;
   }
 
-  .md1-docs-fab-toolbar .md1-button {
+  /* White ink on the accent, as the FAB's glyph was; the bar's own rule inks surface-variant actions grey. */
+  .md1-docs-fab-toolbar.md1-toolbar .md1-toolbar__actions > .md1-button[data-solo]:not([data-disabled]) {
     color: inherit;
   }
 </style>
