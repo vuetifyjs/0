@@ -22,7 +22,7 @@ related:
   - /systems/md1/layout
 ---
 
-# Material Design 1 — Vuetify 10th Anniversary Edition
+# Material Design 1
 
 <DocsPageFeatures :frontmatter />
 
