@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Md1Chip } from '@paper/md1'
+  import { Md1Button, Md1Chip } from '@paper/md1'
 
   import { ref } from 'vue'
 
@@ -15,31 +15,41 @@
     return `data:image/svg+xml,${encodeURIComponent(svg)}`
   }
 
-  const recipients = ref<Contact[]>([
+  const INITIAL: Contact[] = [
     { name: 'Alice Jones', avatar: photo('A', '#3F51B5') },
     { name: 'Ben Okafor', avatar: photo('B', '#009688') },
     { name: 'Chloe Martin', avatar: photo('C', '#E91E63') },
-  ])
+  ]
+
+  const recipients = ref([...INITIAL])
 
   function onDelete (name: string) {
     recipients.value = recipients.value.filter(contact => contact.name !== name)
   }
+
+  function onReset () {
+    recipients.value = [...INITIAL]
+  }
 </script>
 
 <template>
-  <div class="md1-docs-field">
-    <span class="md1-docs-field-label">To</span>
+  <div class="md1-docs-stack md1-docs-chip-contact">
+    <div class="md1-docs-field">
+      <span class="md1-docs-field-label">To</span>
 
-    <Md1Chip
-      v-for="contact in recipients"
-      :key="contact.name"
-      :avatar="contact.avatar"
-      contact
-      deletable
-      @delete="onDelete(contact.name)"
-    >
-      {{ contact.name }}
-    </Md1Chip>
+      <Md1Chip
+        v-for="contact in recipients"
+        :key="contact.name"
+        :avatar="contact.avatar"
+        contact
+        deletable
+        @delete="onDelete(contact.name)"
+      >
+        {{ contact.name }}
+      </Md1Chip>
+    </div>
+
+    <Md1Button :disabled="recipients.length === INITIAL.length" @click="onReset">Reset</Md1Button>
   </div>
 </template>
 
@@ -59,6 +69,43 @@
     max-width: 560px;
     padding-block: var(--md1-spacing-2, 16px);
     border-bottom: 1px solid var(--md1-divider, rgba(0, 0, 0, 0.12));
+  }
+
+  .md1-docs-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--md1-spacing-2, 16px);
+  }
+
+  /*
+   * The field spans the stack up to its 560 dp and its chips wrap from the
+   * start, so deleting one closes the gap from the end and moves no other. It
+   * keeps the height of the full set, one, two or three lines as the panel
+   * narrows, with each line 32 dp at 20 dp from the edges (a focused 40 dp
+   * chip at 16 dp), so Reset never moves and the chips come back where they were.
+   */
+  .md1-docs-chip-contact {
+    container-type: inline-size;
+  }
+
+  .md1-docs-chip-contact > .md1-docs-field {
+    inline-size: 100%;
+    align-content: flex-start;
+    min-height: 32px;
+    padding-block: 20px;
+  }
+
+  @container (width < 480px) {
+    .md1-docs-chip-contact > .md1-docs-field {
+      min-height: 72px;
+    }
+  }
+
+  @container (width < 320px) {
+    .md1-docs-chip-contact > .md1-docs-field {
+      min-height: 112px;
+    }
   }
 
   .md1-docs-field-label {
