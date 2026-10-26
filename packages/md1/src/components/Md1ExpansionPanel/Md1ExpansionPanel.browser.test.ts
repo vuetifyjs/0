@@ -442,13 +442,34 @@ describe('quExpansionPanel', () => {
       expect(b.top - a.bottom).toBe(16)
       expect(c.top - b.bottom).toBe(16)
       expect(getComputedStyle(second).boxShadow).toBe(serialize('boxShadow', ELEVATION_3))
-      expect(getComputedStyle(second).borderTopWidth).toBe('0px')
-      expect(getComputedStyle(third).borderTopWidth).toBe('0px')
+      // The dividers either side go transparent but keep their 1 px, so the toggle never shifts layout.
+      expect(getComputedStyle(second).borderTopWidth).toBe('1px')
+      expect(getComputedStyle(second).borderTopColor).toBe('rgba(0, 0, 0, 0)')
+      expect(getComputedStyle(third).borderTopWidth).toBe('1px')
+      expect(getComputedStyle(third).borderTopColor).toBe('rgba(0, 0, 0, 0)')
       expect(getComputedStyle(second).borderTopLeftRadius).toBe('2px')
       expect(getComputedStyle(second).borderBottomLeftRadius).toBe('2px')
       // The neighbours close their own sheets with the card corners.
       expect(getComputedStyle(first).borderBottomLeftRadius).toBe('2px')
       expect(getComputedStyle(third).borderTopLeftRadius).toBe('2px')
+    })
+
+    it('should keep every divider width when a panel expands and collapses, so the toggle snaps no layout', async () => {
+      const root = panels()
+      await settle()
+
+      const widths = () => items(root).map(el => getComputedStyle(el).borderTopWidth)
+      const rest = widths()
+
+      await userEvent.click(headers(root)[1])
+      await settle()
+
+      expect(widths()).toEqual(rest)
+
+      await userEvent.click(headers(root)[1])
+      await settle()
+
+      expect(widths()).toEqual(rest)
     })
 
     it('should keep an expanded panel at the ends of the stack in place', async () => {

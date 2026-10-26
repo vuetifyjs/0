@@ -76,6 +76,7 @@
     clip-path: inset(0 -24px -24px);
     transition:
       margin var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+      border-top-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       border-radius var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
@@ -86,7 +87,12 @@
     clip-path: none;
   }
 
-  /* Stacked panels are separated by 1 dp dividers (dividers page, 12%); a sheet's first row has none. */
+  /*
+   * Stacked panels are separated by 1 dp dividers (dividers page, 12%); a sheet's first row has none.
+   * Where a sheet splits around an expanded panel the divider only turns transparent, its 1 px kept
+   * (the sheet's own surface shows through), so expanding and collapsing never add or remove a pixel
+   * of layout; Chromium rounds a border between 0 and 1 px up to 1 px, so the width cannot animate.
+   */
   .md1-expansion-panel__item + .md1-expansion-panel__item {
     border-top: 1px solid var(--md1-divider, rgba(0, 0, 0, 0.12));
   }
@@ -113,14 +119,14 @@
   .md1-expansion-panel__item[data-selected] {
     z-index: 1;
     margin-block: var(--md1-spacing-2, 16px);
-    border-top: 0;
+    border-top-color: transparent;
     border-radius: var(--md1-radius, 2px);
     box-shadow: var(--md1-elevation-3, 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12));
     clip-path: none;
   }
 
   .md1-expansion-panel__item[data-selected] + .md1-expansion-panel__item {
-    border-top: 0;
+    border-top-color: transparent;
   }
 
   /* The separation is from neighbours; the ends of the stack stay where they are. */
