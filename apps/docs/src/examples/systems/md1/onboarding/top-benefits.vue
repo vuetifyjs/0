@@ -81,9 +81,22 @@
         :aria-live="auto ? 'off' : 'polite'"
         class="md1-docs-benefits-copy"
       >
-        <h3 class="md1-docs-benefits-headline md1-type-headline">{{ current.title }}</h3>
+        <div class="md1-docs-benefits-text">
+          <h3 class="md1-docs-benefits-headline md1-type-headline">{{ current.title }}</h3>
 
-        <p class="md1-docs-benefits-subhead">{{ current.text }}</p>
+          <p class="md1-docs-benefits-subhead">{{ current.text }}</p>
+        </div>
+
+        <div
+          v-for="benefit in benefits"
+          :key="benefit.id"
+          aria-hidden="true"
+          class="md1-docs-benefits-text md1-docs-benefits-sizer"
+        >
+          <span class="md1-docs-benefits-headline md1-type-headline">{{ benefit.title }}</span>
+
+          <span class="md1-docs-benefits-subhead">{{ benefit.text }}</span>
+        </div>
       </div>
 
       <div class="md1-docs-benefits-footer">
@@ -106,7 +119,7 @@
     <div class="md1-docs-onboarding-row">
       <Md1Button :disabled="auto" @click="onReplay">Replay</Md1Button>
 
-      <span v-if="started" class="md1-docs-onboarding-note" role="status">Onboarding finished</span>
+      <p class="md1-docs-readout md1-docs-onboarding-note" role="status">{{ started ? 'Onboarding finished' : '—' }}</p>
     </div>
   </div>
 </template>
@@ -119,9 +132,13 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
+  /*
+   * The button on top and its readout below, each centred on its own, so the
+   * readout appearing or changing never moves the button.
+   */
   .md1-docs-onboarding-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-1, 8px);
   }
@@ -154,15 +171,26 @@
   /*
    * The copy box is 112 dp tall and centres its text, so the centre of the
    * copy sits 56 dp above the top of the button for one to three lines.
+   * Hidden copies of every benefit share its cell, so on a narrow screen it
+   * is as tall as the longest benefit and the button and dots never move.
    */
   .md1-docs-benefits-copy {
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    align-items: center;
     min-height: 112px;
     padding-inline: var(--md1-spacing-3, 24px);
     text-align: center;
+  }
+
+  .md1-docs-benefits-text {
+    display: flex;
+    flex-direction: column;
+    grid-area: 1 / 1;
+  }
+
+  .md1-docs-benefits-sizer {
+    visibility: hidden;
   }
 
   .md1-docs-benefits-headline {

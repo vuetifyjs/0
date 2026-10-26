@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <span v-if="sent" class="md1-docs-onboarding-note" role="status">Following {{ picked.length }} {{ picked.length === 1 ? 'topic' : 'topics' }}</span>
+    <p class="md1-docs-readout md1-docs-onboarding-note" role="status">{{ sent ? `Following ${picked.length} ${picked.length === 1 ? 'topic' : 'topics'}` : '—' }}</p>
   </div>
 </template>
 

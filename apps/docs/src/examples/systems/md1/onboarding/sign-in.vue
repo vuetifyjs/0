@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    <span v-if="signed" class="md1-docs-onboarding-note" role="status">Signed in as {{ account.email }}</span>
+    <p class="md1-docs-readout md1-docs-onboarding-note" role="status">{{ signed ? `Signed in as ${account.email}` : 'Not signed in' }}</p>
   </div>
 </template>
 

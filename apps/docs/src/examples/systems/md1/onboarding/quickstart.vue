@@ -18,6 +18,13 @@
 
 <template>
   <div class="md1-docs-onboarding-stack">
+    <!-- Above the screen: the offer card appearing at its foot never moves Start over. -->
+    <div class="md1-docs-onboarding-row">
+      <Md1Button :disabled="!done" @click="onReset">Start over</Md1Button>
+
+      <p class="md1-docs-readout md1-docs-onboarding-note" role="status">{{ done || '—' }}</p>
+    </div>
+
     <div class="md1-docs-quickstart-screen">
       <p class="md1-docs-quickstart-bar md1-type-title">Photos</p>
 
@@ -63,12 +70,6 @@
         </Md1Card>
       </div>
     </div>
-
-    <div class="md1-docs-onboarding-row">
-      <Md1Button :disabled="!done" @click="onReset">Start over</Md1Button>
-
-      <span v-if="done" class="md1-docs-onboarding-note" role="status">{{ done }}</span>
-    </div>
   </div>
 </template>
 
@@ -80,9 +81,13 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
+  /*
+   * The button on top and its readout below, each centred on its own, so the
+   * readout appearing or changing never moves the button.
+   */
   .md1-docs-onboarding-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-1, 8px);
   }

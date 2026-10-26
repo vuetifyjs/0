@@ -71,7 +71,7 @@
       </div>
     </section>
 
-    <span v-if="started" class="md1-docs-carousel-note" role="status">Onboarding finished</span>
+    <p class="md1-docs-readout md1-docs-carousel-note" role="status">{{ started ? 'Onboarding finished' : '—' }}</p>
   </div>
 </template>
 
