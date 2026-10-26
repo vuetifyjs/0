@@ -28,7 +28,7 @@
       </Md1GridList.Tile>
     </Md1GridList>
 
-    <p v-if="opened" class="md1-docs-grid-list-note" role="status">Opened {{ opened }}</p>
+    <p class="md1-docs-readout md1-docs-grid-list-note" role="status">{{ opened ? `Opened ${opened}` : 'No photo opened' }}</p>
   </div>
 </template>
 
@@ -36,6 +36,11 @@
   .md1-docs-grid-list {
     width: 100%;
     max-width: 480px;
+  }
+
+  /* Start-aligned like the other grid list notes on the page. */
+  .md1-docs-grid-list > .md1-docs-readout {
+    text-align: start;
   }
 
   .md1-docs-grid-list-note {
