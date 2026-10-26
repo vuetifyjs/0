@@ -44,7 +44,7 @@
       <Md1Card.Actions>
         <Md1Button @click="reserved = true">Reserve</Md1Button>
 
-        <span v-if="reserved" class="md1-docs-card-secondary md1-type-caption" role="status">Table held for {{ time }} PM</span>
+        <span class="md1-docs-card-secondary md1-type-caption" role="status">{{ reserved ? `Table held for ${time} PM` : 'No table held' }}</span>
       </Md1Card.Actions>
     </Md1Card>
   </div>
