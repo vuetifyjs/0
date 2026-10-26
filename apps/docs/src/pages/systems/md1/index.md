@@ -22,7 +22,7 @@ related:
   - /systems/md1/layout
 ---
 
-# Material Design 1
+# Material Design 1: Anniversary Edition
 
 <DocsPageFeatures :frontmatter />
 
