@@ -458,7 +458,10 @@ describe('quExpansionPanel', () => {
       const root = panels()
       await settle()
 
-      const widths = () => items(root).map(el => getComputedStyle(el).borderTopWidth)
+      function widths () {
+        return items(root).map(el => getComputedStyle(el).borderTopWidth)
+      }
+
       const rest = widths()
 
       await userEvent.click(headers(root)[1])
