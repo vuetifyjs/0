@@ -18,7 +18,7 @@
       </Md1Dialog.Activator>
 
       <Md1Dialog.Content aria-label="Pick a date">
-        <Md1DatePicker :landscape="landscape" />
+        <Md1DatePicker :landscape />
 
         <Md1Dialog.Actions>
           <Md1Dialog.Cancel />

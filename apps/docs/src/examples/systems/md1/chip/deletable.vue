@@ -43,7 +43,6 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
-
   /*
    * The filters hold the width of the full set and start at its left edge, so
    * deleting a chip closes the gap from the right instead of re-centring the
