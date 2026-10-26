@@ -33,7 +33,7 @@ The Material Design 1 floating action button. A circled icon floating above the 
 
 `Md1Fab` is a shell component with one optional part. Every FAB needs `icon` and `aria-label`: the button carries no text, so the glyph is the whole face and the label is the whole name. By default it is fixed to the bottom end corner of the viewport.
 
-Use one per screen, for a positive action such as create, share or navigate. Not every screen needs one. Here the inbox's promoted action is Compose: each press starts a draft at the top of the list, and the messages scroll beneath the FAB while it holds its corner.
+Use one per screen, for a positive action such as create, share or navigate. Not every screen needs one. Here the inbox's promoted action is Compose: each press starts a draft at the top of the list, its delete button removes it, and the messages scroll beneath the FAB while it holds its corner.
 
 ::: ds-example
 /systems/md1/fab/basic
@@ -151,16 +151,6 @@ Unlike the full-screen transform, this one is reversible. Choosing a person, or 
 The FAB's touch ripple can be the force that changes the screen: here pressing it starts a recording, and the header turns red outward from the FAB. The FAB stays on screen and changes its glyph. The new colour is a layer in the header revealed by a circular clip centred on the FAB, `move: false` so it grows in place and `hide: false` so the FAB stays visible. Pressing again plays it backwards into the FAB.
 
 This is the radial reaction of the choreography page: reactions start at the point of input and spread from it. Red 500 is this example's colour for a live recording; the page names no colour.
-:::
-
-::: ds-example
-/systems/md1/fab/map
-
-### Two floating action buttons
-
-An app normally has one floating action button. A map is the guidelines' exception: recentring on your location and getting directions are equally important and distinct, so each gets a button. The mini button recentres the map, which slides back under it, and the default one starts directions. Press the map to pan it away first.
-
-Stack the two on the same column, the mini centred over the default with 16 dp between them,[^stack] so they read as a pair rather than competing for the corner. Under 460 px both take the 40 dp size and line up on the same edge.
 :::
 
 ::: ds-example
@@ -301,8 +291,6 @@ The 56 dp FAB exceeds the 48 dp minimum. The mini FAB and every speed dial actio
 [^phase-split]: Our call: the page says height leads width but gives no split; half and half keeps both phases readable.
 
 [^duration]: Our call: no transform duration on the page, so it takes the standard duration for on-screen changes.
-
-[^stack]: Our call: the page shows two FABs but no geometry; 16 dp is one keyline margin.
 
 [^padding]: Our call: the page asks for enough padding without a number; this clears the FAB and its margins.
 

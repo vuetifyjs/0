@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Md1Fab, Md1Icon, Md1List, Md1Toolbar } from '@paper/md1'
+  import { Md1Button, Md1Fab, Md1Icon, Md1List, Md1Toolbar } from '@paper/md1'
   import { nextTick, ref, shallowRef, useTemplateRef } from 'vue'
 
   interface Message {
@@ -26,6 +26,10 @@
     await nextTick()
 
     scroller.value?.scrollTo({ top: 0 })
+  }
+
+  function onDelete (id: number) {
+    messages.value = messages.value.filter(message => message.id !== id)
   }
 </script>
 
@@ -55,6 +59,10 @@
 
             <Md1List.Secondary>{{ message.subject }}</Md1List.Secondary>
           </Md1List.Content>
+
+          <Md1List.Action v-if="message.draft">
+            <Md1Button aria-label="Delete draft" icon="delete" @click="onDelete(message.id)" />
+          </Md1List.Action>
         </Md1List.Item>
       </Md1List>
     </div>
