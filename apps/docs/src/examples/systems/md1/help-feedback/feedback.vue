@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-help-row">
+  <div class="md1-docs-help-stack">
     <Md1Dialog v-slot="{ value, commit }" v-model:value="sent" variant="confirmation">
       <Md1Dialog.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs">Send feedback</Md1Button>
@@ -38,14 +38,18 @@
       </Md1Dialog.Content>
     </Md1Dialog>
 
-    <span v-if="sent" class="md1-docs-help-note" role="status">Thanks. Your feedback was sent.</span>
+    <p class="md1-docs-readout md1-docs-help-note" role="status">{{ sent ? 'Thanks. Your feedback was sent.' : 'No feedback sent' }}</p>
   </div>
 </template>
 
 <style>
-  .md1-docs-help-row {
+  /*
+   * The button on top and its readout below, each centred on its own, so the
+   * readout changing never moves the button.
+   */
+  .md1-docs-help-stack {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-2, 16px);
   }
