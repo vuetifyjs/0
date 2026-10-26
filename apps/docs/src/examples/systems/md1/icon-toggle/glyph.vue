@@ -7,14 +7,25 @@
 </script>
 
 <template>
-  <div class="md1-docs-row">
+  <div class="md1-docs-icon-toggle-stack">
     <Md1IconToggle v-model="saved" aria-label="Bookmark" icon="bookmark" />
 
-    <span class="md1-docs-note" role="status">{{ saved ? 'Bookmarked' : 'Not bookmarked' }}</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ saved ? 'Bookmarked' : 'Not bookmarked' }}</p>
   </div>
 </template>
 
 <style>
+  /*
+   * The toggle on top and its readout below, each centred on its own, so the
+   * readout changing never moves the toggle.
+   */
+  .md1-docs-icon-toggle-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--md1-spacing-1, 8px);
+  }
+
   .md1-docs-note {
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-caption-size, 12px);
