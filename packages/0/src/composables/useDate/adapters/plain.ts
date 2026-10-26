@@ -5,9 +5,9 @@
  *
  * @remarks
  * `DateAdapter` backed by a JavaScript `Date`. Date-only ISO strings are local
- * calendar days (`new Date(year, monthIndex, day)`), not UTC midnight.
- * Month and year arithmetic clamps the day, so January 31 plus one month is
- * the last day of February. This adapter does not load Temporal.
+ * calendar days, not UTC midnight. Years 0–99 stay in that year. Month and
+ * year arithmetic clamps the day, so January 31 plus one month is the last
+ * day of February. This adapter does not load Temporal.
  *
  * @example
  * ```ts
@@ -25,7 +25,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { DateAdapter } from './adapter'
 
 // Utilities
-import { isNaN, isNull, isNullOrUndefined, isNumber, isString, V0Error } from '#v0/utilities'
+import { isNaN, isNull, isNullOrUndefined, isNumber, isString, isUndefined, V0Error } from '#v0/utilities'
 
 // Week info
 import { deriveWeekInfo } from '../weekinfo'
@@ -36,9 +36,7 @@ const MAX_CACHE_SIZE = 50
 
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/
 
-const OFFSET = /(?:Z|[+-]\d{2}:\d{2})$/
-
-const NAIVE = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?$/
+const TIMED = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:\d{2})?$/i
 
 export class PlainDateAdapter extends DateAdapter<Date> {
   private _locale: string
@@ -86,7 +84,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
    */
   date (value?: unknown): Date | null {
     if (isNullOrUndefined(value)) {
-      return IN_BROWSER ? new Date() : new Date(1970, 0, 1)
+      return IN_BROWSER ? new Date() : this.stamp(1970, 0, 1, 0, 0, 0, 0)
     }
 
     if (value instanceof Date) {
@@ -121,49 +119,52 @@ export class PlainDateAdapter extends DateAdapter<Date> {
       return this.civil(Number(only[1]), Number(only[2]), Number(only[3]))
     }
 
-    if (OFFSET.test(dateString)) {
-      const parsed = new Date(dateString)
+    const timed = TIMED.exec(dateString)
 
-      if (isNaN(parsed.getTime())) this.invalid(dateString)
+    if (!timed) return this.invalid(dateString)
 
-      return this.stamp(
-        parsed.getFullYear(),
-        parsed.getMonth(),
-        parsed.getDate(),
-        parsed.getHours(),
-        parsed.getMinutes(),
-        parsed.getSeconds(),
-        parsed.getMilliseconds(),
-      )
+    const hours = Number(timed[4])
+    const minutes = Number(timed[5])
+    const seconds = Number(timed[6] ?? 0)
+
+    if (hours > 23 || minutes > 59 || seconds > 59) this.invalid(dateString)
+
+    const year = Number(timed[1])
+    const month = Number(timed[2])
+    const day = Number(timed[3])
+    const fraction = timed[7]
+    const zone = timed[8]
+    const milliseconds = fraction ? Number(fraction.padEnd(3, '0').slice(0, 3)) : 0
+    if (!isUndefined(zone) && zone.toUpperCase() !== 'Z') {
+      const offsetHours = Number(zone.slice(1, 3))
+      const offsetMinutes = Number(zone.slice(4, 6))
+
+      if (offsetHours > 23 || offsetMinutes > 59) this.invalid(dateString)
     }
 
-    const naive = NAIVE.exec(dateString)
+    const date = this.civil(year, month, day)
 
-    if (naive) {
-      const date = this.civil(Number(naive[1]), Number(naive[2]), Number(naive[3]))
-      const fraction = naive[7]
-      const milliseconds = fraction ? Number(fraction.padEnd(3, '0').slice(0, 3)) : 0
-
+    if (isUndefined(zone)) {
       return this.stamp(
         date.getFullYear(),
         date.getMonth(),
         date.getDate(),
-        Number(naive[4] ?? 0),
-        Number(naive[5] ?? 0),
-        Number(naive[6] ?? 0),
+        hours,
+        minutes,
+        seconds,
         milliseconds,
       )
     }
 
-    return this.invalid(dateString)
+    return this.instant(year, month, day, hours, minutes, seconds, milliseconds, zone)
   }
 
-  /** `YYYY-MM-DD` from local calendar fields. Time is dropped. */
+  /** `YYYY-MM-DD` from local calendar fields. Time is dropped. Years below 1000 pad to 4 digits. */
   toISO (date: Date): string {
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
 
-    return `${String(date.getFullYear())}-${month}-${day}`
+    return `${this.yearText(date.getFullYear())}-${month}-${day}`
   }
 
   /** `format` is ignored. Parsing goes through `date()`. */
@@ -291,8 +292,8 @@ export class PlainDateAdapter extends DateAdapter<Date> {
 
   getMeridiemText (ampm: 'am' | 'pm'): string {
     const date = ampm === 'am'
-      ? new Date(2020, 0, 1, 9, 0)
-      : new Date(2020, 0, 1, 15, 0)
+      ? this.stamp(2020, 0, 1, 9, 0, 0, 0)
+      : this.stamp(2020, 0, 1, 15, 0, 0, 0)
     const formatted = this.getFormatter({ hour: 'numeric', hour12: true }).format(date)
     const match = formatted.match(/[ap]m|午前|午後|上午|下午/i)
 
@@ -374,12 +375,10 @@ export class PlainDateAdapter extends DateAdapter<Date> {
    * drop or repeat a date.
    */
   addDays (date: Date, amount: number): Date {
-    const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate() + amount))
-
     return this.stamp(
-      utc.getUTCFullYear(),
-      utc.getUTCMonth(),
-      utc.getUTCDate(),
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() + amount,
       date.getHours(),
       date.getMinutes(),
       date.getSeconds(),
@@ -393,8 +392,8 @@ export class PlainDateAdapter extends DateAdapter<Date> {
 
   /** Clamps the day to the target month. January 31 plus one month is February 28 or 29. */
   addMonths (date: Date, amount: number): Date {
-    const probe = new Date(date.getFullYear(), date.getMonth() + amount, 1)
-    const dim = new Date(probe.getFullYear(), probe.getMonth() + 1, 0).getDate()
+    const probe = this.stamp(date.getFullYear(), date.getMonth() + amount, 1, 0, 0, 0, 0)
+    const dim = this.getDaysInMonth(probe)
 
     return this.stamp(
       probe.getFullYear(),
@@ -416,7 +415,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
   }
 
   isAfterDay (date: Date, comparing: Date): boolean {
-    return this.toISO(date) > this.toISO(comparing)
+    return this.dayOrder(date, comparing) > 0
   }
 
   isAfterMonth (date: Date, comparing: Date): boolean {
@@ -434,7 +433,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
   }
 
   isBeforeDay (date: Date, comparing: Date): boolean {
-    return this.toISO(date) < this.toISO(comparing)
+    return this.dayOrder(date, comparing) < 0
   }
 
   isBeforeMonth (date: Date, comparing: Date): boolean {
@@ -452,7 +451,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
   }
 
   isSameDay (date: Date, comparing: Date): boolean {
-    return this.toISO(date) === this.toISO(comparing)
+    return this.dayOrder(date, comparing) === 0
   }
 
   isSameMonth (date: Date, comparing: Date): boolean {
@@ -505,12 +504,12 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     const days = this.dayNumber(date) - this.dayNumber(comp)
 
     switch (unitKey) {
-      case 'years': { return date.getFullYear() - comp.getFullYear() }
-      case 'months': { return (date.getFullYear() - comp.getFullYear()) * 12 + (date.getMonth() - comp.getMonth()) }
-      case 'weeks': { return Math.trunc(days / 7) }
-      case 'hours': { return Math.trunc((date.getTime() - comp.getTime()) / 3_600_000) }
-      case 'minutes': { return Math.trunc((date.getTime() - comp.getTime()) / 60_000) }
-      case 'seconds': { return Math.trunc((date.getTime() - comp.getTime()) / 1000) }
+      case 'years': { return this.whole(this.monthDiff(date, comp) / 12) }
+      case 'months': { return this.monthDiff(date, comp) }
+      case 'weeks': { return this.whole(days / 7) }
+      case 'hours': { return this.whole((date.getTime() - comp.getTime()) / 3_600_000) }
+      case 'minutes': { return this.whole((date.getTime() - comp.getTime()) / 60_000) }
+      case 'seconds': { return this.whole((date.getTime() - comp.getTime()) / 1000) }
       default: { return days }
     }
   }
@@ -523,13 +522,13 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     let year = this.getYear(currentWeekStart)
 
     if (year < this.getYear(currentWeekEnd)) {
-      const nextYearStart = new Date(year + 1, 0, 1)
+      const nextYearStart = this.stamp(year + 1, 0, 1, 0, 0, 0, 0)
       const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
 
       if (nextYearFirstWeekSize >= md) year++
     }
 
-    const yearStart = new Date(year, 0, 1)
+    const yearStart = this.stamp(year, 0, 1, 0, 0, 0, 0)
     const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
     const weekOneStart = firstWeekSize >= md
       ? this.addWeeks(this.addDays(yearStart, firstWeekSize), -1)
@@ -539,7 +538,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
   }
 
   getDaysInMonth (date: Date): number {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+    return this.stamp(date.getFullYear(), date.getMonth() + 1, 0, 0, 0, 0, 0).getDate()
   }
 
   setYear (date: Date, year: number): Date {
@@ -548,8 +547,8 @@ export class PlainDateAdapter extends DateAdapter<Date> {
 
   /** `month` is 0-indexed. The day clamps to that month. */
   setMonth (date: Date, month: number): Date {
-    const probe = new Date(date.getFullYear(), month, 1)
-    const dim = new Date(probe.getFullYear(), probe.getMonth() + 1, 0).getDate()
+    const probe = this.stamp(date.getFullYear(), month, 1, 0, 0, 0, 0)
+    const dim = this.getDaysInMonth(probe)
 
     return this.stamp(
       probe.getFullYear(),
@@ -583,7 +582,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
-      const day = new Date(2015, 0, 4 + ((i + this.firstDayOfWeek) % 7))
+      const day = this.stamp(2015, 0, 4 + ((i + this.firstDayOfWeek) % 7), 0, 0, 0, 0)
 
       weekdays.push(formatter.format(day))
     }
@@ -616,7 +615,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     const months: Date[] = []
 
     for (let month = 0; month < 12; month++) {
-      months.push(new Date(date.getFullYear(), month, 1))
+      months.push(this.stamp(date.getFullYear(), month, 1, 0, 0, 0, 0))
     }
 
     return months
@@ -626,7 +625,7 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     const years: Date[] = []
 
     for (let year = start.getFullYear(); year <= end.getFullYear(); year++) {
-      years.push(new Date(year, 0, 1))
+      years.push(this.stamp(year, 0, 1, 0, 0, 0, 0))
     }
 
     return years
@@ -659,20 +658,135 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     })
   }
 
+  /**
+   * Signed calendar-day order. String order on `toISO` inverts years
+   * whose digit counts differ.
+   */
+  private dayOrder (date: Date, comparing: Date): number {
+    if (date.getFullYear() !== comparing.getFullYear()) {
+      return date.getFullYear() - comparing.getFullYear()
+    }
+
+    if (date.getMonth() !== comparing.getMonth()) {
+      return date.getMonth() - comparing.getMonth()
+    }
+
+    return date.getDate() - comparing.getDate()
+  }
+
+  /** `Math.trunc` of a negative fraction is `-0`, and `Object.is` keeps it. */
+  private whole (value: number): number {
+    const whole = Math.trunc(value)
+
+    return whole === 0 ? 0 : whole
+  }
+
+  private orderSign (delta: number): -1 | 0 | 1 {
+    if (delta > 0) return 1
+    if (delta < 0) return -1
+
+    return 0
+  }
+
+  /** Signed clock order. A DST gap must not change this through `getTime`. */
+  private timeOrder (date: Date, comparing: Date): number {
+    if (date.getHours() !== comparing.getHours()) {
+      return date.getHours() - comparing.getHours()
+    }
+
+    if (date.getMinutes() !== comparing.getMinutes()) {
+      return date.getMinutes() - comparing.getMinutes()
+    }
+
+    if (date.getSeconds() !== comparing.getSeconds()) {
+      return date.getSeconds() - comparing.getSeconds()
+    }
+
+    return date.getMilliseconds() - comparing.getMilliseconds()
+  }
+
+  /**
+   * Complete months, matching `Temporal.PlainDateTime.since`.
+   *
+   * The start day is compared as a number, so February never reaches day
+   * 29–31. When the date and the clock move the same way, the start loses
+   * one calendar day first. `addMonths` would clamp that day, and `getTime`
+   * would treat a spring-forward gap as a later clock.
+   */
+  private monthDiff (date: Date, comparing: Date): number {
+    const dateSign = this.orderSign(this.dayOrder(date, comparing))
+    const timeSign = this.orderSign(this.timeOrder(comparing, date))
+    let otherYear = comparing.getFullYear()
+    let otherMonth = comparing.getMonth()
+    let otherDay = comparing.getDate()
+
+    if (dateSign !== 0 && dateSign === timeSign) {
+      const shifted = new Date(0)
+
+      shifted.setUTCFullYear(otherYear, otherMonth, otherDay + timeSign)
+      otherYear = shifted.getUTCFullYear()
+      otherMonth = shifted.getUTCMonth()
+      otherDay = shifted.getUTCDate()
+    }
+
+    let months = (otherYear - date.getFullYear()) * 12 + (otherMonth - date.getMonth())
+    const dayDelta = otherDay - date.getDate()
+
+    if (months > 0 && dayDelta < 0) months--
+    else if (months < 0 && dayDelta > 0) months++
+
+    if (months === 0) return 0
+
+    return -months
+  }
+
+  /**
+   * UTC instant for an offset string. `new Date(string)` overflows an
+   * impossible day instead of rejecting it.
+   */
+  private instant (
+    year: number,
+    month: number,
+    day: number,
+    hours: number,
+    minutes: number,
+    seconds: number,
+    milliseconds: number,
+    zone: string,
+  ): Date {
+    const utc = new Date(0)
+
+    utc.setUTCFullYear(year, month - 1, day)
+    utc.setUTCHours(hours, minutes, seconds, milliseconds)
+
+    if (zone.toUpperCase() !== 'Z') {
+      const sign = zone.startsWith('+') ? 1 : -1
+      const offset = sign * (Number(zone.slice(1, 3)) * 60 + Number(zone.slice(4, 6)))
+
+      utc.setUTCMinutes(utc.getUTCMinutes() - offset)
+    }
+
+    return new Date(utc)
+  }
+
   /** Local calendar day. Rejects a day the month does not contain. */
   private civil (year: number, month: number, day: number): Date {
-    const date = new Date(year, month - 1, day)
+    const date = this.stamp(year, month - 1, day, 0, 0, 0, 0)
 
     if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
       const monthText = String(month).padStart(2, '0')
       const dayText = String(day).padStart(2, '0')
 
-      this.invalid(`${year}-${monthText}-${dayText}`)
+      this.invalid(`${this.yearText(year)}-${monthText}-${dayText}`)
     }
 
     return date
   }
 
+  /**
+   * Local calendar fields. The `Date` constructor and `Date.UTC` add 1900
+   * when the year is 0–99. `setFullYear` does not.
+   */
   private stamp (
     year: number,
     month: number,
@@ -682,12 +796,34 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     seconds: number,
     milliseconds: number,
   ): Date {
-    return new Date(year, month, day, hours, minutes, seconds, milliseconds)
+    const date = new Date(0)
+
+    date.setFullYear(year, month, day)
+    date.setHours(hours, minutes, seconds, milliseconds)
+
+    return date
   }
 
-  /** UTC day index, so a DST shift cannot change a day diff. */
+  /** Four digits for years 0–9999. `padStart` would rewrite a negative year. */
+  private yearText (year: number): string {
+    if (year >= 0 && year < 10_000) {
+      return String(year).padStart(4, '0')
+    }
+
+    return String(year)
+  }
+
+  /**
+   * UTC day index, so a DST shift cannot change a day diff.
+   * `Date.UTC` maps years 0–99 onto 1900–1999.
+   */
   private dayNumber (date: Date): number {
-    return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000)
+    const utc = new Date(0)
+
+    utc.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate())
+    utc.setUTCHours(0, 0, 0, 0)
+
+    return Math.floor(utc.getTime() / 86_400_000)
   }
 
   private getFormatter (options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {

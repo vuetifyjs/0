@@ -435,13 +435,13 @@ When switching locales via `useLocale`, the date adapter automatically updates i
 
 ??? Why does parse()'s format parameter seem to be ignored?
 
-The `parse()` method's format parameter is currently ignored — the Temporal API doesn't provide built-in format parsing, so the method delegates to `date()`, which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
+The `parse()` method's format parameter is ignored. Both built-in adapters delegate to `date()`, which accepts ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
 
 ??? Why do my formatted dates differ between the server and the client?
 
 Date formatting can cause hydration mismatches in SSR applications because the server and client environments may produce different formatted output. Two effects are at play:
 
-- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time via `Temporal.Now.plainDateTimeISO()`; on the server it returns the epoch (`1970-01-01T00:00:00`) for deterministic rendering. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
+- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time. On the server it returns the epoch (`1970-01-01`) so a render does not depend on the request clock. `PlainDateAdapter` uses a JavaScript `Date`. `V0DateAdapter` uses `Temporal.Now.plainDateTimeISO()`. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
 - **`Intl.DateTimeFormat` uses the system timezone.** Server environments (often UTC) and client browsers (the user's local timezone) produce different formatted strings.
 
 ??? How do I avoid date hydration mismatches in SSR?

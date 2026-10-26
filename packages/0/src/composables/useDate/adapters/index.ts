@@ -2,10 +2,13 @@
  * @module DateAdapter
  *
  * @remarks
- * Date adapter interfaces for date manipulation and formatting.
+ * Date adapter contract and built-in implementations. `PlainDateAdapter`
+ * uses a JavaScript `Date`. `V0DateAdapter` uses Temporal; import it from
+ * `@vuetify/v0/date`.
  *
- * For the Temporal-based adapter, import from `@vuetify/v0/date`:
+ * @example
  * ```ts
+ * import { PlainDateAdapter } from '@vuetify/v0'
  * import { V0DateAdapter } from '@vuetify/v0/date'
  * ```
  */

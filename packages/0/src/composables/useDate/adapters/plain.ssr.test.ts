@@ -19,5 +19,11 @@ describe('plainDateAdapter SSR', () => {
     expect(date!.getMonth()).toBe(0)
     expect(date!.getDate()).toBe(1)
     expect(date!.getHours()).toBe(0)
+
+    const parsed = new PlainDateAdapter().date('2026-02-01')
+
+    expect(parsed!.getFullYear()).toBe(2026)
+    expect(parsed!.getMonth()).toBe(1)
+    expect(parsed!.getDate()).toBe(1)
   })
 })

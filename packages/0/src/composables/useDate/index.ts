@@ -14,8 +14,10 @@
  *
  * @example Using the built-in Temporal adapter
  * ```ts
+ * import { createApp } from 'vue'
+ * import { createDatePlugin, useDate } from '@vuetify/v0'
  * import { V0DateAdapter } from '@vuetify/v0/date'
- * import { createDatePlugin } from '@vuetify/v0'
+ * import App from './App.vue'
  *
  * const app = createApp(App)
  * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
@@ -28,12 +30,15 @@
  *
  * @example Custom adapter
  * ```ts
- * import { DateAdapter } from '@vuetify/v0'
+ * import { createApp } from 'vue'
+ * import { createDatePlugin, DateAdapter } from '@vuetify/v0'
+ * import App from './App.vue'
  *
  * class DateFnsAdapter extends DateAdapter<Date> {
  *   // ... implementation
  * }
  *
+ * const app = createApp(App)
  * app.use(createDatePlugin({ adapter: new DateFnsAdapter() }))
  * ```
  */
@@ -80,6 +85,9 @@ export interface DateOptions<Z> {
    *
    * @example
    * ```ts
+   * import { createDate } from '@vuetify/v0'
+   * import { V0DateAdapter } from '@vuetify/v0/date'
+   *
    * createDate()
    * createDate({ adapter: new V0DateAdapter() })
    * ```
@@ -134,6 +142,9 @@ const defaultLocales: Record<string, string> = {
  *
  * @example
  * ```ts
+ * import { createDate } from '@vuetify/v0'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
+ *
  * const { adapter } = createDate()
  * adapter.toISO(adapter.date()!)
  *
@@ -232,6 +243,7 @@ export function createDate<
  *
  * @example
  * ```ts
+ * import { createDateContext } from '@vuetify/v0'
  * import { V0DateAdapter } from '@vuetify/v0/date'
  *
  * const [useAppDate, provideAppDate] = createDateContext({
@@ -262,6 +274,13 @@ export function createDateContext<
  *
  * @example
  * ```ts
+ * import { createApp } from 'vue'
+ * import { createDatePlugin } from '@vuetify/v0'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
  * app.use(createDatePlugin())
  * app.use(createDatePlugin({ adapter: new V0DateAdapter(), locale: 'de-DE' }))
  * ```
@@ -308,10 +327,12 @@ export function createDatePlugin<
  *
  * @example
  * ```ts
- * // main.ts
- * import { V0DateAdapter } from '@vuetify/v0/date'
+ * import { createApp } from 'vue'
  * import { createDatePlugin } from '@vuetify/v0'
+ * import { V0DateAdapter } from '@vuetify/v0/date'
+ * import App from './App.vue'
  *
+ * const app = createApp(App)
  * app.use(createDatePlugin({ adapter: new V0DateAdapter() }))
  * ```
  *
