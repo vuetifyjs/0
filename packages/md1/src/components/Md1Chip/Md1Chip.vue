@@ -297,6 +297,7 @@
     -webkit-tap-highlight-color: transparent;
     transition:
       height var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+      margin var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       background-color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
@@ -343,13 +344,28 @@
     box-shadow: var(--md1-elevation-2, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
   }
 
-  /* The contact chip: the name at 14 sp; focused and activated in its field it grows to 40 dp (the field gives back the 4 dp of padding on each side). */
+  /*
+   * The contact chip: the name at 14 sp; focused and activated in its field it
+   * grows to 40 dp. The growth spends 4 dp of the field's room on each side:
+   * a -4 dp margin keeps the margin box at the resting 32 dp chip, so focus
+   * moves no neighbour. The inline margin only with an avatar: square at the
+   * chip's height, it widens the chip by the same 8 dp. At the base chip's
+   * specificity (:where), so a field that margins its chips sets its own focused margin.
+   */
   .md1-chip[data-contact] {
     font-size: 14px;
   }
 
   .md1-chip[data-contact][data-focused] {
     height: 40px;
+  }
+
+  .md1-chip:where([data-contact][data-focused]) {
+    margin-block: -4px;
+  }
+
+  .md1-chip:where([data-contact][data-focused]:has(> .md1-chip__avatar)) {
+    margin-inline: -4px;
   }
 
   /* The avatar fills the chip's height at the start edge; 8 dp to the name, 12 dp after it (chips page). */

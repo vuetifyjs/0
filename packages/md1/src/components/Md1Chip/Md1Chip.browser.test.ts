@@ -618,6 +618,42 @@ describe('quChip', () => {
       await expect.poll(() => getComputedStyle(el).boxShadow).toBe('none')
     })
 
+    it('should grow the focused contact chip without moving its neighbours or its row', async () => {
+      for (const avatar of [AVATAR, undefined]) {
+        const host = mount(() => h('div', { style: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', width: '600px' } }, [
+          h(Md1Chip, { contact: true, avatar }, () => 'Alice Jones'),
+          h(Md1Chip, { contact: true, avatar }, () => 'Bob Smith'),
+          h('span', 'after'),
+        ]))
+        await settle()
+
+        const row = host.firstElementChild as HTMLElement
+        const [first, second] = [...row.querySelectorAll<HTMLElement>('.md1-chip')]
+        const after = row.lastElementChild!
+
+        function boxes () {
+          return [second!, after, row].map(el => {
+            const { left, top, width, height } = el.getBoundingClientRect()
+            return [left, top, width, height]
+          })
+        }
+
+        const rest = boxes()
+
+        first!.focus()
+
+        await expect.poll(() => first!.getBoundingClientRect().height).toBe(40)
+        expect(boxes()).toEqual(rest)
+
+        first!.blur()
+
+        await expect.poll(() => first!.getBoundingClientRect().height).toBe(32)
+        expect(boxes()).toEqual(rest)
+
+        teardowns.pop()!()
+      }
+    })
+
     it('should warn once in dev for an orphaned part and render no sheet for it', async () => {
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
