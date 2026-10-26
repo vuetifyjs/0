@@ -34,7 +34,7 @@ The Material Design 1 dropdown button. A flat button that shows the current stat
 
 The button displays the current state and a down arrow. Pressing it opens a menu that covers the button and lists the possible states; pressing a state dismisses the menu and updates the button. The guidelines show states as strings, a palette or icons; this one uses strings.
 
-The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the label, 2 dp corners, and the Button type style of 14 sp Roboto Medium in capitals in the accent ink, with the arrow 8 dp after the label. The sheet is a menu at 8 dp elevation on the surface colour: 48 dp rows of 16 sp text with 8 dp above the first row and below the last, as wide as its longest state rounded up to whole 56 dp units, from two units to five. The current state carries the check in the leading column and the 12% selected shade, so every row's text sits at the 72 dp keyline.
+The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the label, 2 dp corners, and the Button type style of 14 sp Roboto Medium in capitals in the accent ink, with the arrow 8 dp after the label. The sheet is a menu at 8 dp elevation on the surface colour: 48 dp rows of 16 sp text with 8 dp above the first row and below the last, as wide as its longest state rounded up to whole 56 dp units, from two units to five. Each row's text sits 16 dp in, and the current state carries the 12% selected shade and no check: on the menus page the check belongs to multi-select menus, and a single-choice menu highlights the row it opens over. The button holds the width of its longest state, so choosing a state never moves the button or its menu.[^stable]
 
 ::: ds-example
 /systems/md1/dropdown-button/basic
@@ -58,7 +58,7 @@ The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the l
 
 `Md1DropdownButton` renders v0's [Menu](/components/disclosure/menu) compound: `Menu.Root` owns the open state, `Menu.Activator` is the button (or, segmented, the arrow segment), `Menu.Content` is the sheet, and `Menu.RadioGroup` holds the states. Each `Md1DropdownButton.Item` is a `Menu.RadioItem`, so the current state is announced as checked. The segmented state segment is a v0 [Button](/components/actions/button) `Button.Root`. Open and close, focus return, the roving highlight, typeahead and light dismiss all come from v0.
 
-Material Design 1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dropdown commits and closes on the choice, so each item dismisses the menu after v0 selects it. The sheet is placed by the same measuring popover adapter as `Md1Menu`'s simple menu: it lands the selected state's row on the whole button, lined up with the button's start edge (its end edge when segmented), measured once the sheet is laid out. And the button reads the selected item's text and glyph through a `md1:dropdown-button` context the items register with.
+Material Design 1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dropdown commits and closes on the choice, so each item dismisses the menu after v0 selects it. The sheet is placed by the same measuring popover adapter as `Md1Menu`'s simple menu: it lands the selected state's row on the button with the row's text on the button's text, across as well as down, measured once the sheet is laid out. And the button reads the selected item's text and glyph through a `md1:dropdown-button` context the items register with.
 
 `Menu.Activator` and the items publish `data-open`, `data-state`, `data-highlighted` and `data-disabled`, which Material Design 1's stylesheet hangs off. `data-segmented`, `data-dense`, `data-desktop` and `data-solo` on the root are Material Design 1's own. Every interactive element hosts a [Md1Ripple](/systems/md1/ripple) as its first child, and every glyph is a [Md1Icon](/systems/md1/icon) role.
 
@@ -71,7 +71,7 @@ Material Design 1 adds three things v0 does not do. A v0 radio item keeps its me
 
 A segmented dropdown button has two sections. Pressing the current state fires that state's action, and pressing the arrow shows all the options; choosing one changes the state the button displays. `segmented` splits the button that way: the state segment emits `select` with the current value and never opens the menu, and the arrow segment is the menu button.
 
-The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are Material Design 1 decisions.[^segments] The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet opens from the arrow's end corner, at least as wide as the whole button, so it still covers both segments.
+The arrow segment is a 36 dp square seamed to the state by a 1 dp divider line. The guidelines draw the segments only as an image, so the square and the seam are Material Design 1 decisions.[^segments] The arrow has no text of its own: it is named by `ariaLabel`, or by the `Md1.options` locale copy ("Options") when you leave it unset. The sheet lands the selected text on the state segment's text and is at least as wide as the whole button, so it covers both segments.
 :::
 
 ::: ds-example
@@ -91,7 +91,7 @@ The guidelines give the editable form no metrics, so it takes Vuetify 1.5's edit
 
 ### States as icons
 
-`icon` on an item gives the state a glyph. The row draws it in the leading column, and the button draws it ahead of the text while that state is selected, the icon form of the dropdown the buttons page shows. Because the leading column then belongs to the glyph, the check of the current state moves to the trailing edge.
+`icon` on an item gives the state a glyph. The row draws it in the leading column, and the button draws it ahead of the text while that state is selected, the icon form of the dropdown the buttons page shows. With glyphs in the menu every row's text sits at the 72 dp keyline (64 px on desktop), and the selected row's glyph lands on the button's glyph.[^glyph]
 
 Glyphs draw at 24 dp and 54% ink in the menu, 38% when the state is disabled. Pick roles from the Material Design 1 icon set or register your own through the icons plugin.
 :::
@@ -119,7 +119,7 @@ The arrow carries no text, so pass `ariaLabel`; without it Material Design 1 war
 
 ### Desktop
 
-`desktop` is the dropdown the buttons page specifies for desktop app bars: 16 dp above and below, 24 dp before the state and 16 dp after the arrow, which makes the button 56 dp tall around its 24 dp glyph. The menu takes the desktop metrics of the menus page: 32 px rows, 15 px type, the text at the 64 px keyline with 24 px after it, in whole 64 px units from 128 px, resting 2 dp lower at 6 dp.
+`desktop` is the dropdown the buttons page specifies for desktop app bars: 16 dp above and below, 24 dp before the state and 16 dp after the arrow, which makes the button 56 dp tall around its 24 dp glyph. The menu takes the desktop metrics of the menus page: 32 px rows, 15 px type, the text 24 px in from both edges (at the 64 px keyline beside glyphs), in whole 64 px units from 128 px, resting 2 dp lower at 6 dp.
 
 With `dense` as well, the menu drops to 24 px rows of 13 px type with 4 px above the first row and below the last, the dense desktop redline. Desktop is a prop rather than a pointer query, so the same app can mix forms.[^desktop]
 :::
@@ -187,7 +187,13 @@ The plain button is named by the state it shows, so a screen reader announces th
 
 ### Positioning
 
-The menu opens over the button rather than below it, as the buttons page describes, with the selected state on the button, as the menus page asks of a simple menu. Near a screen edge the whole sheet moves up or down so every state stays visible, never past the 16 dp screen-edge margin (24 dp from 600 px); a long list opens scrolled so the selected state is in its middle.[^scroll] The sheet stops one 48 dp row short of the screen's height, so a tap outside it always has somewhere to land, and scrolls inside when its states do not fit. A pointer outside the menu dismisses it without a change.
+The menu opens over the button rather than below it, as the buttons page describes, with the selected state on the button, as the menus page asks of a simple menu. Near a screen edge the whole sheet moves up or down so every state stays visible, never past the 16 dp screen-edge margin (24 dp from 600 px); a long list opens scrolled so the selected state is in its middle.[^scroll] Across, the selected row's text starts where the button's text starts, the menus page's "always left aligned with the start of the list item text" (the right edge under `dir="rtl"`); near either side edge the sheet shifts back only as far as the screen margin needs.[^align] The sheet stops one 48 dp row short of the screen's height, so a tap outside it always has somewhere to land, and scrolls inside when its states do not fit. A pointer outside the menu dismisses it without a change.
+
+[^stable]: Our call: the guidelines show a dropdown one state at a time and give it no width rule; holding the widest state keeps the button and its menu in place as the state changes, as the tabs More control does. The unseen states are generated content, so they never join the button's accessible name.
+
+[^glyph]: Our call: the button draws its glyph 8 dp before the label while the row puts its text at the 72 dp keyline, so the glyphs and the texts cannot both line up; the glyph leads both, so the glyph lands on the glyph.
+
+[^align]: Vuetify 1.5.24, components/VMenu/mixins/menu-position.js:24-28 and mixins/menuable.js:193-200. `calcLeftAuto` puts the sheet 16 px (`defaultOffset * 2`) before the activator so the tile text meets the field text; `calcXOverflow` shifts an overflowing sheet back only as far as fits.
 
 [^segments]: Our call: the page draws the segments only as an image; a square arrow segment and a 1 dp divider seam read as one button.
 
