@@ -120,6 +120,18 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+function centre (el: Element): [number, number] {
+  const { left, top, width, height } = el.getBoundingClientRect()
+  return [left + width / 2, top + height / 2]
+}
+
+/** How far the open sheet's photo centre sits from the chip's, rounded to the pixel. */
+function offset (el: HTMLElement, content: HTMLElement): [number, number] {
+  const [x, y] = centre(el.querySelector('.md1-chip__avatar')!)
+  const [sx, sy] = centre(content.querySelector('.md1-chip__addresses-avatar')!)
+  return [Math.round(sx - x), Math.round(sy - y)]
+}
+
 async function settle () {
   await nextTick()
   await nextTick()
@@ -476,9 +488,8 @@ describe('quChip', () => {
       expect(computed.borderRadius).toBe('2px')
       expect(computed.boxShadow).toBe(serialize('boxShadow', ELEVATION_8))
       expect(content.getBoundingClientRect().width).toBeGreaterThanOrEqual(280)
-      // The sheet expands from the chip: top-start corners aligned.
-      expect(Math.round(content.getBoundingClientRect().top)).toBe(Math.round(el.getBoundingClientRect().top))
-      expect(Math.round(content.getBoundingClientRect().left)).toBe(Math.round(el.getBoundingClientRect().left))
+      // The sheet expands from the chip: its photo over the chip's.
+      await expect.poll(() => offset(el, content)).toEqual([0, 0])
 
       await userEvent.keyboard('{Escape}')
 
@@ -500,6 +511,50 @@ describe('quChip', () => {
       expect(addressed).toBe(1)
       await expect.poll(() => content.matches(':popover-open')).toBe(false)
       expect(open.value).toBe(false)
+    })
+
+    it('should open with its photo over the chip\'s, under dir="rtl" too', async () => {
+      for (const dir of ['ltr', 'rtl']) {
+        const el = contact()
+        el.parentElement!.dir = dir
+        await settle()
+
+        const content = sheet()
+
+        el.click()
+
+        await expect.poll(() => content.matches(':popover-open')).toBe(true)
+        await expect.poll(() => offset(el, content)).toEqual([0, 0])
+
+        content.hidePopover()
+        teardowns.pop()!()
+      }
+    })
+
+    it('should start the name and the address text on one keyline, the handset 72 dp and the tablet 80 dp', async () => {
+      const el = contact()
+      await settle()
+
+      const content = sheet()
+      const name = content.querySelector('.md1-chip__addresses-name')!
+      const text = content.querySelector('.md1-chip__address-text')!
+
+      el.click()
+
+      await expect.poll(() => content.matches(':popover-open')).toBe(true)
+
+      function keylines () {
+        const left = content.getBoundingClientRect().left
+        return [name.getBoundingClientRect().left - left, text.getBoundingClientRect().left - left]
+      }
+
+      expect(keylines()).toEqual([72, 72])
+
+      // The tablet keylines (from 600 px): a 24 dp margin and the 80 dp content keyline.
+      style('.md1-chip__addresses { --md1-keyline-margin: 24px; --md1-keyline-content: 80px }')
+
+      expect(keylines()).toEqual([80, 80])
+      expect(content.querySelector('.md1-chip__addresses-avatar')!.getBoundingClientRect().left - content.getBoundingClientRect().left).toBe(24)
     })
 
     it('should close on a second press of the chip and on a press on the open chip itself', async () => {

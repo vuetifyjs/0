@@ -20,10 +20,11 @@
   export interface Md1ChipAddressesProps {}
 
   /**
-   * Over the chip it expands from, top-start corners aligned; the browser
-   * flips it to the other side of the chip when the viewport runs out.
+   * Over the chip it expands from, its photo over the chip's. The browser
+   * mirrors it over the chip when there is no room below, and pins its end
+   * edge to the screen's margin when there is no room at the end.
    */
-  const TRY = 'flip-block, flip-inline, flip-block flip-inline'
+  const TRY = 'flip-block, --md1-chip-addresses-end, flip-block --md1-chip-addresses-end'
 </script>
 
 <script setup lang="ts">
@@ -117,14 +118,22 @@
    * The open contact chip rests at 8 dp (chips page) on the surface colour
    * with the 2 dp sheet radius. No `display` here: the UA keeps a closed
    * popover `display: none`, and overriding it would leave the sheet visible.
-   * The adapter writes `position`, `position-anchor` and the fallbacks inline;
-   * the insets put the sheet's top-start corner on the chip's, the "expands"
-   * of the page, and `flip-block` moves it above the chip when there is no room.
+   * The adapter writes `position`, `position-anchor` and the fallbacks inline.
+   * The insets put the heading's photo centre over the chip's, the "expands"
+   * of the page: the chip's photo is a circle at its start edge as tall as the
+   * chip, so its centre is half the chip's height in from the start and down
+   * from the top, whether the chip rests at 32 dp or is focused at 40 dp.
+   * `anchor(inside)` resolves against the sheet's own direction, so a subtree
+   * set to RTL lines up too. `flip-block` mirrors the sheet over the chip when
+   * there is no room below; the start inset never goes off screen.
    */
   .md1-chip__addresses {
+    --md1-chip-addresses-block: calc(var(--md1-spacing-2, 16px) + var(--md1-avatar-size, 40px) / 2);
+    --md1-chip-addresses-inline: calc(var(--md1-keyline-margin, 16px) + var(--md1-avatar-size, 40px) / 2);
+
     inset: auto;
-    top: anchor(top);
-    inset-inline-start: anchor(start);
+    top: calc(anchor(center) - var(--md1-chip-addresses-block));
+    inset-inline-start: max(0px, calc(anchor(inside) + anchor-size(block) / 2 - var(--md1-chip-addresses-inline)));
     box-sizing: border-box;
     min-width: 280px;
     max-width: calc(100vw - 32px);
@@ -139,14 +148,24 @@
     cursor: pointer;
   }
 
-  /* The heading: the 40 dp avatar at the 16 dp keyline, the name at the 72 dp content keyline, as a list's avatar row. */
+  /* No room at the end: the end edge on the screen's margin, the sheet still over the chip. */
+  @position-try --md1-chip-addresses-end {
+    inset-inline-start: auto;
+    inset-inline-end: var(--md1-keyline-margin, 16px);
+  }
+
+  /*
+   * The heading: the 40 dp avatar at the margin keyline, the name at the
+   * content keyline (72 dp, 80 dp from 600 px) shared with the address rows,
+   * as a list's avatar row.
+   */
   .md1-chip__addresses-header {
     display: flex;
     align-items: center;
-    gap: var(--md1-spacing-2, 16px);
+    gap: calc(var(--md1-keyline-content, 72px) - var(--md1-keyline-margin, 16px) - var(--md1-avatar-size, 40px));
     box-sizing: border-box;
     min-height: 72px;
-    padding: var(--md1-spacing-2, 16px);
+    padding: var(--md1-spacing-2, 16px) var(--md1-keyline-margin, 16px);
   }
 
   .md1-chip__addresses-header:not(:has(> .md1-chip__addresses-avatar)) {

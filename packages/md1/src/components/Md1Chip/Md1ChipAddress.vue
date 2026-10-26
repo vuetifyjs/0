@@ -47,7 +47,7 @@
 </template>
 
 <style>
-  /* "Address text, open: Roboto Regular 14sp" (chips page); the row height and the 72 dp keyline are the dense list's (decision, SPEC.md). */
+  /* "Address text, open: Roboto Regular 14sp" (chips page); the row height and the content keyline (72 dp, 80 dp from 600 px) are the dense list's (decision, SPEC.md). */
   .md1-chip__address {
     position: relative;
     display: flex;
@@ -57,7 +57,7 @@
     height: 40px;
     margin: 0;
     padding: 0;
-    padding-inline: var(--md1-keyline-content, 72px) var(--md1-spacing-2, 16px);
+    padding-inline: var(--md1-keyline-content, 72px) var(--md1-keyline-margin, 16px);
     border: 0;
     background: transparent;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
