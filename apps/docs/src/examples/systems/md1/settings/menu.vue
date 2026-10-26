@@ -31,7 +31,7 @@
       </Md1Toolbar.Actions>
     </Md1Toolbar>
 
-    <span v-if="chosen" class="md1-docs-settings-note" role="status">{{ chosen }}</span>
+    <span class="md1-docs-settings-note md1-docs-readout" role="status">{{ chosen ?? 'Nothing chosen' }}</span>
   </div>
 </template>
 
