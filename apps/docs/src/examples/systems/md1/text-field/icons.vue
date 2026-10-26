@@ -24,7 +24,7 @@
       @voice="onVoice"
     />
 
-    <span v-if="listening" class="md1-docs-note" role="status">The microphone was pressed; speech capture is the app's.</span>
+    <span class="md1-docs-note md1-docs-readout" role="status">{{ listening ? 'The microphone was pressed; speech capture is the app\'s.' : 'Microphone not pressed' }}</span>
   </div>
 </template>
 
