@@ -16,7 +16,7 @@
       <Md1Chip icon="label" @click="opened = 'Travel'">Travel</Md1Chip>
     </div>
 
-    <span v-if="opened" class="md1-docs-note" role="status">Showing details for {{ opened }}</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ opened ? `Showing details for ${opened}` : 'No chip pressed' }}</p>
   </div>
 </template>
 
