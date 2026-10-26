@@ -544,7 +544,7 @@ describe('quFeatureDiscovery', () => {
     it('should declare the 10% idle pulse on the action and the ripple on the disc', () => {
       prompt({ open: shallowRef(false) })
 
-      const pulse = rules('.md1-feature-discovery__action[data-active]')
+      const pulse = rules('.md1-feature-discovery__action[data-active] > .md1-feature-discovery__pulse')
         .find(rule => rule.style.animation.includes('md1-feature-discovery-pulse'))
 
       // The shorthands hold var() tokens, so the browser keeps them unparsed: assert on the declared text.
@@ -554,11 +554,56 @@ describe('quFeatureDiscovery', () => {
       expect(rules('.md1-feature-discovery[data-state="present"] .md1-feature-discovery__target::after')[0].style.animation).toContain('md1-feature-discovery-ripple')
     })
 
+    it('should hold the circles and the text still while the action pulses', async () => {
+      document.body.dataset.reducedMotion = 'no-preference'
+      teardowns.push(() => {
+        delete document.body.dataset.reducedMotion
+      })
+
+      prompt()
+      await ready()
+
+      // The slotted button: whatever element carries the pulse, the button's box scales with it.
+      const pulse = document.querySelector<HTMLElement>('#action')!
+
+      // Let the entrance finish, then sample every frame across most of a pulse.
+      // The prompt re-measures the action every frame; a measurement that saw the
+      // scaled box fed the pulse back into the text offset and the background radius.
+      await new Promise(resolve => setTimeout(resolve, 400))
+
+      const scales: number[] = []
+      const boxes: DOMRect[][] = []
+      const start = performance.now()
+
+      await new Promise<void>(resolve => {
+        function tick () {
+          scales.push(pulse.getBoundingClientRect().width / pulse.offsetWidth)
+          boxes.push([background(), disc(), content()!].map(el => el.getBoundingClientRect()))
+
+          if (performance.now() - start < 1200) requestAnimationFrame(tick)
+          else resolve()
+        }
+
+        requestAnimationFrame(tick)
+      })
+
+      // The pulse really ran, so a still surface is not a frozen action.
+      expect(Math.max(...scales) - Math.min(...scales)).toBeGreaterThan(0.03)
+
+      for (const [index, part] of ['background', 'target', 'text'].entries()) {
+        for (const key of ['left', 'top', 'width', 'height'] as const) {
+          const values = boxes.map(frame => frame[index][key])
+
+          expect(Math.max(...values) - Math.min(...values), `${part} ${key}`).toBeLessThanOrEqual(0.5)
+        }
+      }
+    })
+
     it('should drop the pulse and the scaling under reduced motion and fade instead', async () => {
       prompt()
       await ready()
 
-      expect(getComputedStyle(document.querySelector('.md1-feature-discovery__action')!).animationName).toBe('none')
+      expect(getComputedStyle(document.querySelector('.md1-feature-discovery__pulse')!).animationName).toBe('none')
       expect(getComputedStyle(background()).animationName).toBe('md1-feature-discovery-fade')
     })
 

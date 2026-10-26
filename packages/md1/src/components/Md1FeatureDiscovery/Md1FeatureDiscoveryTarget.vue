@@ -52,7 +52,9 @@
     :style="lift"
     @click="onClick"
   >
-    <slot />
+    <span class="md1-feature-discovery__pulse">
+      <slot />
+    </span>
   </Tour.Activator>
 
   <slot v-else />
@@ -65,8 +67,16 @@
     vertical-align: middle;
   }
 
-  /* Idle: the action grows by 10% over one second, then shrinks (feature discovery page). */
-  .md1-feature-discovery__action[data-active] {
+  .md1-feature-discovery__pulse {
+    display: inline-flex;
+  }
+
+  /*
+   * Idle: the action grows by 10% over one second, then shrinks (feature discovery page).
+   * The pulse scales the inner span, never the activator: the text is anchored
+   * to the activator, and an anchor that scales would carry the text with it.
+   */
+  .md1-feature-discovery__action[data-active] > .md1-feature-discovery__pulse {
     animation: md1-feature-discovery-pulse 2s var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)) infinite;
   }
 
@@ -96,12 +106,12 @@
     }
   }
 
-  body[data-reduced-motion='reduce'] .md1-feature-discovery__action[data-active] {
+  body[data-reduced-motion='reduce'] .md1-feature-discovery__action[data-active] > .md1-feature-discovery__pulse {
     animation: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    body:not([data-reduced-motion='no-preference']) .md1-feature-discovery__action[data-active] {
+    body:not([data-reduced-motion='no-preference']) .md1-feature-discovery__action[data-active] > .md1-feature-discovery__pulse {
       animation: none;
     }
   }

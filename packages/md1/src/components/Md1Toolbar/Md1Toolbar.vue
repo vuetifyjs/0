@@ -453,13 +453,13 @@
    * and keeps its own icon ink.
    */
   .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo]:not([data-disabled]),
-  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo]:not([data-disabled]) {
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-button[data-solo]:not([data-disabled]) {
     color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 
   /* Inactive icons: 38% black on a light bar, 50% white on a dark one (colour page, app bar icons). */
   .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo][data-disabled],
-  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo][data-disabled] {
+  .md1-toolbar :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-button[data-solo][data-disabled] {
     color: var(--md1-icon-inactive, rgba(0, 0, 0, 0.38));
   }
 
@@ -474,18 +474,18 @@
   }
 
   :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button:not([data-disabled]),
-  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button:not([data-disabled]) {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-button:not([data-disabled]) {
     color: var(--md1-on-primary, #FFFFFF);
   }
 
   /* Inactive icons on a coloured bar: 50% white (icons page, dark backgrounds). */
   :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-disabled],
-  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-disabled] {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-button[data-disabled] {
     color: color-mix(in srgb, var(--md1-on-primary, #FFFFFF) 50%, transparent);
   }
 
   .md1-toolbar[data-dense] :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__search, .md1-toolbar__contextual) > .md1-button[data-solo],
-  .md1-toolbar[data-dense] :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > .md1-button[data-solo] {
+  .md1-toolbar[data-dense] :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-button[data-solo] {
     width: 40px;
     min-width: 40px;
     height: 40px;
