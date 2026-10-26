@@ -74,10 +74,16 @@
     gap: var(--md1-spacing-5, 40px);
   }
 
+  /*
+   * Wide enough for either caption, so Play turning to Pause never changes the
+   * row's width and slides the FAB beside it.
+   */
   .md1-docs-motion-icons-figure {
     display: flex;
     flex-direction: column;
     align-items: center;
+    inline-size: 224px;
+    max-inline-size: 100%;
     margin: 0;
   }
 
