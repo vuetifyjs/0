@@ -108,7 +108,9 @@
     }
   }
 
+  /* The label's line is a resting chip's 32 dp, so it holds its place when the last chip goes. */
   .md1-docs-field-label {
+    line-height: 32px;
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-subheading-size, 16px);
