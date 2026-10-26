@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-row md1-docs-row-loose">
+  <div class="md1-docs-dialog-stack">
     <Md1Dialog v-slot="{ commit }" v-model:value="account" variant="simple">
       <Md1Dialog.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" variant="raised">Backup account</Md1Button>
@@ -47,11 +47,22 @@
       </Md1Dialog.Content>
     </Md1Dialog>
 
-    <span v-if="account" class="md1-docs-note" role="status">Backup: {{ account }}</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">Backup: {{ account ?? 'none' }}</p>
   </div>
 </template>
 
 <style>
+  /*
+   * The activator on top and its readout below, each centred on its own, so the
+   * readout changing never moves the button.
+   */
+  .md1-docs-dialog-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--md1-spacing-2, 16px);
+  }
+
   .md1-docs-note {
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-caption-size, 12px);
