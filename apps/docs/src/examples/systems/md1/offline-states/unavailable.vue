@@ -17,7 +17,7 @@
 
     <Md1Button @click="library = true">Go to downloads</Md1Button>
 
-    <p v-if="library" class="md1-docs-offline-note" role="status">Showing downloads</p>
+    <p class="md1-docs-readout md1-docs-offline-note" role="status">{{ library ? 'Showing downloads' : '—' }}</p>
   </div>
 </template>
 
