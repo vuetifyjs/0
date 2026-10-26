@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-errors-row">
+  <div class="md1-docs-errors-blocking-stack">
     <Md1Dialog>
       <Md1Dialog.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" variant="raised">Send</Md1Button>
@@ -27,14 +27,18 @@
       </Md1Dialog.Content>
     </Md1Dialog>
 
-    <span v-if="opened" class="md1-docs-errors-note" role="status">Storage settings opened</span>
+    <p class="md1-docs-readout md1-docs-errors-note" role="status">{{ opened ? 'Storage settings opened' : 'No action taken' }}</p>
   </div>
 </template>
 
 <style>
-  .md1-docs-errors-row {
+  /*
+   * The activator on top and its readout below, each centred on its own, so the
+   * readout changing never moves the button.
+   */
+  .md1-docs-errors-blocking-stack {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-2, 16px);
   }
