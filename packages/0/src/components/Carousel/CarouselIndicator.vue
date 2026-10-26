@@ -23,6 +23,9 @@
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Utilities
   import { isUndefined } from '#v0/utilities'
   import { mergeProps, nextTick, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
@@ -110,12 +113,22 @@
     })
   }
 
+  function isRtl (e: KeyboardEvent) {
+    if (!IN_BROWSER) return false
+    const el = e.currentTarget
+    if (!(el instanceof HTMLElement)) return false
+    return getComputedStyle(el).direction === 'rtl'
+  }
+
   function onKeydown (index: number, e: KeyboardEvent) {
     const horizontal = carousel.orientation.value === 'horizontal'
     const size = carousel.size
+    const rtl = horizontal && isRtl(e)
+    const forward = rtl ? 'ArrowLeft' : 'ArrowRight'
+    const backward = rtl ? 'ArrowRight' : 'ArrowLeft'
 
     if (
-      (horizontal && e.key === 'ArrowRight')
+      (horizontal && e.key === forward)
       || (!horizontal && e.key === 'ArrowDown')
     ) {
       e.preventDefault()
@@ -126,7 +139,7 @@
     }
 
     if (
-      (horizontal && e.key === 'ArrowLeft')
+      (horizontal && e.key === backward)
       || (!horizontal && e.key === 'ArrowUp')
     ) {
       e.preventDefault()

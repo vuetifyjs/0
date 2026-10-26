@@ -1632,6 +1632,55 @@ describe('carousel', () => {
       expect(selected.value).toBe('a')
     })
 
+    it('should reverse ArrowLeft / ArrowRight in RTL horizontal orientation', async () => {
+      const selected = ref<string>('b')
+      let indicatorProps: any
+
+      mount(Carousel.Root, {
+        props: {
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (v: unknown) => {
+            selected.value = v as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+            h(Carousel.Item as any, { value: 'c' }, { default: () => h('div', 'C') }),
+            h(Carousel.Indicator as any, {}, {
+              default: (p: any) => {
+                indicatorProps = p
+                return h('div', 'Indicator')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      const host = document.createElement('div')
+      host.style.direction = 'rtl'
+      document.body.append(host)
+
+      function rtl (key: string) {
+        const event = new KeyboardEvent('keydown', { key, cancelable: true })
+        Object.defineProperty(event, 'currentTarget', { value: host })
+        return event
+      }
+
+      indicatorProps.items[1].attrs.onKeydown(rtl('ArrowRight'))
+      await nextTick()
+      expect(selected.value).toBe('a')
+
+      indicatorProps.items[0].attrs.onKeydown(rtl('ArrowLeft'))
+      await nextTick()
+      expect(selected.value).toBe('b')
+
+      host.remove()
+    })
+
     it('should navigate with ArrowDown / ArrowUp in vertical orientation', async () => {
       const selected = ref<string>('a')
       let indicatorProps: any
