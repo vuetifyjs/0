@@ -21,8 +21,10 @@
 
 <template>
   <ExpansionPanel.Content class="md1-expansion-panel__content" :namespace>
-    <div class="md1-expansion-panel__body">
-      <slot />
+    <div class="md1-expansion-panel__track">
+      <div class="md1-expansion-panel__body">
+        <slot />
+      </div>
     </div>
   </ExpansionPanel.Content>
 </template>
@@ -40,8 +42,6 @@
   .md1-expansion-panel__content {
     display: grid;
     grid-template-rows: 1fr;
-    /* The closing track is shorter than the body's own bottom padding; clip it so nothing bleeds below the header mid-transition. */
-    overflow: hidden;
     transition:
       grid-template-rows var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)),
       display var(--md1-duration-standard, 300ms) allow-discrete;
@@ -58,10 +58,18 @@
     }
   }
 
-  /* The editing body: 24 dp side padding and 16 dp below, above the actions divider (figure spec2); Body 1 text. */
-  .md1-expansion-panel__body {
+  /*
+   * The row in the track: no padding or border, so its minimum is 0 and the
+   * track closes all the way. Padding here would floor the 0fr track at the
+   * padding and leave it to snap away when the display switch lands.
+   */
+  .md1-expansion-panel__track {
     min-height: 0;
     overflow: hidden;
+  }
+
+  /* The editing body: 24 dp side padding and 16 dp below, above the actions divider (figure spec2); Body 1 text. */
+  .md1-expansion-panel__body {
     padding: 0 var(--md1-spacing-3, 24px) var(--md1-spacing-2, 16px);
     font-size: var(--md1-type-body-1-size, 14px);
     font-weight: var(--md1-type-body-1-weight, 400);

@@ -510,6 +510,20 @@ describe('quExpansionPanel', () => {
       expect(region.textContent).toContain('Body')
     })
 
+    it('should close the region track to 0 px, with no padding floor that snaps away when the display switch lands', async () => {
+      const root = panels({ modelValue: 'trip' }, [{ value: 'trip', label: 'Trip name', actions: true }])
+      await settle()
+
+      const [region] = contents(root)
+
+      // Pin the frame the close transition ends on: the track at 0fr, still displayed.
+      region.style.transition = 'none'
+      region.style.gridTemplateRows = '0fr'
+
+      expect(getComputedStyle(region).display).toBe('grid')
+      expect(region.getBoundingClientRect().height).toBe(0)
+    })
+
     it('should point the expand icon down at rest and up when expanded', async () => {
       const root = panels({ modelValue: 'trip' })
       await settle()
