@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-dropdown-stage">
+  <div class="md1-docs-dropdown-stage md1-docs-dropdown-column">
     <Md1DropdownButton aria-label="Settings" :model-value="undefined" @update:model-value="onOpen">
       <Md1DropdownButton.Item value="Account">Account</Md1DropdownButton.Item>
 
@@ -20,7 +20,7 @@
       <Md1DropdownButton.Item value="Privacy">Privacy</Md1DropdownButton.Item>
     </Md1DropdownButton>
 
-    <span v-if="page" class="md1-docs-note" role="status">Opened {{ page }} settings</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ page ? `Opened ${page} settings` : 'No settings opened' }}</p>
   </div>
 </template>
 
@@ -32,6 +32,15 @@
     align-items: center;
     gap: var(--md1-spacing-3, 24px);
     min-block-size: 240px;
+  }
+
+  /*
+   * The button on top and its readout below, each centred on its own, so the
+   * readout appearing or changing never moves the button.
+   */
+  .md1-docs-dropdown-stage.md1-docs-dropdown-column {
+    flex-direction: column;
+    flex-wrap: nowrap;
   }
 
   .md1-docs-note {

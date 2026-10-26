@@ -17,7 +17,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-dropdown-stage">
+  <div class="md1-docs-dropdown-stage md1-docs-dropdown-column">
     <Md1DropdownButton v-model="action" aria-label="Reply options" segmented @select="onSelect">
       <Md1DropdownButton.Item value="reply">Reply</Md1DropdownButton.Item>
 
@@ -26,7 +26,7 @@
       <Md1DropdownButton.Item value="forward">Forward</Md1DropdownButton.Item>
     </Md1DropdownButton>
 
-    <span v-if="sent" class="md1-docs-note" role="status">{{ sent }} sent</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ sent ? `${sent} sent` : 'Nothing sent' }}</p>
   </div>
 </template>
 
@@ -38,6 +38,15 @@
     align-items: center;
     gap: var(--md1-spacing-3, 24px);
     min-block-size: 240px;
+  }
+
+  /*
+   * The button on top and its readout below, each centred on its own, so the
+   * readout appearing or changing never moves the button.
+   */
+  .md1-docs-dropdown-stage.md1-docs-dropdown-column {
+    flex-direction: column;
+    flex-wrap: nowrap;
   }
 
   .md1-docs-note {
