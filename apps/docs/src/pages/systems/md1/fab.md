@@ -33,7 +33,7 @@ The Material Design 1 floating action button. A circled icon floating above the 
 
 `Md1Fab` is a shell component with one optional part. Every FAB needs `icon` and `aria-label`: the button carries no text, so the glyph is the whole face and the label is the whole name. By default it is fixed to the bottom end corner of the viewport.
 
-Use one per screen, for a positive action such as create, share or navigate. Not every screen needs one.
+Use one per screen, for a positive action such as create, share or navigate. Not every screen needs one. Here the inbox's promoted action is Compose: each press starts a draft at the top of the list, and the messages scroll beneath the FAB while it holds its corner.
 
 ::: ds-example
 /systems/md1/fab/basic
