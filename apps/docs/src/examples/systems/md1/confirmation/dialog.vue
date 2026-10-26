@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-confirm-row">
+  <div class="md1-docs-confirm-stack">
     <Md1Dialog>
       <Md1Dialog.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" :disabled="deleted" variant="raised">Delete album</Md1Button>
@@ -29,14 +29,18 @@
       </Md1Dialog.Content>
     </Md1Dialog>
 
-    <span v-if="deleted" class="md1-docs-confirm-note" role="status">Album deleted</span>
+    <p class="md1-docs-readout md1-docs-confirm-note" role="status">{{ deleted ? 'Album deleted' : 'Album kept' }}</p>
   </div>
 </template>
 
 <style>
-  .md1-docs-confirm-row {
+  /*
+   * The activator on top and its readout below, each centred on its own, so the
+   * readout changing never moves the button.
+   */
+  .md1-docs-confirm-stack {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-2, 16px);
   }
