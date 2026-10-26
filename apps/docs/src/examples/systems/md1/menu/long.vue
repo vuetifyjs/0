@@ -32,7 +32,7 @@
   <div class="md1-docs-row">
     <Md1Menu v-model:selected="font">
       <Md1Menu.Activator v-slot="{ attrs }">
-        <Md1Button v-bind="attrs">{{ font }}</Md1Button>
+        <Md1Button v-bind="attrs" class="md1-docs-menu-font">{{ font }}</Md1Button>
       </Md1Menu.Activator>
 
       <Md1Menu.Content>
@@ -41,3 +41,14 @@
     </Md1Menu>
   </div>
 </template>
+
+<style>
+  /*
+   * As wide as the button is with the longest font name, Times New Roman, so
+   * choosing a shorter one never narrows the button and moves it under the
+   * pointer.
+   */
+  .md1-button.md1-docs-menu-font {
+    min-inline-size: 168px;
+  }
+</style>

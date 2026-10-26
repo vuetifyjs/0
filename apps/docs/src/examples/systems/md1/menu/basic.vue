@@ -7,7 +7,7 @@
 </script>
 
 <template>
-  <div class="md1-docs-row">
+  <div class="md1-docs-menu-stack">
     <Md1Menu>
       <Md1Menu.Activator v-slot="{ attrs }">
         <Md1Button v-bind="attrs" aria-label="More options" icon="more-vert" />
@@ -26,11 +26,22 @@
       </Md1Menu.Content>
     </Md1Menu>
 
-    <span v-if="chosen" class="md1-docs-note" role="status">{{ chosen }}</span>
+    <p class="md1-docs-readout md1-docs-note" role="status">{{ chosen ?? 'Nothing chosen' }}</p>
   </div>
 </template>
 
 <style>
+  /*
+   * The menu button on top and its readout below, each centred on its own, so
+   * the readout changing never moves the button.
+   */
+  .md1-docs-menu-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--md1-spacing-1, 8px);
+  }
+
   .md1-docs-note {
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     font-size: var(--md1-type-caption-size, 12px);

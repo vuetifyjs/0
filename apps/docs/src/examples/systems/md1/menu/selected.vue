@@ -12,7 +12,7 @@
   <div class="md1-docs-row">
     <Md1Menu v-model:selected="size">
       <Md1Menu.Activator v-slot="{ attrs }">
-        <Md1Button v-bind="attrs">Text size: {{ size }}</Md1Button>
+        <Md1Button v-bind="attrs" class="md1-docs-menu-size">Text size: {{ size }}</Md1Button>
       </Md1Menu.Activator>
 
       <Md1Menu.Content>
@@ -21,3 +21,14 @@
     </Md1Menu>
   </div>
 </template>
+
+<style>
+  /*
+   * As wide as the button is with the longest size, Extra large, so
+   * choosing a shorter one never narrows the button and moves it under the
+   * pointer.
+   */
+  .md1-button.md1-docs-menu-size {
+    min-inline-size: 208px;
+  }
+</style>
