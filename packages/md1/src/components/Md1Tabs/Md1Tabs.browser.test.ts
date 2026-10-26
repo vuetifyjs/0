@@ -1015,6 +1015,78 @@ describe('quTabs', () => {
       expect(shown(host)).toHaveLength(10)
     })
 
+    it('should keep every tab and the More control in place when a collected tab is selected', async () => {
+      const varied: Tab[] = [...MANY.slice(0, 9), { value: 'long', label: 'A much longer collected label' }]
+
+      for (const width of [1280, 375]) {
+        const model = shallowRef<string | undefined>('t0')
+        const host = tabs({ props: { scrollable: true, more: true }, tabs: varied, width, model })
+
+        await vi.waitFor(() => {
+          expect(control(host)).not.toBeNull()
+        })
+        await frames()
+
+        function boxes () {
+          return [...shown(host), control(host)].map(el => {
+            const { left, width } = el.getBoundingClientRect()
+            return [Math.round(left), Math.round(width)]
+          })
+        }
+
+        const rest = boxes()
+
+        await userEvent.click(control(host))
+        await vi.waitFor(() => {
+          expect(sheet().matches(':popover-open')).toBe(true)
+        })
+        await userEvent.click([...sheet().querySelectorAll<HTMLElement>('.md1-menu__item')].at(-1)!)
+        await frames()
+
+        expect(model.value).toBe('long')
+        expect(control(host).dataset.selected).toBe('true')
+        expect(boxes()).toEqual(rest)
+        // The first tab stays whole beside the control.
+        const list = host.querySelector<HTMLElement>('.md1-tabs__list')!
+        expect(list.scrollWidth).toBeLessThanOrEqual(list.clientWidth + 1)
+
+        model.value = 't0'
+        await frames()
+
+        expect(boxes()).toEqual(rest)
+
+        teardowns.pop()!()
+      }
+    })
+
+    it('should bring collected tabs back when a shrink-to-fit parent widens again', async () => {
+      const host = tabs({
+        props: { scrollable: true, more: true },
+        tabs: MANY,
+        width: 900,
+        wrap: node => h('div', { style: { display: 'grid', justifyItems: 'center' } }, [node]),
+      })
+
+      await vi.waitFor(() => {
+        expect(control(host)).not.toBeNull()
+      })
+      await frames()
+
+      const wide = shown(host).length
+
+      host.style.width = '375px'
+
+      await vi.waitFor(() => {
+        expect(shown(host).length).toBeLessThan(wide)
+      })
+
+      host.style.width = '900px'
+
+      await vi.waitFor(() => {
+        expect(shown(host)).toHaveLength(wide)
+      })
+    })
+
     it('should move focus to the More control when the arrow keys select a collected tab', async () => {
       const model = shallowRef<string | undefined>('t0')
       const host = tabs({ props: { scrollable: true, more: true }, tabs: MANY, width: 600, model })

@@ -109,6 +109,46 @@
   const chosen = toRef(() => rest.value.find(ticket => ticket.id === tabs.selectedId.value))
   const caption = toRef(() => chosen.value?.value.label || (locale.ti('Md1.more') ?? 'More'))
 
+  /*
+   * Every caption the control can show: "More" and each tab's label. They
+   * share the label's one grid cell, unseen, so the control is always as wide
+   * as its widest caption. Naming a collected tab then never resizes it, which
+   * would resize the tablist beside it and recount which tabs fit.
+   */
+  const captions = toRef(() => {
+    if (!context || !collapsed.value) return []
+
+    const labels = new Set([locale.ti('Md1.more') ?? 'More'])
+
+    for (const ticket of context.items.values()) {
+      if (ticket.value.label) labels.add(ticket.value.label)
+    }
+
+    return [...labels]
+  })
+
+  /*
+   * The room the More control may take: the bar less the tablist's start
+   * padding and the first tab, which always stays in the bar. A narrow bar
+   * then truncates the control's caption rather than clipping that tab. Read
+   * from the bar and the first tab only, so a selection never changes it.
+   */
+  const spare = shallowRef(0)
+
+  function fit () {
+    const el = list.value
+    const first = el?.querySelector<HTMLElement>('.md1-tabs__item')
+
+    if (!collapsed.value || !el || !first) {
+      spare.value = 0
+      return
+    }
+
+    const pad = Number.parseFloat(getComputedStyle(el).paddingInlineStart) || 0
+
+    spare.value = Math.max(0, width.value - pad - first.offsetWidth)
+  }
+
   const current = toRef(() => tabs.selectedId.value)
 
   function onMore (id: unknown) {
@@ -197,6 +237,7 @@
   function refresh () {
     place()
     edges()
+    fit()
   }
 
   watch(() => tabs.selectedId.value, (_, old) => {
@@ -209,7 +250,7 @@
   }, { flush: 'post' })
 
   // Tab widths change with labels, fonts and the 600 px breakpoint; the overflow total tracks all of them.
-  watch(() => [context?.overflow.total.value, overflowing.value, centered.value], () => {
+  watch(() => [context?.overflow.total.value, overflowing.value, centered.value, collapsed.value, width.value], () => {
     nextTick(refresh)
   }, { flush: 'post' })
 
@@ -226,7 +267,7 @@
     class="md1-tabs__bar"
     :data-centered="centered || undefined"
     :data-overflow="overflowing || undefined"
-    :style="width ? { '--md1-tabs-view': `${width}px` } : undefined"
+    :style="width ? { '--md1-tabs-view': `${width}px`, '--md1-tabs-spare': spare ? `${spare}px` : undefined } : undefined"
   >
     <Button.Root
       v-if="arrows"
@@ -249,7 +290,12 @@
     </Button.Root>
 
     <Tabs.List v-slot="{ attrs }" :label :namespace renderless>
-      <div ref="list" v-bind="attrs" class="md1-tabs__list">
+      <div
+        ref="list"
+        v-bind="attrs"
+        class="md1-tabs__list"
+        :style="collapsed ? { '--md1-tabs-total': `${context?.overflow.total.value ?? 0}px` } : undefined"
+      >
         <slot />
 
         <span
@@ -291,7 +337,17 @@
         >
           <Md1Ripple />
 
-          <span class="md1-tabs__label">{{ caption }}</span>
+          <span class="md1-tabs__label md1-tabs__caption">
+            <span
+              v-for="text in captions"
+              :key="text"
+              aria-hidden="true"
+              class="md1-tabs__reserve"
+              :data-text="text"
+            />
+
+            <span class="md1-tabs__caption-text">{{ caption }}</span>
+          </span>
 
           <Md1Icon class="md1-tabs__cue" name="arrow-drop-down" />
         </button>
@@ -338,6 +394,17 @@
 
   .md1-tabs__list::-webkit-scrollbar {
     display: none;
+  }
+
+  /*
+   * Collapsed into a More menu, the tablist asks for every tab's width, the
+   * collected ones included, and the bar shrinks it to the room there is. Sized
+   * by its visible tabs alone, a bar in a shrink-to-fit parent would stay as
+   * narrow as its last collapse, so widening it would never bring a tab back.
+   */
+  .md1-tabs[data-more] .md1-tabs__list {
+    box-sizing: content-box;
+    width: var(--md1-tabs-total, auto);
   }
 
   /*
@@ -476,6 +543,38 @@
   .md1-tabs__cue {
     position: relative;
     flex: 0 0 auto;
+  }
+
+  /*
+   * The control holds its widest caption's width and no more than the bar can
+   * spare beside the first tab (see `captions` and `spare`), so a selection
+   * never resizes it and a narrow bar truncates the caption instead.
+   */
+  .md1-tabs[data-scrollable] .md1-tabs__more {
+    max-width: min(264px, var(--md1-tabs-spare, 264px));
+  }
+
+  /* The caption and the unseen captions overlap in one cell; none of them holds a minimum width, so the cell can truncate. */
+  .md1-tabs__more .md1-tabs__caption {
+    display: grid;
+    text-align: center;
+  }
+
+  .md1-tabs__caption > * {
+    grid-area: 1 / 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Generated content, so the reserve never joins the control's text or its accessible name. */
+  .md1-tabs__reserve {
+    visibility: hidden;
+  }
+
+  .md1-tabs__reserve::before {
+    content: attr(data-text);
   }
 
   .md1-tabs__more[data-selected]::after {
