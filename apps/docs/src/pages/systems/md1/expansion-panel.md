@@ -111,6 +111,16 @@ Every expanded panel detaches 16 dp from the panels above and below it, the gap 
 :::
 
 ::: ds-example
+/systems/md1/expansion-panel/creation-flow
+
+### Creation flow
+
+"Expansion panels may be displayed in a sequence to form creation flows." Each panel is one step of setting up an ad campaign, and the flow moves forward on its own: SAVE writes the step's value into the collapsed header's summary column, closes the panel and opens the next step that has no value yet. Until a step is saved its header shows its number on the secondary line instead of a summary, so the collapsed stack reads as a checklist of what is done and what is left.
+
+Every step stays reachable: open a saved panel to change its value, and CANCEL puts the last saved value back. When the last step is saved the flow closes and Publish campaign, disabled until then, takes focus. The SAVE button disappears with its panel, so the example moves focus on to the next step's header rather than leaving it on a button that no longer exists, the rule on the [Accessibility](/systems/md1/accessibility) page.
+:::
+
+::: ds-example
 /systems/md1/expansion-panel/disabled
 
 ### Disabled
