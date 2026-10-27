@@ -32,7 +32,7 @@ The ink reaction Material Design 1 draws on every press. It spreads from the poi
 />
 
 > [!NOTE]
-> Reference: [Material motion, Material Design 1 guidelines](https://m1.material.io/motion/material-motion.html) for the responsive principle, [Choreography](https://m1.material.io/motion/choreography.html) for the radial reaction, and [Buttons](https://m1.material.io/components/buttons.html) for the pressed overlay, all from the archived pages Material Design 1 is pinned to. This page is the Vue.
+> Material motion gives the responsive principle, [Choreography](https://m1.material.io/motion/choreography.html) the radial reaction, and [Buttons](https://m1.material.io/components/buttons.html) the pressed overlay.
 
 ## Usage
 

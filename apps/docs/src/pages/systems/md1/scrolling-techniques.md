@@ -30,9 +30,6 @@ The app bar is built from regions that react to scrolling on their own terms: th
   title="Scrolling techniques"
 />
 
-> [!NOTE]
-> Reference: [Scrolling techniques, Material Design 1 guidelines](https://m1.material.io/patterns/scrolling-techniques.html), the archived page Material Design 1 is pinned to. App bar scrollable regions and behavior. This page is the Vue.
-
 ## Usage
 
 ::: ds-example

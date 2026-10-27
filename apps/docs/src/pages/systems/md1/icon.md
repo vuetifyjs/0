@@ -31,7 +31,7 @@ The Material Design 1 system icon: ask for a role, such as `menu` or `search`, a
 />
 
 > [!NOTE]
-> Reference: [Icons, Material Design 1 guidelines](https://m1.material.io/style/icons.html), the archived page Material Design 1 is pinned to, with [Bidirectionality](https://m1.material.io/usability/bidirectionality.html) for the RTL rules. Grid, sizes, ink and mirroring. This page is the Vue.
+> The RTL rules come from [Bidirectionality](https://m1.material.io/usability/bidirectionality.html).
 
 ## Usage
 

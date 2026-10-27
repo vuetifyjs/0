@@ -30,7 +30,7 @@ Material Design 1 moves on four easing curves and four durations, scaled for the
 />
 
 > [!NOTE]
-> Reference: [Duration and easing, Material Design 1 guidelines](https://m1.material.io/motion/duration-easing.html), the archived page Material Design 1 is pinned to, with [Movement](https://m1.material.io/motion/movement.html) and [Choreography](https://m1.material.io/motion/choreography.html). This page is the Vue.
+> Read with [Movement](https://m1.material.io/motion/movement.html) and [Choreography](https://m1.material.io/motion/choreography.html).
 
 ## Usage
 

@@ -30,9 +30,6 @@ The Material Design 1 menu: a temporary sheet of choices that opens from a butto
   title="Menus"
 />
 
-> [!NOTE]
-> Reference: [Menus, Material Design 1 guidelines](https://m1.material.io/components/menus.html), the archived page Material Design 1 is pinned to. Metrics, widths, elevation, states and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1Menu` is a compound. The root holds the open state (`v-model`) and the metrics; `Md1Menu.Activator` hands its `attrs` to the emitting `Md1Button`; `Md1Menu.Content` is the sheet, and the items go inside it.

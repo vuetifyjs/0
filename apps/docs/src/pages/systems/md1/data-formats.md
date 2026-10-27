@@ -30,9 +30,6 @@ How dates, times and sensitive numbers appear in text: what to show, what to rou
   title="Data formats"
 />
 
-> [!NOTE]
-> Reference: [Data formats, Material Design 1 guidelines](https://m1.material.io/patterns/data-formats.html), the archived page Material Design 1 is pinned to. Date and time, and data redaction and truncation. This page is the Vue.
-
 ## Usage
 
 ::: ds-example

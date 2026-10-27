@@ -32,7 +32,7 @@ The Material Design 1 auto-complete text field. Suggestions refresh with each ke
 />
 
 > [!NOTE]
-> Reference: [Text fields, Material Design 1 guidelines](https://m1.material.io/components/text-fields.html), the archived page Material Design 1 is pinned to. The auto-complete rules, anatomy and state tables of the text field, and the menu sheet the suggestions sit on. This page is the Vue.
+> From the auto-complete section of the text field page, with the menu sheet the suggestions sit on.
 
 ## Usage
 

@@ -34,9 +34,6 @@ The Material Design 1 navigation drawer. The sheet along the start edge that hol
   title="Navigation drawer"
 />
 
-> [!NOTE]
-> Reference: [Navigation drawer, Material Design 1 guidelines](https://m1.material.io/patterns/navigation-drawer.html), the archived page Material Design 1 is pinned to. Types, widths, keylines, the account header, elevation and ordering. This page is the Vue.
-
 ## Usage
 
 `Md1NavigationDrawer` is a compound. The root is the drawer and owns `v-model` (open); `Header` is the account area, `Content` holds the destinations as a [Md1List](/systems/md1/list), and `Activator` is an optional trigger rendered beside it. `type` picks one of the pattern page's three drawers; the default is `temporary`, the one the guidelines require on a handset.

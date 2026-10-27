@@ -32,7 +32,7 @@ A settings screen is a list of the preferences that shape how an app behaves, ea
 />
 
 > [!NOTE]
-> Reference: [Settings, Material Design 1 guidelines](https://m1.material.io/patterns/settings.html), the archived page Material Design 1 is pinned to, with the [navigation drawer](https://m1.material.io/patterns/navigation-drawer.html) and [help and feedback](https://m1.material.io/patterns/help-feedback.html) pages for placement. Placement, grouping, labels and status text. This page is the Vue.
+> Read with the [navigation drawer](https://m1.material.io/patterns/navigation-drawer.html) and [help and feedback](https://m1.material.io/patterns/help-feedback.html) pages for placement.
 
 ## Usage
 

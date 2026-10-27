@@ -29,9 +29,6 @@ The Material Design 1 divider. A 1 dp rule in the 12% divider ink, full bleed be
   title="Dividers"
 />
 
-> [!NOTE]
-> Reference: [Dividers, Material Design 1 guidelines](https://m1.material.io/components/dividers.html), the archived page Material Design 1 is pinned to. Types, placement and the 12% ink. This page is the Vue.
-
 ## Usage
 
 `Md1Divider` is a presentational component: one `hr`, one prop, no slot. The default is the full-bleed divider that runs edge to edge of its container; `inset` starts it at the content keyline.

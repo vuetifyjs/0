@@ -32,9 +32,6 @@ The Material Design 1 grid list. A repeated pattern of cells holding image tiles
   title="Grid lists"
 />
 
-> [!NOTE]
-> Reference: [Grid lists, Material Design 1 guidelines](https://m1.material.io/components/grid-lists.html), the archived page Material Design 1 is pinned to. Types, metrics, behavior and the tile bars. This page is the Vue.
-
 ## Usage
 
 `Md1GridList` is a compound. The root is the grid; `Md1GridList.Tile` is one tile and its image; `Md1GridList.Bar` is the band of text over that image. A tile with a click listener or an `href` becomes one action that fills the whole tile.

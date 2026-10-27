@@ -31,9 +31,6 @@ The Material Design 1 floating action button. A circled icon floating above the 
   title="Buttons: Floating Action Button"
 />
 
-> [!NOTE]
-> Reference: [Buttons: Floating Action Button, Material Design 1 guidelines](https://m1.material.io/components/buttons-floating-action-button.html), the archived page Material Design 1 is pinned to. Sizes, placement, elevation and transitions. This page is the Vue.
-
 ## Usage
 
 `Md1Fab` is a shell component with one optional part. Every FAB needs `icon` and `aria-label`: the button carries no text, so the glyph is the whole face and the label is the whole name. By default it is fixed to the bottom end corner of the viewport.

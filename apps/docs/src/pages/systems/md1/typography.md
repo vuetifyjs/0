@@ -28,9 +28,6 @@ The Material Design 1 type scale: thirteen named styles set in Roboto and Noto, 
   title="Typography"
 />
 
-> [!NOTE]
-> Reference: [Typography, Material Design 1 guidelines](https://m1.material.io/style/typography.html), the archived page Material Design 1 is pinned to. Typeface, scale, leading, tracking, language categories and text opacity. This page is the Vue.
-
 ## Usage
 
 Each style is a class. Put `md1-type-<style>` on any element and it gets the family, size, weight, leading, tracking, case and ink opacity of that style, with the desktop and script switches built in:

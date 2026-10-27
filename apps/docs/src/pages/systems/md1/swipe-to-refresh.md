@@ -30,9 +30,6 @@ Swipe to refresh lets the reader ask for new content by pulling down at the star
   title="Swipe to refresh"
 />
 
-> [!NOTE]
-> Reference: [Swipe to refresh, Material Design 1 guidelines](https://m1.material.io/patterns/swipe-to-refresh.html), the archived page Material Design 1 is pinned to. Usage, positioning and behavior. This page is the Vue.
-
 ## Usage
 
 Syncing is the preferred way to keep content current, and it shows no indicator. Manual refresh supplements it, and keeps the reader's scroll position while it runs.

@@ -30,9 +30,6 @@ Every Material Design 1 surface sits at a depth measured in dp, and the shadow i
   title="Elevation and shadows"
 />
 
-> [!NOTE]
-> Reference: [Elevation and shadows, Material Design 1 guidelines](https://m1.material.io/material-design/elevation-shadows.html), the archived page Material Design 1 is pinned to. The component elevation table, resting and dynamic elevation, and the rules for shadows. This page is the Vue.
-
 ## Usage
 
 Elevation ships twice: as the `--md1-elevation-0` to `--md1-elevation-24` custom properties, and as the matching `md1-elevation-0` to `md1-elevation-24` classes in `style.css`. Each holds the full three-layer `box-shadow` for that dp. `Md1*` components already apply the elevation the guidelines give them; reach for the classes and tokens when you compose your own surface on a v0 primitive.

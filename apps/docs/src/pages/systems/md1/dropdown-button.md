@@ -31,7 +31,7 @@ The Material Design 1 dropdown button. A flat button that shows the current stat
 />
 
 > [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to, with the menu sheet from [Menus](https://m1.material.io/components/menus.html). Behavior, the desktop paddings and the menu metrics. This page is the Vue.
+> The menu sheet comes from [Menus](https://m1.material.io/components/menus.html).
 
 ## Usage
 

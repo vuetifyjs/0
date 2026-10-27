@@ -31,9 +31,6 @@ The Material Design 1 text field. A label that floats above the input, a line th
   title="Text fields"
 />
 
-> [!NOTE]
-> Reference: [Text fields, Material Design 1 guidelines](https://m1.material.io/components/text-fields.html), the archived page Material Design 1 is pinned to. Anatomy, metrics, the light and dark state tables, and the formatted inputs. This page is the Vue.
-
 ## Usage
 
 `Md1TextField` is a shell component: fixed anatomy, props for everything, and `v-model` is the text. `label` is required by the guidelines; every other part appears when its prop is set. Under `dropdown` the field becomes a compound and its `Md1TextField.Item` children fill the menu.

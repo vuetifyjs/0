@@ -34,7 +34,7 @@ The Material Design 1 toolbar and app bar. A sheet one step above the content it
 />
 
 > [!NOTE]
-> Reference: [Toolbars, Material Design 1 guidelines](https://m1.material.io/components/toolbars.html), the archived page Material Design 1 is pinned to, read with [Layout structure](https://m1.material.io/layout/structure.html) for the app bar metrics, [Scrolling techniques](https://m1.material.io/patterns/scrolling-techniques.html), [Search](https://m1.material.io/patterns/search.html) and [Selection](https://m1.material.io/patterns/selection.html). This page is the Vue.
+> Read with [Layout structure](https://m1.material.io/layout/structure.html) for the app bar metrics, [Scrolling techniques](https://m1.material.io/patterns/scrolling-techniques.html), [Search](https://m1.material.io/patterns/search.html) and [Selection](https://m1.material.io/patterns/selection.html).
 
 ## Usage
 

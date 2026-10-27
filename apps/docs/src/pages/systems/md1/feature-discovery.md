@@ -30,9 +30,6 @@ The Material Design 1 feature discovery prompt. A large circle in the app's colo
   title="Feature discovery"
 />
 
-> [!NOTE]
-> Reference: [Feature discovery, Material Design 1 guidelines](https://m1.material.io/growth-communications/feature-discovery.html), the archived page Material Design 1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
-
 ## Usage
 
 `Md1FeatureDiscovery` is a compound. The root owns `v-model` (open) and emits `complete` when the promoted action is tapped and `dismiss` when the prompt is tapped away. `Activator` wraps the promoted action where it already sits in the layout; `Title` and `Text` are the prompt's copy.

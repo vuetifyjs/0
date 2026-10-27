@@ -30,9 +30,6 @@ Never launch into a blank canvas: show the app's structure while its content loa
   title="Launch screens"
 />
 
-> [!NOTE]
-> Reference: [Launch screens, Material Design 1 guidelines](https://m1.material.io/patterns/launch-screens.html), the archived page Material Design 1 is pinned to. Placeholder UI and branded launch. This page is the Vue.
-
 ## Usage
 
 A blank screen while the app loads makes the wait feel longer. The guidelines offer two kinds of launch screen:

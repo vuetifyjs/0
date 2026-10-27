@@ -31,7 +31,7 @@ The persistent search of Material Design 1. A raised inset box that is always on
 />
 
 > [!NOTE]
-> Reference: [Search, Material Design 1 guidelines](https://m1.material.io/patterns/search.html), the archived pattern page Material Design 1 is pinned to, with the solo field of [Text fields](https://m1.material.io/components/text-fields.html). Behavior, anatomy and elevation. This page is the Vue.
+> Read with the solo field of [Text fields](https://m1.material.io/components/text-fields.html).
 
 ## Usage
 

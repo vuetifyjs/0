@@ -30,9 +30,6 @@ The Material Design 1 button. Flat ink or a raised sheet, in the standard, dense
   title="Buttons"
 />
 
-> [!NOTE]
-> Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to. Metrics, states, colour and placement. This page is the Vue.
-
 ## Usage
 
 `Md1Button` is a shell component: fixed anatomy, props for everything, and the default slot is the label. `variant` picks between the two text buttons the guidelines define. Flat is the default; `raised` is the sheet that lifts.

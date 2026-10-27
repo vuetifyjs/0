@@ -30,9 +30,6 @@ The Material Design 1 tooltip: a short text label that identifies a control when
   title="Tooltips"
 />
 
-> [!NOTE]
-> Reference: [Tooltips, Material Design 1 guidelines](https://m1.material.io/components/tooltips.html), the archived page Material Design 1 is pinned to. Metrics, colour, motion and the touch behavior. This page is the Vue.
-
 ## Usage
 
 `Md1Tooltip` is a compound. The root holds the open state (`v-model`); `Md1Tooltip.Activator` hands its `attrs` to the control the tooltip describes, usually an icon-only `Md1Button`; `Md1Tooltip.Content` is the label.

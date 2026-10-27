@@ -30,9 +30,6 @@ The Material Design 1 expansion panel. A stack of 48 dp summary rows on one card
   title="Expansion panels"
 />
 
-> [!NOTE]
-> Reference: [Expansion panels, Material Design 1 guidelines](https://m1.material.io/components/expansion-panels.html), the archived page Material Design 1 is pinned to. Metrics, type, colour and the redline of the expanded panel. This page is the Vue.
-
 ## Usage
 
 `Md1ExpansionPanel` is a compound. The root owns which panels are open, through `v-model`; each `Item` is one panel with a `Header` row and a `Content` body. The guidelines scope expansion panels to lightweight editing and to creation flows, so the body is where a setting is changed, and `Actions` is the CANCEL and SAVE row at the foot of that body.

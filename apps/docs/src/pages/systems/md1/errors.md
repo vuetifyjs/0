@@ -31,9 +31,6 @@ How a Material Design 1 app reports what went wrong: next to the field that caus
   title="Errors"
 />
 
-> [!NOTE]
-> Reference: [Errors, Material Design 1 guidelines](https://m1.material.io/patterns/errors.html), the archived page Material Design 1 is pinned to. Error types, form rules, text metrics and app errors. This page is the Vue.
-
 ## Usage
 
 Errors are a pattern, not a component. Material Design 1 ships no error surface of its own; every error on this page is an `Md1TextField`, an `Md1Dialog`, an `Md1Snackbar` or plain content, composed the way the guidelines describe. Three rules apply to all of them:

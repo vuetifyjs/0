@@ -31,9 +31,6 @@ The Material Design 1 card. A sheet of material that is the entry point to more 
   title="Cards"
 />
 
-> [!NOTE]
-> Reference: [Cards, Material Design 1 guidelines](https://m1.material.io/components/cards.html), the archived page Material Design 1 is pinned to. Content blocks, metrics, elevation and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1Card` is a presentational compound: the root is the sheet, and each content block is a part you place in anatomy order. Leave out the blocks a card does not need; the spacing between the ones you keep follows the guidelines' combinations on its own.

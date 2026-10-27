@@ -30,9 +30,6 @@ The Material Design 1 slider. Pick a value from a range by moving the thumb, con
   title="Sliders"
 />
 
-> [!NOTE]
-> Reference: [Sliders, Material Design 1 guidelines](https://m1.material.io/components/sliders.html), the archived page Material Design 1 is pinned to. Usage, colour and the measured spec sheets. This page is the Vue.
-
 ## Usage
 
 `Md1Slider` is a shell component: fixed anatomy and props for everything. `v-model` is a number between `min` and `max`. Sliders suit settings that reflect an intensity, such as volume, brightness or colour saturation; the smallest value sits on the left and the largest on the right.

@@ -30,9 +30,6 @@ The Material Design 1 circular progress indicator. An arc that grows around a ri
   title="Progress and activity"
 />
 
-> [!NOTE]
-> Reference: [Progress and activity, Material Design 1 guidelines](https://m1.material.io/components/progress-activity.html), the archived page Material Design 1 is pinned to. Types, behavior and the floating action button integration. This page is the Vue.
-
 ## Usage
 
 `Md1ProgressCircular` is a shell component with no slot content of its own. Leave `value` unset for the spinning indicator; set it to a percentage for the determinate arc.

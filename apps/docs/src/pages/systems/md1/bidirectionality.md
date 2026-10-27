@@ -29,9 +29,6 @@ A right-to-left layout is the mirror image of a left-to-right one: layout, text 
   title="Bidirectionality"
 />
 
-> [!NOTE]
-> Reference: [Bidirectionality, Material Design 1 guidelines](https://m1.material.io/usability/bidirectionality.html), the archived page Material Design 1 is pinned to. This page is the Vue.
-
 ## Usage
 
 Material Design 1 reads direction from two places. Layout, keylines and icons follow the `dir` attribute through logical CSS properties and `[dir="rtl"]` selectors, so a `dir="rtl"` on any ancestor mirrors them. Components whose geometry is computed in script, such as `Md1Slider`, read v0's `useRtl`, so install the plugin and let it write `dir` on `<html>`:

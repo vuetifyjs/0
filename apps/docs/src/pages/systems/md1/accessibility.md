@@ -29,9 +29,6 @@ Material Design 1 components carry their own roles, keyboard handling and touch 
   title="Accessibility"
 />
 
-> [!NOTE]
-> Reference: [Accessibility, Material Design 1 guidelines](https://m1.material.io/usability/accessibility.html), the archived page Material Design 1 is pinned to. This page is the Vue.
-
 ## Where the rest lives
 
 The accessibility page's other figures are shown where the rule is implemented:

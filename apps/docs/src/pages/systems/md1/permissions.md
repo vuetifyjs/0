@@ -30,9 +30,6 @@ Ask for access at the moment it makes sense, explain why, and say what happens w
   title="Permissions"
 />
 
-> [!NOTE]
-> Reference: [Permissions, Material Design 1 guidelines](https://m1.material.io/patterns/permissions.html), the archived page Material Design 1 is pinned to. Permission groups, runtime requests, request patterns and denied permissions. This page is the Vue.
-
 ## Usage
 
 The request itself is the platform's dialog, not the app's, so this page shows only what the app draws: what it says after a denial. The guidelines' request patterns still decide when to ask:

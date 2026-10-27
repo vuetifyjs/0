@@ -29,9 +29,6 @@ The Material Design 1 subheader. A 48 dp tile that names a section of a list, gr
   title="Subheaders"
 />
 
-> [!NOTE]
-> Reference: [Subheaders, Material Design 1 guidelines](https://m1.material.io/components/subheaders.html), the archived page Material Design 1 is pinned to. Metrics, alignment, colour and the scrolling rule. This page is the Vue.
-
 ## Usage
 
 `Md1Subheader` is a presentational component: fixed anatomy, three props, and the default slot is the title. It is a heading for the section that follows it, so one subheader opens each section and the sections are the list's filtering or sorting groups.

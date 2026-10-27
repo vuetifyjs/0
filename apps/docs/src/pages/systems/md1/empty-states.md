@@ -31,9 +31,6 @@ An empty state is what a screen shows when its content cannot be shown: a list w
   title="Empty states"
 />
 
-> [!NOTE]
-> Reference: [Empty states, Material Design 1 guidelines](https://m1.material.io/patterns/empty-states.html), the archived page Material Design 1 is pinned to. Image, tagline, and the three alternatives to a truly empty screen. This page is the Vue.
-
 ## Usage
 
 The most basic empty state is a non-interactive image and a text tagline, centred in the space the content would fill. Content that is missing because something failed is not an empty state; it belongs to the errors pattern.

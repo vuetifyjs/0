@@ -30,9 +30,6 @@ Material Design 1's copy rules, set in the components they govern: dialogs, snac
   title="Writing"
 />
 
-> [!NOTE]
-> Reference: [Writing, Material Design 1 guidelines](https://m1.material.io/style/writing.html), the archived page Material Design 1 is pinned to. Language, tone, capitalization and punctuation, button text and global writing. This page is the Vue.
-
 ## Usage
 
 Write every string in sentence case, the way the guidelines print it, and let the components do the rest. The one place the guidelines require capitals is button text, and Material Design 1 applies it with `text-transform: uppercase` in the Button style, so the source string stays "Learn more" and the screen shows LEARN MORE:

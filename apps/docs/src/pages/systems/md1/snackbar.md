@@ -31,9 +31,6 @@ The Material Design 1 snackbar. A short message about an operation at the bottom
   title="Snackbars and toasts"
 />
 
-> [!NOTE]
-> Reference: [Snackbars and toasts, Material Design 1 guidelines](https://m1.material.io/components/snackbars-toasts.html), the archived page Material Design 1 is pinned to. Metrics, placement, motion and usage. This page is the Vue.
-
 ## Usage
 
 `Md1Snackbar` is a compound. The root is one snackbar: the default slot is the message and `action` is the label of its one button. Put it inside `Md1Snackbar.Portal`, the fixed bottom container. Drive a single snackbar with `v-model`, or let `Md1Snackbar.Queue` show notifications one at a time.

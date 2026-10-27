@@ -30,9 +30,6 @@ How Material Design 1 puts images into an interface: text protection over photog
   title="Imagery"
 />
 
-> [!NOTE]
-> Reference: [Imagery, Material Design 1 guidelines](https://m1.material.io/style/imagery.html), the archived page Material Design 1 is pinned to. Principles, best practices, UI integration and text protection. This page is the Vue.
-
 ## Usage
 
 Material Design 1 has no image component. Images enter through the components that own them, and each brings the imagery page's rules with it:

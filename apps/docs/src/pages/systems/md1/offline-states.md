@@ -31,9 +31,6 @@ Keep an app useful without a connection: show what is available, say what is not
   title="Offline states"
 />
 
-> [!NOTE]
-> Reference: [Offline states, Material Design 1 guidelines](https://m1.material.io/patterns/offline-states.html), the archived page Material Design 1 is pinned to. Principles, states and settings, icons and the download interaction. This page is the Vue.
-
 ## Usage
 
 The guidelines give three principles:

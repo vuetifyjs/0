@@ -32,9 +32,6 @@ Onboarding, the guidelines' "warm welcome", is the first experience a new user h
   title="Onboarding"
 />
 
-> [!NOTE]
-> Reference: [Onboarding, Material Design 1 guidelines](https://m1.material.io/growth-communications/onboarding.html), the archived page Material Design 1 is pinned to. The three models, when to use each, and the platform redlines. This page is the Vue.
-
 ## Usage
 
 Show onboarding to first-time users and never to returning ones. Its goals are to welcome the user, show how the app fits their life, and drive the actions that predict engagement in the first session and retention over the first seven days. The simplest model, Quickstart, lands the user straight in the app with something to do.

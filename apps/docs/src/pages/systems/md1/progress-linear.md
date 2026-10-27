@@ -30,9 +30,6 @@ The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a hea
   title="Progress and activity"
 />
 
-> [!NOTE]
-> Reference: [Progress and activity, Material Design 1 guidelines](https://m1.material.io/components/progress-activity.html), the archived page Material Design 1 is pinned to. Types, placement and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1ProgressLinear` is a shell component with no slot content of its own. Leave `value` unset for the indeterminate bar; set it to a percentage for the determinate one. Mount it with `v-if` for the length of the operation, or keep it mounted and bind `active` when the bar should animate out as well as in.

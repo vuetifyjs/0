@@ -31,9 +31,6 @@ The Material Design 1 chip: a small block that stands for an entity, such as a f
   title="Chips"
 />
 
-> [!NOTE]
-> Reference: [Chips, Material Design 1 guidelines](https://m1.material.io/components/chips.html), the archived page Material Design 1 is pinned to. Metrics, contact chips, deletion and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1Chip` is a compound with one optional part. The default slot is the label; `icon`, `avatar`, `deletable` and `contact` select the chip types the guidelines define. A chip with no press is text printed on the sheet; bind `@click`, or set `contact`, and it becomes a button.

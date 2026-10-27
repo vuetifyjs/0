@@ -31,9 +31,6 @@ Images in Material Design 1 do not pop in. They develop like a print: opacity, e
   title="Loading images"
 />
 
-> [!NOTE]
-> Reference: [Loading images, Material Design 1 guidelines](https://m1.material.io/patterns/loading-images.html), the archived page Material Design 1 is pinned to. Opacity, exposure and saturation, duration and the position shift. This page is the Vue.
-
 ## Usage
 
 Material Design 1 has no image component; the guidelines define none. The two components that own an image, `Md1Card.Media` and `Md1GridList.Tile`, run the recipe themselves from their `src`, so an image placed through them loads the Material way with no extra code.

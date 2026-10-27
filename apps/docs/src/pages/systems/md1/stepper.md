@@ -33,9 +33,6 @@ The Material Design 1 stepper. Progress through a sequence of numbered steps, on
   title="Steppers"
 />
 
-> [!NOTE]
-> Reference: [Steppers, Material Design 1 guidelines](https://m1.material.io/components/steppers.html), the archived page Material Design 1 is pinned to. Metrics, colour, states and the mobile forms. This page is the Vue.
-
 ## Usage
 
 `Md1Stepper` is a compound. The root owns the active step through `v-model`; each `Step` is one numbered step and holds its `Content`, and `Actions` is the CONTINUE and CANCEL row at the end of a step's body. The stepper is linear by default: each step is completed before the next opens.

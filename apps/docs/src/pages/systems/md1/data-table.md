@@ -30,9 +30,6 @@ The Material Design 1 data table: raw data on a card, with a title header, sorta
   title="Data tables"
 />
 
-> [!NOTE]
-> Reference: [Data tables, Material Design 1 guidelines](https://m1.material.io/components/data-tables.html), the archived page Material Design 1 is pinned to. Metrics, colour, sorting, selection and editing. This page is the Vue.
-
 ## Usage
 
 `Md1DataTable` is a compound. The root is the table card and owns the data pipeline; the parts lay out its regions. Rows register themselves: iterate `rank(rows)` from the `Body` slot so the sorted and paged order drives the `v-for`.

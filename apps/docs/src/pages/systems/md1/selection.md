@@ -32,7 +32,7 @@ Selection lets the reader pick items and then act on them together, or highlight
 />
 
 > [!NOTE]
-> Reference: [Selection, Material Design 1 guidelines](https://m1.material.io/patterns/selection.html), the archived page Material Design 1 is pinned to, with the [Navigation](https://m1.material.io/patterns/navigation.html) page for the Back rule and [Gestures](https://m1.material.io/patterns/gestures.html) for the selection gestures. Item selection, text selection and the contextual toolbar. This page is the Vue.
+> Read with the [Navigation](https://m1.material.io/patterns/navigation.html) page for the Back rule and [Gestures](https://m1.material.io/patterns/gestures.html) for the selection gestures.
 
 ## Usage
 

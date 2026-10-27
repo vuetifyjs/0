@@ -32,9 +32,6 @@ The Material Design 1 bottom navigation bar. Three to five top-level destination
   title="Bottom navigation"
 />
 
-> [!NOTE]
-> Reference: [Bottom navigation, Material Design 1 guidelines](https://m1.material.io/components/bottom-navigation.html), the archived page Material Design 1 is pinned to. Types, metrics, colour, elevation and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1BottomNavigation` is a compound: the root is the bar and owns `v-model`, the value of the active destination. Each `Md1BottomNavigation.Action` is one destination, an icon and a short label. One action is always active; with no model bound, the first enabled action is.

@@ -31,9 +31,6 @@ Where people find answers inside a Material Design 1 app, and how they send comm
   title="Help and feedback"
 />
 
-> [!NOTE]
-> Reference: [Help and feedback, Material Design 1 guidelines](https://m1.material.io/patterns/help-feedback.html), the archived page Material Design 1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
-
 ## Usage
 
 Help is placed in the app's navigation, usually under the labels "Help" and "Send feedback". Where it goes depends on the app:

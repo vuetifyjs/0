@@ -31,9 +31,6 @@ The Material Design 1 tab bar. Fixed or scrollable tabs over a 2 dp indicator, w
   title="Tabs"
 />
 
-> [!NOTE]
-> Reference: [Tabs, Material Design 1 guidelines](https://m1.material.io/components/tabs.html), the archived page Material Design 1 is pinned to. Types, metrics, colour and behavior. This page is the Vue.
-
 ## Usage
 
 `Md1Tabs` is a compound: the root owns `v-model`, the selected tab's value. `Md1Tabs.List` is the bar, one `Md1Tabs.Item` per tab inside it, and one `Md1Tabs.Panel` per tab after it. Panels match items by `value`.

@@ -32,9 +32,6 @@ The Material Design 1 bottom sheet. A sheet of material that slides up from the 
   title="Bottom sheets"
 />
 
-> [!NOTE]
-> Reference: [Bottom sheets, Material Design 1 guidelines](https://m1.material.io/components/bottom-sheets.html), the archived page Material Design 1 is pinned to. Types, list and grid metrics, the 16:9 keyline, widths and dismissal. This page is the Vue.
-
 ## Usage
 
 `Md1BottomSheet` is a compound. The root is the sheet; `Activator` is its trigger, and the rest of its children, a `Title`, `Item` rows and `Md1Divider` sections, are its content. A modal sheet is an alternative to a menu or a simple dialog on a handset; on a wide screen a menu or a dialog usually fits better.

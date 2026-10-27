@@ -30,7 +30,7 @@ The Material Design 1 color system: a 256-swatch palette, a primary and an accen
 />
 
 > [!NOTE]
-> Reference: [Color, Material Design 1 guidelines](https://m1.material.io/style/color.html), the archived page Material Design 1 is pinned to, with the 2016 revision of the color page for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
+> The original 2014 wording comes from the 2016 revision of the color page.
 
 ## Usage
 
