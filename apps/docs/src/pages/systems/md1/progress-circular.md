@@ -61,7 +61,7 @@ The Material Design 1 circular progress indicator. An arc that grows around a ri
 
 ### Determinate
 
-The determinate arc starts at the top of the ring and grows clockwise until the ring closes, as in the spec's indicator sheet. The arc is the primary colour (`--md1-primary`, Indigo 500 in the default theme) on a 4 dp stroke, and the ring measures about 40 dp across, both measured from that sheet. Each step eases over the standard duration on the standard curve.[^step] Like the linear bar, the value should only grow.
+The determinate arc starts at the top of the ring and grows clockwise until the ring closes, as in the spec's indicator sheet. The arc is the primary colour (`--md1-primary-ink`, Indigo 500 in the default theme, and the lighter Indigo 100 on the dark theme so the arc holds 3:1 on the Grey 800 sheet) on a 4 dp stroke, and the ring measures about 40 dp across, both measured from that sheet. Each step eases over the standard duration on the standard curve.[^step] Like the linear bar, the value should only grow.
 
 Behind the arc Material Design 1 draws the rest of the ring in black at 10%, so a small value still reads as a fraction of a whole. The spec's videos show no track, so this is Vuetify 1.5's underlay, the same in both themes:[^track] on the dark theme it nearly disappears. The indeterminate ring has none.
 :::
