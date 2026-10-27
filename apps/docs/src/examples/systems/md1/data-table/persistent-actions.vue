@@ -53,7 +53,7 @@
         <Md1Button :disabled="empty" @click="onArchive">Archive</Md1Button>
       </Md1DataTable.Header>
 
-      <Md1DataTable.Table>
+      <Md1DataTable.Table aria-label="Products">
         <Md1DataTable.Head>
           <Md1DataTable.Column id="name">Product</Md1DataTable.Column>
 

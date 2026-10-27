@@ -131,7 +131,7 @@ The guidelines' other alternative header, persistent actions, is the next exampl
 
 Some table cards need a header of actions instead of a title. The guidelines offer two: the contextual header above, which appears only while rows are selected, or persistent actions, which are always in the header and are enabled upon item selection. This product list takes the second. Restock and Archive sit in the 64 dp header from the start, disabled until a row is checked; select a product or two and both turn on, and either one clears the selection when it runs.
 
-Persistent actions need no part of their own: leave `title` off `Md1DataTable.Header`, omit `Md1DataTable.Contextual`, and put borderless `Md1Button`s in the header's slot, each disabled while `selected` is empty. The labelled buttons keep the button's own ink, dropping to 26% black (30% white on dark) while disabled; only icon-only card actions take the 54% icon tier. The title is also what names the table for assistive technology, so a header of actions leaves the table unnamed; the column headers still describe every cell.
+Persistent actions need no part of their own: leave `title` off `Md1DataTable.Header`, omit `Md1DataTable.Contextual`, and put borderless `Md1Button`s in the header's slot, each disabled while `selected` is empty. The labelled buttons keep the button's own ink, dropping to 26% black (30% white on dark) while disabled; only icon-only card actions take the 54% icon tier. The title is also what names the table for assistive technology, so a header of actions needs a name from elsewhere: `aria-label` on `Md1DataTable.Table` reaches the `<table>` itself, here "Products". `aria-labelledby` works the same way when a heading outside the card already names it.
 :::
 
 ::: ds-example
