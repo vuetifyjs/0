@@ -106,6 +106,16 @@ The secondary line sits under the label in both states: "Optional" under an `opt
 :::
 
 ::: ds-example
+/systems/md1/stepper/sticky
+
+### Header pinned while scrolling
+
+In a horizontal stepper the guidelines put the step names and numbers on a horizontal bar "which can be fixed to the top of the page when scrolling down", so a long step never scrolls the reader's place in the flow out of view. `Md1Stepper` has no prop for it: the 72 dp header is an ordinary block at the top of the stepper's column, so `position: sticky` on `.md1-stepper__header` pins it to the top of whatever scrolls the page, at the `inset-block-start` you give it. Give it the stepper's fill, `--md1-stepper`, so the content passes under the bar rather than showing through it; its 2 dp shadow then reads as the bar floating over the step.
+
+The example scrolls inside a 360 dp frame standing in for the page; in an app the sticky header pins to the viewport, or to the top app bar's lower edge with `inset-block-start` set to the bar's height. The header stays pinned only while the stepper itself is on screen, since a sticky element never leaves its parent. The frame is a focusable, labelled region so a keyboard user can scroll it too.
+:::
+
+::: ds-example
 /systems/md1/stepper/editable
 
 ### Editable steps
