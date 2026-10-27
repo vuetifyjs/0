@@ -40,15 +40,14 @@
  */
 
 // Framework
-import { isElement, isNumber, isString, usePrefersReducedMotion, useReducedMotion } from '@vuetify/v0'
+import { isNumber, isString, toElement, usePrefersReducedMotion, useReducedMotion } from '@vuetify/v0'
 
 // Composables
-
 // Utilities
 import { toRef, toValue } from 'vue'
 
 // Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { ComponentPublicInstance, MaybeRefOrGetter, Ref } from 'vue'
 
 // Tokens
 import { duration, easing } from '../../design-system'
@@ -131,12 +130,9 @@ function lerp (a: number, b: number, t: number) {
   return a + (b - a) * t
 }
 
-// Md1 components render fragments, so a component's $el is the text anchor in front of its element.
+// A getter, so toElement never reads a component's own `value` prop as a ref's value.
 function resolve (target: MorphTarget): HTMLElement | undefined {
-  const value = toValue(target)
-  const node = isElement(value) ? value : value?.$el
-
-  return (isElement(node) ? node : (node as Text | undefined)?.nextElementSibling ?? undefined) as HTMLElement | undefined
+  return toElement(() => toValue(target) as ComponentPublicInstance | Element | null | undefined) as HTMLElement | undefined
 }
 
 /** A computed corner radius in px; a percentage resolves against the shorter side. */
