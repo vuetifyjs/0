@@ -138,13 +138,18 @@
 
 <!-- Unscoped, like every Material Design 1 stylesheet. -->
 <style>
-  /* The indicator colour is the primary (page video: the blue 500 range); the arc and track read it as currentColor. */
+  /*
+   * The indicator colour is the primary (page video: the blue 500 range); the
+   * arc and track read it as currentColor. `--md1-primary-ink` keeps the 500
+   * on light and takes a lighter tone of the primary on the dark sheet, where
+   * the 500 misses the 3:1 non-text floor (colour page; Lead decision 12).
+   */
   .md1-progress-circular {
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
     vertical-align: middle;
-    color: var(--md1-primary, #3F51B5);
+    color: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
   }
 
   /*

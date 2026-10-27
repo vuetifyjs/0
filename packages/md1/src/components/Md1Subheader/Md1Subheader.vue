@@ -91,7 +91,7 @@
    * (`--md1-primary-ink`, colour page).
    */
   .md1-subheader[data-primary] {
-    color: var(--md1-primary-ink, #3F51B5);
+    color: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
   }
 
   /*

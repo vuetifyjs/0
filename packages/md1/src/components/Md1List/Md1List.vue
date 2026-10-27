@@ -568,14 +568,14 @@
     box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
   }
 
-  /* Where the row will land: a 2 dp line in the primary colour on the edge of the row beside the slot (a decision). */
+  /* Where the row will land: a 2 dp line in the primary ink on the edge of the row beside the slot (a decision); a lighter primary tone on dark, for 3:1. */
   .md1-list__item[data-drop]::after {
     content: '';
     position: absolute;
     inset-inline: 0;
     z-index: 1;
     height: 2px;
-    background: var(--md1-primary, #3F51B5);
+    background: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
     pointer-events: none;
   }
 
@@ -600,7 +600,7 @@
   .md1-list__item[data-selected] .md1-list__body,
   .md1-list__item[data-selected] .md1-list__primary,
   .md1-list__item[data-selected] .md1-list__icon {
-    color: var(--md1-primary-ink, #3F51B5);
+    color: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
   }
 
   /*
@@ -642,7 +642,7 @@
   }
 
   .md1-list__group[data-state='open'] > .md1-list__header .md1-list__primary {
-    color: var(--md1-primary-ink, #3F51B5);
+    color: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
   }
 
   .md1-list__group[data-disabled] > .md1-list__header {

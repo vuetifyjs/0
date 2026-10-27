@@ -186,7 +186,7 @@
    */
   .md1-bottom-navigation__action[data-selected] {
     padding-top: 6px;
-    color: var(--md1-primary-ink, #3F51B5);
+    color: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
   }
 
   /* The coloured bar: active ink is black or white by contrast, the rest at the secondary 70%. */
