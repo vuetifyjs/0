@@ -134,6 +134,27 @@
     pointer-events: none;
   }
 
+  /*
+   * On a coloured app bar (the primary fill, or a flexible-space image) the
+   * black tiers vanish into the fill, so a toggle among the bar's actions takes
+   * the bar's white ink, as its icon buttons do: 100% while on or focused, and
+   * off at 70%, the inactive white the tabs page gives a primary bar. Disabled
+   * is 30%, Vuetify 1.5's dark disabled-button ink. Only toggles placed in the
+   * bar's own row or actions; a toggle on a sheet nested in the bar keeps the
+   * sheet's ink.
+   */
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle {
+    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.7);
+  }
+
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle:is([data-state='on'], :focus-visible) {
+    color: var(--md1-on-primary, #FFFFFF);
+  }
+
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle[data-disabled] {
+    color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.3);
+  }
+
   /* Positioned so the glyph paints above the ink layer, which is absolutely positioned and would otherwise cover it. */
   .md1-icon-toggle .md1-icon {
     position: relative;
