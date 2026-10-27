@@ -910,7 +910,7 @@ describe('quBottomNavigation', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes and keep the primary active ink on the dark one', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes and a lighter primary tone for the active ink on the dark one', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -926,8 +926,8 @@ describe('quBottomNavigation', () => {
       const [active, inactive] = nav!.querySelectorAll<HTMLElement>('.md1-bottom-navigation__action')
 
       expect(getComputedStyle(nav!).backgroundColor).toBe('rgb(66, 66, 66)')
-      // Vuetify 1.5 keeps the hue on the dark bar, Indigo 500 at under 2:1 on Grey 800 (SPEC.md Known limitations).
-      expect(getComputedStyle(active!).color).toBe('rgb(63, 81, 181)')
+      // The colour page's lighter tone of the primary: Indigo 100, 6.2:1 on the Grey 800 bar.
+      expect(getComputedStyle(active!).color).toBe('rgb(197, 202, 233)')
       expect(getComputedStyle(inactive!).color).toBe('rgba(255, 255, 255, 0.7)')
       // The coloured bar is a primary fill: the fill and its on-primary ink stay as they are.
       expect(getComputedStyle(coloured!).backgroundColor).toBe('rgb(63, 81, 181)')

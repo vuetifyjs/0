@@ -335,7 +335,7 @@ describe('quSubheader', () => {
   })
 
   describe('theme', () => {
-    it('should take its ink from the adapter sheet in both themes and keep the primary variant at the primary 500 on the dark one', async () => {
+    it('should take its ink from the adapter sheet in both themes and ink the primary variant in a lighter primary tone on the dark one', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -355,10 +355,10 @@ describe('quSubheader', () => {
 
       // The sheet and the stylesheet fallbacks agree on the light theme.
       expect(getComputedStyle(light!).color).toBe('rgba(0, 0, 0, 0.54)')
-      // Secondary ink is 70% white on the dark theme; the primary variant keeps the primary 500 there,
-      // as Vuetify 1.5 does, at about 1.5:1 on the Grey 800 sheet (SPEC.md Known limitations).
+      // Secondary ink is 70% white on the dark theme; the primary variant takes the colour page's
+      // lighter tone of the primary there, Indigo 100 at 6.2:1 on the Grey 800 sheet.
       expect(getComputedStyle(dark!).color).toBe('rgba(255, 255, 255, 0.7)')
-      expect(getComputedStyle(primary!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(primary!).color).toBe('rgb(197, 202, 233)')
       // The foundations publish Body 2 at 13 sp under a fine pointer and the tablet keylines at this viewport.
       expect(getComputedStyle(dark!).fontSize).toBe('13px')
       expect(getComputedStyle(inset!).paddingLeft).toBe('80px')

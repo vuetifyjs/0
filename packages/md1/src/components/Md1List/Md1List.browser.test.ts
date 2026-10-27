@@ -1141,7 +1141,7 @@ describe('quList', () => {
       expect(getComputedStyle(primaries[2]!).color).toBe('rgba(255, 255, 255, 0.5)')
     })
 
-    it('should keep the primary 500 on the current item and the open group title on the dark sheet', async () => {
+    it('should ink the current item and the open group title in a lighter primary tone on the dark sheet', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -1157,10 +1157,10 @@ describe('quList', () => {
 
       const [current, title] = host.querySelectorAll('.md1-list__primary')
 
-      // Vuetify 1.5 leaves the primary unchanged on dark surfaces (SPEC.md Known limitations: about 1.5:1).
-      expect(getComputedStyle(current!).color).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(host.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(title!).color).toBe('rgb(63, 81, 181)')
+      // The colour page's lighter tone of the primary: Indigo 100, 5.1:1 on the selected band, 6.2:1 on the Grey 800 sheet.
+      expect(getComputedStyle(current!).color).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(host.querySelector('.md1-list__icon')!).color).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(title!).color).toBe('rgb(197, 202, 233)')
     })
 
     it('should ink a selected option in the primary over the selected band in both themes', async () => {
@@ -1184,12 +1184,12 @@ describe('quList', () => {
 
       const [light, rest, dark] = tiles(host)
 
-      // The navigation drawer page's "List item selected" figure: primary text and icon on a black 7% band (white 7% on dark, a decision).
+      // The navigation drawer page's "List item selected" figure: primary text and icon on a black 7% band (white 7% on dark, a decision), the ink a lighter primary tone on dark.
       expect(getComputedStyle(light!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(light!.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(light!.querySelector('.md1-list__secondary')!).color).toBe('rgba(0, 0, 0, 0.54)')
       expect(getComputedStyle(light!).backgroundColor).toBe('rgba(0, 0, 0, 0.07)')
-      expect(getComputedStyle(dark!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(dark!.querySelector('.md1-list__primary')!).color).toBe('rgb(197, 202, 233)')
       expect(getComputedStyle(dark!).backgroundColor).toBe('rgba(255, 255, 255, 0.07)')
       // Selection changes ink and fill only: the selected tile is as tall as its resting neighbour.
       expect(light!.getBoundingClientRect().height).toBe(rest!.getBoundingClientRect().height)

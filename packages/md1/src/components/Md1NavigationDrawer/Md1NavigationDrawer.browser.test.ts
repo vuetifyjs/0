@@ -837,7 +837,7 @@ describe('quNavigationDrawer', () => {
   })
 
   describe('theme', () => {
-    it('should take its surface and ink from the adapter sheet in both themes, the current destination in the primary 500 on the dark one', async () => {
+    it('should take its surface and ink from the adapter sheet in both themes, the current destination in a lighter primary tone on the dark one', async () => {
       style(new Md1StyleSheetAdapter().generate({ 'md1-light': md1Colors, 'md1-dark': md1DarkColors }))
 
       const light = drawer({ bare: true, props: { type: 'permanent' }, host: { 'data-theme': 'md1-light' } })
@@ -848,9 +848,9 @@ describe('quNavigationDrawer', () => {
       expect(getComputedStyle(sheet(dark)).backgroundColor).toBe('rgb(66, 66, 66)')
       expect(getComputedStyle(dark.querySelector('#sent .md1-list__primary')!).color).toBe('rgb(255, 255, 255)')
       expect(getComputedStyle(sheet(dark)).borderRightColor).toBe('rgba(255, 255, 255, 0.12)')
-      // Vuetify 1.5 keeps the primary on the dark sheet, Indigo 500 at under 2:1 on Grey 800 (SPEC.md Known limitations).
-      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
+      // The colour page's lighter tone of the primary: Indigo 100, 5.1:1 on the selected band over Grey 800.
+      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__primary')!).color).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(dark.querySelector('#inbox .md1-list__icon')!).color).toBe('rgb(197, 202, 233)')
       // The header is a primary fill and keeps the primary 500.
       expect(getComputedStyle(dark.querySelector('.md1-navigation-drawer__header')!).backgroundColor).toBe('rgb(63, 81, 181)')
     })
