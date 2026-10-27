@@ -56,6 +56,16 @@ Focus order is source order, so lay the template out in reading order rather tha
 :::
 
 ::: ds-example
+/systems/md1/accessibility/focus-recovery
+
+### When the focused element disappears
+
+The spec asks every screen to decide where focus moves when the element in focus disappears. Deleting a row removes the very button that held focus; left alone, the browser drops focus to the document body and a keyboard or screen reader user starts over from the top of the page.
+
+Each delete button here hands focus on before it goes: to the delete button of the row that slid into its place, to the new last row when the deleted row was the last, and to the empty state's Restore downloads button when the list is empty. Restoring returns focus to the first row. The status line under the sheet announces each deletion, so a screen reader hears what happened as well as where focus landed. The same rule covers an interrupted task: when it resumes, focus goes back to the element that was focused before.
+:::
+
+::: ds-example
 /systems/md1/accessibility/large-text
 
 ### Magnification and large text
