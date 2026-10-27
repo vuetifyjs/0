@@ -164,7 +164,7 @@ A radio in the action column turns the list into a single choice. Wrap the list 
 
 `select="single"` makes the list a listbox. The root renders `ul[role=listbox]`, each tile becomes `role="option"` with `aria-selected`, and `v-model` holds the selected value. Clicking a tile, or pressing Space or Enter on it, selects it and clears the previous one.
 
-The selected tile carries the selection pattern's scrim: the `--md1-selection` token, the accent at 30%, the same fill `Md1GridList` uses. The pattern page gives no scrim value, so the alpha is a Material Design 1 decision recorded on the token.[^alpha] A disabled option stays visible at 38% ink and refuses the selection.
+The selected tile takes the primary colour on its text and icon, as the current destination does, and carries the selection pattern's scrim. The pattern page gives no scrim value, so the scrim is the selected-row fill of the data tables page, Grey 100, which is also Vuetify 1.5's selected table row; the dark theme takes Vuetify's `#505050`.[^scrim] Secondary text keeps its 54% and an avatar keeps its colours. Hover and focus layer their 4% and 12% overlays over the scrim, and nothing moves when a tile is selected. A disabled option stays visible at 38% ink and refuses the selection.
 :::
 
 ::: ds-example
@@ -265,7 +265,7 @@ Swipe gestures (leave-behinds) are touch gestures the package does not ship. Exp
 
 [^reorder-keys]: Our call: the notes ask for move-up and move-down actions on the handle; direct arrow moves skip a separate grab mode.
 
-[^alpha]: Our call: 30% of the accent keeps the row's text readable under it.
+[^scrim]: Vuetify 1.5.24, stylus/settings/_theme.styl:83-84 and 188-189: `table.active` is grey lighten-4 on light and `#505050` on dark. Vuetify's list tile has no selected fill. On the dark scrim the primary 500 text reads at about 1.2:1, below the contrast floor, like the current destination on the dark sheet.
 
 [^duration]: Our call: the lists: controls page gives no timing; the standard duration is the motion page's default for on-screen changes.
 
