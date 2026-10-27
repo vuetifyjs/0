@@ -125,6 +125,18 @@ The guidelines also position a simple menu over the emitting control so the sele
 :::
 
 ::: ds-example
+/systems/md1/menu/list-item
+
+### Over a list item
+
+On mobile and tablet the menus page uses simple menus in lists to display the options for a specific list item. Each row here is the menu's activator: `Md1Menu.Activator` hands its `attrs` to an `Md1List.Item`, which renders as a button with the menu's ARIA and handlers on it. Choosing a ringtone commits it at once and closes the menu, and the row's secondary line shows the new value.
+
+The page asks that the currently selected menu item align vertically over the list item, never the first item by default. The sheet opens with the selected row centred on the 72 dp list row, so Luna opens with the rows above it reaching up past the list and Ariel opens with the sheet hanging below. The sheet's start edge sits on the row's. On a handset neither row carries an icon, so the list text and the menu text share the 16 dp keyline and the selected item's label lands on the row's label. From 600 px the list moves its text to the 24 dp tablet keyline while the menu keeps 16 dp, so the menu's label sits 8 dp toward the start of the row's. Near a screen edge the sheet still shifts as a whole to keep every item visible.
+
+A list may hold only rows, so each `Md1Menu.Content` rides in an `<li role="none">` with `display: contents`. The sheet opens in the top layer, so that row takes no space in the list.
+:::
+
+::: ds-example
 /systems/md1/menu/long
 
 ### Screen edges and long menus
