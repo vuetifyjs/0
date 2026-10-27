@@ -64,8 +64,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Fail loud if any just-published version is not actually visible on npm yet
-      # (guards the partial-publish / propagation-lag failure mode).
+      # Log whether each just-published version is readable yet. A lagging read
+      # does not fail the job: v1.3.0 and v1.3.1 were both accepted by npm and
+      # both still invisible to `npm view` at 143s (they appeared at ~160s),
+      # and failing here skipped the tag. A prerelease on `latest` still fails.
       - name: Verify published
         if: steps.changesets.outputs.published == 'true'
         env:
@@ -75,9 +77,18 @@ jobs:
       # One aggregate GitHub Release for the substrate (@vuetify/v0 + @vuetify/paper
       # share a version) on a `v*` tag, so downstream tooling keyed off a single
       # versioned release keeps working, plus a separate release for each design
-      # system (@paper/*). Runs last so a red publish/verify never mints a release.
+      # system (@paper/*).
+      #
+      # Not gated on `published == true`. That gate is what stranded v1.3.1: the
+      # PUT succeeded, verify timed out on the packument, this step was skipped,
+      # and every later master push skipped it again because there was nothing
+      # new to publish. An explicit `if` replaces the default success() check, so
+      # a red verify still reaches here. The script mints only missing tags whose
+      # version document exists, and it tags the version-bump commit rather than
+      # HEAD. A no-op publish therefore reconciles a stranded release instead of
+      # opening a second one.
       - name: GitHub releases
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.conclusion == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SHA: ${{ github.sha }}

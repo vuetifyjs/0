@@ -24,7 +24,7 @@
 // CI-only edit, always restored) so `changeset publish` skips it. That removes the
 // only path to the crash. Genuinely-new versions are untouched — they publish and
 // print their `New tag:` lines, so the changesets action still sets its `published`
-// / `publishedPackages` outputs and the release steps fire.
+// / `publishedPackages` outputs and the verify step fires.
 //
 // Two swallows remain as defense-in-depth for anything the pre-skip misses (e.g. a
 // version that lands on npm between the precheck and the publish attempt):
@@ -36,9 +36,11 @@
 // Any other failure (auth, network, a real partial publish, a genuinely new
 // version that failed to land) still propagates and fails the workflow loud, and
 // neither swallow ever fabricates `New tag:` lines: a clean skip must leave
-// `published` false so the release step is skipped, not looped on a no-op.
+// `published` false. The release step still runs after a successful changesets
+// step and only mints tags that do not exist yet.
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { npmVersionVisible } from './lib/npm-visible.js'
 
 // Matches npm's already-published rejection in either phrasing.
 const ALREADY_PUBLISHED = /cannot publish over the previously published|EPUBLISHCONFLICT/i
@@ -47,11 +49,10 @@ const ALREADY_PUBLISHED = /cannot publish over the previously published|EPUBLISH
 // underlying error message we classify against.
 const PUBLISH_ERROR = /an error occurred while publishing \S+: (.+)/g
 
-// `npm view name@version` exits non-zero when that exact version is not on the
-// registry — the "is it published?" signal used both to pre-skip already-live
-// packages and to confirm a crash stranded nothing.
+// Version document, not the packument. A lagging `npm view` would miss a
+// version that just landed and this wrapper would try to publish it again.
 function onNpm (name, version) {
-  return spawnSync('npm', ['view', `${name}@${version}`, 'version'], { stdio: 'ignore' }).status === 0
+  return npmVersionVisible(name, version)
 }
 
 // Discover every publishable (non-private) workspace package and split it into the
