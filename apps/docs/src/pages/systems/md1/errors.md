@@ -110,6 +110,16 @@ The status starts past the limit. Over it, `Md1TextField` turns to its error sta
 :::
 
 ::: ds-example
+/systems/md1/errors/counter-multiline
+
+### Multi-line field over the count
+
+The guidelines show the counter on a multi-line field too, and pair it there with error text. This review is limited to 140 characters and starts past it. The counter at the end of the details row reads the overrun, and the error text at the start of the same row says what to do about it: shorten the review to 140 characters. The field grows downward as it wraps, so the counter and the message stay under the last line, 8 dp below it.
+
+The counter turns the field red on its own; the message is passed through `error-messages`, derived from the length of the text. It leaves the moment the text fits, on the same keystroke that turns the counter back to the hint ink. A live message suits a measurable limit like this one, which the user can watch shrink as they edit; a rule the user cannot satisfy as they type, such as a malformed address, still waits for blur.
+:::
+
+::: ds-example
 /systems/md1/errors/list-error
 
 ### Error in a single-line list
