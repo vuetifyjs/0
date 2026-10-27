@@ -1,9 +1,9 @@
 <script lang="ts">
   // Framework
-  import { createContext, createStep, isString, isUndefined, provideStepRoot, useId, useLocale, useLogger, useProxyModel } from '@vuetify/v0'
+  import { createContext, createStep, isString, isUndefined, provideStepRoot, useId, useLocale, useLogger, useMutationObserver, useProxyModel } from '@vuetify/v0'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { StepContext, StepTicket } from '@vuetify/v0'
@@ -123,6 +123,30 @@
     outlet,
   })
 
+  /*
+   * Steps register in setup order, so a step that a v-if or v-for inserts
+   * between two others registers last: it would be numbered last and NEXT
+   * would skip it. Whenever the header's steps change, the registry is put
+   * back in document order. A step removed from the middle leaves the order
+   * right but the later steps' indexes stale (the registry defers that
+   * reindex), so it is drained here too. A step's label id is its registry id
+   * plus `-label`; only the header's own items count, not a nested stepper's.
+   */
+  const header = useTemplateRef<HTMLOListElement>('header')
+
+  function order () {
+    const labels = header.value?.querySelectorAll(':scope > li > .md1-stepper__label') ?? []
+    const ids = Array.from(labels, label => label.id.slice(0, -'-label'.length))
+    const keys = step.keys()
+
+    if (ids.length !== keys.length) return
+
+    if (ids.some((id, index) => id !== keys[index])) step.reorder(ids)
+    else if (step.values().some((ticket, index) => ticket.index !== index)) step.reindex()
+  }
+
+  useMutationObserver(header, order, { childList: true })
+
   const count = toRef(() => step.size)
   const position = toRef(() => step.selectedIndex.value + 1)
 
@@ -140,7 +164,7 @@
   >
     <div v-if="mobile === 'text'" class="md1-stepper__counter">{{ counter }}</div>
 
-    <ol class="md1-stepper__header">
+    <ol ref="header" class="md1-stepper__header">
       <slot />
     </ol>
 
