@@ -131,6 +131,16 @@ Reactions spread from the point of input, as ink does. Press a photo and the gri
 :::
 
 ::: ds-example
+/systems/md1/motion/color-reveal
+
+### Colour from the point of touch
+
+The choreography page's other radial reaction: "Starting from the point of touch, the app bar changes color with the new color rippling outwards." Each tab of this library owns a colour, Indigo, Teal and Deep Orange 500, and pressing a tab spreads the new colour across the bar as a circle centred where the press landed, growing until it reaches the bar's farthest corner. The tab under the finger changes first and the far edge last, so the change reads as a consequence of the press.
+
+Material Design 1 has no component for this; the colour here is example content, not a toolbar prop. The example paints the bar on two layers behind a transparent `Md1Toolbar`, the old colour and the new one, and animates the new layer's `clip-path: circle()` with the Web Animations API over the standard 300 ms on the standard curve. A keyboard selection has no press point, so the wave starts from the centre of the selected tab. Under reduced motion the colour changes at once.
+:::
+
+::: ds-example
 /systems/md1/motion/ink
 
 ### Ink reaction
