@@ -70,7 +70,7 @@ Navigation history is not created by switching views with tabs, swiping or a dro
 | Cascading drawer (desktop) | `Md1NavigationDrawer` with `Md1Menu.Sub` panels | Deep hierarchies shown as horizontal panels; a level closes when a subsection is chosen |
 | In-context navigation | `Md1List`, `Md1Card` and links in the content | Large sets of child scenes; the up arrow returns to the previous level |
 
-Combined forms follow from the same parts: a drawer with tabs for two levels of navigation, and on desktop a drawer with nested navigation plus tabs for three. Gestural navigation between siblings is limited to what `Md1Tabs` provides; Material Design 1 ships no swipe gestures.
+Combined forms follow from the same parts: a drawer with tabs for two levels of navigation, and on desktop a drawer with nested navigation plus tabs for three. Gestural navigation between siblings is limited to what `Md1Tabs` provides: the package's `SPEC.md` rules gestures out of scope and lists swipe navigation, panel swipe among it, under its [known limitations](https://github.com/vuetifyjs/0/blob/master/packages/md1/SPEC.md#known-limitations), each with a button, keyboard or scrim path instead.
 
 ## Up and back
 
