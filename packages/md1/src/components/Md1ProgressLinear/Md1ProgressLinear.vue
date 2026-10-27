@@ -176,10 +176,16 @@
     height: 100%;
   }
 
-  /* The track is the indicator colour at 30% (measured 0.33 over the sheet). */
+  /*
+   * The track is the indicator colour at 30% (measured 0.33 over the sheet).
+   * The indicator is `--md1-primary-ink`: the 500 on light, and a lighter tone
+   * of the primary on the dark sheet, where the 500 misses the 3:1 non-text
+   * floor (colour page; Lead decision 12). Bar, track, buffer and trail all
+   * take it, so they stay one hue.
+   */
   .md1-progress-linear__track {
     width: 100%;
-    background: rgb(var(--md1-primary-channels, 63 81 181) / 0.3);
+    background: rgb(var(--md1-primary-ink-channels, var(--md1-primary-channels, 63 81 181)) / 0.3);
   }
 
   /*
@@ -195,7 +201,7 @@
   }
 
   .md1-progress-linear__buffer {
-    background: rgb(var(--md1-primary-channels, 63 81 181) / 0.3);
+    background: rgb(var(--md1-primary-ink-channels, var(--md1-primary-channels, 63 81 181)) / 0.3);
     transition: width var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
@@ -205,7 +211,7 @@
     inset-block: 0;
     inset-inline-start: 100%;
     width: 100vw;
-    background: radial-gradient(circle, rgb(var(--md1-primary-channels, 63 81 181) / 0.3) 0 1px, transparent 1.5px) 0 0 / 8px 4px repeat-x;
+    background: radial-gradient(circle, rgb(var(--md1-primary-ink-channels, var(--md1-primary-channels, 63 81 181)) / 0.3) 0 1px, transparent 1.5px) 0 0 / 8px 4px repeat-x;
   }
 
   /*
@@ -215,7 +221,7 @@
    */
   .md1-progress-linear__fill {
     width: 0;
-    background: var(--md1-primary, #3F51B5);
+    background: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
     transition: width var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
 
@@ -234,7 +240,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    background: var(--md1-primary, #3F51B5);
+    background: var(--md1-primary-ink, var(--md1-primary, #3F51B5));
     animation-duration: var(--md1-progress-linear-cycle, 2.2s);
     animation-timing-function: var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
     animation-iteration-count: infinite;
