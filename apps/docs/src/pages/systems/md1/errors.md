@@ -128,7 +128,7 @@ The form is v0's `Form`, and each `Md1TextField` registers with it. Calling the 
 
 Confirm email shows the incompatible values rule: when two fields disagree, the field that needs the fix carries the message, and the summary explains it. Display an incomplete-form error as soon as the user moves past a field they skipped; when the app cannot tell how far the user got, wait for the submit, as this example does.
 
-`Md1Button` always renders `type="button"`, so the form is submitted by calling the slot's `submit()` from the button's click rather than by a native submit.
+Create account sits at the start of the form, under the last field. The guidelines place a form's affirmative button on the left, the side the eye reaches first after the fields; in a right-to-left layout it moves to the right. `Md1Button` always renders `type="button"`, so the form is submitted by calling the slot's `submit()` from the button's click rather than by a native submit.
 :::
 
 ::: ds-example

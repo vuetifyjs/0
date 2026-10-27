@@ -123,9 +123,10 @@
     line-height: var(--md1-type-body-1-leading, 20px);
   }
 
+  /* Forms place the affirmative button at the start, under the fields it submits. */
   .md1-docs-errors-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 
   .md1-docs-errors-note {
