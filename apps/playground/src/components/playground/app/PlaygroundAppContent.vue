@@ -34,6 +34,13 @@
 
   onMounted(distribute)
 
+  // The chooser unmounts this splitter. onMounted does not run again when
+  // it comes back, so a closed intro would keep the default 30% gap.
+  watch(root, value => {
+    if (!value) return
+    nextTick(distribute)
+  }, { flush: 'post' })
+
   // Re-distribute when left panel toggles or viewport changes.
   // flush: 'post' + nextTick ensures this runs after the Splitter's
   // own auto-redistribute watcher has settled.
@@ -45,7 +52,10 @@
 </script>
 
 <template>
+  <PlaygroundChoose v-if="playground.choosing.value" />
+
   <SplitterRoot
+    v-else
     ref="root"
     class="flex-1 min-h-0"
     orientation="horizontal"

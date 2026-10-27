@@ -61,9 +61,9 @@
     /** Step increment (default: 1) */
     step?: number
     /** Disables the slider */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Readonly — focusable but not editable */
-    readonly?: MaybeRefOrGetter<boolean>
+    readonly?: boolean | MaybeRefOrGetter<boolean>
     /** Slider orientation */
     orientation?: 'horizontal' | 'vertical'
     /** Flip the percent axis */

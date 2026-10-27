@@ -34,7 +34,7 @@
     /** Value associated with this option */
     value?: V
     /** Disables this specific option */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
   }
 
   export interface SelectItemSlotProps<V = unknown> {

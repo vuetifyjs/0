@@ -7,23 +7,23 @@
   "categories": ["meta"],
   "order": 4,
   "prerequisites": [],
-  "description": "Learn how to read the generated API reference — one block per part, a filter, slots, and the hover card.",
-  "minutes": 4,
+  "description": "Learn how to read the generated API reference: the parts, the inline list, a filter, one prop and its event, the slots, and the hover card.",
+  "minutes": 5,
   "startRoute": "/components/disclosure/tabs",
   "steps": [
     {
       "id": "reference",
       "title": "API Reference",
       "task": "Every component page ends here. This block is generated from the source. It is not a hand-written table.",
-      "hint": "",
+      "hint": "Composable pages end with the same kind of block. Theirs lists functions, options, properties, and methods instead of props, events, and slots.",
       "learn": "Find the generated reference on a component page",
       "placement": "top"
     },
     {
       "id": "parts",
       "title": "One card per part",
-      "task": "Tabs is a compound. Each card is one part — Root, List, Item, Panel — with its own props, events, and slots.",
-      "hint": "",
+      "task": "Tabs is a compound. Each card is one part: Root, List, Item, and Panel, with its own props, events, and slots.",
+      "hint": "The line under a name is a count, not a summary. It always includes props. Events and slots appear only when that part has them.",
       "learn": "Read a compound as separate parts",
       "placement": "top"
     },
@@ -31,7 +31,7 @@
       "id": "inline",
       "title": "Open it here",
       "task": "We opened the reference on this page. Show inline expands every part in place. The link cards were only the index.",
-      "hint": "",
+      "hint": "Show inline is also a switch in the page settings, so you can leave every component page expanded. This tour puts your previous choice back when it ends.",
       "learn": "Expand the reference inline",
       "placement": "bottom",
       "placementMobile": "top"
@@ -40,23 +40,47 @@
       "id": "filter",
       "title": "Filter the page",
       "task": "We typed model. The filter matches names and descriptions on this page only. It does not search the rest of the docs.",
-      "hint": "",
+      "hint": "A part name such as Item shows that part in full, and a word from a description matches too. Case does not matter, and clearing the field brings every part back.",
       "learn": "Filter one page's reference",
       "placement": "bottom"
     },
     {
       "id": "props",
       "title": "Props",
-      "task": "We cleared the filter. This is Tabs.Root's props. modelValue is the active tab. Defaults are listed on the prop; they are not a separate column.",
-      "hint": "",
+      "task": "We cleared the filter. This is the props list for Tabs.Root. Every prop on this part is a row in this list.",
+      "hint": "The name, the type, the description, and the default, when there is one, all sit on that row. Events and slots for the same part follow below.",
       "learn": "Read a part's props",
+      "placement": "top"
+    },
+    {
+      "id": "model",
+      "title": "One prop",
+      "task": "modelValue is the active tab. The only thing under the name is the type: T, a list of T, or undefined.",
+      "hint": "Bind it with v-model. This row has no default chip. Whether a tab starts selected is the next prop, mandatory.",
+      "learn": "Read a single prop row",
+      "placement": "top"
+    },
+    {
+      "id": "mandatory",
+      "title": "The default",
+      "task": "mandatory decides whether a tab has to stay selected. The default on this row is force, which selects the first tab that is not disabled.",
+      "hint": "Read the default together with the description. false means nothing is forced, true keeps the last selected tab, and force picks one for you.",
+      "learn": "Use a prop's default and its description together",
+      "placement": "top"
+    },
+    {
+      "id": "events",
+      "title": "The event",
+      "task": "update:model-value fires when the selected tab changes. v-model is modelValue plus this event, so you usually do not listen to it yourself.",
+      "hint": "The payload is the new value, the same type as modelValue. Listen here when you need the change without binding the prop.",
+      "learn": "See the event behind v-model",
       "placement": "top"
     },
     {
       "id": "slots",
       "title": "Slots",
       "task": "Tabs.Item's slot gives you isSelected, isDisabled, and attrs. attrs already contains onClick. Bind attrs to your own element only when the item is renderless. Binding them onto a child of the default button fires the click twice.",
-      "hint": "",
+      "hint": "The item renders a button unless it is renderless. On that button, attrs is already applied, including onClick, so a click on a child runs both.",
       "learn": "Read slot props and know when to bind attrs",
       "placement": "top"
     },
@@ -64,16 +88,16 @@
       "id": "hover",
       "title": "Hover a name",
       "task": "We hovered Tabs.Root in the page. The card is the same reference: props, a docs link, and the API page.",
-      "hint": "",
+      "hint": "The card opens for names this site recognizes, and it shows the same props you just read, plus a docs link and the API page. Other code on the page stays plain.",
       "learn": "Open the reference from a name in the prose",
       "placement": "top"
     },
     {
       "id": "standalone",
       "title": "Same data, own page",
-      "task": "View standalone opens this reference on its own URL. Inline and standalone read one dataset.",
-      "hint": "",
-      "learn": "Open the standalone API page",
+      "task": "The label says View standalone. It closes this list and shows the part cards again. Those cards open the same reference on its own page.",
+      "hint": "The page for Tabs is /api/tabs. A card takes you there. This button only brings the cards back.",
+      "learn": "Bring the part cards back",
       "placement": "bottom",
       "placementMobile": "top"
     },
@@ -81,7 +105,7 @@
       "id": "conclusion",
       "title": "That's the reference",
       "task": "Cards for the parts, inline for the details, hover when a name shows up in the prose.",
-      "hint": "",
+      "hint": "Composable pages use the same layout. You will see functions, options, properties, and methods in place of props, events, and slots.",
       "learn": "Read an API reference without hunting",
       "noActivator": true
     }

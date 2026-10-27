@@ -1,29 +1,24 @@
 <script setup lang="ts">
   // Framework
-  import { Collapsible, createStep } from '@vuetify/v0'
+  import { Carousel, Tooltip, useMediaQuery, useResizeObserver } from '@vuetify/v0'
 
   // Constants
   import { MATURITY_LEVELS as levels } from '@/constants/maturity'
-  import { type FeatureType, type ResolvedRelease, releases } from '@/constants/roadmap-buckets'
+  import { type ResolvedRelease, releases } from '@/constants/roadmap-buckets'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
-  import { RouterLink } from 'vue-router'
+  import { ref, shallowRef, toRef, useTemplateRef } from 'vue'
+
+  // Types
+  import type { TooltipActivatorSlotProps } from '@vuetify/v0'
 
   const items = releases()
-  const count = items.length
 
   const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
   // Destination tiers on the maturity ladder — the two moves a release makes.
-  const ARRIVING = { color: levels.preview.color, icon: 'arrow-up-circle', label: 'Arriving (reaches preview)' }
-  const GRADUATING = { color: levels.stable.color, icon: 'shield-check', label: 'Graduating to stable' }
-
-  const typeIcon: Record<FeatureType, string> = {
-    composable: 'code',
-    component: 'puzzle',
-    utility: 'typescript',
-  }
+  const ARRIVING = { color: levels.preview.color, label: 'Arriving (reaches preview)' }
+  const GRADUATING = { color: levels.stable.color, label: 'Graduating to stable' }
 
   interface DateParts { year: number, month: number, day: number }
 
@@ -102,190 +97,248 @@
     return `color-mix(in srgb, ${color} ${pct}%, transparent)`
   }
 
-  const step = createStep({ mandatory: 'force' })
-  step.onboard(items.map(release => ({ id: release.title, value: release.title })))
-  step.select(items[0].title)
+  // One row: a month fills it below 640px, two share it from there up.
+  // perView matches that split so Next stops on a full row.
+  const { matches: wide } = useMediaQuery('(min-width: 640px)')
+  const perView = toRef(() => wide.value ? 2 : 1)
 
-  const selectedTitle = toRef(() => step.selectedValue.value)
-  const selectedIndex = toRef(() => step.selectedIndex.value)
-  const selected = toRef(() => items.find(release => release.title === selectedTitle.value))
+  // Padding is the peek. Slides fill the content box, so the neighbor sits in
+  // the padding. The fade covers that padding only on a side that has more months.
+  const PEEK = '3rem'
+  const monthIndex = toRef(() => {
+    const index = months.findIndex(month => month.key === activeMonth.value)
+    return Math.max(index, 0)
+  })
+  const hasPrev = toRef(() => monthIndex.value > 0)
+  const hasNext = toRef(() => monthIndex.value < months.length - perView.value)
+  const rowStyle = toRef(() => {
+    const left = hasPrev.value ? PEEK : '0px'
+    const right = hasNext.value ? PEEK : '0px'
+    const mask = `linear-gradient(to right, transparent, #000 ${left}, #000 calc(100% - ${right}), transparent)`
+    return {
+      paddingInline: PEEK,
+      maskImage: mask,
+      WebkitMaskImage: mask,
+    }
+  })
 
-  const calendarOpen = shallowRef(false)
+  const now = new Date()
+  const currentKey = `${now.getFullYear()}-${now.getMonth()}`
+  const activeMonth = shallowRef(months.some(month => month.key === currentKey) ? currentKey : months[0].key)
 
-  function longDate (iso: string): string {
+  function isToday (key: string, cell: Cell): boolean {
+    return !cell.adjacent && key === currentKey && cell.day === now.getDate()
+  }
+
+  // Hover opens the highlight. A tap does too — touch has no hover — and a
+  // mouse click does not, so the day is not a control.
+  const shown = ref<Record<string, boolean>>({})
+  let touch = false
+
+  function onPointerdown (event: PointerEvent) {
+    touch = event.pointerType === 'touch'
+  }
+
+  function onTouchOpen (title: string) {
+    if (!touch) return
+    shown.value[title] = true
+  }
+
+  function hoverAttrs (attrs: TooltipActivatorSlotProps['attrs']) {
+    const { onClick: _onClick, ...rest } = attrs
+    return rest
+  }
+
+  function dayStyle (release: ResolvedRelease): Record<string, string> {
+    return {
+      background: tint(accent(release), 12),
+      boxShadow: `inset 0 0 0 1px ${tint(accent(release), 45)}`,
+    }
+  }
+
+  function shortDate (iso: string): string {
     const at = parts(iso)
     return new Date(at.year, at.month, at.day).toLocaleDateString('en-US', {
-      weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+      month: 'short', day: 'numeric', year: 'numeric',
     })
   }
+
+  function releaseLabel (release: ResolvedRelease): string {
+    return `${release.title}, ${shortDate(release.date)}: ${release.features.length} arriving, ${release.stabilizing.length} graduating to stable`
+  }
+
+  // The carousel selects the current month before the viewport has a slide
+  // step, and that scroll is not retried. Nudge the row once it has a width.
+  const rootEl = useTemplateRef<HTMLElement>('root')
+  let placed = false
+
+  useResizeObserver(rootEl, () => {
+    if (placed) return
+    const root = rootEl.value
+    const viewport = root?.querySelector<HTMLElement>('[data-orientation]')
+    const slide = root?.querySelector<HTMLElement>(`[data-month="${CSS.escape(activeMonth.value)}"]`)
+    if (!viewport || !slide || viewport.clientWidth === 0) return
+
+    const pad = Number.parseFloat(getComputedStyle(viewport).paddingInlineStart) || 0
+    const left = slide.getBoundingClientRect().left - viewport.getBoundingClientRect().left + viewport.scrollLeft - pad
+    viewport.scrollLeft = left
+    placed = true
+  }, { immediate: true })
+
 </script>
 
 <template>
-  <div class="my-6">
-    <!-- Legend -->
-    <div class="flex items-center justify-end gap-4 mb-3 text-xs text-on-surface-variant">
-      <span class="inline-flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full" :style="{ background: ARRIVING.color }" />
-        {{ ARRIVING.label }}
-      </span>
-
-      <span class="inline-flex items-center gap-1.5">
-        <span class="w-2.5 h-2.5 rounded-full" :style="{ background: GRADUATING.color }" />
-        {{ GRADUATING.label }}
-      </span>
-    </div>
-
-    <!-- Selected release detail (always visible; step through releases) -->
-    <div
-      v-if="selected"
-      aria-live="polite"
-      class="rounded-xl bg-surface border border-divider p-4"
-      :style="{ borderInlineStartWidth: '4px', borderInlineStartColor: accent(selected) }"
-    >
-      <div class="flex items-center gap-2 flex-wrap">
-        <button
-          aria-label="Previous release"
-          class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
-          :disabled="selectedIndex === 0"
-          type="button"
-          @click="step.prev()"
-        >
+  <div ref="root" class="my-6">
+    <Carousel.Root v-model="activeMonth" label="Release calendar" :per-view>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
+        <Carousel.Previous class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors">
           <AppIcon icon="chevron-left" :size="18" />
-        </button>
+        </Carousel.Previous>
 
-        <h3 class="text-lg font-mono font-bold">{{ selected.title }}</h3>
-        <span class="text-sm text-on-surface-variant">{{ longDate(selected.date) }}</span>
-
-        <button
-          aria-label="Next release"
-          class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
-          :disabled="selectedIndex === count - 1"
-          type="button"
-          @click="step.next()"
-        >
+        <Carousel.Next class="grid place-items-center w-7 h-7 rounded-md hover:bg-surface-tint disabled:opacity-30 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors">
           <AppIcon icon="chevron-right" :size="18" />
-        </button>
+        </Carousel.Next>
 
-        <span class="ms-auto inline-flex items-center gap-3 text-xs">
-          <span v-if="selected.features.length > 0" class="inline-flex items-center gap-1" :style="{ color: ARRIVING.color }">
-            <AppIcon :icon="ARRIVING.icon" :size="13" /> {{ selected.features.length }} arriving
+        <div class="ms-auto flex flex-wrap items-center justify-end gap-4 text-xs text-on-surface-variant">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full" :style="{ background: ARRIVING.color }" />
+            {{ ARRIVING.label }}
           </span>
 
-          <span v-if="selected.stabilizing.length > 0" class="inline-flex items-center gap-1" :style="{ color: GRADUATING.color }">
-            <AppIcon :icon="GRADUATING.icon" :size="13" /> {{ selected.stabilizing.length }} graduating
+          <span class="inline-flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full" :style="{ background: GRADUATING.color }" />
+            {{ GRADUATING.label }}
           </span>
-        </span>
+        </div>
       </div>
 
-      <div class="mt-4 space-y-4">
-        <!-- Net-new features -->
-        <div v-if="selected.features.length > 0">
-          <div class="text-xs font-semibold uppercase tracking-wide opacity-60 mb-2">New in this release</div>
-
-          <div class="flex flex-wrap gap-2">
-            <component
-              :is="feature.level === 'draft' ? 'span' : RouterLink"
-              v-for="feature in selected.features"
-              :key="feature.id"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border no-underline"
-              :class="feature.level === 'draft' ? 'cursor-default' : 'hover:bg-surface-tint transition-colors'"
-              :style="{ borderColor: levels[feature.level].color, color: levels[feature.level].color }"
-              :to="feature.level !== 'draft' ? feature.path : undefined"
-            >
-              <AppIcon :icon="typeIcon[feature.type]" :size="12" />
-              {{ feature.name }}
-            </component>
+      <Carousel.Viewport class="flex-nowrap gap-3 cursor-grab data-[dragging]:cursor-grabbing" :style="rowStyle">
+        <Carousel.Item
+          v-for="month in months"
+          :key="month.key"
+          class="shrink-0 w-full sm:w-[calc((100%-0.75rem)/2)] rounded-xl border p-3"
+          :class="month.key === currentKey ? 'border-primary/40 bg-primary/5' : 'border-divider bg-surface'"
+          :data-month="month.key"
+          :value="month.key"
+        >
+          <div class="flex items-baseline justify-between mb-2 px-0.5">
+            <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
+            <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
           </div>
-        </div>
 
-        <!-- Graduating to stable -->
-        <div v-if="selected.stabilizing.length > 0">
-          <div class="text-xs font-semibold uppercase tracking-wide opacity-60 mb-2">Graduating to stable</div>
-
-          <div class="flex flex-wrap gap-2">
-            <RouterLink
-              v-for="feature in selected.stabilizing"
-              :key="feature.id"
-              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border no-underline hover:bg-surface-tint transition-colors"
-              :style="{ borderColor: GRADUATING.color, color: GRADUATING.color }"
-              :to="feature.path"
+          <div class="grid grid-cols-7 gap-0.5">
+            <div
+              v-for="(weekday, w) in WEEKDAYS"
+              :key="`w-${month.key}-${w}`"
+              class="h-5 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
             >
-              <AppIcon :icon="typeIcon[feature.type]" :size="12" />
-              {{ feature.name }}
-            </RouterLink>
-          </div>
-        </div>
-
-        <p v-if="selected.stabilizing.length === 0" class="text-sm text-on-surface-variant">
-          No stable graduations this release — the two-minor clock resets at v1.0, so the first stable wave lands in v1.3.0.
-        </p>
-      </div>
-    </div>
-
-    <!-- Full calendar, collapsed by default -->
-    <Collapsible.Root v-model="calendarOpen" class="mt-3">
-      <Collapsible.Activator class="w-full flex items-center justify-center gap-1.5 py-2 text-sm font-medium text-primary rounded-lg hover:bg-surface-tint transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-        <AppIcon :icon="calendarOpen ? 'chevron-up' : 'chevron-down'" :size="16" />
-        {{ calendarOpen ? 'Hide calendar' : 'Show calendar' }}
-      </Collapsible.Activator>
-
-      <Collapsible.Content>
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
-          <div v-for="month in months" :key="month.key" class="border border-divider rounded-xl bg-surface p-3">
-            <div class="flex items-baseline justify-between mb-2 px-0.5">
-              <span class="text-sm font-semibold tracking-tight">{{ month.month }}</span>
-              <span class="text-[11px] font-mono text-on-surface-variant/50">{{ month.year }}</span>
+              {{ weekday }}
             </div>
 
-            <div class="grid grid-cols-7 gap-0.5">
-              <div
-                v-for="(weekday, w) in WEEKDAYS"
-                :key="`w-${w}`"
-                class="h-5 grid place-items-center text-[10px] font-medium text-on-surface-variant/40"
+            <template v-for="(cell, index) in month.cells">
+              <Tooltip.Root
+                v-if="cell.release"
+                :key="`r-${month.key}-${index}`"
+                :close-delay="200"
+                interactive
+                :model-value="!!shown[cell.release.title]"
+                :open-delay="200"
+                position-area="top"
+                position-try="most-height top"
+                @update:model-value="shown[cell.release.title] = $event"
               >
-                {{ weekday }}
+                <Tooltip.Activator v-slot="{ attrs, styles }" renderless>
+                  <div
+                    :aria-label="releaseLabel(cell.release)"
+                    class="relative h-8 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-default transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+                    :style="[styles, dayStyle(cell.release)]"
+                    tabindex="0"
+                    v-bind="hoverAttrs(attrs)"
+                    @click="onTouchOpen(cell.release.title)"
+                    @pointerdown="onPointerdown"
+                  >
+                    <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
+                    <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
+
+                    <span class="absolute inset-x-0 bottom-0 h-1 flex">
+                      <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
+                      <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
+                    </span>
+                  </div>
+                </Tooltip.Activator>
+
+                <Tooltip.Content
+                  class="w-72 rounded-xl border border-divider bg-surface p-3 text-start text-on-surface shadow-lg"
+                  :style="{ margin: '8px 0' }"
+                >
+                  <div class="flex items-baseline justify-between gap-3">
+                    <span class="text-sm font-semibold tracking-tight">{{ cell.release.title }}</span>
+                    <span class="shrink-0 text-[11px] font-mono text-on-surface-variant">{{ shortDate(cell.release.date) }}</span>
+                  </div>
+
+                  <div class="mt-2.5 space-y-2.5">
+                    <div v-if="cell.release.features.length > 0">
+                      <div class="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+                        <span class="h-1.5 w-1.5 rounded-full" :style="{ background: ARRIVING.color }" />
+                        Arriving
+                      </div>
+
+                      <div class="flex flex-wrap gap-1">
+                        <span
+                          v-for="feature in cell.release.features"
+                          :key="feature.id"
+                          class="rounded-md px-1.5 py-0.5 text-[11px] font-mono"
+                          :style="{ background: tint(ARRIVING.color, 16), color: ARRIVING.color }"
+                        >
+                          {{ feature.name }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div v-if="cell.release.stabilizing.length > 0">
+                      <div class="mb-1 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-on-surface-variant">
+                        <span class="h-1.5 w-1.5 rounded-full" :style="{ background: GRADUATING.color }" />
+                        Graduating
+                      </div>
+
+                      <div class="flex flex-wrap gap-1">
+                        <span
+                          v-for="feature in cell.release.stabilizing"
+                          :key="feature.id"
+                          class="rounded-md px-1.5 py-0.5 text-[11px] font-mono"
+                          :style="{ background: tint(GRADUATING.color, 16), color: GRADUATING.color }"
+                        >
+                          {{ feature.name }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p
+                      v-if="cell.release.features.length === 0 && cell.release.stabilizing.length === 0"
+                      class="text-xs text-on-surface-variant"
+                    >
+                      Nothing arrives or graduates in this release.
+                    </p>
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Root>
+
+              <div
+                v-else
+                :key="`d-${month.key}-${index}`"
+                :aria-current="isToday(month.key, cell) ? 'date' : undefined"
+                class="h-8 grid place-items-center rounded-md text-[11px] font-mono tabular-nums"
+                :class="isToday(month.key, cell)
+                  ? 'bg-primary/10 font-semibold text-primary'
+                  : cell.adjacent ? 'text-on-surface-variant/25' : cell.weekend ? 'text-on-surface-variant/45' : 'text-on-surface-variant/70'"
+              >
+                {{ cell.day }}
               </div>
-
-              <template v-for="(cell, index) in month.cells">
-                <!-- Release day -->
-                <button
-                  v-if="cell.release"
-                  :key="`r-${index}`"
-                  :aria-current="selectedTitle === cell.release.title ? 'true' : undefined"
-                  :aria-label="`${cell.release.title}, ${longDate(cell.release.date)}: ${cell.release.features.length} arriving, ${cell.release.stabilizing.length} graduating to stable`"
-                  class="group relative h-8 flex flex-col items-center justify-center rounded-md overflow-hidden cursor-pointer transition duration-150 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
-                  :style="{
-                    background: tint(accent(cell.release), selectedTitle === cell.release.title ? 26 : 12),
-                    boxShadow: `inset 0 0 0 ${selectedTitle === cell.release.title ? 2 : 1}px ${tint(accent(cell.release), selectedTitle === cell.release.title ? 100 : 45)}`,
-                  }"
-                  type="button"
-                  @click="step.select(cell.release.title)"
-                >
-                  <span class="text-xs font-mono font-bold leading-none tabular-nums">{{ cell.day }}</span>
-                  <span class="text-[10px] font-mono leading-none mt-0.5" :style="{ color: accent(cell.release) }">{{ shortTitle(cell.release.title) }}</span>
-
-                  <!-- Payload split: arriving | graduating -->
-                  <span class="absolute inset-x-0 bottom-0 h-1 flex">
-                    <span class="h-full" :style="{ width: `${newPct(cell.release)}%`, background: ARRIVING.color }" />
-                    <span class="h-full flex-1" :style="{ background: GRADUATING.color }" />
-                  </span>
-                </button>
-
-                <!-- Non-release day -->
-                <div
-                  v-else
-                  :key="`d-${index}`"
-                  class="h-8 grid place-items-center text-[11px] font-mono tabular-nums"
-                  :class="cell.adjacent ? 'text-on-surface-variant/25' : cell.weekend ? 'text-on-surface-variant/45' : 'text-on-surface-variant/70'"
-                >
-                  {{ cell.day }}
-                </div>
-              </template>
-            </div>
+            </template>
           </div>
-        </div>
-      </Collapsible.Content>
-    </Collapsible.Root>
+        </Carousel.Item>
+      </Carousel.Viewport>
+    </Carousel.Root>
 
     <!-- Disclaimer -->
     <p class="mt-6 text-sm opacity-60 text-center">

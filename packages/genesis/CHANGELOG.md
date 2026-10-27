@@ -1,5 +1,16 @@
 # @paper/genesis
 
+## 1.1.1
+
+### Patch Changes
+
+- [#1103](https://github.com/vuetifyjs/0/pull/1103) [`98330e7`](https://github.com/vuetifyjs/0/commit/98330e77ab9c3cc6658fda33564850164a33ef7f) Thanks [@johnleider](https://github.com/johnleider)! - fix(GnDocsExample): show Reset on single-file examples
+
+  Single-file examples now include Reset, including when the code is shown as a peek.
+
+- Updated dependencies [[`d6e34fd`](https://github.com/vuetifyjs/0/commit/d6e34fdb4cbf4be72181dbec6a709a7caf56491b), [`adf806d`](https://github.com/vuetifyjs/0/commit/adf806d705939cc9aecdae42273eb710fbc11bb2), [`c741cef`](https://github.com/vuetifyjs/0/commit/c741cef0df94770d389a405b9da4f087fc03c319), [`8602c04`](https://github.com/vuetifyjs/0/commit/8602c04be761638f62c06487a4ea406e28841cf4)]:
+  - @vuetify/v0@1.3.1
+
 ## 1.1.0
 
 ### Minor Changes

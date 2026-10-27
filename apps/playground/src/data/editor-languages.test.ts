@@ -43,6 +43,8 @@ describe('editorLanguage', () => {
     expect(editorLanguage('src/notes.md')).toBe('markdown')
     expect(editorLanguage('src/app.py')).toBe('python')
     expect(editorLanguage('src/run.sh')).toBe('shellscript')
+    expect(editorLanguage('src/run.zsh')).toBe('shellscript')
+    expect(editorLanguage('style.scss')).toBe('scss')
     expect(editorLanguage('config.yaml')).toBe('yaml')
     expect(editorLanguage('config.yml')).toBe('yaml')
     expect(editorLanguage('page.html')).toBe('html')

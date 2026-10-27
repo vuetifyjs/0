@@ -85,6 +85,36 @@ function isRateLimited (status: number): boolean {
   return status === 403 || status === 429
 }
 
+const PAGE = 100
+
+// Previous key stored only the first page of closed milestones (`per_page=5`).
+const MILESTONES_KEY = 'milestones:all'
+
+function nextLink (header: string | null): string | null {
+  if (isNull(header)) return null
+  const match = header.match(/<([^>]+)>;\s*rel="next"/)
+  return isNull(match) ? null : match[1]
+}
+
+async function fetchMilestones (query: string): Promise<GitHubMilestone[]> {
+  const milestones: GitHubMilestone[] = []
+  let url: string | null = `${GITHUB_API}/repos/${REPO}/milestones?${query}&per_page=${PAGE}`
+
+  while (!isNull(url)) {
+    const res = await fetch(url)
+
+    if (isRateLimited(res.status)) throw new Error('RATE_LIMITED')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+    const data = await res.json()
+    if (isArray(data)) milestones.push(...data)
+
+    url = nextLink(res.headers.get('Link'))
+  }
+
+  return milestones
+}
+
 export const useRoadmapStore = defineStore('roadmap', {
   state: (): State => ({
     milestones: [],
@@ -110,7 +140,7 @@ export const useRoadmapStore = defineStore('roadmap', {
       if (unknown.length > 0) logger.warn('Roadmap bucket references unknown maturity ids', unknown)
 
       // Check cache first
-      const cached = storage.get<Milestone[] | null>('milestones', null)
+      const cached = storage.get<Milestone[] | null>(MILESTONES_KEY, null)
       if (isArray(cached.value)) {
         // Re-resolve features and date on read so bucket edits reflect without waiting for cache TTL.
         this.milestones = cached.value.map(m => ({ ...m, features: featuresFor(m.title), date: dateFor(m.title) ?? m.due_on }))
@@ -121,34 +151,17 @@ export const useRoadmapStore = defineStore('roadmap', {
       this.error = null
 
       try {
-        // Fetch both open and closed milestones
-        const [openRes, closedRes] = await Promise.all([
-          fetch(`${GITHUB_API}/repos/${REPO}/milestones?state=open&sort=due_on&direction=asc`),
-          fetch(`${GITHUB_API}/repos/${REPO}/milestones?state=closed&sort=due_on&direction=desc&per_page=5`),
+        const [openMilestones, closedMilestones] = await Promise.all([
+          fetchMilestones('state=open&sort=due_on&direction=asc'),
+          fetchMilestones('state=closed&sort=due_on&direction=desc'),
         ])
-
-        if (isRateLimited(openRes.status) || isRateLimited(closedRes.status)) {
-          throw new Error('RATE_LIMITED')
-        }
-
-        if (!openRes.ok || !closedRes.ok) {
-          throw new Error(`HTTP ${openRes.status || closedRes.status}`)
-        }
-
-        const [openData, closedData] = await Promise.all([
-          openRes.json(),
-          closedRes.json(),
-        ])
-
-        const openMilestones: GitHubMilestone[] = isArray(openData) ? openData : []
-        const closedMilestones: GitHubMilestone[] = isArray(closedData) ? closedData : []
 
         this.milestones = [
           ...assignHorizons(openMilestones),
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
         ].map(m => ({ ...m, features: featuresFor(m.title), date: dateFor(m.title) ?? m.due_on }))
 
-        storage.set('milestones', this.milestones)
+        storage.set(MILESTONES_KEY, this.milestones)
       } catch (error: unknown) {
         logger.error('Failed to fetch roadmap', error)
         this.error = error instanceof Error && error.message === 'RATE_LIMITED' ? 'GitHub API rate limit reached. Try again in a few minutes.' : 'Failed to load roadmap. Please try again.'

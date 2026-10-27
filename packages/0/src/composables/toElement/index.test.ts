@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { toElement } from './index'
 
+// Utilities
+import { createApp, defineComponent, h, shallowRef } from 'vue'
+
 // Types
 import type { MaybeElementRef } from './index'
 
@@ -92,6 +95,75 @@ describe('toElement', () => {
       const component = { $el: undefined } as any
 
       expect(toElement({ value: component })).toBeUndefined()
+    })
+  })
+
+  describe('mounted component roots', () => {
+    function mount (root: ReturnType<typeof defineComponent>) {
+      const host = document.createElement('div')
+      const target = shallowRef<any>()
+      const app = createApp({ render: () => [h(root, { ref: target }), h('aside')] })
+      app.mount(host)
+      return { host, target, app }
+    }
+
+    it('should resolve a single-element root to $el', () => {
+      const Single = defineComponent({ render: () => h('div', { id: 'single' }) })
+      const { host, target, app } = mount(Single)
+
+      expect(toElement(target)).toBe(host.querySelector('#single'))
+      app.unmount()
+    })
+
+    it('should resolve a fragment root to its first element', () => {
+      const Multi = defineComponent({ render: () => [h('span', { id: 'first' }), h('span')] })
+      const { host, target, app } = mount(Multi)
+
+      expect(target.value.$el).not.toBeInstanceOf(Element)
+      expect(toElement(target)).toBe(host.querySelector('#first'))
+      app.unmount()
+    })
+
+    it('should skip leading text and comment nodes in a fragment root', () => {
+      const Leading = defineComponent({ render: () => ['text', null, h('span', { id: 'first' })] })
+      const { host, target, app } = mount(Leading)
+
+      expect(toElement(target)).toBe(host.querySelector('#first'))
+      app.unmount()
+    })
+
+    it('should resolve through a nested component with a fragment root', () => {
+      const Multi = defineComponent({ render: () => ['text', h('span', { id: 'first' })] })
+      const Wrapper = defineComponent({ render: () => h(Multi) })
+      const { host, target, app } = mount(Wrapper)
+
+      expect(toElement(target)).toBe(host.querySelector('#first'))
+      app.unmount()
+    })
+
+    it('should not escape an element-less fragment into a sibling', () => {
+      const Empty = defineComponent({ render: () => ['text', null] })
+      const { target, app } = mount(Empty)
+
+      expect(toElement(target)).toBeUndefined()
+      app.unmount()
+    })
+
+    it('should return undefined for a comment root (v-if false)', () => {
+      const Hidden = defineComponent({ render: () => null })
+      const { target, app } = mount(Hidden)
+
+      expect(target.value.$el).toBeInstanceOf(Comment)
+      expect(toElement(target)).toBeUndefined()
+      app.unmount()
+    })
+
+    it('should return undefined for a text root', () => {
+      const Text = defineComponent({ render: () => 'text' })
+      const { target, app } = mount(Text)
+
+      expect(toElement(target)).toBeUndefined()
+      app.unmount()
     })
   })
 

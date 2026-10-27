@@ -3,6 +3,7 @@
   import { createNested, isString, isUndefined, useBreakpoints, useResizeObserver } from '@vuetify/v0'
 
   // Data
+  import { isCreatableFile } from '@/data/creatable-files'
   import { fileType } from '@/data/file-types'
   import { CONFIG_FILE_IDS, REPL_BUILTIN_FILES } from '@/data/playground-defaults'
 
@@ -91,7 +92,6 @@
   })
 
   const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'src/v0-macros.ts', 'import-map.json', 'tsconfig.json', 'src', '/'])
-  const VALID_EXT = /\.(?:vue|jsx?|tsx?|css|json)$/
 
   const CONFIG_FILES: { id: string, value: string, parentId?: string }[] = [
     { id: 'src/main.ts', value: 'main.ts', parentId: 'src' },
@@ -154,7 +154,7 @@
     const last = segments.pop()!
     let parentId = folder
 
-    if (type === 'file' && !VALID_EXT.test(last)) return
+    if (type === 'file' && !isCreatableFile(last)) return
 
     for (const seg of segments) {
       const folderId = `${parentId}/${seg}`

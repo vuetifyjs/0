@@ -11,8 +11,6 @@ import { type ComputedRef, type MaybeRefOrGetter, type ShallowRef, computed, sha
 import type { RawFeature } from './benchmarkHistorySources'
 import type { TierState } from './useBenchmarkData'
 
-const CURRENT_LABEL = 'current' as const
-
 /**
  * The band a trend delta has to clear before it counts as a real change.
  *
@@ -26,6 +24,14 @@ const CURRENT_LABEL = 'current' as const
  */
 export const NOISE_BAND = 20
 
+/**
+ * How many published releases a trend may look back across.
+ *
+ * Early snapshots sit well below later ones, so a first-to-last delta reads
+ * as a large speedup that did not happen recently.
+ */
+export const TREND_RELEASES = 5
+
 /** True when a trend delta is large enough to outrank run-to-run noise. */
 export function significant (delta: number): boolean {
   return Math.abs(delta) > NOISE_BAND
@@ -35,7 +41,6 @@ export interface HistoryPoint {
   version: string
   hz: number
   mean: number
-  isCurrent: boolean
   tier: TierState
 }
 
@@ -62,11 +67,9 @@ let cache: ShallowRef<FeatureIndex | null> | null = null
 let loadingState: ShallowRef<boolean> | null = null
 let loadPromise: Promise<void> | null = null
 
-/** Chronological order; `current` always sorts last, releases outrank their prereleases. */
+/** Chronological order. A release sorts after its own prerelease. */
 function compareVersion (a: string, b: string): number {
   if (a === b) return 0
-  if (a === CURRENT_LABEL) return 1
-  if (b === CURRENT_LABEL) return -1
 
   function parse (v: string) {
     const [core, pre] = v.split('-')
@@ -91,7 +94,6 @@ function ingestSource (
   index: FeatureIndex,
   version: string,
   items: Record<string, RawFeature>,
-  isCurrent: boolean,
 ) {
   for (const [feature, raw] of Object.entries(items)) {
     const groups = raw?.benchmarks?._groups
@@ -125,12 +127,16 @@ function ingestSource (
           version,
           hz,
           mean,
-          isCurrent,
           tier: tier ?? 'unmeasured',
         })
       }
     }
   }
+}
+
+/** Last {@link TREND_RELEASES} releases. A shorter series is kept whole. */
+function trendPoints (sorted: HistoryPoint[]): HistoryPoint[] {
+  return sorted.slice(-TREND_RELEASES)
 }
 
 function shapeFeature (feature: string, featureMap: Map<string, Map<string, HistoryPoint[]>>): FeatureHistory | null {
@@ -141,7 +147,7 @@ function shapeFeature (feature: string, featureMap: Map<string, Map<string, Hist
     const benchmarks: BenchmarkHistory[] = []
     for (const [benchName, points] of benchMap) {
       if (points.length < 2) continue
-      const sorted = points.toSorted((a, b) => compareVersion(a.version, b.version))
+      const sorted = trendPoints(points.toSorted((a, b) => compareVersion(a.version, b.version)))
       const first = sorted[0]!
       const last = sorted.at(-1)!
       const delta = first.hz === 0 ? 0 : ((last.hz - first.hz) / first.hz) * 100
@@ -164,17 +170,13 @@ async function loadAll (): Promise<FeatureIndex> {
 
   const history = await Promise.all(
     Object.values(historySources).map(load => load()
-      .then(m => ({ version: m.default.version, items: m.default.items ?? {}, isCurrent: false }))
+      .then(m => ({ version: m.default.version, items: m.default.items ?? {} }))
       .catch(() => null)),
   )
 
-  const current = await import('@/data/metrics.json')
-    .then(m => ({ version: CURRENT_LABEL, items: m.default as Record<string, RawFeature>, isCurrent: true }))
-    .catch(() => null)
-
-  for (const source of [...history, current]) {
+  for (const source of history) {
     if (!source) continue
-    ingestSource(index, source.version, source.items, source.isCurrent)
+    ingestSource(index, source.version, source.items)
   }
 
   return index

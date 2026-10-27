@@ -7,10 +7,10 @@ import BenchmarkSparkline from './BenchmarkSparkline.vue'
 import { mount } from '@vue/test-utils'
 
 const points = [
-  { label: '0.1.0', value: 20_000, isCurrent: false },
-  { label: '0.2.0', value: 22_000, isCurrent: false },
-  { label: '1.0.0-alpha.0', value: 25_000, isCurrent: false },
-  { label: 'current', value: 16_000, isCurrent: true },
+  { label: '0.1.0', value: 20_000 },
+  { label: '0.2.0', value: 22_000 },
+  { label: '1.0.0', value: 25_000 },
+  { label: '1.1.0', value: 16_000 },
 ]
 
 describe('benchmarkSparkline', () => {
@@ -32,12 +32,11 @@ describe('benchmarkSparkline', () => {
     const dense = Array.from({ length: 8 }, (_, index) => ({
       label: `1.${index}.0`,
       value: 10_000 + index * 500,
-      isCurrent: index === 7,
     }))
     const wrapper = mount(BenchmarkSparkline, { props: { points: dense } })
     const circles = wrapper.findAll('circle')
     expect(circles).toHaveLength(1)
-    expect(circles[0]?.attributes('fill')).toBe('none')
+    expect(circles[0]?.attributes('fill')).toBe('currentColor')
     expect(wrapper.find('path').attributes('d')).toContain(' C ')
   })
 
@@ -55,11 +54,11 @@ describe('benchmarkSparkline', () => {
     expect(wrapper.findAll('circle')).toHaveLength(0)
   })
 
-  it('should hollow out the last circle when it is the current point', () => {
+  it('should fill every release marker', () => {
     const wrapper = mount(BenchmarkSparkline, { props: { points } })
     const circles = wrapper.findAll('circle')
     expect(circles[0].attributes('fill')).toBe('currentColor')
-    expect(circles[3].attributes('fill')).toBe('none')
+    expect(circles[3].attributes('fill')).toBe('currentColor')
     expect(circles[3].attributes('stroke')).toBe('currentColor')
   })
 

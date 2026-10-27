@@ -110,12 +110,21 @@
     })
   }
 
+  function isRtl (e: KeyboardEvent) {
+    const el = e.currentTarget
+    if (!(el instanceof HTMLElement)) return false
+    return getComputedStyle(el).direction === 'rtl'
+  }
+
   function onKeydown (index: number, e: KeyboardEvent) {
     const horizontal = carousel.orientation.value === 'horizontal'
     const size = carousel.size
+    const rtl = horizontal && isRtl(e)
+    const forward = rtl ? 'ArrowLeft' : 'ArrowRight'
+    const backward = rtl ? 'ArrowRight' : 'ArrowLeft'
 
     if (
-      (horizontal && e.key === 'ArrowRight')
+      (horizontal && e.key === forward)
       || (!horizontal && e.key === 'ArrowDown')
     ) {
       e.preventDefault()
@@ -126,7 +135,7 @@
     }
 
     if (
-      (horizontal && e.key === 'ArrowLeft')
+      (horizontal && e.key === backward)
       || (!horizontal && e.key === 'ArrowUp')
     ) {
       e.preventDefault()

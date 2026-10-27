@@ -8,7 +8,7 @@ import type { VaporMount } from './mount'
 import InstanceProbe from '../src/InstanceProbe.vue'
 
 // The payoff test. instance.test.ts proves the shim's branch logic with a
-// mocked `currentInstance`; this proves it against a REAL Vapor render where
+// mocked `getCurrentInstance` and the setter list; this proves it against a REAL Vapor render where
 // getCurrentInstance() genuinely returns null but the component is live.
 describe('instance under vapor', () => {
   let wrapper: VaporMount

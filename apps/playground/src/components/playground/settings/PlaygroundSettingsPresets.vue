@@ -10,9 +10,23 @@
   import { ADDONS, PRESETS } from '@/data/presets'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   const playground = usePlayground()
+
+  const isDefault = toRef(() => playground.defaultPreset.value === playground.activePreset.value)
+
+  const defaultHint = toRef(() => {
+    const id = playground.defaultPreset.value
+    const preset = PRESETS.find(item => item.id === id)
+    if (!preset) return 'Blank playgrounds ask which template to open.'
+    const label = id === 'vuetify' ? 'Vuetify 4' : preset.label
+    return `Blank playgrounds open with ${label}.`
+  })
+
+  function onDefault (value: boolean) {
+    playground.defaultPreset.value = value ? playground.activePreset.value : undefined
+  }
 
   // ID of the preset currently showing the inline confirmation, or null
   const confirming = shallowRef<string | null>(null)
@@ -102,6 +116,24 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-divider">
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium text-on-surface">Make this my default template</div>
+        <div class="text-xs text-on-surface-variant mt-0.5">{{ defaultHint }}</div>
+      </div>
+
+      <Switch.Root
+        class="shrink-0 inline-flex items-center border-none bg-transparent p-0 outline-none"
+        label="Make this my default template"
+        :model-value="isDefault"
+        @update:model-value="onDefault"
+      >
+        <Switch.Track class="relative inline-flex items-center rounded-full transition-colors w-9 h-5 bg-on-surface/20 data-[state=checked]:bg-primary">
+          <Switch.Thumb class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.75 data-[state=checked]:translate-x-4.75" />
+        </Switch.Track>
+      </Switch.Root>
     </div>
 
     <!-- Add-ons -->

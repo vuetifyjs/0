@@ -97,7 +97,8 @@ tour.steps.onboard(mobile ? steps.filter(step => step.id !== 'sidebar') : steps)
 - Return a promise and the tour waits for it, then marks the step ready. If `enter` throws, or the promise rejects, the step is still marked ready and a warning is logged.
 - Call `tour.ready(stepId, visit)` when the work continues after `enter` returns. `visit` is the number on the enter context. The call does nothing unless the tour is still active, that step is still selected, and `visit` is still the current one.
 - Call `activate(el)` to register this step's target. It sets `anchor-name` to `--tour-{id}` and scrolls the element into view. Pass `{ scroll: false }` to keep the page still.
-- Find the element yourself, usually with `document.querySelector`. createTour does not search the DOM for you.
+- When you render the control, wrap it in [Tour.Activator](/components/disclosure/tour) and pass the step id. The activator registers the element.
+- When you do not render the control, find the element in `enter` and pass it to `activate`. The sample above uses `querySelector` for one id. Copy [Find a target you do not render](#find-a-target-you-do-not-render) when a hidden duplicate can sit earlier in the document. createTour does not search the DOM.
 - `deactivate()` restores the previous `anchor-name`. Leaving the step already calls it.
 
 ### Check a form before Next
@@ -203,6 +204,33 @@ Use this when the targets are already on the page and you only need the sequence
 :::
 
 ## Recipes
+
+### Find a target you do not render
+
+Wrap a control you render in [Tour.Activator](/components/disclosure/tour) and pass the step id. The activator registers the element.
+
+For a node you do not render, query it in `enter` and pass the element to `activate`. Limit the search to the view that owns the tour. Escape the id. Skip elements with no box, so a hidden duplicate earlier in the document is not the target. `data-tour` is a convention. The tour never reads the attribute, so any name works.
+
+```ts
+function target (id: string, root: ParentNode = document) {
+  return [...root.querySelectorAll<HTMLElement>(`[data-tour="${CSS.escape(id)}"]`)].find(
+    element => element.getClientRects().length > 0,
+  )
+}
+
+const root = document.querySelector('[data-tour-root="app"]') ?? document
+
+tour.steps.onboard([
+  {
+    id: 'search',
+    enter: ({ done, activate }) => {
+      const el = target('search', root)
+      if (el) activate(el)
+      done()
+    },
+  },
+])
+```
 
 ### Run one tour at a time
 

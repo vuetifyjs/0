@@ -119,6 +119,8 @@ The component implements full WAI-ARIA keyboard support. Keyboard behavior depen
 | End | Focuses **and** activates last tab | Focuses last tab only |
 | Enter/Space | — | Activates the focused tab |
 
+In a right-to-left context (`dir="rtl"` on the document or any ancestor), Arrow Left/Right are reversed for horizontal tabs so focus follows the visual order: Arrow Right moves to the previous tab. Vertical tabs are unaffected.
+
 ## FAQ
 
 ::: faq

@@ -103,6 +103,7 @@ const PAGE_GROUP_ORDER = ['actions', 'overlay', 'disclosure', 'navigation', 'for
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
+  'blog.md': { order: 1.15, name: 'Blog' },
   'skillz/index.md': { order: 1.2, name: 'Skillz' },
   'services.md': { order: 1.3, name: 'Services' },
 }

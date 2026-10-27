@@ -101,7 +101,7 @@ function categoryOf (path: string): string {
   if (path.startsWith('/introduction/')) return 'introduction'
   if (path.startsWith('/skillz/')) return 'skillz'
   if (path.startsWith('/api/')) return 'reference'
-  if (path === '/releases' || path === '/roadmap') return 'reference'
+  if (path === '/releases' || path === '/roadmap' || path === '/blog') return 'reference'
   return 'other'
 }
 

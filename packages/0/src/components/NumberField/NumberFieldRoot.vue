@@ -98,9 +98,9 @@
     /** Whether this field is required */
     required?: boolean
     /** Disables this field */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Makes this field readonly */
-    readonly?: MaybeRefOrGetter<boolean>
+    readonly?: boolean | MaybeRefOrGetter<boolean>
     /** Minimum value */
     min?: number
     /** Maximum value */

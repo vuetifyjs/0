@@ -2099,4 +2099,57 @@ describe('tabs', () => {
       await nextTick()
     })
   })
+
+  describe('rtl', () => {
+    function setup (props: Record<string, unknown> = {}) {
+      return mount(defineComponent({
+        setup () {
+          return () => h('div', { dir: 'rtl' }, h(Tabs.Root as any, { modelValue: 'b', ...props }, {
+            default: () => h(Tabs.List as any, {}, {
+              default: () => ['a', 'b', 'c'].map(value => h(Tabs.Item as any, { value }, { default: () => value })),
+            }),
+          }))
+        },
+      }), { attachTo: document.body })
+    }
+
+    async function press (wrapper: ReturnType<typeof setup>, index: number, key: string) {
+      const el = wrapper.findAll('[role="tab"]')[index]!.element as HTMLElement
+      el.focus()
+      el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+      await nextTick()
+      await nextTick()
+      return document.activeElement?.textContent
+    }
+
+    it('should move ArrowRight to the previous tab and ArrowLeft to the next tab', async () => {
+      const wrapper = setup()
+      await nextTick()
+
+      expect(await press(wrapper, 1, 'ArrowRight')).toBe('a')
+      expect(await press(wrapper, 0, 'ArrowLeft')).toBe('b')
+
+      wrapper.unmount()
+    })
+
+    it('should reverse arrows in manual activation', async () => {
+      const wrapper = setup({ activation: 'manual' })
+      await nextTick()
+
+      expect(await press(wrapper, 1, 'ArrowRight')).toBe('a')
+      expect(await press(wrapper, 1, 'ArrowLeft')).toBe('c')
+
+      wrapper.unmount()
+    })
+
+    it('should not reverse ArrowDown / ArrowUp in vertical orientation', async () => {
+      const wrapper = setup({ orientation: 'vertical' })
+      await nextTick()
+
+      expect(await press(wrapper, 1, 'ArrowDown')).toBe('c')
+      expect(await press(wrapper, 2, 'ArrowUp')).toBe('b')
+
+      wrapper.unmount()
+    })
+  })
 })
