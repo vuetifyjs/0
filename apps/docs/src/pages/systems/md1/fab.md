@@ -156,6 +156,16 @@ This is the radial reaction of the choreography page: reactions start at the poi
 :::
 
 ::: ds-example
+/systems/md1/fab/tabs
+
+### Across tabbed screens
+
+On lateral screens such as tabs, the page ties the FAB to the action, not to the screen. When the action changes between tabs, the FAB should briefly disappear and reappear with the new action; when two tabs share an action, it stays on screen. Here Speed dial and Recents both open the dial pad, so moving between them leaves the FAB untouched, while Contacts swaps it for Add a contact.
+
+The FAB carries a `key` derived from its action, never from the tab. A new action remounts it, and the remount plays the FAB's own entrance: a 225 ms scale from the centre on the deceleration curve. A shared action keeps the same key, so Vue patches nothing and the button does not flicker. The FAB never slides with the panels: the page says it should not exit in the direction the content moves, and a scale in place keeps it out of that motion. Change `aria-label` with the icon so a screen reader hears the new action.
+:::
+
+::: ds-example
 /systems/md1/fab/list
 
 ### Over a list
