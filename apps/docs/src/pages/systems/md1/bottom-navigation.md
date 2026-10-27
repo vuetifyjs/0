@@ -123,6 +123,16 @@ Navigation through the bar resets the task. Open an item, switch to another dest
 :::
 
 ::: ds-example
+/systems/md1/bottom-navigation/rail
+
+### Rail on larger displays
+
+The page designs bottom navigation primarily for mobile. Larger displays, such as tablet or desktop, may get the same effect from side navigation, and the compact "rail" treatment shows the navigational icons by default. Here one set of destinations drives both: below 600 dp it is an `Md1BottomNavigation`, and from 600 dp it is an `Md1NavigationDrawer` with `mini` and `type="persistent"`, the 80 dp icon column at the start edge. The menu button expands the rail to the full drawer with its labels.
+
+Both bind the same `view` model, so the active destination survives the swap: choose Nearby on the bar, widen the screen, and the rail opens with Nearby selected. The switch measures the example's own width with v0's `useElementSize`, not the viewport, so dragging the preview's handle narrower brings the bar back. In an app, where the screen is the viewport, `useBreakpoints` does the same job with the `md1Breakpoints` 600 value. The 600 dp threshold is the breakpoint page's handset limit; the bottom navigation page names no number.
+:::
+
+::: ds-example
 /systems/md1/bottom-navigation/layering
 
 ### Snackbars and sheets
