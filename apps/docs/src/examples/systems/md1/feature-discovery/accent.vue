@@ -16,9 +16,9 @@
 
     <div class="md1-docs-accent-fab">
       <Md1FeatureDiscovery v-model="open" color="accent">
-        <Md1FeatureDiscovery.Target>
+        <Md1FeatureDiscovery.Activator>
           <Md1Fab aria-label="Compose" icon="edit" position="static" @click="drafts++" />
-        </Md1FeatureDiscovery.Target>
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>
 

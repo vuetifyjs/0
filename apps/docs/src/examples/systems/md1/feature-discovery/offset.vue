@@ -16,9 +16,9 @@
       </div>
 
       <Md1FeatureDiscovery v-model="open">
-        <Md1FeatureDiscovery.Target>
+        <Md1FeatureDiscovery.Activator>
           <Md1Button aria-label="Save place" icon="bookmark" @click="saved = true" />
-        </Md1FeatureDiscovery.Target>
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Save places you like</Md1FeatureDiscovery.Title>
 

@@ -22,9 +22,9 @@
           @complete="result = 'Search opened'"
           @dismiss="result = 'Prompt dismissed'"
         >
-          <Md1FeatureDiscovery.Target>
+          <Md1FeatureDiscovery.Activator>
             <Md1Button aria-label="Search" icon="search" />
-          </Md1FeatureDiscovery.Target>
+          </Md1FeatureDiscovery.Activator>
 
           <Md1FeatureDiscovery.Title>Find mail fast</Md1FeatureDiscovery.Title>
 

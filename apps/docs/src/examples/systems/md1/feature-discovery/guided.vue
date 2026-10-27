@@ -58,9 +58,9 @@
   <div class="md1-docs-screen md1-docs-guided">
     <Md1Toolbar variant="primary">
       <Md1FeatureDiscovery v-model="prompt" @dismiss="onDismiss">
-        <Md1FeatureDiscovery.Target>
+        <Md1FeatureDiscovery.Activator>
           <Md1Toolbar.Nav aria-label="Open navigation" @click="onMenu" />
-        </Md1FeatureDiscovery.Target>
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Just how you want it</Md1FeatureDiscovery.Title>
 

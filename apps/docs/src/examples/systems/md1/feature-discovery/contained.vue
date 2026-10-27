@@ -28,9 +28,9 @@
           <Md1Button>Book</Md1Button>
 
           <Md1FeatureDiscovery v-model="open">
-            <Md1FeatureDiscovery.Target>
+            <Md1FeatureDiscovery.Activator>
               <Md1Button aria-label="Share" icon="share" @click="shared = true" />
-            </Md1FeatureDiscovery.Target>
+            </Md1FeatureDiscovery.Activator>
 
             <Md1FeatureDiscovery.Title>Share trips</Md1FeatureDiscovery.Title>
 
