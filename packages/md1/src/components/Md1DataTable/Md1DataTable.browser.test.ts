@@ -108,6 +108,7 @@ interface Options {
   editable?: 'small' | 'large'
   title?: string
   contextual?: boolean
+  attrs?: Record<string, unknown>
 }
 
 /** The page's own table: a titled card, two sortable columns (one numeric, with a definition), an editable column, the footer. */
@@ -143,7 +144,7 @@ function table (options: Options = {}): HTMLElement {
     options.contextual === false
       ? null
       : h(Md1DataTableContextual, null, () => [h(Md1Button, { icon: 'delete', ariaLabel: 'Delete' })]),
-    h(Md1DataTableTable, null, () => [
+    h(Md1DataTableTable, options.attrs ?? null, () => [
       h(Md1DataTableHead, null, () => [
         h(Md1DataTableColumn, { id: 'name', sortable: true }, () => 'Dessert'),
         h(Md1DataTableColumn, { id: 'calories', numeric: true, sortable: true, tooltip: 'Energy per 100 g serving' }, () => 'Calories'),
@@ -248,6 +249,30 @@ describe('quDataTable', () => {
       expect(columns(host).every(th => th.getAttribute('role') === 'columnheader' && th.getAttribute('scope') === 'col')).toBe(true)
       expect(body(host)[0]!.getAttribute('role')).toBe('row')
       expect(body(host)[0]!.querySelector('td')!.getAttribute('role')).toBe('cell')
+    })
+
+    it('should name an untitled table through aria-label on the table, not the scroll wrapper', async () => {
+      const host = table({ title: '', attrs: { 'aria-label': 'Products', 'aria-describedby': 'stock-note', 'class': 'consumer' } })
+      await settle()
+
+      const el = host.querySelector('table')!
+      const scroll = host.querySelector('.md1-data-table__scroll')!
+
+      expect(host.querySelector('.md1-data-table__title')).toBeNull()
+      expect(el.getAttribute('aria-label')).toBe('Products')
+      expect(el.getAttribute('aria-describedby')).toBe('stock-note')
+      expect(el.hasAttribute('aria-labelledby')).toBe(false)
+      expect(scroll.hasAttribute('aria-label')).toBe(false)
+      expect(scroll.hasAttribute('aria-describedby')).toBe(false)
+      expect(scroll.classList.contains('consumer')).toBe(true)
+    })
+
+    it('should let a consumer aria-labelledby override the header title', async () => {
+      const host = table({ attrs: { 'aria-labelledby': 'page-heading' } })
+      await settle()
+
+      expect(host.querySelector('table')!.getAttribute('aria-labelledby')).toBe('page-heading')
+      expect(host.querySelector('.md1-data-table__scroll')!.hasAttribute('aria-labelledby')).toBe(false)
     })
 
     it('should rest the card on the surface with 2 dp corners, seamed at 0 dp under a fine pointer', async () => {
