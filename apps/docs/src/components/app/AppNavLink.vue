@@ -9,7 +9,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { toRef, useTemplateRef } from 'vue'
+  import { h, toRef, useTemplateRef } from 'vue'
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
@@ -134,6 +134,14 @@
     }
   }
 
+  // A break opportunity before each inner capital, so a long identifier wraps
+  // between words (Md1Navigation|Drawer) rather than mid-word.
+  const words = toRef(() => name.split(/(?<=[a-z0-9])(?=[A-Z])/))
+
+  function Label () {
+    return words.value.flatMap((word, index) => index ? [h('wbr'), word] : [word])
+  }
+
   const itemRef = useTemplateRef<HTMLLIElement>('item')
 
   // Scroll the expanded section into view when it opens
@@ -160,37 +168,38 @@
 
 <template>
   <li ref="item" class="scroll-my-[100px]" :class="isTopLevel ? 'px-3' : 'ps-3'">
-    <div v-if="subheader" class="font-semibold truncate">{{ name }}</div>
+    <div v-if="subheader" class="font-semibold [overflow-wrap:anywhere]"><Label /></div>
 
     <div
       v-else
-      class="flex items-center gap-1"
+      class="flex items-start gap-1"
       :class="[inset && 'pl-3', isTopLevel && navConfig.flatMode.value && 'pl-1', !isTopLevel && isCollapsible && '-ml-2']"
     >
-      <!-- Expand/collapse toggle button -->
-      <button
-        v-if="isCollapsible"
-        :aria-controls="`nav-section-${id}`"
-        :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 media-[(pointer:coarse)]:size-6 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
-        type="button"
-        @click.stop="onToggle"
-      >
-        <AppChevron :open="isOpen" />
+      <!-- Expand/collapse toggle button, centred on the label's first line -->
+      <span v-if="isCollapsible" class="min-h-[1lh] flex items-center shrink-0">
+        <button
+          :aria-controls="`nav-section-${id}`"
+          :aria-expanded="isOpen ? 'true' : 'false'"
+          class="size-5 media-[(pointer:coarse)]:size-6 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
+          type="button"
+          @click.stop="onToggle"
+        >
+          <AppChevron :open="isOpen" />
 
-        <span class="sr-only">
-          {{ isOpen ? 'Collapse' : 'Expand' }} {{ name }}
-        </span>
-      </button>
+          <span class="sr-only">
+            {{ isOpen ? 'Collapse' : 'Expand' }} {{ name }}
+          </span>
+        </button>
+      </span>
 
       <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
-      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="size-5 media-[(pointer:coarse)]:w-6 shrink-0 flex items-center justify-center text-divider">–</span>
+      <span v-else-if="isTopLevel && !navConfig.flatMode.value" aria-hidden="true" class="w-5 h-[1lh] media-[(pointer:coarse)]:w-6 shrink-0 flex items-center justify-center text-divider">–</span>
 
       <!-- External link -->
       <Atom
         v-if="to && isExternal"
         as="a"
-        class="font-semibold icon-text flex-1 min-w-0"
+        class="font-semibold inline-flex items-start gap-1 flex-1 min-w-0"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -199,7 +208,7 @@
         rel="noopener"
         target="_blank"
       >
-        <span class="truncate">{{ name }}</span>
+        <span class="min-w-0 [overflow-wrap:anywhere]"><Label /></span>
       </Atom>
 
       <!-- Internal link (navigable) -->
@@ -207,7 +216,7 @@
         v-else-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
-        class="font-semibold icon-text flex-1 min-w-0 scroll-my-[100px]"
+        class="font-semibold inline-flex items-start gap-1 flex-1 min-w-0 scroll-my-[100px]"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -217,20 +226,21 @@
         v-bind="props"
         @click="onOpen"
       >
-        <span class="truncate">{{ name }}</span>
+        <span class="min-w-0 [overflow-wrap:anywhere]"><Label /></span>
 
-        <span
-          v-if="showHeatmap"
-          class="w-2 h-2 rounded-[2px] shrink-0"
-          :class="{ 'bg-success': emphasized === 1 }"
-          :style="heatmapStyle"
-        />
+        <span v-if="showHeatmap" class="h-[1lh] flex items-center shrink-0">
+          <span
+            class="w-2 h-2 rounded-[2px]"
+            :class="{ 'bg-success': emphasized === 1 }"
+            :style="heatmapStyle"
+          />
+        </span>
       </Atom>
 
       <!-- Category header (not navigable) -->
       <span
         v-else
-        class="font-semibold flex-1 min-w-0 truncate"
+        class="font-semibold flex-1 min-w-0 [overflow-wrap:anywhere]"
         :class="[
           isCollapsible && 'cursor-pointer hover:text-primary focus-visible:text-primary',
           containsActivePage && 'text-primary underline',
@@ -241,7 +251,7 @@
         @keydown.enter="onOpen"
         @keydown.space.prevent="onOpen"
       >
-        {{ name }}
+        <Label />
       </span>
     </div>
 
