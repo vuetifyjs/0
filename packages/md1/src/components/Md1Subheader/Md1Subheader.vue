@@ -86,12 +86,12 @@
   }
 
   /*
-   * The coloured subheader takes the app's primary colour in both themes:
-   * Vuetify 1.5 leaves the primary unchanged on the dark sheet, where it reads
-   * at about 1.5:1 (SPEC.md Known limitations).
+   * The coloured subheader takes the app's primary colour as text ink: the
+   * 500 on light, a lighter tone of the primary on dark that holds 4.5:1
+   * (`--md1-primary-ink`, colour page).
    */
   .md1-subheader[data-primary] {
-    color: var(--md1-primary, #3F51B5);
+    color: var(--md1-primary-ink, #3F51B5);
   }
 
   /*

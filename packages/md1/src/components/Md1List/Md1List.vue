@@ -593,13 +593,14 @@
    * the selected item's text and icon in the primary colour). Vuetify 1.5
    * colours the whole tile (VListTile.ts:30-32, VSelectList.js:73-74) and
    * keeps the sub-title at 54% (_lists.styl:12-13) and the avatar as it is
-   * (only the leading action's icon inherits, _lists.styl:152-155). The dark
-   * sheet keeps the primary too, at about 1.5:1 (SPEC.md Known limitations).
+   * (only the leading action's icon inherits, _lists.styl:152-155). The ink
+   * is `--md1-primary-ink`: the 500 on light, a lighter tone of the primary
+   * on dark that holds 4.5:1 on the selected band (colour page).
    */
   .md1-list__item[data-selected] .md1-list__body,
   .md1-list__item[data-selected] .md1-list__primary,
   .md1-list__item[data-selected] .md1-list__icon {
-    color: var(--md1-primary, #3F51B5);
+    color: var(--md1-primary-ink, #3F51B5);
   }
 
   /*
@@ -641,7 +642,7 @@
   }
 
   .md1-list__group[data-state='open'] > .md1-list__header .md1-list__primary {
-    color: var(--md1-primary, #3F51B5);
+    color: var(--md1-primary-ink, #3F51B5);
   }
 
   .md1-list__group[data-disabled] > .md1-list__header {

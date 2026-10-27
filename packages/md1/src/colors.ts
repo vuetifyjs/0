@@ -10,6 +10,8 @@
  * foundations so a theme can retune them (SPEC.md "Elevation").
  */
 
+import { hexToRgb } from '@vuetify/v0/utilities'
+
 import { alpha, elevation, md1Palette, md1PaletteInk, shadow } from './design-system'
 
 // Types
@@ -38,6 +40,13 @@ export interface Md1HueRoles {
   'primary-dark': string
   /** 100: related information under a primary region (the extension fill under a primary bar). */
   'primary-light': string
+  /**
+   * Primary-coloured text and icons on the theme's sheet: the 500 on light;
+   * on dark the first lighter tone that reaches 4.5:1 on the selected list
+   * band (colour page: "lighter or darker tones of your primary color" for
+   * contrast, WCAG AA). Indigo 100 for the default theme.
+   */
+  'primary-ink': string
   /** The accent hue's A200: FAB, action buttons, text fields, selection, links. */
   'accent': string
   /** The accent hue's 50: the contextual data-table header (data tables page). */
@@ -57,6 +66,44 @@ export interface Md1HueRoles {
    * such role and no `Md1*` component reads it.
    */
   'surface-tint': string
+}
+
+type Rgb = { r: number, g: number, b: number }
+
+const TONES = ['500', '400', '300', '200', '100', '50'] as const
+
+function luminance ({ r, g, b }: Rgb): number {
+  const [lr, lg, lb] = [r, g, b].map(channel => {
+    const c = channel / 255
+
+    return c <= 0.039_28 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+
+  return 0.2126 * lr! + 0.7152 * lg! + 0.0722 * lb!
+}
+
+function contrast (a: Rgb, b: Rgb): number {
+  const [light, dark] = [luminance(a), luminance(b)].toSorted((x, y) => y - x)
+
+  return (light! + 0.05) / (dark! + 0.05)
+}
+
+/**
+ * The lightest dark surface primary ink rests on: the Grey 800 sheet under
+ * the selected list band, white 7% (`list-selected`), about #4F4F4F. Ink
+ * that clears 4.5:1 here clears it on the plain sheet, the #303030
+ * background and the Grey 900 bars too.
+ */
+const BAND: Rgb = (() => {
+  const { r, g, b } = hexToRgb(md1Palette['grey-800'])
+
+  return { r: r + (255 - r) * 0.07, g: g + (255 - g) * 0.07, b: b + (255 - b) * 0.07 }
+})()
+
+function ink (hue: Md1Hue): string {
+  const tone = TONES.find(tone => contrast(hexToRgb(md1Palette[`${hue}-${tone}`]), BAND) >= 4.5) ?? '50'
+
+  return md1Palette[`${hue}-${tone}`]
 }
 
 /**
@@ -93,11 +140,13 @@ export function md1HueTheme (primary: Md1Hue, accent: Md1AccentHue): { light: Md
   return {
     light: {
       ...roles,
+      'primary-ink': md1Palette[`${primary}-500`],
       'accent-control': md1Palette[`${accent}-a200`],
       'surface-tint': md1Palette[`${primary}-100`],
     },
     dark: {
       ...roles,
+      'primary-ink': ink(primary),
       'accent-control': md1Palette[`${accent}-200`],
       'surface-tint': md1Palette[`${primary}-700`],
     },

@@ -180,12 +180,12 @@
 
   /*
    * Active: the icon and label take the primary colour, the icon rises to 6 dp.
-   * The dark theme keeps the hue, as Vuetify 1.5 does, at under 2:1 on the
-   * Grey 800 bar (SPEC.md Known limitations).
+   * The ink is `--md1-primary-ink`: the 500 on light, a lighter tone of the
+   * primary on the dark Grey 800 bar that holds 4.5:1 (colour page).
    */
   .md1-bottom-navigation__action[data-selected] {
     padding-top: 6px;
-    color: var(--md1-primary, #3F51B5);
+    color: var(--md1-primary-ink, #3F51B5);
   }
 
   /* The coloured bar: active ink is black or white by contrast, the rest at the secondary 70%. */

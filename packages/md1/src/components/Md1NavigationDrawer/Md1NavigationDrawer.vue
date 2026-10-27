@@ -594,16 +594,6 @@
     letter-spacing: var(--md1-type-body-2-tracking, 0.01em);
   }
 
-  /*
-   * The current destination's text takes the primary colour with its icon
-   * (pattern page), also when the label is bare text in the item's body;
-   * Md1List colours only the Primary part. The dark sheet keeps the primary,
-   * as Vuetify 1.5 does (SPEC.md Known limitations).
-   */
-  .md1-navigation-drawer__content .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__body {
-    color: var(--md1-primary, #3F51B5);
-  }
-
   /* Mouse and keyboard: Body 2 drops to 13 sp (typography page); restated so the rule holds without theme.css. */
   @media (pointer: fine) {
     .md1-navigation-drawer__name,
