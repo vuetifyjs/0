@@ -18,6 +18,15 @@ async function release (ctx: BrowserCommandContext) {
   await ctx.page.mouse.up()
 }
 
+/**
+ * Emulates Windows High Contrast (`forced-colors: active`); `false` restores
+ * the default. Unlike touch emulation it resets cleanly, so a test can flip it
+ * and put it back.
+ */
+async function forcedColors (ctx: BrowserCommandContext, active: boolean) {
+  await ctx.page.emulateMedia({ forcedColors: active ? 'active' : null })
+}
+
 /*
  * No pointer-type command: Chromium's `Emulation.setTouchEmulationEnabled`
  * flips the primary pointer to coarse, but disabling it restores `pointer: none`
@@ -26,6 +35,7 @@ async function release (ctx: BrowserCommandContext) {
  */
 
 export const commands = {
+  forcedColors,
   press,
   release,
 }

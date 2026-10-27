@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { page, userEvent } from 'vitest/browser'
+import { commands, page, userEvent } from 'vitest/browser'
 
 // Framework
 import { createReducedMotionPlugin, createStackPlugin } from '@vuetify/v0'
@@ -10,6 +10,7 @@ import { Md1NavigationDrawer, Md1NavigationDrawerActivator, Md1NavigationDrawerC
 import { createApp, h, nextTick, shallowRef } from 'vue'
 
 // Types
+import type { Md1Commands } from '../../../test/commands'
 import type { Md1NavigationDrawerSlotProps } from './Md1NavigationDrawer.vue'
 import type { Md1NavigationDrawerActivatorSlotProps } from './Md1NavigationDrawerActivator.vue'
 import type { ShallowRef, VNode } from 'vue'
@@ -26,6 +27,10 @@ import { Md1Subheader } from '../Md1Subheader'
 const ELEVATION_16 = '0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12)'
 const ELEVATION_14 = '0px 7px 9px -4px rgba(0, 0, 0, 0.2), 0px 14px 21px 2px rgba(0, 0, 0, 0.14), 0px 5px 26px 4px rgba(0, 0, 0, 0.12)'
 const ELEVATION_2 = '0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)'
+
+declare module 'vitest/browser' {
+  interface BrowserCommands extends Md1Commands {}
+}
 
 const teardowns: (() => void)[] = []
 
@@ -546,6 +551,27 @@ describe('quNavigationDrawer', () => {
       host.querySelector<HTMLElement>('#inbox')!.focus()
 
       expect(document.activeElement!.id).toBe('inbox')
+    })
+
+    it('should clip the labels to the icon column under forced colours, which repaint transparent text', async () => {
+      await commands.forcedColors(true)
+
+      try {
+        const host = drawer({ props: { type: 'persistent', mini: true } })
+        await settle()
+
+        const body = host.querySelector<HTMLElement>('#inbox .md1-list__body')!
+        const label = host.querySelector<HTMLElement>('#inbox .md1-list__content')!
+        const clip = body.getBoundingClientRect().left + 72
+
+        expect(matchMedia('(forced-colors: active)').matches).toBe(true)
+        expect(getComputedStyle(body).clipPath).toBe('inset(0px calc(100% - 72px) 0px 0px)')
+        // The label starts at or past the clip edge, so none of it paints.
+        expect(label.getBoundingClientRect().left).toBeGreaterThanOrEqual(clip)
+        expect(host.querySelector('#inbox')!.textContent).toContain('Inbox')
+      } finally {
+        await commands.forcedColors(false)
+      }
     })
 
     it('should rest at 80 px under 600 px too', async () => {
