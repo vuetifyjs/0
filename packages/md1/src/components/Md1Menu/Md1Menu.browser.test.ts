@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { userEvent } from 'vitest/browser'
+import { page, userEvent } from 'vitest/browser'
 
 // Framework
 import { createReducedMotionPlugin, Menu } from '@vuetify/v0'
@@ -20,6 +20,7 @@ import { md1Colors, md1DarkColors } from '../../colors'
 import { md1Icons } from '../../icons'
 // Components
 import { Md1Button } from '../Md1Button'
+import { Md1List } from '../Md1List'
 
 const ELEVATION_8 = '0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12)'
 const ELEVATION_6 = '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)'
@@ -1174,6 +1175,61 @@ describe('quMenu', () => {
       const parent = row('Size').getBoundingClientRect()
 
       expect(Math.round(sub().getBoundingClientRect().left)).toBeGreaterThanOrEqual(Math.round(parent.right) - 1)
+    })
+  })
+
+  describe('selected item over a list row', () => {
+    afterEach(async () => {
+      await page.viewport(1280, 800)
+    })
+
+    /** A two-line settings row that emits a simple menu, the menu riding in a row of its own. */
+    function setting (selected: ShallowRef<unknown>): HTMLElement {
+      return mount(() => h(Md1List, { lines: 2 }, () => [
+        h(Md1Menu, {
+          'selected': selected.value,
+          'onUpdate:selected': (value: unknown) => {
+            selected.value = value
+          },
+        }, () => [
+          h(Md1Menu.Activator, null, {
+            default: ({ attrs }: { attrs: Record<string, unknown> }) => h(Md1List.Item, attrs, () => [
+              h(Md1List.Content, null, () => [
+                h(Md1List.Primary, null, () => 'Phone ringtone'),
+                h(Md1List.Secondary, null, () => String(selected.value)),
+              ]),
+            ]),
+          }),
+          h('li', { role: 'none' }, [
+            h(Md1Menu.Content, null, () => ['Ariel', 'Beebeep', 'Luna'].map(name => h(Md1MenuItem, { value: name }, () => name))),
+          ]),
+        ]),
+      ]))
+    }
+
+    async function offset (width: number): Promise<number> {
+      await page.viewport(width, 800)
+      document.body.dataset.reducedMotion = 'reduce'
+      const selected = shallowRef<unknown>('Beebeep')
+      const host = setting(selected)
+      await settle()
+
+      await userEvent.click(host.querySelector<HTMLElement>('.md1-list__tile')!)
+      await expect.poll(() => sheet()?.matches(':popover-open')).toBe(true)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const label = row('Beebeep').querySelector('.md1-menu__label')!.getBoundingClientRect()
+      const text = host.querySelector('.md1-list__primary')!.getBoundingClientRect()
+
+      return Math.round(label.left - text.left)
+    }
+
+    it('should line the selected label up with the row text on the 16 dp handset keyline', async () => {
+      expect(await offset(412)).toBe(0)
+    })
+
+    it('should line the selected label up with the row text on the 24 dp keyline from 600 px', async () => {
+      expect(await offset(768)).toBe(0)
     })
   })
 
