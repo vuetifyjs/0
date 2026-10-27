@@ -97,6 +97,18 @@ Every other setting shows only its status, with specific details: "Hotspot off",
 :::
 
 ::: ds-example
+/systems/md1/settings/detail
+
+### Longer descriptions
+
+A switch that needs more than one line of explanation moves to a second screen. Its row keeps only the label and the status, "On" or "Off", and opens a screen of its own; the switch and the longer description go there. Press Location history.
+
+The detail screen is titled with the setting's label and carries the up arrow back to Location. Its first row is the switch, labelled with the current state rather than repeating the title, and the description follows on the same content keyline, Regular 14 sp at the secondary ink: what the setting does when it is on, who can see the result, and what turning it off keeps. Turn the switch and go back; the row's status shows the change, because both screens read the same value.
+
+This is the opposite case to the subscreen below, which gathers many settings into a group. Here one setting gets a screen because its explanation does not fit on a row.
+:::
+
+::: ds-example
 /systems/md1/settings/choice
 
 ### Choice dialog
