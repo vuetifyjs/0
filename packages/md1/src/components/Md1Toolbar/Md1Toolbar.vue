@@ -242,6 +242,10 @@
     const value = Math.max(isElement(target) ? target.scrollTop : (document.scrollingElement?.scrollTop ?? 0), 0)
     const last = offsets.get(target) ?? 0
 
+    // A sideways scroll (a carousel or a wide table in the content) leaves
+    // scrollTop where it was; read as a position it would snap the bar back.
+    if (value === last) return
+
     offsets.set(target, value)
     follow(value, value - last)
   }
