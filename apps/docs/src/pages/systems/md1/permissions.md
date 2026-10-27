@@ -46,6 +46,16 @@ A permission can be denied by the user in the request, or silently, because the 
 ## Examples
 
 ::: ds-example
+/systems/md1/permissions/educate
+
+### Educate in context
+
+"Non-critical permissions that are less intuitive may benefit from being explained in context." Location is secondary to a photo app, and why it wants location is not obvious, so the request waits until the feature is invoked and comes with an explanation. Add location opens a card right under the photo that says what the permission is for and how little it reads; only Continue asks the browser, so the system prompt never arrives without the explanation in front of it. Not now closes the card and asks nothing.
+
+The request is real: Continue calls `navigator.geolocation.getCurrentPosition`. When it is allowed the photo is tagged with the place. When it is denied, at the prompt or by a block set earlier, the status line says the photo stays untagged and where to allow location, the feedback the page asks for whenever a permission is denied, while the rest of the screen keeps working. A permission the browser already reports as granted skips the explanation, because no prompt follows.
+:::
+
+::: ds-example
 /systems/md1/permissions/denied
 
 ### A denied permission
