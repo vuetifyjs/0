@@ -450,8 +450,8 @@ describe('quList', () => {
       expect(inbox!.hasAttribute('aria-selected')).toBe(false)
       expect(getComputedStyle(inbox!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(inbox!.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
-      // No scrim outside a listbox.
-      expect(getComputedStyle(inbox!).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+      // The figure's full-bleed band marks the current destination too.
+      expect(getComputedStyle(inbox!).backgroundColor).toBe('rgba(0, 0, 0, 0.07)')
 
       await userEvent.click(sent!)
       await settle()
@@ -505,7 +505,7 @@ describe('quList', () => {
       expect(a!.getAttribute('aria-selected')).toBe('false')
       expect(b!.getAttribute('aria-selected')).toBe('true')
       expect(Object.hasOwn(items(host)[1]!.dataset, 'selected')).toBe(true)
-      expect(getComputedStyle(b!).backgroundColor).toBe('rgb(245, 245, 245)')
+      expect(getComputedStyle(b!).backgroundColor).toBe('rgba(0, 0, 0, 0.07)')
     })
 
     it('should toggle options of a multiple-select listbox and swap the avatar for the check mark', async () => {
@@ -1163,7 +1163,7 @@ describe('quList', () => {
       expect(getComputedStyle(title!).color).toBe('rgb(63, 81, 181)')
     })
 
-    it('should ink a selected option in the primary over the selected-row scrim in both themes', async () => {
+    it('should ink a selected option in the primary over the selected band in both themes', async () => {
       style(new Md1StyleSheetAdapter().generate({
         'md1-light': md1Colors,
         'md1-dark': md1DarkColors,
@@ -1183,19 +1183,14 @@ describe('quList', () => {
       await settle()
 
       const [light, rest, dark] = tiles(host)
-      const probe = document.createElement('div')
-      probe.style.backgroundColor = 'color-mix(in srgb, #616161 50%, #424242)'
-      document.body.append(probe)
-      const grey = getComputedStyle(probe).backgroundColor
-      probe.remove()
 
-      // The navigation drawer page's primary text and icon; the scrim is the data tables page's selected row (Vuetify 1.5 table.active).
+      // The navigation drawer page's "List item selected" figure: primary text and icon on a black 7% band (white 7% on dark, a decision).
       expect(getComputedStyle(light!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(light!.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(light!.querySelector('.md1-list__secondary')!).color).toBe('rgba(0, 0, 0, 0.54)')
-      expect(getComputedStyle(light!).backgroundColor).toBe('rgb(245, 245, 245)')
+      expect(getComputedStyle(light!).backgroundColor).toBe('rgba(0, 0, 0, 0.07)')
       expect(getComputedStyle(dark!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(dark!).backgroundColor).toBe(grey)
+      expect(getComputedStyle(dark!).backgroundColor).toBe('rgba(255, 255, 255, 0.07)')
       // Selection changes ink and fill only: the selected tile is as tall as its resting neighbour.
       expect(light!.getBoundingClientRect().height).toBe(rest!.getBoundingClientRect().height)
       expect(getComputedStyle(rest!).backgroundColor).toBe('rgba(0, 0, 0, 0)')
