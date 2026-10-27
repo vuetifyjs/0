@@ -588,18 +588,33 @@
   }
 
   /*
-   * The current destination of a navigation list takes the primary colour
-   * (navigation drawer page), on the dark sheet too: Vuetify 1.5 leaves the
-   * primary unchanged there, at about 1.5:1 (SPEC.md Known limitations).
+   * A selected item, the current destination and a selected option alike,
+   * takes the primary colour on its text and icon (navigation drawer page:
+   * the selected item's text and icon in the primary colour). Vuetify 1.5
+   * colours the whole tile (VListTile.ts:30-32, VSelectList.js:73-74) and
+   * keeps the sub-title at 54% (_lists.styl:12-13) and the avatar as it is
+   * (only the leading action's icon inherits, _lists.styl:152-155). The dark
+   * sheet keeps the primary too, at about 1.5:1 (SPEC.md Known limitations).
    */
-  .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__primary,
-  .md1-list[data-select='none'] .md1-list__item[data-selected] .md1-list__icon {
+  .md1-list__item[data-selected] .md1-list__body,
+  .md1-list__item[data-selected] .md1-list__primary,
+  .md1-list__item[data-selected] .md1-list__icon {
     color: var(--md1-primary, #3F51B5);
   }
 
-  /* A selected option carries the selection pattern's scrim: the selection token, the accent at 30%. */
+  /*
+   * A selected option also carries the selection pattern's scrim, whose value
+   * the pattern page omits: the selected-row fill of the data tables page,
+   * Grey 100, which is Vuetify 1.5's table.active (th:83-84). Dark takes
+   * Vuetify's #505050 (th:188-189), written as Md1DataTable writes it. The
+   * hover and focus overlays layer over it as background images.
+   */
   .md1-list:not([data-select='none']) .md1-list__item[data-selected] > .md1-list__tile {
-    background-color: var(--md1-selection, rgba(255, 64, 129, 0.3));
+    background-color: var(--md1-grey-100, #F5F5F5);
+  }
+
+  [data-theme='md1-dark'] .md1-list:not([data-select='none']) .md1-list__item[data-selected] > .md1-list__tile {
+    background-color: color-mix(in srgb, var(--md1-grey-700, #616161) 50%, var(--md1-grey-800, #424242));
   }
 
   /* Disabled: text at 38% (50% dark) and icons at the inactive 38%; the tile answers to nothing. */
