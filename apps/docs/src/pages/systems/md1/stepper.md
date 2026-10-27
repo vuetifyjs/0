@@ -183,6 +183,16 @@ The dots are one progressbar to assistive technology, with "Step N of M" as its 
 A progress bar suits flows with many steps, or ones where steps may be inserted along the way based on earlier answers. The bar is 3 dp tall and 112 dp wide, filled in the primary colour over its 30% tint to the current step's share of the flow.
 :::
 
+::: ds-example
+/systems/md1/stepper/inserted
+
+### Mobile: steps inserted mid-flow
+
+The guidelines reach for the progress bar "when there are many steps, or if there are steps that need to be inserted during the process". Here the first step asks whether the order ships to a business, and ticking the box inserts a Company details step straight after it. The steps are a list derived from the answers so far and rendered with `v-for`; nothing else is needed. The bar's maximum grows from four to five, and NEXT goes from the address to the new step, not past it.
+
+`Md1Stepper` numbers and walks its steps in document order, whatever order they mounted in: a step a `v-if` or `v-for` inserts between two others is read as the step it sits at, and removing a step from the middle closes the gap. Key each step by its `value`, not its position, so the steps already in the flow keep their state as others come and go, and insert steps ahead of the current one sparingly, since the bar then jumps backwards under the user.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
