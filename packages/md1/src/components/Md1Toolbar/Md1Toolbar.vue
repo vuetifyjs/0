@@ -14,10 +14,12 @@
   /**
    * The scrolling-techniques page's behaviours for the app bar: fixed with the
    * content under it, hide with the content and return on reverse scroll,
-   * waterfall (seamed until the content scrolls under it), or collapse the
-   * flexible space down to the toolbar.
+   * waterfall (seamed until the content scrolls under it), collapse the
+   * flexible space down to the toolbar, or scroll the whole extended bar off
+   * and return only the toolbar on reverse scroll, the flexible space growing
+   * back at the top (the flexible space's second option).
    */
-  export type Md1ToolbarScroll = 'fixed' | 'hide' | 'waterfall' | 'collapse'
+  export type Md1ToolbarScroll = 'fixed' | 'hide' | 'waterfall' | 'collapse' | 'collapse-hide'
 
   /** What a tab bar in the extension does while the toolbar hides (scrolling-techniques page). */
   export type Md1ToolbarTabBar = 'anchored' | 'hide' | 'staggered'
@@ -40,6 +42,8 @@
     dense: Readonly<Ref<boolean>>
     contextual: Readonly<Ref<boolean>>
     scroll: Readonly<Ref<Md1ToolbarScroll>>
+    /** `true` when the flexible space collapses with the scroll: `collapse` and `collapse-hide`. */
+    collapsing: Readonly<Ref<boolean>>
     /** The flexible space collapse, 0 (expanded) to 1 (only the row remains). */
     progress: Readonly<Ref<number>>
     /** The row's rendered height in px. */
@@ -161,10 +165,44 @@
   const natural = toRef(() => ticket.value?.height.value ?? 0)
   const tabs = toRef(() => ticket.value?.tabs.value ?? false)
 
-  const progress = toRef(() => scroll === 'collapse' && natural.value > 0 ? clamp(top.value / natural.value, 0, 1) : 0)
+  // `collapse-hide` only: the whole bar has scrolled off once, so it returns
+  // as the toolbar alone until the content is back at the top.
+  const folded = shallowRef(false)
+
+  const collapsing = toRef(() => scroll === 'collapse' || scroll === 'collapse-hide')
+
+  const progress = toRef(() => {
+    if (!collapsing.value || natural.value <= 0) return 0
+    if (scroll === 'collapse-hide' && !folded.value) return 0
+
+    return clamp(top.value / natural.value, 0, 1)
+  })
 
   function follow (value: number, delta: number) {
     top.value = value
+
+    // The flexible space's second option: the whole extended bar scrolls off
+    // 1:1; reverse scroll brings back only the toolbar, anchored to the top;
+    // the flexible space and the title grow into place as the content
+    // returns to the top, where the bar unfolds.
+    if (scroll === 'collapse-hide') {
+      if (value <= 0) folded.value = false
+
+      const span = folded.value ? height.value : height.value + natural.value
+
+      offset.value = clamp(offset.value + delta, 0, Math.min(span, value))
+
+      // Off screen: fold to the toolbar, still off screen, for its return.
+      if (!folded.value && natural.value > 0 && offset.value >= span) {
+        folded.value = true
+        offset.value = height.value
+      }
+
+      hidden.value = height.value > 0 && offset.value >= (folded.value ? height.value : span)
+      return
+    }
+
+    folded.value = false
 
     if (scroll !== 'hide') {
       offset.value = 0
@@ -243,6 +281,7 @@
     dense: toRef(() => dense),
     contextual: toRef(() => contextual),
     scroll: toRef(() => scroll),
+    collapsing,
     progress,
     row: height,
     width,

@@ -28,7 +28,7 @@
   // In a collapsing flexible space the large title shrinks to 20 sp with the
   // space, 1:1 with the scroll (scrolling-techniques page).
   const style = toRef(() => {
-    if (!extension || context?.scroll.value !== 'collapse') return undefined
+    if (!extension || !context?.collapsing.value) return undefined
 
     const progress = context.progress.value
 

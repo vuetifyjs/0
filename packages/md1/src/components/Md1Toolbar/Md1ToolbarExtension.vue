@@ -84,7 +84,7 @@
     return w > 0 ? Math.max((context?.width.value ?? 0) * h / w - (context?.row.value ?? 0), 0) : 0
   })
 
-  const collapsing = toRef(() => context?.scroll.value === 'collapse')
+  const collapsing = toRef(() => context?.collapsing.value ?? false)
   const progress = toRef(() => context?.progress.value ?? 0)
 
   const release = context?.extension({
