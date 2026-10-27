@@ -946,7 +946,7 @@ describe('quStepper', () => {
 
   describe('dynamic steps', () => {
     /** A progress stepper over a reactive step list, so a test can insert and remove steps mid-flow. */
-    function flow (initial: Spec[]) {
+    function flow (initial: { value: string, label: string }[]) {
       const list = shallowRef(initial)
       const model = shallowRef<string>()
       const host = mount(() => h(Md1Stepper, {
