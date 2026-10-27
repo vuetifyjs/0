@@ -841,6 +841,27 @@ describe('quToolbar', () => {
       expect(extension.getBoundingClientRect().height).toBe(64)
     })
 
+    it('should ignore a sideways scroll inside the content', async () => {
+      const el = basic({ appBar: true, scroll: 'hide' })
+      await settle()
+
+      const target = scroller(el)
+      const wide = document.createElement('div')
+      wide.style.cssText = 'width: 200px; overflow-x: auto;'
+      wide.innerHTML = '<div style="width: 2000px; height: 20px"></div>'
+      target.prepend(wide)
+
+      await scrollTo(target, 400)
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(true)
+
+      wide.scrollLeft = 300
+      wide.dispatchEvent(new Event('scroll'))
+      await settle()
+
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(true)
+      expect(el.style.transform).toBe('translateY(-64px)')
+    })
+
     it('should ignore scrolling when the toolbar is not an app bar', async () => {
       const el = basic({ scroll: 'hide' })
       await settle()
