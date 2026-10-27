@@ -215,6 +215,16 @@ A card collection is a layout of cards on one plane. The guidelines keep a const
 Cards rest at 2 dp and rise to 8 dp when picked up. Where the pointer is a mouse, the desktop rule applies instead: the card rests seamed at 0 dp and lifts to 8 dp on hover, so a collection on a desktop page reads as flat until the pointer finds a card. Swipe to dismiss and pick-up-and-move are gestures Material Design 1 does not ship; provide buttons for dismissing and reordering.
 :::
 
+::: ds-example
+/systems/md1/card/sorting
+
+### Sorting and dismissing
+
+A collection can be sorted "by date, file size, alphabetical order", and the guidelines sort it from left to right, top to bottom, so the first card in the new order takes the top start corner and the rest reflow row by row. A dense [Md1DropdownButton](/systems/md1/dropdown-button) above the collection picks the key: newest first, largest first, or A to Z. The grid fills in reading order on its own; in a right-to-left layout it fills from the right.
+
+The order lives in v0's [createSortable](/composables/data/create-sortable): a change of key hands it the sorted ids in one `reorder`, and each card's Dismiss button unregisters that card, the button the guidelines ask for in place of swipe to dismiss. The collection is a list of files, so a screen reader hears how many remain, and a status line confirms each dismissal. Restore all brings the dismissed cards back in the current order.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
