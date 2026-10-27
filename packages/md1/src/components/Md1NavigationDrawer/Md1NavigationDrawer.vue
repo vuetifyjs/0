@@ -28,8 +28,9 @@
      */
     type?: Md1NavigationDrawerType
     /**
-     * The mini variant of the persistent drawer: at rest only the icon column
-     * shows, 80 px wide; opening expands it to the full drawer.
+     * The mini variant: at rest only the icon column shows, 80 px wide. A
+     * persistent drawer expands it to the full drawer on open; a temporary
+     * drawer keeps the rail in the layout and opens the full drawer over it.
      */
     mini?: boolean
     /** Starts under the app bar (one increment down) instead of spanning the full height. */
@@ -120,8 +121,8 @@
   const label = toRef(() => ariaLabel ?? locale.ti('Md1.navigation') ?? 'Navigation')
 
   if (__DEV__) {
-    watch(() => mini && type !== 'persistent', wrong => {
-      if (wrong) logger.warn('[Md1NavigationDrawer] `mini` is the persistent drawer\'s rest state (pattern page); it has no effect on a temporary or permanent drawer')
+    watch(() => mini && permanent.value, wrong => {
+      if (wrong) logger.warn('[Md1NavigationDrawer] `mini` is a closed state (pattern page) and a permanent drawer never closes; it has no effect')
     }, { immediate: true })
 
     watch(() => floating && type !== 'permanent', wrong => {
@@ -227,6 +228,28 @@
         </Slice>
       </nav>
     </Dialog.Content>
+
+    <!--
+      Mini: the rail is the temporary drawer's closed state (pattern page). It
+      sits in the layout with its own copy of the content, since a closed
+      <dialog> renders nothing; the open drawer slides over it, and the modal
+      dialog makes it inert meanwhile.
+    -->
+    <Atom
+      v-if="mini"
+      :aria-label="label"
+      as="nav"
+      class="md1-navigation-drawer"
+      data-mini
+      data-rail
+      :data-side="side"
+    >
+      <div class="md1-navigation-drawer__sheet">
+        <Slice part="sheet">
+          <slot v-bind="slotProps" />
+        </Slice>
+      </div>
+    </Atom>
   </Dialog.Root>
 
   <template v-else>
@@ -425,12 +448,13 @@
   }
 
   /*
-   * Mini at rest: 80 px, Vuetify 1.5's mini variant (VNavigationDrawer.ts:54-56;
-   * the page gives no width). Text past the icon column is clipped, not
-   * reflowed; the subheaders and the account area fade out; the scrollbar
-   * stays hidden.
+   * Mini at rest, and the temporary drawer's rail: 80 px, Vuetify 1.5's mini
+   * variant (VNavigationDrawer.ts:54-56; the page gives no width). Text past
+   * the icon column is clipped, not reflowed; the subheaders and the account
+   * area fade out; the scrollbar stays hidden.
    */
-  .md1-navigation-drawer[data-type='persistent'][data-mini]:not([data-open]) {
+  .md1-navigation-drawer[data-type='persistent'][data-mini]:not([data-open]),
+  .md1-navigation-drawer[data-rail][data-mini]:not([data-open]) {
     width: 80px;
   }
 
