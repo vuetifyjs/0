@@ -50,6 +50,7 @@ An app bar can include a status bar, a toolbar (the navigation bar), a tab or se
 | The toolbar scrolls off and returns on reverse scroll | `scroll="hide"` |
 | The toolbar scrolls off and the tab bar stays | `tabBar="anchored"` with `Md1Tabs` in the extension |
 | The flexible space shrinks into the toolbar | `scroll="collapse"` |
+| The whole app bar scrolls off; the toolbar returns, and the flexible space grows back at the top | `scroll="collapse-hide"` ([example](/systems/md1/toolbar#flexible-space-that-scrolls-off)) |
 | The flexible space holds an image | `Md1Toolbar.Extension image` with `scroll="collapse"` |
 | Content overlaps the flexible space | A composition, below |
 
