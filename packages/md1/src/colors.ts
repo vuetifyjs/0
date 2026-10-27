@@ -210,6 +210,8 @@ export const md1Colors = {
   'hover': alpha(black, 0.06),
   'list-hover': alpha(black, 0.04),
   'list-selected': alpha(black, 0.07),
+  // The bottom navigation page's figures draw inactive actions in the secondary 54%.
+  'bottom-navigation-inactive': alpha(black, 0.54),
   'button-disabled': alpha(black, 0.12),
   'button-disabled-text': alpha(black, 0.26),
   // Lead decision 2: Vuetify 1.5's overlay for dialogs and the temporary
@@ -264,6 +266,10 @@ export const md1DarkColors = {
   'list-hover': alpha(white, 0.08),
   // A decision: the figure is light only, so dark mirrors the 7% in white.
   'list-selected': alpha(white, 0.07),
+  // A decision: no figure shows a dark bar, so inactive actions take the
+  // dimmest white that keeps a label at 4.5:1 on Grey 800 (58%, 4.6:1),
+  // which sets them further apart from the lighter primary tone.
+  'bottom-navigation-inactive': alpha(white, 0.58),
   'button-disabled': alpha(white, 0.12),
   'button-disabled-text': alpha(white, 0.3),
   'scrim': alpha(md1Palette['grey-900'], 0.46),

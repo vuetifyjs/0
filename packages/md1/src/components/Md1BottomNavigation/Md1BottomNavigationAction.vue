@@ -147,7 +147,8 @@
    * A fixed-bar action: an equal share of the bar between 80 and 168 dp, the
    * icon 8 dp from the top (6 dp when active), the label 10 dp from the bottom
    * and 12 dp from each side. The side padding sits on the label, so the flex
-   * shares divide the whole bar. Inactive ink is the secondary text colour.
+   * shares divide the whole bar. Inactive ink is `--md1-bottom-navigation-inactive`:
+   * the figures' secondary 54% on light, white 58% on dark (a decision).
    */
   .md1-bottom-navigation__action {
     position: relative;
@@ -164,7 +165,7 @@
     border: 0;
     border-radius: 0;
     background: transparent;
-    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+    color: var(--md1-bottom-navigation-inactive, rgba(0, 0, 0, 0.54));
     font: inherit;
     text-decoration: none;
     cursor: pointer;
