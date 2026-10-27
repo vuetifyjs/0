@@ -64,7 +64,7 @@ The Material Design 1 navigation drawer. The sheet along the start edge that hol
 
 The temporary drawer is v0's [Dialog](/components/disclosure/dialog): `Dialog.Root` owns the open state, `Dialog.Activator` is the trigger, and `Dialog.Content` renders the native `<dialog>` opened with `showModal()`. The browser contains focus, closes on Escape and paints `::backdrop`, which Material Design 1 fills with the scrim. Inside the `<dialog>` the sheet is a `<nav>`. Material Design 1 never mounts v0's `Scrim`: every `Dialog.Content` it renders passes `scrim: false`.
 
-The persistent, mini and permanent drawers are not dialogs, and v0 has no non-modal sheet, so Material Design 1 renders one on v0's [Atom](/components/primitives/atom): a `<nav>` landmark that sits in the layout beside the content. Expanding levels inside the drawer are `Md1List.Group`, which is v0's [Collapsible](/components/disclosure/collapsible). Which type a screen size gets is your decision; the [responsive example](#responsive-types) composes v0's [useBreakpoints](/composables/plugins/use-breakpoints) for it.
+The persistent, mini and permanent drawers, and the temporary drawer's mini rail, are not dialogs, and v0 has no non-modal sheet, so Material Design 1 renders one on v0's [Atom](/components/primitives/atom): a `<nav>` landmark that sits in the layout beside the content. Expanding levels inside the drawer are `Md1List.Group`, which is v0's [Collapsible](/components/disclosure/collapsible). Which type a screen size gets is your decision; the [responsive example](#responsive-types) composes v0's [useBreakpoints](/composables/plugins/use-breakpoints) for it.
 
 The root's one slot holds both the trigger and the drawer. Material Design 1 renders the `Activator` children outside the drawer, where a closed `<dialog>` cannot hide them, and everything else inside. That is why `Activator` must be a direct child of the root. When the trigger lives elsewhere, in an app bar, leave `Activator` out and bind `v-model` instead.
 
@@ -111,7 +111,17 @@ The menu icon here passes `open` to `Md1Toolbar.Nav`, which turns the menu glyph
 
 `mini` is the persistent drawer's alternative rest state: only the icon column shows, and opening expands it to the full drawer. The rail is 80 dp wide at every screen width. The pattern page describes the state without a width, so it takes Vuetify 1.5's mini variant.[^mini]
 
-At rest the destinations keep their full-width layout and are clipped at the rail's edge rather than reflowed, so nothing jumps when the drawer expands. Subheaders and the account area fade out, and the icons stay focusable and named by their labels. `mini` applies to the persistent drawer only; on another type it warns in development.
+At rest the destinations keep their full-width layout and are clipped at the rail's edge rather than reflowed, so nothing jumps when the drawer expands. Subheaders and the account area fade out, and the icons stay focusable and named by their labels. A temporary drawer takes `mini` too, [below](#temporary-mini); only a permanent drawer, which never closes, warns in development.
+:::
+
+::: ds-example
+/systems/md1/navigation-drawer/temporary-mini
+
+### Temporary mini
+
+The pattern page allows the rail as the temporary drawer's closed state too: "The mini variant is also an acceptable closed state for a temporary navigation drawer." With `mini` on the default `temporary` type, the closed drawer is the same 80 dp icon rail, sitting in the layout beside the content, and its icons are destinations you can choose without opening anything.
+
+Opening does not widen the rail. The full drawer slides in from the edge above everything at 16 dp, over the rail and the scrim, exactly as the plain temporary drawer does, and the content beside the rail stays where it was. The open drawer is the modal `<dialog>`, so the rail behind it is inert until the drawer closes. A closed `<dialog>` renders nothing, so the rail is a second `<nav>` with its own copy of `Content`; give destinations a `value` rather than an `id`, which would repeat.
 :::
 
 ::: ds-example
@@ -170,7 +180,7 @@ Resize the window to watch the drawer change. The example closes the drawer when
 |------|------|---------|-------------|
 | `modelValue` | `boolean` | `false` | Whether the drawer is open (`v-model`). A permanent drawer is always open |
 | `type` | `'temporary' \| 'persistent' \| 'permanent'` | `'temporary'` | Temporary: a modal `<dialog>` at 16 dp (14 dp under a fine pointer) over the scrim. Persistent: a `<nav>` beside the content that toggles. Permanent: a `<nav>` that is always open |
-| `mini` | `boolean` | `false` | Persistent only. At rest the drawer is an 80 dp icon rail that expands on open |
+| `mini` | `boolean` | `false` | At rest the drawer is an 80 dp icon rail: a persistent drawer expands it on open, a temporary drawer opens over it. Not for a permanent drawer |
 | `clipped` | `boolean` | `false` | Persistent and permanent. Starts one increment down, under the app bar |
 | `floating` | `boolean` | `false` | Permanent only. Detaches the drawer into a card: 8 dp clear, 2 dp corners, card elevation, no seam |
 | `side` | `'start' \| 'end'` | `'start'` | The edge: `start` is the left nav, `end` the right nav. Both mirror under `dir="rtl"` |
