@@ -159,6 +159,16 @@ The guidelines give only the collapsed size, and say the title shrinks to it, so
 :::
 
 ::: ds-example
+/systems/md1/toolbar/flexible-scroll-off
+
+### Flexible space that scrolls off
+
+The scrolling-techniques page gives the flexible space a second option: "The whole app bar scrolls off. When the user reverse scrolls, the toolbar returns anchored to the top. When scrolling all the way back, the flexible space and the title grow into place again." `scroll="collapse-hide"` is that option. Scrolling down moves the whole extended bar off 1:1, flexible space and large title included, without collapsing it first.
+
+Once the bar is off screen it folds to the toolbar row, so a reverse scroll brings back only the 56 dp (64 dp from 600 px) toolbar with the 20 sp title in it, anchored to the top. The space and the title grow back over the last increment of scroll before the top, the same 1:1 interpolation `collapse` uses, and the bar unfolds at the top so the next scroll takes the whole of it off again. As with `hide`, focus moving into a hidden bar brings it back.
+:::
+
+::: ds-example
 /systems/md1/toolbar/image
 
 ### Flexible space with an image
@@ -226,7 +236,7 @@ An extension that holds neither tabs, nor a title, nor an image is related infor
 | `variant` | `'surface' \| 'primary' \| 'transparent'` | `'primary'` with `appBar`, else `'surface'` | The theme's app-bar grey, the primary 500 with white ink, or no fill and no shadow |
 | `prominent` | `boolean` | `false` | 128 dp (96 dp with `dense`), icons at the top and the title at the bottom |
 | `dense` | `boolean` | `false` | 48 dp with 40 dp icon targets: the desktop app bar |
-| `scroll` | `'fixed' \| 'hide' \| 'waterfall' \| 'collapse'` | `'fixed'` | How the app bar answers the content scrolling under it. Honoured only with `appBar` |
+| `scroll` | `'fixed' \| 'hide' \| 'waterfall' \| 'collapse' \| 'collapse-hide'` | `'fixed'` | How the app bar answers the content scrolling under it. Honoured only with `appBar` |
 | `tabBar` | `'anchored' \| 'hide' \| 'staggered'` | `'anchored'` | What an Md1Tabs bar in the extension does while the bar hides |
 | `contextual` | `boolean` | `false` | Selection mode: the row gives way to `Md1Toolbar.Contextual` |
 | `floating` | `boolean` | `false` | A detached sheet with its own width, square, at the bar's elevation, 16 dp clear of its surroundings |
