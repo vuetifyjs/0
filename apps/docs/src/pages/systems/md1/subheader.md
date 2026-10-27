@@ -24,6 +24,11 @@ related:
 
 The Material Design 1 subheader. A 48 dp tile that names a section of a list, grid list or menu, in Roboto Medium 14 sp at the secondary ink or in the primary colour, pinned to the top of its scroll container until the next subheader pushes it off.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/subheaders.html"
+  title="Subheaders"
+/>
+
 > [!NOTE]
 > Reference: [Subheaders, Material Design 1 guidelines](https://m1.material.io/components/subheaders.html), the archived page Material Design 1 is pinned to. Metrics, alignment, colour and the scrolling rule. This page is the Vue.
 

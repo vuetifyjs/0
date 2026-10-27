@@ -25,6 +25,11 @@ related:
 
 Material Design 1's copy rules, set in the components they govern: dialogs, snackbars, buttons, lists, fields and empty states, each carrying the guidelines' own wording.
 
+<DocsMd1Reference
+  href="https://m1.material.io/style/writing.html"
+  title="Writing"
+/>
+
 > [!NOTE]
 > Reference: [Writing, Material Design 1 guidelines](https://m1.material.io/style/writing.html), the archived page Material Design 1 is pinned to. Language, tone, capitalization and punctuation, button text and global writing. This page is the Vue.
 

@@ -26,6 +26,11 @@ related:
 
 How a reader moves through an app: sideways between sibling views, down into a child, and back up again. Material Design 1 ships the surfaces the guidelines name for each move; this page shows which one to reach for and how they combine.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/navigation.html"
+  title="Navigation"
+/>
+
 > [!NOTE]
 > Reference: [Navigation, Material Design 1 guidelines](https://m1.material.io/patterns/navigation.html), the archived page Material Design 1 is pinned to, with [Navigational transitions](https://m1.material.io/patterns/navigational-transitions.html) and the [navigation drawer](https://m1.material.io/patterns/navigation-drawer.html) page. Hierarchy, patterns, the up and back buttons, and transitions. This page is the Vue.
 

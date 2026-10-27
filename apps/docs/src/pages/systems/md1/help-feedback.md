@@ -26,6 +26,11 @@ related:
 
 Where people find answers inside a Material Design 1 app, and how they send comments, bug reports and questions the answers do not cover.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/help-feedback.html"
+  title="Help and feedback"
+/>
+
 > [!NOTE]
 > Reference: [Help and feedback, Material Design 1 guidelines](https://m1.material.io/patterns/help-feedback.html), the archived page Material Design 1 is pinned to. Placement, behavior, icons and writing. This page is the Vue.
 

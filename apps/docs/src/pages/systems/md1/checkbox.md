@@ -25,6 +25,11 @@ related:
 
 The Material Design 1 checkbox. It selects any number of options from a set: an outlined square when off, filled with the accent colour and a white check when on.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/selection-controls.html"
+  title="Selection controls"
+/>
+
 > [!NOTE]
 > Reference: [Selection controls, Material Design 1 guidelines](https://m1.material.io/components/selection-controls.html), the archived page Material Design 1 is pinned to. Colours and usage come from the page text; the geometry is measured from its spec sheets. This page is the Vue.
 

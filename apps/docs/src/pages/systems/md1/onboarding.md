@@ -27,6 +27,11 @@ related:
 
 Onboarding, the guidelines' "warm welcome", is the first experience a new user has with an app. Material Design 1 defines three models for it, and `@paper/md1` composes each from `Md1Button`, `Md1List` and `Md1Card`; there is no onboarding component.
 
+<DocsMd1Reference
+  href="https://m1.material.io/growth-communications/onboarding.html"
+  title="Onboarding"
+/>
+
 > [!NOTE]
 > Reference: [Onboarding, Material Design 1 guidelines](https://m1.material.io/growth-communications/onboarding.html), the archived page Material Design 1 is pinned to. The three models, when to use each, and the platform redlines. This page is the Vue.
 

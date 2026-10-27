@@ -25,6 +25,11 @@ related:
 
 Ask for access at the moment it makes sense, explain why, and say what happens when the answer is no.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/permissions.html"
+  title="Permissions"
+/>
+
 > [!NOTE]
 > Reference: [Permissions, Material Design 1 guidelines](https://m1.material.io/patterns/permissions.html), the archived page Material Design 1 is pinned to. Permission groups, runtime requests, request patterns and denied permissions. This page is the Vue.
 

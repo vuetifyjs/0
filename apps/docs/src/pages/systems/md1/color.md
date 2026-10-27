@@ -24,6 +24,11 @@ related:
 
 The Material Design 1 color system: a 256-swatch palette, a primary and an accent hue picked from it, and black or white ink at fixed opacities over light and dark surfaces.
 
+<DocsMd1Reference
+  href="https://m1.material.io/style/color.html"
+  title="Color"
+/>
+
 > [!NOTE]
 > Reference: [Color, Material Design 1 guidelines](https://m1.material.io/style/color.html), the archived page Material Design 1 is pinned to, with the 2016 revision of the color page for the original 2014 wording. Palette, theme figures and opacity tables. This page is the Vue.
 

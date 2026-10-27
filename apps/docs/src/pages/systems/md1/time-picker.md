@@ -26,6 +26,11 @@ related:
 
 The Material Design 1 time picker. A header in the primary colour shows the time, and a clock face below it takes taps, drags and arrow keys, in the 12 and 24 hour formats and the portrait and landscape layouts.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/pickers.html"
+  title="Pickers"
+/>
+
 > [!NOTE]
 > Reference: [Pickers, Material Design 1 guidelines](https://m1.material.io/components/pickers.html), the archived page Material Design 1 is pinned to. Anatomy, both layouts and both themes. The page states no numbers: every size on this page is measured from its artwork at 2 px per dp. This page is the Vue.
 

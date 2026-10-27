@@ -25,6 +25,11 @@ related:
 
 Swipe to refresh lets the reader ask for new content by pulling down at the start of a list, grid or card collection sorted by recency. Material Design 1 ships the refresh indicator as `Md1ProgressCircular`; the gesture, the threshold and the placement are a composition in the app.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/swipe-to-refresh.html"
+  title="Swipe to refresh"
+/>
+
 > [!NOTE]
 > Reference: [Swipe to refresh, Material Design 1 guidelines](https://m1.material.io/patterns/swipe-to-refresh.html), the archived page Material Design 1 is pinned to. Usage, positioning and behavior. This page is the Vue.
 

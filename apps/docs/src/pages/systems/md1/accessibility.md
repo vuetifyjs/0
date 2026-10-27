@@ -24,6 +24,11 @@ related:
 
 Material Design 1 components carry their own roles, keyboard handling and touch targets; what is left to the app is the order of the screen, how it survives magnification, and the words a screen reader speaks.
 
+<DocsMd1Reference
+  href="https://m1.material.io/usability/accessibility.html"
+  title="Accessibility"
+/>
+
 > [!NOTE]
 > Reference: [Accessibility, Material Design 1 guidelines](https://m1.material.io/usability/accessibility.html), the archived page Material Design 1 is pinned to. This page is the Vue.
 

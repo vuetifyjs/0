@@ -26,6 +26,11 @@ related:
 
 The Material Design 1 date picker: the chosen date in a coloured header over a month grid, with a year list one tap away. It picks one date, in a confirmation dialog.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/pickers.html"
+  title="Pickers"
+/>
+
 > [!NOTE]
 > Reference: [Pickers, Material Design 1 guidelines](https://m1.material.io/components/pickers.html), the archived page Material Design 1 is pinned to. The page gives no numbers; every size here is measured from its own artwork. This page is the Vue.
 

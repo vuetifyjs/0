@@ -26,6 +26,11 @@ related:
 
 The Material Design 1 tab bar. Fixed or scrollable tabs over a 2 dp indicator, with text, an icon, or an icon above text, and panels that slide between siblings.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/tabs.html"
+  title="Tabs"
+/>
+
 > [!NOTE]
 > Reference: [Tabs, Material Design 1 guidelines](https://m1.material.io/components/tabs.html), the archived page Material Design 1 is pinned to. Types, metrics, colour and behavior. This page is the Vue.
 

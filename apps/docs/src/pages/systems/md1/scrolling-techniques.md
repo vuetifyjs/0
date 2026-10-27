@@ -25,6 +25,11 @@ related:
 
 The app bar is built from regions that react to scrolling on their own terms: the toolbar row, a tab or search bar, and a flexible space. `Md1Toolbar` ships the behaviors through its `scroll` and `tabBar` props; this page shows the regions and the techniques the guidelines name.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/scrolling-techniques.html"
+  title="Scrolling techniques"
+/>
+
 > [!NOTE]
 > Reference: [Scrolling techniques, Material Design 1 guidelines](https://m1.material.io/patterns/scrolling-techniques.html), the archived page Material Design 1 is pinned to. App bar scrollable regions and behavior. This page is the Vue.
 

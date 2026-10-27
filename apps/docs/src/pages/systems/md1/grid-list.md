@@ -27,6 +27,11 @@ related:
 
 The Material Design 1 grid list. A repeated pattern of cells holding image tiles, with an optional header or footer bar of text and one action icon on each tile.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/grid-lists.html"
+  title="Grid lists"
+/>
+
 > [!NOTE]
 > Reference: [Grid lists, Material Design 1 guidelines](https://m1.material.io/components/grid-lists.html), the archived page Material Design 1 is pinned to. Types, metrics, behavior and the tile bars. This page is the Vue.
 

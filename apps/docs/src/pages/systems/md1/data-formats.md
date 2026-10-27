@@ -25,6 +25,11 @@ related:
 
 How dates, times and sensitive numbers appear in text: what to show, what to round, and what to hide. Material Design 1 ships no formatter; the rules are applied with the browser's `Intl` formatters in the reader's locale, which v0's [useLocale](/composables/plugins/use-locale) and [useDate](/composables/plugins/use-date) hold for the app.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/data-formats.html"
+  title="Data formats"
+/>
+
 > [!NOTE]
 > Reference: [Data formats, Material Design 1 guidelines](https://m1.material.io/patterns/data-formats.html), the archived page Material Design 1 is pinned to. Date and time, and data redaction and truncation. This page is the Vue.
 

@@ -27,6 +27,11 @@ related:
 
 The Material Design 1 bottom sheet. A sheet of material that slides up from the bottom edge: modal, over a scrim, to offer a set of actions, or persistent, beside the content it supplements.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/bottom-sheets.html"
+  title="Bottom sheets"
+/>
+
 > [!NOTE]
 > Reference: [Bottom sheets, Material Design 1 guidelines](https://m1.material.io/components/bottom-sheets.html), the archived page Material Design 1 is pinned to. Types, list and grid metrics, the 16:9 keyline, widths and dismissal. This page is the Vue.
 

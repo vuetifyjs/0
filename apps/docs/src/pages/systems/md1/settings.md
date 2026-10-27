@@ -26,6 +26,11 @@ related:
 
 A settings screen is a list of the preferences that shape how an app behaves, each with its current value in view. Material Design 1 has no settings component; the screen is an `Md1List` with controls in its action column, `Md1Subheader` and `Md1Divider` for grouping, and `Md1Dialog` for the settings that take a choice.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/settings.html"
+  title="Settings"
+/>
+
 > [!NOTE]
 > Reference: [Settings, Material Design 1 guidelines](https://m1.material.io/patterns/settings.html), the archived page Material Design 1 is pinned to, with the [navigation drawer](https://m1.material.io/patterns/navigation-drawer.html) and [help and feedback](https://m1.material.io/patterns/help-feedback.html) pages for placement. Placement, grouping, labels and status text. This page is the Vue.
 

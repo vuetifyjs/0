@@ -25,12 +25,17 @@ related:
 
 The Material Design 1 feature discovery prompt. A large circle in the app's colour draws attention to one action, with a short title and a line of text that say what it does for the user.
 
+<DocsMd1Reference
+  href="https://m1.material.io/growth-communications/feature-discovery.html"
+  title="Feature discovery"
+/>
+
 > [!NOTE]
 > Reference: [Feature discovery, Material Design 1 guidelines](https://m1.material.io/growth-communications/feature-discovery.html), the archived page Material Design 1 is pinned to. Anatomy, the mobile and desktop placement rules, colour and motion. This page is the Vue.
 
 ## Usage
 
-`Md1FeatureDiscovery` is a compound. The root owns `v-model` (open) and emits `complete` when the promoted action is tapped and `dismiss` when the prompt is tapped away. `Target` wraps the promoted action where it already sits in the layout; `Title` and `Text` are the prompt's copy.
+`Md1FeatureDiscovery` is a compound. The root owns `v-model` (open) and emits `complete` when the promoted action is tapped and `dismiss` when the prompt is tapped away. `Activator` wraps the promoted action where it already sits in the layout; `Title` and `Text` are the prompt's copy.
 
 A prompt holds one action and nothing else: no buttons, no "Next". Show it at a moment where the action helps the task in progress, and no more than once per session.
 
@@ -47,7 +52,7 @@ A prompt holds one action and nothing else: no buttons, no "Next". Show it at a 
 
 <template>
   <Md1FeatureDiscovery>
-    <Md1FeatureDiscovery.Target />
+    <Md1FeatureDiscovery.Activator />
 
     <Md1FeatureDiscovery.Title />
 
@@ -58,7 +63,7 @@ A prompt holds one action and nothing else: no buttons, no "Next". Show it at a 
 
 ## Composed on Vuetify0
 
-`Md1FeatureDiscovery` runs a one-step v0 [Tour](/components/disclosure/tour). Each prompt creates its own tour context under a unique namespace, so two prompts on a page never share a step. `Target` is a `Tour.Activator` rendered as a `span` around the action: it registers the element the tour measures and anchors to, and it never scrolls the page. The text is a `Tour.Content`, the tour's non-modal dialog, with `Tour.Title` and `Tour.Description` inside it supplying `aria-labelledby` and `aria-describedby`. `Tour.Content` also binds Escape and moves focus into the prompt; when the tour stops or completes, the tour returns focus to the element that had it when the prompt opened.
+`Md1FeatureDiscovery` runs a one-step v0 [Tour](/components/disclosure/tour). Each prompt creates its own tour context under a unique namespace, so two prompts on a page never share a step. `Activator` is a `Tour.Activator` rendered as a `span` around the action: it registers the element the tour measures and anchors to, and it never scrolls the page. The text is a `Tour.Content`, the tour's non-modal dialog, with `Tour.Title` and `Tour.Description` inside it supplying `aria-labelledby` and `aria-describedby`. `Tour.Content` also binds Escape and moves focus into the prompt; when the tour stops or completes, the tour returns focus to the element that had it when the prompt opened.
 
 The circles are Material Design 1's own. `Tour.Highlight` paints a rectangular cutout scrim with a stroke around the activator and takes no class, so the root draws the background and the target disc in a v0 [Portal](/components/primitives/portal) rendered in place, at the stack layer v0 gives a tour highlight, and lifts the action one layer above them. A tap outside the background stops the tour; that is the dismissal `Tour.Skip` performs, without its button. `Tour.Next`, `Tour.Prev`, `Tour.Progress` and `Tour.Keyboard` are not rendered: a prompt has one step, and the keyboard part's Enter and arrow keys would complete it without the action.
 
@@ -95,7 +100,7 @@ Away from the top and bottom bands, the guidelines move the background 20 dp off
 
 The page says the tap target may use the app's primary colour or the toolbar's, and its colour figures show both the primary and the accent version. `color="accent"` paints the background in `--md1-accent` (Pink A200) at 96% with white ink.
 
-The promoted action here is an `Md1Fab` with `position="static"`, placed by its container at the handset FAB inset. Wrap the FAB in `Target` exactly like an icon button: the target disc sits under it, the FAB keeps its own colour and shadow, and its click still runs. A FAB in the bottom band takes the edge rule, so the background is centred on it.
+The promoted action here is an `Md1Fab` with `position="static"`, placed by its container at the handset FAB inset. Wrap the FAB in `Activator` exactly like an icon button: the target disc sits under it, the FAB keeps its own colour and shadow, and its click still runs. A FAB in the bottom band takes the edge rule, so the background is centred on it.
 :::
 
 ::: ds-example
@@ -105,7 +110,7 @@ The promoted action here is an `Md1Fab` with `position="static"`, placed by its 
 
 On desktop and tablet the guidelines keep a prompt on the surface the target rests on, such as a card. From 600 px up, a target inside an `Md1Card` gets that treatment: the circles are clipped to the card and `data-contained` is set. Targets within 88 dp of the card's edge centre the background on the target, as the share button does here; targets nearer the card's centre take the 20 dp offset. The text is nudged to stay on the card.
 
-The page lists the exceptions too, and Material Design 1 follows them. A surface smaller than 280 dp tall and 360 dp wide lets the prompt extend past its edges, unconfined. A target within the top or bottom 144 dp, or the left or right 200 dp, of the screen centres the background over everything else. `contained` overrides the automatic choice: `true` limits the prompt at any width, to the card or else to the Target's parent element, and `false` never limits it.
+The page lists the exceptions too, and Material Design 1 follows them. A surface smaller than 280 dp tall and 360 dp wide lets the prompt extend past its edges, unconfined. A target within the top or bottom 144 dp, or the left or right 200 dp, of the screen centres the background over everything else. `contained` overrides the automatic choice: `true` limits the prompt at any width, to the card or else to the Activator's parent element, and `false` never limits it.
 :::
 
 ::: ds-example
@@ -138,7 +143,7 @@ Each ripple is a circle that grows from the next control and fades, repeating un
 |------|------|---------|-------------|
 | `modelValue` | `boolean` | `false` | Whether the prompt shows. Bound with `v-model`; the prompt writes `false` when it completes or is dismissed |
 | `color` | `'primary' \| 'accent'` | `'primary'` | The background colour, at 96% opacity, with white ink |
-| `contained` | `boolean` | | Limit the prompt to its surface: the closest `Md1Card`, else the Target's parent. Unset, it applies from 600 px up when the target is on a card |
+| `contained` | `boolean` | | Limit the prompt to its surface: the closest `Md1Card`, else the Activator's parent. Unset, it applies from 600 px up when the target is on a card |
 | `placement` | `'start' \| 'end'` | | Force the side the background moves 20 dp toward. Unset, it is computed from the target's position and the writing direction. The edge rules still centre it |
 
 | Event | Payload | Description |
@@ -151,7 +156,7 @@ Each ripple is a circle that grows from the next control and fades, repeating un
 
 | Part | Props | Notes |
 |------|-------|-------|
-| `Md1FeatureDiscovery.Target` | | A `span` around the promoted action: one icon-only `Md1Button` or an `Md1Fab`. Lifts the action above the circles, pulses it while idle, and completes the prompt on a tap. Outside the root it renders its content inert and warns in development |
+| `Md1FeatureDiscovery.Activator` | | A `span` around the promoted action: one icon-only `Md1Button` or an `Md1Fab`. Lifts the action above the circles, pulses it while idle, and completes the prompt on a tap. Outside the root it renders its content inert and warns in development |
 | `Md1FeatureDiscovery.Title` | | The headline, Title 20 sp in the prompt's ink;[^type] the dialog's accessible name. Renders into the prompt while it shows and nothing in place |
 | `Md1FeatureDiscovery.Text` | | The supporting line, Subheading 16 sp at 70%; the dialog's accessible description. Always below the title |
 

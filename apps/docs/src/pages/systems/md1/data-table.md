@@ -25,6 +25,11 @@ related:
 
 The Material Design 1 data table: raw data on a card, with a title header, sortable columns, selectable rows, inline editing and a pagination footer.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/data-tables.html"
+  title="Data tables"
+/>
+
 > [!NOTE]
 > Reference: [Data tables, Material Design 1 guidelines](https://m1.material.io/components/data-tables.html), the archived page Material Design 1 is pinned to. Metrics, colour, sorting, selection and editing. This page is the Vue.
 

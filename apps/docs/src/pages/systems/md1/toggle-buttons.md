@@ -25,6 +25,11 @@ related:
 
 The Material Design 1 toggle buttons. A row of at least three related options, selected one at a time or several at once, labelled with text, a glyph, or both.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/buttons.html"
+  title="Buttons"
+/>
+
 > [!NOTE]
 > Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to (the toggle buttons section). The page draws the group's metrics only as images; the values on this page are Material Design 1 decisions, marked where they appear. This page is the Vue.
 

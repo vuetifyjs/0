@@ -25,6 +25,11 @@ related:
 
 The Material Design 1 dropdown button. A flat button that shows the current state and a down arrow; pressing it opens a menu over the button that lists every state.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/buttons.html"
+  title="Buttons"
+/>
+
 > [!NOTE]
 > Reference: [Buttons, Material Design 1 guidelines](https://m1.material.io/components/buttons.html), the archived page Material Design 1 is pinned to, with the menu sheet from [Menus](https://m1.material.io/components/menus.html). Behavior, the desktop paddings and the menu metrics. This page is the Vue.
 

@@ -24,6 +24,11 @@ related:
 
 A right-to-left layout is the mirror image of a left-to-right one: layout, text and the icons that point all flip, while numbers, untranslated text, clocks and media controls keep their direction.
 
+<DocsMd1Reference
+  href="https://m1.material.io/usability/bidirectionality.html"
+  title="Bidirectionality"
+/>
+
 > [!NOTE]
 > Reference: [Bidirectionality, Material Design 1 guidelines](https://m1.material.io/usability/bidirectionality.html), the archived page Material Design 1 is pinned to. This page is the Vue.
 

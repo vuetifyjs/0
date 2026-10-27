@@ -25,6 +25,11 @@ related:
 
 Every Material Design 1 surface sits at a depth measured in dp, and the shadow it casts is the only cue that says how far it floats above the sheet beneath it.
 
+<DocsMd1Reference
+  href="https://m1.material.io/material-design/elevation-shadows.html"
+  title="Elevation and shadows"
+/>
+
 > [!NOTE]
 > Reference: [Elevation and shadows, Material Design 1 guidelines](https://m1.material.io/material-design/elevation-shadows.html), the archived page Material Design 1 is pinned to. The component elevation table, resting and dynamic elevation, and the rules for shadows. This page is the Vue.
 

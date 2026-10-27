@@ -26,6 +26,11 @@ related:
 
 Images in Material Design 1 do not pop in. They develop like a print: opacity, exposure and saturation rise in three staggered phases, over a longer duration than a transition, and full colour arrives last.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/loading-images.html"
+  title="Loading images"
+/>
+
 > [!NOTE]
 > Reference: [Loading images, Material Design 1 guidelines](https://m1.material.io/patterns/loading-images.html), the archived page Material Design 1 is pinned to. Opacity, exposure and saturation, duration and the position shift. This page is the Vue.
 

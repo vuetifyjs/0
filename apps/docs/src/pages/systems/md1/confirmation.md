@@ -25,6 +25,11 @@ related:
 
 Ask before an action the user may regret, and say so after an action the app took on its own, with a way back when there is one.
 
+<DocsMd1Reference
+  href="https://m1.material.io/patterns/confirmation-acknowledgement.html"
+  title="Confirmation and acknowledgement"
+/>
+
 > [!NOTE]
 > Reference: [Confirmation and acknowledgement, Material Design 1 guidelines](https://m1.material.io/patterns/confirmation-acknowledgement.html), the archived page Material Design 1 is pinned to. When to confirm, when to acknowledge, and how long each stays. This page is the Vue.
 

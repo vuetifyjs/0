@@ -26,6 +26,11 @@ related:
 
 The Material Design 1 floating action button. A circled icon floating above the interface for the one promoted action on a screen, which can fling out a short set of related actions.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/buttons-floating-action-button.html"
+  title="Buttons: Floating Action Button"
+/>
+
 > [!NOTE]
 > Reference: [Buttons: Floating Action Button, Material Design 1 guidelines](https://m1.material.io/components/buttons-floating-action-button.html), the archived page Material Design 1 is pinned to. Sizes, placement, elevation and transitions. This page is the Vue.
 

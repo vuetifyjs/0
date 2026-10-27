@@ -26,6 +26,11 @@ related:
 
 The Material Design 1 snackbar. A short message about an operation at the bottom of the screen, with at most one text action, that leaves on its own.
 
+<DocsMd1Reference
+  href="https://m1.material.io/components/snackbars-toasts.html"
+  title="Snackbars and toasts"
+/>
+
 > [!NOTE]
 > Reference: [Snackbars and toasts, Material Design 1 guidelines](https://m1.material.io/components/snackbars-toasts.html), the archived page Material Design 1 is pinned to. Metrics, placement, motion and usage. This page is the Vue.
 
