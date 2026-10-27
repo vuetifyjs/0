@@ -161,6 +161,19 @@ describe('quCheckbox', () => {
       expect(warn).toHaveBeenCalledTimes(0)
     })
 
+    it('should put a consumer aria-describedby and aria-labelledby on the control, not the root label', async () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const { root, control } = checkbox({ 'label': undefined, 'aria-labelledby': 'row-name', 'aria-describedby': 'row-note', 'class': 'consumer' })
+      await settle()
+
+      expect(control.getAttribute('aria-describedby')).toBe('row-note')
+      expect(root.hasAttribute('aria-describedby')).toBe(false)
+      expect(root.hasAttribute('aria-labelledby')).toBe(false)
+      expect(root.classList.contains('consumer')).toBe(true)
+      expect(warn).toHaveBeenCalledTimes(0)
+    })
+
     it('should warn in dev when the checkbox has no accessible name', async () => {
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
