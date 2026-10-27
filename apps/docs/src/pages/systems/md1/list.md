@@ -33,7 +33,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does,[^dark] although it reads at under 2:1 there, below the 4.5:1 contrast floor.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour, the selected band and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does,[^dark] although it reads at under 2:1 there, below the 4.5:1 contrast floor.
 
 ::: ds-example
 /systems/md1/list/basic
@@ -164,7 +164,7 @@ A radio in the action column turns the list into a single choice. Wrap the list 
 
 `select="single"` makes the list a listbox. The root renders `ul[role=listbox]`, each tile becomes `role="option"` with `aria-selected`, and `v-model` holds the selected value. Clicking a tile, or pressing Space or Enter on it, selects it and clears the previous one.
 
-The selected tile takes the primary colour on its text and icon, as the current destination does, and carries the selection pattern's scrim. The pattern page gives no scrim value, so the scrim is the selected-row fill of the data tables page, Grey 100, which is also Vuetify 1.5's selected table row; the dark theme takes Vuetify's `#505050`.[^scrim] Secondary text keeps its 54% and an avatar keeps its colours. Hover and focus layer their 4% and 12% overlays over the scrim, and nothing moves when a tile is selected. A disabled option stays visible at 38% ink and refuses the selection.
+The selected tile takes the primary colour on its text and icon, as the current destination does, and carries the selection pattern's scrim. The pattern page gives no scrim value; the navigation drawer page's selected-item figures do, a full-bleed band of black at about 7%, the `--md1-list-selected` token. The current destination of a navigation list sits on the same band. The dark theme mirrors it in white 7%.[^scrim] Secondary text keeps its 54% and an avatar keeps its colours. Hover and focus layer their 4% and 12% overlays over the scrim, and nothing moves when a tile is selected. A disabled option stays visible at 38% ink and refuses the selection.
 :::
 
 ::: ds-example
@@ -265,7 +265,7 @@ Swipe gestures (leave-behinds) are touch gestures the package does not ship. Exp
 
 [^reorder-keys]: Our call: the notes ask for move-up and move-down actions on the handle; direct arrow moves skip a separate grab mode.
 
-[^scrim]: Vuetify 1.5.24, stylus/settings/_theme.styl:83-84 and 188-189: `table.active` is grey lighten-4 on light and `#505050` on dark. Vuetify's list tile has no selected fill. On the dark scrim the primary 500 text reads at about 1.2:1, below the contrast floor, like the current destination on the dark sheet.
+[^scrim]: Material Design 1, [Navigation drawer](https://m1.material.io/patterns/navigation-drawer.html), the "List item selected" figures: `#E8E8E8` across the selected row on the `#FAFAFA` drawer, black at about 7%. The figures show the light theme only, so white 7% on dark is our call; on it the primary 500 text reads at about 1.2:1, below the contrast floor.
 
 [^duration]: Our call: the lists: controls page gives no timing; the standard duration is the motion page's default for on-screen changes.
 

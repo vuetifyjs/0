@@ -102,6 +102,7 @@ The state overlays come from the component pages rather than the color page, and
 |-------|-------|------|--------|
 | `--md1-hover` | black 6% | white 10% | the text-fields page's box fill and the selection controls' measured halo |
 | `--md1-list-hover` | black 4% | white 8% | Vuetify 1.5's list hover: lists, menus and their rows[^list-hover] |
+| `--md1-list-selected` | black 7% | white 7% | The selected list item's band, from the navigation drawer page's figures; dark is our call |
 | `--md1-focus` | black 12% | white 12% | buttons page |
 | `--md1-pressed` | `#999999` 40% | `#CCCCCC` 25% | buttons page |
 | `--md1-button-disabled` | black 12% | white 12% | buttons page, the disabled raised container |

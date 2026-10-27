@@ -3,6 +3,7 @@
   const STATES = [
     { token: 'hover', name: 'Box fill and halo', light: 'black 6%', dark: 'white 10%' },
     { token: 'list-hover', name: 'List hover', light: 'black 4%', dark: 'white 8%' },
+    { token: 'list-selected', name: 'List selected', light: 'black 7%', dark: 'white 7%' },
     { token: 'focus', name: 'Focus', light: 'black 12%', dark: 'white 12%' },
     { token: 'pressed', name: 'Pressed', light: '#999999 40%', dark: '#CCCCCC 25%' },
     { token: 'selection', name: 'Selection', light: 'accent 30%', dark: 'accent 30%' },

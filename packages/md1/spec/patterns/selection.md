@@ -72,7 +72,7 @@ Item selection has no numeric values on the page. The text-selection figure carr
 |---|---|---|---|
 | Text selection highlight | Accent color from the palette ("Text selection elements may reflect your color palette by using your accent color") | Same; the page shows light and dark figures without values | high (role), n/a (values) |
 | Selected text | Must be legible with noticeable contrast against the background; alternatives: outlines, text treatments, motion, check mark icons | Same | high |
-| Selected item scrim | not found | not found | n/a |
+| Selected item scrim | Full-bleed band across the selected list row: `#E8E8E8` on the `#FAFAFA` drawer, black at about 7%, hard edges (navigation-drawer page, "List item selected" figures, sampled at 2x) | not found | high (light, figure) |
 | Selected list item text and icon | Primary color, or `#000000` 100% | not found | high (navigation-drawer page) |
 | Row highlight under a selected item | Touch ripple / highlight; darker tint of primary if contrast is insufficient | not found | high |
 | Vuetify 1.5 table selected row | `table.active` grey lighten-4 `#F5F5F5`; hover grey lighten-3 `#EEEEEE` | `#505050`; hover grey darken-2 `#616161` | moderate |
