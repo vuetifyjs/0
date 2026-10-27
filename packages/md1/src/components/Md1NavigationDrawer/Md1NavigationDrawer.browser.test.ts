@@ -564,14 +564,74 @@ describe('quNavigationDrawer', () => {
       expect(getComputedStyle(host.querySelector('#subheader')!).opacity).toBe('1')
     })
 
-    it('should warn in dev on a temporary or permanent drawer', async () => {
+    it('should warn in dev on a permanent drawer, which never closes', async () => {
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      drawer({ props: { mini: true } })
+      drawer({ bare: true, props: { type: 'permanent', mini: true } })
       await settle()
 
       expect(warn).toHaveBeenCalledTimes(1)
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('mini'))
+    })
+  })
+
+  describe('temporary mini', () => {
+    function rail (host: HTMLElement): HTMLElement {
+      return host.querySelector<HTMLElement>('nav.md1-navigation-drawer[data-rail]')!
+    }
+
+    it('should rest as an 80 px rail in the layout beside a closed dialog, without warning', async () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const host = drawer({ props: { mini: true } })
+      await settle()
+
+      const el = rail(host)
+      const dialog = host.querySelector<HTMLDialogElement>('dialog.md1-navigation-drawer')!
+
+      expect(warn).not.toHaveBeenCalled()
+      expect(dialog.open).toBe(false)
+      expect(el.clientWidth).toBe(80)
+      expect(el.hasAttribute('inert')).toBe(false)
+      expect(host.querySelector('#main')!.getBoundingClientRect().left - el.getBoundingClientRect().left).toBe(81)
+
+      const icon = el.querySelector<HTMLElement>('.md1-list__icon')!
+
+      expect(icon.getBoundingClientRect().left - el.getBoundingClientRect().left).toBe(16)
+      expect(getComputedStyle(el.querySelector('.md1-subheader')!).opacity).toBe('0')
+      expect(getComputedStyle(el.querySelector('.md1-navigation-drawer__account')!).opacity).toBe('0')
+    })
+
+    it('should choose a destination from the rail without opening the drawer', async () => {
+      const open = shallowRef(false)
+      const current = shallowRef<unknown>('inbox')
+      const host = drawer({ open, page: current, props: { mini: true } })
+      await settle()
+
+      await userEvent.click(rail(host).querySelector<HTMLElement>('#sent')!)
+      await settle()
+
+      expect(current.value).toBe('sent')
+      expect(open.value).toBe(false)
+    })
+
+    it('should open the full drawer modally over the rail, which keeps its place', async () => {
+      const open = shallowRef(false)
+      const host = drawer({ open, bare: true, props: { mini: true } })
+      await settle()
+
+      const main = host.querySelector('#main')!.getBoundingClientRect().left
+
+      open.value = true
+      await settle()
+
+      const dialog = host.querySelector<HTMLDialogElement>('dialog.md1-navigation-drawer')!
+
+      expect(dialog.open).toBe(true)
+      expect(dialog.matches(':modal')).toBe(true)
+      expect(dialog.clientWidth).toBe(320)
+      expect(rail(host).clientWidth).toBe(80)
+      expect(host.querySelector('#main')!.getBoundingClientRect().left).toBe(main)
     })
   })
 
