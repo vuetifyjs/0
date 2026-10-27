@@ -195,6 +195,16 @@ Material Design 1 has no dynamic type component; this is a few lines in the exam
 :::
 
 ::: ds-example
+/systems/md1/typography/line-length
+
+### Line length
+
+The page quotes the Baymard Institute's advice on readability: "You should have around 60 characters per line if you want a good reading experience." A line that is too wide makes it hard for the eye to find where a line starts and ends, and to continue from the correct line in a large block. A line that is too narrow sends the eye back too often, breaking the reader's rhythm and tempting them to start the next line before finishing the current one.
+
+The same Body 1 paragraph is set at three measures; the caption counts the rendered lines and reports the characters each one actually holds. Material Design 1 sets no measure on its type classes, because the right width depends on the layout around the text. Cap running text yourself, with a `max-width` in `em` so it holds at the device and desktop sizes: in Roboto about 30em carries the 60 characters the page recommends.
+:::
+
+::: ds-example
 /systems/md1/typography/breaks
 
 ### Line breaks
