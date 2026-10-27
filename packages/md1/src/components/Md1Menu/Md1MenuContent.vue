@@ -17,8 +17,8 @@
   /**
    * Material Design 1 withholds `positionArea` and `positionTry`: a simple menu
    * with a selected item opens over the emitting element with that item on top
-   * of it, its text on the emitter's text (a list row or a labelled button) or
-   * else its start edge on the emitter's; a menu with no selection opens below it.
+   * of it, its start edge on the start of a list row's text, or else on the
+   * emitter's own start edge; a menu with no selection opens below it.
    * Either way the sheet moves as a whole near a screen edge (menus page).
    * `value` stays internal: one Md1Menu is one layer.
    */
@@ -46,17 +46,17 @@
   const menu = useMenuRoot(namespace.value)
 
   /*
-   * The emitter's text, which the selected row's text lands on (menus page,
-   * "Horizontal alignment"): a list row's text column, whatever keyline the
-   * list sets it on, or a labelled button's content. An emitter with neither
-   * keeps the sheet's start edge on its own.
+   * A list row's text column, which the sheet's start edge lands on: "simple
+   * menus are always left-aligned with the start of the list item text" (menus
+   * page, "Simple menus"), whatever keyline the list sets it on. Any other
+   * emitter keeps the sheet's start edge on its own.
    */
   function label (): Element | null {
     if (!IN_BROWSER) return null
 
     const trigger = document.querySelector(`#${CSS.escape(menu.triggerId(menu.defaultLayer))}`)
 
-    return isNull(trigger) ? null : trigger.querySelector('.md1-list__content, .md1-button__content')
+    return isNull(trigger) ? null : trigger.querySelector('.md1-list__content')
   }
 
   // The selected row lands on the emitting element (menus page, "Location"). A
@@ -65,7 +65,8 @@
     item: sheet => Object.hasOwn(sheet.dataset, 'sub')
       ? null
       : sheet.querySelector<HTMLElement>(':scope > .md1-menu__list > [data-selected]'),
-    text: row => row.querySelector('.md1-menu__label'),
+    // The row spans the sheet, so its start edge is the sheet's.
+    text: row => row,
     label,
   })
 </script>
