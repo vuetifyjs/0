@@ -53,9 +53,8 @@
 
 <style>
   /*
-   * A settings sheet a handset wide. The rows carry no icon, so their text
-   * starts on the same 16 dp keyline as the menu's, and the menu laid over a
-   * row lines its selected item's text up with the row's.
+   * A settings sheet a handset wide. The menu laid over a row starts its
+   * sheet where the row's text starts.
    */
   .md1-docs-menu-settings {
     box-sizing: border-box;
