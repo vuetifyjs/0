@@ -44,7 +44,7 @@
     /** Value associated with this tab (used to match with TabsPanel) */
     value?: V
     /** Disables this specific tab */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
     /** Accessible label for this tab */
@@ -164,14 +164,23 @@
     if (item) nextTick(() => (toElement(item.el) as HTMLElement | undefined)?.focus())
   }
 
+  function isRtl (e: KeyboardEvent) {
+    const el = e.currentTarget
+    if (!(el instanceof HTMLElement)) return false
+    return getComputedStyle(el).direction === 'rtl'
+  }
+
   function onKeydown (e: KeyboardEvent) {
     const orientation = tabs.orientation.value
     const isHorizontal = orientation === 'horizontal'
     const manual = tabs.activation.value === 'manual'
+    const rtl = isHorizontal && isRtl(e)
+    const forward = rtl ? 'ArrowLeft' : 'ArrowRight'
+    const backward = rtl ? 'ArrowRight' : 'ArrowLeft'
 
     // Arrow key navigation
     if (
-      (isHorizontal && e.key === 'ArrowRight') ||
+      (isHorizontal && e.key === forward) ||
       (!isHorizontal && e.key === 'ArrowDown')
     ) {
       e.preventDefault()
@@ -185,7 +194,7 @@
     }
 
     if (
-      (isHorizontal && e.key === 'ArrowLeft') ||
+      (isHorizontal && e.key === backward) ||
       (!isHorizontal && e.key === 'ArrowUp')
     ) {
       e.preventDefault()

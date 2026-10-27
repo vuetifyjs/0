@@ -21,6 +21,7 @@
     <HomeEcosystem />
     <HomeBenchmarks />
     <HomeFoundation />
+    <HomeBlog />
     <HomeCta />
   </div>
 </template>

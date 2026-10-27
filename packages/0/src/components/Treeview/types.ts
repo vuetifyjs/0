@@ -152,7 +152,7 @@ export interface TreeviewItemProps<V = unknown> extends AtomProps {
    * </template>
    * ```
    */
-  disabled?: MaybeRefOrGetter<boolean>
+  disabled?: boolean | MaybeRefOrGetter<boolean>
   /** Namespace for dependency injection */
   namespace?: string
 }

@@ -51,9 +51,9 @@
     /** Enable 0.5 increments */
     half?: boolean
     /** Disable interaction */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Show value, prevent changes */
-    readonly?: MaybeRefOrGetter<boolean>
+    readonly?: boolean | MaybeRefOrGetter<boolean>
     /** Accessible name for the slider */
     ariaLabel?: string
     /** ID of element that labels this slider */

@@ -84,6 +84,36 @@ async function createMarkdownPlugin () {
   })
 }
 
+// The One session cookie is host-only on localhost. 127.0.0.1 is another site,
+// so a credentialed /auth/verify from that host is sent with no cookie.
+function redirectLoopback () {
+  return {
+    name: 'redirect-loopback',
+    configureServer (server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.headers.upgrade) {
+          next()
+          return
+        }
+
+        const host = req.headers.host ?? ''
+        const matched = /^(?:127\.0\.0\.1|\[::1\])(?::(\d+))?$/.exec(host)
+
+        if (!matched) {
+          next()
+          return
+        }
+
+        const port = matched[1] ? `:${matched[1]}` : ''
+        res.writeHead(302, {
+          Location: `http://localhost${port}${req.url ?? '/'}`,
+        })
+        res.end()
+      })
+    },
+  }
+}
+
 export default defineConfig({
   optimizeDeps: {
     exclude: ['@vue/repl'],
@@ -98,6 +128,7 @@ export default defineConfig({
     transformer: 'postcss',
   },
   plugins: [
+    redirectLoopback(),
     VueRouter({
       dts: './src/typed-router.d.ts',
       extensions: ['.vue', '.md'],

@@ -1,5 +1,19 @@
 # @vuetify/v0
 
+## 1.3.1
+
+### Patch Changes
+
+- [#1106](https://github.com/vuetifyjs/0/pull/1106) [`d6e34fd`](https://github.com/vuetifyjs/0/commit/d6e34fdb4cbf4be72181dbec6a709a7caf56491b) Thanks [@johnleider](https://github.com/johnleider)! - fix(components): treat bare boolean attributes like `<Menu.Item disabled>` as `true` on the `disabled`, `readonly`, and `indeterminate` props that also accept refs and getters. Previously they arrived as `''` and the component stayed enabled.
+
+- [#1095](https://github.com/vuetifyjs/0/pull/1095) [`adf806d`](https://github.com/vuetifyjs/0/commit/adf806d705939cc9aecdae42273eb710fbc11bb2) Thanks [@johnleider](https://github.com/johnleider)! - fix(utilities): stop pulling Vue's Vapor runtime into apps that do not use Vapor
+
+- [#1105](https://github.com/vuetifyjs/0/pull/1105) [`c741cef`](https://github.com/vuetifyjs/0/commit/c741cef0df94770d389a405b9da4f087fc03c319) Thanks [@johnleider](https://github.com/johnleider)! - fix(Tabs): reverse Arrow Left/Right for horizontal tabs and carousel indicators in right-to-left layouts
+
+  Under `dir="rtl"` on the document or an ancestor, Arrow Right now moves to the previous tab or indicator dot and Arrow Left to the next, matching the visual order. Vertical orientation is unchanged.
+
+- [#1104](https://github.com/vuetifyjs/0/pull/1104) [`8602c04`](https://github.com/vuetifyjs/0/commit/8602c04be761638f62c06487a4ea406e28841cf4) Thanks [@johnleider](https://github.com/johnleider)! - fix(toElement): resolve a component with a fragment root (several root nodes, or leading text or comments) to its first root Element instead of returning a text anchor, and return `undefined` for comment or text roots
+
 ## 1.3.0
 
 ### Minor Changes

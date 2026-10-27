@@ -237,6 +237,7 @@
     class="app-shell min-h-screen text-on-background"
     :class="{ 'dot-grid': settings.showDotGrid.value }"
     :data-code-size="settings.codeSize.value"
+    :data-reduce-motion="settings.prefersReducedMotion.value || undefined"
     :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
   >
     <a
@@ -693,6 +694,29 @@
     font-size: var(--docs-code-size);
   }
 
+  /* Fence expand, the example-code peek, and those two chevrons. The OS
+     media query is not the preference: settings resolves system detection,
+     the explicit on/off choice, and the tour override. The Uno preflight
+     pins every duration to 0.01ms !important under prefers-reduced-motion,
+     so an explicit Full motion choice has to outrank it here only.
+     FAQ and description peeks stay on the preflight. */
+  .app-shell[data-reduce-motion] .docs-markup__window,
+  .app-shell[data-reduce-motion] .genesis-docs-example-code__content,
+  .app-shell[data-reduce-motion] .docs-markup ~ .genesis-peek .genesis-peek__chevron,
+  .app-shell[data-reduce-motion] .genesis-docs-example > .genesis-peek .genesis-peek__chevron {
+    transition: none;
+  }
+
+  .app-shell:not([data-reduce-motion]) .docs-markup__window,
+  .app-shell:not([data-reduce-motion]) .genesis-docs-example-code__content {
+    transition-duration: 0.3s !important;
+  }
+
+  .app-shell:not([data-reduce-motion]) .docs-markup ~ .genesis-peek .genesis-peek__chevron,
+  .app-shell:not([data-reduce-motion]) .genesis-docs-example > .genesis-peek .genesis-peek__chevron {
+    transition-duration: 0.15s !important;
+  }
+
   /* DocsMarkup code block styling */
   .docs-markup .shiki {
     padding-top: 2rem;
@@ -792,27 +816,43 @@
     height: 0;
   }
 
+  /* Painted edge veil shared with the nav drawer (.docs-edge-fade). Color is
+     the code surface (--v0-pre, surface-tint on dark) so the scrim matches the
+     block instead of clearing to whatever sits behind it. */
   .docs-code-window::before,
-  .docs-code-window::after {
+  .docs-code-window::after,
+  .docs-edge-fade::before,
+  .docs-edge-fade::after {
     content: '';
     position: sticky;
     z-index: 2;
     display: block;
     height: 2.5rem;
     pointer-events: none;
-    opacity: 0;
   }
 
-  .docs-code-window::before {
+  /* A wide line scrolls the code window on x. Pin the veil to the inline start
+     so it stays across the visible pane instead of sliding off with the line. */
+  .docs-code-window::before,
+  .docs-code-window::after {
+    inset-inline-start: 0;
+    width: 100%;
+  }
+
+  .docs-code-window::before,
+  .docs-edge-fade::before {
     top: 0;
     margin-bottom: -2.5rem;
-    background: linear-gradient(var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))), transparent);
+    background: linear-gradient(var(--docs-edge-fade, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface)))), transparent);
+    opacity: var(--docs-edge-fade-top, 0);
   }
 
-  .docs-code-window::after {
+  .docs-code-window::after,
+  .docs-edge-fade::after {
     bottom: 0;
     margin-top: -2.5rem;
-    background: linear-gradient(transparent, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface))));
+    background: linear-gradient(transparent, var(--docs-edge-fade, var(--docs-code-window-fade, var(--v0-pre, var(--v0-surface)))));
+    opacity: var(--docs-edge-fade-bottom, 0);
   }
 
   /* --docs-code-progress is written on scroll (0 at the top, 1 at the bottom).
@@ -822,13 +862,14 @@
      lets go over the last 22%. Opacity only — a translate on these sticky
      pseudos shifts the bottom veil off the last lines as the end arrives.
      --active means the window overflows vertically. A wide line must not add
-     it: progress stays 0, and the bottom veil would cover lines in view. */
+     it: progress stays 0, and the bottom veil would cover lines in view.
+     An explicit --docs-edge-fade-top/bottom (the nav drawer) wins over the ramp. */
   .docs-code-window--active::before {
-    opacity: clamp(0, calc(var(--docs-code-progress) / 0.22), 1);
+    opacity: var(--docs-edge-fade-top, clamp(0, calc(var(--docs-code-progress) / 0.22), 1));
   }
 
   .docs-code-window--active::after {
-    opacity: clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1);
+    opacity: var(--docs-edge-fade-bottom, clamp(0, calc((1 - var(--docs-code-progress)) / 0.22), 1));
   }
 
   .docs-code-window:focus-visible {

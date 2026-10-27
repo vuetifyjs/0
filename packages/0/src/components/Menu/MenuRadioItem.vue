@@ -37,7 +37,7 @@
     /** Typeahead text. Falls back to the item's text. */
     label?: string
     /** Disables the gesture. The group model can still be written. */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Injection key of the owning menu. @default 'v0:menu' */
     namespace?: string
   }

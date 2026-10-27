@@ -1,27 +1,37 @@
 // Utilities
-import { isNull } from './helpers'
-import * as Vue from 'vue'
+import { isArray, isNull, isNullOrUndefined } from './helpers'
+import { getCurrentInstance } from 'vue'
 
-/**
- * Vue 3.6+ exposes `currentInstance` for Vapor mode compatibility.
- * `getCurrentInstance()` returns null in Vapor components by design,
- * so we access `currentInstance` directly when available.
- *
- * Uses dynamic key to avoid bundler static analysis warnings.
- *
- * @see https://github.com/orgs/vuejs/discussions/13629
- * @internal
- */
-const INSTANCE_KEY = 'current' + 'Instance'
+// A namespace import of `vue` retains `@vue/runtime-vapor` on Vue 3.6.
+// `currentInstance` is not a public export on Vue 3.5.
+interface InstanceLike {
+  type?: { name?: string }
+}
 
-function getInstanceCompat () {
-  const vueExports = Vue as Record<string, unknown>
-  // Vue 3.6+ exports currentInstance for Vapor mode
-  if (INSTANCE_KEY in vueExports) {
-    return vueExports[INSTANCE_KEY] as { type?: { name?: string } } | null
-  }
-  // Vue 3.5 and earlier
-  return Vue.getCurrentInstance()
+const SETTER_KEY = '__VUE_INSTANCE_SETTERS__'
+
+let seen: InstanceLike | null = null
+
+function onInstance (value: unknown) {
+  seen = isNullOrUndefined(value) ? null : value as InstanceLike
+}
+
+function subscribe () {
+  const holders = (globalThis as Record<string, unknown>)[SETTER_KEY]
+  if (!isArray(holders)) return
+  const list = holders as Array<(value: unknown) => void>
+  list.push(onInstance)
+}
+
+subscribe()
+
+// A null setter value is not authoritative: Vue 3.5 render writes
+// currentRenderingInstance without notifying the setter, and
+// getCurrentInstance() still sees it. A non-null setter value wins because
+// getCurrentInstance() is null for a live Vapor instance.
+function getInstanceCompat (): InstanceLike | null {
+  if (!isNull(seen)) return seen
+  return getCurrentInstance() as InstanceLike | null
 }
 
 // @internal

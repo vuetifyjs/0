@@ -2,15 +2,18 @@
  * Monaco language id for a filename the Bin copy path can create.
  *
  * Vue, JavaScript, TypeScript, and CSS stay on vue-repl's highlighter.
- * Plain text has no grammar. Everything else Bin can store is colored here.
+ * Plain text has no grammar. Everything else Bin can store is colored here,
+ * including the close spellings New File accepts.
  */
 const EXT_LANG: Record<string, string> = {
   md: 'markdown',
   markdown: 'markdown',
   sass: 'sass',
+  scss: 'scss',
   sh: 'shellscript',
   bash: 'shellscript',
   shell: 'shellscript',
+  zsh: 'shellscript',
   py: 'python',
   php: 'php',
   yaml: 'yaml',
