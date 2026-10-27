@@ -75,6 +75,16 @@ The dialog sheet rests at 24 dp, the elevation table's value for a picker. Escap
 :::
 
 ::: ds-example
+/systems/md1/time-picker/inline
+
+### Inline on a form
+
+The dialog clock is for mobile. For inline display, on a form, the guidelines point away from the picker altogether: "consider using compact controls such as segmented dropdown buttons." This example is that alternative with no `Md1TimePicker` in it: three dense [Md1DropdownButton](/systems/md1/dropdown-button)s, one each for the hour, the minute and AM or PM, sit in a row under the field's label and take the 32 dp height of a form control. Each opens a menu that lands the current value on the button, so changing one segment never moves the others.
+
+The minutes step by five because a menu of sixty rows is no compact control; take the clock picker when the exact minute matters. The row is a `role="group"` named by its label and each button carries its segment in its name ("Hour, 9"), since a lone "9" means nothing to a screen reader. The form stores the same 24 hour `HH:mm` string the picker writes, so a form can switch between the two without changing what it submits.
+:::
+
+::: ds-example
 /systems/md1/time-picker/format
 
 ### 24 hour format
