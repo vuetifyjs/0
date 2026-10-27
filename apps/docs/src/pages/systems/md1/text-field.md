@@ -86,6 +86,18 @@ Inside a v0 `Form` every field registers itself, so the form's submit validates 
 :::
 
 ::: ds-example
+/systems/md1/text-field/required
+
+### Marking required fields
+
+Mark whichever set is smaller. In a form with some required fields, the guidelines mark every required one with an asterisk after its label; when the optional fields are the fewer, they mark those instead, with "(optional)". Delivery asks for five things and needs two, so Name and Zip code carry `required`. New listing needs everything but the description, so only Description carries `optional`, and the three unmarked fields are the required ones.
+
+An asterisk means nothing until the form says what it means, so the guidelines put the legend at the bottom of the form: "* Required fields", in the Caption style at the secondary ink. The listing form needs no legend; "(optional)" explains itself.
+
+Unmarked is not the same as unchecked. `required` gives the delivery fields `aria-required` and v0's presence rule; the listing's unmarked fields carry their own presence rule, so leaving one empty still shows its error when focus moves on.
+:::
+
+::: ds-example
 /systems/md1/text-field/error-icon
 
 ### Error icon
