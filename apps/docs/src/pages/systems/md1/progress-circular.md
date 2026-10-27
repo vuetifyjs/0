@@ -99,6 +99,16 @@ In the spec's video the FAB fills with the accent colour and shows a check glyph
 :::
 
 ::: ds-example
+/systems/md1/progress-circular/phases
+
+### Loading in phases
+
+The guidelines name two ways content arrives. In a one-phased load the ink, the copy and images, loads within an existing, unchanging container: the card on the left is on screen from the start and the indicator waits inside it. In a two-phased load the paper container is generated first and the ink then loads within it: on the right the indicator waits on the background, the card grows in, and the indicator moves inside it until the copy arrives.
+
+Either way, content loading for the first time is loaded and displayed all at once: the title, the subtitle, the supporting text and the action replace the indicator together rather than filling in piece by piece. The card's size never changes once it is on screen, so nothing below it shifts when the ink lands. Each card carries `aria-busy` while it waits, and Replay runs both loads again. The loads are simulated.
+:::
+
+::: ds-example
 /systems/md1/progress-circular/swipe-to-refresh
 
 ### Swipe to refresh
