@@ -75,6 +75,16 @@ The glyph is the 24 dp system icon centred in the 48 dp touch target of the metr
 :::
 
 ::: ds-example
+/systems/md1/icon-toggle/app-bar
+
+### In an app bar
+
+Icon toggles belong "in app bars, toolbars", where a star or a bookmark sits among the bar's actions. Place the toggle straight in `Md1Toolbar.Actions` (or the bar's row) and it joins the actions like an icon button: in the bar's roving tab stop, 48 dp wide, and 40 dp on a dense bar.
+
+On a coloured bar the black ink tiers would disappear into the fill, so the toggle takes the bar's white ink instead, as its icon buttons do: 100% while on and under keyboard focus, 70% while off, the inactive white the tabs page gives a primary bar, and 30% disabled. The same applies over a flexible-space image. On the surface bar it keeps the 38% and 54% black tiers. The two glyphs still carry the state, so an outlined star at 70% never reads as a disabled button.
+:::
+
+::: ds-example
 /systems/md1/icon-toggle/ripple
 
 ### Bounded and unbounded ink
