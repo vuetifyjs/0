@@ -21,7 +21,7 @@
  */
 
 // Utilities
-import { isElement, isFunction, isObject } from '#v0/utilities'
+import { isArray, isElement, isFunction, isObject } from '#v0/utilities'
 
 // Types
 import type { ComponentPublicInstance } from 'vue'
@@ -84,5 +84,36 @@ export function toElement (target: MaybeElementRef): Element | undefined {
   if (isElement(raw)) return raw
   // ComponentPublicInstance — extract $el
   if (isObject(raw) && '$el' in raw) return raw.$el as Element | undefined
+  if (isVaporInstance(raw)) return fromBlock(raw.block)
+  return undefined
+}
+
+/**
+ * Detects a Vue 3.6 Vapor component instance by shape. A template ref to a
+ * Vapor component is the raw instance: it has no `$el`, and its DOM lives in
+ * `block`. Structural only, since the Vapor runtime is not a dependency, and
+ * it reads an undocumented internal while Vue 3.6 is pre-release.
+ */
+function isVaporInstance (value: unknown): value is { block: unknown } {
+  return isObject(value) && value.vapor === true && 'block' in value
+}
+
+/**
+ * Walks a Vapor block depth-first in document order and returns its first
+ * Element. A block is a Node, an array of blocks, a nested Vapor instance
+ * (`block`), or a fragment (`nodes`). Text, comment and anchor nodes are
+ * skipped.
+ */
+function fromBlock (block: unknown): Element | undefined {
+  if (isElement(block)) return block
+  if (isArray(block)) {
+    for (const child of block) {
+      const el = fromBlock(child)
+      if (el) return el
+    }
+    return undefined
+  }
+  if (isVaporInstance(block)) return fromBlock(block.block)
+  if (isObject(block) && 'nodes' in block) return fromBlock(block.nodes)
   return undefined
 }

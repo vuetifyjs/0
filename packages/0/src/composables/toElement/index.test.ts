@@ -119,4 +119,71 @@ describe('toElement', () => {
       expect(toElement(obj)).toBeUndefined()
     })
   })
+
+  // Vue 3.6 Vapor: a template ref to a Vapor component is the raw instance,
+  // with no $el and its DOM in `block`. These fakes mirror the runtime shapes
+  // (VaporComponentInstance.block, VaporFragment.nodes); tests/vapor covers
+  // real renders.
+  describe('vapor component instances', () => {
+    function vapor (block: unknown) {
+      return { vapor: true, uid: 0, block } as unknown as MaybeElementRef
+    }
+
+    function fragment (nodes: unknown) {
+      return { __vf: 1, nodes }
+    }
+
+    it('should resolve a single-root block', () => {
+      const el = document.createElement('section')
+
+      expect(toElement(vapor(el))).toBe(el)
+    })
+
+    it('should resolve the first element of a multi-root block', () => {
+      const first = document.createElement('header')
+      const second = document.createElement('footer')
+
+      expect(toElement(vapor([first, second]))).toBe(first)
+    })
+
+    it('should skip text and comment nodes', () => {
+      const el = document.createElement('span')
+      const block = [document.createTextNode('text'), document.createComment('anchor'), el]
+
+      expect(toElement(vapor(block))).toBe(el)
+    })
+
+    it('should descend into fragments in document order', () => {
+      const el = document.createElement('p')
+      const later = document.createElement('div')
+      const block = [fragment([document.createTextNode(''), fragment(el)]), later]
+
+      expect(toElement(vapor(block))).toBe(el)
+    })
+
+    it('should descend into a nested vapor instance', () => {
+      const el = document.createElement('nav')
+
+      expect(toElement(vapor(vapor(fragment([el]))))).toBe(el)
+    })
+
+    it('should resolve through a ref-like wrapper', () => {
+      const el = document.createElement('div')
+
+      expect(toElement({ value: vapor(el) } as unknown as MaybeElementRef)).toBe(el)
+    })
+
+    it('should return undefined when the block has no element', () => {
+      expect(toElement(vapor(fragment([document.createComment('v-if')])))).toBeUndefined()
+      expect(toElement(vapor([]))).toBeUndefined()
+      expect(toElement(vapor(null))).toBeUndefined()
+    })
+
+    it('should ignore objects that only look partly like an instance', () => {
+      const el = document.createElement('div')
+
+      expect(toElement({ vapor: 'yes', block: el } as unknown as MaybeElementRef)).toBeUndefined()
+      expect(toElement({ block: el } as unknown as MaybeElementRef)).toBeUndefined()
+    })
+  })
 })

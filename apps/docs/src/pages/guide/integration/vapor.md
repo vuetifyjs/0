@@ -42,6 +42,7 @@ Vuetify0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:
 | Context | `createContext` carries a value from a Vapor ancestor to a Vapor descendant. |
 | Plugin injection | `hasInjectionContext()` resolves inside a Vapor setup. An installed plugin context resolves; the fallback resolves when the plugin is absent. |
 | Composables | `createSelection` registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
+| Element refs | `toElement` resolves a template ref to a Vapor component (single-root, multi-root, nested, leading text) to its first Element, the resolution every v0 element-target option goes through. |
 | Component interop | A classic (vdom) Vuetify0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
 
 [^rc-pin]: Pinned to `vue@3.6.0-rc.11` (`tests/vapor/package.json`). The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships. The interop numbers below were measured on `3.6.0-rc.2` and have not been re-run on the current pin.
@@ -144,7 +145,8 @@ The wrapper is a parity workaround, not a win: everything inside the boundary st
 ## Current limitations
 
 - **Vue 3.6 is a release candidate.** Vapor is feature-complete as of rc.1; APIs are unlikely to shift, but nothing is guaranteed until 3.6.0 ships.
-- **Coverage is representative, not exhaustive.** The suite proves instance detection, `createContext`, plugin injection, `createSelection`, and classic-component interop. It does not yet mount every component under Vapor.
+- **Coverage is representative, not exhaustive.** The suite proves instance detection, `createContext`, plugin injection, `createSelection`, `toElement` on Vapor component refs, and classic-component interop. It does not yet mount every component under Vapor.
+- **Element refs to exposed Vapor components resolve to nothing.** A template ref to a Vapor component is its raw instance, and `toElement` walks its block (an undocumented internal while 3.6 is pre-release). Once the component calls `expose()`, through `defineExpose` or the implicit expose that `<script setup>` gets when compiled for the dev server, the ref is a proxy over the exposed object with no path to the DOM. Point v0 composables at an element ref inside the component instead.
 - **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can — and mind the [boundary rule](#the-interop-boundary-rule) when mixing.
 
 ## Verifying it yourself

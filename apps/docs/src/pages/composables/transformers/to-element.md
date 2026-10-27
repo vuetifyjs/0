@@ -61,10 +61,13 @@ flowchart LR
 | `() => HTMLElement` | Called, returns element |
 | `HTMLElement` / `SVGElement` | Pass-through |
 | `ComponentPublicInstance` | Extracts `$el` |
+| Vapor component instance | First Element in its rendered block[^vapor] |
 | `null` / `undefined` | Returns `undefined` |
 
 > [!TIP] Structural typing
 > Uses `{ readonly value: T }` instead of Vue's nominal `Ref<T>` to avoid type mismatches across Vue versions.
+
+[^vapor]: Under Vue 3.6 Vapor mode, a template ref to a Vapor component is the raw component instance, which has no `$el`. `toElement` walks its block depth-first and returns the first Element, skipping text and comment nodes, or `undefined` when nothing renders. This reads an undocumented Vapor internal while Vue 3.6 is pre-release. A Vapor component that calls `expose()` (including `defineExpose`, and the implicit expose of `<script setup>` compiled for the dev server) hands its ref an exposed-object proxy instead, which has no path back to the DOM, so it resolves to `undefined`. See [Vapor mode](/guide/integration/vapor#current-limitations).
 
 ## Reactivity
 
@@ -95,7 +98,7 @@ Reach for `toElement` whenever a composable or utility function accepts a flexib
 
 ??? What does toElement return when given a Vue component instance?
 
-It extracts and returns the instance's `$el`. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
+It extracts and returns the instance's `$el`. A Vue 3.6 Vapor component instance has no `$el`, so `toElement` returns the first Element in its rendered block instead. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
 
 ??? Why does it use a structural `{ readonly value: T }` type instead of Vue's Ref?
 
