@@ -9,7 +9,7 @@
 import { execFileSync } from 'node:child_process'
 
 function versionDocument (name, version) {
-  const url = `https://registry.npmjs.org/${name.replace('/', '%2f')}/${version}`
+  const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/${encodeURIComponent(version)}`
 
   try {
     const body = execFileSync('curl', [
