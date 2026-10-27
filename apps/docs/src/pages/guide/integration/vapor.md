@@ -42,6 +42,7 @@ Vuetify0 ships an isolated Vapor test suite (`tests/vapor`, run with `pnpm test:
 | Context | `createContext` carries a value from a Vapor ancestor to a Vapor descendant. |
 | Plugin injection | `hasInjectionContext()` resolves inside a Vapor setup. An installed plugin context resolves; the fallback resolves when the plugin is absent. |
 | Composables | `createSelection` registers items, updates reactive state, and drives Vapor DOM updates from inside a Vapor `setup`. |
+| Component refs | `toElement` resolves a ref to a Vapor component that exposes its root as `$el`, and resolves `undefined` when it exposes no `$el` (see [Component refs](#component-refs)). |
 | Component interop | A classic (vdom) Vuetify0 component renders inside a Vapor app through `vaporInteropPlugin`, including slot content forwarded from a Vapor parent[^interop-slots]. |
 
 [^rc-pin]: Pinned to `vue@3.6.0-rc.11` (`tests/vapor/package.json`). The Vapor surface the suite touches (the `vapor` SFC attribute, `createVaporApp`, `vaporInteropPlugin`) has been stable across the beta and RC lines; the pin moves to `3.6.0` when stable ships. The interop numbers below were measured on `3.6.0-rc.2` and have not been re-run on the current pin.
@@ -141,10 +142,40 @@ The wrapper is a parity workaround, not a win: everything inside the boundary st
 
 [^vapor-regions]: Vue's [3.6 release notes](https://github.com/vuejs/core/releases/tag/v3.6.0-rc.1) recommend "having distinct regions in an app where one rendering mode or the other is used, and avoiding mixed nesting as much as possible." The crossing-count math above is why: the recommendation is a performance boundary, not just a compatibility hedge. See the [Vue Vapor mode notes](https://github.com/vuejs/core/releases/tag/v3.6.0-beta.1) for the full interop contract.
 
+## Component refs
+
+Every v0 API that takes an element target resolves it through [toElement](/composables/transformers/to-element): popover anchors, `useClickOutside`, `useFocusTrap`, and the resize, intersection, and mutation observers. Given a component ref, `toElement` reads the instance's `$el`. A template ref to a Vapor component has no `$el`, so in Vue 3.6 pre-release builds these APIs resolve a Vapor component ref to `undefined` and do nothing.
+
+The ref has no `$el` for two reasons:
+
+- **No expose.** The ref is the raw Vapor component instance. Vue adds `$el` to the public instance of classic components only.
+- **With expose.** Once the component calls `expose()`, the ref is a proxy over the exposed object, with no path back to the instance or its DOM. `defineExpose` triggers this. So does any non-empty `<script setup vapor>` compiled in non-inline mode, which is what devtools builds use; going by `@vitejs/plugin-vue`'s inline logic, that includes the Vite dev server. A ref that resolves in a production build can therefore resolve to `undefined` in development.
+
+Expose the root element as `$el`. The expose proxy unwraps the template ref, and `toElement` resolves it like a classic component instance:
+
+```vue Anchor.vue
+<script setup vapor lang="ts">
+  import { useTemplateRef } from 'vue'
+
+  const root = useTemplateRef('root')
+
+  defineExpose({ $el: root })
+</script>
+
+<template>
+  <button ref="root">
+    <slot />
+  </button>
+</template>
+```
+
+Consumers then pass the component ref as usual. To expose the element under a different name, pass a getter instead: `toElement(() => anchor.value?.el)`. If you don't own the Vapor component, put the template ref on a wrapper element in the parent.
+
 ## Current limitations
 
 - **Vue 3.6 is a release candidate.** Vapor is feature-complete as of rc.1; APIs are unlikely to shift, but nothing is guaranteed until 3.6.0 ships.
-- **Coverage is representative, not exhaustive.** The suite proves instance detection, `createContext`, plugin injection, `createSelection`, and classic-component interop. It does not yet mount every component under Vapor.
+- **Coverage is representative, not exhaustive.** The suite proves instance detection, `createContext`, plugin injection, `createSelection`, `toElement` on exposed Vapor component refs, and classic-component interop. It does not yet mount every component under Vapor.
+- **Vapor component refs have no element.** Element-target APIs resolve a Vapor component ref to `undefined` unless the component exposes `$el` — see [Component refs](#component-refs).
 - **Interop has rough edges.** Vapor↔vdom interop still has edge cases, so keep a given region in one rendering mode where you can — and mind the [boundary rule](#the-interop-boundary-rule) when mixing.
 
 ## Verifying it yourself

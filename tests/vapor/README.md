@@ -35,6 +35,7 @@ pnpm --filter @vuetify-private/vapor-tests test
 | `test/composables.vapor.test.ts` | `createSelection` (registry + reactive tickets + computed Set) runs in a Vapor setup and drives Vapor DOM updates. |
 | `test/context.vapor.test.ts` | `createContext` carries a value from a Vapor ancestor to a Vapor descendant — the provide/inject substrate beneath every v0 compound component. |
 | `test/injection.vapor.test.ts` | `hasInjectionContext()` is vapor-aware and app-level provides resolve via `inject()` inside a Vapor setup — the gate `createPlugin` puts in front of every generated `useX()` consumer, exercised through a real `createLoggerPlugin` install (provided context resolves, fallback resolves when absent, no throws). |
+| `test/expose.vapor.test.ts` | `toElement` on a template ref to an exposed Vapor component: resolves `undefined` when the component exposes no `$el`, and the root element when it does `defineExpose({ $el: root })` — the workaround the Vapor guide documents. |
 | `test/interop.vapor.test.ts` | A classic (vdom) v0 component renders inside a Vapor root via `vaporInteropPlugin`, including slot content forwarded from the Vapor parent. |
 
 ## Why the vitest config is unusual
