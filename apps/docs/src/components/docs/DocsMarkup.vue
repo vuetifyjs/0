@@ -63,7 +63,7 @@
     if (!shouldCollapse.value) return undefined
     if (!expanded.value) return { maxHeight: collapsedHeight.value, overflow: 'hidden' }
     return {
-      maxHeight: 'var(--docs-code-window-max, min(42rem, 105vh))',
+      maxHeight: 'var(--docs-code-window-max, min(56rem, 105vh))',
       overflow: 'auto',
       overscrollBehavior: 'contain',
     }
