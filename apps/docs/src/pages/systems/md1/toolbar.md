@@ -155,7 +155,7 @@ On a primary bar the tabs take white ink: the selected tab and the indicator in 
 
 A waterfall toolbar shares a seam with the content and lifts into a step when the content scrolls under it. `scroll="waterfall"` rests at 0 dp at the top of the page and takes the bar's elevation from the first scrolled pixel, with the 280 ms elevation transition.[^trans] It reads best when the page and the bar share one fill, so the seam is invisible until the step appears.
 
-The flexible space with overlapping content is this behavior with an image in the extension, and the guidelines forbid tabs in it; a waterfall bar with an image extension and a tab bar warns in development.
+The flexible space with overlapping content is this behavior with an image in the extension, and the guidelines forbid tabs in it; a waterfall bar with an image extension and a tab bar warns in development. The scrolling techniques page shows the [flexible space with overlapping content](/systems/md1/scrolling-techniques#flexible-space-with-overlapping-content) composed with cards over a coloured space.
 :::
 
 ::: ds-example
