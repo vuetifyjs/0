@@ -6,6 +6,7 @@ export default defineConfig({
       'packages/0',
       'packages/0/vitest.browser.config.ts',
       'packages/paper',
+      'packages/md1',
       'packages/md1/vitest.browser.config.ts',
       'packages/bulma/vitest.browser.config.ts',
       'packages/emerald',
