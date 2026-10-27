@@ -91,26 +91,22 @@
   const navRef = useTemplateRef<HTMLElement>('nav')
   const scrollRef = useTemplateRef<HTMLElement>('scroll')
   const contentRef = useTemplateRef<HTMLElement>('content')
-  const overflowing = shallowRef(false)
 
-  // Same edge veil as the example code window: gone at an edge that is in
-  // view, full once that edge has scrolled away. A scroll timeline drops a
-  // wheel detent in Chrome, so the amount is written on scroll. The 22% ramp
-  // is capped — a code window's range is short, and the same percentage of
-  // the drawer would leave the veil faint for most of a scroll.
+  // Same painted veil as the example code window (.docs-edge-fade): gone at an
+  // edge that is in view, full once that edge has scrolled away. A scroll
+  // timeline drops a wheel detent in Chrome, so the amount is written on
+  // scroll. The 22% ramp is capped — a code window's range is short, and the
+  // same percentage of the drawer would leave the veil faint for most of a scroll.
   function syncFade () {
     const el = scrollRef.value
     if (!el) return
 
     const range = el.scrollHeight - el.clientHeight
-    const overflows = range > 2
-    if (overflowing.value !== overflows) overflowing.value = overflows
-
     const ramp = Math.min(range * 0.22, 96)
     const top = ramp > 0 ? Math.min(el.scrollTop / ramp, 1) : 0
     const bottom = ramp > 0 ? Math.min((range - el.scrollTop) / ramp, 1) : 0
-    el.style.setProperty('--nav-fade-top-amt', String(top))
-    el.style.setProperty('--nav-fade-bottom-amt', String(bottom))
+    el.style.setProperty('--docs-edge-fade-top', String(top))
+    el.style.setProperty('--docs-edge-fade-bottom', String(bottom))
   }
 
   useEventListener(scrollRef, 'scroll', syncFade, { passive: true })
@@ -178,7 +174,7 @@
     aria-label="Main navigation"
     as="nav"
     :class="[
-      'flex flex-col fixed w-[230px] top-0 md:top-[calc(48px+var(--app-banner-h,0px))] bottom-0 start-0 -translate-x-full rtl:translate-x-full md:translate-x-0 border-e border-solid border-divider',
+      'flex flex-col fixed w-[230px] top-0 md:top-[calc(48px+var(--app-banner-h,0px))] bottom-0 start-0 -translate-x-full rtl:translate-x-full md:translate-x-0 md:rtl:translate-x-0 border-e border-solid border-divider',
       settings.surface.value,
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
@@ -198,12 +194,12 @@
       <AppCloseButton label="Close navigation" @click="navigation.close" />
     </header>
 
+    <!-- Padding stays on the content so the sticky veil meets the scrollport edge. -->
     <div
       ref="scroll"
-      class="nav-scroll flex-1 min-h-0 overflow-y-auto py-4"
-      :class="overflowing && 'nav-scroll--fade'"
+      class="nav-scroll docs-edge-fade flex-1 min-h-0 overflow-y-auto"
     >
-      <div ref="content">
+      <div ref="content" class="py-4">
         <!-- URL filter banner -->
         <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
           <p class="text-xs text-on-surface-variant mb-2">
@@ -285,27 +281,3 @@
     <AppNavFooter />
   </Discovery.Activator>
 </template>
-
-<style scoped>
-  /* The drawer fill lives on the nav (solid or glass), so a painted gradient
-     cannot match both. Mask the items into that fill instead. Length and
-     the 22% ramp match the example code window. */
-  .nav-scroll--fade {
-    --nav-fade-top: calc(var(--nav-fade-top-amt, 0) * 2.5rem);
-    --nav-fade-bottom: calc(var(--nav-fade-bottom-amt, 0) * 2.5rem);
-    mask-image: linear-gradient(
-      to bottom,
-      transparent 0,
-      #000 var(--nav-fade-top),
-      #000 calc(100% - var(--nav-fade-bottom)),
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      transparent 0,
-      #000 var(--nav-fade-top),
-      #000 calc(100% - var(--nav-fade-bottom)),
-      transparent 100%
-    );
-  }
-</style>

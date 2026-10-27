@@ -36,7 +36,7 @@
     /** Value associated with this slide */
     value?: V
     /** Disables this specific slide */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
   }

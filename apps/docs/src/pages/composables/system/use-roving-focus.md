@@ -141,6 +141,10 @@ Pass `columns`. Left/Right step one item, Up/Down step by a full row (±columns)
 
 Yes. `useRovingFocus` only manages focus, so compose it with a selection composable like [createSingle](/composables/selection/create-single) when you need a listbox or select that tracks both focus and the chosen value.
 
+??? Does it handle right-to-left layouts?
+
+Yes. On each keydown it reads the computed `direction` of the element the handler is bound to, so a `dir="rtl"` on the document or any ancestor (including the one `useRtl` writes) reverses Left/Right: ArrowRight moves to the previous item and ArrowLeft to the next, matching the visual order. Up/Down are unaffected. No plugin is required.
+
 ??? Do I have to attach the keydown handler myself?
 
 No — when you pass a `target` element, `onKeydown` is auto-bound to it. Omit `target` and bind the returned `onKeydown` handler to your element manually instead.

@@ -36,7 +36,7 @@
     /** Value associated with this panel item for v-model binding */
     value?: V
     /** Disables this specific panel item */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace to retrieve the parent ExpansionPanelGroup context (default: 'v0:expansion-panel') */
     namespace?: string
   }

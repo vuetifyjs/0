@@ -50,6 +50,7 @@
 
     <div
       v-if="disableResize"
+      :key="resetKey"
       ref="preview-content"
       class="genesis-docs-example-preview__panel"
       :data-theme="theme"

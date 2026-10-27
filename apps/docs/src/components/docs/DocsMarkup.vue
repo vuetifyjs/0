@@ -3,11 +3,10 @@
   import { GnPeek } from '@paper/genesis'
 
   // Framework
-  import { useEventListener, useResizeObserver } from '@vuetify/v0'
+  import { useEventListener } from '@vuetify/v0'
 
   // Composables
   import { useCodeGroupExpand } from '@/composables/useCodeGroupExpand'
-  import { useCollapseAnchor } from '@/composables/useCollapseAnchor'
   import { useSettings } from '@/composables/useSettings'
   import { useSyncedRef } from '@/composables/useSyncedRef'
 
@@ -45,62 +44,62 @@
   const lineCount = toRef(() => decodedCode.value.split('\n').length)
   const shouldCollapse = toRef(() => collapse && lineCount.value > collapseLines)
   const collapsedHeight = toRef(() => `${collapseLines * 1.5 + 2.5}rem`)
-  const capped = toRef(() => shouldCollapse.value && expanded.value)
 
   const rootRef = useTemplateRef<HTMLElement>('root')
   const scrollerRef = useTemplateRef<HTMLElement>('scroller')
-  useCollapseAnchor(rootRef)
+  // Set in the capture phase, before the peek toggles `expanded`, and only on
+  // the fence that was clicked — a code group shares that flag.
+  let reveal = false
 
-  const scrollable = shallowRef(false)
-  // A wide line leaves progress at 0, which would paint the bottom veil over lines already in view.
-  const overflowsY = shallowRef(false)
-  const scrollLabel = toRef(() => {
-    const name = hideFilename ? language : title ?? language
-    return name ? `Scrollable code, ${name}` : 'Scrollable code'
-  })
+  function onCollapseClick (event: MouseEvent) {
+    const target = event.target
+    const root = rootRef.value
+    if (!(target instanceof Element) || !root?.contains(target)) return
+    const button = target.closest('.genesis-peek')
+    if (!button || button.getAttribute('aria-expanded') !== 'true') return
+    reveal = true
+  }
 
+  useEventListener(rootRef, 'click', onCollapseClick, { capture: true })
+
+  // Expanded fences take the height of the file. The cap lives on example
+  // panes. Collapsing keeps overflow:hidden on this same box.
   const windowStyle = toRef(() => {
-    if (!shouldCollapse.value) return undefined
-    if (!expanded.value) return { maxHeight: collapsedHeight.value, overflow: 'hidden' }
-    return {
-      maxHeight: 'var(--docs-code-window-max, min(56rem, 105vh))',
-      overflow: 'auto',
-      overscrollBehavior: 'contain',
-    }
+    if (!shouldCollapse.value || expanded.value) return undefined
+    return { maxHeight: collapsedHeight.value, overflow: 'hidden' }
   })
 
-  function syncProgress (): void {
+  watch(expanded, (isOpen, wasOpen) => {
+    if (!wasOpen || isOpen) return
     const el = scrollerRef.value
-    if (!el) return
-    const range = el.scrollHeight - el.clientHeight
-    const progress = range > 0 ? el.scrollTop / range : 0
-    el.style.setProperty('--docs-code-progress', String(progress))
-  }
-
-  function syncScrollable (): void {
-    const el = scrollerRef.value
-    if (!el || !capped.value) {
-      scrollable.value = false
-      overflowsY.value = false
-      syncProgress()
-      return
+    if (el) {
+      // The window is not the scrollport. A long line scrolls inside the code.
+      el.scrollTop = 0
+      el.scrollLeft = 0
+      for (const node of el.querySelectorAll<HTMLElement>('.shiki, .shiki code')) {
+        node.scrollTop = 0
+        node.scrollLeft = 0
+      }
     }
-    const vertical = el.scrollHeight - el.clientHeight > 2
-    const horizontal = el.scrollWidth - el.clientWidth > 2
-    overflowsY.value = vertical
-    scrollable.value = vertical || horizontal
-    syncProgress()
+    if (!reveal) return
+    reveal = false
+    const root = rootRef.value
+    nextTick(() => revealTop(root))
+  })
+
+  function headerOffset (): number {
+    const raw = getComputedStyle(document.documentElement).scrollPaddingTop
+    const value = Number.parseFloat(raw)
+    return Number.isFinite(value) ? value : 48
   }
 
-  useEventListener(scrollerRef, 'scroll', syncProgress, { passive: true })
-
-  useResizeObserver(scrollerRef, syncScrollable)
-
-  // The cap is an inline max-height, so the first measurement has to wait
-  // until that style is on the element.
-  watch(capped, () => {
-    nextTick(syncScrollable)
-  })
+  function revealTop (root: HTMLElement | null) {
+    if (!root) return
+    const header = headerOffset()
+    const top = root.getBoundingClientRect().top
+    if (top >= header - 1) return
+    window.scrollBy(0, top - header)
+  }
 </script>
 
 <template>
@@ -140,15 +139,9 @@
 
       <div
         ref="scroller"
-        :aria-label="scrollable ? scrollLabel : undefined"
-        class="docs-markup__window transition-[max-height] duration-300 ease-out"
-        :class="[
-          capped && 'docs-markup__window--capped docs-code-window',
-          overflowsY && 'docs-code-window--active',
-        ]"
-        :role="scrollable ? 'region' : undefined"
+        class="docs-markup__window"
+        :class="!settings.prefersReducedMotion.value && 'transition-[max-height] duration-300 ease-out'"
         :style="windowStyle"
-        :tabindex="scrollable ? 0 : undefined"
       >
         <slot />
       </div>
@@ -172,14 +165,5 @@
   .docs-markup-fade {
     background: var(--v0-pre);
     mask: linear-gradient(transparent, var(--v0-primary));
-  }
-
-  .docs-markup__window {
-    --docs-code-window-fade: var(--v0-surface);
-  }
-
-  .docs-markup .docs-markup__window--capped .shiki,
-  .docs-markup .docs-markup__window--capped .shiki code {
-    overflow: visible;
   }
 </style>

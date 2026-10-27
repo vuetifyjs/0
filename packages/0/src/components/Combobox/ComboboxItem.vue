@@ -39,7 +39,7 @@
     /** Value associated with this option */
     value?: V
     /** Disables this specific option */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Host element when renderless. Virtual focus uses this instead of the Atom node. */
     el?: MaybeElementRef
   }

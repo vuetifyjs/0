@@ -181,6 +181,8 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Progress | `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` |
 | LiveRegion | `role="status"`, `aria-live="polite"`, `aria-atomic` |
 
+Indicator dots use roving focus: Arrow Left/Right (Up/Down when vertical) move to and select the adjacent slide, and Home/End jump to the first and last. In a right-to-left context (`dir="rtl"` on the document or any ancestor), Arrow Left/Right are reversed so focus follows the visual order.
+
 Slides outside the visible window are marked with `aria-hidden="true"` so screen readers only announce visible content. The LiveRegion provides a dedicated announcement channel for slide changes, using a 100ms delay for reliable screen reader detection.
 
 ## FAQ

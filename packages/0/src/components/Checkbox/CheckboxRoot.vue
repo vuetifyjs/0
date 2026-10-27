@@ -72,9 +72,9 @@
     /** Associate with form by ID */
     form?: string
     /** Disables this checkbox */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Sets the indeterminate state */
-    indeterminate?: MaybeRefOrGetter<boolean>
+    indeterminate?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
     /** Namespace for connecting to parent Checkbox.Group */

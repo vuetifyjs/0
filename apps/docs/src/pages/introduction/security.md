@@ -48,6 +48,10 @@ When we receive a security report, we will:
 
 Internally, security incidents are handled according to a formal Incident Response Plan that defines severity classification, response timelines, and escalation procedures.
 
+## Security program
+
+John Leider is actively participating in the [GitHub Secure Open Source Fund](https://github.com/open-source/github-secure-open-source-fund), a program on vulnerability handling, supply-chain controls, and incident response for open source maintainers.
+
 ## Threat Model
 
 `@vuetify/v0` is a **client-side UI composables library**. It processes no secrets and manages no authentication. The core makes no network calls. Opt-in adapters do: Knock notifications, and the Flagsmith, LaunchDarkly, and PostHog feature adapters. This threat model uses the [STRIDE framework](https://en.wikipedia.org/wiki/STRIDE_(security)) to identify and mitigate threats across the project lifecycle.

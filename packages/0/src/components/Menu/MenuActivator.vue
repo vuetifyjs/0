@@ -34,7 +34,7 @@
     /** Layer this activator opens. Omit it to use Menu.Root's `value`. */
     value?: ID
     /** Disables this activator */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Injection key of the owning menu. @default 'v0:menu' */
     namespace?: string
   }

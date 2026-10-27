@@ -95,7 +95,11 @@ Reach for `toElement` whenever a composable or utility function accepts a flexib
 
 ??? What does toElement return when given a Vue component instance?
 
-It extracts and returns the instance's `$el`. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
+It returns the instance's root Element. For a single-element root that is `$el`. For a fragment root (several root nodes, or leading text or comments), `$el` is a text anchor, so it returns the first Element inside the fragment instead, never one from a sibling component. A comment root (`v-if` false) or a text-only root resolves to `undefined`. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
+
+??? Why does a ref to a Vapor component resolve to undefined?
+
+Under Vue 3.6 Vapor mode, a template ref to a Vapor component has no `$el`: it is either the raw Vapor instance or a proxy over the component's exposed object. Have the component call `defineExpose({ $el: root })` with a template ref to its root element. See [Component refs](/guide/integration/vapor#component-refs) in the Vapor guide.
 
 ??? Why does it use a structural `{ readonly value: T }` type instead of Vue's Ref?
 

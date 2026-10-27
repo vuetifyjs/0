@@ -1,7 +1,7 @@
 import { isPlaygroundThemeId, sanitizePlaygroundThemes } from '@vuetify/play'
 
 // Framework
-import { IN_BROWSER, isArray, isObject, useTheme, useTimer } from '@vuetify/v0'
+import { IN_BROWSER, isArray, isObject, useStorage, useTheme, useTimer } from '@vuetify/v0'
 
 // Components
 import { binCopyPath, binFileExt, binReplExt } from '@/components/playground/open/types'
@@ -20,6 +20,7 @@ import { parseVuetifyExampleQuery, resolveVuetifyExample } from '@/data/vuetify-
 // Utilities
 import { compileFile, useStore } from '@vue/repl/core'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Types
 import type { PlaygroundHashData, PlaygroundThemeDefinition } from '@/composables/usePlayground'
@@ -32,9 +33,13 @@ export type ActiveExample =
   | { source: 'v0', item: string, type: string, example: string }
   | { source: 'vuetify', path: string, id: string }
 
+/** Logo asked for the chooser. Survives the `/playgrounds/:id` → `/` remount. */
+let forceChooser = false
+
 export function usePlaygroundFiles () {
   const theme = useTheme()
   const one = useOnePlaygrounds()
+  const router = useRouter()
   const routeId = usePlaygroundRouteId()
 
   const {
@@ -71,6 +76,13 @@ export function usePlaygroundFiles () {
   })
 
   const isReady = shallowRef(false)
+  /** Blank visit — no hash, One id, or docs link. The chooser is up; don't seed or hash. */
+  const choosing = shallowRef(false)
+
+  /** A load replaced the blank visit. The chooser must not keep covering it. */
+  function dismissChooser () {
+    choosing.value = false
+  }
   const filesVersion = shallowRef(0)
   /** Set when a registry deep-link or browser open fails. */
   const loadError = shallowRef<string>()
@@ -81,6 +93,11 @@ export function usePlaygroundFiles () {
   const extraImports = shallowRef<Record<string, string>>()
   const activePreset = shallowRef('default')
   const activeAddons = shallowRef<string[]>([])
+  const storage = useStorage()
+  /** Blank-visit starter. Unset means ask. */
+  const defaultPreset = storage.get<string | undefined>('playground-default-preset')
+  /** Vuetify 4 opened from a blank visit. Session-only; don't write the intro pref. */
+  const suppressIntro = shallowRef(false)
   const extraThemes = shallowRef<Record<string, PlaygroundThemeDefinition>>()
   const extraDefault = shallowRef<string>()
 
@@ -199,11 +216,11 @@ export function usePlaygroundFiles () {
         } else {
           // Stale / private / missing — drop the param and fall back.
           one.clearCurrent()
-          await (decoded ? loadFromDecoded(decoded) : seedDefault())
+          await (decoded ? loadFromDecoded(decoded) : openBlank())
         }
       } catch {
         one.clearCurrent()
-        await (decoded ? loadFromDecoded(decoded) : seedDefault())
+        await (decoded ? loadFromDecoded(decoded) : openBlank())
       } finally {
         one.resumeAutosave()
       }
@@ -228,11 +245,48 @@ export function usePlaygroundFiles () {
         await resetToDefault()
       }
     } else {
-      await seedDefault()
+      await openBlank()
     }
 
     isReady.value = true
   })
+
+  function preferredPreset (): string | undefined {
+    const id = defaultPreset.value
+    if (!id) return undefined
+    return PRESETS.some(preset => preset.id === id) ? id : undefined
+  }
+
+  async function openBlank () {
+    if (forceChooser) {
+      forceChooser = false
+      choosing.value = true
+      return
+    }
+    const id = preferredPreset()
+    if (id) {
+      if (id === 'vuetify') suppressIntro.value = true
+      await applyPreset(id)
+      return
+    }
+    choosing.value = true
+  }
+
+  /** Drop the open playground and ask again. Ignores a saved default. */
+  function chooseTemplate () {
+    choosing.value = true
+    suppressIntro.value = false
+    stopHash()
+    one.clearCurrent({ skipUrlSync: true })
+    if (!IN_BROWSER) return
+    if (window.location.pathname !== '/') forceChooser = true
+    // router.replace leaves the playground hash in the address bar.
+    history.replaceState(history.state, '', '/')
+    void router.replace({ path: '/', hash: '', query: {} }).finally(() => {
+      if (!choosing.value || !IN_BROWSER) return
+      history.replaceState(history.state, '', '/')
+    })
+  }
 
   async function loadFromDecoded (decoded: PlaygroundHashData) {
     if (decoded.settings?.preset) activePreset.value = decoded.settings.preset
@@ -300,6 +354,7 @@ export function usePlaygroundFiles () {
     rebuildImportMap()
     await seedDefault()
     filesVersion.value++
+    dismissChooser()
   }
 
   async function loadExample (incoming: Record<string, string>, activeFile?: string) {
@@ -400,10 +455,12 @@ export function usePlaygroundFiles () {
     return JSON.stringify(data)
   }
 
-  const { start: scheduleHash } = useTimer(async () => {
+  const { start: scheduleHash, stop: stopHash } = useTimer(async () => {
+    if (choosing.value) return
     const data = buildShareData()
     if (!data) return
     const hash = await encodePlaygroundHash(data)
+    if (choosing.value) return
     // Keep path + query (`?playground=`) — only rewrite the content hash.
     const url = new URL(window.location.href)
     history.replaceState(null, '', `${url.pathname}${url.search}#${hash}`)
@@ -412,6 +469,8 @@ export function usePlaygroundFiles () {
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
+      // A blank visit has no files yet. Hashing now would make the next load skip the chooser.
+      if (choosing.value) return
       // Track version/preset/addon refs so hash updates when they change
       vueVersion.value // eslint-disable-line @typescript-eslint/no-unused-expressions
       v0Version.value // eslint-disable-line @typescript-eslint/no-unused-expressions
@@ -598,6 +657,7 @@ export function usePlaygroundFiles () {
         await loadExample(data.files, data.active)
         rebuildImportMap()
         filesVersion.value++
+        dismissChooser()
         return
       }
 
@@ -621,6 +681,7 @@ export function usePlaygroundFiles () {
         await loadExample(files, active)
         rebuildImportMap()
         filesVersion.value++
+        dismissChooser()
         return
       }
 
@@ -635,6 +696,7 @@ export function usePlaygroundFiles () {
         await loadExample(parsed)
         rebuildImportMap()
         filesVersion.value++
+        dismissChooser()
       }
     } catch { /* ignore malformed content */ }
   }
@@ -674,6 +736,7 @@ export function usePlaygroundFiles () {
     await loadExample(resolved.files, resolved.active)
     rebuildImportMap()
     filesVersion.value++
+    dismissChooser()
 
     activeExample.value = {
       source: 'v0',
@@ -714,6 +777,7 @@ export function usePlaygroundFiles () {
       filesVersion.value++
       const id = ref.path.replace(/\.vue$/i, '').split('/').pop() ?? ref.path
       activeExample.value = { source: 'vuetify', path: ref.path, id }
+      dismissChooser()
     } catch (error) {
       await resetToDefault()
       throw error
@@ -741,6 +805,7 @@ export function usePlaygroundFiles () {
     if (!active) return
     store.setActive(active)
     filesVersion.value++
+    dismissChooser()
   }
 
   /** Copy one bin. Same contract as `copyBins`. */
@@ -751,6 +816,8 @@ export function usePlaygroundFiles () {
   return {
     store,
     isReady,
+    choosing,
+    chooseTemplate,
     filesVersion,
     loadError,
     loadExample,
@@ -765,6 +832,8 @@ export function usePlaygroundFiles () {
     fetching,
     fetchVersions,
     activePreset,
+    defaultPreset,
+    suppressIntro,
     applyPreset,
     activeAddons,
     toggleAddon,

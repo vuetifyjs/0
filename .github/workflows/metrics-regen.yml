@@ -108,19 +108,6 @@ jobs:
             echo "note=" >> "$GITHUB_OUTPUT"
           fi
 
-      # create-pull-request will not open a *new* PR if one was closed for this
-      # branch — it only updates the branch. Reopen so "Close to discard" is not
-      # a one-way trap on the next regen.
-      - name: Reopen closed metrics-regen PR if needed
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          state=$(gh pr view chore/metrics-regen --json state -q .state 2>/dev/null || echo none)
-          echo "chore/metrics-regen PR state: $state"
-          if [ "$state" = "CLOSED" ]; then
-            gh pr reopen chore/metrics-regen
-          fi
-
       - name: Open/update auto-PR
         uses: peter-evans/create-pull-request@v7
         with:
@@ -143,3 +130,8 @@ jobs:
           branch: chore/metrics-regen
           add-paths: |
             apps/docs/src/data/metrics.json
+
+      # Do not fetch or reopen chore/metrics-regen after this step. v7 only
+      # lists open PRs, so a closed one does not block a new PR. When coverage
+      # is unchanged the action does not recreate the branch, and this repo
+      # deletes head branches on merge — fetching the missing ref fails the job.

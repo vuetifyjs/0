@@ -91,7 +91,7 @@
      * </template>
      * ```
      */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
     /** Namespace for connecting to parent Radio.Group */

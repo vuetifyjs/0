@@ -75,9 +75,9 @@
     /** Per-character pattern (default: 'numeric') */
     pattern?: OtpPattern
     /** Disable interaction */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Show value, prevent changes */
-    readonly?: MaybeRefOrGetter<boolean>
+    readonly?: boolean | MaybeRefOrGetter<boolean>
     /** Accessible name for the group */
     ariaLabel?: string
     /** ID of element that labels this group */

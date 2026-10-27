@@ -13,6 +13,12 @@ describe('loadGrammar', () => {
     expect(md.tokens.some(token => token.scopes.some(scope => scope.includes('markup.heading')))).toBe(true)
   })
 
+  it('should tokenize scss', async () => {
+    const scss = await loadGrammar('scss')
+    const line = scss.tokenizeLine('$color: red;', null, 500)
+    expect(line.tokens.length).toBeGreaterThan(0)
+  })
+
   it('should share one grammar load', async () => {
     const first = loadGrammar('json')
     const second = loadGrammar('json')
