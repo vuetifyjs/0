@@ -64,6 +64,16 @@ Under an extended app bar the indicator drops from the bottom of the flexible sp
 The indicator's exact resting height may move to sit on a material edge or a grid line, as long as it stays near the top of the refreshing content. Each frame clips the disc with its refreshing region, so it can never scroll off on its own or read as belonging to one card.
 :::
 
+::: ds-example
+/systems/md1/swipe-to-refresh/chat
+
+### At the bottom of a chat
+
+Swipe to refresh is usually at the top of a collection, but it can be at the bottom when the newest item is last, as in a chat. The conversation opens scrolled to its latest message. Pull the messages up from the bottom: the indicator rises from the bottom edge of the conversation instead of dropping from the app bar, follows the pull on the same 40 dp disc, and past the threshold slows to a third of the pull's speed. Released, it rests 16 px above the bottom edge until the newer message arrives, then the list follows the new message down.
+
+This is the top composition mirrored, not a different pattern: the same threshold, the same arc growing with the distance, the same cancelled pull sliding back out of sight. The pull only belongs to the script while the conversation is at its end; scrolled back into the history, an upward drag scrolls as usual. The app bar's refresh button loads newer messages for anyone who does not swipe.
+:::
+
 ## Accessibility
 
 The gesture has no keyboard or screen reader equivalent, so every screen with swipe to refresh needs another path to the same action: a refresh button in the app bar or the overflow menu. Mirror the start and the end of the refresh in a polite live region; the examples use a visually hidden `role="status"`. The indicator is hidden from assistive technology while it only tracks a pull, and becomes a named progressbar once the refresh runs.
