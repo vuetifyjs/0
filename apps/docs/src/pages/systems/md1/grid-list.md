@@ -125,6 +125,16 @@ Material Design 1 does not own the selection. Keep the selected ids in your own 
 :::
 
 ::: ds-example
+/systems/md1/grid-list/filtering
+
+### Filtering and sorting
+
+The guidelines let a grid list's tiles be "programmatically filtered or sorted by date, file size, alphabetical order". `Md1GridList` holds no order of its own: it lays out the tiles it is given, left to right, then top to bottom, so filtering and sorting are a matter of which tiles you render and in what order. Here a multiple [Md1ToggleButtons](/systems/md1/toggle-buttons) group turns the photo kinds on and off, a dense [Md1DropdownButton](/systems/md1/dropdown-button) picks the key, and one derived list feeds the tiles: newest first, largest first, or A to Z. The two-line bar shows the date and the size the tiles are sorted by.
+
+A filter that leaves nothing behind should say so rather than show an empty surface, so the status line under the grid counts the matching photos and asks for a filter back when none match. Keep each tile keyed by its photo, not by its position, so a tile that moves keeps its loaded image.
+:::
+
+::: ds-example
 /systems/md1/grid-list/sections
 
 ### Sections
