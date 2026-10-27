@@ -93,7 +93,7 @@ Type styles: active label 14sp Regular maps to Body 1; inactive label 12sp Regul
 | Part | Light theme | Dark theme | Colored bar | Source | Confidence |
 |---|---|---|---|---|---|
 | Active icon and label | App primary color tint | App primary color tint | Black or white | A18 | high |
-| Inactive icon | not found on page (image only); COLOR inactive icon 38% #000000 | not found; COLOR inactive icon 50% #FFFFFF | not found | A18, COLOR | high (absence), COLOR rule high |
+| Inactive icon | not stated in text; figures (style1-5, usage1-3) draw `#757575`, black 54%, same as the label | not found (no dark-bar figure); COLOR inactive icon 50% #FFFFFF | figures (style7, usage5-8): white 70% (`#B2D7D2` on `#00796B`, `#DDD3D0` on `#8D6E63`) | A18 figures, COLOR | high (figures, sampled) |
 | Inactive label (fixed bar, three actions) | not found; COLOR secondary text 54% #000000 or inactive 38% | not found | not found | A18, COLOR | high (absence) |
 | Bar background | not found in text (figures show white) | not found | Any theme color; icons then black or white | A18 | high (absence) |
 | Bar background, Vuetify | #FFFFFF (`$material-light.cards`) | #424242 | `color` prop | V15 | moderate |
