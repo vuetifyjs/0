@@ -19,6 +19,8 @@
    * controls page has no error state. `indeterminate` is the declared
    * extension (SPEC.md, Deviations): MD1 draws no mixed state, the data table's
    * select-all needs one.
+   * As plain attributes, `aria-describedby` and (without a visible label)
+   * `aria-labelledby` still reach the control rather than the root `<label>`.
    */
   export interface Md1CheckboxProps extends Pick<
     CheckboxRootProps,
@@ -40,7 +42,7 @@
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'Md1Checkbox' })
+  defineOptions({ name: 'Md1Checkbox', inheritAttrs: false })
 
   defineSlots<{
     /** Rich label content; replaces `label`. */
@@ -66,8 +68,9 @@
   const id = useId()
 
   const text = toRef(() => !isNullOrUndefined(label) || !!slots.default)
-  // The root is the <label>, so a consumer's aria-labelledby falls through to it
-  // rather than to the control it names; forward it when there is no visible label.
+  // The root is the <label>, so the naming attrs are held back from it and go to
+  // the control they describe; a consumer's aria-labelledby only when there is
+  // no visible label to name it.
   const labelledby = toRef(() => {
     if (text.value) return `${id}-label`
 
@@ -75,6 +78,14 @@
 
     return isString(external) ? external : undefined
   })
+
+  const describedby = toRef(() => {
+    const external = attrs['aria-describedby']
+
+    return isString(external) ? external : undefined
+  })
+
+  const rest = toRef(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => key !== 'aria-labelledby' && key !== 'aria-describedby')))
 
   if (__DEV__) {
     watch(() => !text.value && isNullOrUndefined(ariaLabel) && isNullOrUndefined(labelledby.value), wrong => {
@@ -84,9 +95,10 @@
 </script>
 
 <template>
-  <label class="md1-checkbox">
+  <label class="md1-checkbox" v-bind="rest">
     <Checkbox.Root
       v-model="model"
+      :aria-describedby="describedby"
       :aria-labelledby="labelledby"
       class="md1-checkbox__control"
       :disabled
