@@ -83,7 +83,7 @@
   // already have a chevron; use a smaller offset so children still line up.
   const childrenIndent = toRef(() => {
     if (itemCollapsible.value) return 'ml-2'
-    if (isTopLevel.value && !navConfig.flatMode.value) return 'ml-6'
+    if (isTopLevel.value && !navConfig.flatMode.value) return 'ms-3'
     return undefined
   })
   const hasSubheader = toRef(() => childIds.value.some(childId => {
@@ -159,7 +159,7 @@
 </script>
 
 <template>
-  <li ref="item" class="px-3 scroll-my-[100px]">
+  <li ref="item" class="scroll-my-[100px]" :class="isTopLevel ? 'px-3' : 'ps-3'">
     <div v-if="subheader" class="font-semibold truncate">{{ name }}</div>
 
     <div
