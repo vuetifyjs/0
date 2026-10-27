@@ -570,8 +570,9 @@ describe('quProgressLinear', () => {
       const [light, dark, teal] = host.querySelectorAll<HTMLElement>('.md1-progress-linear')
 
       expect(getComputedStyle(part(light!, 'fill')).backgroundColor).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(part(dark!, 'fill')).backgroundColor).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(part(dark!, 'track')).backgroundColor).toBe('rgba(63, 81, 181, 0.3)')
+      // Dark takes the primary ink, Indigo 100: 6.2:1 on Grey 800 where the 500 is 1.46:1.
+      expect(getComputedStyle(part(dark!, 'fill')).backgroundColor).toBe('rgb(197, 202, 233)')
+      expect(getComputedStyle(part(dark!, 'track')).backgroundColor).toBe('rgba(197, 202, 233, 0.3)')
       // A consumer hue moves the fill and the track together.
       expect(getComputedStyle(part(teal!, 'fill')).backgroundColor).toBe('rgb(0, 150, 136)')
       expect(getComputedStyle(part(teal!, 'track')).backgroundColor).toBe('rgba(0, 150, 136, 0.3)')
