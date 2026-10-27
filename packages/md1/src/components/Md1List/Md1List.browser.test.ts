@@ -505,7 +505,7 @@ describe('quList', () => {
       expect(a!.getAttribute('aria-selected')).toBe('false')
       expect(b!.getAttribute('aria-selected')).toBe('true')
       expect(Object.hasOwn(items(host)[1]!.dataset, 'selected')).toBe(true)
-      expect(getComputedStyle(b!).backgroundColor).toBe('rgba(255, 64, 129, 0.3)')
+      expect(getComputedStyle(b!).backgroundColor).toBe('rgb(245, 245, 245)')
     })
 
     it('should toggle options of a multiple-select listbox and swap the avatar for the check mark', async () => {
@@ -1161,6 +1161,44 @@ describe('quList', () => {
       expect(getComputedStyle(current!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(host.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
       expect(getComputedStyle(title!).color).toBe('rgb(63, 81, 181)')
+    })
+
+    it('should ink a selected option in the primary over the selected-row scrim in both themes', async () => {
+      style(new Md1StyleSheetAdapter().generate({
+        'md1-light': md1Colors,
+        'md1-dark': md1DarkColors,
+      }))
+
+      function options () {
+        return h(Md1List, { 'select': 'single', 'aria-label': 'Recipient', 'lines': 2, 'modelValue': 'ali' }, () => [
+          h(Md1List.Item, { value: 'ali' }, () => [h(Md1List.Icon, { name: 'inbox' }), text('Ali', 'ali@example.com')]),
+          h(Md1List.Item, { value: 'bo' }, () => [h(Md1List.Icon, { name: 'inbox' }), text('Bo', 'bo@example.com')]),
+        ])
+      }
+
+      const host = mount(() => h('div', [
+        h('div', { 'data-theme': 'md1-light' }, [options()]),
+        h('div', { 'data-theme': 'md1-dark' }, [options()]),
+      ]))
+      await settle()
+
+      const [light, rest, dark] = tiles(host)
+      const probe = document.createElement('div')
+      probe.style.backgroundColor = 'color-mix(in srgb, #616161 50%, #424242)'
+      document.body.append(probe)
+      const grey = getComputedStyle(probe).backgroundColor
+      probe.remove()
+
+      // The navigation drawer page's primary text and icon; the scrim is the data tables page's selected row (Vuetify 1.5 table.active).
+      expect(getComputedStyle(light!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(light!.querySelector('.md1-list__icon')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(light!.querySelector('.md1-list__secondary')!).color).toBe('rgba(0, 0, 0, 0.54)')
+      expect(getComputedStyle(light!).backgroundColor).toBe('rgb(245, 245, 245)')
+      expect(getComputedStyle(dark!.querySelector('.md1-list__primary')!).color).toBe('rgb(63, 81, 181)')
+      expect(getComputedStyle(dark!).backgroundColor).toBe(grey)
+      // Selection changes ink and fill only: the selected tile is as tall as its resting neighbour.
+      expect(light!.getBoundingClientRect().height).toBe(rest!.getBoundingClientRect().height)
+      expect(getComputedStyle(rest!).backgroundColor).toBe('rgba(0, 0, 0, 0)')
     })
 
     it('should draw the dark check mark in the accent, as Md1Checkbox does', async () => {
