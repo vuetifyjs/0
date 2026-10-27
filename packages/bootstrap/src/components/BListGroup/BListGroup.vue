@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { createContext, createSingle, useProxyModel } from '@vuetify/v0'
+  import { Atom, createContext, createSingle, useProxyModel } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -66,8 +66,8 @@
 </script>
 
 <template>
-  <component
-    :is="tag"
+  <Atom
+    :as="tag"
     class="list-group"
     :class="{
       'list-group-flush': flush,
@@ -76,5 +76,5 @@
     }"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

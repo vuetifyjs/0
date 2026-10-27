@@ -1,9 +1,12 @@
 <script lang="ts">
   // Framework
-  import { IN_BROWSER, isElement, isNull, isUndefined } from '@vuetify/v0'
+  import { Atom, IN_BROWSER, isElement, isNull, isUndefined, toElement } from '@vuetify/v0'
 
   // Utilities
   import { nextTick, onMounted, shallowRef, useTemplateRef } from 'vue'
+
+  // Types
+  import type { AtomExpose } from '@vuetify/v0'
 
   export interface BTogglerProps {
     /** Class token, or the value written when toggling an attribute on. */
@@ -31,7 +34,7 @@
     as = 'div',
   } = defineProps<BTogglerProps>()
 
-  const root = useTemplateRef<HTMLElement>('root')
+  const root = useTemplateRef<AtomExpose>('root')
   const pressed = shallowRef(false)
 
   function host (): HTMLElement | null {
@@ -42,7 +45,7 @@
       if (!isElement(found)) return null
       return found as HTMLElement
     }
-    const node = root.value
+    const node = toElement(root.value?.element)
     if (!isElement(node)) return null
     return node as HTMLElement
   }
@@ -79,13 +82,13 @@
 </script>
 
 <template>
-  <component
-    :is="as"
+  <Atom
     ref="root"
     :aria-pressed="attribute === 'class' ? pressed : undefined"
+    :as
     :type="as === 'button' ? 'button' : undefined"
     @click="onClick"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

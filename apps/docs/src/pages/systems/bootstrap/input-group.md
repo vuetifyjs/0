@@ -24,8 +24,10 @@ An input group. The root is `div.input-group`. Text add-ons are `span.input-grou
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Input group on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/input-group/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/input-group/"
+  title="Input group"
+/>
 
 ## Usage
 

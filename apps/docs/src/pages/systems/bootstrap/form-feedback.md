@@ -24,8 +24,10 @@ A `.invalid-feedback` message, or `.valid-feedback` when `valid` is set.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Validation on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/validation/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/validation/"
+  title="Validation"
+/>
 
 ## Usage
 

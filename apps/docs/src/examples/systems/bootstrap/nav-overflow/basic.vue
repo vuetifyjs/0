@@ -30,11 +30,11 @@
       </BNavOverflow.Item>
 
       <BNavOverflow.Item>
-        <a class="nav-link" href="#">Billing</a>
+        <a class="nav-link" href="#">Settings</a>
       </BNavOverflow.Item>
 
-      <BNavOverflow.Item keep>
-        <a class="nav-link" href="#">Contact</a>
+      <BNavOverflow.Item>
+        <a class="nav-link" href="#">Help</a>
       </BNavOverflow.Item>
     </ul>
   </BNavOverflow>

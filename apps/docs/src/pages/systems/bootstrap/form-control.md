@@ -25,8 +25,10 @@ An input, a textarea, or a select. All three use `.form-control`. `v-model` is t
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Form control on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/"
+  title="Form control"
+/>
 
 ## Usage
 

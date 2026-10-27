@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { isString } from '@vuetify/v0'
+  import { Atom, isString } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -73,10 +73,10 @@
 </script>
 
 <template>
-  <component
-    :is="tag"
+  <Atom
     :aria-current="tag === 'a' && active ? 'page' : undefined"
     :aria-disabled="tag === 'a' && disabled ? true : undefined"
+    :as="tag"
     :class="classes"
     :disabled="tag === 'button' ? (disabled || undefined) : undefined"
     :href="tag === 'a' ? href : undefined"
@@ -85,5 +85,5 @@
     :type="tag === 'button' ? type : undefined"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

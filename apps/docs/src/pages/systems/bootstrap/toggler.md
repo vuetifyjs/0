@@ -21,8 +21,10 @@ A click toggles a class, or some other attribute, on this element or on one you 
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Toggler on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toggler/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toggler/"
+  title="Toggler"
+/>
 
 ## Usage
 

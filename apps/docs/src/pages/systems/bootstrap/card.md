@@ -23,8 +23,10 @@ A card. The root is a `section`. Header, body, title, subtitle, and text are par
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Cards on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/card/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/card/"
+  title="Cards"
+/>
 
 ## Usage
 

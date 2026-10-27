@@ -24,12 +24,14 @@ A placeholder span. Width is a class you pass in. Wave, pulse, and glow sit on t
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Placeholders on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/placeholders/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/placeholder/"
+  title="Placeholders"
+/>
 
 ## Usage
 
-The component is `span.placeholder`. Pass `col-6`, `w-75`, or another width class yourself. `size` adds `placeholder-xs`, `placeholder-sm`, or `placeholder-lg` on that span. Put `placeholder-wave` or `placeholder-pulse` on the parent. `placeholder-glow` is the same animation as pulse. A `bg-*` class replaces `currentColor`.
+The docs example is a finished card beside the same card built from placeholders. The component is `span.placeholder`. Pass `col-6`, `w-75`, or another width class yourself. `size` adds `placeholder-xs`, `placeholder-sm`, or `placeholder-lg` on that span. Put `placeholder-wave` or `placeholder-pulse` on the parent. `placeholder-glow` is the same animation as pulse. A `bg-*` class replaces `currentColor`.
 
 ::: ds-example
 /systems/bootstrap/placeholder/basic

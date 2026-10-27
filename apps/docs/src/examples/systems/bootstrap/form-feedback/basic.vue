@@ -3,7 +3,7 @@
 
   import { shallowRef } from 'vue'
 
-  const name = shallowRef('')
+  const name = shallowRef('Mark Otto')
 </script>
 
 <template>

@@ -23,8 +23,10 @@ A row of single-character boxes for a verification code. `v-model` is the joined
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [OTP on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/otp-input/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/otp-input/"
+  title="OTP"
+/>
 
 ## Usage
 

@@ -25,8 +25,10 @@ An `<input type="file" class="form-control">`. `v-model` is the `FileList`, or `
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Form control on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/). The file input is documented on that page. Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/"
+  title="Form control"
+/>
 
 ## Usage
 

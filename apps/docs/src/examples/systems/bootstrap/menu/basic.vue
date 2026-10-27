@@ -7,17 +7,12 @@
 </script>
 
 <template>
-  <BMenu v-model="open" label="Toggle menu">
-    <BMenu.Header>Account</BMenu.Header>
-
-    <BMenu.Item href="#">Profile</BMenu.Item>
-
-    <BMenu.Divider />
-
-    <BMenu.Item href="#">Sign out</BMenu.Item>
-
-    <BMenu.Submenu label="File">
-      <BMenu.Item href="#">New</BMenu.Item>
-    </BMenu.Submenu>
+  <BMenu
+    v-model="open"
+    label="Toggle menu"
+  >
+    <BMenu.Item href="#">Menu item 1</BMenu.Item>
+    <BMenu.Item href="#">Menu item 2</BMenu.Item>
+    <BMenu.Item href="#">Menu item 3</BMenu.Item>
   </BMenu>
 </template>

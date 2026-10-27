@@ -23,8 +23,10 @@ A field with an icon or a text prefix inside the control. The root is a label wi
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Form adorn on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-adorn/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-adorn/"
+  title="Form adorn"
+/>
 
 ## Usage
 

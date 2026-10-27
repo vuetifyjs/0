@@ -23,8 +23,10 @@ A breadcrumb trail. Dividers are their own items, written between the crumbs.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Breadcrumb on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/breadcrumb/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/breadcrumb/"
+  title="Breadcrumb"
+/>
 
 ## Usage
 

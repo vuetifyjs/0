@@ -4,11 +4,9 @@
 
 <template>
   <BContainer class="text-center">
-    <BRow>
+    <BRow class="align-items-start">
       <BCol>One of three columns</BCol>
-
-      <BCol :sm="6">One of three columns</BCol>
-
+      <BCol>One of three columns</BCol>
       <BCol>One of three columns</BCol>
     </BRow>
   </BContainer>

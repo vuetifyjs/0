@@ -23,12 +23,14 @@ A bar with a brand and a nav. Below the expand breakpoint the nav lives in a dra
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Navbar on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/navbar/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/navbar/"
+  title="Navbar"
+/>
 
 ## Usage
 
-`v-model` is the drawer. `expand` adds `navbar-expand`, or a colon class such as `md:navbar-expand`. That class is a container query on the navbar, not the viewport. The preview uses `sm`. The docs column is under 768px, so `md` would leave the toggler visible there. Color stays on the element you pass `bg-*` to.
+`v-model` is the drawer. `expand` adds `navbar-expand`, or a colon class such as `md:navbar-expand`. That class is a container query on the navbar, not the viewport. This example uses `md`, the same bar as the Bootstrap docs. The docs column is under 768px, so the toggler stays visible there. Color stays on the element you pass `bg-*` to.
 
 ::: ds-example
 /systems/bootstrap/navbar/basic
@@ -36,7 +38,7 @@ A bar with a brand and a nav. Below the expand breakpoint the nav lives in a dra
 
 ### The markup Bootstrap documents
 
-The HTML tab is the pinned navbar. The collapsed menu is a `dialog.drawer`, not a collapse region. The Vue tab is the same tree. `data-bs-toggle` and `data-bs-target` are the bundle's behavior. This package does not emit them.
+The HTML tab is the Bootstrap docs navbar. The collapsed menu is a `dialog.drawer`, not a collapse region. The Vue tab is the same tree. `data-bs-toggle` and `data-bs-target` are the bundle's behavior. This package does not emit them.
 
 ::: code-group no-filename
 
@@ -60,7 +62,23 @@ The HTML tab is the pinned navbar. The collapsed menu is a `dialog.drawer`, not 
           <li class="nav-item">
             <a class="nav-link" href="#">Link</a>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" type="button">Menu</button>
+            <div class="menu">
+              <a class="menu-item" href="#">Action</a>
+              <a class="menu-item" href="#">Another action</a>
+              <hr class="menu-divider">
+              <a class="menu-item" href="#">Something else here</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+          </li>
         </ul>
+        <form class="hstack gap-2" role="search">
+          <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn-solid btn-icon theme-secondary" type="submit" aria-label="Search"></button>
+        </form>
       </div>
     </dialog>
   </div>
@@ -88,7 +106,25 @@ The HTML tab is the pinned navbar. The collapsed menu is a `dialog.drawer`, not 
             <li class="nav-item">
               <a class="nav-link" href="#">Link</a>
             </li>
+
+            <li class="nav-item">
+              <BMenu label="Menu" trigger-class="nav-link">
+                <BMenu.Item href="#">Action</BMenu.Item>
+                <BMenu.Item href="#">Another action</BMenu.Item>
+                <BMenu.Divider />
+                <BMenu.Item href="#">Something else here</BMenu.Item>
+              </BMenu>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+            </li>
           </BNavbar.Nav>
+
+          <form class="hstack gap-2" role="search">
+            <BFormControl aria-label="Search" placeholder="Search" type="search" />
+            <BButton aria-label="Search" icon theme="secondary" type="submit" variant="solid" />
+          </form>
         </BDrawer.Body>
       </BNavbar.Collapse>
     </div>

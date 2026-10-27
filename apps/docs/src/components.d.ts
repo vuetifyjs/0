@@ -121,6 +121,7 @@ declare module 'vue' {
     DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
     DocsBenchmarks: typeof import('./components/docs/DocsBenchmarks.vue')['default']
     DocsBlogList: typeof import('./components/docs/DocsBlogList.vue')['default']
+    DocsBootstrapReference: typeof import('./components/docs/DocsBootstrapReference.vue')['default']
     DocsBrowserSupport: typeof import('./components/docs/DocsBrowserSupport.vue')['default']
     DocsCallout: typeof import('./components/docs/DocsCallout.vue')['default']
     DocsCard: typeof import('./components/docs/DocsCard.vue')['default']

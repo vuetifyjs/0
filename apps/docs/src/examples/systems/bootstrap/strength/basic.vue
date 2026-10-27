@@ -11,10 +11,10 @@
 
 <template>
   <div>
-    <label class="form-label" for="password">Password</label>
+    <label class="form-label" for="password1">Password</label>
 
     <input
-      id="password"
+      id="password1"
       v-model="password"
       class="form-control"
       placeholder="Enter password"

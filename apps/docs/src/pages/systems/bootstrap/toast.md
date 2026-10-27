@@ -25,12 +25,14 @@ A `.toast` that opens with `v-model`. It hides itself after a delay, and that de
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Toasts on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toasts/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/toasts/"
+  title="Toasts"
+/>
 
 ## Usage
 
-`v-model` owns `.show`. The header is ordinary markup. The body and the close button are parts.
+`v-model` owns `.show`. Show toast sets it open again after the close button. The header is ordinary markup. The body and the close button are parts.
 
 ::: ds-example
 /systems/bootstrap/toast/basic

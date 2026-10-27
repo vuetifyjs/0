@@ -24,8 +24,10 @@ A pagination list. The page model is 1-based.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Pagination on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/pagination/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/pagination/"
+  title="Pagination"
+/>
 
 ## Usage
 

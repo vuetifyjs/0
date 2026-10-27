@@ -23,8 +23,10 @@ One column in a row. With no width it shares the row equally. A span, a breakpoi
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Columns on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/columns/). Classes only. This component has no behavior.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/columns/"
+  title="Columns"
+/>
 
 ## Usage
 

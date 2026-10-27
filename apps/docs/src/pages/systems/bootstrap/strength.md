@@ -21,8 +21,10 @@ A meter for a level you already computed. It does not read a password and it doe
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Password strength on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/password-strength/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/password-strength/"
+  title="Password strength"
+/>
 
 ## Usage
 

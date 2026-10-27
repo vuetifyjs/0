@@ -24,8 +24,10 @@ A form control that opens a menu of options. The selected value is `v-model`. Th
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Combobox on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/combobox/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/combobox/"
+  title="Combobox"
+/>
 
 ## Usage
 

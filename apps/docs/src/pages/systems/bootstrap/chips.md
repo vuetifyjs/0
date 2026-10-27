@@ -22,12 +22,14 @@ Choice chips, or a field that turns typed text into chips. `v-model` is a list o
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Chips on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/chips/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/chips/"
+  title="Chips"
+/>
 
 ## Usage
 
-Without `input`, each item is a `span.chip`. Click, Enter, or Space toggles `.active`. With `input`, the root is `div.chip-input`. Enter or a comma commits a chip. Backspace on an empty field selects the last chip, and Backspace again removes it.
+The row is one `BChips` with four items: a plain chip, one with an avatar, one with an icon, and a dismissible chip. `dismissible` is one switch for the whole component, so each chip has a remove button. The row is locked to the chip height. When the last chip is removed, Reset restores the four, in that same height. Without `input`, each choice item is a `span.chip` and Click, Enter, or Space toggles `.active`. With `input`, the root is `div.chip-input`. Enter or a comma commits a chip. Backspace on an empty field selects the last chip, and Backspace again removes it.
 
 ::: ds-example
 /systems/bootstrap/chips/basic

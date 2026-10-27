@@ -23,8 +23,10 @@ A small label. The default is `span.badge`. Color is a theme class.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Badges on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/badge/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/badge/"
+  title="Badges"
+/>
 
 ## Usage
 

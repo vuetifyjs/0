@@ -25,8 +25,10 @@ A tip on a button or a link. It stays open while the pointer is on the trigger o
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Tooltips on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/tooltips/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/tooltip/"
+  title="Tooltips"
+/>
 
 ## Usage
 

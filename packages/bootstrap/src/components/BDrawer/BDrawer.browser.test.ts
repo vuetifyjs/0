@@ -141,6 +141,80 @@ describe('bDrawer', () => {
     }
   })
 
+  it('should stay open and leave the page scrollable when scroll is set', async () => {
+    const open = shallowRef(true)
+    const host = mount(() => h(BDrawer, {
+      'scroll': true,
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }))
+    await settle()
+
+    const element = host.querySelector('dialog')!
+    expect(element.matches(':modal')).toBe(true)
+    expect(document.documentElement.classList.contains('dialog-open')).toBe(false)
+  })
+
+  it('should dismiss a start drawer on a leftward touch swipe', async () => {
+    const open = shallowRef(true)
+    const host = mount(() => h(BDrawer, {
+      'placement': 'start',
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }))
+    await settle()
+
+    const element = host.querySelector('dialog')!
+    element.dispatchEvent(new PointerEvent('pointerdown', {
+      bubbles: true,
+      clientX: 80,
+      clientY: 40,
+      pointerType: 'touch',
+    }))
+    element.dispatchEvent(new PointerEvent('pointerup', {
+      bubbles: true,
+      clientX: 10,
+      clientY: 40,
+      pointerType: 'touch',
+    }))
+    await settle()
+
+    expect(open.value).toBe(false)
+  })
+
+  it('should dismiss a fullscreen drawer on a downward touch swipe', async () => {
+    const open = shallowRef(true)
+    const host = mount(() => h(BDrawer, {
+      'placement': 'fullscreen',
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }))
+    await settle()
+
+    const element = host.querySelector('dialog')!
+    element.dispatchEvent(new PointerEvent('pointerdown', {
+      bubbles: true,
+      clientX: 40,
+      clientY: 40,
+      pointerType: 'touch',
+    }))
+    element.dispatchEvent(new PointerEvent('pointerup', {
+      bubbles: true,
+      clientX: 40,
+      clientY: 120,
+      pointerType: 'touch',
+    }))
+    await settle()
+
+    expect(open.value).toBe(false)
+  })
+
   it('should close on Escape', async () => {
     const open = shallowRef(true)
     const host = drawer(open)

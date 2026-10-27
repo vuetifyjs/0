@@ -22,8 +22,10 @@ A native range input. `v-model` is the number. Step snapping is the slider, not 
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Range on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/range/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/range/"
+  title="Range"
+/>
 
 ## Usage
 

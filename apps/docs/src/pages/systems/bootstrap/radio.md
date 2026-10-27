@@ -24,8 +24,10 @@ A radio. The radio class sits on the input. Several of them share one model, and
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Radio on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/radio/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/radio/"
+  title="Radio"
+/>
 
 ## Usage
 
@@ -42,12 +44,25 @@ The class is on the input. Give every radio in a set the same `name` so the brow
 ::: code-group no-filename
 
 ```html Bootstrap collapse
-<input class="radio" name="radios" type="radio" id="radioLabel" />
+<div class="form-field">
+  <input class="radio" name="radios" type="radio" id="radio1" value="first" checked />
+  <label for="radio1">First example radio</label>
+</div>
+<div class="form-field">
+  <input class="radio" name="radios" type="radio" id="radio2" value="second" />
+  <label for="radio2">Second example radio</label>
+</div>
+<div class="form-field">
+  <input class="radio" name="radios" type="radio" id="radio3" value="third" />
+  <label for="radio3">Third example radio</label>
+</div>
 ```
 
 ```vue Vue collapse
 <template>
-  <BRadio id="radioLabel" v-model="choice" name="radios" value="a" />
+  <BRadio id="radio1" v-model="choice" name="radios" value="first" />
+  <BRadio id="radio2" v-model="choice" name="radios" value="second" />
+  <BRadio id="radio3" v-model="choice" name="radios" value="third" />
 </template>
 ```
 

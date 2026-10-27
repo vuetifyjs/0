@@ -23,8 +23,10 @@ An avatar image or initials, with an optional status dot.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Avatars on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/avatars/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/avatar/"
+  title="Avatars"
+/>
 
 ## Usage
 

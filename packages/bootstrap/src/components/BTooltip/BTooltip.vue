@@ -316,6 +316,7 @@
     const list = ['tooltip', 'bs-tooltip-auto']
 
     if (model.value && filled()) list.push('show')
+    else list.push('pe-none')
     if (instant) list.push('tooltip-instant')
 
     return list

@@ -24,12 +24,14 @@ The dismiss icon. It is a button. You wire the click.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Close button on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/close-button/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/close-button/"
+  title="Close button"
+/>
 
 ## Usage
 
-The accessible name comes from the locale key `Close.label`, and falls back to "Close". There is no icon in the slot. The pin draws the glyph from `.btn-close`.
+The accessible name comes from the locale key `Close.label`, and falls back to "Close". There is no icon in the slot. The pin draws the glyph from `.btn-close`. The click is yours: here it dismisses the alert, and Show alert brings that alert back.
 
 ::: ds-example
 /systems/bootstrap/close/basic

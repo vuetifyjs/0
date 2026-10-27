@@ -42,7 +42,7 @@ function items () {
   ]
 }
 
-function example (current: ShallowRef<number>, extra: { overflow?: boolean } = {}) {
+function example (current: ShallowRef<number>, extra: { overflow?: boolean, horizontal?: boolean } = {}) {
   return () => h(BStepper, {
     ...extra,
     'modelValue': current.value,
@@ -67,6 +67,14 @@ describe('bStepper', () => {
     await settle()
 
     conform(host.querySelector('.stepper')!, 'stepper:basic')
+  })
+
+  it('should add stepper-horizontal when horizontal is set', async () => {
+    const host = mount(example(shallowRef(1), { horizontal: true }))
+    await settle()
+
+    expect(host.querySelector('.stepper')?.classList.contains('stepper-horizontal')).toBe(true)
+    expect(activeCount(host)).toBe(2)
   })
 
   it('should wrap the list when overflow is set', async () => {

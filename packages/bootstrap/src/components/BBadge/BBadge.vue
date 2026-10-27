@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { isString } from '@vuetify/v0'
+  import { Atom, isString } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -42,10 +42,10 @@
 </script>
 
 <template>
-  <component
-    :is="as"
+  <Atom
+    :as
     :class="classes"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

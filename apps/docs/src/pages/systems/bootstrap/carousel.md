@@ -23,8 +23,10 @@ A stacked slideshow. The current slide is the active item. Previous and next mov
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Carousel on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/carousel/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/carousel/"
+  title="Carousel"
+/>
 
 ## Usage
 

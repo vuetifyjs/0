@@ -23,8 +23,10 @@ A list of links. You choose which one is active. It does not switch panes.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Navs on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/navs-tabs/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/nav/"
+  title="Navs"
+/>
 
 ## Usage
 
@@ -32,6 +34,12 @@ The default host is `ul.nav`. Put a `BNav.Link` in each `BNav.Item`. `as="nav"` 
 
 ::: ds-example
 /systems/bootstrap/nav/basic
+:::
+
+## Examples
+
+::: ds-example
+/systems/bootstrap/nav/variants
 :::
 
 ### The markup Bootstrap documents

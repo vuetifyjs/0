@@ -28,8 +28,10 @@ Vue components that render Bootstrap 6 markup. You load the stylesheet. This pac
 
 `@paper/bootstrap` renders the elements and classes from the Bootstrap 6 docs, and [Vuetify0](/) supplies the behavior. Your stylesheet does not change. There is no class prefix to learn, and no CSS in this package.
 
-> [!NOTE]
-> Reference: [Bootstrap 6 documentation](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/). The class catalog this package implements.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/getting-started/install/"
+  title="Bootstrap 6"
+/>
 
 ::: ds-example no-resize
 /systems/bootstrap/overview

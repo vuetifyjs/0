@@ -1,17 +1,32 @@
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
   import { BProgress } from '@paper/bootstrap'
-
-  const value = shallowRef(25)
 </script>
 
 <template>
   <div class="d-grid gap-3">
-    <BProgress v-model="value" label="Basic example" />
-    <BProgress v-model="value" label="Default striped example" striped />
+    <BProgress
+      label="Basic example"
+      :model-value="0"
+    />
 
-    <BProgress v-model="value" animated label="Example with label" striped>
-      {{ value }}%
-    </BProgress>
+    <BProgress
+      label="Basic example"
+      :model-value="25"
+    />
+
+    <BProgress
+      label="Basic example"
+      :model-value="50"
+    />
+
+    <BProgress
+      label="Basic example"
+      :model-value="75"
+    />
+
+    <BProgress
+      label="Basic example"
+      :model-value="100"
+    />
   </div>
 </template>

@@ -23,8 +23,10 @@ A stack of sections where one is open at a time. Each section is a native disclo
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Accordion on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/accordion/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/accordion/"
+  title="Accordion"
+/>
 
 ## Usage
 

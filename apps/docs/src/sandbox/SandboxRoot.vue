@@ -3,7 +3,7 @@
   import { useEventListener, useMutationObserver, useResizeObserver } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, useTemplateRef } from 'vue'
+  import { onMounted, onScopeDispose, useTemplateRef } from 'vue'
 
   // Types
   import type { Component } from 'vue'
@@ -100,7 +100,12 @@
   type Rect = { top: number, left: number, width: number, height: number }
 
   function toRect (rect: DOMRect): Rect {
-    return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+    return {
+      top: Math.round(rect.top),
+      left: Math.round(rect.left),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+    }
   }
 
   // A fixed element that accepts no pointer input anywhere in its subtree is a
@@ -139,22 +144,23 @@
   //            dialog still exiting under `.hiding`, or `.drawer.show`.
   //   float    out-of-flow content spilled past the example's box AND is owned
   //            by component state. Bulma marks that with `is-active`. Bootstrap
-  //            6 marks it with `.tooltip.show`, `.popover.show`, a menu that
-  //            spills sideways, or the `show` class on the absolute element.
-  //            It belongs to the page, so page chrome occludes it. A menu that
-  //            only hangs below the box grows the frame instead: promoting it
-  //            makes the anchor jump to page coordinates for a frame.
+  //            6 marks it with `.tooltip.show`, `.popover.show`, `.menu.show`,
+  //            or the `show` class on the absolute element. It belongs to the
+  //            page, so page chrome occludes it. A downward menu uses this
+  //            same path. The pin happens before the frame is promoted, so
+  //            the anchor does not jump.
   //   grow     everything else, including a pure-CSS `:hover` reveal
   //            (`is-hoverable`), which carries neither `is-active` nor `show`.
   //            The frame makes room for it instead of being promoted.
   //
   // `escaping` is reported either way: promotion clips to it, growth sizes
   // around it.
-  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[], escaping: Rect[] } {
+  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[], escaping: Rect[], holdFade: boolean } {
     const box = el.getBoundingClientRect()
     const escaping: Rect[] = []
 
     let tier: 'overlay' | 'float' | null = null
+    let holdFade = false
 
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
@@ -191,19 +197,30 @@
       // content. Fixed positioning is the overlay signal for a dialog. A tip
       // stays float, and only a rect that spills the box counts as escaped.
       // A closed tip stays `display: block` at opacity 0; it must not reserve
-      // space or promote the frame. A menu that only spills downward is grown
-      // into, further down in `measure`.
+      // space or promote the frame. A menu drops `.show` while it is still
+      // painted, and the fade is `position: fixed`. Demoting on that same
+      // turn re-anchors the menu inside the small frame, so it jumps onto
+      // the control and fades there. Hold a promotion that is already open
+      // until the menu is no longer painted. A closed menu never starts one.
       const menu = node.closest('.menu')
       const tip = node.closest('.tooltip, .popover')
       if (tip && !tip.classList.contains('show')) continue
+      if (menu && !menu.classList.contains('show')) {
+        // `0.00` from the ease-out is still `display: flex` for a few frames.
+        // Holding those frames leaves the clip showing the iframe's white
+        // canvas. Anything under a couple percent is already gone.
+        const opacity = Number(getComputedStyle(menu).opacity)
+        const painted = opacity > 0.02
+          && menu.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+
+        if (!open || !painted) continue
+
+        holdFade = true
+      }
 
       const anchored = menu ?? tip
       const spillsX = rect.left < box.left - SLACK || rect.right > box.right + SLACK
       const spillsY = rect.top < box.top - SLACK || rect.bottom > box.bottom + SLACK
-
-      // A closed menu is `display: none`. An open one that only needs room
-      // below the card must not promote: the fixed frame moves the anchor.
-      if (menu && !menu.classList.contains('show')) continue
 
       // Laid out against the viewport (a modal backdrop), or out-of-flow and
       // spilling past the box the example occupies inline. A menu or tip that
@@ -217,7 +234,7 @@
       if (rect.width > 0 || rect.height > 0) escaping.push(toRect(rect))
 
       if (menu) {
-        if (spillsX) tier ??= 'float'
+        tier ??= 'float'
       } else if (tip) {
         if (tip.classList.contains('show')) tier ??= 'float'
       } else if (position === 'fixed' || owner) tier = 'overlay'
@@ -228,28 +245,62 @@
       tier,
       rects: tier ? [toRect(box), ...escaping] : [],
       escaping,
+      holdFade,
     }
   }
 
-  // The close fade outlives `.show`. One follow-up read, after Bootstrap's
-  // 150ms menu transition, drops the extra height once the menu is `display:
-  // none`. Measuring on the class change alone shrinks the frame mid-fade.
-  let exitMeasure: ReturnType<typeof setTimeout> | undefined
+  // Opacity does not mutate the DOM, so the close fade needs its own read.
+  // One frame at a time: a queued read that finds the menu still painted
+  // queues the next.
+  let fadeFrame = 0
 
-  function queueExit () {
-    if (exitMeasure !== undefined) return
-    exitMeasure = setTimeout(() => {
-      exitMeasure = undefined
+  function queueFade () {
+    if (fadeFrame !== 0) return
+
+    fadeFrame = requestAnimationFrame(() => {
+      fadeFrame = 0
       measure()
-    }, 200)
+    })
   }
+
+  onScopeDispose(() => {
+    if (fadeFrame !== 0) cancelAnimationFrame(fadeFrame)
+  })
+
+  // The parent answers every size with a box, and that box measures again.
+  // Repeating an unchanged result is a synchronous loop: one idle example
+  // posted ~37,000 sizes in two seconds, which is the tab that grows overnight.
+  let sentSize = ''
+  let sentRects = ''
+  let menuStable = 0
 
   function measure () {
     const el = root.value
 
-    if (!el || !ready || pending) return
+    if (!el || !ready) return
+
+    // The open gate used to drop every read for 300ms so the pin could settle.
+    // A menu scales from 0.95 with the background clipped to the padding box,
+    // so a clip frozen on the first frame cuts the border off until the gate
+    // opens. Keep sampling, and once the promotion is up let the clip follow.
+    // A close that finishes during the gate still falls through.
+    if (pending && !open) {
+      const gated = floats(el)
+
+      if (gated.holdFade || gated.tier) {
+        queueFade()
+
+        return
+      }
+
+      pending = false
+    }
+
+    if (pending) queueFade()
 
     const found = floats(el)
+
+    if (found.holdFade) queueFade()
     const tier = found.tier
 
     // Never ask to be promoted from an unpinned state: without a box to pin
@@ -278,12 +329,20 @@
       if (overlay) {
         pin()
 
+        // A previous close can leave the clip key equal to the opening
+        // scale's box. Forget it so this open follows the border back out.
+        if (el.querySelector('.menu.show')) {
+          sentRects = ''
+          menuStable = 0
+        }
+
         send({ type: 'v0:sandbox:overlay', open: true, tier, rects: floats(el).rects })
 
         // Never stay gated on a parent that went quiet: a stuck `pending` would
         // leave an invisible full-viewport frame swallowing the page.
         setTimeout(() => {
           pending = false
+          measure()
         }, 300)
       } else {
         send({ type: 'v0:sandbox:overlay', open: false, tier, rects: [] })
@@ -299,7 +358,21 @@
     // collapse the placeholder the docs page is holding open in the flow. The
     // regions still have to keep up: a menu resizes under its own content.
     if (overlay) {
-      send({ type: 'v0:sandbox:rects', tier, rects: found.rects })
+      const key = `${tier}:${JSON.stringify(found.rects)}`
+
+      if (key === sentRects) {
+        menuStable += 1
+      } else {
+        sentRects = key
+        menuStable = 0
+        send({ type: 'v0:sandbox:rects', tier, rects: found.rects })
+      }
+
+      // The opening scale mutates nothing and resizes nothing the observers
+      // watch. The border box grows for ~150ms, and a clip stuck on the
+      // first frame cuts the border off until a later read. Follow it until
+      // the rect settles.
+      if (menuStable < 2 && el.querySelector('.menu.show')) queueFade()
 
       return
     }
@@ -312,32 +385,15 @@
       height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
     }
 
-    // An open menu is `position: fixed`, so it is missing from offsetHeight.
-    // Once the frame has grown to fit it, the menu no longer spills and would
-    // drop out of `escaping`, and the next measure would shrink the frame
-    // back. Keep a visible menu in the height until it is actually gone.
-    // Closing drops `.show` immediately, while the 150ms fade is still on
-    // screen. Shrinking on that class change is what throws the menu to the
-    // top of the frame.
-    let exiting = false
-
-    for (const menu of el.querySelectorAll<HTMLElement>('.menu')) {
-      if (!menu.checkVisibility()) continue
-      const rect = menu.getBoundingClientRect()
-      const host = el.getBoundingClientRect()
-      if (rect.left < host.left - SLACK) continue
-      if (rect.right > host.right + SLACK) continue
-      height = Math.max(height, Math.ceil(rect.top + rect.height) + PAD)
-      if (!menu.classList.contains('show')) exiting = true
-    }
-
-    if (exiting) queueExit()
-
     // `grown` marks a height that only exists because something is spilling out
     // of the box right now. The docs page still applies it — the frame has to
     // make room — but it must not remember it as what this example rests at.
     const grown = found.escaping.length > 0 || height > el.offsetHeight + 1
+    const key = `${height}:${grown}`
 
+    if (key === sentSize) return
+
+    sentSize = key
     send({ type: 'v0:sandbox:size', height, grown })
   }
 

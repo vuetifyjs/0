@@ -24,8 +24,10 @@ A switch. The class switch is the wrapper. Inside it, a checkbox carries role sw
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Switch on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/switch/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/switch/"
+  title="Switch"
+/>
 
 ## Usage
 

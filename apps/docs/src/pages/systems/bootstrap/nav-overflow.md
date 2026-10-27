@@ -24,8 +24,10 @@ A nav row that measures its items and moves the ones that do not fit into a menu
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: the pinned Bootstrap 6 nav-overflow examples. Classes and the More menu. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/nav-overflow/"
+  title="Nav overflow"
+/>
 
 ## Usage
 

@@ -1,10 +1,13 @@
 <script lang="ts">
   // Framework
-  import { isNullOrUndefined, isUndefined, useId } from '@vuetify/v0'
+  import { Atom, isNullOrUndefined, isUndefined, toElement, useId } from '@vuetify/v0'
 
   // Utilities
   import { orphan } from '../../utilities/context'
   import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+
+  // Types
+  import type { AtomExpose } from '@vuetify/v0'
 
   import { useBMenu } from '../BMenu/BMenu.vue'
 
@@ -25,7 +28,7 @@
   const { href, disabled = false } = defineProps<BMenuItemProps>()
 
   const menu = useBMenu()
-  const el = useTemplateRef<HTMLElement>('item')
+  const el = useTemplateRef<AtomExpose>('item')
   const id = useId()
 
   orphan('BMenuItem', 'BMenu', menu)
@@ -36,8 +39,8 @@
   }
 
   onMounted(() => {
-    const element = el.value
-    if (isNullOrUndefined(element) || isNullOrUndefined(menu)) return
+    const element = toElement(el.value?.element)
+    if (!(element instanceof HTMLElement) || isNullOrUndefined(menu)) return
     menu.register({
       id,
       el: element,
@@ -51,10 +54,10 @@
 </script>
 
 <template>
-  <component
-    :is="isUndefined(href) ? 'button' : 'a'"
+  <Atom
     ref="item"
     :aria-disabled="disabled || undefined"
+    :as="isUndefined(href) ? 'button' : 'a'"
     class="menu-item"
     :class="{ disabled }"
     :disabled="isUndefined(href) ? disabled || undefined : undefined"
@@ -64,5 +67,5 @@
     @click="onClick"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

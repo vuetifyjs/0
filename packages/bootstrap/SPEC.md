@@ -90,9 +90,11 @@ Backdrop is `::backdrop`. A backdrop click is a click whose target is the
 dialog element.
 
 - `blocking` is Bootstrap's `backdrop: "static"`. The click adds
-  `.dialog-static` for the bounce and does not close. Escape still closes.
-  v6 static backdrop does not trap Escape. `keyboard: false` is not a prop.
-  `modal: false` (`show()`) is out of scope.
+  `.dialog-static` for the bounce and does not close. Escape still closes
+  unless `keyboard` is false. `keyboard: false` bounces a modal dialog and
+  does not close it. A non-modal dialog ignores Escape with no bounce.
+- `modal` defaults to true (`showModal()`). False calls `show()`, adds
+  `.dialog-nonmodal`, and does not set `dialog-open`. There is no backdrop.
 - Close adds `.hiding` and calls `close()` after the opacity transition, so
   the exit animation still has a top layer and a backdrop. `.dialog-instant`
   and `prefers-reduced-motion: reduce` close immediately.
@@ -119,12 +121,13 @@ owns `v-model`, `Dialog.Content` is renderless (`scrim` false,
   so an omitted prop adds no placement class. `sheet` adds `drawer-sheet`.
 - `drawer-instant`, `drawer-translucent`, and the responsive
   `.sm:drawer` / `.md:drawer` / … classes are user classes. Navbar collapse
-  consumes the drawer later. Swipe-to-dismiss is not ported. `scroll: true`
-  (`show()` instead of `showModal()`) is out of scope, same as `BDialog`'s
-  `modal: false`.
+  consumes the drawer later. A touch or pen swipe past 40px dismisses in
+  the placement's outward direction (start swipes left in LTR). `scroll`
+  leaves the page scrollable: the drawer stays modal while it has a
+  backdrop, and `dialog-open` is not added.
 - `blocking` is Bootstrap's `backdrop: "static"`. The click adds
-  `.drawer-static` for the bounce and does not close. Escape still closes.
-  `keyboard: false` is not a prop.
+  `.drawer-static` for the bounce and does not close. Escape still closes
+  unless `keyboard` is false, which bounces and does not close.
 - An animated close adds `.hiding` and leaves the dialog open until the
   exit transition ends. `close()` drops `::backdrop` in the same turn, and
   this pin has no `.drawer.hiding::backdrop` rule (dialog has one), so the

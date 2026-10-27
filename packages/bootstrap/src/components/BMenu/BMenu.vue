@@ -43,6 +43,11 @@
     /** Button text. The trigger is `button.btn-solid.theme-primary`. */
     label?: string
     /**
+     * Trigger classes. Default is `btn-solid theme-primary`.
+     * The navbar example passes `nav-link`.
+     */
+    triggerClass?: string
+    /**
      * Where the menu sits, and the `data-bs-placement` styling hook.
      * Bootstrap's stylesheet keys `transform-origin` off that attribute.
      * Default matches Bootstrap's own engine: `bottom-start`.
@@ -93,6 +98,7 @@
     label = 'Toggle menu',
     placement = 'bottom-start',
     autoClose = true,
+    triggerClass = 'btn-solid theme-primary',
   } = defineProps<BMenuProps>()
 
   const model = defineModel<boolean>({ default: false })
@@ -241,7 +247,7 @@
 <template>
   <button
     ref="trigger"
-    class="btn-solid theme-primary"
+    :class="triggerClass"
     v-bind="mergeProps(attrs, triggerAttrs)"
   >
     {{ label }}

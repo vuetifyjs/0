@@ -1,69 +1,23 @@
 <script setup lang="ts">
   import { BNav } from '@paper/bootstrap'
-
-  import { shallowRef } from 'vue'
-
-  const current = shallowRef('home')
-
-  const links = [
-    { id: 'home', label: 'Home' },
-    { id: 'profile', label: 'Profile' },
-    { id: 'contact', label: 'Contact' },
-  ]
 </script>
 
 <template>
-  <div class="d-flex flex-column gap-4">
-    <BNav>
-      <BNav.Item
-        v-for="link in links"
-        :key="link.id"
-      >
-        <BNav.Link
-          :active="current === link.id"
-          :href="`#${link.id}`"
-          @click.prevent="current = link.id"
-        >
-          {{ link.label }}
-        </BNav.Link>
-      </BNav.Item>
+  <BNav>
+    <BNav.Item>
+      <BNav.Link active href="#">Active</BNav.Link>
+    </BNav.Item>
 
-      <BNav.Item>
-        <BNav.Link disabled>Disabled</BNav.Link>
-      </BNav.Item>
-    </BNav>
+    <BNav.Item>
+      <BNav.Link href="#">Link</BNav.Link>
+    </BNav.Item>
 
-    <BNav variant="pills">
-      <BNav.Item
-        v-for="link in links"
-        :key="link.id"
-      >
-        <BNav.Link
-          :active="current === link.id"
-          href="#"
-          @click.prevent="current = link.id"
-        >
-          {{ link.label }}
-        </BNav.Link>
-      </BNav.Item>
-    </BNav>
+    <BNav.Item>
+      <BNav.Link href="#">Link</BNav.Link>
+    </BNav.Item>
 
-    <BNav
-      fill
-      variant="underline"
-    >
-      <BNav.Item
-        v-for="link in links"
-        :key="link.id"
-      >
-        <BNav.Link
-          :active="current === link.id"
-          href="#"
-          @click.prevent="current = link.id"
-        >
-          {{ link.label }}
-        </BNav.Link>
-      </BNav.Item>
-    </BNav>
-  </div>
+    <BNav.Item>
+      <BNav.Link disabled>Disabled</BNav.Link>
+    </BNav.Item>
+  </BNav>
 </template>

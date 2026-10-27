@@ -3,18 +3,30 @@
 
   import { shallowRef } from 'vue'
 
-  const email = shallowRef('')
+  const first = shallowRef('')
+  const second = shallowRef('')
 </script>
 
 <template>
   <div>
-    <BFormLabel class="mb-2" for="exampleFormControlInput">Email address</BFormLabel>
+    <div class="mb-3">
+      <BFormLabel for="formGroupExampleInput">Example label</BFormLabel>
 
-    <BFormControl
-      id="exampleFormControlInput"
-      v-model="email"
-      placeholder="name@example.com"
-      type="email"
-    />
+      <BFormControl
+        id="formGroupExampleInput"
+        v-model="first"
+        placeholder="Example input placeholder"
+      />
+    </div>
+
+    <div class="mb-3">
+      <BFormLabel for="formGroupExampleInput2">Another label</BFormLabel>
+
+      <BFormControl
+        id="formGroupExampleInput2"
+        v-model="second"
+        placeholder="Another input placeholder"
+      />
+    </div>
   </div>
 </template>

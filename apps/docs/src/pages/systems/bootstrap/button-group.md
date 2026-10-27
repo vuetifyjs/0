@@ -22,8 +22,10 @@ A row of buttons that read as one control. The slot is the buttons.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Button group on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/button-group/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/button-group/"
+  title="Button group"
+/>
 
 ## Usage
 

@@ -14,6 +14,12 @@
      * @default false
      */
     overflow?: boolean
+    /**
+     * Adds `stepper-horizontal` so the steps sit in a row.
+     *
+     * @default false
+     */
+    horizontal?: boolean
   }
 
   export interface BStepperContext {
@@ -43,7 +49,7 @@
 
   const model = defineModel<number>({ default: 0 })
 
-  const { overflow = false } = defineProps<BStepperProps>()
+  const { overflow = false, horizontal = false } = defineProps<BStepperProps>()
 
   let cursor = 0
 
@@ -63,12 +69,12 @@
     :namespace="STEPPER_NS"
   >
     <div v-if="overflow" class="stepper-overflow">
-      <ol class="stepper">
+      <ol class="stepper" :class="{ 'stepper-horizontal': horizontal }">
         <slot />
       </ol>
     </div>
 
-    <ol v-else class="stepper">
+    <ol v-else class="stepper" :class="{ 'stepper-horizontal': horizontal }">
       <slot />
     </ol>
   </Step.Root>

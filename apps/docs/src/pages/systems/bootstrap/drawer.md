@@ -26,8 +26,10 @@ Bootstrap's `<dialog class="drawer">` with the open state, backdrop click, and E
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Drawer on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/drawer/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/drawer/"
+  title="Drawer"
+/>
 
 ## Usage
 
@@ -98,7 +100,7 @@ The HTML tab is the drawer from the v6 docs, without `data-bs-toggle` or `data-b
 
 Wraps v0's [Dialog](/components/disclosure/dialog), the same way [BDialog](/systems/bootstrap/dialog) does. `Dialog.Root` owns `v-model`. `Dialog.Content` is renderless so the host can stay a `<dialog class="drawer">`. The browser's `showModal()` traps focus and paints `::backdrop`.
 
-`Scrim` stays off. `blocking` is a static backdrop: the click bounces and does not close. Escape still closes. Bootstrap's `keyboard: false` option, a non-modal `show()`, and swipe-to-dismiss are not props.
+`Scrim` stays off. `blocking` is a static backdrop: the click bounces and does not close. Escape still closes unless `keyboard` is false. `scroll` leaves the page scrollable. A touch or pen swipe past 40px dismisses the panel in its outward direction.
 
 `placement` is `start`, `end`, `top`, `bottom`, or `fullscreen`. `sheet` adds `drawer-sheet`. `drawer-instant`, `drawer-translucent`, and the responsive `.sm:drawer` classes are classes you pass through.
 

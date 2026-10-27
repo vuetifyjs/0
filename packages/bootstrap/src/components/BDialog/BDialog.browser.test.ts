@@ -115,6 +115,49 @@ describe('bDialog', () => {
     expect(xl.querySelector('dialog')!.classList.contains('dialog-xl')).toBe(true)
   })
 
+  it('should bounce and stay open when keyboard is false', async () => {
+    const open = shallowRef(true)
+    const host = mount(() => h(BDialog, {
+      'keyboard': false,
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }))
+    await settle()
+
+    const element = host.querySelector('dialog')!
+    element.dispatchEvent(new Event('cancel', { cancelable: true }))
+    await settle()
+
+    expect(open.value).toBe(true)
+    expect(element.open).toBe(true)
+    expect(element.classList.contains('dialog-static')).toBe(true)
+  })
+
+  it('should open non-modal without locking scroll', async () => {
+    const open = shallowRef(true)
+    const host = mount(() => h(BDialog, {
+      'modal': false,
+      'modelValue': open.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        open.value = value
+      },
+    }))
+    await settle()
+
+    const element = host.querySelector('dialog')!
+    expect(element.open).toBe(true)
+    expect(element.matches(':modal')).toBe(false)
+    expect(element.classList.contains('dialog-nonmodal')).toBe(true)
+    expect(element.getAttribute('aria-modal')).toBeNull()
+    expect(document.documentElement.classList.contains('dialog-open')).toBe(false)
+
+    element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await settle()
+    expect(open.value).toBe(false)
+  })
+
   it('should close on Escape', async () => {
     const open = shallowRef(true)
     const host = dialog(open)

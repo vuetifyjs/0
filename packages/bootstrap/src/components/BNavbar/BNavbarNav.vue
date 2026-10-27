@@ -1,4 +1,7 @@
 <script lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   export interface BNavbarNavProps {
     /** `ul` in the docs. `div` when the nav is not a list. */
     as?: string
@@ -17,10 +20,10 @@
 </script>
 
 <template>
-  <component
-    :is="as"
+  <Atom
+    :as
     class="navbar-nav"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

@@ -3,20 +3,20 @@
 
   import { shallowRef } from 'vue'
 
-  const country = shallowRef<string>()
+  const value = shallowRef<string>()
 
   const items = [
-    { value: 'us', text: 'United States' },
-    { value: 'uk', text: 'United Kingdom' },
-    { value: 'ca', text: 'Canada' },
+    { value: '1', text: 'Option one' },
+    { value: '2', text: 'Option two' },
+    { value: '3', text: 'Option three' },
   ]
 </script>
 
 <template>
   <BCombobox
-    v-model="country"
+    v-model="value"
     :items
-    name="country"
-    placeholder="Pick a country…"
+    name="option"
+    placeholder="Select an item…"
   />
 </template>

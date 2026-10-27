@@ -11,16 +11,29 @@
     /**
      * Ignore backdrop clicks.
      *
-     * Maps to Bootstrap's `backdrop: "static"`. Escape still closes.
-     * Bootstrap's separate `keyboard: false` option is not a prop.
+     * Maps to Bootstrap's `backdrop: "static"`. The click bounces and does
+     * not close. Escape still closes unless `keyboard` is false.
      */
     blocking?: boolean
+    /**
+     * Close on Escape.
+     *
+     * When false, Escape bounces the drawer and does not close it.
+     */
+    keyboard?: boolean
     /**
      * `.drawer-start` / `.drawer-end` / `.drawer-top` / `.drawer-bottom` /
      * `.drawer-fullscreen`. Bootstrap has no default placement, so omit this
      * and no placement class is rendered.
      */
     placement?: BDrawerPlacement
+    /**
+     * Leave the page scrollable.
+     *
+     * The drawer stays modal when it has a backdrop. `dialog-open` is not
+     * added, so the document can scroll behind it.
+     */
+    scroll?: boolean
     /** `.drawer-sheet`. Flush to the viewport edge. */
     sheet?: boolean
   }
@@ -47,7 +60,13 @@
     'update:model-value': [value: boolean]
   }>()
 
-  const { blocking = false, placement, sheet = false } = defineProps<BDrawerProps>()
+  const {
+    blocking = false,
+    keyboard = true,
+    placement,
+    scroll = false,
+    sheet = false,
+  } = defineProps<BDrawerProps>()
 
   const model = defineModel<boolean>({ default: false })
 
@@ -129,7 +148,7 @@
     clearMotion(element)
     element.classList.remove('hiding')
     if (!element.open) element.showModal()
-    document.documentElement.classList.add('dialog-open')
+    if (!scroll) document.documentElement.classList.add('dialog-open')
   }
 
   // The pin keeps `::backdrop` up for the discrete exit. Restoring the
@@ -211,7 +230,53 @@
 
   function onCancel (event: Event) {
     event.preventDefault()
+    if (!keyboard) {
+      bounce()
+      return
+    }
     close()
+  }
+
+  let originX = 0
+  let originY = 0
+  let tracking = false
+
+  function dialogAttrs (described: Record<string, unknown>) {
+    const { onCancel: _cancel, onClose: _close, ...rest } = described
+    return rest
+  }
+
+  function onPointerDown (event: PointerEvent) {
+    if (event.pointerType === 'mouse') return
+    tracking = true
+    originX = event.clientX
+    originY = event.clientY
+  }
+
+  function onPointerUp (event: PointerEvent) {
+    if (!tracking || event.pointerType === 'mouse') return
+    tracking = false
+
+    const element = dialogEl.value
+    if (isNullOrUndefined(element) || !element.open) return
+
+    const dx = event.clientX - originX
+    const dy = event.clientY - originY
+    if (Math.abs(dx) <= 40 && Math.abs(dy) <= 40) return
+
+    const rtl = getComputedStyle(element).direction === 'rtl'
+    const horizontal = Math.abs(dx) > Math.abs(dy)
+    let dismiss = false
+
+    if (
+      element.classList.contains('drawer-bottom')
+      || element.classList.contains('drawer-fullscreen')
+    ) dismiss = !horizontal && dy > 0
+    else if (element.classList.contains('drawer-top')) dismiss = !horizontal && dy < 0
+    else if (element.classList.contains('drawer-end')) dismiss = horizontal && (rtl ? dx < 0 : dx > 0)
+    else dismiss = horizontal && (rtl ? dx > 0 : dx < 0)
+
+    if (dismiss) close()
   }
 
   function onBackdrop (event: MouseEvent) {
@@ -259,7 +324,12 @@
       <dialog
         ref="dialog"
         :class="classes"
-        v-bind="mergeProps(attrs, described, { onCancel, onClick: onBackdrop })"
+        v-bind="mergeProps(attrs, dialogAttrs(described), {
+          onCancel,
+          onClick: onBackdrop,
+          onPointerdown: onPointerDown,
+          onPointerup: onPointerUp,
+        })"
       >
         <slot />
       </dialog>

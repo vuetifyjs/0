@@ -24,8 +24,10 @@ A panel that opens and closes in place. The trigger is your button; this compone
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Collapse on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/collapse/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/collapse/"
+  title="Collapse"
+/>
 
 ## Usage
 

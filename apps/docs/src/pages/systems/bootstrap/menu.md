@@ -26,12 +26,14 @@ A trigger button and a `.menu` of items. `v-model` toggles `.show`. Arrows move 
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Menu on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/menu/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/menu/"
+  title="Menu"
+/>
 
 ## Usage
 
-`v-model` owns the open state. The trigger label is a prop. Items, a header, a divider, and a submenu are the menu's contents.
+`v-model` owns the open state. The trigger label is a prop. The docs menu is three links. A header, a divider, and a submenu are the same slot.
 
 ::: ds-example
 /systems/bootstrap/menu/basic

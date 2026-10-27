@@ -23,8 +23,10 @@ A button, or a link that acts as one. The face class is the only button class on
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Buttons on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/buttons/). Classes and visual variants. This page is the markup.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/button/"
+  title="Buttons"
+/>
 
 ## Usage
 

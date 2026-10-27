@@ -23,8 +23,10 @@ An ordered list of steps. Every step up through the current one is active. Click
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Stepper on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/stepper/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/stepper/"
+  title="Stepper"
+/>
 
 ## Usage
 
@@ -86,6 +88,14 @@ The current step comes from [Step](/components/providers/step). Step renders no 
 ## Examples
 
 ::: ds-example
+/systems/bootstrap/stepper/horizontal
+
+### Horizontal
+
+`horizontal` adds `stepper-horizontal`. The steps sit in a row. The first two are reached, the same as the basic list.
+:::
+
+::: ds-example
 /systems/bootstrap/stepper/overflow
 
 ### Overflow
@@ -99,6 +109,7 @@ The current step comes from [Step](/components/providers/step). Step renders no 
 |------|------|---------|-------------|
 | `v-model` | `number` | `0` | Index of the current step. Every item at or before it gets `.active`. |
 | `overflow` | `boolean` | `false` | Wraps the list in `div.stepper-overflow`. |
+| `horizontal` | `boolean` | `false` | Adds `stepper-horizontal` so the steps sit in a row. |
 
 ## Accessibility
 

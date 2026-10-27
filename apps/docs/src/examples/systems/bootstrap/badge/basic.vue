@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { BBadge, BButton } from '@paper/bootstrap'
+  import { BBadge } from '@paper/bootstrap'
 </script>
 
 <template>
@@ -19,13 +19,5 @@
     >
       New
     </BBadge>
-
-    <BButton
-      theme="primary"
-      variant="solid"
-    >
-      Notifications
-      <BBadge theme="danger">4</BBadge>
-    </BButton>
   </div>
 </template>

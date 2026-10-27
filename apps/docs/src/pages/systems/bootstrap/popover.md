@@ -25,8 +25,10 @@ A panel anchored to a button. Click toggles it, and Escape closes it.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Popovers on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/popovers/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/popover/"
+  title="Popovers"
+/>
 
 ## Usage
 

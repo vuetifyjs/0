@@ -23,8 +23,10 @@ The flex row inside a container. Columns sit in the default slot. An optional co
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Grid on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/grid/). Classes only. This component has no behavior.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/grid/"
+  title="Grid"
+/>
 
 ## Usage
 

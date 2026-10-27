@@ -23,15 +23,27 @@ A status message you can dismiss. `v-model` shows it. Closing fades, then the el
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Alerts on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/alerts/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/alert/"
+  title="Alerts"
+/>
 
 ## Usage
 
-Set the model to `false` to close. The root gains `.hiding` and unmounts after 150ms, which is the pin's `--bs-alert-transition-duration`. Put a [BClose](/systems/bootstrap/close) in the slot and point its click at the model. The close button does not dismiss on its own.
+The default alert is a `div.alert` and a paragraph. Leave `theme` off for the neutral alert.
 
 ::: ds-example
 /systems/bootstrap/alert/basic
+:::
+
+## Examples
+
+::: ds-example
+/systems/bootstrap/alert/dismiss
+
+### Dismiss
+
+Set the model to `false` to close. The root gains `.hiding` and unmounts after 150ms, which is the pin's `--bs-alert-transition-duration`. Put a [BClose](/systems/bootstrap/close) in the slot and point its click at the model. The close button does not dismiss on its own.
 :::
 
 ### The markup Bootstrap documents

@@ -25,8 +25,10 @@ A `.form-field` around the label, the control, the help text, and the feedback. 
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Floating labels on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/floating-labels/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/floating-labels/"
+  title="Floating labels"
+/>
 
 ## Usage
 

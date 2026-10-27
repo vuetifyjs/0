@@ -1,23 +1,24 @@
 <script setup lang="ts">
-  import { BFormControl, BFormField, BFormLabel, BFormText } from '@paper/bootstrap'
+  import { BFormControl, BFormLabel, BFormText } from '@paper/bootstrap'
 
   import { shallowRef } from 'vue'
 
-  const email = shallowRef('')
+  const password = shallowRef('')
 </script>
 
 <template>
-  <BFormField>
-    <BFormLabel for="formTextEmail">Email address</BFormLabel>
+  <div>
+    <BFormLabel for="inputPassword5">Password</BFormLabel>
 
     <BFormControl
-      id="formTextEmail"
-      v-model="email"
-      aria-describedby="formTextHelp"
-      placeholder="name@example.com"
-      type="email"
+      id="inputPassword5"
+      v-model="password"
+      aria-describedby="passwordHelpBlock"
+      type="password"
     />
 
-    <BFormText id="formTextHelp">We’ll never share your email with anyone else.</BFormText>
-  </BFormField>
+    <BFormText id="passwordHelpBlock">
+      Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+    </BFormText>
+  </div>
 </template>

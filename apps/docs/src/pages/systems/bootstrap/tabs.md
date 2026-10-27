@@ -24,8 +24,10 @@ A tablist and its panes. `v-model` is the selected value. Arrow keys move betwee
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Tabs on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/navs-tabs/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/nav/#tabs"
+  title="Tabs"
+/>
 
 ## Usage
 
@@ -33,6 +35,12 @@ The root renders nothing of its own. `List` is the tablist. `Content` is `.tab-c
 
 ::: ds-example
 /systems/bootstrap/tabs/basic
+:::
+
+## Examples
+
+::: ds-example
+/systems/bootstrap/tabs/vertical
 :::
 
 ### The markup Bootstrap documents

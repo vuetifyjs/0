@@ -1,4 +1,7 @@
 <script lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   export interface BCardTitleProps {
     /** Heading element. The pin uses `h4`. */
     as?: string
@@ -16,10 +19,10 @@
 </script>
 
 <template>
-  <component
-    :is="as"
+  <Atom
+    :as
     class="card-title"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

@@ -222,6 +222,9 @@
   const clip = shallowRef<string | undefined>()
   const tier = shallowRef('')
 
+  // The promoted iframe is a full-viewport canvas. A square clip of the example
+  // box squares `rounded-2xl`, and a square clip of the menu cuts `--bs-radius-7`.
+  // The first rect is the example. The rest are the spilled popup.
   function shape (rects: { top: number, left: number, width: number, height: number }[]) {
     if (!rects?.length) {
       clip.value = undefined
@@ -230,8 +233,20 @@
     }
 
     clip.value = rects
-      .map(r => `M${r.left} ${r.top}H${r.left + r.width}V${r.top + r.height}H${r.left}Z`)
+      .map((rect, index) => rounded(rect, index === 0 ? 16 : 12))
       .join('')
+  }
+
+  function rounded (rect: { top: number, left: number, width: number, height: number }, radius: number) {
+    const x = rect.left
+    const y = rect.top
+    const w = rect.width
+    const h = rect.height
+    const r = Math.min(radius, w / 2, h / 2)
+
+    if (r <= 0) return `M${x} ${y}H${x + w}V${y + h}H${x}Z`
+
+    return `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + h - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + h - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`
   }
 
   function post (message: Record<string, unknown>) {
@@ -247,12 +262,26 @@
   // Kept fresh ahead of time: a promotion has to pin in the same tick it is
   // detected, or the trigger button visibly rides the frame to the viewport
   // corner on the way.
-  function place () {
+  // Identical boxes must not be re-posted. The sandbox measures on every box
+  // and replies with a size, and a size used to schedule another place().
+  let placed = ''
+
+  function place (force = false) {
     const rect = frame.value?.parentElement?.getBoundingClientRect()
 
     if (!rect) return
 
-    post({ type: 'v0:sandbox:box', box: { top: rect.top, left: rect.left, width: rect.width } })
+    const box = {
+      top: Math.round(rect.top),
+      left: Math.round(rect.left),
+      width: Math.round(rect.width),
+    }
+    const key = `${box.top}:${box.left}:${box.width}`
+
+    if (!force && key === placed) return
+
+    placed = key
+    post({ type: 'v0:sandbox:box', box })
   }
 
   const token = Symbol('docs-system-example')
@@ -315,11 +344,14 @@
         case 'v0:sandbox:ready': {
           pending.value = false
           sync()
-          place()
+          place(true)
           break
         }
         case 'v0:sandbox:size': {
-          height.value = event.data.height
+          const next = event.data.height
+          const changed = height.value !== next
+
+          height.value = next
 
           // The example as it comes up, with nothing spilling out of it: that
           // is the box worth reserving next time. Once taken, it is not
@@ -330,7 +362,8 @@
           }
 
           // The box the sandbox pins to is the one this height produces.
-          nextTick(place)
+          // An unchanged height must not reply — the reply measures again.
+          if (changed) nextTick(() => place())
           break
         }
         // A fixed overlay is laid out against the frame's viewport, so inline it
@@ -350,8 +383,10 @@
           }
 
           // Correct any staleness now that the frame has left the flow; the
-          // placeholder keeps its geometry either way.
-          nextTick(place)
+          // placeholder keeps its geometry either way. Force the post: this
+          // box is the ack that the frame has settled, even when the
+          // placeholder did not move.
+          nextTick(() => place(true))
           break
         }
         // A menu can resize under its own content while it stays open, and a

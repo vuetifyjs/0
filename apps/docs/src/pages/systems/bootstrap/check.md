@@ -24,8 +24,10 @@ A checkbox. The check class sits on the input. The label is the next element, no
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Checkbox on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/checkbox/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/checkbox/"
+  title="Checkbox"
+/>
 
 ## Usage
 

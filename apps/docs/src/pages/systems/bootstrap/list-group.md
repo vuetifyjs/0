@@ -23,8 +23,10 @@ A list group of items, links, or buttons, with an optional single active id.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [List group on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/list-group/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/list-group/"
+  title="List group"
+/>
 
 ## Usage
 

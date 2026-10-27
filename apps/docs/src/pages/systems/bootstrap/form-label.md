@@ -24,8 +24,10 @@ A `<label class="form-label">`. `for` is the control id.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Form control on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/). The label is documented on that page. Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/forms/form-control/"
+  title="Form control"
+/>
 
 ## Usage
 

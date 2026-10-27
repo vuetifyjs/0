@@ -9,10 +9,24 @@
     /**
      * Ignore backdrop clicks.
      *
-     * Maps to Bootstrap's `backdrop: "static"`. Escape still closes.
-     * Bootstrap's separate `keyboard: false` option is not a prop.
+     * Maps to Bootstrap's `backdrop: "static"`. The click bounces and does
+     * not close. Escape still closes unless `keyboard` is false.
      */
     blocking?: boolean
+    /**
+     * Close on Escape.
+     *
+     * When false, Escape bounces a modal dialog and does not close it. A
+     * non-modal dialog ignores Escape with no bounce.
+     */
+    keyboard?: boolean
+    /**
+     * Open with `showModal()`.
+     *
+     * False calls `show()`, adds `.dialog-nonmodal`, and does not lock page
+     * scroll. There is no backdrop to click.
+     */
+    modal?: boolean
     /** `.dialog-sm` / `.dialog-lg` / `.dialog-xl`. Omit for the 500px default. */
     size?: 'sm' | 'lg' | 'xl'
   }
@@ -39,7 +53,12 @@
     'update:model-value': [value: boolean]
   }>()
 
-  const { blocking = false, size } = defineProps<BDialogProps>()
+  const {
+    blocking = false,
+    keyboard = true,
+    modal = true,
+    size,
+  } = defineProps<BDialogProps>()
 
   const model = defineModel<boolean>({ default: false })
 
@@ -49,6 +68,7 @@
 
   const classes = toRef(() => {
     const list = ['dialog']
+    if (!modal) list.push('dialog-nonmodal')
     if (!isUndefined(size)) list.push(`dialog-${size}`)
     return list
   })
@@ -113,8 +133,11 @@
     if (isNullOrUndefined(element) || !IN_BROWSER) return
     clearPending()
     element.classList.remove('hiding')
-    if (!element.open) element.showModal()
-    document.documentElement.classList.add('dialog-open')
+    if (!element.open) {
+      if (modal) element.showModal()
+      else element.show()
+    }
+    if (modal) document.documentElement.classList.add('dialog-open')
   }
 
   function hide () {
@@ -141,7 +164,26 @@
 
   function onCancel (event: Event) {
     event.preventDefault()
+    if (!keyboard) {
+      bounce()
+      return
+    }
     close()
+  }
+
+  function onKeydown (event: KeyboardEvent) {
+    if (modal || event.key !== 'Escape') return
+    event.preventDefault()
+    if (!keyboard) return
+    close()
+  }
+
+  // Dialog.Content's cancel handler closes the model. Escape has to go
+  // through `keyboard` first, so that handler stays off this element.
+  function dialogAttrs (described: Record<string, unknown>) {
+    const { onCancel: _cancel, onClose: _close, ...rest } = described
+    if (!modal) rest['aria-modal'] = undefined
+    return rest
   }
 
   function onBackdrop (event: MouseEvent) {
@@ -188,7 +230,7 @@
       <dialog
         ref="dialog"
         :class="classes"
-        v-bind="mergeProps(attrs, described, { onCancel, onClick: onBackdrop })"
+        v-bind="mergeProps(attrs, dialogAttrs(described), { onCancel, onClick: onBackdrop, onKeydown })"
       >
         <slot />
       </dialog>

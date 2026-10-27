@@ -3,12 +3,19 @@
 
   import { shallowRef } from 'vue'
 
-  const volume = shallowRef(60)
+  const volume = shallowRef(50)
 </script>
 
 <template>
   <div>
-    <label class="form-label" for="volume">Volume {{ volume }}</label>
-    <BRange id="volume" v-model="volume" />
+    <label
+      class="form-label"
+      for="range1"
+    >Example range</label>
+
+    <BRange
+      id="range1"
+      v-model="volume"
+    />
   </div>
 </template>

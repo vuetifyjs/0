@@ -23,8 +23,10 @@ A scroll container and a set of links. The link for the section in view gets the
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Scrollspy on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/scrollspy/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/scrollspy/"
+  title="Scrollspy"
+/>
 
 ## Usage
 

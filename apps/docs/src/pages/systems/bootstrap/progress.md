@@ -24,8 +24,10 @@ A progress bar with a value, optional stripes, and an animated stripe.
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Progress on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/progress/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/progress/"
+  title="Progress"
+/>
 
 ## Usage
 

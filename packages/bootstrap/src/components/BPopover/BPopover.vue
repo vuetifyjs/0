@@ -332,6 +332,7 @@
     const list = ['popover', 'bs-popover-auto']
 
     if (model.value && filled()) list.push('show')
+    else list.push('pe-none')
     if (instant) list.push('popover-instant')
 
     return list

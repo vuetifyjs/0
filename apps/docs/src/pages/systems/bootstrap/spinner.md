@@ -23,8 +23,10 @@ A border or grow spinner, or the separate rotate icon, with a visually hidden lo
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Spinners on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/spinners/). Classes and visual variants. This page is Vue.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/components/spinner/"
+  title="Spinners"
+/>
 
 ## Usage
 

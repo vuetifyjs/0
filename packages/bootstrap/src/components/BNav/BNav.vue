@@ -1,4 +1,7 @@
 <script lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   // Utilities
   import { toRef } from 'vue'
 
@@ -72,10 +75,10 @@
 </script>
 
 <template>
-  <component
-    :is="as"
+  <Atom
+    :as
     :class="classes"
   >
     <slot />
-  </component>
+  </Atom>
 </template>

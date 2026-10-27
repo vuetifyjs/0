@@ -23,8 +23,10 @@ The width wrapper around a row. It is a container, a fluid container, or a conta
 
 <DocsPageFeatures :frontmatter />
 
-> [!NOTE]
-> Reference: [Containers on the Bootstrap 6 preview](https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/containers/). Classes only. This component has no behavior.
+<DocsBootstrapReference
+  href="https://v6-dev--twbs-bootstrap.netlify.app/docs/6.0/layout/containers/"
+  title="Containers"
+/>
 
 ## Usage
 
