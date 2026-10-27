@@ -130,6 +130,16 @@ A task that takes more than one tap gets a guided flow of up to three parts. A t
 Each ripple is a circle that grows from the next control and fades, repeating until the reader takes the step, and never blocks the tap. Under reduced motion it holds still as a tinted circle.[^reduced-motion] The flow is a composition of `Md1FeatureDiscovery`, a ripple drawn by the app and `Md1Snackbar`; nothing advances on its own, so the reader can leave it at any step.
 :::
 
+::: ds-example
+/systems/md1/feature-discovery/contextual
+
+### Contextual trigger
+
+The page asks for prompts at moments when they help the user finish what they are doing, and gives this case: let a user know they can crop an image only after they have added one. Nothing here opens the prompt directly. Add a photo, and once the card with its Crop action has rendered the app sets the model to `true`; the prompt is the consequence of the user's own action, not of opening the screen.
+
+The page also caps how often a prompt appears: no more than one per session, and if the user dismisses a message, don't show it or a similar one again for a substantial period. Both `dismiss` and `complete` record the tip as seen, the first because the reader declined it and the second because they no longer need it. The flag lives in session storage through v0's `createStorage`, so removing the photo and adding another, or leaving the page and coming back, does not bring the prompt back. Reset tips clears the flag for the demo. A real app would keep it longer, in local storage or on the account.
+:::
+
 ## Props
 
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
