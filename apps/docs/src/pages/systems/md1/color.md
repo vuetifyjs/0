@@ -59,6 +59,7 @@ A Material Design 1 theme is three shades of one primary hue and one accent from
 | `--md1-primary` | The primary hue's 500: app bars and other large areas | Indigo 500 `#3F51B5` | same |
 | `--md1-primary-dark` | 700: the status bar, a pressed raised button | Indigo 700 `#303F9F` | same |
 | `--md1-primary-light` | 100: related information under a primary region | Indigo 100 `#C5CAE9` | same |
+| `--md1-primary-ink` | Primary-coloured text and icons: the 500 on light, the first lighter tone that reaches 4.5:1 on dark | Indigo 500 `#3F51B5` | Indigo 100 `#C5CAE9` |
 | `--md1-accent` | The accent hue's A200: the FAB, action buttons, text fields, selection, links | Pink A200 `#FF4081` | same |
 | `--md1-accent-light` | 50, the data tables page's contextual header | Pink 50 `#FCE4EC` | same |
 | `--md1-accent-control` | Selection controls, sliders and pickers | Pink A200 `#FF4081` | Pink 200 `#F48FB1` |
@@ -138,7 +139,7 @@ createApp(App)
   .mount('#app')
 ```
 
-To move to another hue pair, derive the whole role set from the palette with `md1HueTheme(primary, accent)`. It returns the light and dark maps for any primary hue and any of the sixteen accent-bearing hues, with the ink the palette recommends on each swatch:
+To move to another hue pair, derive the whole role set from the palette with `md1HueTheme(primary, accent)`. It returns the light and dark maps for any primary hue and any of the sixteen accent-bearing hues, with the ink the palette recommends on each swatch. The dark map's `primary-ink` is computed from the hue: the first tone from the 500 toward the 50 that reaches 4.5:1 on the dark sheet under the selected band, so primary-coloured text stays readable on dark (the colour page's "lighter or darker tones of your primary color"). A theme written by hand instead of derived must set `--md1-primary-ink` itself; a derived one goes straight into the plugin:
 
 ```ts main.ts
 import { createMd1Plugin, md1HueTheme } from '@paper/md1'

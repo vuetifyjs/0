@@ -119,7 +119,7 @@ At rest the destinations keep their full-width layout and are clipped at the rai
 
 `type="permanent"` is always visible, pinned to its edge at the content's elevation, and cannot be closed: `v-model` and `close` are ignored and an `Activator` inside it warns. The guidelines recommend it as the desktop default. This one is the full-height form, for apps focused on information consumption: the drawer spans the screen and the toolbar sits beside it.
 
-The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. The page states the selected colour on the light sheet only; on the dark one the primary 500 stays, as Vuetify 1.5 renders it,[^dark] although it reads at under 2:1 on the Grey 800 sheet, below the 4.5:1 contrast floor. Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
+The drawer follows the list keylines of the pattern page at every width: icons on the 16 dp keyline at 54% (`--md1-icon-active`), text on the 72 dp keyline in Roboto Medium 14 sp at 87%, 48 dp rows. The current destination, the item whose `value` matches the list's `v-model`, takes the primary colour for its text and icon, as the pattern page sets it. The page states the selected colour on the light sheet only; on the dark one the ink is a lighter tone of the primary, Indigo 100 for the default theme, at 5.1:1 on the selected band over the Grey 800 sheet.[^dark] Each list grouping has 8 dp above and below it, which is also the space around a full-bleed `Md1Divider` between groupings. Settings and Help go at the bottom of the list, in that order.
 
 `Md1List.Group` is the expanding drawer of the navigation page: selecting a collapsed section reveals its level in-line. The whole sheet, header included, scrolls as a view when the destinations outgrow the screen.
 :::
@@ -217,7 +217,7 @@ The guidelines open the drawer from the menu icon and by an edge swipe, and clos
 
 [^mini]: Vuetify 1.5.24, components/VNavigationDrawer/VNavigationDrawer.ts:53-56. `miniVariantWidth` defaults to 80.
 
-[^dark]: Vuetify 1.5.24, components/VList/VListTile.ts:29-32 and util/theme.ts:50-59. The active tile takes `primary--text`, one rule with no dark-theme variant.
+[^dark]: Material Design 1, [Color](https://m1.material.io/style/color.html): "If your app has both light and dark themes, the text should be available in a contrasting color against each theme" and "To create contrast between elements, you can use lighter or darker tones of your primary color." The tone is the first one from the 500 toward the 50 that reaches the 4.5:1 floor on Grey 800 under the selected band; Vuetify 1.5 kept the 500, at about 1.5:1.
 
 [^gap]: Our call: one step of the 8 dp grid; Vuetify 1.5's floating drawer only drops its seam and does not detach.
 

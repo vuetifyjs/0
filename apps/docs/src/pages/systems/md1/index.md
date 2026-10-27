@@ -126,7 +126,7 @@ Visual values are CSS custom properties named `--md1-*`, generated from `colors.
 | Family | Examples |
 |--------|---------|
 | Palette | `--md1-indigo-500`, `--md1-grey-50`, `--md1-black`, `--md1-white`: the 2014 palette, 19 hues by 50 to 900 plus the A100 to A700 accents, from `@vuetify/v0/palettes/md1` |
-| Roles | `--md1-primary`, `--md1-primary-dark`, `--md1-primary-light`, `--md1-accent`, `--md1-accent-light`, `--md1-accent-control`, `--md1-on-primary`, `--md1-error`, `--md1-app-bar`, `--md1-background`, `--md1-surface` |
+| Roles | `--md1-primary`, `--md1-primary-dark`, `--md1-primary-light`, `--md1-primary-ink`, `--md1-accent`, `--md1-accent-light`, `--md1-accent-control`, `--md1-on-primary`, `--md1-error`, `--md1-app-bar`, `--md1-background`, `--md1-surface` |
 | Ink and state | `--md1-text-primary`, `--md1-text-secondary`, `--md1-text-disabled`, `--md1-divider`, `--md1-icon-active`, `--md1-focus`, `--md1-pressed`, `--md1-hover`, `--md1-scrim` |
 | Typography | `--md1-font-family`, `--md1-type-title-size`, `--md1-type-body-1-leading`, `--md1-type-button-weight`, `--md1-type-button-transform` |
 | Elevation | `--md1-elevation-0` to `--md1-elevation-24`, `--md1-shadow-umbra` |

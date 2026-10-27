@@ -33,7 +33,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour, the selected band and `aria-current`. The dark theme keeps the primary 500, as Vuetify 1.5 does,[^dark] although it reads at under 2:1 there, below the 4.5:1 contrast floor.
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour, the selected band and `aria-current`. On the dark theme the ink is a lighter tone of the primary, `--md1-primary-ink`, Indigo 100 for the default theme: 5.1:1 on the selected band and 6.2:1 on the Grey 800 sheet.[^dark]
 
 ::: ds-example
 /systems/md1/list/basic
@@ -182,7 +182,7 @@ On desktop the pattern reveals a check mark on hover: the empty checkbox replace
 
 ### Expandable groups
 
-`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve,[^duration] indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, the primary 500 on both themes, like the current item.[^dark]
+`Md1List.Group` is the lists: controls page's expand and collapse control. Its header is an item-shaped tile with an optional `icon` and the `title`, and the `expand-more` chevron in the end column rotates when the group opens. The nested items slide open vertically over the standard 300 ms duration (200 ms on desktop) on the standard curve,[^duration] indent to the content keyline, and full-bleed dividers close the open group off above and below. The open group's title takes the primary colour, the same lighter tone on the dark theme as the current item.[^dark]
 
 `v-model` on the group holds its open state. Nested items still register with the root list, so the root's `v-model` marks the current destination wherever it sits in the tree. Groups belong to navigation lists: a listbox may hold options only, and Material Design 1 warns in development when a group is placed inside one.
 :::
@@ -253,7 +253,7 @@ The rows present when the list mounts fade and lift in, top to bottom, each 20 m
 
 Swipe gestures (leave-behinds) are touch gestures the package does not ship. Expose the same action through a visible control in the action column instead. Reordering ships through `Md1List.Reorder`, but only from its handle: a long press on the tile does not pick the row up.
 
-[^dark]: Vuetify 1.5.24, components/VList/VListTile.ts:29-32 and util/theme.ts:50-59. The active tile takes `primary--text`, one rule with no dark-theme variant.
+[^dark]: Material Design 1, [Color](https://m1.material.io/style/color.html): "If your app has both light and dark themes, the text should be available in a contrasting color against each theme" and "To create contrast between elements, you can use lighter or darker tones of your primary color." The tone is the first one from the 500 toward the 50 that reaches the 4.5:1 floor on Grey 800 under the selected band; Vuetify 1.5 kept the 500, at about 1.5:1.
 
 [^avatar]: Our call: Vuetify 1.5's stylesheet sets no avatar fill; Grey 400 under white follows its own list examples.
 
@@ -265,7 +265,7 @@ Swipe gestures (leave-behinds) are touch gestures the package does not ship. Exp
 
 [^reorder-keys]: Our call: the notes ask for move-up and move-down actions on the handle; direct arrow moves skip a separate grab mode.
 
-[^scrim]: Material Design 1, [Navigation drawer](https://m1.material.io/patterns/navigation-drawer.html), the "List item selected" figures: `#E8E8E8` across the selected row on the `#FAFAFA` drawer, black at about 7%. The figures show the light theme only, so white 7% on dark is our call; on it the primary 500 text reads at about 1.2:1, below the contrast floor.
+[^scrim]: Material Design 1, [Navigation drawer](https://m1.material.io/patterns/navigation-drawer.html), the "List item selected" figures: `#E8E8E8` across the selected row on the `#FAFAFA` drawer, black at about 7%. The figures show the light theme only, so white 7% on dark is our call; the dark primary tone reads at 5.1:1 on it.
 
 [^duration]: Our call: the lists: controls page gives no timing; the standard duration is the motion page's default for on-screen changes.
 

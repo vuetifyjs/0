@@ -71,7 +71,7 @@ Every action hosts a [Md1Ripple](/systems/md1/ripple) as its first child and dra
 
 In the fixed bar every action takes the same width: the width of the view divided by the number of actions, between 80 dp and 168 dp. When the cap binds, on a wide screen, the group centres in the bar. A label never sets its action's width, so on desktop every action is as wide as the widest, 168 dp, the guidelines' alternative for desktop and larger views. With three actions every action shows its icon and label. With four or five, as here, only the active action keeps its label and the inactive ones show their icon alone, centred with 16 dp above and below.
 
-The active action tints its icon and label with the primary colour (`--md1-primary`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. The dark theme keeps Indigo 500, as Vuetify 1.5 does,[^dark] although it reads at under 2:1 on the Grey 800 bar; a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
+The active action tints its icon and label with the primary colour (`--md1-primary-ink`, Indigo 500), raises its icon from 8 dp to 6 dp below the top edge and grows its label from 12 sp to 14 sp Roboto Regular. On the dark theme the ink is a lighter tone of the primary, Indigo 100 for the default theme, at 6.2:1 on the Grey 800 bar;[^dark] a list's current item and a primary subheader do the same. Inactive actions take the secondary text colour, 54% black on the light theme and 70% white on the dark one. The label sits 10 dp above the bottom edge with 12 dp on each side; it never wraps or truncates, so keep it to a word or two.
 
 The hidden labels are hidden from sight only. They stay in the accessibility tree as each action's name, so an icon-only inactive action still announces "Alerts" rather than nothing.
 :::
@@ -188,7 +188,7 @@ The bottom navigation page gives no focus or hover value. Keyboard focus draws t
 
 Every action is 56 dp tall and at least 56 dp wide, above the 48 dp minimum touch target of the metrics page, so no hit area is added around it.
 
-[^dark]: Vuetify 1.5.24, util/theme.ts:50-59. The theme's colour classes are one rule with no dark-theme variant, so an active action keeps its hue on a dark bar.
+[^dark]: Material Design 1, [Color](https://m1.material.io/style/color.html): "If your app has both light and dark themes, the text should be available in a contrasting color against each theme" and "To create contrast between elements, you can use lighter or darker tones of your primary color." The tone is the first one from the 500 toward the 50 that reaches the 4.5:1 floor on Grey 800 under the selected band; Vuetify 1.5 kept the 500, at about 1.5:1.
 
 [^duration]: Our call: the page gives no timing for the shift; the standard duration is the motion page's default for on-screen changes.
 

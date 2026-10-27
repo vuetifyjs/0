@@ -72,7 +72,7 @@ The example stands a 56 dp accent disc in for the floating action button, centre
 
 ### Coloured subheaders
 
-A subheader is normally set in the secondary ink, 54% black on the light theme and 70% white on the dark one. In long lists of complex information, the guidelines suggest coloured subheaders to delineate content, with the Android settings screen as the example and a files app as the figure. `primary` sets the title in the app's primary colour, Indigo 500 in the default theme on both themes, and leaves everything else unchanged: the tile stays 48 dp, the type stays Body 2, the fill stays absent.
+A subheader is normally set in the secondary ink, 54% black on the light theme and 70% white on the dark one. In long lists of complex information, the guidelines suggest coloured subheaders to delineate content, with the Android settings screen as the example and a files app as the figure. `primary` sets the title in the app's primary colour, Indigo 500 in the default theme, a lighter tone of it (Indigo 100) on the dark theme, and leaves everything else unchanged: the tile stays 48 dp, the type stays Body 2, the fill stays absent.
 
 Use it when the sections are the point of the screen rather than a convenience, and use it consistently: a list that mixes grey and coloured subheaders reads as two different kinds of section.
 :::
@@ -115,8 +115,8 @@ The subheader is never focusable and has no keyboard interaction; the guidelines
 
 ### Contrast
 
-The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. The guidelines give no dark-theme value for the coloured subheader, so it keeps the primary 500 as Vuetify 1.5 does:[^dark] Indigo 500 on the Grey 800 surface reads at about 1.5:1, far below the floor. That shortfall is faithful to how Material Design 1 rendered, and it is the same for the current item of a list. Use the plain subheader on a dark surface where the title must be read.
+The secondary ink clears the 4.5:1 floor of the guidelines' accessibility page on both themes: 54% black on white is about 4.6:1, and 70% white on the Grey 800 surface about 5.9:1. The primary variant, Indigo 500 on white, is about 6.9:1. On the dark theme the coloured subheader takes a lighter tone of the primary, `--md1-primary-ink`, Indigo 100 for the default theme, at about 6.2:1 on the Grey 800 surface,[^dark] the same ink as the current item of a list.
 
 [^heading-level]: Our call: the page gives the subheader no semantics; level 2 is the ARIA default made explicit.
 
-[^dark]: Vuetify 1.5.24, util/theme.ts:50-59. The `primary--text` class is one rule with no dark-theme variant.
+[^dark]: Material Design 1, [Color](https://m1.material.io/style/color.html): "If your app has both light and dark themes, the text should be available in a contrasting color against each theme" and "To create contrast between elements, you can use lighter or darker tones of your primary color." The tone is the first one from the 500 toward the 50 that reaches the 4.5:1 floor on Grey 800 under the selected band; Vuetify 1.5 kept the 500, at about 1.5:1.
