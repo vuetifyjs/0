@@ -30,9 +30,6 @@
   // Transformers
   import { toElement } from '#v0/composables/toElement'
 
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Utilities
   import { mergeProps, nextTick, onBeforeUnmount, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
@@ -168,7 +165,6 @@
   }
 
   function isRtl (e: KeyboardEvent) {
-    if (!IN_BROWSER) return false
     const el = e.currentTarget
     if (!(el instanceof HTMLElement)) return false
     return getComputedStyle(el).direction === 'rtl'
