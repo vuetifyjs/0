@@ -7,8 +7,8 @@ export type {
   Md1FeatureDiscoverySide,
 } from './Md1FeatureDiscovery.vue'
 export { useMd1FeatureDiscovery } from './Md1FeatureDiscovery.vue'
-export type { Md1FeatureDiscoveryTargetProps } from './Md1FeatureDiscoveryTarget.vue'
-export { default as Md1FeatureDiscoveryTarget } from './Md1FeatureDiscoveryTarget.vue'
+export type { Md1FeatureDiscoveryActivatorProps } from './Md1FeatureDiscoveryActivator.vue'
+export { default as Md1FeatureDiscoveryActivator } from './Md1FeatureDiscoveryActivator.vue'
 export type { Md1FeatureDiscoveryTextProps } from './Md1FeatureDiscoveryText.vue'
 export { default as Md1FeatureDiscoveryText } from './Md1FeatureDiscoveryText.vue'
 export type { Md1FeatureDiscoveryTitleProps } from './Md1FeatureDiscoveryTitle.vue'
@@ -16,7 +16,7 @@ export { default as Md1FeatureDiscoveryTitle } from './Md1FeatureDiscoveryTitle.
 
 // Context
 import Root from './Md1FeatureDiscovery.vue'
-import Target from './Md1FeatureDiscoveryTarget.vue'
+import Activator from './Md1FeatureDiscoveryActivator.vue'
 import Text from './Md1FeatureDiscoveryText.vue'
 import Title from './Md1FeatureDiscoveryTitle.vue'
 
@@ -34,9 +34,9 @@ import Title from './Md1FeatureDiscoveryTitle.vue'
  * @example
  * ```vue
  * <Md1FeatureDiscovery v-model="open">
- *   <Md1FeatureDiscovery.Target>
+ *   <Md1FeatureDiscovery.Activator>
  *     <Md1Button aria-label="Search" icon="search" />
- *   </Md1FeatureDiscovery.Target>
+ *   </Md1FeatureDiscovery.Activator>
  *
  *   <Md1FeatureDiscovery.Title>Find mail fast</Md1FeatureDiscovery.Title>
  *
@@ -46,7 +46,7 @@ import Title from './Md1FeatureDiscoveryTitle.vue'
  */
 export const Md1FeatureDiscovery = Object.assign(Root, {
   /** Wraps the promoted action: lifts it over the target disc, pulses it, and completes the prompt when it is tapped. */
-  Target,
+  Activator,
   /** The headline, Title 20 sp in the prompt's ink; the prompt's accessible name. */
   Title,
   /** The supporting line, Subheading 16 sp at 70%; the prompt's accessible description. */

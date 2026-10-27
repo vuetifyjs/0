@@ -57,7 +57,7 @@
     color?: Md1FeatureDiscoveryColor
     /**
      * Limit the prompt to the surface the target rests on (the closest
-     * `Md1Card`, else the Target's parent): the desktop and tablet rule. Unset,
+     * `Md1Card`, else the Activator's parent): the desktop and tablet rule. Unset,
      * it applies from 600 px up whenever the target sits on a card.
      */
     contained?: boolean
@@ -165,7 +165,7 @@
   defineOptions({ name: 'Md1FeatureDiscovery' })
 
   defineSlots<{
-    /** The Target around the promoted action, then the Title and Text. */
+    /** The Activator around the promoted action, then the Title and Text. */
     default?: () => any
   }>()
 

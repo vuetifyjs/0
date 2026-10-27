@@ -4,7 +4,7 @@ import { userEvent } from 'vitest/browser'
 // Framework
 import { createStackPlugin } from '@vuetify/v0'
 
-import { Md1FeatureDiscovery, Md1FeatureDiscoveryTarget, Md1FeatureDiscoveryText, Md1FeatureDiscoveryTitle } from './index'
+import { Md1FeatureDiscovery, Md1FeatureDiscoveryActivator, Md1FeatureDiscoveryText, Md1FeatureDiscoveryTitle } from './index'
 
 // Utilities
 import { createApp, h, nextTick, shallowRef } from 'vue'
@@ -61,7 +61,7 @@ function prompt (options: Options = {}): HTMLElement {
   } = options
 
   function action () {
-    return h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search', id: 'action', onClick: onAction }))
+    return h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search', id: 'action', onClick: onAction }))
   }
 
   function tree () {
@@ -186,7 +186,7 @@ afterEach(() => {
 describe('quFeatureDiscovery', () => {
   describe('anatomy', () => {
     it('should attach the parts to the root and keep the flat names', () => {
-      expect(Md1FeatureDiscovery.Target).toBe(Md1FeatureDiscoveryTarget)
+      expect(Md1FeatureDiscovery.Activator).toBe(Md1FeatureDiscoveryActivator)
       expect(Md1FeatureDiscovery.Title).toBe(Md1FeatureDiscoveryTitle)
       expect(Md1FeatureDiscovery.Text).toBe(Md1FeatureDiscoveryText)
     })
@@ -234,7 +234,7 @@ describe('quFeatureDiscovery', () => {
     it('should keep the title above the text whatever order they are written in', async () => {
       mount(() => h(Md1FeatureDiscovery, { modelValue: true }, () => [
         h(Md1FeatureDiscovery.Text, null, () => 'Body'),
-        h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
+        h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
         h(Md1FeatureDiscovery.Title, null, () => 'Headline'),
       ]))
       await ready()
@@ -347,7 +347,7 @@ describe('quFeatureDiscovery', () => {
       }, [
         h('div', { style: { position: 'absolute', right: '8px', top: '8px' } }, [
           h(Md1FeatureDiscovery, { modelValue: true, contained: false }, () => [
-            h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search' })),
+            h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search' })),
             h(Md1FeatureDiscovery.Title, null, () => 'Find mail fast'),
             h(Md1FeatureDiscovery.Text, null, () => 'Tap the search icon to look up messages by sender, subject or date.'),
           ]),
@@ -469,7 +469,7 @@ describe('quFeatureDiscovery', () => {
       }, [
         h('div', { style: { position: 'absolute', left: '400px', top: '24px' } }, [
           h(Md1FeatureDiscovery, { modelValue: true }, () => [
-            h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
+            h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
             h(Md1FeatureDiscovery.Title, null, () => 'Add'),
           ]),
         ]),
@@ -515,7 +515,7 @@ describe('quFeatureDiscovery', () => {
         style: { position: 'absolute', left: '340px', top: '250px', width: '600px', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
       }, [
         h(Md1FeatureDiscovery, { modelValue: true, contained: true }, () => [
-          h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
+          h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
           h(Md1FeatureDiscovery.Title, null, () => 'Add'),
         ]),
       ]))
@@ -798,13 +798,13 @@ describe('quFeatureDiscovery', () => {
         h(Md1FeatureDiscovery, { 'modelValue': first.value, 'onUpdate:modelValue': (next: boolean) => {
           first.value = next
         } }, () => [
-          h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'One', icon: 'add', id: 'one' })),
+          h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'One', icon: 'add', id: 'one' })),
           h(Md1FeatureDiscovery.Title, null, () => 'First'),
         ]),
         h(Md1FeatureDiscovery, { 'modelValue': second.value, 'onUpdate:modelValue': (next: boolean) => {
           second.value = next
         } }, () => [
-          h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Two', icon: 'search', id: 'two' })),
+          h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Two', icon: 'search', id: 'two' })),
           h(Md1FeatureDiscovery.Title, null, () => 'Second'),
         ]),
       ]))
@@ -829,7 +829,7 @@ describe('quFeatureDiscovery', () => {
 
       mount(() => h('div', { 'data-theme': 'md1-dark' }, [
         h(Md1FeatureDiscovery, { modelValue: true }, () => [
-          h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
+          h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add' })),
           h(Md1FeatureDiscovery.Title, null, () => 'Title'),
           h(Md1FeatureDiscovery.Text, null, () => 'Text'),
         ]),
@@ -859,7 +859,7 @@ describe('quFeatureDiscovery', () => {
           h(Md1Toolbar.Title, null, () => 'Inbox'),
           h(Md1Toolbar.Actions, null, () => [
             h(Md1FeatureDiscovery, { modelValue: true }, () => [
-              h(Md1FeatureDiscovery.Target, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search', id: 'action' })),
+              h(Md1FeatureDiscovery.Activator, null, () => h(Md1Button, { ariaLabel: 'Search', icon: 'search', id: 'action' })),
               h(Md1FeatureDiscovery.Title, null, () => 'Title'),
               h(Md1FeatureDiscovery.Text, null, () => 'Text'),
             ]),
@@ -878,7 +878,7 @@ describe('quFeatureDiscovery', () => {
 
       mount(() => h(Md1Toolbar, { variant: 'primary' }, () => [
         h(Md1FeatureDiscovery, { 'modelValue': open.value, 'onUpdate:modelValue': (value: boolean) => (open.value = value) }, () => [
-          h(Md1FeatureDiscovery.Target, null, () => h(Md1Toolbar.Nav, { id: 'nav' })),
+          h(Md1FeatureDiscovery.Activator, null, () => h(Md1Toolbar.Nav, { id: 'nav' })),
           h(Md1FeatureDiscovery.Title, null, () => 'Title'),
           h(Md1FeatureDiscovery.Text, null, () => 'Text'),
         ]),
@@ -906,18 +906,18 @@ describe('quFeatureDiscovery', () => {
       expect(spy).not.toHaveBeenCalled()
     })
 
-    it('should warn once per orphaned part and render the target content inert', async () => {
+    it('should warn once per orphaned part and render the activator content inert', async () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const host = mount(() => h('div', [
-        h(Md1FeatureDiscoveryTarget, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add', id: 'stray' })),
+        h(Md1FeatureDiscoveryActivator, null, () => h(Md1Button, { ariaLabel: 'Add', icon: 'add', id: 'stray' })),
         h(Md1FeatureDiscoveryTitle, null, () => 'Title'),
         h(Md1FeatureDiscoveryText, null, () => 'Text'),
       ]))
       await settle()
 
       expect(spy).toHaveBeenCalledTimes(3)
-      expect(spy).toHaveBeenCalledWith(expect.stringContaining('[Md1FeatureDiscoveryTarget] rendered outside <Md1FeatureDiscovery>'))
+      expect(spy).toHaveBeenCalledWith(expect.stringContaining('[Md1FeatureDiscoveryActivator] rendered outside <Md1FeatureDiscovery>'))
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('[Md1FeatureDiscoveryTitle] rendered outside <Md1FeatureDiscovery>'))
       expect(spy).toHaveBeenCalledWith(expect.stringContaining('[Md1FeatureDiscoveryText] rendered outside <Md1FeatureDiscovery>'))
       expect(host.querySelector('#stray')).not.toBeNull()

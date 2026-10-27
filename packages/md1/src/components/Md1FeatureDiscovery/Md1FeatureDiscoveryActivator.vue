@@ -11,11 +11,11 @@
   // Types
   import type { CSSProperties } from 'vue'
 
-  export interface Md1FeatureDiscoveryTargetProps {}
+  export interface Md1FeatureDiscoveryActivatorProps {}
 </script>
 
 <script setup lang="ts">
-  defineOptions({ name: 'Md1FeatureDiscoveryTarget' })
+  defineOptions({ name: 'Md1FeatureDiscoveryActivator' })
 
   defineSlots<{
     /** The promoted action: one icon-only `Md1Button` or an `Md1Fab`. The prompt holds no other buttons. */
@@ -24,7 +24,7 @@
 
   const context = useMd1FeatureDiscovery()
 
-  orphan('Md1FeatureDiscoveryTarget', context)
+  orphan('Md1FeatureDiscoveryActivator', context)
 
   // While the circles are up the action is lifted one layer above them, so it
   // stays visible and tappable over the target disc.
