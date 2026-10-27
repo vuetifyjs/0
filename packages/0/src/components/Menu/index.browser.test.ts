@@ -15,7 +15,7 @@ import { defineComponent, h, nextTick, shallowRef } from 'vue'
 import type { ID } from '#v0/types'
 import type { MenuRootContext } from './MenuRoot.vue'
 import type { VueWrapper } from '@vue/test-utils'
-import type { VNode } from 'vue'
+import type { Component, VNode } from 'vue'
 
 const wrappers: VueWrapper[] = []
 
@@ -709,6 +709,40 @@ describe('menu', () => {
     await settle()
 
     expect(openMenus(wrapper)).toHaveLength(1)
+  })
+
+  // <Menu.Item disabled> compiles to { disabled: '' }; without Boolean casting the item stayed enabled
+  it.each([
+    ['a bare attribute', ''],
+    ['a getter', () => true],
+    ['a ref', shallowRef(true)],
+  ])('should disable an item from %s', async (_, disabled) => {
+    using warn = vi.spyOn(console, 'warn')
+    const wrapper = mount(defineComponent({
+      setup () {
+        return () => h(Menu.Root, { openDelay: 0, closeDelay: 0 }, {
+          default: () => [
+            h(Menu.Activator, null, () => 'Actions'),
+            h(Menu.Content, null, () => [
+              h(Menu.Item as Component, { disabled }, () => 'Copy'),
+            ]),
+          ],
+        })
+      },
+    }))
+
+    await click(wrapper.get('button'))
+    await settle()
+    const copy = item(wrapper, 'menuitem', 'Copy')
+
+    expect(copy.attributes('aria-disabled')).toBe('true')
+    expect(copy.attributes('data-disabled')).toBe('true')
+
+    await copy.trigger('click')
+    await settle()
+
+    expect(openMenus(wrapper)).toHaveLength(1)
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('should ignore a click on a disabled checkbox, radio, or submenu item', async () => {

@@ -104,9 +104,9 @@
     /** Associate with form by ID */
     form?: string
     /** Disables this input */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Makes this input readonly */
-    readonly?: MaybeRefOrGetter<boolean>
+    readonly?: boolean | MaybeRefOrGetter<boolean>
     /** Whether this input is required */
     required?: boolean
     /** Validation rules */
