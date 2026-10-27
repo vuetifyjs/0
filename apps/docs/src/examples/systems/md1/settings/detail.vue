@@ -59,12 +59,12 @@
             </Md1List.Content>
 
             <Md1List.Action>
-              <Md1Switch v-model="history" aria-label="Location history" />
+              <Md1Switch v-model="history" aria-describedby="md1-docs-settings-history" aria-label="Location history" />
             </Md1List.Action>
           </Md1List.Item>
         </Md1List>
 
-        <div class="md1-docs-settings-description">
+        <div id="md1-docs-settings-history" class="md1-docs-settings-description">
           <p>Location history saves where you go with this device, even when no app is open, so maps can suggest routes for your commute and photos can show where they were taken.</p>
 
           <p>Only you can see it. Turning it off stops new places being saved; the places already saved stay until you delete them.</p>
