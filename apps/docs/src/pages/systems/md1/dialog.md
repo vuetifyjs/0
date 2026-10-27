@@ -137,6 +137,16 @@ The actions stay in place while the list scrolls. In a simple or confirmation di
 :::
 
 ::: ds-example
+/systems/md1/dialog/inline-expansion
+
+### Additional content
+
+A dialog that needs more than its one or two sentences discloses the rest by inline expansion within the content area, never by opening a second dialog. The location prompt here asks its question in one sentence; What gets sent expands under it to say what the service collects, and the dialog grows to fit, scrolling once it reaches the 24 dp margin like the example above. The arrow points down while the content is collapsed and up while it is expanded.
+
+The disclosure is v0's `Collapsible` inside `Md1Dialog.Text`, so the extra copy is part of the dialog's description and the activator carries `aria-expanded` and `aria-controls`. Expanding it changes nothing else: Disagree and Agree keep their place and their meaning. When the extra content outgrows a few lines, the guidelines suggest a component made for it, such as a full-screen dialog.
+:::
+
+::: ds-example
 /systems/md1/dialog/dismissible
 
 ### Dismissal disabled
