@@ -788,6 +788,59 @@ describe('quToolbar', () => {
       expect(extension.getBoundingClientRect().height).toBe(64)
     })
 
+    it('should scroll the whole extended bar off, return the toolbar alone, and grow the space back at the top', async () => {
+      const host = mount(() => h(Md1Toolbar, { appBar: true, scroll: 'collapse-hide' }, () => [
+        h(Md1Toolbar.Nav),
+        h(Md1Toolbar.Extension, () => h(Md1Toolbar.Title, () => 'Large title')),
+      ]))
+      await settle()
+
+      const el = host.querySelector<HTMLElement>('.md1-toolbar')!
+      const extension = el.querySelector<HTMLElement>('.md1-toolbar__extension')!
+      const title = extension.querySelector<HTMLElement>('.md1-toolbar__title')!
+
+      await expect.poll(() => extension.getBoundingClientRect().height).toBe(64)
+
+      const target = scroller(el)
+
+      // The whole bar, flexible space and all, follows the content off 1:1.
+      await scrollTo(target, 40)
+      expect(el.style.transform).toBe('translateY(-40px)')
+      expect(extension.getBoundingClientRect().height).toBe(64)
+      expect(getComputedStyle(title).fontSize).toBe('34px')
+
+      await scrollTo(target, 400)
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(true)
+      expect(Object.hasOwn(el.dataset, 'collapsed')).toBe(true)
+      expect(el.style.transform).toBe('translateY(-64px)')
+      expect(extension.getBoundingClientRect().height).toBe(0)
+
+      // Reverse scroll returns only the toolbar, anchored to the top.
+      await scrollTo(target, 380)
+      expect(el.style.transform).toBe('translateY(-44px)')
+      expect(Object.hasOwn(el.dataset, 'hidden')).toBe(false)
+
+      await scrollTo(target, 300)
+      expect(el.style.transform).toBe('')
+      expect(el.getBoundingClientRect().height).toBe(64)
+      expect(getComputedStyle(title).fontSize).toBe('20px')
+
+      // Back at the top the flexible space and the title grow into place.
+      await scrollTo(target, 32)
+      expect(extension.getBoundingClientRect().height).toBe(32)
+      expect(getComputedStyle(title).fontSize).toBe('27px')
+
+      await scrollTo(target, 0)
+      expect(extension.getBoundingClientRect().height).toBe(64)
+      expect(getComputedStyle(title).fontSize).toBe('34px')
+      expect(Object.hasOwn(el.dataset, 'collapsed')).toBe(false)
+
+      // Unfolded again: the next scroll takes the whole bar off once more.
+      await scrollTo(target, 100)
+      expect(el.style.transform).toBe('translateY(-100px)')
+      expect(extension.getBoundingClientRect().height).toBe(64)
+    })
+
     it('should ignore scrolling when the toolbar is not an app bar', async () => {
       const el = basic({ scroll: 'hide' })
       await settle()
