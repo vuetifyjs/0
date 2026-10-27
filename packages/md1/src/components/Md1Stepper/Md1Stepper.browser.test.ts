@@ -944,6 +944,90 @@ describe('quStepper', () => {
     })
   })
 
+  describe('dynamic steps', () => {
+    /** A progress stepper over a reactive step list, so a test can insert and remove steps mid-flow. */
+    function flow (initial: Spec[]) {
+      const list = shallowRef(initial)
+      const model = shallowRef<string>()
+      const host = mount(() => h(Md1Stepper, {
+        'mobile': 'progress',
+        'modelValue': model.value,
+        'onUpdate:modelValue': (value: unknown) => {
+          model.value = value as string
+        },
+      }, () => [
+        ...list.value.map(spec => h(Md1Stepper.Step, { key: spec.value, label: spec.label, value: spec.value }, () => h(Md1Stepper.Content, () => spec.label))),
+        h(Md1Stepper.Bar),
+      ]))
+      const root = host.querySelector<HTMLElement>('.md1-stepper')!
+
+      return {
+        list,
+        model,
+        numbers: () => [...root.querySelectorAll('.md1-stepper__circle')].map(el => el.textContent!.trim()),
+        names: () => labels(root).map(el => el.textContent!.trim()),
+        max: () => root.querySelector('[role="progressbar"]')?.getAttribute('aria-valuemax'),
+        buttons: () => [...root.querySelectorAll<HTMLButtonElement>('.md1-stepper__bar > .md1-button')],
+      }
+    }
+
+    const ADDRESS = { value: 'address', label: 'Address' }
+    const COMPANY = { value: 'company', label: 'Company' }
+    const DELIVERY = { value: 'delivery', label: 'Delivery' }
+    const PAYMENT = { value: 'payment', label: 'Payment' }
+
+    it('should number and walk a step inserted between two others in document order', async () => {
+      const steps = flow([ADDRESS, DELIVERY, PAYMENT])
+      await settle()
+
+      expect(steps.max()).toBe('3')
+
+      // Registered last, rendered second: the stepper reads it as the second step.
+      steps.list.value = [ADDRESS, COMPANY, DELIVERY, PAYMENT]
+      await settle()
+
+      expect(steps.names()).toEqual(['1Address', '2Company', '3Delivery', '4Payment'])
+      await expect.poll(() => steps.numbers()).toEqual(['1', '2', '3', '4'])
+      await expect.poll(() => steps.max()).toBe('4')
+
+      await userEvent.click(steps.buttons()[1]!)
+      await settle()
+
+      expect(steps.model.value).toBe('company')
+
+      await userEvent.click(steps.buttons()[1]!)
+      await settle()
+
+      expect(steps.model.value).toBe('delivery')
+
+      await userEvent.click(steps.buttons()[0]!)
+      await settle()
+
+      expect(steps.model.value).toBe('company')
+    })
+
+    it('should close the gap when a step is removed from the middle', async () => {
+      const steps = flow([ADDRESS, COMPANY, DELIVERY, PAYMENT])
+      await settle()
+
+      steps.list.value = [ADDRESS, DELIVERY, PAYMENT]
+      await settle()
+
+      await expect.poll(() => steps.numbers()).toEqual(['1', '2', '3'])
+      await expect.poll(() => steps.max()).toBe('3')
+
+      await userEvent.click(steps.buttons()[1]!)
+      await settle()
+
+      expect(steps.model.value).toBe('delivery')
+
+      await userEvent.click(steps.buttons()[0]!)
+      await settle()
+
+      expect(steps.model.value).toBe('address')
+    })
+  })
+
   describe('orphans', () => {
     it('should warn once and render nothing for a step outside Md1Stepper', async () => {
       using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
