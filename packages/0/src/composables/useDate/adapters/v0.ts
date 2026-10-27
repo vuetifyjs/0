@@ -10,10 +10,7 @@
  * Uses the runtime's native Temporal implementation when present, falling back
  * to the @js-temporal/polyfill optional peer. The polyfill import is static, so
  * runtimes without native Temporal must have the peer installed to load this
- * module. Until V8 implements calendar duration math, any calendar other than
- * iso8601 is computed with the polyfill. Non-ISO add and subtract still throw
- * in the Temporal that Node 26 and Chrome ship, and with({ month }) skips leap
- * months. The iso8601 path keeps the runtime Temporal.
+ * module.
  *
  * @see https://tc39.es/proposal-temporal/docs/
  * @see https://github.com/dmtrKovalenko/date-io
@@ -29,7 +26,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { DateAdapter } from './adapter'
 
 // Utilities
-import { isFunction, isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
 // Week info
 import { deriveWeekInfo } from '../weekinfo'
@@ -45,36 +42,10 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
-export interface V0DateAdapterOptions {
-  /**
-   * Calendar system for date fields, arithmetic and formatting, as a Temporal/Intl
-   * calendar identifier (e.g. 'persian', 'hebrew', 'islamic-umalqura').
-   *
-   * Anything other than `iso8601` is computed with `@js-temporal/polyfill` until
-   * V8 implements calendar duration math. An unknown identifier throws `RangeError`
-   * at construction, and the calendar stays fixed for the life of the instance.
-   *
-   * @default 'iso8601'
-   *
-   * @example
-   * ```ts
-   * const persian = new V0DateAdapter('fa-IR', { calendar: 'persian' })
-   * ```
-   */
-  calendar?: string
-}
-
 export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   private _locale: string
   private _firstDayOfWeek = 0
   private _minimalDays = 1
-  private _calendar: string
-
-  /**
-   * `iso8601` uses the runtime Temporal. Every other calendar uses the polyfill
-   * until V8 implements calendar duration math.
-   */
-  private readonly engine: typeof polyfill
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -82,16 +53,9 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   /** Cache for Intl.NumberFormat instances, keyed by locale */
   private numberFormatCache = new Map<string, Intl.NumberFormat>()
 
-  constructor (locale = 'en-US', options: V0DateAdapterOptions = {}) {
+  constructor (locale = 'en-US') {
     super()
     this._locale = locale
-    // Probe the polyfill so an unknown id throws here. Until V8 implements
-    // calendar duration math, every calendar other than iso8601 stays on the
-    // polyfill: non-ISO add/subtract throw in V8, and with({ month }) skips
-    // leap months.
-    const calendar = new polyfill.PlainDate(1970, 1, 1, options.calendar).calendarId
-    this._calendar = calendar
-    this.engine = calendar === 'iso8601' ? Temporal : polyfill
     const info = deriveWeekInfo(locale)
     this._firstDayOfWeek = info.firstDay
     this._minimalDays = info.minimalDays
@@ -140,44 +104,98 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
    * hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
    */
   date (value?: unknown): PlainDateTime | null {
-    const date = this.toDateTime(value)
+    if (isNullOrUndefined(value)) {
+      // SSR safety: Temporal.Now requires browser environment
+      return IN_BROWSER
+        ? Temporal.Now.plainDateTimeISO()
+        : Temporal.PlainDateTime.from({ year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0 })
+    }
 
-    return date && this.inCalendar(date)
+    if (value instanceof Temporal.PlainDateTime) {
+      return value
+    }
+
+    if (value instanceof Temporal.PlainDate) {
+      return value.toPlainDateTime()
+    }
+
+    if (value instanceof Temporal.ZonedDateTime) {
+      return value.toPlainDateTime()
+    }
+
+    if (value instanceof Date) {
+      return Temporal.PlainDateTime.from({
+        year: value.getFullYear(),
+        month: value.getMonth() + 1,
+        day: value.getDate(),
+        hour: value.getHours(),
+        minute: value.getMinutes(),
+        second: value.getSeconds(),
+        millisecond: value.getMilliseconds(),
+      })
+    }
+
+    if (isString(value)) {
+      try {
+        return Temporal.PlainDateTime.from(value)
+      } catch {
+        // Try parsing as ISO date string
+        try {
+          return this.parseISO(value)
+        } catch {
+          return null
+        }
+      }
+    }
+
+    if (isNumber(value)) {
+      const date = new Date(value)
+
+      return Temporal.PlainDateTime.from({
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours(),
+        minute: date.getMinutes(),
+        second: date.getSeconds(),
+        millisecond: date.getMilliseconds(),
+      })
+    }
+
+    return null
   }
 
   toJsDate (value: PlainDateTime): Date {
-    const iso = value.withCalendar('iso8601')
-
     return new Date(
-      iso.year,
-      iso.month - 1,
-      iso.day,
-      iso.hour,
-      iso.minute,
-      iso.second,
-      iso.millisecond,
+      value.year,
+      value.month - 1,
+      value.day,
+      value.hour,
+      value.minute,
+      value.second,
+      value.millisecond,
     )
   }
 
   parseISO (dateString: string): PlainDateTime {
     // Handle date-only strings
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      return this.inCalendar(this.engine.PlainDate.from(dateString).toPlainDateTime())
+      return Temporal.PlainDate.from(dateString).toPlainDateTime()
     }
 
     // Handle timezone-aware strings (e.g., "2024-06-15T10:30:00Z" or "2024-06-15T10:30:00+05:00")
     // Convert to Instant first, then to PlainDateTime in UTC
     if (dateString.includes('Z') || /[+-]\d{2}:\d{2}$/.test(dateString)) {
-      const instant = this.engine.Instant.from(dateString)
-      return this.inCalendar(instant.toZonedDateTimeISO('UTC').toPlainDateTime())
+      const instant = Temporal.Instant.from(dateString)
+      return instant.toZonedDateTimeISO('UTC').toPlainDateTime()
     }
 
     // Handle full datetime strings without timezone
-    return this.inCalendar(this.engine.PlainDateTime.from(dateString))
+    return Temporal.PlainDateTime.from(dateString)
   }
 
   toISO (date: PlainDateTime): string {
-    return date.toPlainDate().toString({ calendarName: 'never' })
+    return date.toPlainDate().toString()
   }
 
   /**
@@ -207,10 +225,9 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   isValid (date: unknown): date is PlainDateTime {
     if (isNullOrUndefined(date)) return false
 
-    if (this.isEngineDate(date, this.engine)) return true
-
-    const foreign = this.foreignEngine()
-    if (foreign && this.isEngineDate(date, foreign)) return true
+    if (date instanceof Temporal.PlainDateTime) return true
+    if (date instanceof Temporal.PlainDate) return true
+    if (date instanceof Temporal.ZonedDateTime) return true
 
     if (date instanceof Date) {
       return !Number.isNaN(date.getTime())
@@ -218,12 +235,12 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
 
     if (isString(date)) {
       try {
-        this.engine.PlainDateTime.from(date)
+        Temporal.PlainDateTime.from(date)
 
         return true
       } catch {
         try {
-          this.engine.PlainDate.from(date)
+          Temporal.PlainDate.from(date)
 
           return true
         } catch {
@@ -400,7 +417,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   endOfYear (date: PlainDateTime): PlainDateTime {
-    return this.endOfDay(date.with({ month: date.monthsInYear, day: 31 }))
+    return this.endOfDay(date.with({ month: 12, day: 31 }))
   }
 
   // ============================================
@@ -440,11 +457,11 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   // ============================================
 
   isAfter (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDateTime.compare(date, comparing) > 0
+    return Temporal.PlainDateTime.compare(date, comparing) > 0
   }
 
   isAfterDay (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) > 0
+    return Temporal.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) > 0
   }
 
   isAfterMonth (date: PlainDateTime, comparing: PlainDateTime): boolean {
@@ -459,11 +476,11 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   isBefore (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDateTime.compare(date, comparing) < 0
+    return Temporal.PlainDateTime.compare(date, comparing) < 0
   }
 
   isBeforeDay (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) < 0
+    return Temporal.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) < 0
   }
 
   isBeforeMonth (date: PlainDateTime, comparing: PlainDateTime): boolean {
@@ -478,11 +495,11 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   isEqual (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDateTime.compare(date, comparing) === 0
+    return Temporal.PlainDateTime.compare(date, comparing) === 0
   }
 
   isSameDay (date: PlainDateTime, comparing: PlainDateTime): boolean {
-    return this.engine.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) === 0
+    return Temporal.PlainDate.compare(date.toPlainDate(), comparing.toPlainDate()) === 0
   }
 
   isSameMonth (date: PlainDateTime, comparing: PlainDateTime): boolean {
@@ -501,8 +518,8 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   isWithinRange (date: PlainDateTime, [start, end]: [PlainDateTime, PlainDateTime]): boolean {
-    return this.engine.PlainDateTime.compare(date, start) >= 0 &&
-      this.engine.PlainDateTime.compare(date, end) <= 0
+    return Temporal.PlainDateTime.compare(date, start) >= 0 &&
+      Temporal.PlainDateTime.compare(date, end) <= 0
   }
 
   // ============================================
@@ -564,14 +581,14 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
 
     let year = this.getYear(currentWeekStart)
     if (year < this.getYear(currentWeekEnd)) {
-      const nextYearStart = this.firstDayOfYear(year + 1)
+      const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
       const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart), 'days')
       if (nextYearFirstWeekSize >= md) {
         year++
       }
     }
 
-    const yearStart = this.firstDayOfYear(year)
+    const yearStart = new Temporal.PlainDateTime(year, 1, 1)
     const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart), 'days')
     const weekOneStart = firstWeekSize >= md
       ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
@@ -618,7 +635,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   getWeekdays (format: 'long' | 'short' | 'narrow' = 'narrow'): string[] {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
-    const refDate = this.engine.PlainDate.from('2015-01-04')
+    const refDate = Temporal.PlainDate.from('2015-01-04')
     const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
@@ -640,7 +657,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     const end = this.endOfWeek(monthEnd)
 
     while (
-      this.engine.PlainDateTime.compare(current, end) <= 0 ||
+      Temporal.PlainDateTime.compare(current, end) <= 0 ||
       (fixedWeeks && weeks.length < 6)
     ) {
       const week: PlainDateTime[] = []
@@ -656,10 +673,11 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   }
 
   getMonthArray (date: PlainDateTime): PlainDateTime[] {
+    const year = date.year
     const months: PlainDateTime[] = []
 
-    for (let month = 1; month <= date.monthsInYear; month++) {
-      months.push(this.startOfDay(date.with({ month, day: 1 })))
+    for (let month = 1; month <= 12; month++) {
+      months.push(Temporal.PlainDateTime.from({ year, month, day: 1 }))
     }
 
     return months
@@ -670,7 +688,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
     let current = start.year
 
     while (current <= end.year) {
-      years.push(this.firstDayOfYear(current))
+      years.push(Temporal.PlainDateTime.from({ year: current, month: 1, day: 1 }))
       current++
     }
 
@@ -706,120 +724,6 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
   // Private Helpers
   // ============================================
 
-  private toDateTime (value: unknown): PlainDateTime | null {
-    if (isNullOrUndefined(value)) {
-      // SSR safety: Now.plainDateTimeISO requires a browser environment
-      return IN_BROWSER
-        ? this.engine.Now.plainDateTimeISO()
-        : this.engine.PlainDateTime.from({ year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0 })
-    }
-
-    if (this.isEngineDate(value, this.engine)) {
-      return this.toPlain(value)
-    }
-
-    const foreign = this.foreignEngine()
-    if (foreign && this.isEngineDate(value, foreign)) {
-      return this.copy(value)
-    }
-
-    if (value instanceof Date) {
-      return this.engine.PlainDateTime.from({
-        year: value.getFullYear(),
-        month: value.getMonth() + 1,
-        day: value.getDate(),
-        hour: value.getHours(),
-        minute: value.getMinutes(),
-        second: value.getSeconds(),
-        millisecond: value.getMilliseconds(),
-      })
-    }
-
-    if (isString(value)) {
-      try {
-        return this.engine.PlainDateTime.from(value)
-      } catch {
-        try {
-          return this.parseISO(value)
-        } catch {
-          return null
-        }
-      }
-    }
-
-    if (isNumber(value)) {
-      const date = new Date(value)
-
-      return this.engine.PlainDateTime.from({
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        second: date.getSeconds(),
-        millisecond: date.getMilliseconds(),
-      })
-    }
-
-    return null
-  }
-
-  /** The other Temporal implementation, when this instance is not already on it. */
-  private foreignEngine (): typeof polyfill | undefined {
-    const other = this.engine === polyfill ? Temporal : polyfill
-
-    return other === this.engine ? undefined : other
-  }
-
-  private isEngineDate (
-    value: unknown,
-    engine: typeof polyfill,
-  ): value is polyfill.PlainDateTime | polyfill.PlainDate | polyfill.ZonedDateTime {
-    return value instanceof engine.PlainDateTime
-      || value instanceof engine.PlainDate
-      || value instanceof engine.ZonedDateTime
-  }
-
-  private toPlain (
-    value: polyfill.PlainDateTime | polyfill.PlainDate | polyfill.ZonedDateTime,
-  ): PlainDateTime {
-    if (isFunction((value as { toPlainDateTime?: unknown }).toPlainDateTime)) {
-      return (value as { toPlainDateTime: () => PlainDateTime }).toPlainDateTime()
-    }
-
-    return value as PlainDateTime
-  }
-
-  /**
-   * Rebuild a date from the other engine. Calendar fields are not ISO fields,
-   * so the copy goes through `iso8601` before `PlainDateTime.from`.
-   */
-  private copy (
-    value: polyfill.PlainDateTime | polyfill.PlainDate | polyfill.ZonedDateTime,
-  ): PlainDateTime {
-    const iso = this.toPlain(value).withCalendar('iso8601')
-
-    return this.engine.PlainDateTime.from({
-      year: iso.year,
-      month: iso.month,
-      day: iso.day,
-      hour: iso.hour,
-      minute: iso.minute,
-      second: iso.second,
-      millisecond: iso.millisecond,
-      microsecond: iso.microsecond,
-      nanosecond: iso.nanosecond,
-    })
-  }
-
-  private inCalendar (date: PlainDateTime): PlainDateTime {
-    return date.calendarId === this._calendar ? date : date.withCalendar(this._calendar)
-  }
-
-  private firstDayOfYear (year: number): PlainDateTime {
-    return this.engine.PlainDate.from({ year, month: 1, day: 1, calendar: this._calendar }).toPlainDateTime()
-  }
-
   /**
    * Gets a cached Intl.DateTimeFormat instance or creates one if not cached.
    * Cache is limited to MAX_CACHE_SIZE entries to prevent memory leaks.
@@ -836,9 +740,7 @@ export class V0DateAdapter extends DateAdapter<PlainDateTime> {
         if (firstKey) this.formatCache.delete(firstKey)
       }
 
-      // Without an explicit calendar Intl uses the locale's default, e.g. persian for fa-IR
-      const calendar = this._calendar === 'iso8601' ? 'gregory' : this._calendar
-      formatter = new Intl.DateTimeFormat(this.locale, { ...options, calendar })
+      formatter = new Intl.DateTimeFormat(this.locale, options)
       this.formatCache.set(key, formatter)
     }
 

@@ -15,4 +15,3 @@
  */
 
 export { V0DateAdapter } from '#v0/composables/useDate/adapters/v0'
-export type { V0DateAdapterOptions } from '#v0/composables/useDate/adapters/v0'
