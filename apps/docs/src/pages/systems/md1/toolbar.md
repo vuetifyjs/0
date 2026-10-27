@@ -129,6 +129,16 @@ A toolbar sits a step above the sheet its actions affect, and a sheet that scrol
 :::
 
 ::: ds-example
+/systems/md1/toolbar/narrowed
+
+### Narrowed for a passing sheet
+
+A sheet that passes over a toolbar must not split it: the toolbars page never lets another persistent sheet separate a toolbar's start and end actions, only temporary material such as a menu or a dialog. Instead the toolbar "can constrain their width to make space for sheets of material passing over them", and the page's figure says to constrain it to less than the full length of its material. Its actions cluster on their own sides, so the end actions travel with the narrowed edge instead of being covered.
+
+Here the info action opens a details sheet at the end edge, the screen's full height and 8 dp up, a step above the toolbar's 4 dp. The toolbar's width shrinks by the sheet's 240 dp as the sheet slides in, both over 300 ms on the standard curve, and grows back when the sheet leaves. The narrowing is a width on the toolbar's root; `Md1Toolbar` has no prop for it because the room to give up belongs to the layout, not the bar. The sheet's width and elevation are Material Design 1 decisions; the page draws the figure without numbers.
+:::
+
+::: ds-example
 /systems/md1/toolbar/tabs
 
 ### Tabs in the extension
