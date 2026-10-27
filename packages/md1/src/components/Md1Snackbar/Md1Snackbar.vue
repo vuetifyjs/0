@@ -100,7 +100,6 @@
   const stacked = toRef(() => multiline && width.value > INLINE)
 
   function measure () {
-    // Md1Button renders a fragment (Button.Root plus its optional hidden input), so the action is found, not ref'd.
     const node = el.value?.querySelector<HTMLElement>('.md1-snackbar__action')
 
     width.value = node?.offsetWidth ?? 0

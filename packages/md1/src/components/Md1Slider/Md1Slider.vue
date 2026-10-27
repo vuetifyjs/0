@@ -19,9 +19,8 @@
    * vertical sliders are not in the spec, ruling 7), and the axis flips with
    * the writing direction rather than by prop. `name` stays so the slider can
    * submit with a form through v0's hidden input. `disabled` is redeclared as
-   * a plain boolean: v0's `MaybeRefOrGetter<boolean>` compiles to a runtime
-   * prop without `Boolean`, so a bare `disabled` attribute would arrive as an
-   * empty string and leave the slider enabled.
+   * a plain boolean rather than v0's `MaybeRefOrGetter<boolean>`, the type
+   * every Material Design 1 part takes.
    */
   export interface Md1SliderProps extends Pick<
     SliderRootProps,

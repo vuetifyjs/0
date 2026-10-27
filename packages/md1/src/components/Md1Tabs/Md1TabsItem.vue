@@ -23,9 +23,8 @@
   > {
     /**
      * Takes the tab out of use: skipped by the arrow keys, inert to a press,
-     * drawn at the disabled ink. Declared as a plain boolean rather than
-     * v0's `MaybeRefOrGetter<boolean>`, which compiles to an untyped runtime
-     * prop and leaves the bare `disabled` attribute as an empty, falsy string.
+     * drawn at the disabled ink. A plain boolean rather than v0's
+     * `MaybeRefOrGetter<boolean>`, the type every Material Design 1 part takes.
      */
     disabled?: boolean
     /**

@@ -26,8 +26,8 @@
   > {
     /**
      * Inert: the disabled ink, no activation, no ripple. A plain boolean rather
-     * than v0's `MaybeRefOrGetter`, so the SFC compiler emits a Boolean prop and
-     * a bare `disabled` attribute casts to `true` in every consumer build.
+     * than v0's `MaybeRefOrGetter<boolean>`, the type every Material Design 1
+     * part takes.
      */
     disabled?: boolean
     /** The visible text beside the box; the control's `aria-labelledby` points at it. The default slot replaces it. */
