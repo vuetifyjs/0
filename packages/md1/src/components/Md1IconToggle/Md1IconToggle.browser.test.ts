@@ -5,6 +5,7 @@ import { userEvent } from 'vitest/browser'
 import { createReducedMotionPlugin } from '@vuetify/v0'
 
 // Components
+import { Md1Toolbar } from '../Md1Toolbar'
 import { Md1IconToggle } from './index'
 
 // Utilities
@@ -273,6 +274,28 @@ describe('quIconToggle', () => {
 
       expect(getComputedStyle(off).color).toBe('rgba(0, 0, 0, 0.38)')
       expect(getComputedStyle(on).color).toBe('rgba(0, 0, 0, 0.54)')
+    })
+
+    it('should take the white ink of a primary bar among its actions, and keep the black tiers on a surface bar', async () => {
+      function bar (variant: 'primary' | 'surface') {
+        const host = mount(() => h(Md1Toolbar, { variant }, () => [
+          h(Md1Toolbar.Title, () => 'Trail'),
+          h(Md1Toolbar.Actions, () => [
+            h(Md1IconToggle, { ariaLabel: 'Off', icon: 'star-border' }),
+            h(Md1IconToggle, { ariaLabel: 'On', icon: 'star-border', modelValue: true }),
+            h(Md1IconToggle, { ariaLabel: 'Disabled', icon: 'star-border', disabled: true }),
+          ]),
+        ]))
+        return [...host.querySelectorAll<HTMLButtonElement>('.md1-icon-toggle')].map(el => getComputedStyle(el).color)
+      }
+
+      const primary = bar('primary')
+      const surface = bar('surface')
+      await settle()
+
+      // Off at the 70% inactive white of a primary bar, on at 100%, disabled at 30%.
+      expect(primary).toEqual(['rgba(255, 255, 255, 0.7)', 'rgb(255, 255, 255)', 'rgba(255, 255, 255, 0.3)'])
+      expect(surface).toEqual(['rgba(0, 0, 0, 0.38)', 'rgba(0, 0, 0, 0.54)', 'rgba(0, 0, 0, 0.26)'])
     })
 
     it('should lift the glyph to the focused tier and draw the 12% circle in its ink for keyboard focus, not for a click', async () => {
