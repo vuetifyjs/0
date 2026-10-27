@@ -1207,29 +1207,39 @@ describe('quMenu', () => {
       ]))
     }
 
-    async function offset (width: number): Promise<number> {
+    /** Pixels from the start of the row's text to the sheet's start edge, with the list flush against the screen's start edge. */
+    async function offset (width: number, dir: 'ltr' | 'rtl' = 'ltr'): Promise<number> {
       await page.viewport(width, 800)
       document.body.dataset.reducedMotion = 'reduce'
       const selected = shallowRef<unknown>('Beebeep')
       const host = setting(selected)
+      Object.assign(host.style, { padding: '0' })
+      host.dir = dir
       await settle()
 
       await userEvent.click(host.querySelector<HTMLElement>('.md1-list__tile')!)
       await expect.poll(() => sheet()?.matches(':popover-open')).toBe(true)
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 
-      const label = row('Beebeep').querySelector('.md1-menu__label')!.getBoundingClientRect()
+      const rect = sheet().getBoundingClientRect()
       const text = host.querySelector('.md1-list__primary')!.getBoundingClientRect()
 
-      return Math.round(label.left - text.left)
+      expect(rect.left).toBeGreaterThanOrEqual(16)
+      expect(rect.right).toBeLessThanOrEqual(document.documentElement.clientWidth - 16)
+
+      return Math.round(dir === 'rtl' ? text.right - rect.right : rect.left - text.left)
     }
 
-    it('should line the selected label up with the row text on the 16 dp handset keyline', async () => {
+    it('should start the sheet at the row text on the 16 dp handset keyline', async () => {
       expect(await offset(412)).toBe(0)
     })
 
-    it('should line the selected label up with the row text on the 24 dp keyline from 600 px', async () => {
+    it('should start the sheet at the row text on the 24 dp keyline from 600 px', async () => {
       expect(await offset(768)).toBe(0)
+    })
+
+    it('should start the sheet at the row text from the right under RTL', async () => {
+      expect(await offset(412, 'rtl')).toBe(0)
     })
   })
 
