@@ -18,7 +18,7 @@ rendering "Placeholder — <label> · <gap>".
 | Gap | Needed by (pages) | Layer | Notes |
 |---|---|---|---|
 | Charting (bar / line / area / donut, interactive) | all 9 dashboards | Both | No `createChart` in v0, no `EmChart`. Static likeness shipped as CSS flex bars, SVG polylines, and `conic-gradient` rings with real data labels. Anything interactive (tooltips, zoom, legend toggle) needs a real primitive. |
-| Calendar / date-grid | Calendar | v0 (narrowed) | CLOSED at the Emerald layer: `EmCalendar` ships an APG-grid month view with a module-private date engine; v0's `DateAdapter` slots in via optional injection when a date plugin exists. Remaining v0 gap: `createCalendar`/date-grid primitive + a non-throwing plain-Date default adapter (see the graduation spec's roadmap inputs). |
+| Calendar / date-grid | Calendar | v0 (narrowed) | CLOSED at the Emerald layer: `EmCalendar` keeps a private month engine. `createDate()` and in-component `useDate()` default to `PlainDateAdapter`. `useDate()` outside a component still throws. The month-grid composable is still open. |
 | Command palette (⌘K) | topbar, all pages | Both | The pieces exist (`Combobox`, `useHotkey`) but no assembled compound. Topbar search is an `EmTextField` with a ⌘K hint only — no binding wired, rather than faked. |
 | Notification popover panel | topbar, all pages | Emerald (narrowed) | `EmPopover` now ships (the theme customizer proves it); the bell button remains inert pending a notification-panel composition — small follow-up, no primitive missing. |
 | Circular progress variant | Sales, Logistics, Campaign, Payments, Orders | Emerald | `EmProgress` is linear-only; rings are hand-rolled `conic-gradient`. Candidate: `variant="circular"`. |

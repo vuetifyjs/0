@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Adapters
+import { PlainDateAdapter } from './adapters/plain'
 import { Temporal, V0DateAdapter } from './adapters/v0'
 
 import { deriveWeekInfo } from './weekinfo'
@@ -1558,6 +1559,13 @@ describe('createDate', () => {
   })
 
   describe('createDate', () => {
+    it('should default to PlainDateAdapter when no adapter is passed', () => {
+      const { adapter } = createDate()
+
+      expect(adapter).toBeInstanceOf(PlainDateAdapter)
+      expect(adapter.toISO(adapter.parseISO('2026-02-01'))).toBe('2026-02-01')
+    })
+
     it('should create date context with adapter', () => {
       const adapter = new V0DateAdapter('en-US')
       const dateContext = createDate({ adapter })
@@ -1762,6 +1770,54 @@ describe('createDate', () => {
         expect(caught.code).toBe('V0_PLUGIN_MISSING')
         expect(caught.plugin).toBe('createDatePlugin')
       }
+    })
+
+    it('should fall back to PlainDateAdapter inside a component when no plugin is installed', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent } = await import('vue')
+
+      let name = ''
+
+      const TestComponent = defineComponent({
+        setup () {
+          name = useDate().adapter.constructor.name
+
+          return {}
+        },
+        template: '<div />',
+      })
+
+      const wrapper = mount(TestComponent)
+
+      expect(name).toBe('PlainDateAdapter')
+
+      wrapper.unmount()
+    })
+
+    it('should install PlainDateAdapter when the plugin is given no adapter', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent } = await import('vue')
+
+      let name = ''
+
+      const TestComponent = defineComponent({
+        setup () {
+          name = useDate().adapter.constructor.name
+
+          return {}
+        },
+        template: '<div />',
+      })
+
+      const wrapper = mount(TestComponent, {
+        global: {
+          plugins: [createDatePlugin()],
+        },
+      })
+
+      expect(name).toBe('PlainDateAdapter')
+
+      wrapper.unmount()
     })
   })
 
