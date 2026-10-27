@@ -40,6 +40,8 @@ interface Option {
   'disabled'?: boolean
   'ariaLabel'?: string
   'aria-labelledby'?: string
+  'aria-describedby'?: string
+  'class'?: string
 }
 
 const SIZES: Option[] = [
@@ -161,6 +163,21 @@ describe('quRadio', () => {
       await settle()
 
       expect(controls[0]!.getAttribute('aria-labelledby')).toBe('option-name')
+      expect(warn).toHaveBeenCalledTimes(0)
+    })
+
+    it('should put a consumer aria-describedby and aria-labelledby on the control, not the root label', async () => {
+      using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const { host, controls } = group({}, [{ 'value': 'a', 'aria-labelledby': 'option-name', 'aria-describedby': 'option-note', 'class': 'consumer' }])
+      await settle()
+
+      const label = host.querySelector<HTMLLabelElement>('.md1-radio')!
+
+      expect(controls[0]!.getAttribute('aria-describedby')).toBe('option-note')
+      expect(label.hasAttribute('aria-describedby')).toBe(false)
+      expect(label.hasAttribute('aria-labelledby')).toBe(false)
+      expect(label.classList.contains('consumer')).toBe(true)
       expect(warn).toHaveBeenCalledTimes(0)
     })
 
