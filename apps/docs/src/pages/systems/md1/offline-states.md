@@ -101,7 +101,19 @@ To show that something can be downloaded, pair the download glyph with the word 
 
 While the episode downloads, a determinate `Md1ProgressCircular` takes the button's place, at the 24 dp size of the glyph it replaces.[^download-ring] When it completes, the offline pin and "Offline" appear in the same spot. The guidelines describe this as the download glyph turning into the offline pin, with the progress indicator as the transition between the two. The circle is announced with its `aria-label` and value; the final state is a status message.
 
-While offline, let people pick files to download later, when a connection is back.
+While offline, let people pick files to download later, when a connection is back; the next example shows how.
+:::
+
+::: ds-example
+/systems/md1/offline-states/queue
+
+### Choosing downloads while offline
+
+The guidelines ask that offline users can still select files to download once they are connected. The example starts offline: the Connection row says "No internet" with the cloud-off glyph, and its switch stands in for the network. Press Download on an episode or two. Instead of failing, each one is queued, and its row shows the schedule glyph and "Waiting for connection" where the button was.
+
+Turn the switch on and the queued episodes start downloading together, each through the same determinate `Md1ProgressCircular` and offline pin as the example above. Going offline again mid-download sends a running download back to the queue with its progress kept, and it resumes when the connection returns. No dialog asks the user to try later, and no error is shown: a download chosen offline is a request the app can keep.
+
+Each queued row is a status message, so a screen reader hears "Waiting for connection" as the choice is made.[^queue-glyph]
 :::
 
 ::: ds-example
@@ -142,3 +154,5 @@ Do not rely on color or a dimmed row alone to say that something is unavailable 
 [^snackbar-timeout]: Vuetify 1.5.24, components/VSnackbar/VSnackbar.ts:22-24. The 6000 ms `timeout` default.
 
 [^download-ring]: Our call: the page shows the progress indicator without a size; matching the 24 dp glyph keeps the row still.
+
+[^queue-glyph]: Our call: the page names no glyph or label for a queued download; the schedule glyph and "Waiting for connection" are the example's.
