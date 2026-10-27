@@ -97,6 +97,10 @@ Reach for `toElement` whenever a composable or utility function accepts a flexib
 
 It extracts and returns the instance's `$el`. Refs and getters are unwrapped, raw elements pass through, and `null`/`undefined` resolve to `undefined`.
 
+??? Why does a ref to a Vapor component resolve to undefined?
+
+Under Vue 3.6 Vapor mode, a template ref to a Vapor component has no `$el`: it is either the raw Vapor instance or a proxy over the component's exposed object. Have the component call `defineExpose({ $el: root })` with a template ref to its root element. See [Component refs](/guide/integration/vapor#component-refs) in the Vapor guide.
+
 ??? Why does it use a structural `{ readonly value: T }` type instead of Vue's Ref?
 
 To accept refs from any Vue version without nominal type mismatches — the structural shape matches a ref regardless of which Vue build produced it.
