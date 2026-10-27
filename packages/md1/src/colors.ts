@@ -152,11 +152,15 @@ export const md1Colors = {
   'icon-focused': alpha(black, 0.87),
   // State overlays (buttons page). `hover` is the text-fields page's box fill
   // and the selection-control halo the sheets measure; `list-hover` is
-  // Vuetify 1.5's list-tile hover for lists and menus (th:51-52).
+  // Vuetify 1.5's list-tile hover for lists and menus (th:51-52);
+  // `list-selected` is the selected list item's full-bleed band, sampled
+  // from the navigation drawer page's "List item selected" figure (#E8E8E8
+  // on the #FAFAFA drawer).
   'focus': alpha(black, 0.12),
   'pressed': alpha('#999999', 0.4),
   'hover': alpha(black, 0.06),
   'list-hover': alpha(black, 0.04),
+  'list-selected': alpha(black, 0.07),
   'button-disabled': alpha(black, 0.12),
   'button-disabled-text': alpha(black, 0.26),
   // Lead decision 2: Vuetify 1.5's overlay for dialogs and the temporary
@@ -209,6 +213,8 @@ export const md1DarkColors = {
   'pressed': alpha('#CCCCCC', 0.25),
   'hover': alpha(white, 0.1),
   'list-hover': alpha(white, 0.08),
+  // A decision: the figure is light only, so dark mirrors the 7% in white.
+  'list-selected': alpha(white, 0.07),
   'button-disabled': alpha(white, 0.12),
   'button-disabled-text': alpha(white, 0.3),
   'scrim': alpha(md1Palette['grey-900'], 0.46),

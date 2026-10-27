@@ -603,18 +603,15 @@
   }
 
   /*
-   * A selected option also carries the selection pattern's scrim, whose value
-   * the pattern page omits: the selected-row fill of the data tables page,
-   * Grey 100, which is Vuetify 1.5's table.active (th:83-84). Dark takes
-   * Vuetify's #505050 (th:188-189), written as Md1DataTable writes it. The
-   * hover and focus overlays layer over it as background images.
+   * A selected item, current destination or option, also sits on a
+   * full-bleed band: the navigation drawer page's "List item selected"
+   * figure draws #E8E8E8 across the 48 dp row on the #FAFAFA drawer, black
+   * at about 7%, the selection pattern's scrim (`--md1-list-selected`; white
+   * 7% on dark, a decision). An overlay, not an opaque grey, so it reads on
+   * any sheet; hover and focus layer over it as background images.
    */
-  .md1-list:not([data-select='none']) .md1-list__item[data-selected] > .md1-list__tile {
-    background-color: var(--md1-grey-100, #F5F5F5);
-  }
-
-  [data-theme='md1-dark'] .md1-list:not([data-select='none']) .md1-list__item[data-selected] > .md1-list__tile {
-    background-color: color-mix(in srgb, var(--md1-grey-700, #616161) 50%, var(--md1-grey-800, #424242));
+  .md1-list__item[data-selected] > .md1-list__tile {
+    background-color: var(--md1-list-selected, rgba(0, 0, 0, 0.07));
   }
 
   /* Disabled: text at 38% (50% dark) and icons at the inactive 38%; the tile answers to nothing. */
