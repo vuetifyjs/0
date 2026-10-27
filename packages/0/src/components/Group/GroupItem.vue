@@ -22,9 +22,9 @@
     /** Value associated with this item */
     value?: V
     /** Disables this specific item */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Sets the indeterminate state (for checkboxes) */
-    indeterminate?: MaybeRefOrGetter<boolean>
+    indeterminate?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
   }

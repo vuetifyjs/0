@@ -44,7 +44,7 @@
     /** Value associated with this tab (used to match with TabsPanel) */
     value?: V
     /** Disables this specific tab */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
     /** Accessible label for this tab */

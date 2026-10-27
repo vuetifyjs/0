@@ -547,6 +547,8 @@ function useFoo (options: UseFooOptions = {}) {
 
 **Do not apply to.** Configuration that is fixed at construction time — `namespace`, `events`, `adapter`. Those stay plain `T`. [intent:133]
 
+**Component props — keep a bare `boolean` member.** A component prop that accepts a reactive boolean is typed `boolean | MaybeRefOrGetter<boolean>`, never `MaybeRefOrGetter<boolean>` alone. The two are the same TypeScript type, but the SFC compiler cannot resolve `MaybeRefOrGetter` when it infers the runtime prop declaration. Without the bare `boolean` it emits no `Boolean` type, so Vue skips boolean casting and `<Menu.Item disabled>` arrives as `''`, which is falsy. The explicit member gives the prop `type: Boolean`, and refs and getters still pass through untouched. `conventions.meta.test.ts` locks this.
+
 **Caller side — forwarding a destructured prop.** When a component forwards a destructured prop into a `MaybeRefOrGetter<T>` parameter, wrap it as a getter — `gap: () => gap` — never pass the value directly. With Vue 3.5+ reactive props destructure, `gap` *is* reactive when read inside a getter, but reading it inline at object-literal construction captures the value once and `toValue()` will return that snapshot forever after.
 
 ```ts

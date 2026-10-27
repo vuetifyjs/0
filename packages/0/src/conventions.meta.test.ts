@@ -545,6 +545,32 @@ describe('written conventions', () => {
     expect(problems).toEqual([])
   })
 
+  it('should spell reactive boolean component props with a bare boolean member', () => {
+    // The SFC compiler cannot resolve MaybeRefOrGetter, so a prop typed only as
+    // MaybeRefOrGetter<boolean> loses its runtime Boolean type and `<X disabled>` arrives as ''.
+    const problems: string[] = []
+    const files = walk(path.join(SRC, 'components'), file => (file.endsWith('.vue') || file.endsWith('types.ts')) && !file.includes(`${path.sep}fixtures${path.sep}`))
+
+    for (const file of files) {
+      for (const script of scriptsOf(read(file), file)) {
+        const source = ts.createSourceFile(file, script, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+
+        for (const statement of source.statements) {
+          if (!ts.isInterfaceDeclaration(statement)) continue
+          const name = statement.name.text
+          if (!name.endsWith('Props') || name.endsWith('SlotProps')) continue
+          for (const member of statement.members) {
+            if (!ts.isPropertySignature(member) || !member.type) continue
+            if (!/^MaybeRef(?:OrGetter)?<boolean>$/.test(member.type.getText(source))) continue
+            problems.push(`${repoPath(file)} ${name}.${member.name.getText(source)}`)
+          }
+        }
+      }
+    }
+
+    expect(problems).toEqual([])
+  })
+
   it('should escape dynamic querySelector templates', () => {
     const problems: string[] = []
     const files = walk(SRC, file => /\.(?:ts|vue)$/.test(file) && !file.includes('.test.') && !file.endsWith('.bench.ts'))

@@ -35,7 +35,7 @@
     /** Typeahead text. Falls back to the item's text. */
     label?: string
     /** Disables this item */
-    disabled?: MaybeRefOrGetter<boolean>
+    disabled?: boolean | MaybeRefOrGetter<boolean>
     /** Injection key of the owning menu. @default 'v0:menu' */
     namespace?: string
   }
