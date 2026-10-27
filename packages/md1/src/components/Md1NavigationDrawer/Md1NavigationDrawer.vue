@@ -494,6 +494,20 @@
     opacity: 0;
   }
 
+  /*
+   * Forced colours repaint the transparent text, so there the body is clipped
+   * to the 72 dp icon column instead; clipped text keeps its accessible name.
+   */
+  @media (forced-colors: active) {
+    .md1-navigation-drawer[data-mini]:not([data-open]) .md1-list__body {
+      clip-path: inset(0 calc(100% - 72px) 0 0);
+    }
+
+    .md1-navigation-drawer[data-mini]:not([data-open]) .md1-list__body:dir(rtl) {
+      clip-path: inset(0 0 0 calc(100% - 72px));
+    }
+  }
+
   /* Clipped: starts under the app bar, one increment down (56 dp, 64 dp from 600 px; scrolling techniques page). */
   .md1-navigation-drawer[data-clipped]:not([data-type='temporary']) {
     inset-block-start: var(--md1-increment, 56px);
