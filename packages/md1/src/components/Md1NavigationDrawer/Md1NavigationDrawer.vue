@@ -472,6 +472,28 @@
     opacity: 0;
   }
 
+  /*
+   * The labels start on the 72 dp keyline, inside the 80 px rail, so their
+   * first 8 px would show beside the icons. At rest they are transparent:
+   * bare item text through its colour, a Content part through its opacity.
+   * Both stay in the accessibility tree and keep naming the destinations.
+   */
+  .md1-navigation-drawer[data-mini] .md1-list__body {
+    transition: color var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .md1-navigation-drawer[data-mini] .md1-list__content {
+    transition: opacity var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .md1-navigation-drawer[data-mini]:not([data-open]) .md1-list__body {
+    color: transparent;
+  }
+
+  .md1-navigation-drawer[data-mini]:not([data-open]) .md1-list__content {
+    opacity: 0;
+  }
+
   /* Clipped: starts under the app bar, one increment down (56 dp, 64 dp from 600 px; scrolling techniques page). */
   .md1-navigation-drawer[data-clipped]:not([data-type='temporary']) {
     inset-block-start: var(--md1-increment, 56px);
@@ -635,7 +657,9 @@
   body[data-reduced-motion='reduce'] .md1-navigation-drawer,
   body[data-reduced-motion='reduce'] .md1-navigation-drawer::backdrop,
   body[data-reduced-motion='reduce'] .md1-navigation-drawer__header > *,
-  body[data-reduced-motion='reduce'] .md1-navigation-drawer .md1-subheader {
+  body[data-reduced-motion='reduce'] .md1-navigation-drawer .md1-subheader,
+  body[data-reduced-motion='reduce'] .md1-navigation-drawer .md1-list__body,
+  body[data-reduced-motion='reduce'] .md1-navigation-drawer .md1-list__content {
     transition: none;
   }
 
@@ -643,7 +667,9 @@
     body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer,
     body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer::backdrop,
     body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer__header > *,
-    body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer .md1-subheader {
+    body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer .md1-subheader,
+    body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer .md1-list__body,
+    body:not([data-reduced-motion='no-preference']) .md1-navigation-drawer .md1-list__content {
       transition: none;
     }
   }
