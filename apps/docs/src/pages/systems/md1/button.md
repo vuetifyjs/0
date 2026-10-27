@@ -115,6 +115,16 @@ Nothing changes on the button itself: `data-theme="md1-dark"` on any ancestor sw
 :::
 
 ::: ds-example
+/systems/md1/button/placement
+
+### Placement in forms and dialogs
+
+The page's recommended placement depends on the container. In a form, the buttons align to the start edge with the affirmative button first: Save, then Cancel. In a standard dialog they align to the end edge with the affirmative button last: Cancel, then Discard. Cards are best served by start-aligned buttons too, though their flexible layouts allow a placement that suits the content, kept consistent across the product. For non-standard dialogs the page follows the content: simple content takes the dialog order, and lengthy or complex forms take the form order.
+
+The button carries no placement of its own; the row it sits in decides. `Md1Dialog.Actions` already aligns a dialog's pair to the end, so a form row is the case you lay out yourself, with `justify-content: flex-start` and the affirmative button first in source order. Both rows use logical alignment, so under `dir="rtl"` the form's buttons move to the right edge and the dialog's to the left, each still reading affirmative first or last in the reading direction. The page writes "left" and "right" for a left-to-right layout.
+:::
+
+::: ds-example
 /systems/md1/button/footer
 
 ### Persistent footer
