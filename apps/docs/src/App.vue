@@ -679,7 +679,7 @@
   .app-shell {
     --docs-code-size: 0.8125rem;
     /* Long example files scroll inside this cap. Shorter files never reach it. */
-    --docs-code-window-max: min(42rem, 105vh);
+    --docs-code-window-max: min(56rem, 105vh);
   }
 
   .app-shell[data-code-size='medium'] {
