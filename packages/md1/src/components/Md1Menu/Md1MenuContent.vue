@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Menu } from '@vuetify/v0'
+  import { IN_BROWSER, isNull, Menu, useMenuRoot } from '@vuetify/v0'
 
   // Context
   import { orphan, useMd1Menu } from './Md1Menu.vue'
@@ -17,7 +17,8 @@
   /**
    * Material Design 1 withholds `positionArea` and `positionTry`: a simple menu
    * with a selected item opens over the emitting element with that item on top
-   * of it, aligned to its start edge; a menu with no selection opens below it.
+   * of it, its text on the emitter's text (a list row or a labelled button) or
+   * else its start edge on the emitter's; a menu with no selection opens below it.
    * Either way the sheet moves as a whole near a screen edge (menus page).
    * `value` stays internal: one Md1Menu is one layer.
    */
@@ -42,12 +43,30 @@
   const dense = toRef(() => context?.dense.value ?? false)
   const desktop = toRef(() => context?.desktop.value ?? false)
 
+  const menu = useMenuRoot(namespace.value)
+
+  /*
+   * The emitter's text, which the selected row's text lands on (menus page,
+   * "Horizontal alignment"): a list row's text column, whatever keyline the
+   * list sets it on, or a labelled button's content. An emitter with neither
+   * keeps the sheet's start edge on its own.
+   */
+  function label (): Element | null {
+    if (!IN_BROWSER) return null
+
+    const trigger = document.querySelector(`#${CSS.escape(menu.triggerId(menu.defaultLayer))}`)
+
+    return isNull(trigger) ? null : trigger.querySelector('.md1-list__content, .md1-button__content')
+  }
+
   // The selected row lands on the emitting element (menus page, "Location"). A
   // cascading sub sheet is not a simple menu: it keeps its place beside its row.
   provideOver({
     item: sheet => Object.hasOwn(sheet.dataset, 'sub')
       ? null
       : sheet.querySelector<HTMLElement>(':scope > .md1-menu__list > [data-selected]'),
+    text: row => row.querySelector('.md1-menu__label'),
+    label,
   })
 </script>
 
