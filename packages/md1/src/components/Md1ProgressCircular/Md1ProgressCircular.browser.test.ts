@@ -360,7 +360,8 @@ describe('quProgressCircular', () => {
       const [light, dark, fab, teal] = host.querySelectorAll<HTMLElement>('.md1-progress-circular')
 
       expect(getComputedStyle(arc(light!)).stroke).toBe('rgb(63, 81, 181)')
-      expect(getComputedStyle(arc(dark!)).stroke).toBe('rgb(63, 81, 181)')
+      // A lighter tone of the primary on the dark sheet: Indigo 100, 6.2:1 on Grey 800 against the 500's 1.5:1.
+      expect(getComputedStyle(arc(dark!)).stroke).toBe('rgb(197, 202, 233)')
       expect(getComputedStyle(arc(fab!)).stroke).toBe('rgb(255, 64, 129)')
       expect(getComputedStyle(arc(teal!)).stroke).toBe('rgb(0, 150, 136)')
     })
