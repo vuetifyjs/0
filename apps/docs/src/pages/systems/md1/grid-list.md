@@ -107,6 +107,16 @@ A tile can span more than one cell with `span` (across) and `rowSpan` (down). A 
 :::
 
 ::: ds-example
+/systems/md1/grid-list/centred
+
+### Centred grid list
+
+The guidelines size a grid list one of two ways. A full-screen grid list, the default above, keeps fluid tiles between a minimum and a maximum width. A centred grid list does the opposite: "Centered grid lists have fluid margins with a minimum width. They maintain fixed image widths, heights, and padding." It is the grid list form of the layout page's [centred grid](/systems/md1/layout#column-grid), whose columns are fixed and whose layout reflows "when all columns (plus a defined margin) no longer fit on screen."
+
+`Md1GridList` has no prop for it, because it is a layout around the list, not a kind of tile. The example sets the grid's columns to a fixed track of three increments (168 dp, 192 dp from 600 px), caps the list at four of them, centres it, and keeps a 16 dp margin as the minimum. Widen the example and the margins grow while the tiles stay put; narrow it and a whole column drops before any tile shrinks. The tile width and the column cap are Material Design 1 decisions; the page gives neither.[^centred]
+:::
+
+::: ds-example
 /systems/md1/grid-list/horizontal
 
 ### Horizontal gallery
@@ -209,3 +219,5 @@ When a grid list mounts, the tiles fade and lift in left to right, then top to b
 [^selection]: Our call: the selection page names the accent but no alpha; 30% keeps the image readable under it.
 
 [^hover]: Our call: Vuetify 1.5 has no grid list, so the tile keeps the `--md1-hover` tier.
+
+[^centred]: Our call: the page states the centred grid list's behaviour without a tile width or a column count; three increments matches the horizontal gallery's tile.
