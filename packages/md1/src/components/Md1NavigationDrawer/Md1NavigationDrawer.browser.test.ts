@@ -538,6 +538,11 @@ describe('quNavigationDrawer', () => {
       expect(getComputedStyle(host.querySelector('#subheader')!).opacity).toBe('0')
       expect(getComputedStyle(host.querySelector('.md1-navigation-drawer__account')!).opacity).toBe('0')
 
+      // The labels on the 72 dp keyline would show 8 px inside the rail: none of them is visible.
+      expect(getComputedStyle(host.querySelector('#inbox .md1-list__content')!).opacity).toBe('0')
+      expect(getComputedStyle(host.querySelector('#inbox .md1-list__body')!).color).toBe('rgba(0, 0, 0, 0)')
+      expect(host.querySelector('#inbox')!.textContent).toContain('Inbox')
+
       host.querySelector<HTMLElement>('#inbox')!.focus()
 
       expect(document.activeElement!.id).toBe('inbox')
@@ -562,6 +567,7 @@ describe('quNavigationDrawer', () => {
 
       expect(sheet(host).clientWidth).toBe(320)
       expect(getComputedStyle(host.querySelector('#subheader')!).opacity).toBe('1')
+      expect(getComputedStyle(host.querySelector('#inbox .md1-list__content')!).opacity).toBe('1')
     })
 
     it('should warn in dev on a permanent drawer, which never closes', async () => {
@@ -600,6 +606,7 @@ describe('quNavigationDrawer', () => {
       expect(icon.getBoundingClientRect().left - el.getBoundingClientRect().left).toBe(16)
       expect(getComputedStyle(el.querySelector('.md1-subheader')!).opacity).toBe('0')
       expect(getComputedStyle(el.querySelector('.md1-navigation-drawer__account')!).opacity).toBe('0')
+      expect(getComputedStyle(el.querySelector('.md1-list__content')!).opacity).toBe('0')
     })
 
     it('should choose a destination from the rail without opening the drawer', async () => {
