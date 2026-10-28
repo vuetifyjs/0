@@ -1,15 +1,21 @@
 <script lang="ts">
+  import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1Ripple, Md1Switch } from '@paper/md1'
+
   // Framework
-  import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1Switch } from '@paper/md1'
+  import { Button } from '@vuetify/v0'
+
+  import { sales } from './Md1Data'
 
   // Utilities
   import { shallowRef } from 'vue'
+  import { useRouter } from 'vue-router'
 
+  /** Each gauge tile presses through to the page behind its number. */
   const gauges = [
-    { label: 'Storage', value: 82 },
-    { label: 'Bandwidth', value: 64 },
-    { label: 'Sessions', value: 41 },
-    { label: 'Errors', value: 7 },
+    { label: 'Storage', value: 82, to: '/md1/files' },
+    { label: 'Bandwidth', value: 64, to: '/md1/orders' },
+    { label: 'Sessions', value: 41, to: '/md1/activity' },
+    { label: 'Errors', value: 7, to: '/md1/help' },
   ]
 
   /** 2 * PI * r for the r=20 gauge ring. */
@@ -45,25 +51,14 @@
   const line = traffic.map((point, index) => `${x(index)},${y(point.sessions)}`).join(' ')
   const area = `${LEFT},${BOTTOM} ${line} ${RIGHT},${BOTTOM}`
 
-  type Region = {
-    id: number
-    region: string
-    orders: number
-    revenue: number
-    share: number
-  }
-
-  const regions: Region[] = [
-    { id: 1, region: 'North America', orders: 1240, revenue: 48200, share: 38 },
-    { id: 2, region: 'Europe', orders: 980, revenue: 39400, share: 31 },
-    { id: 3, region: 'Asia Pacific', orders: 640, revenue: 22100, share: 17 },
-    { id: 4, region: 'South America', orders: 310, revenue: 11900, share: 9 },
-    { id: 5, region: 'Africa', orders: 150, revenue: 6300, share: 5 },
-  ]
+  /** The regions table rows live in the shared store (Md1Data). */
+  const regions = sales.all
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'Md1Dashboard' })
+
+  const router = useRouter()
 
   const performance = shallowRef(true)
   const refresh = shallowRef(true)
@@ -73,7 +68,16 @@
 
 <template>
   <div class="md1-demo-dash">
-    <Md1Card v-for="gauge in gauges" :key="gauge.label" class="md1-demo-tile">
+    <!-- The documented ripple escape hatch: a v0 Button.Root sheet hosting
+         Md1Ripple as its first child (ripple page). -->
+    <Button.Root
+      v-for="gauge in gauges"
+      :key="gauge.label"
+      class="md1-demo-tile md1-elevation-2"
+      @click="router.push(gauge.to)"
+    >
+      <Md1Ripple />
+
       <svg
         :aria-label="`${gauge.label} at ${gauge.value} percent`"
         class="md1-demo-gauge"
@@ -104,7 +108,7 @@
       </svg>
 
       <span class="md1-type-body-2 md1-demo-tile__label">{{ gauge.label }}</span>
-    </Md1Card>
+    </Button.Root>
 
     <Md1Card class="md1-demo-wide">
       <Md1Card.Title>Traffic this week</Md1Card.Title>
@@ -241,12 +245,28 @@
     }
   }
 
+  /* A pressable sheet (ripple page's composition): surface, 2 dp, the ripple inside. */
   .md1-demo-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--md1-spacing-1, 8px);
+    margin: 0;
     padding: var(--md1-spacing-2, 16px);
+    border: 0;
+    border-radius: var(--md1-radius, 2px);
+    background: var(--md1-surface, #FFFFFF);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .md1-demo-tile:focus-visible {
+    outline: 2px solid var(--md1-accent, #FF4081);
+    outline-offset: 2px;
   }
 
   .md1-demo-tile__label {
