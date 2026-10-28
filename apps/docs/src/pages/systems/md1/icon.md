@@ -190,7 +190,7 @@ There are no slots.
 
 | Export | What it is |
 |--------|------------|
-| `md1Icons` | The 84 canonical glyphs, role to path data |
+| `md1Icons` | The 87 canonical glyphs, role to path data |
 | `md1IconAliases` | The 27 aliases, role to `{target}` reference |
 | `md1IconMirrors` | The 13 roles that flip in RTL, `true` or `'conditional'` |
 | `createMd1IconsPlugin` | Installs the registry on an app; takes `icons`, `aliases`, `mirrors` and `namespace` |

@@ -38,7 +38,7 @@ The Material Design 1 list. One continuous column of one-, two- and three-line t
 
 `Md1List` is a compound: the root is the `ul`, every row is an `Md1List.Item`, and the anatomy inside a row is made of parts. The whole tile is the row's primary action. Give an item a `value` (or an `href`, or a click listener) and its tile becomes a button or a link; an item with none of them is a static row.
 
-Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour, the selected band and `aria-current`. On the dark theme the ink is a lighter tone of the primary, `--md1-primary-ink`, Indigo 100 for the default theme: 5.1:1 on the selected band and 6.2:1 on the Grey 800 sheet.[^dark]
+Bind `v-model` on a navigation list and the item whose `value` matches is the current destination: it takes the primary colour, the selected band and `aria-current`.
 
 ::: ds-example
 /systems/md1/list/basic
@@ -249,6 +249,8 @@ A tile's accessible name is its text, primary then secondary. The avatar's image
 ### Focus and states
 
 Hover lays Vuetify 1.5's list hover over the tile, 4% black (8% white on the dark theme),[^hover] and keyboard focus a 12% overlay, drawn for `:focus-visible` only; pressing draws the ripple from the press point. Under forced colours, a 2 px outline draws in place of the focus overlay. A disabled item drops its text to 38% and its icon to the inactive ink, and its tile answers to nothing: a disabled button is out of the tab order, a disabled link loses its `href`, and a disabled option is skipped by the arrow keys.
+
+On the dark theme the current destination's ink is a lighter tone of the primary, `--md1-primary-ink`, Indigo 100 for the default theme: 5.1:1 on the selected band and 6.2:1 on the Grey 800 sheet.[^dark]
 
 ### Motion
 
