@@ -1,15 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createDateContext } from '#v0/composables/useDate'
+
 // Adapters
 import { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 
 import { createCalendar } from './index'
 
 // Utilities
-import { effectScope, nextTick, shallowRef } from 'vue'
+import { mount } from '@vue/test-utils'
+import { computed, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { CalendarCell, CalendarContext, CalendarOptions } from './index'
+import type { CalendarCell, CalendarContext, CalendarOptions, CalendarRange } from './index'
 
 describe('createCalendar', () => {
   beforeEach(() => {
@@ -95,9 +99,45 @@ describe('createCalendar', () => {
 
       expect(sunday.calendar.weekdays.value).toHaveLength(7)
       expect(sunday.calendar.weekdays.value[0]).not.toBe(monday.calendar.weekdays.value[0])
+      expect(sunday.calendar.label.value).toContain('February')
 
       sunday.stop()
       monday.stop()
+    })
+
+    it('should treat a negative first day as a Saturday start', () => {
+      const { calendar, stop } = setup({ month: '2026-02', firstDayOfWeek: -1 })
+
+      expect(calendar.month.value.weeks[0]![0]!.iso).toBe('2026-01-31')
+
+      stop()
+    })
+
+    it('should label weekdays from an owned locale and follow a locale ref', async () => {
+      const locale = shallowRef('fr-FR')
+      const { calendar, stop } = setup({ month: '2026-02', locale, firstDayOfWeek: 0 })
+
+      expect(calendar.weekdays.value[0]).toBe('D')
+
+      locale.value = 'en-US'
+      await nextTick()
+
+      expect(calendar.weekdays.value[0]).toBe('S')
+
+      stop()
+    })
+
+    it('should read weekday labels from an explicit adapter', () => {
+      const { calendar, stop } = setup({
+        month: '2026-02',
+        adapter: new PlainDateAdapter('fr-FR'),
+      })
+
+      expect(calendar.weekdays.value[0]).toBe('L')
+      expect(calendar.label.value).toContain('février')
+      expect(calendar.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
+
+      stop()
     })
   })
 
@@ -217,15 +257,78 @@ describe('createCalendar', () => {
     })
 
     it('should ignore select when readonly and still page', () => {
-      const { calendar, stop } = setup({ month: '2026-08', readonly: true })
+      const { calendar, stop } = setup({ month: '2026-08', readonly: true, value: '2026-08-04' })
 
       expect(cell(calendar, '2026-08-12').disabled).toBe(false)
 
       calendar.select('2026-08-12')
+      calendar.unselect()
       calendar.next()
 
-      expect(calendar.value.value).toBeUndefined()
+      expect(calendar.value.value).toBe('2026-08-04')
       expect(calendar.anchor.value).toBe('2026-09')
+
+      stop()
+    })
+
+    it('should clear a selection with unselect', () => {
+      const { calendar, stop } = setup({ month: '2026-08' })
+
+      calendar.select('2026-08-12')
+      calendar.unselect()
+
+      expect(calendar.value.value).toBeUndefined()
+      expect(cell(calendar, '2026-08-12').selected).toBe(false)
+
+      stop()
+    })
+
+    it('should write a range ref and follow an external range', async () => {
+      const model = shallowRef<CalendarRange>({})
+      const { calendar, stop } = setup({ month: '2026-08', mode: 'range', value: model })
+
+      calendar.select('2026-08-10')
+      calendar.select('2026-08-12')
+
+      expect(model.value).toEqual({ start: '2026-08-10', end: '2026-08-12' })
+
+      model.value = { start: '2026-08-02', end: '2026-08-03' }
+      await nextTick()
+
+      expect(calendar.value.value).toEqual({ start: '2026-08-02', end: '2026-08-03' })
+      expect(cell(calendar, '2026-08-02').selected).toBe(true)
+      expect(cell(calendar, '2026-08-10').selected).toBe(false)
+
+      stop()
+    })
+
+    it('should follow an external single value', async () => {
+      const model = shallowRef<string | undefined>('2026-02-03')
+      const { calendar, stop } = setup({ month: '2026-02', value: model })
+
+      model.value = '2026-02-20'
+      await nextTick()
+
+      expect(calendar.value.value).toBe('2026-02-20')
+      expect(cell(calendar, '2026-02-20').selected).toBe(true)
+
+      stop()
+    })
+
+    it('should read an unavailable ref', async () => {
+      const unavailable = shallowRef<(iso: string) => boolean>(() => false)
+      const { calendar, stop } = setup({ month: '2026-08', unavailable })
+
+      expect(cell(calendar, '2026-08-15').unavailable).toBe(false)
+
+      unavailable.value = (iso: string) => iso === '2026-08-15'
+      await nextTick()
+
+      expect(cell(calendar, '2026-08-15').unavailable).toBe(true)
+
+      calendar.select('2026-08-15')
+
+      expect(calendar.value.value).toBeUndefined()
 
       stop()
     })
@@ -320,6 +423,156 @@ describe('createCalendar', () => {
 
       stop()
     })
+
+    it('should page without writing a readonly month', () => {
+      const month = computed(() => '2026-02')
+      const { calendar, stop } = setup({ month, firstDayOfWeek: 0 })
+
+      calendar.next()
+
+      expect(month.value).toBe('2026-02')
+      expect(calendar.anchor.value).toBe('2026-03')
+
+      stop()
+    })
+
+    it('should follow an external month and write a clamped month back', async () => {
+      const month = shallowRef('2026-02')
+      const { calendar, stop } = setup({ month, max: '2026-04-30', firstDayOfWeek: 0 })
+
+      month.value = '2026-03'
+      await nextTick()
+
+      expect(month.value).toBe('2026-03')
+      expect(calendar.anchor.value).toBe('2026-03')
+
+      month.value = 'nope'
+      await nextTick()
+
+      expect(month.value).toBe('nope')
+      expect(calendar.anchor.value).toBe('2026-03')
+
+      month.value = '2026-08'
+      await nextTick()
+
+      expect(month.value).toBe('2026-04')
+      expect(calendar.anchor.value).toBe('2026-04')
+      expect(calendar.focused.value.startsWith('2026-04')).toBe(true)
+      expect(calendar.isLast.value).toBe(true)
+
+      stop()
+    })
+
+    it('should walk by week, month, and year and stop at the walls', () => {
+      const bounded = setup({ month: '2026-08', min: '2026-08-10', max: '2026-08-20' })
+
+      bounded.calendar.goto('2026-08-12')
+      bounded.calendar.move('week', -1)
+
+      expect(bounded.calendar.focused.value).toBe('2026-08-10')
+      expect(bounded.calendar.anchor.value).toBe('2026-08')
+
+      bounded.calendar.goto('2026-08-18')
+      bounded.calendar.move('week', 1)
+
+      expect(bounded.calendar.focused.value).toBe('2026-08-20')
+
+      bounded.calendar.goto('2026-08-25')
+
+      expect(bounded.calendar.focused.value).toBe('2026-08-20')
+
+      bounded.stop()
+
+      const open = setup({ month: '2026-08' })
+
+      open.calendar.goto('2026-08-04')
+      open.calendar.move('week', 1)
+
+      expect(open.calendar.focused.value).toBe('2026-08-11')
+
+      open.calendar.move('month', 1)
+
+      expect(open.calendar.anchor.value).toBe('2026-09')
+      expect(open.calendar.focused.value).toBe('2026-09-11')
+
+      open.calendar.move('year', 1)
+
+      expect(open.calendar.anchor.value).toBe('2027-09')
+      expect(open.calendar.focused.value).toBe('2027-09-11')
+
+      open.stop()
+    })
+
+    it('should honor first and last, and ignore them when unbounded', () => {
+      const bounded = setup({ month: '2026-08', min: '2026-06-01', max: '2026-10-31' })
+
+      bounded.calendar.prev()
+
+      expect(bounded.calendar.anchor.value).toBe('2026-07')
+      expect(bounded.calendar.isFirst.value).toBe(false)
+      expect(bounded.calendar.isLast.value).toBe(false)
+
+      bounded.calendar.first()
+
+      expect(bounded.calendar.anchor.value).toBe('2026-06')
+      expect(bounded.calendar.isFirst.value).toBe(true)
+
+      bounded.calendar.last()
+
+      expect(bounded.calendar.anchor.value).toBe('2026-10')
+      expect(bounded.calendar.isLast.value).toBe(true)
+
+      bounded.stop()
+
+      const open = setup({ month: '2026-08' })
+      const anchor = open.calendar.anchor.value
+
+      open.calendar.first()
+      open.calendar.last()
+
+      expect(open.calendar.anchor.value).toBe(anchor)
+
+      open.stop()
+    })
+
+    it('should ignore a malformed goto and focus the first day of a month token', () => {
+      const { calendar, stop } = setup({ month: '2026-08' })
+
+      calendar.goto('nope')
+
+      expect(calendar.anchor.value).toBe('2026-08')
+
+      calendar.goto('2026-11')
+
+      expect(calendar.anchor.value).toBe('2026-11')
+      expect(calendar.focused.value).toBe('2026-11-01')
+
+      stop()
+    })
+
+    it('should pull the visible month back when max moves before it', async () => {
+      const max = shallowRef<string | undefined>(undefined)
+      const { calendar, stop } = setup({ month: '2026-08', max })
+
+      max.value = '2026-03-10'
+      await nextTick()
+
+      expect(calendar.anchor.value).toBe('2026-03')
+      expect(calendar.focused.value <= '2026-03-10').toBe(true)
+      expect(calendar.isLast.value).toBe(true)
+
+      stop()
+    })
+
+    it('should refuse a day that is not on the visible grid', () => {
+      const { calendar, stop } = setup({ month: '2026-02', firstDayOfWeek: 0 })
+
+      calendar.select('2026-04-01')
+
+      expect(calendar.value.value).toBeUndefined()
+
+      stop()
+    })
   })
 
   describe('timer', () => {
@@ -338,6 +591,64 @@ describe('createCalendar', () => {
       expect(vi.getTimerCount()).toBeGreaterThan(pending)
 
       stop()
+    })
+
+    it('should roll today forward at midnight', () => {
+      const { calendar, stop } = setup({ month: '2026-08' })
+
+      expect(cell(calendar, '2026-08-04').today).toBe(true)
+
+      vi.advanceTimersByTime(12 * 60 * 60 * 1000)
+
+      expect(cell(calendar, '2026-08-04').today).toBe(false)
+      expect(cell(calendar, '2026-08-05').today).toBe(true)
+
+      stop()
+    })
+
+    it('should apply a locale outside a scope without scheduling a timer', () => {
+      const pending = vi.getTimerCount()
+      const calendar = createCalendar({ month: '2026-02', locale: 'fr-FR', firstDayOfWeek: 0 })
+
+      expect(vi.getTimerCount()).toBe(pending)
+      expect(calendar.weekdays.value[0]).toBe('D')
+    })
+  })
+
+  describe('installed date context', () => {
+    it('should borrow the installed adapter, locale, and week start', () => {
+      const adapter = new PlainDateAdapter('de-DE')
+      const [, provideDate, context] = createDateContext({
+        adapter,
+        locale: 'de-DE',
+        namespace: 'v0:date',
+      })
+
+      let calendar: CalendarContext | undefined
+
+      const Child = defineComponent({
+        setup () {
+          calendar = createCalendar({ month: '2026-02' })
+        },
+        template: '<span />',
+      })
+
+      const Parent = defineComponent({
+        components: { Child },
+        setup () {
+          provideDate(context)
+        },
+        template: '<Child />',
+      })
+
+      const wrapper = mount(Parent)
+
+      expect(calendar!.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
+      expect(calendar!.weekdays.value[0]).toBe('M')
+      expect(calendar!.label.value).toContain('Februar')
+      expect(adapter.firstDayOfWeek).toBe(1)
+
+      wrapper.unmount()
     })
   })
 })
