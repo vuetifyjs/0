@@ -5,6 +5,7 @@ import { routes } from 'vue-router/auto-routes'
 import { IN_BROWSER } from '@vuetify/v0'
 
 // Composables
+import { arrivalTextFragment } from '@/composables/textFragment'
 import { getPrefersReducedMotion } from '@/composables/useSettings'
 
 // Types
@@ -34,6 +35,15 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
 
     // Avoid scrolling up (requires explicit params field)
     if ('savePosition' in to.params) return {}
+
+    // A text fragment is the painter's scroll target. On a fresh load the
+    // browser has already stripped `:~:text=` from `to.hash`, so the arrival
+    // entry is the only signal. Snapping to a saved offset or to `top: 0`
+    // would throw the highlight away.
+    if (to.hash.includes(':~:') || (isInitialNavigation && arrivalTextFragment())) {
+      isInitialNavigation = false
+      return {}
+    }
 
     // If the user navigated via browser back/forward, restore their position
     if (savedPosition) return savedPosition

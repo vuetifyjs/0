@@ -268,6 +268,7 @@
 
     <DocsApiHover />
     <DocsHighlight />
+    <DocsTextLink />
   </div>
 </template>
 

@@ -22,6 +22,8 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { useScrollSpy } from './useScrollSpy'
 import { useSettings } from './useSettings'
 
+import { arrivalTextFragment, textDirectiveSuffix } from './textFragment'
+
 // Utilities
 import { nextTick, onScopeDispose, shallowRef, toRef, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
@@ -195,6 +197,24 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     }, 500)
   }
 
+  // Chrome deletes `:~:text=` from the URL script can read, and also from a
+  // `replaceState` that tries to put it back. The heading spy must not run
+  // on that landing, or the address bar loses the link the reader arrived with.
+  const arrivedOn = IN_BROWSER ? location.pathname : ''
+  const arrived = shallowRef(IN_BROWSER && !!arrivalTextFragment())
+
+  // Heading spy rewrites the hash as the reader scrolls. A text-fragment
+  // link has to survive that rewrite, or the shared highlight disappears
+  // from the address bar. `#id:~:text=` is the spec's combined form.
+  function hashFor (id?: string): string {
+    const suffix = textDirectiveSuffix(location.hash)
+
+    if (id) return `#${id}${suffix}`
+    if (suffix) return `#${suffix}`
+
+    return location.pathname + location.search
+  }
+
   function scrollTo (id: string) {
     if (!IN_BROWSER) return
 
@@ -205,8 +225,9 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     const behavior = prefersReducedMotion.value || isInitialLoad.value ? 'auto' : 'smooth'
 
     isSyncing.value = true
+    arrived.value = false
     el.scrollIntoView({ behavior })
-    history.replaceState(history.state, '', `#${id}`)
+    history.replaceState(history.state, '', hashFor(id))
 
     if (behavior === 'auto') {
       nextTick(() => {
@@ -221,21 +242,22 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
   // Sync URL hash on user scroll (disabled on mobile to prevent scroll issues)
   watchEffect(() => {
-    if (isSyncing.value || isInitialLoad.value || breakpoints.isMobile.value) return
+    if (arrived.value || isSyncing.value || isInitialLoad.value || breakpoints.isMobile.value) return
 
     const id = scrollSpy.selectedId.value
     if (id) {
-      history.replaceState(history.state, '', `#${id}`)
+      history.replaceState(history.state, '', hashFor(id))
     } else {
-      history.replaceState(history.state, '', location.pathname + location.search)
+      history.replaceState(history.state, '', hashFor())
     }
   })
 
   // Watch for route changes
   watch(
     () => route.path,
-    () => {
+    path => {
       if (!IN_BROWSER) return
+      if (path !== arrivedOn) arrived.value = false
       nextTick(debouncedScan)
     },
     { immediate: true },
