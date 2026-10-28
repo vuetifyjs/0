@@ -1,9 +1,14 @@
 <script setup lang="ts">
-  // Components
   import { Md1Button, Md1DataTable, Md1Snackbar } from '@paper/md1'
 
+  // Framework
+  import { useDataTable } from '@vuetify/v0'
+
   // Utilities
-  import { ref, shallowRef, toRef } from 'vue'
+  import { defineComponent, nextTick, ref, shallowRef, toRef } from 'vue'
+
+  // Types
+  import type { DataTableContext } from '@vuetify/v0'
 
   interface Order {
     id: number
@@ -55,6 +60,23 @@
 
   const orders = toRef(() => all.filter(order => !gone.value.includes(order.id)))
 
+  /**
+   * The v0 pipeline keeps unsorted rows in registry registration order, so a
+   * row restored by Undo re-registers at the end. The context is grabbed from
+   * inside the table's slot (useDataTable resolves the root's provide) so Undo
+   * can hand the registry the data order back through reorder.
+   */
+  const table = shallowRef<DataTableContext<Order>>()
+
+  const Capture = defineComponent({
+    name: 'Md1OrdersCapture',
+    setup () {
+      table.value = useDataTable<Order>()
+
+      return () => null
+    },
+  })
+
   function pull (verb: string) {
     const ids = selected.value.map(order => order.id)
 
@@ -73,16 +95,22 @@
     pull('Archived')
   }
 
-  function onUndo () {
+  async function onUndo () {
     const ids = new Set(batch.value)
 
     gone.value = gone.value.filter(id => !ids.has(id))
     batch.value = []
+
+    // Once the restored rows have re-registered, realign the registry with the data order.
+    await nextTick()
+    table.value?.reorder(orders.value.map(order => order.id))
   }
 </script>
 
 <template>
   <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" selectable>
+    <Capture />
+
     <Md1DataTable.Header title="Recent orders">
       <Md1Button aria-label="Filter list" icon="filter-list" />
 
