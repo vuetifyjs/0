@@ -790,6 +790,9 @@ importers:
       '@paper/genesis':
         specifier: workspace:*
         version: link:../packages/genesis
+      '@paper/md1':
+        specifier: workspace:*
+        version: link:../packages/md1
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper

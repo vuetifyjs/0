@@ -15,7 +15,9 @@
   const emerald = computed(() => demo || route.path === '/emerald' || route.path.startsWith('/emerald/'))
 
   /** Full-bleed product shells (no playground chrome padding); the demo deploy is always bare. */
-  const bare = computed(() => demo || route.path === '/emerald' || route.path.startsWith('/emerald/'))
+  const bare = computed(() => demo
+    || route.path === '/emerald' || route.path.startsWith('/emerald/')
+    || route.path === '/md1' || route.path.startsWith('/md1/'))
 
   useHead({
     title: toRef(() => emerald.value ? TITLE : 'Vuetify0'),

@@ -1,4 +1,5 @@
 import { createEmeraldPlugin } from '@paper/emerald'
+import { createMd1Plugin } from '@paper/md1'
 import { ViteSSG } from 'vite-ssg'
 
 // Framework
@@ -34,6 +35,11 @@ import EmeraldProductivity from './EmeraldProductivity.vue'
 import EmeraldSales from './EmeraldSales.vue'
 import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
+import Md1Dashboard from './Md1Dashboard.vue'
+import Md1Files from './Md1Files.vue'
+import Md1Inbox from './Md1Inbox.vue'
+import Md1Orders from './Md1Orders.vue'
+import Md1Settings from './Md1Settings.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -77,6 +83,11 @@ export const createApp = ViteSSG(
       { path: '/emerald/contacts', component: EmeraldContacts },
       { path: '/emerald/datatable', component: EmeraldDatatable },
       { path: '/emerald/forms', component: EmeraldForms },
+      { path: '/md1', component: Md1Dashboard },
+      { path: '/md1/files', component: Md1Files },
+      { path: '/md1/inbox', component: Md1Inbox },
+      { path: '/md1/orders', component: Md1Orders },
+      { path: '/md1/settings', component: Md1Settings },
     ],
   },
   async ({ app }) => {
@@ -105,6 +116,22 @@ export const createApp = ViteSSG(
         createEmeraldPlugin({
           theme: { namespace: 'emerald:theme', target: null, devtools: true },
           icons: { devtools: true },
+        }),
+      )
+
+      // Same side-namespace arrangement as Emerald above: the playground owns
+      // `v0:theme` and `data-theme` stays with the md1 shell's own root.
+      app.use(
+        createMd1Plugin({
+          theme: { namespace: 'md1:theme', target: null, devtools: true },
+          icons: {
+            devtools: true,
+            icons: {
+              // Material Icons image/invert_colors, filled, 24px (Apache
+              // License 2.0) — the md1 set has no theme-toggle glyph.
+              'invert-colors': ['M17.66 7.93L12 2.27 6.34 7.93c-3.12 3.12-3.12 8.19 0 11.31C7.9 20.8 9.95 21.58 12 21.58c2.05 0 4.1-.78 5.66-2.34 3.12-3.12 3.12-8.19 0-11.31zM12 19.59c-1.6 0-3.11-.62-4.24-1.76C6.62 16.69 6 15.19 6 13.59s.62-3.11 1.76-4.24L12 5.1v14.49z'],
+            },
+          },
         }),
       )
     }
