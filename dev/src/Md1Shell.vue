@@ -258,7 +258,9 @@
           </Md1List.Group>
         </Md1List>
 
-        <Md1Divider />
+        <!-- An open group already closes itself off with a full-bleed divider
+             (lists page); the section divider stands in only while it is shut. -->
+        <Md1Divider v-if="!group" />
 
         <Md1List :model-value="current">
           <Md1List.Item href="/md1/settings" value="/md1/settings" @click.prevent="go('/md1/settings')">
