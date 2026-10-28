@@ -39,6 +39,8 @@
     { label: 'Inbox', to: '/md1/inbox', icon: 'inbox' },
     { label: 'Orders', to: '/md1/orders', icon: 'reorder' },
     { label: 'Files', to: '/md1/files', icon: 'folder' },
+    { label: 'Contacts', to: '/md1/contacts', icon: 'person' },
+    { label: 'Activity', to: '/md1/activity', icon: 'history' },
   ]
 
   /** Initials avatar as an inline SVG data URI: the demo ships no raster images. */
@@ -92,6 +94,8 @@
             <Md1Menu.Item>About</Md1Menu.Item>
 
             <Md1Menu.Item>Send feedback</Md1Menu.Item>
+
+            <Md1Menu.Item @select="go('/md1/sign-in')">Sign out</Md1Menu.Item>
           </Md1Menu.Content>
         </Md1Menu>
       </Md1Toolbar.Actions>
@@ -124,7 +128,7 @@
             Settings
           </Md1List.Item>
 
-          <Md1List.Item>
+          <Md1List.Item href="/md1/help" value="/md1/help" @click.prevent="go('/md1/help')">
             <Md1List.Icon name="help" />
 
             Help &amp; feedback

@@ -35,12 +35,19 @@ import EmeraldProductivity from './EmeraldProductivity.vue'
 import EmeraldSales from './EmeraldSales.vue'
 import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
+import Md1Activity from './Md1Activity.vue'
+import Md1Contacts from './Md1Contacts.vue'
 import Md1Dashboard from './Md1Dashboard.vue'
 import Md1Files from './Md1Files.vue'
+import Md1Help from './Md1Help.vue'
 import Md1Inbox from './Md1Inbox.vue'
+import Md1NotFound from './Md1NotFound.vue'
+import Md1OrderForm from './Md1OrderForm.vue'
 import Md1Orders from './Md1Orders.vue'
 import Md1Settings from './Md1Settings.vue'
+import Md1Setup from './Md1Setup.vue'
 import Md1Shell from './Md1Shell.vue'
+import Md1SignIn from './Md1SignIn.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -90,12 +97,21 @@ export const createApp = ViteSSG(
         component: Md1Shell,
         children: [
           { path: '', component: Md1Dashboard, meta: { title: 'Overview' } },
+          { path: 'activity', component: Md1Activity, meta: { title: 'Activity' } },
+          { path: 'contacts', component: Md1Contacts, meta: { title: 'Contacts' } },
           { path: 'files', component: Md1Files, meta: { title: 'Files' } },
+          { path: 'help', component: Md1Help, meta: { title: 'Help & feedback' } },
           { path: 'inbox', component: Md1Inbox, meta: { title: 'Inbox' } },
           { path: 'orders', component: Md1Orders, meta: { title: 'Orders' } },
+          { path: 'orders/new', component: Md1OrderForm, meta: { title: 'New order' } },
           { path: 'settings', component: Md1Settings, meta: { title: 'Settings' } },
+          // Last, after every real child: anything else under /md1 is the 404.
+          { path: ':catchall(.*)', component: Md1NotFound, meta: { title: 'Not found' } },
         ],
       },
+      // Siblings of the layout record: the auth pages render without the shell.
+      { path: '/md1/setup', component: Md1Setup },
+      { path: '/md1/sign-in', component: Md1SignIn },
     ],
     // The persistent md1 shell swaps pages in place, so the window offset no
     // longer resets itself; everything else keeps the router's default.
