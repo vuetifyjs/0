@@ -1718,13 +1718,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/systems/md1/edition': RouteRecordInfo<
-      '/systems/md1/edition',
-      '/systems/md1/edition',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/systems/md1/elevation': RouteRecordInfo<
       '/systems/md1/elevation',
       '/systems/md1/elevation',
@@ -3969,14 +3962,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/md1/dropdown-button.md': {
       routes:
         | '/systems/md1/dropdown-button'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/systems/md1/edition.md': {
-      routes:
-        | '/systems/md1/edition'
       views:
         | never
       pathParamNames:

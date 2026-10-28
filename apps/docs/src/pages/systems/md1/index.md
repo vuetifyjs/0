@@ -2,16 +2,15 @@
 title: Material Design 1 - Vuetify 10th Anniversary Edition for Vue
 meta:
 - name: description
-  content: Material Design 1, the Vuetify 10th Anniversary Edition. The complete 2014 Material Design guidelines as a Vue design system on Vuetify0, tokens to components.
+  content: Material Design 1, the Vuetify 10th Anniversary Edition. The complete 2014 Material Design guidelines as a Vue design system on Vuetify0, tokens to components, with figure-level coverage of the archive.
 - name: keywords
-  content: md1, material design 1, vuetify 10th anniversary edition, material design 2014, quantum paper, vue design system, vuetify0, paper, design tokens, md1 components, material icons
+  content: md1, material design 1, vuetify 10th anniversary edition, vuetify anniversary, material design 2014, complete material design, quantum paper, vuetify 1.5, vue design system, vuetify0, paper, paper md1, design tokens, md1 components, material icons
 features:
   category: Guide
   label: 'Material Design 1'
   level: 2
   order: 0
 related:
-  - /systems/md1/edition
   - /systems/md1/button
   - /systems/md1/dialog
   - /systems/md1/icon
@@ -20,19 +19,31 @@ related:
   - /systems/md1/elevation
   - /systems/md1/motion
   - /systems/md1/layout
+  - /systems/md1/fab
+  - /systems/md1/tabs
 ---
 
 # Material Design 1: Anniversary Edition
 
 <DocsPageFeatures :frontmatter />
 
-Material Design 1 is the [Vuetify 10th Anniversary Edition](/systems/md1/edition): the complete 2014 Material Design guidelines as a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.
+Material Design 1 is the Vuetify 10th Anniversary Edition: the complete 2014 Material Design guidelines as a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Md1*` components. v0 handles behavior and accessibility. Material Design 1 handles appearance.
 
 <DocsSystemActivator palette="md1" />
 
 ::: ds-example no-resize
 /systems/md1/overview
 :::
+
+## The 10th Anniversary Edition
+
+The guidelines Vuetify began with, finished, for the framework's tenth anniversary on December 14, 2026.
+
+The Material Design guidelines arrived in 2014. Vuetify went into alpha on December 14, 2016, and its commits that day read "[updated cards for md spec](https://github.com/vuetifyjs/vuetify/commit/3cfb913c2065c743d20b6e3617867108ed7dfb09)" and "[updates to cards and buttons for md spec](https://github.com/vuetifyjs/vuetify/commit/b22eed272b359aef0c60b896113bd20e8409f84b)". From that alpha on, Vuetify 1.x was built on Material Design 1.
+
+No framework ever implemented all of it, Vuetify included. Parts of the spec, from the floating action button's surface transforms to the tab bar's More menu, were written down, drawn, and never built anywhere, and the guidelines stopped changing in 2017 with the gaps still open. This edition fills them: what it adds is under [Never shipped before](#never-shipped-before), and how much of the archive it covers is under [Coverage](#coverage).
+
+Vuetify is the brand and Material Design 1 the subject. Material Design is Google's design language, and this is Vuetify's implementation of its 2014 to 2017 guidelines. It is not a Google product and carries no Google marks.
 
 ## What Material Design 1 is
 
@@ -42,17 +53,17 @@ Material Design 1 has its own tokens, its own icon set, and its own component na
 
 ### The pinned spec
 
-The guidelines are archived, so the spec cannot move under the package. Material Design 1 is pinned to [m1.material.io](https://m1.material.io/), the Material Design 1 guidelines Google hosts as an archive. The archive's own changelog ends with September 2017, which dates the frozen content. The glyphs are Material Icons at commit `49d4db35`.
+The guidelines are archived, so the spec cannot move under the package. Material Design 1 is pinned to [m1.material.io](https://m1.material.io/), the Material Design 1 guidelines Google hosts as an archive. The archive's own changelog, [What's new](https://m1.material.io/material-design/whats-new.html), ends with September 2017, which dates the frozen content. The glyphs are Material Icons at commit [`49d4db35`](https://github.com/google/material-design-icons/tree/49d4db35df873165d6bd6ba09b063c7dafbac2f4).
 
-Every value follows one authority order:
+Every value in the package comes from one of three places, in this order:
 
-1. **m1.material.io**, wherever it is explicit.
-2. **Vuetify 1.5.24's styling**, where the guidelines are silent: a hover overlay, a radius, a delay. Never its API; every prop name still comes from the guidelines.
+1. **m1.material.io**, wherever it is explicit. A value the guidelines state, or draw at a measurable size, is never overridden.
+2. **[Vuetify 1.5.24](https://github.com/vuetifyjs/vuetify/releases/tag/v1.5.24)'s styling**, where the guidelines are silent: a hover overlay, a radius, a delay. [Vuetify 1.5](https://v15.vuetifyjs.com) is the Vuetify line built on Material Design 1, so its values are the closest thing to a ruling the spec never made. Only its styling is taken, never its API: every prop name is the guidelines' own word.
 3. **Our own call**, where neither says anything.
 
-The footnotes on each page mark the second and third tiers: a Vuetify 1.5 footnote names the stylesheet and lines the value comes from, and an "Our call" footnote gives the reason. A value without a footnote is the guidelines' own.
+The footnotes across these pages mark the second and third tiers. A footnote that begins "Vuetify 1.5.24" names the stylesheet and lines the value comes from, relative to [`packages/vuetify/src`](https://github.com/vuetifyjs/vuetify/tree/v1.5.24/packages/vuetify/src); one that begins "Our call" gives the reason for a decision. A value with no footnote is the guidelines' own.
 
-Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface (widgets, notifications, fingerprint, toasts, split screen) are listed as out, with the reason, in the package's `SPEC.md`.
+Pinned means complete and exclusive. Every component, variant and state on the component pages ships, and nothing the guidelines do not contain does, even where v0 has the primitive: there is no `Md1Breadcrumbs`, no `Md1Alert`, and no `Md1Rating`. The pages with no web surface ([widgets](https://m1.material.io/components/widgets.html), [notifications](https://m1.material.io/patterns/notifications.html), [fingerprint](https://m1.material.io/patterns/fingerprint.html), toasts, [split screen](https://m1.material.io/layout/split-screen.html)) are listed as out, with the reason, in the package's `SPEC.md`.
 
 ### The escape hatch
 
@@ -161,7 +172,7 @@ Icons are named by role. Ask for `menu`, `search` or `close`; the glyph is inlin
 
 Icons are decorative by default and hidden from assistive technology. Pass `label` when an icon should be announced. The 11 directional roles (the back and forward arrows, arrow-right, the left and right chevrons, first and last page, send, sort, open-in-new and label) mirror under `dir="rtl"`; `help` mirrors except in Hebrew. Glyphs that represent time, physical objects or the search handle do not. Roles, aliases, mirroring and the accessibility rules are on the [Md1Icon page](/systems/md1/icon).
 
-The artwork is Material Icons at commit `49d4db35`[^icons-commit], used under the Apache License 2.0; the package ships the notice as `LICENSE-ICONS`. The Vue package is MIT.
+The artwork is Material Icons at commit [`49d4db35`](https://github.com/google/material-design-icons/tree/49d4db35df873165d6bd6ba09b063c7dafbac2f4)[^icons-commit], used under the [Apache License 2.0](https://github.com/google/material-design-icons/blob/49d4db35df873165d6bd6ba09b063c7dafbac2f4/LICENSE); the package ships the notice as `LICENSE-ICONS`. The Vue package is MIT.
 
 ## Components
 
@@ -239,6 +250,72 @@ The pattern pages compose the components above. None of them adds an `Md1*` expo
 | Offline states | [Offline states](https://m1.material.io/patterns/offline-states.html) | `Md1List`, `Md1ProgressCircular` for the download, `Md1Snackbar` | [Offline states](/systems/md1/offline-states) |
 | Help and feedback | [Help and feedback](https://m1.material.io/patterns/help-feedback.html) | Placement in `Md1NavigationDrawer` and the `Md1Menu` overflow, a help screen, a feedback form on `Md1TextField`, `Md1Tooltip` | [Help and feedback](/systems/md1/help-feedback) |
 | Onboarding | [Onboarding](https://m1.material.io/growth-communications/onboarding.html) | Quickstart, self-select and top-benefits flows of `Md1Button`, `Md1List` and `Md1Card` | [Onboarding](/systems/md1/onboarding) |
+
+## Never shipped before
+
+What this edition implements that Vuetify 1.x never had, checked against the Vuetify 1.5.24 source:
+
+- **Surface transforms.** `useMorph` turns the [floating action button](/systems/md1/fab) into a sheet, a toolbar or a full-screen dialog with the guidelines' radial and rectangular clips, and expands a card into its detail with a shared image ([Motion](/systems/md1/motion)). Vuetify 1.5 had fade, scale, slide and expand transitions, and no surface ever changed shape.
+- **The tab bar's More menu.** Desktop [tabs](/systems/md1/tabs) that do not fit collect into a More dropdown; Vuetify 1.5's tabs scroll behind arrows.
+- **[List](/systems/md1/list) reorder.** A drag handle that also moves rows with the arrow keys and announces each move.
+- **[Feature discovery](/systems/md1/feature-discovery).** The circular prompt that introduces a new action.
+- **Mobile [steppers](/systems/md1/stepper).** The dots, progress bar and text forms; Vuetify 1.5 hides the step labels on small screens instead.
+- **The contextual header** that replaces a [data table](/systems/md1/data-table)'s header while rows are selected.
+- **[Speed-dial](/systems/md1/fab) labels**, and **[touch tooltips](/systems/md1/tooltip)** shown by press and hold.
+- **The error icon** before a [text field](/systems/md1/text-field)'s error message.
+- **A [mirror table](/systems/md1/icon) for directional glyphs** in right-to-left layouts, open to your own glyphs. Vuetify 1.5 swaps only the chevrons of its pagination and date picker.
+- **The guidelines' other chapters.** [Writing](/systems/md1/writing), [imagery](/systems/md1/imagery), [bidirectionality](/systems/md1/bidirectionality), [accessibility](/systems/md1/accessibility) and [data formats](/systems/md1/data-formats) each have their own page, with their figures drawn in live components. Vuetify 1.x documented its components and its framework features; these chapters never had a home.
+
+::: ds-example
+/systems/md1/fab/sheet
+
+### The FAB becomes a sheet
+
+A surface transform from the [transforming material](https://m1.material.io/motion/transforming-material.html) motion page: the button's circle travels on an arc to the card's centre and opens into it, and closes back into the button.
+:::
+
+::: ds-example
+/systems/md1/tabs/more
+
+### Tabs with a More menu
+
+From the [tabs](https://m1.material.io/components/tabs.html) component page. With a mouse, the tabs that do not fit the bar leave it and are listed in a More dropdown at its end; choosing one moves the indicator under the control.
+:::
+
+## Coverage
+
+As of October 25, 2026.
+
+### Pages
+
+The archive has 82 pages. Six are Resources (downloads) and two are Platforms (Android guidance), which leaves 74 pages of guidelines. 64 of them have a home in this edition: a component, a token set, or a docs page with live examples. The other 10 are introductions, the archive's changelog, or surfaces a browser does not have: the [Material design introduction](https://m1.material.io/material-design/introduction.html), [environment](https://m1.material.io/material-design/environment.html) and [What's new](https://m1.material.io/material-design/whats-new.html) pages, the [Growth introduction](https://m1.material.io/growth-communications/introduction.html) and [gesture education](https://m1.material.io/growth-communications/gesture-education.html), [split screen](https://m1.material.io/layout/split-screen.html), [widgets](https://m1.material.io/components/widgets.html), [gestures](https://m1.material.io/patterns/gestures.html), [notifications](https://m1.material.io/patterns/notifications.html) and [fingerprint](https://m1.material.io/patterns/fingerprint.html).
+
+### Figures
+
+Every figure on those pages, image or video, was listed and sorted as an example, a Do, a Don't, a spec diagram, motion, a platform surface or a photograph.
+
+| Figures | Count |
+|---|---|
+| Shipped: a docs example renders it | 1,304 |
+| Partial: an example exists and misses a named part | 28 |
+| Not built yet | 11 |
+| Not representable on the web | 358 |
+| Don't figures, never built | 228 |
+| **Total** | **1,929** |
+
+That is 1,304 of the 1,343 figures a browser can show, about 97%. The 39 open figures fall into three groups:
+
+- **Swipe gestures (7):** dismissing a sheet or a card by swiping, list leave-behinds, and pulling to refresh. Each has a button, keyboard or scrim path instead, and the browser owns the pull.
+- **Package decisions still open (7):** the text field's 80 and 88 dp tile heights, staggered image-loading phases, the tablet edge rule for feature discovery, and the focused chip inside a field.
+- **Compositions not drawn yet (25):** among them the six whiteframe apps on the [structure](https://m1.material.io/layout/structure.html) page, column and card toolbars, tabs in landscape, magnetic joining, and the offline principle illustrations.
+
+The 358 that cannot be shown are platform surfaces such as the Android and iOS system UI, browser chrome and home-screen widgets (146); product icons, illustration and artwork (104); glyph-drawing guidance for a glyph set fixed upstream (42); touch gestures the browser or the OS owns (29); photo art direction (16); information-architecture diagrams (13); and eight others, such as screen-density hardware and simulated vision.
+
+Method: the figure lists were taken from the live archive on October 25, 2026. A figure counts as shipped when an example renders it. Every figure marked partial or missing in the first pass was checked again against the example files by name and by search, after the day's work; none was judged by rendering. Treat the counts as accurate to within a few figures.
+
+### Known limits
+
+What the edition does not do, and why, is listed in one place: the [known limitations](https://github.com/vuetifyjs/0/blob/master/packages/md1/SPEC.md#known-limitations) and open rulings in the package's `SPEC.md`.
 
 > [!NOTE]
 > Material Design 1 is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.
