@@ -143,15 +143,21 @@
    * bar's own row or actions; a toggle on a sheet nested in the bar keeps the
    * sheet's ink.
    */
-  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle {
+  /* The second selector of each pair pierces a feature-discovery wrapper at zero
+     added specificity, the same seam Md1Toolbar cuts for its buttons: a promoted
+     toggle is still among the bar's actions. */
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle,
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-icon-toggle {
     color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.7);
   }
 
-  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle:is([data-state='on'], :focus-visible) {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle:is([data-state='on'], :focus-visible),
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-icon-toggle:is([data-state='on'], :focus-visible) {
     color: var(--md1-on-primary, #FFFFFF);
   }
 
-  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle[data-disabled] {
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions, .md1-toolbar__contextual) > .md1-icon-toggle[data-disabled],
+  :is(.md1-toolbar[data-variant='primary'], .md1-toolbar[data-image]) :is(.md1-toolbar__row, .md1-toolbar__actions) > :where(.md1-feature-discovery__action) > :where(.md1-feature-discovery__pulse) > .md1-icon-toggle[data-disabled] {
     color: rgb(var(--md1-on-primary-channels, 255 255 255) / 0.3);
   }
 

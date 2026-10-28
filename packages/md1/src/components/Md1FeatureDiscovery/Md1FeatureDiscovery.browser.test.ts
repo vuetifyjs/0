@@ -18,6 +18,7 @@ import { Md1StyleSheetAdapter } from '../../adapter'
 import { md1Colors, md1DarkColors } from '../../colors'
 // Components
 import { Md1Button } from '../Md1Button'
+import { Md1IconToggle } from '../Md1IconToggle'
 import { Md1Toolbar } from '../Md1Toolbar'
 
 const teardowns: (() => void)[] = []
@@ -893,6 +894,31 @@ describe('quFeatureDiscovery', () => {
       await settle()
 
       await expect.poll(() => getComputedStyle(document.querySelector('#nav')!).color).toBe('rgb(255, 255, 255)')
+    })
+
+    it('should ink an icon toggle in the prompt colour, and white on the primary bar once closed', async () => {
+      const open = shallowRef(true)
+
+      mount(() => h(Md1Toolbar, { variant: 'primary' }, () => [
+        h(Md1Toolbar.Title, null, () => 'Inbox'),
+        h(Md1Toolbar.Actions, null, () => [
+          h(Md1FeatureDiscovery, { 'modelValue': open.value, 'onUpdate:modelValue': (value: boolean) => (open.value = value) }, () => [
+            h(Md1FeatureDiscovery.Activator, null, () => h(Md1IconToggle, { ariaLabel: 'Favourite', icon: 'favorite', modelValue: true })),
+            h(Md1FeatureDiscovery.Title, null, () => 'Title'),
+            h(Md1FeatureDiscovery.Text, null, () => 'Text'),
+          ]),
+        ]),
+      ]))
+      await ready()
+
+      // Not the icon tiers: on the dark theme they are white, invisible on the white disc.
+      await expect.poll(() => getComputedStyle(document.querySelector('.md1-icon-toggle')!).color).toBe('rgb(63, 81, 181)')
+
+      open.value = false
+      await settle()
+
+      // Back among the bar's actions, the on toggle takes the bar's white ink.
+      await expect.poll(() => getComputedStyle(document.querySelector('.md1-icon-toggle')!).color).toBe('rgb(255, 255, 255)')
     })
   })
 
