@@ -403,9 +403,9 @@
         <DocsActionChip
           color="text-info"
           :href="edit"
-          icon="pencil"
-          text="Edit this page"
-          title="Edit documentation page"
+          icon="square-edit"
+          text="Edit"
+          title="Edit page on GitHub"
         />
 
         <DocsActionChip
@@ -413,7 +413,7 @@
           :href="reportBugLink"
           icon="vuetify-issues"
           text="Report a Bug"
-          title="Open Vuetify Issues"
+          title="Report a bug in Vuetify Issues"
         />
 
         <DocsActionChip
@@ -421,7 +421,7 @@
           color="text-warning"
           :href="label"
           icon="alert"
-          text="Open issues"
+          text="Issues"
           title="View Issues on GitHub"
         />
 
@@ -429,7 +429,7 @@
           v-if="github"
           :href="github"
           icon="github"
-          text="View on GitHub"
+          text="Source"
           title="View source code on GitHub"
         />
 
@@ -469,8 +469,8 @@
         <DocsActionChip
           :color="copyError ? 'text-error' : clipboard.copied.value ? 'text-success' : 'text-on-surface'"
           :icon="loading ? 'loading' : copyError ? 'alert' : clipboard.copied.value ? 'success' : 'markdown'"
-          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Copy Markdown'"
-          title="Copy Markdown"
+          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Markdown'"
+          title="Copy Page as Markdown"
           @click="onClickCopy"
         />
       </div>
