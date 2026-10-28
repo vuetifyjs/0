@@ -70,7 +70,7 @@ Every page includes a header area (shown at the top of this page) with breadcrum
 
 | Example | Description |
 |---------|-------------|
-| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Unit-run coverage. Opens the breakdown and the test files for this feature |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |

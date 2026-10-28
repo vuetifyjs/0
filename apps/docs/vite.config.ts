@@ -18,6 +18,7 @@ import generateApiMarkdownPlugin from './build/generate-api-markdown'
 import generateApiWhitelistPlugin from './build/generate-api-whitelist'
 import generateExamplesPlugin from './build/generate-examples'
 import generateFaqsPlugin from './build/generate-faqs'
+import generateFeatureTestsPlugin from './build/generate-feature-tests'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import { generateOgImages } from './build/generate-og-images'
@@ -129,6 +130,7 @@ export default defineConfig({
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
     generateTestCountPlugin(),
+    generateFeatureTestsPlugin(),
     generateTipsPlugin(),
     generateNavPlugin(),
     generatePageDatesPlugin(),

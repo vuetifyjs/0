@@ -5,6 +5,7 @@ import { createContext } from '@vuetify/v0'
 import { inject } from 'vue'
 
 // Types
+import type { CoverageRow } from '@/components/docs/meta/coveragePanel'
 import type { Level } from '@/constants/maturity'
 import type { Ref } from 'vue'
 
@@ -18,6 +19,10 @@ export interface CoverageConfig {
   value: number
   label: string
   color: string
+  /** Unit-run breakdown. Absent on the static guide illustration. */
+  detail?: string
+  /** Test files that exist for this feature. Empty kinds are omitted. */
+  rows?: CoverageRow[]
 }
 
 export interface BenchmarkConfig {
@@ -42,7 +47,6 @@ export interface PageMeta {
   edit: Readonly<Ref<string>>
   github: Readonly<Ref<string | false>>
   label: Readonly<Ref<string | false>>
-  testFileLink: Readonly<Ref<string | null>>
   // Metadata
   phase: Readonly<Ref<PhaseConfig | null>>
   level: Readonly<Ref<LevelConfig | null>>

@@ -30,10 +30,23 @@ function virtualRegistryCatalogStub (): Plugin {
   }
 }
 
+function virtualFeatureTestsStub (): Plugin {
+  return {
+    name: 'virtual-feature-tests-stub',
+    resolveId (id) {
+      if (id === 'virtual:feature-tests') return '\0virtual:feature-tests'
+    },
+    load (id) {
+      if (id === '\0virtual:feature-tests') return 'export const featureTests = {}\n'
+    },
+  }
+}
+
 export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
+      '@build': fileURLToPath(new URL('build', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/play': fileURLToPath(new URL('../../packages/play/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
@@ -42,7 +55,7 @@ export default defineConfig({
       '#paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
     },
   },
-  plugins: [Vue(), virtualPageDatesStub(), virtualRegistryCatalogStub()],
+  plugins: [Vue(), virtualPageDatesStub(), virtualRegistryCatalogStub(), virtualFeatureTestsStub()],
   define: {
     __DEV__: 'process.env.NODE_ENV !== \'production\'',
     __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',

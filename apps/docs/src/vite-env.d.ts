@@ -79,3 +79,10 @@ declare module 'virtual:test-count' {
   const data: TestCount
   export default data
 }
+
+declare module 'virtual:feature-tests' {
+  // Types
+  import type { FeatureTests } from '@build/feature-tests'
+  /** `features.github` path → colocated test files for the coverage panel. */
+  export const featureTests: Record<string, FeatureTests>
+}
