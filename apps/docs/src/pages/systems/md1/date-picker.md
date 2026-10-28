@@ -114,7 +114,7 @@ The portrait and landscape pickers on the dark theme's #303030 canvas. The heade
 |------|------|---------|-------------|
 | `modelValue` | `string` | | The selected date, `YYYY-MM-DD`. A value in another shape is ignored. Inside a confirmation `Md1Dialog` the dialog's held value is used instead |
 | `landscape` | `boolean` | `false` | The landscape layout: a 168 dp header column beside a 344 dp body with 32 dp rows |
-| `firstDayOfWeek` | `number` | `0` | The weekday the grid starts on, `0` for Sunday. Unset, it follows the installed date plugin's locale |
+| `firstDayOfWeek` | `number` | | The weekday the grid starts on, `0` for Sunday. Unset, it follows the installed date plugin's locale, or Sunday without one |
 
 There is no slot. Minimum and maximum dates, disabled dates and ranges are not part of the Material Design 1 picker and do not ship; neither does a built-in action row, which belongs to the dialog.
 

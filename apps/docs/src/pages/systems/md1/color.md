@@ -250,6 +250,6 @@ Color is never the only signal. The guidelines ask for a state change shown in m
 
 [^v15-hover]: Vuetify 1.5.24, stylus/components/_buttons.styl:54 (12% on buttons), stylus/settings/_theme.styl:52, 146 (lists and menus) and stylus/components/_steppers.styl:28 (steppers).
 
-[^dark-primary-ink]: Our call: on the dark theme the example sets primary-coloured text and icons in the primary's 100, because Indigo 500 measures under 3:1 on `#303030`. Components keep the 500 on dark.
+[^dark-primary-ink]: Our call: on the dark theme the example sets primary-coloured text and icons in the primary's 100, because Indigo 500 measures under 3:1 on `#303030`. Components make the same move through `--md1-primary-ink`.
 
 [^accent-tone]: Our call: the example mixes 35% accent into 65% white, because Pink A200 on Indigo 500 measures under 3:1.

@@ -190,7 +190,7 @@ The default slot holds the parts. There are no named slots.
 | Part | Props | Notes |
 |------|-------|-------|
 | `Header` | `title?: string` | The 64 dp card header. The title, Regular 20 sp at the 24 dp keyline, also names the table. The slot holds the card actions: icon-only `Md1Button`s draw at 54%, labelled flat buttons (the persistent-actions header) keep the accent |
-| `Contextual` | `count?: number` | Replaces `Header` while rows are selected: the "N selected" label on `--md1-accent-light`, the accent's 50, the contextual actions in the slot. `count` overrides the number in the label; the part still shows only while rows are selected. Escape clears the selection |
+| `Contextual` | `count?: number` | Replaces `Header` while rows are selected: the "N items selected" label on `--md1-accent-light`, the accent's 50, the contextual actions in the slot. `count` overrides the number in the label; the part still shows only while rows are selected. Escape clears the selection |
 | `Table` | `namespace?: string` | The horizontal scroll container and the `<table>` |
 | `Head` | `namespace?: string` | The 56 dp column header row; renders the select-all cell when the table is selectable |
 | `Column` | `id`, `sortable?: boolean`, `numeric?: boolean`, `tooltip?: string`, `namespace?: string` | A `<th>`. `id` is the record field it sorts by. `numeric` right-aligns it. `tooltip` is the column definition |
