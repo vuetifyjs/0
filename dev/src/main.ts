@@ -44,6 +44,7 @@ import Md1Inbox from './Md1Inbox.vue'
 import Md1NotFound from './Md1NotFound.vue'
 import Md1OrderForm from './Md1OrderForm.vue'
 import Md1Orders from './Md1Orders.vue'
+import Md1Search from './Md1Search.vue'
 import Md1Settings from './Md1Settings.vue'
 import Md1Setup from './Md1Setup.vue'
 import Md1Shell from './Md1Shell.vue'
@@ -104,6 +105,7 @@ export const createApp = ViteSSG(
           { path: 'inbox', component: Md1Inbox, meta: { title: 'Inbox' } },
           { path: 'orders', component: Md1Orders, meta: { title: 'Orders' } },
           { path: 'orders/new', component: Md1OrderForm, meta: { title: 'New order' } },
+          { path: 'search', component: Md1Search, meta: { title: 'Search' } },
           { path: 'settings', component: Md1Settings, meta: { title: 'Settings' } },
           // Last, after every real child: anything else under /md1 is the 404.
           { path: ':catchall(.*)', component: Md1NotFound, meta: { title: 'Not found' } },
