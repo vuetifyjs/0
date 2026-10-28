@@ -91,12 +91,18 @@ function next (ids: number[]): number {
 function pull<Z extends { id: number }> (list: Z[], ids: number[]): Slot<Z>[] {
   const slots: Slot<Z>[] = []
 
+  // Record every slot against the intact list first: splicing as we find them
+  // shifts the later indexes and adjacent rows would restore transposed.
   for (const id of ids) {
     const index = list.findIndex(row => row.id === id)
     if (index === -1) continue
 
     slots.push({ row: list[index]!, index })
-    list.splice(index, 1)
+  }
+
+  // Remove bottom-up so earlier splices cannot shift the remaining indexes.
+  for (const slot of [...slots].sort((a, b) => b.index - a.index)) {
+    list.splice(slot.index, 1)
   }
 
   return slots

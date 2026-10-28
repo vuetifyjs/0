@@ -313,14 +313,22 @@
     padding: var(--md1-keyline-margin, 16px);
   }
 
-  /* The fixed bottom bar covers the viewport's last 56 dp (plus the home
-     indicator): the content clears it, and pages offset their own fixed
-     elements (FABs) by the seam. */
+  /* The fixed bottom bar covers the viewport's last 56 dp (its height at every
+     width, plus the home indicator): the content clears it, and pages offset
+     their own fixed elements (FABs) by the seam. */
   .md1-demo-shell[data-nav] {
-    --md1-demo-seam: calc(var(--md1-increment, 56px) + env(safe-area-inset-bottom, 0px));
+    --md1-demo-seam: calc(56px + env(safe-area-inset-bottom, 0px));
   }
 
   .md1-demo-shell[data-nav] .md1-demo-shell__main {
     padding-bottom: calc(var(--md1-demo-seam) + var(--md1-keyline-margin, 16px));
+  }
+
+  /* MD1 layers the snackbar behind the bar (6 dp under 8 dp) — that governs
+     the overlap, not the resting place. While the bar shows, the snackbar
+     rests one bar-height up, still entering from behind it. Through body:
+     teleported portals render outside the shell. */
+  body:has(.md1-demo-shell[data-nav]) .md1-snackbar-portal {
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
   }
 </style>
