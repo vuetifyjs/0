@@ -248,7 +248,8 @@
               <Md1Button v-bind="attrs" :aria-label="`Actions for ${item.name}`" icon="more-vert" />
             </Md1Menu.Activator>
 
-            <Md1Menu.Content>
+            <!-- The tile's overflow sits at the end corner, so the sheet opens down and start-ward, staying over its own column. -->
+            <Md1Menu.Content position-area="block-end span-inline-start">
               <Md1Menu.Item icon="open-in-new" @select="onOpen(item)">Open</Md1Menu.Item>
 
               <Md1Menu.Item icon="edit" @select="onRename(item)">Rename</Md1Menu.Item>
@@ -362,7 +363,8 @@
     inset-inline-end: 0;
   }
 
-  .md1-demo-files__act .md1-button {
+  /* The bar's white ink for an action over imagery; the selector outweighs the solo button's own primary-ink rule. */
+  .md1-demo-files__act .md1-button[data-solo]:not([data-disabled]) {
     color: var(--md1-white, #FFFFFF);
   }
 
