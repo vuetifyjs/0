@@ -2,7 +2,7 @@
   // Framework
   import { createDataTable, createGroup, createSingle, isString, Tooltip, toHighlight } from '@vuetify/v0'
 
-  import { LEVEL_KEYS as levelKeys, MATURITY as data, MATURITY_LEVELS as levels } from '@/constants/maturity'
+  import { LEVEL_KEYS as levelKeys, MATURITY as data, MATURITY_LEVELS as levels, SINCE_LEGEND, sinceInFramework } from '@/constants/maturity'
   import { releaseAlias } from '@/constants/releases'
 
   // Utilities
@@ -177,6 +177,13 @@
     }
   }
 
+  function sinceTip (version: unknown, level: unknown): string {
+    if (!isString(version)) return ''
+    const name = isString(level) ? level : ''
+    const label = levels[name as Level]?.label ?? name
+    return sinceInFramework(version, label)
+  }
+
   // Weighted color blend for a group
   function blend (items: Record<string, unknown>[]): string {
     const counts: Record<Level, number> = { draft: 0, preview: 0, stable: 0, mature: 0, deprecated: 0 }
@@ -212,6 +219,10 @@
 
 <template>
   <div>
+    <p class="text-sm text-on-surface-variant m-0 mb-3">
+      {{ SINCE_LEGEND }}
+    </p>
+
     <!-- Type toggles -->
     <div class="flex flex-wrap items-center gap-2 mt-2 mb-3">
       <button
@@ -338,7 +349,7 @@
                     >{{ item.type }}</span>
 
                     <span v-if="item.since" class="text-[10px] text-on-surface-variant font-mono">
-                      {{ releaseAlias(item.since) }}
+                      Since {{ releaseAlias(item.since) }}
                     </span>
                   </div>
                 </div>
@@ -353,11 +364,17 @@
             </Tooltip.Activator>
 
             <Tooltip.Content
-              v-if="item.description"
+              v-if="item.description || item.since"
               class="px-2.5 py-1.5 rounded border border-divider text-xs max-w-64 whitespace-normal bg-surface text-on-surface shadow-lg"
               :style="{ margin: '6px 0' }"
             >
-              {{ item.description }}
+              <span v-if="item.description" class="block">{{ item.description }}</span>
+
+              <span
+                v-if="item.since"
+                class="block text-on-surface-variant"
+                :class="item.description ? 'mt-1' : undefined"
+              >{{ sinceTip(item.since, item.level) }}</span>
             </Tooltip.Content>
           </Tooltip.Root>
         </div>
@@ -404,11 +421,33 @@
             <th
               v-for="col in table.leaves.value"
               :key="col.id"
-              class="py-2 text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
+              class="py-2 text-left text-xs font-semibold text-on-surface-variant tracking-wide cursor-pointer select-none hover:text-on-surface transition-colors"
               :class="col.id === 'name' ? '!pl-[34px] pr-4' : 'px-4'"
               @click="col.sortable ? table.sort.toggle(col.id) : undefined"
             >
-              {{ col.title }}
+              <Tooltip.Root
+                v-if="col.id === 'since'"
+                :close-delay="200"
+                :open-delay="500"
+                position-area="bottom"
+              >
+                <Tooltip.Activator
+                  as="span"
+                  class="uppercase underline decoration-dotted underline-offset-4"
+                >
+                  {{ col.title }}
+                </Tooltip.Activator>
+
+                <Tooltip.Content
+                  class="px-2.5 py-1.5 rounded border border-divider text-xs max-w-64 whitespace-normal normal-case font-normal tracking-normal bg-surface text-on-surface shadow-lg"
+                  :style="{ margin: '6px 0' }"
+                >
+                  {{ SINCE_LEGEND }}
+                </Tooltip.Content>
+              </Tooltip.Root>
+
+              <span v-else class="uppercase">{{ col.title }}</span>
+
               <AppIcon
                 v-if="col.sortable && table.sort.direction(col.id) !== 'none'"
                 aria-hidden="true"
@@ -541,12 +580,15 @@
 
               <!-- Since -->
               <td class="px-4 py-2.5 text-sm font-mono">
-                <a
+                <AppTooltip
                   v-if="item.since"
+                  as="a"
                   class="text-primary no-underline hover:underline whitespace-nowrap"
                   :href="`/releases/?version=v${item.since}`"
+                  rel="noopener noreferrer"
                   target="_blank"
-                >{{ releaseAlias(item.since) }} ↗</a>
+                  :text="sinceTip(item.since, item.level)"
+                >{{ releaseAlias(item.since) }} ↗</AppTooltip>
 
                 <span v-else class="text-on-surface-variant/50">—</span>
               </td>
