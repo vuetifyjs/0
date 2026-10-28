@@ -16,6 +16,7 @@ declare global {
   const DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').DateAdapter
   const DragDropAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').DragDropAdapter
   const EffectScope: typeof import('vue').EffectScope
+  const FOCUSABLE: typeof import('../../packages/0/src/composables/useFocusTrap/index').FOCUSABLE
   const FeaturesAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FeaturesAdapter
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals').IN_BROWSER
   const KeyboardAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').KeyboardAdapter
@@ -24,6 +25,7 @@ declare global {
   const MemoryStorageAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryStorageAdapter
   const PermissionsAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionsAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
+  const PlainDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').PlainDateAdapter
   const PointerAdapter: typeof import('../../packages/0/src/composables/useDragDrop/index').PointerAdapter
   const PopoverAdapter: typeof import('../../packages/0/src/composables/usePopover/index').PopoverAdapter
   const ReducedMotionAdapter: typeof import('../../packages/0/src/composables/useReducedMotion/index').ReducedMotionAdapter
@@ -52,6 +54,7 @@ declare global {
   const VirtualDataTableAdapter: typeof import('../../packages/0/src/composables/createDataTable/index').VirtualDataTableAdapter
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals').__LOGGER_ENABLED__
   const apca: typeof import('../../packages/0/src/utilities/apca').apca
+  const bindPluginContext: typeof import('../../packages/0/src/composables/createPlugin/index').bindPluginContext
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
   const computeDepth: typeof import('../../packages/0/src/composables/createDataTable/index').computeDepth
   const computed: typeof import('vue').computed
@@ -158,6 +161,9 @@ declare global {
   const createTooltipContext: typeof import('../../packages/0/src/composables/useTooltip/index').createTooltipContext
   const createTooltipFallback: typeof import('../../packages/0/src/composables/useTooltip/index').createTooltipFallback
   const createTooltipPlugin: typeof import('../../packages/0/src/composables/useTooltip/index').createTooltipPlugin
+  const createTour: typeof import('../../packages/0/src/composables/useTour/index').createTour
+  const createTourContext: typeof import('../../packages/0/src/composables/useTour/index').createTourContext
+  const createTourPlugin: typeof import('../../packages/0/src/composables/useTour/index').createTourPlugin
   const createTrinity: typeof import('../../packages/0/src/composables/createTrinity/index').createTrinity
   const createValidation: typeof import('../../packages/0/src/composables/createValidation/index').createValidation
   const createVirtual: typeof import('../../packages/0/src/composables/createVirtual/index').createVirtual
@@ -240,6 +246,7 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
+  const tabbable: typeof import('../../packages/0/src/composables/useFocusTrap/index').tabbable
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
   const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
@@ -277,6 +284,7 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/createFilter/index').useFilter
+  const useFocusTrap: typeof import('../../packages/0/src/composables/useFocusTrap/index').useFocusTrap
   const useForm: typeof import('../../packages/0/src/composables/createForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/createGroup/index').useGroup
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
@@ -327,6 +335,8 @@ declare global {
   const useToggleScope: typeof import('../../packages/0/src/composables/useToggleScope/index').useToggleScope
   const useTokens: typeof import('../../packages/0/src/composables/createTokens/index').useTokens
   const useTooltip: typeof import('../../packages/0/src/composables/useTooltip/index').useTooltip
+  const useTour: typeof import('../../packages/0/src/composables/useTour/index').useTour
+  const useTypeahead: typeof import('../../packages/0/src/composables/useTypeahead/index').useTypeahead
   const useVirtual: typeof import('../../packages/0/src/composables/createVirtual/index').useVirtual
   const useVirtualFocus: typeof import('../../packages/0/src/composables/useVirtualFocus/index').useVirtualFocus
   const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useWindowEventListener
@@ -386,6 +396,7 @@ declare module 'vue' {
     readonly DateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['DateAdapter']>
     readonly DragDropAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDragDrop/index')['DragDropAdapter']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly FOCUSABLE: UnwrapRef<typeof import('../../packages/0/src/composables/useFocusTrap/index')['FOCUSABLE']>
     readonly FeaturesAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['FeaturesAdapter']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
     readonly KeyboardAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDragDrop/index')['KeyboardAdapter']>
@@ -394,6 +405,7 @@ declare module 'vue' {
     readonly MemoryStorageAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['MemoryStorageAdapter']>
     readonly PermissionsAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['PermissionsAdapter']>
     readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
+    readonly PlainDateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['PlainDateAdapter']>
     readonly PointerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDragDrop/index')['PointerAdapter']>
     readonly PopoverAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePopover/index')['PopoverAdapter']>
     readonly ReducedMotionAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useReducedMotion/index')['ReducedMotionAdapter']>
@@ -422,6 +434,7 @@ declare module 'vue' {
     readonly VirtualDataTableAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['VirtualDataTableAdapter']>
     readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
     readonly apca: UnwrapRef<typeof import('../../packages/0/src/utilities/apca')['apca']>
+    readonly bindPluginContext: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['bindPluginContext']>
     readonly clamp: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['clamp']>
     readonly computeDepth: UnwrapRef<typeof import('../../packages/0/src/composables/createDataTable/index')['computeDepth']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -528,6 +541,9 @@ declare module 'vue' {
     readonly createTooltipContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTooltip/index')['createTooltipContext']>
     readonly createTooltipFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useTooltip/index')['createTooltipFallback']>
     readonly createTooltipPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTooltip/index')['createTooltipPlugin']>
+    readonly createTour: UnwrapRef<typeof import('../../packages/0/src/composables/useTour/index')['createTour']>
+    readonly createTourContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTour/index')['createTourContext']>
+    readonly createTourPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTour/index')['createTourPlugin']>
     readonly createTrinity: UnwrapRef<typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']>
     readonly createValidation: UnwrapRef<typeof import('../../packages/0/src/composables/createValidation/index')['createValidation']>
     readonly createVirtual: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['createVirtual']>
@@ -610,6 +626,7 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly tabbable: UnwrapRef<typeof import('../../packages/0/src/composables/useFocusTrap/index')['tabbable']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
     readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>
@@ -647,6 +664,7 @@ declare module 'vue' {
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
     readonly useFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/createFilter/index')['useFilter']>
+    readonly useFocusTrap: UnwrapRef<typeof import('../../packages/0/src/composables/useFocusTrap/index')['useFocusTrap']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/createForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/createGroup/index')['useGroup']>
     readonly useHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['useHotkey']>
@@ -697,6 +715,8 @@ declare module 'vue' {
     readonly useToggleScope: UnwrapRef<typeof import('../../packages/0/src/composables/useToggleScope/index')['useToggleScope']>
     readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/createTokens/index')['useTokens']>
     readonly useTooltip: UnwrapRef<typeof import('../../packages/0/src/composables/useTooltip/index')['useTooltip']>
+    readonly useTour: UnwrapRef<typeof import('../../packages/0/src/composables/useTour/index')['useTour']>
+    readonly useTypeahead: UnwrapRef<typeof import('../../packages/0/src/composables/useTypeahead/index')['useTypeahead']>
     readonly useVirtual: UnwrapRef<typeof import('../../packages/0/src/composables/createVirtual/index')['useVirtual']>
     readonly useVirtualFocus: UnwrapRef<typeof import('../../packages/0/src/composables/useVirtualFocus/index')['useVirtualFocus']>
     readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>
