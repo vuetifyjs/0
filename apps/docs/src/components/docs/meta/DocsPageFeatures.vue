@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { featureTests } from 'virtual:feature-tests'
   import pageDates from 'virtual:page-dates'
   import { catalog } from 'virtual:registry-catalog'
 
@@ -8,6 +9,7 @@
   // Components
   import { Discovery } from '@/components/discovery'
   import { cliChip } from '@/components/docs/meta/cliChip'
+  import { coverageDetail, coverageRows } from '@/components/docs/meta/coveragePanel'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -47,7 +49,7 @@
   interface MetricCoverage {
     overall: number
     statements: number
-    functions?: number
+    functions?: number | null
     branches: number
   }
 
@@ -202,10 +204,15 @@
     if (!m?.coverage) return null
 
     const overall = m.coverage.overall
+    const github = props.frontmatter?.features?.github ?? null
+    const key = github ? (github.endsWith('/') ? github : `${github}/`) : null
+    const tests = key ? featureTests[key] ?? null : null
     return {
       value: overall,
       label: `${overall}% coverage`,
       color: overall >= 80 ? 'text-success' : (overall >= 60 ? 'text-warning' : 'text-error'),
+      detail: coverageDetail(m.coverage),
+      rows: coverageRows(tests, github),
     }
   })
 
@@ -232,13 +239,6 @@
       icon: config?.icon ?? 'benchmark',
       color: config?.color ?? 'text-accent',
     }
-  })
-
-  // GitHub links for test/bench files
-  const testFileLink = toRef(() => {
-    const github = props.frontmatter?.features?.github
-    if (!github || !itemMetrics.value?.coverage) return null
-    return `${base}/blob/master/packages/0/src${github}index.test.ts`
   })
 
   // Static badges from frontmatter
@@ -347,7 +347,6 @@
     edit,
     github,
     label,
-    testFileLink,
     phase,
     level,
     coverage,
@@ -523,14 +522,7 @@
         />
 
         <!-- 4. Coverage - Quality signal (is it tested?) -->
-        <DocsMetaItem
-          v-if="coverage && testFileLink"
-          :color="coverage.color"
-          :href="testFileLink"
-          icon="test"
-          :text="coverage.label"
-          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-        />
+        <DocsMetaCoverage v-if="coverage" />
 
         <!-- 5. Benchmark - Performance (is it fast?) -->
         <DocsMetaItem
