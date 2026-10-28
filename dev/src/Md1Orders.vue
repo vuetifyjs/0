@@ -2,9 +2,6 @@
   // Components
   import { Md1Button, Md1DataTable, Md1Snackbar } from '@paper/md1'
 
-  // Context
-  import Md1Shell from './Md1Shell.vue'
-
   // Utilities
   import { ref, shallowRef, toRef } from 'vue'
 
@@ -85,66 +82,64 @@
 </script>
 
 <template>
-  <Md1Shell title="Orders">
-    <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" selectable>
-      <Md1DataTable.Header title="Recent orders">
-        <Md1Button aria-label="Filter list" icon="filter-list" />
+  <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" selectable>
+    <Md1DataTable.Header title="Recent orders">
+      <Md1Button aria-label="Filter list" icon="filter-list" />
 
-        <Md1Button aria-label="More options" icon="more-vert" />
-      </Md1DataTable.Header>
+      <Md1Button aria-label="More options" icon="more-vert" />
+    </Md1DataTable.Header>
 
-      <Md1DataTable.Contextual>
-        <Md1Button @click="onArchive">Archive</Md1Button>
+    <Md1DataTable.Contextual>
+      <Md1Button @click="onArchive">Archive</Md1Button>
 
-        <Md1Button aria-label="Delete selected" icon="delete" @click="onDelete" />
-      </Md1DataTable.Contextual>
+      <Md1Button aria-label="Delete selected" icon="delete" @click="onDelete" />
+    </Md1DataTable.Contextual>
 
-      <Md1DataTable.Table>
-        <Md1DataTable.Head>
-          <Md1DataTable.Column id="id" numeric sortable>Order</Md1DataTable.Column>
+    <Md1DataTable.Table>
+      <Md1DataTable.Head>
+        <Md1DataTable.Column id="id" numeric sortable>Order</Md1DataTable.Column>
 
-          <Md1DataTable.Column id="customer" sortable>Customer</Md1DataTable.Column>
+        <Md1DataTable.Column id="customer" sortable>Customer</Md1DataTable.Column>
 
-          <Md1DataTable.Column id="placed" sortable>Placed</Md1DataTable.Column>
+        <Md1DataTable.Column id="placed" sortable>Placed</Md1DataTable.Column>
 
-          <Md1DataTable.Column id="items" numeric sortable>Items</Md1DataTable.Column>
+        <Md1DataTable.Column id="items" numeric sortable>Items</Md1DataTable.Column>
 
-          <Md1DataTable.Column id="total" numeric sortable>Total ($)</Md1DataTable.Column>
+        <Md1DataTable.Column id="total" numeric sortable>Total ($)</Md1DataTable.Column>
 
-          <Md1DataTable.Column id="status" sortable>Status</Md1DataTable.Column>
-        </Md1DataTable.Head>
+        <Md1DataTable.Column id="status" sortable>Status</Md1DataTable.Column>
+      </Md1DataTable.Head>
 
-        <Md1DataTable.Body v-slot="{ rank }">
-          <Md1DataTable.Row
-            v-for="order in rank(orders)"
-            :id="order.id"
-            :key="order.id"
-            :value="order"
-          >
-            <Md1DataTable.Cell numeric>{{ order.id }}</Md1DataTable.Cell>
+      <Md1DataTable.Body v-slot="{ rank }">
+        <Md1DataTable.Row
+          v-for="order in rank(orders)"
+          :id="order.id"
+          :key="order.id"
+          :value="order"
+        >
+          <Md1DataTable.Cell numeric>{{ order.id }}</Md1DataTable.Cell>
 
-            <Md1DataTable.Cell>{{ order.customer }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell>{{ order.customer }}</Md1DataTable.Cell>
 
-            <Md1DataTable.Cell>{{ order.shown }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell>{{ order.shown }}</Md1DataTable.Cell>
 
-            <Md1DataTable.Cell numeric>{{ order.items }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell numeric>{{ order.items }}</Md1DataTable.Cell>
 
-            <Md1DataTable.Cell numeric>{{ order.total.toFixed(2) }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell numeric>{{ order.total.toFixed(2) }}</Md1DataTable.Cell>
 
-            <Md1DataTable.Cell>
-              <span class="md1-demo-status" :data-status="order.status">{{ order.status }}</span>
-            </Md1DataTable.Cell>
-          </Md1DataTable.Row>
-        </Md1DataTable.Body>
-      </Md1DataTable.Table>
+          <Md1DataTable.Cell>
+            <span class="md1-demo-status" :data-status="order.status">{{ order.status }}</span>
+          </Md1DataTable.Cell>
+        </Md1DataTable.Row>
+      </Md1DataTable.Body>
+    </Md1DataTable.Table>
 
-      <Md1DataTable.Footer />
-    </Md1DataTable>
+    <Md1DataTable.Footer />
+  </Md1DataTable>
 
-    <Md1Snackbar.Portal>
-      <Md1Snackbar v-model="open" action="Undo" @action="onUndo">{{ note }}</Md1Snackbar>
-    </Md1Snackbar.Portal>
-  </Md1Shell>
+  <Md1Snackbar.Portal>
+    <Md1Snackbar v-model="open" action="Undo" @action="onUndo">{{ note }}</Md1Snackbar>
+  </Md1Snackbar.Portal>
 </template>
 
 <style>

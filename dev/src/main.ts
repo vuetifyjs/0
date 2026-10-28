@@ -40,6 +40,7 @@ import Md1Files from './Md1Files.vue'
 import Md1Inbox from './Md1Inbox.vue'
 import Md1Orders from './Md1Orders.vue'
 import Md1Settings from './Md1Settings.vue'
+import Md1Shell from './Md1Shell.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -83,12 +84,25 @@ export const createApp = ViteSSG(
       { path: '/emerald/contacts', component: EmeraldContacts },
       { path: '/emerald/datatable', component: EmeraldDatatable },
       { path: '/emerald/forms', component: EmeraldForms },
-      { path: '/md1', component: Md1Dashboard },
-      { path: '/md1/files', component: Md1Files },
-      { path: '/md1/inbox', component: Md1Inbox },
-      { path: '/md1/orders', component: Md1Orders },
-      { path: '/md1/settings', component: Md1Settings },
+      // Nested so the shell mounts once and only the page swaps on navigation.
+      {
+        path: '/md1',
+        component: Md1Shell,
+        children: [
+          { path: '', component: Md1Dashboard, meta: { title: 'Overview' } },
+          { path: 'files', component: Md1Files, meta: { title: 'Files' } },
+          { path: 'inbox', component: Md1Inbox, meta: { title: 'Inbox' } },
+          { path: 'orders', component: Md1Orders, meta: { title: 'Orders' } },
+          { path: 'settings', component: Md1Settings, meta: { title: 'Settings' } },
+        ],
+      },
     ],
+    // The persistent md1 shell swaps pages in place, so the window offset no
+    // longer resets itself; everything else keeps the router's default.
+    scrollBehavior (to, _from, saved) {
+      if (!to.path.startsWith('/md1')) return
+      return saved || { top: 0 }
+    },
   },
   async ({ app }) => {
     const demo = import.meta.env.BASE_URL.includes('/demo/')

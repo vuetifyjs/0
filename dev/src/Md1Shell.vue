@@ -12,18 +12,19 @@
 
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
+  // Framework
+  import { isString } from '@vuetify/v0'
 
   // Utilities
   import { shallowRef, toRef, watch } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { RouterView, useRoute, useRouter } from 'vue-router'
 
   // Types
   import type { Md1IconName } from '@paper/md1'
 
   /**
-   * Module state, not a setup ref: every md1 page mounts its own shell, so a
-   * ref declared in setup would reset to light on navigation. Deliberately not
-   * persisted — the demo always boots light.
+   * Module state so the theme survives even a shell remount (leaving /md1 and
+   * coming back). Deliberately not persisted — the demo always boots light.
    */
   export const dark = shallowRef(false)
 
@@ -48,18 +49,11 @@
 <script setup lang="ts">
   defineOptions({ name: 'Md1Shell' })
 
-  defineSlots<{
-    /** The page's content, scrolling under the fixed app bar. */
-    default?: () => any
-  }>()
-
-  const { title } = defineProps<{
-    /** The page name, rendered as the app bar title. */
-    title: string
-  }>()
-
   const route = useRoute()
   const router = useRouter()
+
+  /** The page name in the app bar, carried by each child route's `meta.title`. */
+  const title = toRef(() => isString(route.meta.title) ? route.meta.title : 'Overview')
   const { width } = useBreakpoints()
 
   /** Below the 960 dp breakpoint the drawer is temporary; above it, permanent and clipped. */
@@ -140,7 +134,7 @@
     </Md1NavigationDrawer>
 
     <main class="md1-demo-shell__main">
-      <slot />
+      <RouterView />
     </main>
   </div>
 </template>

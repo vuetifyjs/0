@@ -2,9 +2,6 @@
   // Framework
   import { Md1Button, Md1Dialog, Md1Fab, Md1Icon, Md1List, Md1Snackbar, Md1TextField } from '@paper/md1'
 
-  // Context
-  import Md1Shell from './Md1Shell.vue'
-
   // Utilities
   import { nextTick, ref, shallowRef, watch } from 'vue'
 
@@ -102,85 +99,83 @@
 </script>
 
 <template>
-  <Md1Shell title="Inbox">
-    <section class="md1-demo-inbox">
-      <div v-if="messages.length > 0" class="md1-demo-inbox-sheet md1-elevation-2">
-        <Md1List aria-label="Messages" :lines="2">
-          <Md1List.Item
-            v-for="message in messages"
-            :key="message.id"
-            :class="{ 'md1-demo-inbox-unread': message.unread }"
-          >
-            <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
+  <section class="md1-demo-inbox">
+    <div v-if="messages.length > 0" class="md1-demo-inbox-sheet md1-elevation-2">
+      <Md1List aria-label="Messages" :lines="2">
+        <Md1List.Item
+          v-for="message in messages"
+          :key="message.id"
+          :class="{ 'md1-demo-inbox-unread': message.unread }"
+        >
+          <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
 
-            <Md1List.Content>
-              <Md1List.Primary>{{ message.from }}</Md1List.Primary>
+          <Md1List.Content>
+            <Md1List.Primary>{{ message.from }}</Md1List.Primary>
 
-              <Md1List.Secondary>{{ message.subject }}</Md1List.Secondary>
-            </Md1List.Content>
+            <Md1List.Secondary>{{ message.subject }}</Md1List.Secondary>
+          </Md1List.Content>
 
-            <Md1List.Action>
-              <div class="md1-demo-inbox-meta">
-                <span class="md1-demo-inbox-time">{{ message.time }}</span>
+          <Md1List.Action>
+            <div class="md1-demo-inbox-meta">
+              <span class="md1-demo-inbox-time">{{ message.time }}</span>
 
-                <Md1Button
-                  :aria-label="`Archive message from ${message.from}`"
-                  class="md1-demo-inbox-archive"
-                  icon="done"
-                  @click="onArchive(message)"
-                />
-              </div>
-            </Md1List.Action>
-          </Md1List.Item>
-        </Md1List>
-      </div>
+              <Md1Button
+                :aria-label="`Archive message from ${message.from}`"
+                class="md1-demo-inbox-archive"
+                icon="done"
+                @click="onArchive(message)"
+              />
+            </div>
+          </Md1List.Action>
+        </Md1List.Item>
+      </Md1List>
+    </div>
 
-      <div v-else class="md1-demo-inbox-empty">
-        <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
+    <div v-else class="md1-demo-inbox-empty">
+      <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
 
-        <p class="md1-demo-inbox-empty__tagline">All caught up — new messages gather here</p>
-      </div>
+      <p class="md1-demo-inbox-empty__tagline">All caught up — new messages gather here</p>
+    </div>
 
-      <Md1Fab aria-label="Compose" icon="edit" @click="composing = true" />
+    <Md1Fab aria-label="Compose" icon="edit" @click="composing = true" />
 
-      <Md1Dialog v-slot="{ commit }" v-model="composing" variant="confirmation">
-        <Md1Dialog.Content>
-          <Md1Dialog.Title>Compose</Md1Dialog.Title>
+    <Md1Dialog v-slot="{ commit }" v-model="composing" variant="confirmation">
+      <Md1Dialog.Content>
+        <Md1Dialog.Title>Compose</Md1Dialog.Title>
 
-          <div class="md1-demo-inbox-compose">
-            <Md1TextField
-              v-model="to"
-              label="To"
-              @update:model-value="value => commit(drafted(value, subject, body))"
-            />
+        <div class="md1-demo-inbox-compose">
+          <Md1TextField
+            v-model="to"
+            label="To"
+            @update:model-value="value => commit(drafted(value, subject, body))"
+          />
 
-            <Md1TextField
-              v-model="subject"
-              label="Subject"
-              @update:model-value="value => commit(drafted(to, value, body))"
-            />
+          <Md1TextField
+            v-model="subject"
+            label="Subject"
+            @update:model-value="value => commit(drafted(to, value, body))"
+          />
 
-            <Md1TextField
-              v-model="body"
-              label="Message"
-              multiline
-              @update:model-value="value => commit(drafted(to, subject, value))"
-            />
-          </div>
+          <Md1TextField
+            v-model="body"
+            label="Message"
+            multiline
+            @update:model-value="value => commit(drafted(to, subject, value))"
+          />
+        </div>
 
-          <Md1Dialog.Actions>
-            <Md1Dialog.Cancel>Discard</Md1Dialog.Cancel>
+        <Md1Dialog.Actions>
+          <Md1Dialog.Cancel>Discard</Md1Dialog.Cancel>
 
-            <Md1Dialog.Confirm @confirm="onSend">Send</Md1Dialog.Confirm>
-          </Md1Dialog.Actions>
-        </Md1Dialog.Content>
-      </Md1Dialog>
+          <Md1Dialog.Confirm @confirm="onSend">Send</Md1Dialog.Confirm>
+        </Md1Dialog.Actions>
+      </Md1Dialog.Content>
+    </Md1Dialog>
 
-      <Md1Snackbar.Portal :teleport="false">
-        <Md1Snackbar v-model="open" :action="undoable ? 'Undo' : undefined" @action="onUndo">{{ note }}</Md1Snackbar>
-      </Md1Snackbar.Portal>
-    </section>
-  </Md1Shell>
+    <Md1Snackbar.Portal :teleport="false">
+      <Md1Snackbar v-model="open" :action="undoable ? 'Undo' : undefined" @action="onUndo">{{ note }}</Md1Snackbar>
+    </Md1Snackbar.Portal>
+  </section>
 </template>
 
 <style>

@@ -2,9 +2,6 @@
   // Framework
   import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1Switch } from '@paper/md1'
 
-  // Context
-  import Md1Shell from './Md1Shell.vue'
-
   // Utilities
   import { shallowRef } from 'vue'
 
@@ -75,138 +72,136 @@
 </script>
 
 <template>
-  <Md1Shell title="Overview">
-    <div class="md1-demo-dash">
-      <Md1Card v-for="gauge in gauges" :key="gauge.label" class="md1-demo-tile">
+  <div class="md1-demo-dash">
+    <Md1Card v-for="gauge in gauges" :key="gauge.label" class="md1-demo-tile">
+      <svg
+        :aria-label="`${gauge.label} at ${gauge.value} percent`"
+        class="md1-demo-gauge"
+        role="img"
+        viewBox="0 0 48 48"
+      >
+        <circle
+          class="md1-demo-gauge__track"
+          cx="24"
+          cy="24"
+          fill="none"
+          r="20"
+          stroke-width="4"
+        />
+
+        <circle
+          class="md1-demo-gauge__arc"
+          cx="24"
+          cy="24"
+          fill="none"
+          r="20"
+          :stroke-dasharray="`${(gauge.value / 100) * RING} ${RING}`"
+          stroke-width="4"
+          transform="rotate(-90 24 24)"
+        />
+
+        <text class="md1-demo-gauge__value" text-anchor="middle" x="24" y="28">{{ gauge.value }}%</text>
+      </svg>
+
+      <span class="md1-type-body-2 md1-demo-tile__label">{{ gauge.label }}</span>
+    </Md1Card>
+
+    <Md1Card class="md1-demo-wide">
+      <Md1Card.Title>Traffic this week</Md1Card.Title>
+
+      <div class="md1-demo-pad">
         <svg
-          :aria-label="`${gauge.label} at ${gauge.value} percent`"
-          class="md1-demo-gauge"
+          aria-label="Sessions per day, Monday through Sunday, from 320 up to 720"
+          class="md1-demo-chart"
           role="img"
-          viewBox="0 0 48 48"
+          viewBox="0 0 560 220"
         >
-          <circle
-            class="md1-demo-gauge__track"
-            cx="24"
-            cy="24"
-            fill="none"
-            r="20"
-            stroke-width="4"
-          />
+          <g v-for="tick in ticks" :key="tick">
+            <line
+              class="md1-demo-chart__grid"
+              :x1="LEFT"
+              :x2="RIGHT"
+              :y1="y(tick)"
+              :y2="y(tick)"
+            />
 
-          <circle
-            class="md1-demo-gauge__arc"
-            cx="24"
-            cy="24"
-            fill="none"
-            r="20"
-            :stroke-dasharray="`${(gauge.value / 100) * RING} ${RING}`"
-            stroke-width="4"
-            transform="rotate(-90 24 24)"
-          />
+            <text class="md1-demo-chart__tick" text-anchor="end" :x="LEFT - 8" :y="y(tick) + 4">{{ tick }}</text>
+          </g>
 
-          <text class="md1-demo-gauge__value" text-anchor="middle" x="24" y="28">{{ gauge.value }}%</text>
+          <polygon class="md1-demo-chart__area" :points="area" />
+
+          <polyline class="md1-demo-chart__line" fill="none" :points="line" />
+
+          <g v-for="(point, index) in traffic" :key="point.day">
+            <circle class="md1-demo-chart__dot" :cx="x(index)" :cy="y(point.sessions)" r="3" />
+
+            <text class="md1-demo-chart__tick" text-anchor="middle" :x="x(index)" :y="BOTTOM + 22">{{ point.day }}</text>
+          </g>
         </svg>
+      </div>
+    </Md1Card>
 
-        <span class="md1-type-body-2 md1-demo-tile__label">{{ gauge.label }}</span>
-      </Md1Card>
+    <Md1Card class="md1-demo-half">
+      <Md1Card.Title>Updates</Md1Card.Title>
 
-      <Md1Card class="md1-demo-wide">
-        <Md1Card.Title>Traffic this week</Md1Card.Title>
+      <Md1Card.Supporting>
+        Deploy pipeline maintenance lands Thursday at 02:00 UTC. Storage quotas
+        for the EU region were raised, and nightly exports now finish before
+        06:00. Session sampling moved to one-minute windows.
+      </Md1Card.Supporting>
 
-        <div class="md1-demo-pad">
-          <svg
-            aria-label="Sessions per day, Monday through Sunday, from 320 up to 720"
-            class="md1-demo-chart"
-            role="img"
-            viewBox="0 0 560 220"
-          >
-            <g v-for="tick in ticks" :key="tick">
-              <line
-                class="md1-demo-chart__grid"
-                :x1="LEFT"
-                :x2="RIGHT"
-                :y1="y(tick)"
-                :y2="y(tick)"
-              />
+      <Md1Card.Actions>
+        <Md1Button>Read more</Md1Button>
+      </Md1Card.Actions>
+    </Md1Card>
 
-              <text class="md1-demo-chart__tick" text-anchor="end" :x="LEFT - 8" :y="y(tick) + 4">{{ tick }}</text>
-            </g>
+    <Md1Card class="md1-demo-half">
+      <Md1Card.Title>View options</Md1Card.Title>
 
-            <polygon class="md1-demo-chart__area" :points="area" />
+      <div class="md1-demo-options">
+        <Md1Switch v-model="performance" label="Show performance" />
 
-            <polyline class="md1-demo-chart__line" fill="none" :points="line" />
+        <Md1Switch v-model="refresh" label="Auto refresh" />
 
-            <g v-for="(point, index) in traffic" :key="point.day">
-              <circle class="md1-demo-chart__dot" :cx="x(index)" :cy="y(point.sessions)" r="3" />
+        <Md1Switch v-model="compact" label="Compact rows" />
+      </div>
 
-              <text class="md1-demo-chart__tick" text-anchor="middle" :x="x(index)" :y="BOTTOM + 22">{{ point.day }}</text>
-            </g>
-          </svg>
-        </div>
-      </Md1Card>
+      <Md1Divider />
 
-      <Md1Card class="md1-demo-half">
-        <Md1Card.Title>Updates</Md1Card.Title>
+      <div class="md1-demo-options">
+        <Md1Switch v-model="beta" label="Beta dashboard" />
+      </div>
+    </Md1Card>
 
-        <Md1Card.Supporting>
-          Deploy pipeline maintenance lands Thursday at 02:00 UTC. Storage quotas
-          for the EU region were raised, and nightly exports now finish before
-          06:00. Session sampling moved to one-minute windows.
-        </Md1Card.Supporting>
+    <!-- The data table paints its own card (data-formats page): no Md1Card wrapper. -->
+    <Md1DataTable class="md1-demo-wide">
+      <Md1DataTable.Header title="Sales by region" />
 
-        <Md1Card.Actions>
-          <Md1Button>Read more</Md1Button>
-        </Md1Card.Actions>
-      </Md1Card>
+      <Md1DataTable.Table>
+        <Md1DataTable.Head>
+          <Md1DataTable.Column id="region" sortable>Region</Md1DataTable.Column>
 
-      <Md1Card class="md1-demo-half">
-        <Md1Card.Title>View options</Md1Card.Title>
+          <Md1DataTable.Column id="orders" numeric sortable>Orders</Md1DataTable.Column>
 
-        <div class="md1-demo-options">
-          <Md1Switch v-model="performance" label="Show performance" />
+          <Md1DataTable.Column id="revenue" numeric sortable>Revenue</Md1DataTable.Column>
 
-          <Md1Switch v-model="refresh" label="Auto refresh" />
+          <Md1DataTable.Column id="share" numeric sortable>Share</Md1DataTable.Column>
+        </Md1DataTable.Head>
 
-          <Md1Switch v-model="compact" label="Compact rows" />
-        </div>
+        <Md1DataTable.Body v-slot="{ rank }">
+          <Md1DataTable.Row v-for="row in rank(regions)" :id="row.id" :key="row.id" :value="row">
+            <Md1DataTable.Cell>{{ row.region }}</Md1DataTable.Cell>
 
-        <Md1Divider />
+            <Md1DataTable.Cell numeric>{{ row.orders.toLocaleString('en-US') }}</Md1DataTable.Cell>
 
-        <div class="md1-demo-options">
-          <Md1Switch v-model="beta" label="Beta dashboard" />
-        </div>
-      </Md1Card>
+            <Md1DataTable.Cell numeric>${{ row.revenue.toLocaleString('en-US') }}</Md1DataTable.Cell>
 
-      <!-- The data table paints its own card (data-formats page): no Md1Card wrapper. -->
-      <Md1DataTable class="md1-demo-wide">
-        <Md1DataTable.Header title="Sales by region" />
-
-        <Md1DataTable.Table>
-          <Md1DataTable.Head>
-            <Md1DataTable.Column id="region" sortable>Region</Md1DataTable.Column>
-
-            <Md1DataTable.Column id="orders" numeric sortable>Orders</Md1DataTable.Column>
-
-            <Md1DataTable.Column id="revenue" numeric sortable>Revenue</Md1DataTable.Column>
-
-            <Md1DataTable.Column id="share" numeric sortable>Share</Md1DataTable.Column>
-          </Md1DataTable.Head>
-
-          <Md1DataTable.Body v-slot="{ rank }">
-            <Md1DataTable.Row v-for="row in rank(regions)" :id="row.id" :key="row.id" :value="row">
-              <Md1DataTable.Cell>{{ row.region }}</Md1DataTable.Cell>
-
-              <Md1DataTable.Cell numeric>{{ row.orders.toLocaleString('en-US') }}</Md1DataTable.Cell>
-
-              <Md1DataTable.Cell numeric>${{ row.revenue.toLocaleString('en-US') }}</Md1DataTable.Cell>
-
-              <Md1DataTable.Cell numeric>{{ row.share }}%</Md1DataTable.Cell>
-            </Md1DataTable.Row>
-          </Md1DataTable.Body>
-        </Md1DataTable.Table>
-      </Md1DataTable>
-    </div>
-  </Md1Shell>
+            <Md1DataTable.Cell numeric>{{ row.share }}%</Md1DataTable.Cell>
+          </Md1DataTable.Row>
+        </Md1DataTable.Body>
+      </Md1DataTable.Table>
+    </Md1DataTable>
+  </div>
 </template>
 
 <style>

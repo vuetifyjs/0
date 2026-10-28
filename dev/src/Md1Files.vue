@@ -5,9 +5,6 @@
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
 
-  // Context
-  import Md1Shell from './Md1Shell.vue'
-
   // Utilities
   import { ref, shallowRef, toRef } from 'vue'
 
@@ -116,48 +113,46 @@
 </script>
 
 <template>
-  <Md1Shell title="Files">
-    <div class="md1-demo-files">
-      <!-- The selection pattern's contextual bar replaces the filter row while tiles are selected, as the data table's contextual header does. -->
-      <div class="md1-demo-files__bar">
-        <template v-if="chosen.length > 0">
-          <span class="md1-demo-files__count" role="status">
-            {{ chosen.length === 1 ? '1 item selected' : `${chosen.length} items selected` }}
-          </span>
+  <div class="md1-demo-files">
+    <!-- The selection pattern's contextual bar replaces the filter row while tiles are selected, as the data table's contextual header does. -->
+    <div class="md1-demo-files__bar">
+      <template v-if="chosen.length > 0">
+        <span class="md1-demo-files__count" role="status">
+          {{ chosen.length === 1 ? '1 item selected' : `${chosen.length} items selected` }}
+        </span>
 
-          <Md1Button aria-label="Clear selection" icon="close" @click="onClear" />
+        <Md1Button aria-label="Clear selection" icon="close" @click="onClear" />
 
-          <Md1Button aria-label="Delete selected" icon="delete" @click="onDelete" />
-        </template>
+        <Md1Button aria-label="Delete selected" icon="delete" @click="onDelete" />
+      </template>
 
-        <Md1ToggleButtons v-else v-model="filter" label="Show" mandatory>
-          <Md1ToggleButtons.Item value="all">All</Md1ToggleButtons.Item>
+      <Md1ToggleButtons v-else v-model="filter" label="Show" mandatory>
+        <Md1ToggleButtons.Item value="all">All</Md1ToggleButtons.Item>
 
-          <Md1ToggleButtons.Item value="image">Images</Md1ToggleButtons.Item>
+        <Md1ToggleButtons.Item value="image">Images</Md1ToggleButtons.Item>
 
-          <Md1ToggleButtons.Item value="document">Documents</Md1ToggleButtons.Item>
+        <Md1ToggleButtons.Item value="document">Documents</Md1ToggleButtons.Item>
 
-          <Md1ToggleButtons.Item value="sheet">Spreadsheets</Md1ToggleButtons.Item>
-        </Md1ToggleButtons>
-      </div>
-
-      <Md1GridList v-if="shown.length > 0" :columns>
-        <Md1GridList.Tile
-          v-for="item in shown"
-          :key="item.id"
-          :selected="chosen.includes(item.id)"
-          :src="thumbs[item.kind]"
-          @click="onToggle(item.id)"
-        >
-          <Md1GridList.Bar :subtitle="item.meta" :title="item.name" />
-        </Md1GridList.Tile>
-      </Md1GridList>
-
-      <p class="md1-demo-files__note" role="status">
-        {{ shown.length > 0 ? `${shown.length} of ${total} items` : 'Nothing here. Pick another filter.' }}
-      </p>
+        <Md1ToggleButtons.Item value="sheet">Spreadsheets</Md1ToggleButtons.Item>
+      </Md1ToggleButtons>
     </div>
-  </Md1Shell>
+
+    <Md1GridList v-if="shown.length > 0" :columns>
+      <Md1GridList.Tile
+        v-for="item in shown"
+        :key="item.id"
+        :selected="chosen.includes(item.id)"
+        :src="thumbs[item.kind]"
+        @click="onToggle(item.id)"
+      >
+        <Md1GridList.Bar :subtitle="item.meta" :title="item.name" />
+      </Md1GridList.Tile>
+    </Md1GridList>
+
+    <p class="md1-demo-files__note" role="status">
+      {{ shown.length > 0 ? `${shown.length} of ${total} items` : 'Nothing here. Pick another filter.' }}
+    </p>
+  </div>
 
   <Md1Snackbar.Portal>
     <Md1Snackbar v-model="open" action="Undo" @action="onUndo">{{ note }}</Md1Snackbar>
