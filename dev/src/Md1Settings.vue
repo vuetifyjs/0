@@ -1,6 +1,8 @@
 <script lang="ts">
-  // Framework
   import { Md1Checkbox, Md1Dialog, Md1Divider, Md1List, Md1Radio, Md1Snackbar, Md1Subheader, Md1Switch } from '@paper/md1'
+
+  // Framework
+  import { useStorage } from '@vuetify/v0'
 
   // Utilities
   import { shallowRef } from 'vue'
@@ -11,23 +13,34 @@
 <script setup lang="ts">
   defineOptions({ name: 'Md1Settings' })
 
+  // Every toggle persists through the storage plugin, so a reload keeps it.
+  const storage = useStorage()
+
   // General
-  const updates = shallowRef(true)
-  const reports = shallowRef(false)
+  const updates = storage.get('md1-demo:updates', true)
+  const reports = storage.get('md1-demo:reports', false)
 
   // Notifications
-  const notifications = shallowRef(true)
-  const sound = shallowRef(true)
-  const previews = shallowRef(true)
+  const notifications = storage.get('md1-demo:notifications', true)
+  const sound = storage.get('md1-demo:sound', true)
+  const previews = storage.get('md1-demo:previews', true)
 
   // Data & storage
-  const wifi = shallowRef(true)
-  const sync = shallowRef<unknown>('Every hour')
+  const wifi = storage.get('md1-demo:wifi', true)
+  const sync = storage.get<unknown>('md1-demo:sync', 'Every hour')
   const choosing = shallowRef(false)
   const clearing = shallowRef(false)
   const cleared = shallowRef(false)
 
+  /** Clearing local data really clears it: every persisted setting returns to its default. */
   function onClear () {
+    updates.value = true
+    reports.value = false
+    notifications.value = true
+    sound.value = true
+    previews.value = true
+    wifi.value = true
+    sync.value = 'Every hour'
     cleared.value = true
   }
 </script>

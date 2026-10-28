@@ -1,40 +1,18 @@
 <script lang="ts">
   // Framework
-  import { Md1Chip, Md1Dialog, Md1Fab, Md1List, Md1Radio, Md1Snackbar, Md1Subheader, Md1TextField, Md1ToggleButtons } from '@paper/md1'
+  import { Md1Chip, Md1Dialog, Md1Fab, Md1List, Md1Radio, Md1Snackbar, Md1Subheader, Md1TextField, Md1ToggleButtons, Md1Tooltip } from '@paper/md1'
+
+  // Context
+  import { contacts } from './Md1Data'
 
   // Utilities
-  import { computed, ref, shallowRef, watch } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
 
-  type Contact = {
-    id: number
-    name: string
-    email: string
-    label: string
-  }
+  // Types
+  import type { Contact } from './Md1Data'
 
   const labels = ['Work', 'Family', 'Friends']
   const filters = ['All', ...labels]
-
-  const seed: Contact[] = [
-    { id: 1, name: 'Amara Diallo', email: 'amara.diallo@example.com', label: 'Work' },
-    { id: 2, name: 'Ana Ribeiro', email: 'ana.ribeiro@example.com', label: 'Family' },
-    { id: 3, name: 'Ben Okafor', email: 'ben.okafor@example.com', label: 'Friends' },
-    { id: 4, name: 'Bianca Costa', email: 'bianca.costa@example.com', label: 'Work' },
-    { id: 5, name: 'Chloe Martin', email: 'chloe.martin@example.com', label: 'Work' },
-    { id: 6, name: 'Dev Patel', email: 'dev.patel@example.com', label: 'Friends' },
-    { id: 7, name: 'Diego Fuentes', email: 'diego.fuentes@example.com', label: 'Family' },
-    { id: 8, name: 'Elena Rossi', email: 'elena.rossi@example.com', label: 'Friends' },
-    { id: 9, name: 'Farid Haddad', email: 'farid.haddad@example.com', label: 'Work' },
-    { id: 10, name: 'Greta Lindqvist', email: 'greta.lindqvist@example.com', label: 'Friends' },
-    { id: 11, name: 'Hugo Alves', email: 'hugo.alves@example.com', label: 'Work' },
-    { id: 12, name: 'Imani Said', email: 'imani.said@example.com', label: 'Family' },
-    { id: 13, name: 'Jonas Weber', email: 'jonas.weber@example.com', label: 'Friends' },
-    { id: 14, name: 'Kenji Sato', email: 'kenji.sato@example.com', label: 'Work' },
-    { id: 15, name: 'Lucia Moreau', email: 'lucia.moreau@example.com', label: 'Family' },
-    { id: 16, name: 'Mateo Silva', email: 'mateo.silva@example.com', label: 'Friends' },
-    { id: 17, name: 'Nadia Petrova', email: 'nadia.petrova@example.com', label: 'Work' },
-    { id: 18, name: 'Omar Haddad', email: 'omar.haddad@example.com', label: 'Family' },
-  ]
 
   const palette = ['#3F51B5', '#009688', '#E91E63', '#FF5722', '#607D8B', '#9C27B0', '#795548', '#FF9800']
 
@@ -65,14 +43,12 @@
 <script setup lang="ts">
   defineOptions({ name: 'Md1Contacts' })
 
-  const contacts = ref<Contact[]>([...seed])
   const filter = shallowRef('All')
-  const next = shallowRef(19)
   const saved = shallowRef(false)
 
   /** Visible contacts sorted and bucketed under their alphabetical subheaders. */
   const groups = computed(() => {
-    const visible = contacts.value
+    const visible = contacts.all.value
       .filter(contact => filter.value === 'All' || contact.label === filter.value)
       .toSorted((a, b) => a.name.localeCompare(b.name))
 
@@ -109,7 +85,7 @@
   })
 
   function onSave () {
-    contacts.value.push({ id: next.value++, name: name.value.trim(), email: email.value.trim(), label: label.value })
+    contacts.add({ name: name.value.trim(), email: email.value.trim(), label: label.value })
 
     // The new row must be visible in its alphabetical slot, whatever the filter.
     if (filter.value !== 'All' && filter.value !== label.value) filter.value = 'All'
@@ -162,7 +138,19 @@
       </template>
     </div>
 
-    <Md1Fab aria-label="Add contact" icon="add" @click="adding = true" />
+    <Md1Tooltip>
+      <Md1Tooltip.Activator v-slot="{ attrs }">
+        <Md1Fab
+          v-bind="attrs"
+          aria-label="Add contact"
+          class="md1-demo-contacts-fab"
+          icon="add"
+          @click="adding = true"
+        />
+      </Md1Tooltip.Activator>
+
+      <Md1Tooltip.Content>Add contact</Md1Tooltip.Content>
+    </Md1Tooltip>
 
     <Md1Dialog v-slot="{ commit }" v-model="adding" v-model:value="draft" variant="confirmation">
       <Md1Dialog.Content>
@@ -281,5 +269,12 @@
     margin: var(--md1-spacing-2, 16px) 0 0;
     font-size: var(--md1-type-caption-size, 12px);
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  /* While the bottom bar shows, the fixed FAB clears its seam and still rises with the snackbar. */
+  @media (width < 960px) {
+    .md1-fab.md1-demo-contacts-fab {
+      inset-block-end: calc(var(--md1-demo-seam, 0px) + var(--md1-keyline-margin, 16px) + var(--md1-snackbar-height, 0px));
+    }
   }
 </style>

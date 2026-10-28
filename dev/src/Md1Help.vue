@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Md1Button, Md1Dialog, Md1Divider, Md1ExpansionPanel, Md1Icon, Md1List, Md1Radio, Md1Snackbar, Md1Subheader, Md1TextField } from '@paper/md1'
+  import { Md1Button, Md1Dialog, Md1Divider, Md1ExpansionPanel, Md1Icon, Md1List, Md1Radio, Md1SearchBar, Md1Snackbar, Md1Subheader, Md1TextField } from '@paper/md1'
 
   // Framework
   import { isString } from '@vuetify/v0'
@@ -151,17 +151,15 @@
 
 <template>
   <section class="md1-demo-help">
-    <div class="md1-demo-help-sheet md1-elevation-2">
-      <div class="md1-demo-help-search">
-        <Md1TextField
-          v-model="query"
-          clearable
-          icon="search"
-          label="Search help"
-          @clear="query = ''"
-        />
-      </div>
+    <div class="md1-demo-help-search">
+      <Md1SearchBar v-model="query" placeholder="Search help">
+        <Md1SearchBar.Item v-for="topic in topics" :key="topic.title" :value="topic.title" />
 
+        <Md1SearchBar.Empty v-slot="{ query: missed }">No help topics match "{{ missed }}"</Md1SearchBar.Empty>
+      </Md1SearchBar>
+    </div>
+
+    <div class="md1-demo-help-sheet md1-elevation-2">
       <Md1Subheader inset :sticky="false">Popular topics</Md1Subheader>
 
       <Md1List v-if="found.length > 0" aria-label="Popular topics">
@@ -267,9 +265,9 @@
     border-radius: var(--md1-radius, 2px);
   }
 
-  /* The search field spans the sheet on the content keyline. */
+  /* The search bar sits on the page background above the sheet, so its 2 dp sheet reads as raised. */
   .md1-demo-help-search {
-    padding: var(--md1-spacing-2, 16px) var(--md1-keyline-margin, 16px) 0;
+    margin-bottom: var(--md1-keyline-margin, 16px);
   }
 
   .md1-demo-help-chevron {
