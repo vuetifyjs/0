@@ -71,14 +71,21 @@
 
   // The compose draft
   const composing = shallowRef(false)
+  const draft = shallowRef<unknown>()
   const to = shallowRef('')
   const subject = shallowRef('')
   const body = shallowRef('')
 
-  // Every opening starts from a blank draft.
+  /*
+   * Every opening starts from a blank draft. The dialog reopens on its
+   * committed value — a confirmed Send writes the draft there — so the
+   * committed model is blanked along with the fields, or Send would arrive
+   * enabled on the next opening.
+   */
   watch(composing, value => {
     if (!value) return
 
+    draft.value = undefined
     to.value = ''
     subject.value = ''
     body.value = ''
@@ -139,7 +146,7 @@
 
     <Md1Fab aria-label="Compose" icon="edit" @click="composing = true" />
 
-    <Md1Dialog v-slot="{ commit }" v-model="composing" variant="confirmation">
+    <Md1Dialog v-slot="{ commit }" v-model="composing" v-model:value="draft" variant="confirmation">
       <Md1Dialog.Content>
         <Md1Dialog.Title>Compose</Md1Dialog.Title>
 
