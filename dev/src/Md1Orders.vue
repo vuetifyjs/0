@@ -6,6 +6,7 @@
 
   // Utilities
   import { defineComponent, nextTick, ref, shallowRef, toRef } from 'vue'
+  import { useRouter } from 'vue-router'
 
   // Types
   import type { DataTableContext } from '@vuetify/v0'
@@ -58,6 +59,8 @@
   const open = shallowRef(false)
   const note = shallowRef('')
 
+  const router = useRouter()
+
   const orders = toRef(() => all.filter(order => !gone.value.includes(order.id)))
 
   /**
@@ -108,6 +111,10 @@
 </script>
 
 <template>
+  <div class="md1-demo-orders__bar">
+    <Md1Button variant="raised" @click="router.push('/md1/orders/new')">New order</Md1Button>
+  </div>
+
   <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" selectable>
     <Capture />
 
@@ -171,6 +178,13 @@
 </template>
 
 <style>
+  /* The page's own action, above the table card at the end edge. */
+  .md1-demo-orders__bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--md1-spacing-2, 16px);
+  }
+
   /* Status at the data row's ink with a severity dot: the data table page styles no cell content, so the dot leans on the kit-bridge severities. */
   .md1-demo-status {
     display: inline-flex;
