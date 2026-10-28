@@ -131,6 +131,8 @@ The pattern formats results as cards to match the inset look of the search box. 
 In-app search can also live behind a search icon in the app bar: `Md1Toolbar.Search` expands over the bar, offers completions, and on submit the screen's content is replaced by the results while the query stays in the expanded bar. Here the results are a list with a count above it; clearing the query returns to the screen's content.
 :::
 
+## Props
+
 <!-- Hand-authored, temporarily. These pages predate DocsApi extraction for
      @paper/* packages; once the generator covers the design systems this table
      is replaced by <DocsApi />. Keep it in sync with Md1SearchBar.vue until then. -->

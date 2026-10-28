@@ -63,7 +63,7 @@ The root sits inside a [Presence](/components/primitives/presence), which carrie
 
 ### Determinate
 
-Use the determinate bar when the percentage complete is detectable: an upload, a download, a known number of steps. The fill is the primary colour (`--md1-primary`, Indigo 500 in the default theme) and the track behind it is the same colour at 30%, the opacity measured from the spec's own indicator sheet. The bar is 4 dp tall, a measurement from that sheet as well, and spans the full width of the edge it sits on.
+Use the determinate bar when the percentage complete is detectable: an upload, a download, a known number of steps. The fill is the primary colour (`--md1-primary-ink`, Indigo 500 in the default theme, and a lighter tone of the primary on the dark theme so the bar holds 3:1 on the Grey 800 sheet) and the track behind it is the same colour at 30%, the opacity measured from the spec's own indicator sheet. The bar is 4 dp tall, a measurement from that sheet as well, and spans the full width of the edge it sits on.
 
 The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". Material Design 1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps.[^step] The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
 :::
