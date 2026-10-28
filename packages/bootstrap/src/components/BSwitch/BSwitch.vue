@@ -47,6 +47,8 @@
     return list
   })
 
+  const fieldName = toRef(() => isString(name) && name.length > 0 ? name : undefined)
+
   const submitted = toRef(() => isUndefined(value) ? '' : String(value))
 
   function onChange (event: Event) {
@@ -64,7 +66,7 @@
       :id="uid"
       :checked="model"
       :disabled="disabled || undefined"
-      :name
+      :name="fieldName"
       role="switch"
       switch
       type="checkbox"

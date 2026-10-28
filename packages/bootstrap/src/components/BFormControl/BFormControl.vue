@@ -87,7 +87,7 @@
 
   const field = createInput({
     value: model,
-    id,
+    id: isString(id) && id.length > 0 ? id : undefined,
     disabled: () => disabled,
     readonly: () => readonly,
   })
@@ -138,7 +138,7 @@
     'id': field.id,
     'class': classes(),
     'type': as === 'input' ? type : undefined,
-    'size': isNumber(size) ? size : undefined,
+    'size': as === 'select' && isNumber(size) ? size : undefined,
     'disabled': field.isDisabled.value || undefined,
     'readonly': field.isReadonly.value || undefined,
     'aria-invalid': invalid ? true : undefined,

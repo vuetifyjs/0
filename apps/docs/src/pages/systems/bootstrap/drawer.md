@@ -112,7 +112,9 @@ The panel slides off its edge and the backdrop fades with it. `drawer-instant` a
 |------|------|---------|-------------|
 | `v-model` | `boolean` | `false` | Open state. Drives `showModal()` and `close()`. |
 | `blocking` | `boolean` | `false` | Backdrop click does not close. Adds `.drawer-static` for the bounce. |
+| `keyboard` | `boolean` | `true` | Escape closes. `false` bounces and leaves the drawer open. |
 | `placement` | `'start' \| 'end' \| 'top' \| 'bottom' \| 'fullscreen'` | — | `drawer-start`, `drawer-end`, `drawer-top`, `drawer-bottom`, or `drawer-fullscreen`. |
+| `scroll` | `boolean` | `false` | The drawer stays modal. `dialog-open` is not added, so the page can scroll. |
 | `sheet` | `boolean` | `false` | Adds `drawer-sheet`. |
 
 | Part | Renders | Notes |
@@ -125,7 +127,7 @@ The panel slides off its edge and the backdrop fades with it. `drawer-instant` a
 
 ## Accessibility
 
-The dialog element carries `role="dialog"` and `aria-modal`. `BDrawerTitle` is the accessible name. Opening calls `showModal()`, so the browser traps focus and returns it to the trigger on close. Escape closes, including when `blocking` is set.
+The dialog element carries `role="dialog"` and `aria-modal`. `BDrawerTitle` is the accessible name. Opening calls `showModal()`, so the browser traps focus and returns it to the trigger on close. Escape closes, including when `blocking` is set, unless `keyboard` is false. `scroll` keeps the page scrollable and does not leave `dialog-open` behind after the last locking dialog closes.
 
 > [!IMPORTANT]
 > Compose `BDrawerTitle`. Without it the drawer has no accessible name.

@@ -4,7 +4,7 @@
 
   // Utilities
   import { orphan } from '../../utilities/context'
-  import { onBeforeUnmount, toRef, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { BTabsTicketInput } from '../BTabs/BTabs.vue'
@@ -47,6 +47,13 @@
       disabled: () => disabled,
     })
     : undefined
+
+  watch(() => value, next => {
+    if (!ticket || !tabs || Object.is(ticket.value, next)) return
+    const selected = ticket.isSelected.value
+    tabs.selection.upsert(ticket.id, { value: next })
+    if (selected) ticket.select()
+  })
 
   onBeforeUnmount(() => {
     ticket?.unregister()

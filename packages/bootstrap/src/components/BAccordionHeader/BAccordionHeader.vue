@@ -12,6 +12,7 @@
     <slot />
 
     <svg
+      aria-hidden="true"
       class="accordion-icon"
       fill="none"
       stroke="currentColor"

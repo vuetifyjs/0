@@ -76,11 +76,11 @@ The HTML tab is the pin. The Vue tab is the same two elements. `data-bs-bubble` 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `v-model` | `number` | | Thumb value. |
-| `min` | `number` | `0` | Minimum. |
-| `max` | `number` | `100` | Maximum. |
-| `step` | `number` | `1` | Snap increment. |
+| `min` | `number` | `0` | Minimum. Read when the range is created. |
+| `max` | `number` | `100` | Maximum. Read when the range is created. |
+| `step` | `number` | `1` | Snap increment. Read when the range is created. |
 | `disabled` | `boolean` | `false` | Disables the input and the thumb. |
-| `id` | `string` | generated | Input id, for a label's `for`. |
+| `id` | `string` | generated | Input id, for a label's `for`. An empty string is omitted. |
 
 ## Accessibility
 

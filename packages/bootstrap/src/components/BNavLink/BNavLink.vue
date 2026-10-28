@@ -1,4 +1,7 @@
 <script lang="ts">
+  // Framework
+  import { isString } from '@vuetify/v0'
+
   // Utilities
   import { toRef } from 'vue'
 
@@ -33,7 +36,10 @@
     return list
   })
 
-  const address = toRef(() => disabled ? undefined : href)
+  const address = toRef(() => {
+    if (disabled || !isString(href) || href.length === 0) return undefined
+    return href
+  })
 </script>
 
 <template>

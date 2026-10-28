@@ -103,4 +103,4 @@ The More menu is a `div.menu`, positioned with [usePopover](/composables/system/
 
 ## Accessibility
 
-The More control is a `button` with `aria-haspopup="menu"` and `aria-expanded`. Escape closes the menu. A click outside closes it. Items that moved are in the menu; their copies in the row are hidden, so they are not in the tab order twice. A kept item stays a normal nav link.
+The More control is a `button` with `aria-haspopup="menu"` and `aria-expanded`. Escape closes the menu and returns focus to that button. A click outside closes it. Items that moved are copied into the menu; the row copy stays mounted for measurement and is hidden, so it is not in the tab order. The copy drops `id` so the two nodes do not share one. A kept item stays a normal nav link. Arrow keys do not move through the menu.

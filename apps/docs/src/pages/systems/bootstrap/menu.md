@@ -121,13 +121,14 @@ Hover opens a submenu immediately and closes it after 100ms. A click that enters
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `v-model` | `boolean` | `false` | Open state. Adds `.show` on `.menu`. |
-| `label` | `string` | `'Toggle menu'` | Trigger text. |
+| `label` | `string` | `'Toggle menu'` | Trigger text. An empty string uses the default. |
+| `triggerClass` | `string` | `'btn-solid theme-primary'` | Classes on the trigger. The navbar passes `nav-link`. |
 | `placement` | `'bottom-start' \| 'bottom' \| 'bottom-end' \| 'top-start' \| 'top' \| 'top-end' \| 'left-start' \| 'left' \| 'left-end' \| 'right-start' \| 'right' \| 'right-end'` | `'bottom-start'` | Where the menu sits, and the `data-bs-placement` hook. |
 | `autoClose` | `boolean \| 'inside' \| 'outside'` | `true` | `true` closes on a click inside or outside. `'inside'` and `'outside'` close on only that side. `false` leaves Escape and the trigger. |
 
 | Part | Renders | Notes |
 |------|---------|-------|
-| `BMenuItem` | `a.menu-item` or `button.menu-item` | `href` selects the anchor. `disabled` adds `.disabled`. |
+| `BMenuItem` | `a.menu-item` or `button.menu-item` | `href` selects the anchor. `disabled` adds `.disabled` and `aria-disabled`. A disabled link does not navigate. |
 | `BMenuHeader` | `h6.menu-header` | Skipped by the arrow keys |
 | `BMenuDivider` | `hr.menu-divider` | Skipped by the arrow keys |
 | `BMenuSubmenu` | `div.submenu` | Nested menu. `label` is the trigger text. |
@@ -136,6 +137,6 @@ Hover opens a submenu immediately and closes it after 100ms. A click that enters
 
 The trigger is `aria-haspopup="menu"` and `aria-expanded`. Items are in the tab sequence only as a group: the trigger is tabbable, items are `tabindex="-1"`, and the arrows, Home, and End move between them, wrapping at the ends. Tab closes the menu and moves on. Escape closes and returns focus to the trigger. Opening from a click leaves focus where it was. ArrowDown and ArrowUp on the trigger open the menu and focus the first or last item.
 
-A submenu trigger is `aria-haspopup="true"`. ArrowRight opens it (ArrowLeft when the direction is RTL) and focuses the first nested item. The opposite arrow closes it. The menu does not mark the rest of the page inert. Bootstrap's own menu does the same.
+A submenu trigger is `aria-haspopup="true"`. ArrowRight opens it (ArrowLeft when the direction is RTL) and focuses the first nested item, including a submenu nested inside another. The opposite arrow closes it. An empty submenu label is named Submenu and is not written into the button. The menu does not mark the rest of the page inert. Bootstrap's own menu does the same.
 
 The markup does not add `role="menu"` or `role="menuitem"`. Bootstrap's stylesheet and docs don't either.

@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { useId } from '@vuetify/v0'
+  import { isString, useId } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -40,7 +40,7 @@
     horizontal = false,
   } = defineProps<BCollapseProps>()
 
-  const id = toRef(() => _id ?? uid)
+  const id = toRef(() => isString(_id) && _id.length > 0 ? _id : uid)
 
   const panelClass = toRef(() => {
     const list = ['collapse']

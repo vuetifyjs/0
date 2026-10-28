@@ -1,6 +1,9 @@
 <script lang="ts">
   // Framework
-  import { Atom } from '@vuetify/v0'
+  import { Atom, isString } from '@vuetify/v0'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   export interface BNavbarBrandProps {
     /** `a` in the docs link form, `span` for a heading. */
@@ -17,13 +20,15 @@
   }>()
 
   const { as = 'a', href } = defineProps<BNavbarBrandProps>()
+
+  const address = toRef(() => as === 'a' && isString(href) && href.length > 0 ? href : undefined)
 </script>
 
 <template>
   <Atom
     :as
     class="navbar-brand"
-    :href="as === 'a' ? href : undefined"
+    :href="address"
   >
     <slot />
   </Atom>

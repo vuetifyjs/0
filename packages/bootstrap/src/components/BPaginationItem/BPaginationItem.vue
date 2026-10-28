@@ -40,8 +40,10 @@
     >
       <a
         :aria-current="isSelected ? 'page' : undefined"
+        :aria-disabled="isDisabled ? true : undefined"
         class="page-link"
         :href="isDisabled ? undefined : href"
+        :tabindex="isDisabled ? -1 : undefined"
         @click.prevent="select"
       >
         <slot />

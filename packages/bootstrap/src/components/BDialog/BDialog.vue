@@ -87,7 +87,8 @@
 
   function unlock () {
     if (!IN_BROWSER) return
-    if (isNullOrUndefined(document.querySelector('dialog[open]:modal'))) {
+    // A scroll drawer stays modal but must not hold the lock. It sets data-scroll.
+    if (isNullOrUndefined(document.querySelector('dialog[open]:modal:not([data-scroll])'))) {
       document.documentElement.classList.remove('dialog-open')
     }
   }
@@ -187,6 +188,8 @@
   }
 
   function onBackdrop (event: MouseEvent) {
+    // Non-modal has no backdrop. A click on the dialog element is the panel.
+    if (!modal) return
     if (event.target !== event.currentTarget) return
     if (blocking) {
       bounce()
@@ -202,6 +205,21 @@
 
   watch(model, open => {
     sync(open)
+  })
+
+  // The class updates on its own. show/showModal does not, so a live flip
+  // would leave a modal dialog wearing .dialog-nonmodal, or the reverse.
+  watch(() => modal, value => {
+    const element = dialogEl.value
+    if (!model.value || isNullOrUndefined(element) || !IN_BROWSER || !element.open) return
+    element.close()
+    if (value) {
+      element.showModal()
+      document.documentElement.classList.add('dialog-open')
+    } else {
+      element.show()
+      unlock()
+    }
   })
 
   onMounted(() => {

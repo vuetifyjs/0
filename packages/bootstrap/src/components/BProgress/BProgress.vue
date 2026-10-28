@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { createProgress } from '@vuetify/v0'
+  import { createProgress, isString } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -43,6 +43,8 @@
 
   const percent = toRef(() => progress.fromValue(model.value))
 
+  const name = toRef(() => isString(label) && label.length > 0 ? label : undefined)
+
   const classes = toRef(() => {
     const list = ['progress-bar']
 
@@ -55,7 +57,7 @@
 
 <template>
   <div
-    :aria-label="label"
+    :aria-label="name"
     :aria-valuemax="max"
     :aria-valuemin="min"
     :aria-valuenow="model"

@@ -104,7 +104,7 @@ Nothing here is a selection or a tab. The component writes the classes and the a
 | `fill` | `boolean` | `false` | Adds `.nav-fill`. |
 | `justified` | `boolean` | `false` | Adds `.nav-justified`. |
 
-`BNav.Link` takes `href`, `active`, and `disabled`. `active` adds `.active` and `aria-current="page"`. `disabled` adds `.disabled` and `aria-disabled="true"`, drops `href`, and sets `tabindex="-1"`.
+`BNav.Link` takes `href`, `active`, and `disabled`. `active` adds `.active` and `aria-current="page"`. `disabled` adds `.disabled` and `aria-disabled="true"`, drops `href`, and sets `tabindex="-1"`. An empty `href` is omitted.
 
 ## Accessibility
 

@@ -90,7 +90,7 @@ A switch. The class switch is the wrapper. Inside it, a checkbox carries role sw
 | `v-model` | `boolean` | `false` | Checked state. |
 | `disabled` | `boolean` | `false` | Native `disabled` on the input. |
 | `id` | `string` | generated | Points a label's `for` at the input. |
-| `name` | `string` | — | Native name. |
+| `name` | `string` | — | Native name. An empty string is omitted. |
 | `size` | `'sm' \| 'lg'` | — | `switch-sm` or `switch-lg` on the wrapper. |
 | `theme` | `string` | — | `theme-{theme}` on the wrapper. |
 | `value` | `string \| number` | `''` | Submitted value. The pin uses an empty string. |

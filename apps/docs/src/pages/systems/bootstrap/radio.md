@@ -100,7 +100,7 @@ The class is on the input. Give every radio in a set the same `name` so the brow
 |------|------|---------|-------------|
 | `v-model` | `string \| number \| null` | `null` | The group's selected value. |
 | `value` | `string \| number` | — | This radio's value. Checked when it matches the model. |
-| `name` | `string` | — | Native name. Radios in one group share it. |
+| `name` | `string` | — | Native name. Radios in one group share it. An empty string is omitted. |
 | `disabled` | `boolean` | `false` | Native `disabled` on the input. |
 | `id` | `string` | generated | Points a label's `for` at the input. |
 | `size` | `'sm' \| 'lg'` | — | `radio-sm` or `radio-lg` on the input. |

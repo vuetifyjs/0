@@ -1,4 +1,10 @@
 <script lang="ts">
+  // Framework
+  import { isString } from '@vuetify/v0'
+
+  // Utilities
+  import { toRef } from 'vue'
+
   export interface BFormLabelProps {
     /**
      * Id of the control this label names. Written to the `for` attribute.
@@ -14,7 +20,9 @@
     default?: () => any
   }>()
 
-  const { for: htmlFor } = defineProps<BFormLabelProps>()
+  const { for: _for } = defineProps<BFormLabelProps>()
+
+  const htmlFor = toRef(() => isString(_for) && _for.length > 0 ? _for : undefined)
 </script>
 
 <template>

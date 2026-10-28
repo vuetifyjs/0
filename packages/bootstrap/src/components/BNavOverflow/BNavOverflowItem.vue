@@ -30,7 +30,10 @@
     if (isString(node.type)) {
       const names = classNames(node.props?.class).filter(name => name !== 'nav-link')
       if (!names.includes('menu-item')) names.unshift('menu-item')
-      return h(node.type, { ...node.props, class: names }, node.children as VNodeArrayChildren)
+      // The row copy stays mounted for measurement. A second id fails HTML and aria.
+      const props: Record<string, unknown> = { ...node.props, class: names }
+      delete props.id
+      return h(node.type, props, node.children as VNodeArrayChildren)
     }
 
     // A slot outlet is a fragment. The link is one of its children.

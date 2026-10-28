@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { Dialog, IN_BROWSER, createContext, isNullOrUndefined, isUndefined, useEventListener, useTimer } from '@vuetify/v0'
+  import { Dialog, IN_BROWSER, createContext, isNullOrUndefined, isUndefined, useEventListener, useTimer, useWindowEventListener } from '@vuetify/v0'
 
   // Utilities
   import { mergeProps, onMounted, onScopeDispose, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
@@ -130,7 +130,8 @@
 
   function unlock () {
     if (!IN_BROWSER) return
-    if (isNullOrUndefined(document.querySelector('dialog[open]:modal'))) {
+    // This drawer sets data-scroll while `scroll` is on, so it does not count.
+    if (isNullOrUndefined(document.querySelector('dialog[open]:modal:not([data-scroll])'))) {
       document.documentElement.classList.remove('dialog-open')
     }
   }
@@ -253,9 +254,16 @@
     originY = event.clientY
   }
 
-  function onPointerUp (event: PointerEvent) {
-    if (!tracking || event.pointerType === 'mouse') return
+  function onPointerCancel () {
     tracking = false
+  }
+
+  // pointerup has to be on window. Without capture, a swipe that leaves the
+  // panel never fires pointerup on the dialog, and the next tap uses a stale origin.
+  function onPointerUp (event: PointerEvent) {
+    if (!tracking) return
+    tracking = false
+    if (event.pointerType === 'mouse') return
 
     const element = dialogEl.value
     if (isNullOrUndefined(element) || !element.open) return
@@ -279,6 +287,9 @@
     if (dismiss) close()
   }
 
+  useWindowEventListener('pointerup', onPointerUp)
+  useWindowEventListener('pointercancel', onPointerCancel)
+
   function onBackdrop (event: MouseEvent) {
     if (event.target !== event.currentTarget) return
     if (blocking) {
@@ -296,6 +307,15 @@
   watch(model, open => {
     sync(open)
   })
+
+  // `data-scroll` is what unlock() excludes. Post flush so the attribute is
+  // on the element before the query runs.
+  watch(() => scroll, value => {
+    const element = dialogEl.value
+    if (!model.value || isNullOrUndefined(element) || !IN_BROWSER || !element.open) return
+    if (value) unlock()
+    else document.documentElement.classList.add('dialog-open')
+  }, { flush: 'post' })
 
   onMounted(() => {
     sync(model.value)
@@ -325,10 +345,10 @@
         ref="dialog"
         :class="classes"
         v-bind="mergeProps(attrs, dialogAttrs(described), {
+          'data-scroll': scroll || undefined,
           onCancel,
           onClick: onBackdrop,
           onPointerdown: onPointerDown,
-          onPointerup: onPointerUp,
         })"
       >
         <slot />

@@ -3,9 +3,11 @@
   import {
     IN_BROWSER,
     isNullOrUndefined,
+    isString,
     useDelay,
     useEventListener,
     useId,
+    useLocale,
     usePopover,
     useRovingFocus,
   } from '@vuetify/v0'
@@ -34,6 +36,10 @@
   }>()
 
   const { label = '' } = defineProps<BMenuSubmenuProps>()
+
+  const locale = useLocale()
+  const named = toRef(() => isString(label) && label.length > 0)
+  const fallback = toRef(() => locale.ti('Menu.submenu') ?? 'Submenu')
 
   const parent = useBMenu()
   const rootEl = useTemplateRef<HTMLElement>('root')
@@ -144,6 +150,13 @@
     ) {
       event.stopPropagation()
     }
+    if (event.key === forward) {
+      const current = items.value.find(item => item.id === roving.focusedId.value)
+      if (isNullOrUndefined(current?.open)) return
+      event.preventDefault()
+      current.open()
+      return
+    }
     if (event.key !== back) return
     event.preventDefault()
     shut()
@@ -189,6 +202,7 @@
       :aria-controls="popover.id"
       :aria-expanded="shown"
       aria-haspopup="true"
+      :aria-label="named ? undefined : fallback"
       class="menu-item"
       :style="anchorStyle"
       tabindex="-1"

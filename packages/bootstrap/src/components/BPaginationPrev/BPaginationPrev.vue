@@ -32,8 +32,10 @@
   >
     <li class="page-item" :class="{ disabled: isDisabled }">
       <a
+        :aria-disabled="isDisabled ? true : undefined"
         class="page-link"
         :href="isDisabled ? undefined : href"
+        :tabindex="isDisabled ? -1 : undefined"
         @click.prevent="prev"
       >
         <slot>Previous</slot>

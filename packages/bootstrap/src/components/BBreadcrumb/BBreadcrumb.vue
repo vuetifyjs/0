@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { useLocale } from '@vuetify/v0'
+  import { isString, useLocale } from '@vuetify/v0'
 
   // Utilities
   import { toRef } from 'vue'
@@ -22,7 +22,10 @@
 
   const locale = useLocale()
 
-  const name = toRef(() => label ?? locale.ti('Breadcrumb.label') ?? 'breadcrumb')
+  const name = toRef(() => {
+    if (isString(label) && label.length > 0) return label
+    return locale.ti('Breadcrumb.label') ?? 'breadcrumb'
+  })
 </script>
 
 <template>

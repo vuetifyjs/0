@@ -3,8 +3,10 @@
   import {
     createCombobox,
     isNullOrUndefined,
+    isString,
     isUndefined,
     useClickOutside,
+    useLocale,
     usePopover,
   } from '@vuetify/v0'
 
@@ -48,6 +50,7 @@
 
   const model = defineModel<string>()
   const attrs = useAttrs()
+  const locale = useLocale()
   const triggerEl = useTemplateRef<HTMLButtonElement>('trigger')
   const menuEl = useTemplateRef<HTMLElement>('menu')
   const open = shallowRef(false)
@@ -176,6 +179,7 @@
     'aria-expanded': open.value,
     'aria-haspopup': 'listbox' as const,
     'aria-controls': popover.id,
+    'aria-label': labelText.value === '' ? (locale.ti('Combobox.label') ?? 'Choose') : undefined,
     'style': popover.anchorStyles.value,
     'onClick': onToggle,
     'onKeydown': onToggleKey,
@@ -197,6 +201,7 @@
     <span class="combobox-value">{{ labelText }}</span>
 
     <svg
+      aria-hidden="true"
       class="combobox-caret"
       fill="none"
       height="16"
@@ -228,7 +233,7 @@
   </div>
 
   <input
-    v-if="!isUndefined(name)"
+    v-if="isString(name) && name.length > 0"
     :name
     type="hidden"
     :value="model ?? ''"

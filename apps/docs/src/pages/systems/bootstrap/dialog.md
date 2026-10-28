@@ -119,6 +119,8 @@ Size modifiers are `dialog-sm`, `dialog-lg`, and `dialog-xl`. Anything else Boot
 |------|------|---------|-------------|
 | `v-model` | `boolean` | `false` | Open state. Drives `showModal()` and `close()`. |
 | `blocking` | `boolean` | `false` | Backdrop click does not close. Adds `.dialog-static` for the bounce. |
+| `keyboard` | `boolean` | `true` | Escape closes. `false` bounces a modal dialog and leaves it open. A non-modal dialog ignores Escape. |
+| `modal` | `boolean` | `true` | `false` calls `show()`, adds `.dialog-nonmodal`, and does not lock scroll. There is no backdrop. |
 | `size` | `'sm' \| 'lg' \| 'xl'` | — | `dialog-sm`, `dialog-lg`, or `dialog-xl`. |
 
 | Part | Renders | Notes |
@@ -131,7 +133,7 @@ Size modifiers are `dialog-sm`, `dialog-lg`, and `dialog-xl`. Anything else Boot
 
 ## Accessibility
 
-The dialog element carries `role="dialog"` and `aria-modal`. `BDialogTitle` is the accessible name. Opening calls `showModal()`, so the browser traps focus and returns it to the trigger on close. Escape closes, including when `blocking` is set.
+The dialog element carries `role="dialog"` and `aria-modal` while it is modal. `modal` false drops `aria-modal`. `BDialogTitle` is the accessible name. Opening calls `showModal()`, so the browser traps focus and returns it to the trigger on close. Escape closes, including when `blocking` is set, unless `keyboard` is false.
 
 > [!IMPORTANT]
 > Compose `BDialogTitle`. Without it the dialog has no accessible name.

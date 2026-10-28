@@ -95,4 +95,4 @@ The panel is positioned with [usePopover](/composables/system/use-popover), the 
 
 ## Accessibility
 
-The toggle is a `button` with `aria-expanded` and `aria-haspopup="listbox"`. `aria-controls` points at the menu. The selected item has `.selected` and `aria-selected="true"`. Escape closes the menu and returns focus to the toggle. Arrow Down opens it. A click outside closes it.
+The toggle is a `button` with `aria-expanded` and `aria-haspopup="listbox"`. `aria-controls` points at the menu. The selected item has `.selected` and `aria-selected="true"`. Escape closes the menu and returns focus to the toggle. Arrow Down opens it. A click outside closes it. An empty placeholder still names the button. The caret is `aria-hidden`.

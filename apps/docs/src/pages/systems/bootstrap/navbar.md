@@ -165,9 +165,9 @@ The collapse is [BDrawer](/systems/bootstrap/drawer), which is a [Dialog](/compo
 | `v-model` | `boolean` | `false` | Drawer open state. |
 | `expand` | `boolean \| 'sm' \| 'md' \| 'lg'` | — | `true` adds `navbar-expand`. A breakpoint adds `sm:navbar-expand`, `md:navbar-expand`, or `lg:navbar-expand`. |
 | `placement` | `'start' \| 'end' \| 'top' \| 'bottom' \| 'fullscreen'` | `'end'` | On `BNavbar.Collapse`. Passed through to the drawer. |
-| `label` | `string` | — | Toggler name. Omitted, `Navbar.toggle`, or Toggle navigation. |
+| `label` | `string` | — | Toggler name. Omitted, empty, `Navbar.toggle`, or Toggle navigation. |
 | `as` | `string` | `'a'` on Brand, `'ul'` on Nav | Element of that part. |
-| `href` | `string` | — | On `BNavbar.Brand`, and only when `as` is `a`. |
+| `href` | `string` | — | On `BNavbar.Brand`, and only when `as` is `a`. An empty string is omitted. |
 
 `bg-*` and `fg-*` are not props. Put them on the navbar the same way the docs do.
 

@@ -70,7 +70,7 @@ The HTML tab is the pin. The Vue tab is the choice face. `data-bs-chips` is the 
 
 Choice chips are a [createSelection](/composables/selection/create-selection) with `multiple`. Click, Enter, or Space toggles a chip. There is no `createChips`.
 
-The input face does not use that selection. The model is the list. Enter, `separator` (a comma, unless you change it), and leaving the field commit a trimmed string. A duplicate is ignored. Backspace or Delete on an empty field selects the last chip. The same key on a selected chip removes it. Arrow keys move between the chips and the field. A dismiss button removes that string and emits `dismiss`.
+The input face does not use that selection. The model is the list. Enter, `separator` (a comma, unless you change it), and leaving the field commit a trimmed string. A duplicate is ignored. Backspace or Delete on an empty field selects the last chip. The same key on a selected chip removes it. Arrow keys move between the chips and the field. Home and End move to the first and last chip. Escape clears that selection and focuses the field. A dismiss button removes that string and emits `dismiss`.
 
 An item `src` renders `img.chip-img`. `icon` renders `span.chip-icon` with the pin's person glyph. `theme` adds `theme-{theme}` on each choice chip, or on the input root.
 
@@ -100,4 +100,4 @@ An item `src` renders `img.chip-img`. `icon` renders `span.chip-icon` with the p
 
 ## Accessibility
 
-Choice chips are `role="button"` with `aria-pressed`, and they are in the tab order. Input chips are focusable. The dismiss button is named Remove, is `type="button"`, and stays out of the tab order. The ghost input is a text field. Pass `label` so the input has a name, or label it from outside with the generated id.
+Choice chips are `role="button"` with `aria-pressed`, and they are in the tab order. A `class` on `BChips` lands on each choice chip. Input chips are focusable. Home and End move to the ends. Escape leaves them. The dismiss button is named `Chips.remove`, or Remove. It is `type="button"`, and it stays out of the tab order. The ghost input is a text field. Pass `label` so the input has a name, or label it from outside with the generated id.

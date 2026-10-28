@@ -33,7 +33,7 @@
     claim: () => number
   }
 
-  const [useBCarousel, provideBCarousel] = createContext<BCarouselContext>('v0:b-carousel-index')
+  const [useBCarousel, provideBCarousel] = createContext<BCarouselContext>('bootstrap:carousel')
 
   export { useBCarousel }
 

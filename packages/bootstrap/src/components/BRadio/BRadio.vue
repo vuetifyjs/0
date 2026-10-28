@@ -48,6 +48,8 @@
     return list
   })
 
+  const fieldName = toRef(() => isString(name) && name.length > 0 ? name : undefined)
+
   const submitted = toRef(() => isUndefined(value) ? undefined : String(value))
 
   const checked = toRef(() => !isUndefined(value) && model.value === value)
@@ -65,7 +67,7 @@
     class="radio"
     :class="modifiers"
     :disabled="disabled || undefined"
-    :name
+    :name="fieldName"
     type="radio"
     :value="submitted"
     @change="onChange"

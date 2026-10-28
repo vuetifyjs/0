@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { clamp, isUndefined } from '@vuetify/v0'
+  import { clamp, isNumber, isUndefined } from '@vuetify/v0'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
@@ -33,16 +33,18 @@
 
   const levels = ['weak', 'fair', 'good', 'strong'] as const
 
+  const amount = toRef(() => isNumber(value) && Number.isFinite(value) ? value : 0)
+
   const filled = toRef(() => {
-    const scaled = value <= 4 ? value : (value / 100) * 4
+    const scaled = amount.value <= 4 ? amount.value : (amount.value / 100) * 4
     return clamp(Math.round(scaled), 0, 4)
   })
 
   const level = toRef(() => filled.value === 0 ? undefined : levels[filled.value - 1])
 
   const barWidth = toRef(() => {
-    if (value <= 4) return `${(clamp(value, 0, 4) / 4) * 100}%`
-    return `${clamp(value, 0, 100)}%`
+    if (amount.value <= 4) return `${(clamp(amount.value, 0, 4) / 4) * 100}%`
+    return `${clamp(amount.value, 0, 100)}%`
   })
 
   function isActive (index: number) {

@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { createSelection, isElement, isUndefined, useId } from '@vuetify/v0'
+  import { createSelection, isElement, isUndefined, useId, useLocale } from '@vuetify/v0'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
@@ -61,6 +61,7 @@
 
   const model = defineModel<string[]>({ default: () => [] })
   const attrs = useAttrs()
+  const locale = useLocale()
   const draft = shallowRef('')
   const selected = shallowRef<string[]>([])
   const anchor = shallowRef<string | undefined>(undefined)
@@ -69,6 +70,8 @@
   const selection = createSelection({ multiple: true })
 
   const showDismiss = toRef(() => isUndefined(dismissible) ? input : dismissible)
+
+  const removeLabel = toRef(() => locale.ti('Chips.remove') ?? 'Remove')
 
   const themeClass = toRef(() => {
     if (isUndefined(theme) || theme === '') return undefined
@@ -279,7 +282,17 @@
       focusChip(0)
       return
     }
-    if (event.key === 'End' || event.key === 'Escape') {
+    if (event.key === 'End') {
+      event.preventDefault()
+      if (list.length === 0) return
+      const last = list.at(-1)
+      if (isUndefined(last)) return
+      if (event.shiftKey && !isUndefined(anchor.value)) rangeSelect(anchor.value, last, true)
+      else selectOnly(last)
+      focusChip(list.length - 1)
+      return
+    }
+    if (event.key === 'Escape') {
       event.preventDefault()
       selected.value = []
       anchor.value = undefined
@@ -394,7 +407,7 @@
       {{ chip }}
       <button
         v-if="showDismiss"
-        aria-label="Remove"
+        :aria-label="removeLabel"
         class="chip-dismiss"
         :disabled="disabled || undefined"
         tabindex="-1"
@@ -402,6 +415,7 @@
         @click.stop="onDismiss(chip)"
       >
         <svg
+          aria-hidden="true"
           fill="none"
           height="16"
           stroke="currentColor"
@@ -436,7 +450,7 @@
       :aria-disabled="disabled || undefined"
       :aria-pressed="picked.has(item.value)"
       class="chip"
-      :class="[themeClass, { active: picked.has(item.value), disabled }]"
+      :class="[attrs.class, themeClass, { active: picked.has(item.value), disabled }]"
       role="button"
       :tabindex="disabled ? -1 : 0"
       @click="onChoice(item.value)"
@@ -453,6 +467,7 @@
 
       <span v-if="item.icon" class="chip-icon">
         <svg
+          aria-hidden="true"
           fill="currentColor"
           height="16"
           viewBox="0 0 16 16"
@@ -463,7 +478,7 @@
       {{ item.text }}
       <button
         v-if="showDismiss"
-        aria-label="Remove"
+        :aria-label="removeLabel"
         class="chip-dismiss"
         :disabled="disabled || undefined"
         tabindex="-1"
@@ -471,6 +486,7 @@
         @click.stop="onDismiss(item.value)"
       >
         <svg
+          aria-hidden="true"
           fill="none"
           height="16"
           stroke="currentColor"

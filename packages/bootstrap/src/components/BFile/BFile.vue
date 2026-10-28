@@ -1,9 +1,9 @@
 <script lang="ts">
   // Framework
-  import { createInput, isNullOrUndefined, isUndefined } from '@vuetify/v0'
+  import { createInput, isNullOrUndefined, isString, isUndefined } from '@vuetify/v0'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs } from 'vue'
+  import { mergeProps, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   export interface BFileProps {
     /**
@@ -30,12 +30,23 @@
   } = defineProps<BFileProps>()
 
   const attrs = useAttrs()
+  const control = useTemplateRef<HTMLInputElement>('control')
 
   const field = createInput<FileList | null>({
     value: files,
-    id,
+    id: isString(id) && id.length > 0 ? id : undefined,
     disabled: () => disabled,
     dirty: value => !isNullOrUndefined(value) && value.length > 0,
+  })
+
+  // A file input ignores a written value. Clearing the model has to clear the
+  // control, or the chosen filename stays after the list is gone.
+  watch(files, value => {
+    const node = control.value
+    if (isNullOrUndefined(node)) return
+    if (!isNullOrUndefined(value) && value.length > 0) return
+    if (node.value === '') return
+    node.value = ''
   })
 
   function readFiles (event: Event) {
@@ -71,5 +82,5 @@
 </script>
 
 <template>
-  <input v-bind="bindings">
+  <input ref="control" v-bind="bindings">
 </template>

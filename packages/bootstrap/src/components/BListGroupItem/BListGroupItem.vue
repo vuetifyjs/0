@@ -1,9 +1,9 @@
 <script lang="ts">
   // Framework
-  import { isNullOrUndefined, isString, isUndefined, useId } from '@vuetify/v0'
+  import { isNullOrUndefined, isString, useId } from '@vuetify/v0'
 
   // Utilities
-  import { onBeforeUnmount, toRef } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { SingleTicket } from '@vuetify/v0'
@@ -43,33 +43,76 @@
 
   const group = useListGroup(namespace, null)
 
-  const id = toRef(() => isUndefined(value) ? uid : value)
+  const id = toRef(() => isString(value) && value.length > 0 ? value : uid)
 
-  const isLink = toRef(() => isString(href))
+  const isLink = toRef(() => isString(href) && href.length > 0)
 
-  const ticket: SingleTicket | undefined = !isNullOrUndefined(group) && group.selectable.value
-    ? group.selection.register({
+  const ticket = shallowRef<SingleTicket | undefined>()
+
+  function enroll () {
+    if (!isNullOrUndefined(ticket.value) || isNullOrUndefined(group) || !group.selectable.value) return
+    ticket.value = group.selection.register({
       id: uid,
       value: id.value,
       disabled: () => disabled,
     })
-    : undefined
+  }
+
+  watch(() => !isNullOrUndefined(group) && group.selectable.value, on => {
+    if (on) {
+      enroll()
+      return
+    }
+    ticket.value?.unregister()
+    ticket.value = undefined
+  }, { immediate: true })
+
+  // A value that arrives after setup has to re-register. useProxyModel only
+  // applies a pending model on `register:ticket`, not on upsert.
+  watch(id, value => {
+    const current = ticket.value
+    if (isNullOrUndefined(current) || isNullOrUndefined(group) || Object.is(current.value, value)) return
+    const selected = current.isSelected.value
+    current.unregister()
+    ticket.value = group.selection.register({
+      id: uid,
+      value,
+      disabled: () => disabled,
+    })
+    if (selected) ticket.value.select()
+  })
 
   onBeforeUnmount(() => {
-    ticket?.unregister()
+    ticket.value?.unregister()
+    ticket.value = undefined
   })
 
   const isActive = toRef(() => {
-    if (!isNullOrUndefined(group) && group.selectable.value) return ticket?.isSelected.value ?? false
+    if (!isNullOrUndefined(group) && group.selectable.value) return ticket.value?.isSelected.value ?? false
     return active
   })
 
-  function onClick (event: MouseEvent) {
+  const rowTab = toRef(() => {
+    if (isLink.value || action) return undefined
+    if (isNullOrUndefined(group) || !group.selectable.value) return undefined
+    return disabled ? -1 : 0
+  })
+
+  function onClick (event: Event) {
     if (disabled) {
       event.preventDefault()
       return
     }
-    ticket?.select()
+    ticket.value?.select()
+  }
+
+  function onRowKey (event: KeyboardEvent) {
+    if (isLink.value || action) return
+    // The slot can hold a button or a field. Their keys must not select the row.
+    if (event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onClick(event)
   }
 </script>
 
@@ -105,7 +148,9 @@
     :aria-disabled="disabled ? true : undefined"
     class="list-group-item"
     :class="{ active: isActive, disabled }"
+    :tabindex="rowTab"
     @click="onClick"
+    @keydown="onRowKey"
   >
     <slot />
   </li>

@@ -103,7 +103,7 @@ Decrease and Increase step the model by 10, and they stop at 0 and 100. The labe
 | `v-model` | `number` | `0` | Current value. |
 | `min` | `number` | `0` | Lowest value. Read when the bar is created. |
 | `max` | `number` | `100` | Highest value. Read when the bar is created. |
-| `label` | `string` | — | `aria-label` on the progress bar. |
+| `label` | `string` | — | `aria-label` on the progress bar. An empty string is omitted. |
 | `striped` | `boolean` | `false` | Adds `progress-bar-striped`. |
 | `animated` | `boolean` | `false` | Adds `progress-bar-animated`. Pair it with `striped`. |
 

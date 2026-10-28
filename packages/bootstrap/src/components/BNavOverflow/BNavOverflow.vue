@@ -74,7 +74,7 @@
   const { gap: gapProp, more } = defineProps<BNavOverflowProps>()
 
   const locale = useLocale()
-  const label = toRef(() => more ?? locale.ti('NavOverflow.more') ?? 'More')
+  const label = toRef(() => isString(more) && more.length > 0 ? more : locale.ti('NavOverflow.more') ?? 'More')
 
   const rootEl = useTemplateRef<HTMLElement>('root')
   const moreEl = useTemplateRef<HTMLButtonElement>('more')
@@ -224,6 +224,7 @@
     if (event.key !== 'Escape' || !menuOpen.value) return
     event.preventDefault()
     menuOpen.value = false
+    moreEl.value?.focus()
   }
 
   provideBNavOverflow({

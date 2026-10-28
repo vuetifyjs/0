@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { createSlider, isElement, isNaN, isUndefined, useId } from '@vuetify/v0'
+  import { createSlider, isElement, isNaN, isString, isUndefined, useId } from '@vuetify/v0'
 
   // Utilities
   import { toRef, useAttrs, watch } from 'vue'
@@ -36,7 +36,7 @@
   const model = defineModel<number>()
   const attrs = useAttrs()
   const uid = useId()
-  const fieldId = toRef(() => id ?? uid)
+  const fieldId = toRef(() => isString(id) && id.length > 0 ? id : uid)
 
   const slider = createSlider({
     min,

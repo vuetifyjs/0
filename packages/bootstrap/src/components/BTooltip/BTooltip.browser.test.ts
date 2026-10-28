@@ -261,6 +261,51 @@ describe('bTooltip', () => {
     expect(open.value).toBe(false)
   })
 
+  it('should close a click tip that was opened from outside', async () => {
+    const open = shallowRef(true)
+    const host = tip(open, { trigger: 'click' })
+    await settle()
+
+    expect(open.value).toBe(true)
+
+    host.querySelector('.d-inline-block')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await settle()
+
+    expect(open.value).toBe(false)
+  })
+
+  it('should cancel a pending click show or hide on the second click', async () => {
+    const open = shallowRef(false)
+    const host = tip(open, { trigger: 'click', delay: 60 })
+    await settle()
+
+    const node = host.querySelector('.d-inline-block')!
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wait(30)
+
+    expect(open.value).toBe(false)
+
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wait(120)
+
+    expect(open.value).toBe(false)
+
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wait(120)
+
+    expect(open.value).toBe(true)
+
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wait(30)
+
+    expect(open.value).toBe(true)
+
+    node.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await wait(120)
+
+    expect(open.value).toBe(true)
+  })
+
   it('should wait out the delay before showing and hiding', async () => {
     const open = shallowRef(false)
     const host = tip(open, { delay: 60 })

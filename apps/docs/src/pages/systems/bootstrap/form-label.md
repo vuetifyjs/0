@@ -73,7 +73,7 @@ The label is the element. It does not use a composable. The control it names is 
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `for` | `string` | — | Id of the control. Written to the `for` attribute. |
+| `for` | `string` | — | Id of the control. Written to the `for` attribute. An empty string is omitted. |
 
 ## Accessibility
 

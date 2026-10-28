@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { PaginationRoot, useLocale } from '@vuetify/v0'
+  import { PaginationRoot, isNumber, isString, useLocale } from '@vuetify/v0'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
@@ -44,13 +44,15 @@
 
   const attrs = useAttrs()
   const locale = useLocale()
-  const name = toRef(() => label ?? locale.ti('Pagination.label') ?? 'Page navigation')
+  const name = toRef(() => isString(label) && label.length > 0 ? label : locale.ti('Pagination.label') ?? 'Page navigation')
+  // 0 and non-finite counts make createPagination's page count Infinity.
+  const pageSize = toRef(() => isNumber(perPage) && Number.isFinite(perPage) && perPage > 0 ? perPage : 1)
 </script>
 
 <template>
   <PaginationRoot
     v-model="page"
-    :items-per-page="perPage"
+    :items-per-page="pageSize"
     :namespace
     renderless
     :size="total"

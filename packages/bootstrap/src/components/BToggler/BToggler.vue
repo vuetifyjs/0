@@ -62,6 +62,13 @@
     void nextTick(syncPressed)
   })
 
+  function onKeydown (event: KeyboardEvent) {
+    if (as === 'button' || attribute !== 'class') return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    onClick()
+  }
+
   function onClick () {
     const node = host()
     if (isNull(node)) return
@@ -86,8 +93,11 @@
     ref="root"
     :aria-pressed="attribute === 'class' ? pressed : undefined"
     :as
+    :role="as !== 'button' && attribute === 'class' ? 'button' : undefined"
+    :tabindex="as !== 'button' && attribute === 'class' ? 0 : undefined"
     :type="as === 'button' ? 'button' : undefined"
     @click="onClick"
+    @keydown="onKeydown"
   >
     <slot />
   </Atom>

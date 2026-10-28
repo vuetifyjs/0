@@ -107,10 +107,10 @@ Selection is [createSingle](/composables/selection/create-single) with `mandator
 |------|------|---------|-------------|
 | `v-model` | `string` | | Selected item `value`. |
 | `variant` | `'tabs' \| 'pills'` | `'tabs'` | `nav-tabs` or `nav-pills`. |
-| `vertical` | `boolean` | `false` | Pills, stacked. Arrows are vertical. |
+| `vertical` | `boolean` | `false` | Pills, stacked. Arrows are vertical. The direction is read when the tabs are created. |
 | `instant` | `boolean` | `false` | Adds `.tab-pane-instant` and skips the fade. |
 
-`BTabs.Item` takes `value` and `disabled`. `BTabs.Panel` takes the same `value`.
+`BTabs.Item` takes `value` and `disabled`. `BTabs.Panel` takes the same `value`. Changing an item's `value` updates the registered id, and a selected item keeps the model on that new id.
 
 ## Accessibility
 

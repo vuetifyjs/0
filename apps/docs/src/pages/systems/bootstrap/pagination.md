@@ -119,9 +119,9 @@ A class on `BPagination` lands on `ul.pagination`. `justify-content-center` cent
 | `size` | `'sm' \| 'lg'` | — | `pagination-sm` or `pagination-lg`. |
 | `label` | `string` | `Page navigation` | `aria-label` on the nav. `Pagination.label` replaces the default. |
 | `value` (item) | `number` | — | Page this link selects. |
-| `disabled` | `boolean` | `false` | `.disabled` on the `li`. The link drops `href`. Prev and next also disable on the ends. |
+| `disabled` | `boolean` | `false` | `.disabled` on the `li`. The link drops `href` and sets `aria-disabled`. Prev and next also disable on the ends. |
 | `href` | `string` | `'#'` | Link target. The click does not follow it. |
 
 ## Accessibility
 
-The nav is named `Page navigation` unless `label` or `Pagination.label` replaces it. The current link sets `aria-current="page"`. A disabled control drops `href`, and its `li` has `.disabled`. The pin sets `pointer-events: none` on that link, and without `href` it is not in the tab order. Enter activates a link. The click changes the page and does not follow `href`. There is no `data-bs-toggle`.
+The nav is named `Page navigation` unless `label` or `Pagination.label` replaces it. An empty `label` uses that same fallback. The current link sets `aria-current="page"`. A disabled control drops `href`, sets `aria-disabled="true"` and `tabindex="-1"`, and its `li` has `.disabled`. The pin sets `pointer-events: none` on that link. Enter activates an enabled link. The click changes the page and does not follow `href`. There is no `data-bs-toggle`.

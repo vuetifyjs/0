@@ -114,10 +114,10 @@ Links and sections both `register({ id, el })`. An anchor is the link. Anything 
 | `root` | `HTMLElement \| null` | this element | Scroll container the sections are measured against. |
 | `smooth` | `boolean` | `false` | Smooth-scroll the matching section on link click. |
 | `id` | `string` | — | On a link and on a section. The pair key. |
-| `href` | `string` | `'#' + id` | On a link. |
+| `href` | `string` | `'#' + id` | On a link. An empty string uses that default. |
 
 Put `nav`, `nav-pills`, or `list-group` on the consumer's nav. This component only adds `nav-link` and `active`.
 
 ## Accessibility
 
-The link is an anchor, so it is in the tab order and exposes its name. `active` is the visual hook from the pin; the href still points at the section id. With `smooth` off, activation is the browser's hash jump. With `smooth` on, the click is prevented and the section is scrolled into view. Give the scroll container `tabindex="0"` when it is not the page, so a keyboard user can scroll it.
+The link is an anchor, so it is in the tab order and exposes its name. The active link sets `aria-current="true"`. `active` is the visual hook from the pin; the href still points at the section id. With `smooth` off, activation is the browser's hash jump. With `smooth` on, the click is prevented and the section is scrolled into view. Give the scroll container `tabindex="0"` when it is not the page, so a keyboard user can scroll it.

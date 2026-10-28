@@ -4,6 +4,7 @@
     IN_BROWSER,
     createContext,
     isNullOrUndefined,
+    isString,
     useClickOutside,
     useEventListener,
     usePopover,
@@ -95,11 +96,13 @@
   }>()
 
   const {
-    label = 'Toggle menu',
+    label: _label = 'Toggle menu',
     placement = 'bottom-start',
     autoClose = true,
     triggerClass = 'btn-solid theme-primary',
   } = defineProps<BMenuProps>()
+
+  const label = toRef(() => isString(_label) && _label.length > 0 ? _label : 'Toggle menu')
 
   const model = defineModel<boolean>({ default: false })
   const attrs = useAttrs()

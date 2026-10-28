@@ -127,6 +127,6 @@ The `content` slot replaces `text` when the body is markup you write yourself. T
 
 ## Accessibility
 
-The tip is `role="tooltip"`. While it is open, the trigger's `aria-describedby` points at it, when the trigger binds `attrs`. Hover and focus both open it, so a keyboard user reaches the same tip. The pointer can move onto the tip without dismissing it. Escape closes it and is consumed, so a dialog behind it stays open. The rest of the page stays usable.
+The tip is `role="tooltip"`. While it is open, the trigger's `aria-describedby` points at it, when the trigger binds `attrs`. Hover and focus both open it, so a keyboard user reaches the same tip. The pointer can move onto the tip without dismissing it. A `click` trigger closes a tip that was opened from outside, and a second click during the show or hide delay cancels that delay. Escape closes it and is consumed, so a dialog behind it stays open. The rest of the page stays usable.
 
 A `disabled` control does not fire pointer events. Give that control `pointer-events: none` so the wrapper receives the hover.

@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { isNullOrUndefined } from '@vuetify/v0'
+  import { isNullOrUndefined, isString } from '@vuetify/v0'
 
   // Context
   import { useBScrollSpy } from './BScrollSpy.vue'
@@ -26,7 +26,8 @@
 
   const spy = useBScrollSpy()
   const el = useTemplateRef<HTMLAnchorElement>('el')
-  const target = toRef(() => href ?? `#${id}`)
+  const target = toRef(() => isString(href) && href.length > 0 ? href : `#${id}`)
+  const current = toRef(() => spy.active.value === id ? 'true' as const : undefined)
   const classes = toRef(() => {
     const list = ['nav-link']
     if (spy.active.value === id) list.push('active')
@@ -57,6 +58,7 @@
 <template>
   <a
     ref="el"
+    :aria-current="current"
     :class="classes"
     :href="target"
     @click="onClick"

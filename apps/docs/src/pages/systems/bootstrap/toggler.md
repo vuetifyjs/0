@@ -99,4 +99,4 @@ The click handler is on this component. A composable that binds DOM events is th
 
 ## Accessibility
 
-When `attribute` is `class`, the root exposes `aria-pressed`. A button root is `type="button"`, so it does not submit a form. Toggling `hidden` removes the element from the accessibility tree. That is the attribute, not a second widget.
+When `attribute` is `class`, the root exposes `aria-pressed`. A non-button root also gets `role="button"` and `tabindex="0"`, and Enter or Space toggles it. A button root is `type="button"`, so it does not submit a form, and it keeps the native key handling. Toggling `hidden` removes the element from the accessibility tree. That is the attribute, not a second widget.

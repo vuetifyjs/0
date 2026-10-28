@@ -112,6 +112,9 @@
   const focus = shallowRef(false)
   const click = shallowRef(false)
   const pressed = shallowRef(false)
+  // True after a click starts a hide, until the model actually closes.
+  // An outside open leaves this false, so the first click still dismisses.
+  const hiding = shallowRef(false)
 
   function showDelay () {
     if (isNumber(delay)) return delay
@@ -208,7 +211,12 @@
   function onClick () {
     if (!allows('click')) return
 
-    click.value = !click.value
+    // Outside code can open the tip without setting `click`. That click
+    // closes. A second click while a show or hide delay is running toggles
+    // `click`, which cancels the delay.
+    const external = model.value && !click.value && !hiding.value
+    click.value = external ? false : !click.value
+    hiding.value = model.value && !click.value
     schedule()
   }
 
@@ -255,6 +263,7 @@
   )
 
   watch(() => model.value, open => {
+    if (!open) hiding.value = false
     if (open && !filled()) model.value = false
   }, { immediate: true })
 

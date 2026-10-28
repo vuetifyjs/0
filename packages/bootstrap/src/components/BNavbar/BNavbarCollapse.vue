@@ -1,6 +1,6 @@
 <script lang="ts">
   // Framework
-  import { isElement, useLocale } from '@vuetify/v0'
+  import { isElement, isString, useLocale } from '@vuetify/v0'
 
   // Context
   import { useBNavbar } from './BNavbar.vue'
@@ -42,7 +42,7 @@
   const locale = useLocale()
   const togglerRef = useTemplateRef<ComponentPublicInstance>('toggler')
 
-  const name = toRef(() => label ?? locale.ti('Navbar.toggle') ?? 'Toggle navigation')
+  const name = toRef(() => isString(label) && label.length > 0 ? label : locale.ti('Navbar.toggle') ?? 'Toggle navigation')
 
   // BDrawer’s root is a renderless Dialog, so its `$el` is not the `<dialog>`.
   // The dialog is the next element after this button.
