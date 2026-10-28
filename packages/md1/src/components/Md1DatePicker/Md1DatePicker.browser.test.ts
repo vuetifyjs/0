@@ -790,7 +790,7 @@ describe('quDatePicker', () => {
       return { root: q(el, '.md1-date-picker'), isOpen }
     }
 
-    it('should hold its date in a confirmation dialog: read the held value, commit, never write its own model', async () => {
+    it('should hold its date in a confirmation dialog: read the held value, commit, and surface the pick on its model', async () => {
       const held = shallowRef<unknown>('2017-04-13')
       const model = shallowRef<string | undefined>()
       const commit = vi.fn((value: unknown) => {
@@ -808,7 +808,53 @@ describe('quDatePicker', () => {
 
       expect(commit).toHaveBeenCalledTimes(1)
       expect(commit).toHaveBeenCalledWith('2017-04-21')
-      expect(model.value).toBeUndefined()
+      // The model emit is the hosting field's only channel for the pick; swallowing
+      // it left the field's formatting handler dead and OK wrote the raw ISO date.
+      expect(model.value).toBe('2017-04-21')
+      expect(Object.hasOwn(day(root, '2017-04-21').dataset, 'selected')).toBe(true)
+    })
+
+    it('should let a hosting field commit a display form over the pick', async () => {
+      // The text field's picker slot formats each pick through the model emit
+      // (text-fields page, "Pickers"). While the hosted setter swallowed the
+      // emit, this handler never ran and OK wrote the raw ISO date (#md1
+      // dashboard QA, 2026-10-28).
+      const held = shallowRef<unknown>('')
+      const commit = vi.fn((value: unknown) => {
+        held.value = value
+      })
+      const model = shallowRef<string | undefined>('2017-04-13')
+
+      const isOpen = shallowRef(true)
+      const Host = defineComponent({
+        setup (_, { slots }) {
+          provide('md1:dialog', {
+            variant: shallowRef('confirmation'),
+            isOpen,
+            value: held,
+            commit,
+          })
+          return () => slots.default?.()
+        },
+      })
+
+      const el = mount(() => h(Host, null, () => h(Md1DatePicker, {
+        'modelValue': model.value,
+        'onUpdate:modelValue': (next: string | undefined) => {
+          model.value = next
+          // The field's formatting handler: hold the display form, not the ISO date.
+          commit(`Friday, April 21, 2017 (${next})`)
+        },
+      })))
+      const root = q(el, '.md1-date-picker')
+      await settle()
+
+      await userEvent.click(day(root, '2017-04-21'))
+      await settle()
+
+      // The picker committed the ISO date, then the field's re-commit won.
+      expect(held.value).toBe('Friday, April 21, 2017 (2017-04-21)')
+      // The non-ISO held value falls back to the model, so the pick stays selected.
       expect(Object.hasOwn(day(root, '2017-04-21').dataset, 'selected')).toBe(true)
     })
 
