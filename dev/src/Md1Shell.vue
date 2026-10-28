@@ -8,6 +8,7 @@
     Md1List,
     Md1Menu,
     Md1NavigationDrawer,
+    Md1Snackbar,
     Md1Toolbar,
     Md1Tooltip,
     md1Breakpoints,
@@ -111,28 +112,33 @@
     }
   })
 
-  // Feature discovery: the one-time search prompt
+  // The tour: a snackbar offer, then two chained one-step prompts (the
+  // feature-discovery page runs a one-step v0 Tour per prompt, so a short
+  // tour is prompts in sequence). 0 = idle, 1 = the theme stop, 2 = search.
+
+  const stage = shallowRef<0 | 1 | 2>(0)
 
   const seen = storage.get('md1-demo:tip-search', false)
-  const tip = shallowRef(false)
+  const ask = shallowRef(false)
 
-  // The prompt waits for the shell to settle: feature discovery interrupts, so
-  // it must not race the page's own entrance (feature-discovery page).
+  // The offer waits for the shell to settle; the tour itself only ever starts
+  // from the snackbar's action or the overflow's Show tips.
   const delay = useTimer(() => {
-    tip.value = true
+    ask.value = true
   }, { duration: 1200 })
 
   onMounted(() => {
     if (!seen.value) delay.start()
   })
 
-  function onSeen () {
-    seen.value = true
-  }
+  // However the bar leaves — Start, its timeout, a dismissal — it never nags again.
+  watch(ask, value => {
+    if (!value) seen.value = true
+  })
 
-  function onTips () {
-    seen.value = false
-    tip.value = true
+  function onTour () {
+    ask.value = false
+    stage.value = 1
   }
 
   /**
@@ -159,7 +165,8 @@
       <Md1Toolbar.Title>{{ title }}</Md1Toolbar.Title>
 
       <Md1Toolbar.Actions>
-        <Md1FeatureDiscovery v-model="tip" @complete="onSeen" @dismiss="onSeen">
+        <!-- The tour's finale: pressing the promoted action opens search itself. -->
+        <Md1FeatureDiscovery :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -177,13 +184,23 @@
           </Md1FeatureDiscovery.Text>
         </Md1FeatureDiscovery>
 
-        <Md1Tooltip>
-          <Md1Tooltip.Activator v-slot="{ attrs }">
-            <Md1IconToggle v-bind="attrs" v-model="dark" aria-label="Dark theme" icon="invert-colors" />
-          </Md1Tooltip.Activator>
+        <Md1FeatureDiscovery :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
+          <Md1FeatureDiscovery.Activator>
+            <Md1Tooltip>
+              <Md1Tooltip.Activator v-slot="{ attrs }">
+                <Md1IconToggle v-bind="attrs" v-model="dark" aria-label="Dark theme" icon="invert-colors" />
+              </Md1Tooltip.Activator>
 
-          <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
-        </Md1Tooltip>
+              <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
+            </Md1Tooltip>
+          </Md1FeatureDiscovery.Activator>
+
+          <Md1FeatureDiscovery.Title>Set the mood</Md1FeatureDiscovery.Title>
+
+          <Md1FeatureDiscovery.Text>
+            Tap to flip the whole dashboard between light and dark.
+          </Md1FeatureDiscovery.Text>
+        </Md1FeatureDiscovery>
 
         <Md1Menu>
           <Md1Menu.Activator v-slot="menu">
@@ -201,7 +218,7 @@
 
             <Md1Menu.Item>Send feedback</Md1Menu.Item>
 
-            <Md1Menu.Item @select="onTips">Show tips</Md1Menu.Item>
+            <Md1Menu.Item @select="onTour">Show tips</Md1Menu.Item>
 
             <Md1Menu.Item @select="go('/md1/sign-in')">Sign out</Md1Menu.Item>
           </Md1Menu.Content>
@@ -268,6 +285,11 @@
     <main class="md1-demo-shell__main">
       <RouterView />
     </main>
+
+    <!-- Inside the shell (no teleport) so the bar reads the stamped theme. -->
+    <Md1Snackbar.Portal :teleport="false">
+      <Md1Snackbar v-model="ask" action="Start" @action="onTour">Want to take a tour?</Md1Snackbar>
+    </Md1Snackbar.Portal>
 
     <Md1BottomNavigation
       v-if="mobile"
