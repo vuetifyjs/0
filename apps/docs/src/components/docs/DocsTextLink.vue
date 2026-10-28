@@ -4,9 +4,11 @@
   import { IN_BROWSER } from '@vuetify/v0/constants'
 
   // Composables
-  import { applyTextFragment, arrivalTextFragment, clearTextMarks, directiveFor, parseTextFragment, quoteIn, shareUrl } from '@/composables/textFragment'
   import { useClipboard } from '@/composables/useClipboard'
   import { useSettings } from '@/composables/useSettings'
+
+  // Transformers
+  import { clearTextMarks, paintTextFragment, readTextFragment, toFragmentUrl, toTextDirective, toTextQuote } from '@/composables/toTextFragment'
 
   // Utilities
   import { onMounted, shallowRef, useTemplateRef, watch } from 'vue'
@@ -93,7 +95,7 @@
       return
     }
 
-    const quote = quoteIn(root, range)
+    const quote = toTextQuote(root, range)
     if (!quote) {
       if (isOpen.value) dismiss.start()
       return
@@ -101,7 +103,7 @@
 
     place(range)
     shown = key
-    link.value = shareUrl(window.location.href, directiveFor(quote.text, quote.quote, quote.at))
+    link.value = toFragmentUrl(window.location.href, toTextDirective(quote.text, quote.quote, quote.at))
     dismiss.stop()
     isOpen.value = true
   }
@@ -210,14 +212,14 @@
     clearTextMarks(document)
     // `route.hash` is empty on a fresh load: the browser strips the directive.
     // A later in-app navigation still has it, and that one wins.
-    const directive = parseTextFragment(route.hash) ?? arrivalTextFragment()
+    const directive = toTextDirective(route.hash) ?? readTextFragment()
     if (!directive) return
 
     for (let attempt = 0; attempt < 40; attempt++) {
       if (token !== generation) return
 
       const root = prose()
-      if (root && applyTextFragment(root, directive)) {
+      if (root && paintTextFragment(root, directive)) {
         reveal(root)
         return
       }

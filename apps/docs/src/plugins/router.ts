@@ -5,8 +5,10 @@ import { routes } from 'vue-router/auto-routes'
 import { IN_BROWSER } from '@vuetify/v0'
 
 // Composables
-import { arrivalTextFragment } from '@/composables/textFragment'
 import { getPrefersReducedMotion } from '@/composables/useSettings'
+
+// Transformers
+import { readTextFragment } from '@/composables/toTextFragment'
 
 // Types
 import type { RouteLocationNormalized, RouterOptions } from 'vue-router'
@@ -40,7 +42,7 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     // browser has already stripped `:~:text=` from `to.hash`, so the arrival
     // entry is the only signal. Snapping to a saved offset or to `top: 0`
     // would throw the highlight away.
-    if (to.hash.includes(':~:') || (isInitialNavigation && arrivalTextFragment())) {
+    if (to.hash.includes(':~:') || (isInitialNavigation && readTextFragment())) {
       isInitialNavigation = false
       return {}
     }

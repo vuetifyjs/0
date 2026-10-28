@@ -22,7 +22,8 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { useScrollSpy } from './useScrollSpy'
 import { useSettings } from './useSettings'
 
-import { arrivalTextFragment, textDirectiveSuffix } from './textFragment'
+// Transformers
+import { readTextFragment, toFragmentSuffix } from './toTextFragment'
 
 // Utilities
 import { nextTick, onScopeDispose, shallowRef, toRef, watch, watchEffect } from 'vue'
@@ -201,13 +202,13 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   // `replaceState` that tries to put it back. The heading spy must not run
   // on that landing, or the address bar loses the link the reader arrived with.
   const arrivedOn = IN_BROWSER ? location.pathname : ''
-  const arrived = shallowRef(IN_BROWSER && !!arrivalTextFragment())
+  const arrived = shallowRef(IN_BROWSER && !!readTextFragment())
 
   // Heading spy rewrites the hash as the reader scrolls. A text-fragment
   // link has to survive that rewrite, or the shared highlight disappears
   // from the address bar. `#id:~:text=` is the spec's combined form.
   function hashFor (id?: string): string {
-    const suffix = textDirectiveSuffix(location.hash)
+    const suffix = toFragmentSuffix(location.hash)
 
     if (id) return `#${id}${suffix}`
     if (suffix) return `#${suffix}`

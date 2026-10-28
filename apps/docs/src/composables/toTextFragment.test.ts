@@ -1,19 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
-// Composables
+// Transformers
 import {
-  applyTextFragment,
-  arrivalTextFragment,
   clearTextMarks,
-  directiveFor,
-  formatTextFragment,
-  locate,
-  parseTextFragment,
-  quoteIn,
-  shareUrl,
-} from './textFragment'
+  paintTextFragment,
+  readTextFragment,
+  toFragmentUrl,
+  toTextDirective,
+  toTextFragment,
+  toTextQuote,
+  toTextRanges,
+} from './toTextFragment'
 
-describe('textFragment', () => {
+describe('toTextFragment', () => {
   describe('parse and format', () => {
     it('should round-trip a directive that contains commas and hyphens', () => {
       const directive = {
@@ -23,21 +22,21 @@ describe('textFragment', () => {
         suffix: 'next',
       }
 
-      expect(parseTextFragment(`#${formatTextFragment(directive)}`)).toEqual(directive)
+      expect(toTextDirective(`#${toTextFragment(directive)}`)).toEqual(directive)
     })
 
     it('should read a fragment that follows a heading id', () => {
-      expect(parseTextFragment('#usage:~:text=ordered%20collection')).toEqual({
+      expect(toTextDirective('#usage:~:text=ordered%20collection')).toEqual({
         start: 'ordered collection',
       })
     })
 
     it('should ignore a hash with no text directive', () => {
-      expect(parseTextFragment('#usage')).toBeUndefined()
+      expect(toTextDirective('#usage')).toBeUndefined()
     })
 
     it('should replace an existing hash with the text fragment', () => {
-      expect(shareUrl('https://0.vuetifyjs.com/guide/start#usage', {
+      expect(toFragmentUrl('https://0.vuetifyjs.com/guide/start#usage', {
         start: 'ordered collection',
       })).toBe('https://0.vuetifyjs.com/guide/start#:~:text=ordered%20collection')
     })
@@ -48,7 +47,7 @@ describe('textFragment', () => {
         { name: href } as PerformanceNavigationTiming,
       ])
 
-      expect(arrivalTextFragment()).toEqual({ start: 'ordered collection' })
+      expect(readTextFragment()).toEqual({ start: 'ordered collection' })
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
@@ -57,25 +56,25 @@ describe('textFragment', () => {
         { name: 'https://0.vuetifyjs.com/other#:~:text=ordered%20collection' } as PerformanceNavigationTiming,
       ])
 
-      expect(arrivalTextFragment()).toBeUndefined()
+      expect(readTextFragment()).toBeUndefined()
       expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
-  describe('directiveFor', () => {
+  describe('toTextDirective', () => {
     it('should keep a unique phrase exact', () => {
       const text = 'Register a ticket before anyone else does.'
       const at = text.indexOf('ticket')
 
-      expect(directiveFor(text, 'ticket', at)).toEqual({ start: 'ticket' })
+      expect(toTextDirective(text, 'ticket', at)).toEqual({ start: 'ticket' })
     })
 
     it('should add surrounding words until a repeated phrase is unique', () => {
       const text = 'See the registry before the registry grows.'
       const at = text.lastIndexOf('registry')
-      const directive = directiveFor(text, 'registry', at)
+      const directive = toTextDirective(text, 'registry', at)
 
-      expect(locate(text, directive)).toEqual([[at, at + 'registry'.length]])
+      expect(toTextRanges(text, directive)).toEqual([[at, at + 'registry'.length]])
     })
   })
 
@@ -90,7 +89,7 @@ describe('textFragment', () => {
     it('should wrap the disambiguated occurrence in a mark', () => {
       const root = mount('<p>See the registry before the <strong>registry</strong> grows.</p>')
 
-      expect(applyTextFragment(root, {
+      expect(paintTextFragment(root, {
         prefix: 'the',
         start: 'registry',
         suffix: 'grows.',
@@ -106,14 +105,14 @@ describe('textFragment', () => {
     it('should leave the article unmarked when the phrase is absent', () => {
       const root = mount('<p>Nothing to find here.</p>')
 
-      expect(applyTextFragment(root, { start: 'registry' })).toBe(false)
+      expect(paintTextFragment(root, { start: 'registry' })).toBe(false)
       expect(root.querySelector('mark')).toBeNull()
     })
 
     it('should restore the original text nodes when marks are cleared', () => {
       const root = mount('<p>Highlight the registry once.</p>')
 
-      applyTextFragment(root, { start: 'registry' })
+      paintTextFragment(root, { start: 'registry' })
       clearTextMarks(root)
 
       expect(root.querySelector('mark')).toBeNull()
@@ -133,7 +132,7 @@ describe('textFragment', () => {
       range.setStart(text, at)
       range.setEnd(text, at + 'target'.length)
 
-      expect(quoteIn(root, range)).toMatchObject({ quote: 'target', at })
+      expect(toTextQuote(root, range)).toMatchObject({ quote: 'target', at })
     })
 
     it('should refuse a selection that crosses paragraphs', () => {
@@ -149,7 +148,7 @@ describe('textFragment', () => {
       range.setStart(first, 0)
       range.setEnd(second, second.data.length)
 
-      expect(quoteIn(root, range)).toBeUndefined()
+      expect(toTextQuote(root, range)).toBeUndefined()
     })
   })
 })

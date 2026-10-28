@@ -8,7 +8,7 @@
  */
 
 // Framework
-import { toHighlight } from '@vuetify/v0'
+import { isUndefined, toHighlight } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 const BLOCKS = 'p, li, h1, h2, h3, h4, h5, h6, td, th, dd, blockquote, figcaption'
@@ -57,7 +57,7 @@ function decodePiece (value: string): string {
  * `#:~:text=` (or `#id:~:text=`). The leading colon is the directive
  * delimiter; `URL.hash` supplies the `#` when this string is assigned.
  */
-export function formatTextFragment (directive: TextDirective): string {
+export function toTextFragment (directive: TextDirective): string {
   let value = ''
 
   if (directive.prefix) value += `${encodePiece(directive.prefix)}-,`
@@ -68,7 +68,7 @@ export function formatTextFragment (directive: TextDirective): string {
   return `:~:text=${value}`
 }
 
-export function parseTextFragment (hash: string): TextDirective | undefined {
+function parseDirective (hash: string): TextDirective | undefined {
   const at = hash.indexOf(':~:')
   if (at === -1) return undefined
 
@@ -120,14 +120,14 @@ function directive (fields: TextDirective): TextDirective {
   }
 }
 
-export function shareUrl (href: string, directive: TextDirective): string {
+export function toFragmentUrl (href: string, directive: TextDirective): string {
   const url = new URL(href)
-  url.hash = formatTextFragment(directive)
+  url.hash = toTextFragment(directive)
   return url.href
 }
 
 /** The `:~:` directive suffix of a hash, including the colon. Empty when absent. */
-export function textDirectiveSuffix (hash: string): string {
+export function toFragmentSuffix (hash: string): string {
   const at = hash.indexOf(':~:')
   return at === -1 ? '' : hash.slice(at)
 }
@@ -139,7 +139,7 @@ export function textDirectiveSuffix (hash: string): string {
  * prose is not in the first HTML payload, so the browser's own highlight
  * never fires. The navigation entry still carries the original URL.
  */
-export function arrivalTextFragment (): TextDirective | undefined {
+export function readTextFragment (): TextDirective | undefined {
   if (!IN_BROWSER) return undefined
 
   const entry = performance.getEntriesByType('navigation')[0]
@@ -149,7 +149,7 @@ export function arrivalTextFragment (): TextDirective | undefined {
     const url = new URL(entry.name)
     if (url.pathname !== location.pathname || url.search !== location.search) return undefined
 
-    return parseTextFragment(url.hash)
+    return parseDirective(url.hash)
   } catch {
     return undefined
   }
@@ -237,11 +237,7 @@ function passage (quote: string): Pick<TextDirective, 'end' | 'start'> {
   }
 }
 
-/**
- * A directive that points at the occurrence of `quote` starting at `at`.
- * Exact text when the phrase is unique; surrounding words until it isn't.
- */
-export function directiveFor (text: string, quote: string, at: number): TextDirective {
+function buildDirective (text: string, quote: string, at: number): TextDirective {
   const { start, end } = passage(quote)
   let prefix: string | undefined
   let suffix: string | undefined
@@ -273,11 +269,27 @@ export function directiveFor (text: string, quote: string, at: number): TextDire
 }
 
 /**
+ * A directive parsed from a hash, or one that points at `quote` starting at `at`.
+ * Exact text when the phrase is unique; surrounding words until it isn't.
+ */
+export function toTextDirective (hash: string): TextDirective | undefined
+export function toTextDirective (text: string, quote: string, at: number): TextDirective
+export function toTextDirective (
+  textOrHash: string,
+  quote?: string,
+  at?: number,
+): TextDirective | undefined {
+  if (isUndefined(quote) || isUndefined(at)) return parseDirective(textOrHash)
+
+  return buildDirective(textOrHash, quote, at)
+}
+
+/**
  * Match spans for a directive. `toHighlight` is the painter's source of
  * truth: the search finds a range, and the composable's match chunk is what
  * gets wrapped.
  */
-export function locate (text: string, directive: TextDirective): Array<[number, number]> {
+export function toTextRanges (text: string, directive: TextDirective): Array<[number, number]> {
   const found = occurrences(text, directive)
   const first = found[0]
 
@@ -390,7 +402,7 @@ function flatten (root: HTMLElement): { text: string, pieces: Piece[] } {
  * selections are refused: a flattened article glues paragraphs together, and
  * a highlight of that glue would paint the wrong span.
  */
-export function quoteIn (root: HTMLElement, range: Range): TextQuote | undefined {
+export function toTextQuote (root: HTMLElement, range: Range): TextQuote | undefined {
   if (range.collapsed) return undefined
   if (!root.contains(range.commonAncestorContainer)) return undefined
   if (rejected(range.startContainer) || rejected(range.endContainer)) return undefined
@@ -463,11 +475,11 @@ export function clearTextMarks (root: ParentNode) {
 }
 
 /** Wrap the directive's match. Returns false when the phrase is not in `root`. */
-export function applyTextFragment (root: HTMLElement, directive: TextDirective): boolean {
+export function paintTextFragment (root: HTMLElement, directive: TextDirective): boolean {
   clearTextMarks(root)
 
   const flat = flatten(root)
-  const range = locate(flat.text, directive)[0]
+  const range = toTextRanges(flat.text, directive)[0]
 
   if (!range) return false
 
