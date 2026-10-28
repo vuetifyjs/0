@@ -17,6 +17,9 @@
   // Framework
   import { Form, isString, useTimer } from '@vuetify/v0'
 
+  // Context
+  import { orders } from './Md1Data'
+
   // Utilities
   import { ref, shallowRef, toRef } from 'vue'
   import { useRouter } from 'vue-router'
@@ -135,13 +138,37 @@
 
   const timer = useTimer(() => router.push('/md1/orders'), { duration: 1400 })
 
+  /** What a unit of each category runs, so the saved order carries a believable total. */
+  const prices: Record<keyof typeof categories, number> = {
+    coffee: 18.5,
+    tea: 12,
+    equipment: 64,
+    gifts: 36,
+  }
+
+  const saved = shallowRef('')
+
   async function onSave (submit: () => Promise<boolean>) {
     missing.value = customer.value ? undefined : 'Error: choose a customer'
 
+    const name = customer.value
     const valid = await submit()
 
-    if (!valid || missing.value) return
+    if (!valid || !name) return
 
+    const count = Number(quantity.value)
+    const today = new Date()
+
+    const made = orders.add({
+      customer: name,
+      placed: today.toISOString().slice(0, 10),
+      shown: today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      items: count,
+      total: Math.round(count * prices[category.value] * 100) / 100,
+      status: 'Processing',
+    })
+
+    saved.value = `Order ${made.id} saved`
     open.value = true
     timer.start()
   }
@@ -283,7 +310,7 @@
     </Md1Dialog>
 
     <Md1Snackbar.Portal>
-      <Md1Snackbar v-model="open" :timeout="4000">Order saved</Md1Snackbar>
+      <Md1Snackbar v-model="open" :timeout="4000">{{ saved }}</Md1Snackbar>
     </Md1Snackbar.Portal>
   </section>
 </template>

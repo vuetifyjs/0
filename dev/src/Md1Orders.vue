@@ -1,67 +1,31 @@
 <script setup lang="ts">
-  import { Md1Button, Md1DataTable, Md1Snackbar } from '@paper/md1'
+  // Components
+  import { Md1Button, Md1DataTable, Md1Snackbar, Md1Tooltip } from '@paper/md1'
 
   // Framework
   import { useDataTable } from '@vuetify/v0'
+
+  // Context
+  import { orders } from './Md1Data'
 
   // Utilities
   import { defineComponent, nextTick, ref, shallowRef, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
+  import type { Order, Slot } from './Md1Data'
   import type { DataTableContext } from '@vuetify/v0'
 
-  interface Order {
-    id: number
-    customer: string
-    /** Date placed, ISO, so the column sorts chronologically. */
-    placed: string
-    /** The date as the cell shows it. */
-    shown: string
-    items: number
-    total: number
-    status: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'
-  }
+  const router = useRouter()
 
-  const all: Order[] = [
-    { id: 4126, customer: 'Ana Ribeiro', placed: '2026-10-26', shown: 'Oct 26', items: 3, total: 182.4, status: 'Processing' },
-    { id: 4125, customer: 'Ben Okafor', placed: '2026-10-25', shown: 'Oct 25', items: 1, total: 42, status: 'Processing' },
-    { id: 4124, customer: 'Chen Wei', placed: '2026-10-24', shown: 'Oct 24', items: 6, total: 318.75, status: 'Shipped' },
-    { id: 4123, customer: 'Dana Petrov', placed: '2026-10-23', shown: 'Oct 23', items: 2, total: 96.2, status: 'Processing' },
-    { id: 4122, customer: 'Elif Demir', placed: '2026-10-22', shown: 'Oct 22', items: 4, total: 221.9, status: 'Shipped' },
-    { id: 4121, customer: 'Franco Rossi', placed: '2026-10-21', shown: 'Oct 21', items: 8, total: 540, status: 'Shipped' },
-    { id: 4120, customer: 'Grace Mbeki', placed: '2026-10-20', shown: 'Oct 20', items: 1, total: 18.5, status: 'Cancelled' },
-    { id: 4119, customer: 'Hana Suzuki', placed: '2026-10-19', shown: 'Oct 19', items: 5, total: 264.3, status: 'Shipped' },
-    { id: 4118, customer: 'Igor Volkov', placed: '2026-10-18', shown: 'Oct 18', items: 2, total: 77.6, status: 'Delivered' },
-    { id: 4117, customer: 'Jade Nguyen', placed: '2026-10-17', shown: 'Oct 17', items: 3, total: 149, status: 'Delivered' },
-    { id: 4116, customer: 'Karl Lindqvist', placed: '2026-10-16', shown: 'Oct 16', items: 7, total: 412.85, status: 'Processing' },
-    { id: 4115, customer: 'Lena Vogel', placed: '2026-10-15', shown: 'Oct 15', items: 2, total: 88, status: 'Delivered' },
-    { id: 4114, customer: 'Marco Silva', placed: '2026-10-14', shown: 'Oct 14', items: 4, total: 203.4, status: 'Delivered' },
-    { id: 4113, customer: 'Nadia Haddad', placed: '2026-10-13', shown: 'Oct 13', items: 1, total: 35.25, status: 'Cancelled' },
-    { id: 4112, customer: 'Omar Farouk', placed: '2026-10-12', shown: 'Oct 12', items: 6, total: 329.95, status: 'Delivered' },
-    { id: 4111, customer: 'Priya Sharma', placed: '2026-10-11', shown: 'Oct 11', items: 3, total: 158.7, status: 'Delivered' },
-    { id: 4110, customer: 'Quinn Murphy', placed: '2026-10-10', shown: 'Oct 10', items: 2, total: 64.8, status: 'Shipped' },
-    { id: 4109, customer: 'Rosa Alvarez', placed: '2026-10-09', shown: 'Oct 9', items: 5, total: 287.15, status: 'Delivered' },
-    { id: 4108, customer: 'Sana Khalid', placed: '2026-10-08', shown: 'Oct 8', items: 1, total: 24.9, status: 'Delivered' },
-    { id: 4107, customer: 'Tomas Novak', placed: '2026-10-07', shown: 'Oct 7', items: 4, total: 196.45, status: 'Processing' },
-    { id: 4106, customer: 'Uma Patel', placed: '2026-10-06', shown: 'Oct 6', items: 2, total: 102.3, status: 'Delivered' },
-    { id: 4105, customer: 'Viktor Eriksen', placed: '2026-10-05', shown: 'Oct 5', items: 8, total: 611.2, status: 'Delivered' },
-    { id: 4104, customer: 'Wendy Zhao', placed: '2026-10-04', shown: 'Oct 4', items: 3, total: 134.55, status: 'Cancelled' },
-    { id: 4103, customer: 'Yara Aziz', placed: '2026-10-03', shown: 'Oct 3', items: 2, total: 59.95, status: 'Delivered' },
-    { id: 4102, customer: 'Zoe Laurent', placed: '2026-10-02', shown: 'Oct 2', items: 5, total: 248.6, status: 'Delivered' },
-  ]
+  const list = toRef(() => orders.all.value)
 
-  /** Ids removed from the table; the snackbar's Undo takes the last batch back out. */
-  const gone = ref<number[]>([])
-  const batch = ref<number[]>([])
+  /** The last removal's slots, so the snackbar's Undo puts the rows back in place. */
+  const batch = ref<Slot<Order>[]>([])
   const selected = ref<Order[]>([])
   const rows = shallowRef(10)
   const open = shallowRef(false)
   const note = shallowRef('')
-
-  const router = useRouter()
-
-  const orders = toRef(() => all.filter(order => !gone.value.includes(order.id)))
 
   /**
    * The v0 pipeline keeps unsorted rows in registry registration order, so a
@@ -83,8 +47,7 @@
   function pull (verb: string) {
     const ids = selected.value.map(order => order.id)
 
-    batch.value = ids
-    gone.value = [...gone.value, ...ids]
+    batch.value = orders.remove(ids)
     selected.value = []
     note.value = `${verb} ${ids.length === 1 ? '1 order' : `${ids.length} orders`}`
     open.value = true
@@ -99,14 +62,12 @@
   }
 
   async function onUndo () {
-    const ids = new Set(batch.value)
-
-    gone.value = gone.value.filter(id => !ids.has(id))
+    orders.restore(batch.value)
     batch.value = []
 
     // Once the restored rows have re-registered, realign the registry with the data order.
     await nextTick()
-    table.value?.reorder(orders.value.map(order => order.id))
+    table.value?.reorder(list.value.map(order => order.id))
   }
 </script>
 
@@ -119,15 +80,33 @@
     <Capture />
 
     <Md1DataTable.Header title="Recent orders">
-      <Md1Button aria-label="Filter list" icon="filter-list" />
+      <Md1Tooltip>
+        <Md1Tooltip.Activator v-slot="{ attrs }">
+          <Md1Button v-bind="attrs" aria-label="Filter list" icon="filter-list" />
+        </Md1Tooltip.Activator>
 
-      <Md1Button aria-label="More options" icon="more-vert" />
+        <Md1Tooltip.Content>Filter list</Md1Tooltip.Content>
+      </Md1Tooltip>
+
+      <Md1Tooltip>
+        <Md1Tooltip.Activator v-slot="{ attrs }">
+          <Md1Button v-bind="attrs" aria-label="More options" icon="more-vert" />
+        </Md1Tooltip.Activator>
+
+        <Md1Tooltip.Content>More options</Md1Tooltip.Content>
+      </Md1Tooltip>
     </Md1DataTable.Header>
 
     <Md1DataTable.Contextual>
       <Md1Button @click="onArchive">Archive</Md1Button>
 
-      <Md1Button aria-label="Delete selected" icon="delete" @click="onDelete" />
+      <Md1Tooltip>
+        <Md1Tooltip.Activator v-slot="{ attrs }">
+          <Md1Button v-bind="attrs" aria-label="Delete selected" icon="delete" @click="onDelete" />
+        </Md1Tooltip.Activator>
+
+        <Md1Tooltip.Content>Delete</Md1Tooltip.Content>
+      </Md1Tooltip>
     </Md1DataTable.Contextual>
 
     <Md1DataTable.Table>
@@ -147,7 +126,7 @@
 
       <Md1DataTable.Body v-slot="{ rank }">
         <Md1DataTable.Row
-          v-for="order in rank(orders)"
+          v-for="order in rank(list)"
           :id="order.id"
           :key="order.id"
           :value="order"
