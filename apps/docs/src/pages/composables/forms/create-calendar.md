@@ -17,9 +17,9 @@ related:
 
 # createCalendar
 
-A Gregorian month grid with single and range selection. Days outside the minimum and maximum are disabled, and a separate predicate marks days unavailable.
-
 <DocsPageFeatures :frontmatter />
+
+A Gregorian month grid with single and range selection. Days outside the minimum and maximum are disabled, and a separate predicate marks days unavailable.
 
 ## Usage
 
