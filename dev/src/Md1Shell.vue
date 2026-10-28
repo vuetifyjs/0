@@ -180,42 +180,47 @@
       <Md1Toolbar.Title>{{ title }}</Md1Toolbar.Title>
 
       <Md1Toolbar.Actions>
-        <!-- The tour's finale: pressing the promoted action opens search itself. -->
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
-          <Md1FeatureDiscovery.Activator>
-            <Md1Tooltip>
-              <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="morph(true)" />
-              </Md1Tooltip.Activator>
+        <!-- The tour's finale: pressing the promoted action opens search itself.
+             Each stop's wrapper re-scopes the accent for its prompt subtree. -->
+        <span class="md1-demo-stop md1-demo-stop--find">
+          <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
+            <Md1FeatureDiscovery.Activator>
+              <Md1Tooltip>
+                <Md1Tooltip.Activator v-slot="{ attrs }">
+                  <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="morph(true)" />
+                </Md1Tooltip.Activator>
 
-              <Md1Tooltip.Content>Search</Md1Tooltip.Content>
-            </Md1Tooltip>
-          </Md1FeatureDiscovery.Activator>
+                <Md1Tooltip.Content>Search</Md1Tooltip.Content>
+              </Md1Tooltip>
+            </Md1FeatureDiscovery.Activator>
 
-          <Md1FeatureDiscovery.Title>Search everything</Md1FeatureDiscovery.Title>
+            <Md1FeatureDiscovery.Title>Search everything</Md1FeatureDiscovery.Title>
 
-          <Md1FeatureDiscovery.Text>
-            One search covers your messages, contacts, orders, files and activity.
-          </Md1FeatureDiscovery.Text>
-        </Md1FeatureDiscovery>
+            <Md1FeatureDiscovery.Text>
+              One search covers your messages, contacts, orders, files and activity.
+            </Md1FeatureDiscovery.Text>
+          </Md1FeatureDiscovery>
+        </span>
 
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
-          <Md1FeatureDiscovery.Activator>
-            <Md1Tooltip>
-              <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1IconToggle v-bind="attrs" v-model="dark" aria-label="Dark theme" icon="invert-colors" />
-              </Md1Tooltip.Activator>
+        <span class="md1-demo-stop md1-demo-stop--mood">
+          <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
+            <Md1FeatureDiscovery.Activator>
+              <Md1Tooltip>
+                <Md1Tooltip.Activator v-slot="{ attrs }">
+                  <Md1IconToggle v-bind="attrs" v-model="dark" aria-label="Dark theme" icon="invert-colors" />
+                </Md1Tooltip.Activator>
 
-              <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
-            </Md1Tooltip>
-          </Md1FeatureDiscovery.Activator>
+                <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
+              </Md1Tooltip>
+            </Md1FeatureDiscovery.Activator>
 
-          <Md1FeatureDiscovery.Title>Set the mood</Md1FeatureDiscovery.Title>
+            <Md1FeatureDiscovery.Title>Set the mood</Md1FeatureDiscovery.Title>
 
-          <Md1FeatureDiscovery.Text>
-            Tap to flip the whole dashboard between light and dark.
-          </Md1FeatureDiscovery.Text>
-        </Md1FeatureDiscovery>
+            <Md1FeatureDiscovery.Text>
+              Tap to flip the whole dashboard between light and dark.
+            </Md1FeatureDiscovery.Text>
+          </Md1FeatureDiscovery>
+        </span>
 
         <Md1Menu>
           <Md1Menu.Activator v-slot="menu">
@@ -391,6 +396,26 @@
     .md1-demo-offer .md1-snackbar[data-state='leaving'] {
       animation-name: md1-snackbar-leave-inset;
     }
+  }
+
+  /* Each tour stop re-scopes the accent for its own prompt subtree (the
+     feature-discovery portal renders in place): teal for the theme stop, deep
+     orange 600 for search — distinct from the indigo bar, the pink charts and
+     each other, and both darker than pink A200 so the white hint reads. The
+     circle paints from the -channels triplet, which only theme roles emit, so
+     each hex carries its triplet beside it. */
+  .md1-demo-stop {
+    display: contents;
+  }
+
+  .md1-demo-stop--mood {
+    --md1-accent: var(--md1-teal-500, #009688);
+    --md1-accent-channels: 0 150 136;
+  }
+
+  .md1-demo-stop--find {
+    --md1-accent: var(--md1-deep-orange-600, #F4511E);
+    --md1-accent-channels: 244 81 30;
   }
 
   /* The toolbar-to-search swap cross-fades through a view transition scoped to
