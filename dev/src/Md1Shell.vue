@@ -181,7 +181,7 @@
 
       <Md1Toolbar.Actions>
         <!-- The tour's finale: pressing the promoted action opens search itself. -->
-        <Md1FeatureDiscovery :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -199,7 +199,7 @@
           </Md1FeatureDiscovery.Text>
         </Md1FeatureDiscovery>
 
-        <Md1FeatureDiscovery :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
