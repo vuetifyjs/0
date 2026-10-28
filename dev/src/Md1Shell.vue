@@ -118,22 +118,16 @@
 
   const stage = shallowRef<0 | 1 | 2>(0)
 
-  const seen = storage.get('md1-demo:tip-search', false)
   const ask = shallowRef(false)
 
-  // The offer waits for the shell to settle; the tour itself only ever starts
-  // from the snackbar's action or the overflow's Show tips.
+  // The offer waits for the shell to settle, once per load, every load; the
+  // tour itself only ever starts from Start or the overflow's Show tips.
   const delay = useTimer(() => {
     ask.value = true
   }, { duration: 1200 })
 
   onMounted(() => {
-    if (!seen.value) delay.start()
-  })
-
-  // However the bar leaves — Start, its timeout, a dismissal — it never nags again.
-  watch(ask, value => {
-    if (!value) seen.value = true
+    delay.start()
   })
 
   function onTour () {

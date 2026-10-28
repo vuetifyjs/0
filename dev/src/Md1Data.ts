@@ -433,7 +433,6 @@ const stored: Record<string, unknown> = {
   'md1-demo:searches': [],
   'md1-demo:sound': true,
   'md1-demo:sync': 'Every hour',
-  'md1-demo:tip-search': false,
   'md1-demo:updates': true,
   'md1-demo:wifi': true,
   'md1-demo:workspace': true,
