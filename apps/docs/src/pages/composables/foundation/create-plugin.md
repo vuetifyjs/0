@@ -27,7 +27,7 @@ Register app-wide plugins with typed context any component can consume. Prefer `
 For most cases, use `createPluginContext` — it generates the full plugin tuple from a factory function:
 
 ```ts collapse no-filename
-import { createPluginContext } from '@vuetify/v0'
+import { createPluginContext, useLogger } from '@vuetify/v0'
 
 interface AnalyticsOptions {
   trackPageviews?: boolean
@@ -40,21 +40,27 @@ interface AnalyticsContext {
 export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
   createPluginContext<AnalyticsOptions, AnalyticsContext>(
     'my:analytics',
-    (options) => ({
-      track: (event) => {
-        if (options.trackPageviews) console.log(event)
-      },
-    }),
+    (options) => {
+      const logger = useLogger('analytics')
+
+      return {
+        track: (event) => {
+          if (options.trackPageviews) logger.debug('Track', { event })
+        },
+      }
+    },
   )
 ```
 
 ```ts src/main.ts
 import { createApp } from 'vue'
+import { createLoggerPlugin } from '@vuetify/v0'
 import { createAnalyticsPlugin } from './plugins/analytics'
 import App from './App.vue'
 
 const app = createApp(App)
 
+app.use(createLoggerPlugin({ level: 'debug' }))
 app.use(createAnalyticsPlugin({ trackPageviews: true }))
 
 app.mount('#app')

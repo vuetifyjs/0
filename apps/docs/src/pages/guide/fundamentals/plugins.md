@@ -11,6 +11,7 @@ meta:
 related:
   - /guide/fundamentals/core
   - /composables/foundation/create-plugin
+  - /composables/plugins/use-logger
   - /composables/plugins/use-theme
   - /composables/plugins/use-locale
   - /composables/plugins/use-rtl
@@ -92,8 +93,10 @@ app.use(
 
 `createPluginContext` is the recommended factory for new plugins. It generates the full `[createXContext, createXPlugin, useX]` tuple in a single call, eliminating the boilerplate of wiring together `createContext` and `createPlugin` manually.
 
+Log through [useLogger](/composables/plugins/use-logger). The factory runs while the plugin installs, so register the logger plugin first and this one picks it up. Debug lines show when the logger level is `debug` or lower.
+
 ```ts src/plugins/analytics.ts
-import { createPluginContext } from '@vuetify/v0'
+import { createPluginContext, useLogger } from '@vuetify/v0'
 
 interface AnalyticsContext {
   track: (event: string, data?: Record<string, unknown>) => void
@@ -108,19 +111,27 @@ interface AnalyticsOptions {
 export const [createAnalyticsContext, createAnalyticsPlugin, useAnalytics] =
   createPluginContext<AnalyticsOptions, AnalyticsContext>(
     'my:analytics',
-    ({ apiKey, debug = false }) => ({
-      track: (event, data) => {
-        if (debug) console.log('Track:', event, data)
-        // send to analytics service using apiKey
-      },
-      identify: (userId) => {
-        // identify user
-      },
-    }),
+    ({ apiKey, debug = false }) => {
+      const logger = useLogger('analytics')
+
+      return {
+        track: (event, data) => {
+          if (debug) logger.debug('Track', { event, data })
+          // send to analytics service using apiKey
+        },
+        identify: (userId) => {
+          // identify user
+        },
+      }
+    },
   )
 ```
 
 ```ts main.ts
+import { createLoggerPlugin } from '@vuetify/v0'
+import { createAnalyticsPlugin } from './plugins/analytics'
+
+app.use(createLoggerPlugin({ level: 'debug' }))
 app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 ```
 
@@ -137,10 +148,10 @@ app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 
 ### Manual Approach
 
-For fine-grained control over the plugin lifecycle, use `createContext` and `createPlugin` directly:
+For fine-grained control over the plugin lifecycle, use `createContext` and `createPlugin` directly. Call `useLogger()` inside `provide`. That hook runs during `app.use()`, after plugins you installed earlier.
 
 ```ts src/plugins/analytics.ts
-import { createContext, createPlugin } from '@vuetify/v0'
+import { createContext, createPlugin, useLogger } from '@vuetify/v0'
 
 interface AnalyticsContext {
   track: (event: string, data?: Record<string, unknown>) => void
@@ -152,14 +163,20 @@ const [useAnalytics, provideAnalytics] = createContext<AnalyticsContext>('my:ana
 
 // 2. Create the plugin factory
 export function createAnalyticsPlugin() {
-  const context: AnalyticsContext = {
-    track: (event, data) => console.log('Track:', event, data),
-    identify: (userId) => console.log('Identify:', userId),
-  }
-
   return createPlugin({
     namespace: 'my:analytics',
-    provide: (app) => provideAnalytics(context, app),
+    provide: (app) => {
+      const logger = useLogger('analytics')
+
+      provideAnalytics({
+        track: (event, data) => {
+          logger.info('Track', { event, data })
+        },
+        identify: (userId) => {
+          logger.info('Identify', { userId })
+        },
+      }, app)
+    },
   })
 }
 
@@ -177,19 +194,21 @@ interface AnalyticsOptions {
 export function createAnalyticsPlugin(options: AnalyticsOptions) {
   const { apiKey, debug = false } = options
 
-  const context: AnalyticsContext = {
-    track: (event, data) => {
-      if (debug) console.log('Track:', event, data)
-      // Send to analytics service
-    },
-    identify: (userId) => {
-      // Identify user
-    },
-  }
-
   return createPlugin({
     namespace: 'my:analytics',
-    provide: (app) => provideAnalytics(context, app),
+    provide: (app) => {
+      const logger = useLogger('analytics')
+
+      provideAnalytics({
+        track: (event, data) => {
+          if (debug) logger.debug('Track', { event, data })
+          // Send to analytics service using apiKey
+        },
+        identify: (userId) => {
+          // Identify user
+        },
+      }, app)
+    },
   })
 }
 
@@ -199,52 +218,73 @@ app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 
 ### Plugin with Adapter Pattern
 
-For extensible plugins that support multiple backends:
+For a plugin that can talk to more than one backend, pass an adapter. Log with [useLogger](/composables/plugins/use-logger) from `@vuetify/v0`.
 
-```ts src/plugins/logger.ts collapse
-interface LoggerAdapter {
-  log: (level: string, message: string) => void
+```ts src/plugins/analytics.ts collapse
+import { createContext, createLoggerPlugin, createPlugin, useLogger } from '@vuetify/v0'
+
+interface AnalyticsAdapter {
+  track: (event: string, data?: Record<string, unknown>) => void
+  identify: (userId: string) => void
 }
 
-interface LoggerContext {
-  info: (msg: string) => void
-  warn: (msg: string) => void
-  error: (msg: string) => void
+interface AnalyticsContext {
+  track: (event: string, data?: Record<string, unknown>) => void
+  identify: (userId: string) => void
 }
 
-interface LoggerOptions {
-  adapter?: LoggerAdapter
+interface AnalyticsOptions {
+  adapter?: AnalyticsAdapter
 }
 
-const consoleAdapter: LoggerAdapter = {
-  log: (level, message) => console[level](message),
+const defaultAdapter: AnalyticsAdapter = {
+  track: () => {},
+  identify: () => {},
 }
 
-const [useLogger, provideLogger] = createContext<LoggerContext>('my:logger')
+const [useAnalytics, provideAnalytics] = createContext<AnalyticsContext>('my:analytics')
 
-export function createLoggerPlugin(options: LoggerOptions = {}) {
-  const adapter = options.adapter ?? consoleAdapter
-
-  const context: LoggerContext = {
-    info: (msg) => adapter.log('info', msg),
-    warn: (msg) => adapter.log('warn', msg),
-    error: (msg) => adapter.log('error', msg),
-  }
+export function createAnalyticsPlugin(options: AnalyticsOptions = {}) {
+  const adapter = options.adapter ?? defaultAdapter
 
   return createPlugin({
-    namespace: 'my:logger',
-    provide: (app) => provideLogger(context, app),
+    namespace: 'my:analytics',
+    provide: (app) => {
+      const logger = useLogger('analytics')
+
+      provideAnalytics({
+        track: (event, data) => {
+          logger.debug('Track', { event, data })
+          adapter.track(event, data)
+        },
+        identify: (userId) => {
+          logger.info('Identify', { userId })
+          adapter.identify(userId)
+        },
+      }, app)
+    },
   })
 }
 
-// Custom adapter example
-const sentryAdapter: LoggerAdapter = {
-  log: (level, message) => {
-    if (level === 'error') Sentry.captureMessage(message)
+export { useAnalytics }
+
+const httpAdapter: AnalyticsAdapter = {
+  track: (event, data) => {
+    void fetch('/analytics', {
+      method: 'POST',
+      body: JSON.stringify({ event, data }),
+    })
+  },
+  identify: (userId) => {
+    void fetch('/analytics/identify', {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    })
   },
 }
 
-app.use(createLoggerPlugin({ adapter: sentryAdapter }))
+app.use(createLoggerPlugin({ level: 'debug' }))
+app.use(createAnalyticsPlugin({ adapter: httpAdapter }))
 ```
 
 ## Consuming Plugins
