@@ -41,8 +41,6 @@ The request itself is the platform's dialog, not the app's, so this page shows o
 
 A user's own action, such as taking a picture or choosing a contact, is consent enough; no permission request belongs there.
 
-A permission can be denied by the user in the request, or silently, because the user once chose "Don't ask again". Either way the feature no longer works as intended, so the app says that permission is needed and gives a way to allow it.
-
 ## Examples
 
 ::: ds-example
@@ -59,6 +57,8 @@ The request is real: Continue calls `navigator.geolocation.getCurrentPosition`. 
 /systems/md1/permissions/denied
 
 ### A denied permission
+
+A permission can be denied by the user in the request, or silently, because the user once chose "Don't ask again". Either way the feature no longer works as intended, so the app says that permission is needed and gives a way to allow it.
 
 When a secondary feature needs a permission the user has denied, a snackbar says so at the moment the feature is used. Here the microphone in a notes app was turned down: tapping the voice-note button shows "To record voice notes, allow Notes permission to record audio." with a Settings action that leads to the app's permission settings.
 

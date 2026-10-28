@@ -39,7 +39,7 @@ Material Design 1 has no image component; the guidelines define none. The two co
 /systems/md1/loading-images/card
 :::
 
-While the image loads, the card's media area holds a 12% tone (`--md1-divider`) instead of leaving a hole in the sheet, and the image waits at 0% opacity, 20% saturation and a lifted exposure. When it arrives, opacity and filter ease to full over `--md1-duration-complex` (375 ms on a phone, 200 ms under a mouse) on the standard curve.[^load-duration] An image that fails keeps the tone and hides the broken glyph. Each press of the button loads a new URL, so the browser fetches again instead of answering from its cache.
+While the image loads, the card's media area holds a 12% tone (`--md1-divider`) instead of leaving a hole in the sheet, and an image that fails keeps the tone and hides the broken glyph.[^load-duration] Each press of the button loads a new URL, so the browser fetches again instead of answering from its cache.
 
 ## The recipe
 
@@ -55,7 +55,7 @@ The three phases start together and end in sequence. The end points are read fro
 
 | Surface | Opacity | Exposure | Saturation | Timing |
 |---------|---------|----------|------------|--------|
-| `Md1Card.Media` | 0% to 100% | `brightness(1.2)` to none | 20% to 100% | One transition for all three, `--md1-duration-complex`, standard curve[^card-phases] |
+| `Md1Card.Media` | 0% to 100% | `brightness(1.2)` to none | 20% to 100% | One transition for all three, `--md1-duration-complex` (375 ms on a phone, 200 ms under a mouse), standard curve[^card-phases] |
 | `Md1GridList.Tile` | 0% to 100% | none[^tile-exposure] | 20% to 100% | One transition for both, `--md1-duration-complex`, decelerate curve, independent of the tile's staggered entrance |
 | Your own image | Composed as in Three phases on your own image, below | Contrast from 60% | 20% to 100% | Staggered phases on a docs-chosen duration |
 

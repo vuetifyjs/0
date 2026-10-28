@@ -40,7 +40,7 @@ Show onboarding to first-time users and never to returning ones. Its goals are t
 /systems/md1/onboarding/quickstart
 :::
 
-Quickstart gives the user something to do instead of a blank screen. The first key action, the one most closely linked to engagement in the first seven days, is promoted as a raised `Md1Button`; other ways to start sit in an `Md1List` below it. Education is offered, never forced: the guidelines show the offer late in the first session (90% of the way through an average one), and the example raises its "Learn more" and "No thanks" card only after the first action is taken.
+The example promotes the first key action, the one most closely linked to engagement, as a raised `Md1Button`, lists other ways to start in an `Md1List` below it, and raises its education card only after that first action is taken.
 
 ## Choosing a model
 
@@ -56,7 +56,7 @@ Never combine self-select with top user benefits. Setup may run before the first
 |------|-----------------|-----------|
 | Primary call to action | `Md1Button variant="raised"` | "Get started" throughout a carousel; the first key action in Quickstart |
 | Choices | `Md1List select="multiple"`, or `Md1GridList` tiles with `selected` | Fewer than ten, on one screen, each with a noticeable effect |
-| Education offer | A dismissible `Md1Card` with "Learn more" and "No thanks" | Offered late in the first session, never forced up front |
+| Education offer | A dismissible `Md1Card` with "Learn more" and "No thanks" | Offered late in the first session (90% of the way through an average one), never forced up front |
 | Desktop carousel | `Md1Card`, with icon-only `Md1Button`s for Previous and Next | Illustration, copy and the button in a centred card |
 | Pagination | Dots you draw | One per screen, beneath the copy or the card; none for a video |
 
