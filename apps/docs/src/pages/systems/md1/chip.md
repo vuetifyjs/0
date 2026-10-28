@@ -33,7 +33,7 @@ The Material Design 1 chip: a small block that stands for an entity, such as a f
 
 ## Usage
 
-`Md1Chip` is a compound with one optional part. The default slot is the label; `icon`, `avatar`, `deletable` and `contact` select the chip types the guidelines define. A chip with no press is text printed on the sheet; bind `@click`, or set `contact`, and it becomes a button.
+`Md1Chip` is a compound whose `Addresses` and `Address` parts serve only the open contact chip. The default slot is the label; `icon`, `avatar`, `deletable` and `contact` select the chip types the guidelines define. A chip with no press is text printed on the sheet; bind `@click`, or set `contact`, and it becomes a button.
 
 ::: ds-example
 /systems/md1/chip/basic

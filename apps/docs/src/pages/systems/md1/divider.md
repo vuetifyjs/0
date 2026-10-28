@@ -33,7 +33,7 @@ The Material Design 1 divider. A 1 dp rule in the 12% divider ink, full bleed be
 
 `Md1Divider` is a presentational component: one `hr`, one prop, no slot. The default is the full-bleed divider that runs edge to edge of its container; `inset` starts it at the content keyline.
 
-Dividers group content in lists and page layouts. The guidelines warn that heavy use creates visual noise and dilutes their meaning: reach for white space and subheaders first, use full-bleed dividers when a list has no anchoring element and spacing alone does not separate its tiles, and use inset dividers only beside an anchoring avatar or icon.
+Reach for white space and subheaders first; the guidelines warn that heavy use creates visual noise. Use a full-bleed divider when a list has no anchoring element and spacing alone does not separate its tiles, and an inset divider only beside an anchoring avatar or icon.
 
 ::: ds-example
 /systems/md1/divider/basic

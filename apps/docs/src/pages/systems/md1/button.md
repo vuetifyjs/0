@@ -34,7 +34,7 @@ The Material Design 1 button. Flat ink or a raised sheet, in the standard, dense
 
 `Md1Button` is a shell component: fixed anatomy, props for everything, and the default slot is the label. `variant` picks between the two text buttons the guidelines define. Flat is the default; `raised` is the sheet that lifts.
 
-Use one type per container. Raised buttons add dimension to a flat layout and give an action prominence on a busy surface. Flat buttons belong in dialogs and toolbars, where a raised button would be too prominent.
+Use one type per container. Raised buttons add dimension to a flat layout and give an action prominence on a busy or wide surface. Flat buttons belong in dialogs and toolbars, where a raised button would be too prominent.
 
 ::: ds-example
 /systems/md1/button/basic
@@ -69,7 +69,7 @@ The first child of the root is a [Md1Ripple](/systems/md1/ripple), the ink react
 
 A flat button is text printed on the sheet it sits on: no container, no shadow, ink in the accent colour (`--md1-accent`, Pink A200 in the default theme) so it reads as an action rather than as body text. On press it fills with the pressed overlay, 40% `#999999` on the light theme and 25% `#CCCCCC` on the dark one, drawn by the ripple. It never lifts. The guidelines put flat buttons in dialogs, on toolbars and inline, with padding around them so they can be found.
 
-A raised button is a rectangular sheet of its own: the primary colour (`--md1-primary`, Indigo 500) with white ink at 100%, resting at 2 dp. Pressing it lifts the sheet to 8 dp and fills it with the 700 shade (`--md1-primary-dark`); on release it settles back to rest. Raised buttons add dimension to mostly flat layouts and emphasize an action on busy or wide surfaces. The guidelines call them too prominent inside dialogs.
+A raised button is a rectangular sheet of its own: the primary colour (`--md1-primary`, Indigo 500) with white ink at 100%, resting at 2 dp. Pressing it lifts the sheet to 8 dp and fills it with the 700 shade (`--md1-primary-dark`); on release it settles back to rest.
 
 Both share one set of metrics: 36 dp tall, at least 88 dp wide, 16 dp of padding on each side, 2 dp corners, 8 dp between neighbours, and the Button type style of 14 sp Roboto Medium in capitals. Where the pointer is a mouse, the raised button rests seamed at 0 dp and gains its 2 dp on hover and press, the desktop rule of the elevation page. On hover both variants draw a 12% overlay of their own ink, a tint of the accent on a flat button and a white wash on a raised one: the buttons page states no hover, so the button takes Vuetify 1.5's.[^hover] A device that cannot hover draws none.
 :::
