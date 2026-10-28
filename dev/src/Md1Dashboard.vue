@@ -269,6 +269,26 @@
     outline-offset: 2px;
   }
 
+  /* The grid's non-card sheets — the gauge tiles and the table — take the
+     cards-page pick-up on hover, so the overview raises uniformly beside the
+     Md1Cards (which rest seamed and lift to 8 dp on their own). */
+  .md1-demo-dash .md1-demo-tile,
+  .md1-demo-dash .md1-data-table {
+    transition: box-shadow 280ms var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  @media (pointer: fine) {
+    .md1-demo-dash .md1-demo-tile,
+    .md1-demo-dash .md1-data-table {
+      box-shadow: var(--md1-elevation-0, none);
+    }
+
+    .md1-demo-dash .md1-demo-tile:hover,
+    .md1-demo-dash .md1-data-table:hover {
+      box-shadow: var(--md1-elevation-8, 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12));
+    }
+  }
+
   .md1-demo-tile__label {
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
   }
