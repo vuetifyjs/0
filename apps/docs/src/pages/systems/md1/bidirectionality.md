@@ -109,7 +109,7 @@ Material Design 1 builds every keyline and padding with logical properties (`pad
 
 ## Accessibility
 
-Set `lang` alongside `dir`, so a screen reader switches voice and the conditional `help` glyph can tell Hebrew, where it stays put, from Arabic and Farsi, where it mirrors. On an RTL slider the arrow keys follow the picture: Left raises the value, because the fill grows leftward. Tabs follow the picture too: Left moves to the next tab. Toolbar actions move focus in source order, so Right moves to the next action, which sits to its left under RTL.[^rtl-arrows] Numbers inside RTL text need no markup in most cases, but a sequence that mixes digits with `+` or `-`, such as a phone number, should sit in its own `dir="ltr"` element so the bidi algorithm cannot reorder it.
+Set `lang` alongside `dir`, so a screen reader switches voice and the conditional `help` glyph can tell Hebrew, where it stays put, from Arabic and Farsi, where it mirrors. On an RTL slider the arrow keys follow the picture: Left raises the value, because the fill grows leftward. Tabs and toolbar actions follow the picture too: Left moves to the next item, which sits to its left under RTL.[^rtl-arrows] Numbers inside RTL text need no markup in most cases, but a sequence that mixes digits with `+` or `-`, such as a phone number, should sit in its own `dir="ltr"` element so the bidi algorithm cannot reorder it.
 
 [^arabic-copy]: Our call: the Arabic titles, names and times are illustrative copy written for the example. Digits stay Western, as in the guidelines' figure.
 
@@ -117,4 +117,4 @@ Set `lang` alongside `dir`, so a screen reader switches voice and the conditiona
 
 [^hebrew-copy]: Our call: the Hebrew paragraph is illustrative copy written for the example.
 
-[^rtl-arrows]: Our call: documented as shipped. v0's `Tabs` reverses Left and Right under RTL; the roving focus behind `Md1Toolbar.Actions` has no RTL handling, so the toolbar's arrow keys are not mirrored.
+[^rtl-arrows]: v0's `Tabs` and the `useRovingFocus` behind `Md1Toolbar.Actions` read the computed `direction` on each keydown and swap Left and Right under RTL.
