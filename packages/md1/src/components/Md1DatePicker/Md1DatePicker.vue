@@ -70,9 +70,11 @@
   const dialog = useContext<Md1DatePickerHost | null>('md1:dialog', null)
 
   // Inside a confirmation dialog the dialog holds the date until OK; the
-  // picker reads and writes that, never its own model (dialogs page). When
-  // the held value is not an ISO date (a field showing a long date), the
-  // model is the consumer's ISO reading of it, so the picker opens there.
+  // picker reads and writes that (dialogs page). The model still carries each
+  // pick, so a hosting field hears it and can commit a display form over the
+  // held ISO date (text-fields page, "Pickers"); when the held value is not an
+  // ISO date, the model is the consumer's ISO reading of it, so the picker
+  // opens there.
   const hosted = toRef(() => dialog?.variant.value === 'confirmation')
 
   const value = computed<string | undefined>({
@@ -87,7 +89,8 @@
     },
     set: next => {
       if (hosted.value) dialog?.commit(next)
-      else model.value = next
+
+      model.value = next
     },
   })
 
