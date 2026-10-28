@@ -458,6 +458,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-calendar': RouteRecordInfo<
+      '/composables/forms/create-calendar',
+      '/composables/forms/create-calendar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-combobox': RouteRecordInfo<
       '/composables/forms/create-combobox',
       '/composables/forms/create-combobox',
@@ -2074,6 +2081,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/data/create-virtual.md': {
       routes:
         | '/composables/data/create-virtual'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/forms/create-calendar.md': {
+      routes:
+        | '/composables/forms/create-calendar'
       views:
         | never
       pathParamNames:
