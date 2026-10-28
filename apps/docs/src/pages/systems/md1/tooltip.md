@@ -116,7 +116,7 @@ The usual reason is that the control already says what it does. Here, showing th
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `v-model` | `boolean` | `false` | Whether the label is showing |
+| `modelValue` | `boolean` | `false` | Whether the label is showing, bound with `v-model` |
 | `disabled` | `boolean` | `false` | Turns the tooltip off and hides it if it is showing. The control stays enabled and loses its `aria-describedby`. A region disabled through `createTooltipPlugin` disables it too |
 | `openDelay` | `number` | `200` | Milliseconds between the pointer arriving and the label showing. Keyboard focus and the press and hold always show at once |
 | `closeDelay` | `number` | `200` | Milliseconds between the pointer leaving and the label hiding |

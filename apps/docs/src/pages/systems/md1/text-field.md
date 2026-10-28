@@ -261,6 +261,7 @@ The keyboard model is v0's Select: Space, Enter and the arrow keys open the menu
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `modelValue` | `string` | `''` | The text, bound with `v-model`; unformatted under `mask` |
 | `label` | `string` | | The visible label: 16 sp at rest, 12 sp floating, in the accent at 87% (100% dark) while focused. Every field needs one; a field without `label` or `aria-label` warns in development |
 | `heading` | `boolean` | `false` | The label became a heading elsewhere: hidden visually, still the accessible name; the placeholder shows at rest |
 | `helper` | `string` | | Helper text 8 dp under the line, 12 sp at the secondary ink. An error replaces it |

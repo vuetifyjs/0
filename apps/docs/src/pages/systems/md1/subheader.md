@@ -33,7 +33,7 @@ The Material Design 1 subheader. A 48 dp tile that names a section of a list, gr
 
 `Md1Subheader` is a presentational component: fixed anatomy, three props, and the default slot is the title. It is a heading for the section that follows it, so one subheader opens each section and the sections are the list's filtering or sorting groups.
 
-Left-align the subheader with the avatar or icon of the list: the margin keyline, 16 dp on handsets and 24 dp from 600 px, is the default. When a left-aligned floating action button occupies that column, `inset` moves the title to the text keyline instead.
+The title aligns with the list's avatar or icon column by default. When a left-aligned floating action button occupies that column, `inset` moves the title to the text keyline instead.
 
 ::: ds-example
 /systems/md1/subheader/basic

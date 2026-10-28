@@ -33,9 +33,9 @@ The Material Design 1 tab bar. Fixed or scrollable tabs over a 2 dp indicator, w
 
 ## Usage
 
-`Md1Tabs` is a compound: the root owns `v-model`, the selected tab's value. `Md1Tabs.List` is the bar, one `Md1Tabs.Item` per tab inside it, and one `Md1Tabs.Panel` per tab after it. Panels match items by `value`.
+`Md1Tabs` is a compound: the root owns `v-model`, the selected tab's value. `Md1Tabs.List` is the bar with one `Md1Tabs.Item` per tab, and one `Md1Tabs.Panel` per tab follows it, matched to its item by `value`.
 
-Use tabs to move between a small number of equally important, related views, such as the sections of one screen. Present them as a single row directly above their content. Never nest one set of tabs inside another.
+Use tabs for a small number of equally important, related views, such as the sections of one screen, in a single row directly above their content. Never nest one set of tabs inside another.
 
 ::: ds-example
 /systems/md1/tabs/basic
@@ -159,7 +159,7 @@ Panels change by sliding, the sibling transition of the navigation patterns: the
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `v-model` | `T` | | The selected tab's value. The first enabled tab is selected when it is empty |
+| `modelValue` | `T` | | The selected tab's value, bound with `v-model`. The first enabled tab is selected when it is empty |
 | `scrollable` | `boolean` | `false` | Scrollable tabs: each as wide as its label, the bar scrolls and pages. Unset, fixed tabs share the width and centre from 600 dp |
 | `more` | `boolean` | `false` | With `scrollable` and a mouse, the tabs that do not fit move into a "More" menu at the bar's end, in place of the pagination arrows |
 | `disabled` | `boolean` | `false` | Disables every tab |
