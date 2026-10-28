@@ -39,8 +39,6 @@ The most basic empty state is a non-interactive image and a text tagline, centre
 /systems/md1/empty-states/basic
 :::
 
-The image is the inbox glyph at 96 dp in the disabled ink, 38% black on the light theme and 50% white on the dark one, so it reads as part of the background rather than as something to tap. The guidelines give the image no size or colour; 96 dp and the disabled ink are this example's choices.[^image-size] The guidelines ask for an image that is subtle and neutral against the background and conveys the app's purpose, such as the app's own icon. The tagline is the Subheading style, 16 sp on a 24 sp leading (15 sp under a mouse), in the secondary ink, worded as a statement about what the screen is for: "Messages from friends and family gather here", not "Start a conversation". The guidelines' Don't pairs a bright image with a tagline phrased as an instruction, which invites a tap on something that is not a control.
-
 ## Building blocks
 
 | Part of the screen | Material Design 1 surface | Guideline |
@@ -50,6 +48,8 @@ The image is the inbox glyph at 96 dp in the disabled ink, 38% black on the ligh
 | Starter content | `Md1List` or `Md1GridList` items the reader can remove | Broad appeal, shows the primary features, deletable and replaceable, personalised where possible |
 | Educational content | A dismissible `Md1Card` with `Md1Card.Actions` | Explains what the screen will hold; brief; can be dismissed or skipped |
 | Best match | `Md1Card` results under a heading in the `md1-type-body-2` class | States plainly that the results answer a nearby query, not the one typed |
+
+In the basic example the image is the inbox glyph at 96 dp in the disabled ink, 38% black on the light theme and 50% white on the dark one, so it reads as part of the background rather than as something to tap. The guidelines give the image no size or colour; 96 dp and the disabled ink are this example's choices.[^image-size] The tagline is the Subheading style, 16 sp on a 24 sp leading (15 sp under a mouse), in the secondary ink, worded as a statement about what the screen is for: "Messages from friends and family gather here", not "Start a conversation". The guidelines' Don't pairs a bright image with a tagline phrased as an instruction, which invites a tap on something that is not a control.
 
 Material Design 1 ships no `Md1EmptyState`. The guidelines define the pattern as content guidance over surfaces that already exist, and a component the spec never names would be a Material Design 1 invention (SPEC.md, exclusivity).
 

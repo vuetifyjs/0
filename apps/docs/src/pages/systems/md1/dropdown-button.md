@@ -37,9 +37,7 @@ The Material Design 1 dropdown button. A flat button that shows the current stat
 
 `Md1DropdownButton` is a compound: the root is the button and owns the selected state through `v-model`, and each `Md1DropdownButton.Item` is one state in the menu. The button draws the selected item's text, and its glyph when the item has one.
 
-The button displays the current state and a down arrow. Pressing it opens a menu that covers the button and lists the possible states; pressing a state dismisses the menu and updates the button. The guidelines show states as strings, a palette or icons; this one uses strings.
-
-The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the label, 2 dp corners, and the Button type style of 14 sp Roboto Medium in capitals in the accent ink, with the arrow 8 dp after the label. The sheet is a menu at 8 dp elevation on the surface colour: 48 dp rows of 16 sp text with 8 dp above the first row and below the last, as wide as its longest state rounded up to whole 56 dp units, from two units to five. Each row's text sits 16 dp in, and the current state carries the 12% selected shade and no check: on the menus page the check belongs to multi-select menus, and a single-choice menu highlights the row it opens over. The button holds the width of its longest state, so choosing a state never moves the button or its menu.[^stable]
+Pressing a state dismisses the menu and updates the button. The guidelines show states as strings, a palette or icons; this example uses strings, and `segmented`, `editable`, `dense` and `desktop` pick the forms under Examples.
 
 ::: ds-example
 /systems/md1/dropdown-button/basic
@@ -59,13 +57,15 @@ The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the l
 </template>
 ```
 
+The button is a flat button: 36 dp tall, at least 88 dp wide, 16 dp before the label, 2 dp corners, and the Button type style of 14 sp Roboto Medium in capitals in the accent ink, with the arrow 8 dp after the label. The sheet is a menu at 8 dp elevation on the surface colour: 48 dp rows of 16 sp text with 8 dp above the first row and below the last, as wide as its longest state rounded up to whole 56 dp units, from two units to five. Each row's text sits 16 dp in, and the current state carries the 12% selected shade and no check: on the menus page the check belongs to multi-select menus, and a single-choice menu highlights the row it opens over. The button holds the width of its longest state, so choosing a state never moves the button or its menu.[^stable]
+
 ## Composed on Vuetify0
 
 `Md1DropdownButton` renders v0's [Menu](/components/disclosure/menu) compound: `Menu.Root` owns the open state, `Menu.Activator` is the button (or, segmented, the arrow segment), `Menu.Content` is the sheet, and `Menu.RadioGroup` holds the states. Each `Md1DropdownButton.Item` is a `Menu.RadioItem`, so the current state is announced as checked. The segmented state segment is a v0 [Button](/components/actions/button) `Button.Root`. Open and close, focus return, the roving highlight, typeahead and light dismiss all come from v0.
 
 Material Design 1 adds three things v0 does not do. A v0 radio item keeps its menu open; a dropdown commits and closes on the choice, so each item dismisses the menu after v0 selects it. The sheet is placed by the same measuring popover adapter as `Md1Menu`'s simple menu: it lands the selected state's row on the button with the row's text on the button's text, across as well as down, measured once the sheet is laid out. And the button reads the selected item's text and glyph through a `md1:dropdown-button` context the items register with.
 
-`Menu.Activator` and the items publish `data-open`, `data-state`, `data-highlighted` and `data-disabled`, which Material Design 1's stylesheet hangs off. `data-segmented`, `data-dense`, `data-desktop` and `data-solo` on the root are Material Design 1's own. Every interactive element hosts a [Md1Ripple](/systems/md1/ripple) as its first child, and every glyph is a [Md1Icon](/systems/md1/icon) role.
+`Menu.Activator` and the items publish `data-open`, `data-state`, `data-highlighted` and `data-disabled`, which Material Design 1's stylesheet hangs off. `data-segmented`, `data-editable`, `data-dense`, `data-desktop` and `data-solo` on the root are Material Design 1's own. Every interactive element hosts a [Md1Ripple](/systems/md1/ripple) as its first child, and every glyph is a [Md1Icon](/systems/md1/icon) role.
 
 ## Examples
 

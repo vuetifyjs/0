@@ -47,7 +47,7 @@ Prevent errors before reporting them. Accept common formats, so a phone number t
 
 ## Where an error goes
 
-The guidelines sort errors into three types. Each type maps to one surface.
+The guidelines sort errors into three types: user input, app and incompatible state. Each case below maps to one surface.
 
 | Error | Example | Surface |
 |-------|---------|---------|
