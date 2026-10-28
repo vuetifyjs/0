@@ -40,6 +40,8 @@ Selection lets the reader pick items and then act on them together, or highlight
 
 ::: ds-example
 /systems/md1/selection/list
+
+The check mark takes the avatar's 40 dp slot, so `Md1List` always has the room the guidelines ask for when the mark replaces the icon or avatar. `select="single"` gives the same selected state with one value.
 :::
 
 ## Item selection
@@ -84,16 +86,6 @@ Text selection is the browser's: a contiguous highlight, with handles and a floa
 Put the rule in your app stylesheet, on the root or on the subtree you want themed. The keyboard shortcuts the guidelines list (Shift with the arrows to extend, Ctrl or Command with A to select all) are the browser's own.
 
 ## Examples
-
-::: ds-example
-/systems/md1/selection/list
-
-### Lists
-
-A multiple-select `Md1List` is a WAI-ARIA listbox: each tile is an option with `aria-selected`, and `v-model` holds the array of selected values. A selected option swaps its avatar for a check mark in the accent and lays the selection scrim over its row. The guidelines prefer the check mark to replace the icon or avatar when there is room; `Md1List` always has the room, because the mark takes the avatar's 40 dp slot.
-
-Under a mouse, hovering or focusing an item reveals its check mark before anything is selected, the desktop affordance the guidelines describe. Once one item is selected, every item shows its mark, so the reader can see the set is now in selection mode. `select="single"` gives the same selected state with one value.
-:::
 
 ::: ds-example
 /systems/md1/selection/drag

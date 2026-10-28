@@ -42,6 +42,8 @@ The guidelines place icon toggles in app bars, toolbars, action buttons and togg
 
 ::: ds-example
 /systems/md1/icon-toggle/basic
+
+An outlined star while off, a filled star while on. The glyph is the 24 dp system icon centred in the 48 dp touch target of the metrics page.
 :::
 
 ## Anatomy
@@ -63,16 +65,6 @@ The guidelines place icon toggles in app bars, toolbars, action buttons and togg
 `Toggle.Root` emits the `data-state` (`on` or `off`) and `data-disabled` attributes Material Design 1's stylesheet hangs off; `data-unbounded` is Material Design 1's own. The first child of the root is a [Md1Ripple](/systems/md1/ripple), the press feedback the guidelines give every button.
 
 ## Examples
-
-::: ds-example
-/systems/md1/icon-toggle/basic
-
-### Star
-
-The canonical icon toggle: an outlined star while off, a filled star while on. `icon` names the off glyph and `iconOn` the on glyph, both roles of the Material Design 1 icon set, and `v-model` holds the boolean. Each click flips the state, and v0 publishes it to assistive technology as `aria-pressed`, so a screen reader announces "Star, toggle button, pressed".
-
-The glyph is the 24 dp system icon centred in the 48 dp touch target of the metrics page. The note beside the toggle is the example's own status line; in an app the changed glyph is the feedback, and the guidelines need nothing more.
-:::
 
 ::: ds-example
 /systems/md1/icon-toggle/app-bar

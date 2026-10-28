@@ -38,6 +38,8 @@ A prompt holds one action and nothing else: no buttons, no "Next". Show it at a 
 
 ::: ds-example
 /systems/md1/feature-discovery/basic
+
+When the promoted action sits within 88 dp of the top or bottom of the screen, as an app bar action does, the tap target sits directly on it and the background centres around it (`data-placement="center"`). Setting the model to `false` yourself closes the prompt without an event.
 :::
 
 ## Anatomy
@@ -58,6 +60,8 @@ A prompt holds one action and nothing else: no buttons, no "Next". Show it at a 
 </template>
 ```
 
+The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are Material Design 1 decisions,[^size] and the background grows further when the text needs the room.
+
 ## Composed on Vuetify0
 
 `Md1FeatureDiscovery` runs a one-step v0 [Tour](/components/disclosure/tour). Each prompt creates its own tour context under a unique namespace, so two prompts on a page never share a step. `Activator` is a `Tour.Activator` rendered as a `span` around the action: it registers the element the tour measures and anchors to, and it never scrolls the page. The text is a `Tour.Content`, the tour's non-modal dialog, with `Tour.Title` and `Tour.Description` inside it supplying `aria-labelledby` and `aria-describedby`. `Tour.Content` also binds Escape and moves focus into the prompt; when the tour stops or completes, the tour returns focus to the element that had it when the prompt opened.
@@ -67,18 +71,6 @@ The circles are Material Design 1's own. `Tour.Highlight` paints a rectangular c
 The layer carries `data-open`, `data-color`, `data-contained`, `data-placement`, `data-exit` and the v0 presence `data-state` (`mounted`, `present`, `leaving`), which the stylesheet uses for the enter, complete and dismiss motion.
 
 ## Examples
-
-::: ds-example
-/systems/md1/feature-discovery/basic
-
-### Edge rule
-
-When the promoted action sits within 88 dp of the top or bottom of the screen, the guidelines place the tap target directly on top of it and centre the background around it. An app bar action is the common case, so this is the prompt most apps show: the background is centred on the search icon and falls over the content below, and `data-placement` reads `center`.
-
-The background is the primary colour (`--md1-primary`, Indigo 500 in the default theme) at the page's 96% opacity, so a trace of the screen shows through. The tap target is a light disc 88 dp across under the action; the action itself is lifted above it, so it stays visible and tappable, and a flat icon button takes the prompt colour on the disc so its glyph reads. The page gives no circle sizes; the 88 dp disc, its own edge threshold, and a background at least 2.5 times as wide are Material Design 1 decisions,[^size] and the background grows further when the text needs the room.
-
-Tapping the icon runs its own click handler and emits `complete`; tapping anywhere outside the background, or pressing Escape, emits `dismiss`. Either way the model goes back to `false`. Setting the model to `false` yourself closes the prompt without an event.
-:::
 
 ::: ds-example
 /systems/md1/feature-discovery/offset

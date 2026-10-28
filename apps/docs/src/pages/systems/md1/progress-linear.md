@@ -36,6 +36,8 @@ The Material Design 1 linear progress indicator. A 4 dp bar on the edge of a hea
 
 ::: ds-example
 /systems/md1/progress-linear/basic
+
+Two primary segments sweep along the 30% track, every 2.2 seconds on the standard curve and every 2 seconds for the query sweep, Vuetify 1.5's cycles;[^cycle] under reduced motion the bar appears in place and the sweep slows to half speed rather than stopping, so it never reads as stalled determinate progress.[^reduced-motion] The example hangs the bar on the header's edge in an absolutely positioned wrapper, so mounting it never shifts the content, and the bar grows out of that edge over the 225 ms enter duration on the deceleration curve.
 :::
 
 ## Anatomy
@@ -66,16 +68,6 @@ The root sits inside a [Presence](/components/primitives/presence), which carrie
 Use the determinate bar when the percentage complete is detectable: an upload, a download, a known number of steps. The fill is the primary colour (`--md1-primary-ink`, Indigo 500 in the default theme, and a lighter tone of the primary on the dark theme so the bar holds 3:1 on the Grey 800 sheet) and the track behind it is the same colour at 30%, the opacity measured from the spec's own indicator sheet. The bar is 4 dp tall, a measurement from that sheet as well, and spans the full width of the edge it sits on.
 
 The guidelines say a determinate indicator "fills from 0% to 100%, and never decreases in value". Material Design 1 eases each step over the standard duration on the standard curve, so uneven progress reports read as motion rather than jumps.[^step] The value only grows; a new operation is a new bar, mounted again with `v-if`. Keep one indicator for a sequence of operations rather than one per step: the bar represents the work as a whole.
-:::
-
-::: ds-example
-/systems/md1/progress-linear/basic
-
-### Indeterminate
-
-Use the indeterminate bar when the wait has no measurable length. Two primary segments sweep along the 30% track, one long and one short, repeating until the bar is removed. The spec shows the sweep in video only and states no cycle length, so Material Design 1 takes Vuetify 1.5's: one sweep every 2.2 seconds on the standard curve, and every 2 seconds for the query sweep.[^cycle]
-
-The guidelines place linear indicators "on the edge of a header or sheet" and say they "appear and disappear". The example hangs the bar below the header with an absolutely positioned wrapper, so mounting it never shifts the content. On mount the bar grows out of that edge over the 225 ms enter duration on the deceleration curve, the motion page's rule for an element entering the screen. With reduced motion requested, it appears in place and the sweep slows to half speed rather than stopping,[^reduced-motion] because a frozen segment would read as stalled determinate progress.
 :::
 
 ::: ds-example

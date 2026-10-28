@@ -39,6 +39,8 @@ The Material Design 1 toggle buttons. A row of at least three related options, s
 
 ::: ds-example
 /systems/md1/toggle-buttons/basic
+
+The default group is exclusive: selecting an option deselects the one before it, and pressing the selected option again clears the selection, the guidelines' "exclusive and unselected" combination. `v-model` reads `undefined` while nothing is chosen.
 :::
 
 ## Anatomy
@@ -55,6 +57,10 @@ The Material Design 1 toggle buttons. A row of at least three related options, s
 </template>
 ```
 
+Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 8 dp of side padding.[^padding] The page shows the group only as an image, so the group is Vuetify 1.5's button toggle: a strip in the surface colour with 2 dp corners and no outline, which rises to 2 dp once an option is selected, so layout reads as one control the way the guidelines ask.[^strip] Each item still answers to a 48 dp tall hit area.
+
+Unselected options sit at 40% opacity of the primary ink. The selected option returns to full opacity under the buttons' 12% overlay of its own ink, with a 1 dp seam after it in the disabled-button ink; unselected neighbours have no seam between them.[^seam] The faded options read at about 2.4:1 on white, under the contrast floor, as Vuetify 1.5 drew them.
+
 ## Composed on Vuetify0
 
 `Md1ToggleButtons` renders v0's [Toggle](/components/actions/toggle) compound: the root is `Toggle.Group`, which owns the selection (single or multiple, decided once at setup), the `v-model` and the `role="group"` container, and each item is a `Toggle.Root` that registers with it and publishes `aria-pressed`. Exclusive selection, `mandatory` and per-item `disabled` are v0's.
@@ -64,18 +70,6 @@ The Material Design 1 toggle buttons. A row of at least three related options, s
 The root also counts its items through a registry so it can hold the guidelines' minimum: a group of fewer than three options warns in development. An item rendered outside a group warns too, and falls back to a standalone toggle.
 
 ## Examples
-
-::: ds-example
-/systems/md1/toggle-buttons/basic
-
-### Exclusive selection
-
-The default group is exclusive: selecting an option deselects the one before it, and pressing the selected option again clears the selection. That is the guidelines' "exclusive and unselected" combination, and `v-model` reads `undefined` while nothing is chosen.
-
-Each option is a 36 dp flat button in the Button type style, 14 sp Roboto Medium in capitals with 8 dp of side padding.[^padding] The page shows the group only as an image, so the group is Vuetify 1.5's button toggle: a strip in the surface colour with 2 dp corners and no outline, which rises to 2 dp once an option is selected, so layout reads as one control the way the guidelines ask.[^strip] Each item still answers to a 48 dp tall hit area.
-
-Unselected options sit at 40% opacity of the primary ink. The selected option returns to full opacity under the buttons' 12% overlay of its own ink, with a 1 dp seam after it in the disabled-button ink; unselected neighbours have no seam between them.[^seam] The faded options read at about 2.4:1 on white, under the contrast floor, as Vuetify 1.5 drew them. Name the group with `label` (or `aria-labelledby`) so a screen reader announces what the options choose between.
-:::
 
 ::: ds-example
 /systems/md1/toggle-buttons/multiple

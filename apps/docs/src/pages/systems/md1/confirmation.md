@@ -41,6 +41,8 @@ Not every action needs either. Skip confirmation when the consequences are rever
 
 ::: ds-example
 /systems/md1/confirmation/dialog
+
+The dialog is `Md1Dialog`'s default `alert` variant, titled with the action, Delete "Summer 2016"?, never "Are you sure?", so the user can check they pressed the right thing. Do not confuse it with the `confirmation` variant, which in the dialogs page's vocabulary holds a choice, such as a ringtone, until OK commits it.
 :::
 
 ## Choosing the response
@@ -55,18 +57,6 @@ Not every action needs either. Skip confirmation when the consequences are rever
 A confirmation can carry the warning or critical information the user needs to decide. An acknowledgement removes doubt about something the system did without being asked.
 
 ## Examples
-
-::: ds-example
-/systems/md1/confirmation/dialog
-
-### Confirming a destructive action
-
-The user asked to delete an album. The dialog's title echoes that request, Delete "Summer 2016"?, so the decision is legible without reading the body. The body adds what the user cannot see from the button: the album leaves every device, and its 48 photos go with it. Delete is the confirming action and names the outcome; Cancel leaves everything as it was.
-
-This is `Md1Dialog` with its default `alert` variant and an `Md1Dialog.Title`. Do not confuse it with the `confirmation` variant: in the dialogs page's vocabulary a confirmation dialog holds a choice, such as a ringtone, until OK commits it. The pattern on this page is an alert that confirms.
-
-Title the dialog with the action, never with "Are you sure?". A title that repeats the verb and the object lets the user check they pressed the right thing, which is the point of asking.
-:::
 
 ::: ds-example
 /systems/md1/confirmation/toast

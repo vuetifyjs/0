@@ -46,6 +46,8 @@ Settings sit above Help and Send feedback, the order the settings pattern sets. 
 
 ::: ds-example
 /systems/md1/help-feedback/drawer
+
+The drawer is a permanent `Md1NavigationDrawer` of two `Md1List` groups split by an `Md1Divider`, each glyph drawn through `Md1List.Icon` at 24 dp in the active icon ink.
 :::
 
 ## Icons
@@ -70,16 +72,6 @@ Icon opacity follows the icons page, and Material Design 1 carries it as theme t
 :::
 
 ## Examples
-
-::: ds-example
-/systems/md1/help-feedback/drawer
-
-### In the navigation drawer
-
-An app with a navigation drawer puts Help last in it, with Send feedback directly above. Here the drawer's second group reads Settings, Send feedback, Help. If the app had Sign out in the drawer, it would go below Help as the very last item.
-
-The drawer is a permanent `Md1NavigationDrawer` with two `Md1List` groups split by an `Md1Divider`. Each destination draws its glyph through `Md1List.Icon` at 24 dp in the active icon ink.
-:::
 
 ::: ds-example
 /systems/md1/help-feedback/overflow

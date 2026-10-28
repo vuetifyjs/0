@@ -40,6 +40,8 @@ The Material Design 1 auto-complete text field. Suggestions refresh with each ke
 
 ::: ds-example
 /systems/md1/autocomplete/basic
+
+Focus opens the list under the field, and each keystroke narrows it to the suggestions that contain the typed text. Without `strict`, text that matches no suggestion is kept as the value, for answers the suggestions help but do not limit.
 :::
 
 ## Anatomy
@@ -58,6 +60,8 @@ The Material Design 1 auto-complete text field. Suggestions refresh with each ke
 </template>
 ```
 
+The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners,[^radius] the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes Vuetify 1.5's list hover, 4% black (8% white on the dark theme),[^highlight] and the chosen one the 12% focus shade.
+
 ## Composed on Vuetify0
 
 `Md1Autocomplete` renders v0's [Combobox](/components/forms/combobox) compound: `Combobox.Root` owns the selection, the query and the open state; `Combobox.Activator` is the field, which anchors the list; `Combobox.Control` is the `<input role="combobox">`; `Combobox.Content` is the `listbox` in a manual popover; `Combobox.Description` and `Combobox.Error` carry the helper and the error. Each `Md1Autocomplete.Item` is a `Combobox.Item` and `Md1Autocomplete.Empty` is `Combobox.Empty`, so filtering, the virtual highlight, `aria-activedescendant`, commit on blur and click-outside dismissal are v0's.
@@ -67,18 +71,6 @@ The field draws with [Md1TextField](/systems/md1/text-field)'s anatomy classes (
 Under `multiple` each value is a [Md1Chip](/systems/md1/chip) in its `contact` form inside the field, ahead of the input. The clear glyph is a v0 [Button](/components/actions/button) with a [Md1Ripple](/systems/md1/ripple), and every row hosts an `Md1Ripple` as its first child.
 
 ## Examples
-
-::: ds-example
-/systems/md1/autocomplete/basic
-
-### Suggestions under the field
-
-The guidelines' first auto-complete rule: "suggest input as it's typed (refreshing suggestions with each keystroke)". Focus opens the list under the field; each keystroke narrows it to the suggestions that contain the typed text. The arrow keys move a highlight through the rows, Enter chooses the highlighted one, and a press on a row chooses it and keeps the caret in the input.
-
-The list is the menu sheet: 8 dp of elevation (6 dp where the pointer is a mouse, the elevation page's desktop rule), 2 dp corners,[^radius] the surface colour, and 8 dp above the first row and below the last. It is at least as wide as the field. Rows are 48 dp with Subheading text 16 dp from the edges; the highlighted row takes Vuetify 1.5's list hover, 4% black (8% white on the dark theme),[^highlight] and the chosen one the 12% focus shade.
-
-Without `strict`, Enter or leaving the field with text that matches no suggestion keeps that text as the value. Use this form where the suggestions help but do not limit the answer.
-:::
 
 ::: ds-example
 /systems/md1/autocomplete/strict

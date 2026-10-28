@@ -41,6 +41,8 @@ Use it when search is the primary focus of the screen. When search is secondary,
 
 ::: ds-example
 /systems/md1/search-bar/basic
+
+Focus turns the search glyph into the up arrow and opens the suggestions. Enter or a chosen suggestion submits; the field keeps the query and gives up focus, so the results show with the bar visible but not focused, and a blank query submits nothing.
 :::
 
 ## Anatomy
@@ -59,6 +61,8 @@ Use it when search is the primary focus of the screen. When search is secondary,
 </template>
 ```
 
+The search box is an inset sheet presented ready to receive focus. Material Design 1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric),[^height] on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu.[^open] The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
+
 ## Composed on Vuetify0
 
 `Md1SearchBar` renders v0's [Combobox](/components/forms/combobox) parts against one combobox that Material Design 1's `useSearch` creates, the same core the expandable search of `Md1Toolbar` uses. `Combobox.Activator` is the inset box, `Combobox.Control` is the field, `Combobox.Content` is the suggestion list, and every `Md1SearchBar.Item` is a `Combobox.Item`. Filtering is v0's client adapter: rows that do not contain the query stay registered and hide.
@@ -66,16 +70,6 @@ Use it when search is the primary focus of the screen. When search is secondary,
 v0 owns the field's keyboard model, the virtual highlight (`aria-activedescendant`), the popover the list opens in and the outside click that closes it. Material Design 1 adds the search pattern on top: Enter or a chosen row submits, the X clears, the up arrow releases. The nav, clear, voice and Search actions are [Md1Button](/systems/md1/button)s, so each one carries a [Md1Ripple](/systems/md1/ripple). The box itself is the solo anatomy of [Md1TextField](/systems/md1/text-field): the field's editable element is `Combobox.Control`, not `Input.Control`, so the bar reuses the solo values rather than mounting an `Md1TextField`.
 
 ## Examples
-
-::: ds-example
-/systems/md1/search-bar/basic
-
-### The persistent bar
-
-The search box is an inset sheet presented ready to receive focus. Material Design 1 draws it at 48 dp, the solo field height of the text fields page (the search page gives no metric),[^height] on the surface colour with 2 dp corners and the 2 dp resting elevation of the elevation page's quick entry and search bar row. Under a fine pointer (mouse and keyboard) the closed box rests 2 dp lower, at 0 dp, the elevation page's desktop rule for every resting value; opened, it is no longer at rest and overlaps the page at 2 dp like a menu.[^open] The search glyph sits on the 16 dp keyline and the query starts on the 72 dp keyline, set in Subheading 16 sp like every text field's input.
-
-Focus turns the search glyph into the up arrow and opens the suggestions. Enter submits the query, and so does choosing a suggestion; either way the field keeps the query and gives up focus, so the results show with the bar visible but not focused, as the pattern prescribes. The `submit` event carries the trimmed query; a blank query submits nothing.
-:::
 
 ::: ds-example
 /systems/md1/search-bar/suggestions

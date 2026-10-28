@@ -43,6 +43,8 @@ The app should say whether it is online or offline, especially when some feature
 
 ::: ds-example
 /systems/md1/offline-states/available
+
+Content that works offline carries the offline pin and the label "Offline" in `Md1List.Action`, in Caption text at the secondary ink with the glyph at the active icon opacity (`--md1-icon-active`, 54% black on light, 100% white on dark[^dark-active-icon]). The same mark follows the content elsewhere: beside a page address read offline, and on an item the user just acted on while offline.
 :::
 
 ## Icons and labels
@@ -59,18 +61,6 @@ The page names four glyphs and pairs each with a fixed label.
 Use the standard glyphs. Never use a toggle for downloading one file: a toggle says a state is on or off, and a download is a one-time action.
 
 ## Examples
-
-::: ds-example
-/systems/md1/offline-states/available
-
-### Available offline
-
-Content that works offline carries the offline pin with the label "Offline". Two of the three saved articles here can be read without a connection; the third has no mark, so the reader knows before opening it that it needs one.
-
-The pin and its label sit in `Md1List.Action`, the end column of the row, in Caption text at the secondary ink with the glyph at the active icon opacity (`--md1-icon-active`, 54% black on light, 100% white on dark[^dark-active-icon]). The label is what a screen reader reads; the glyph is decorative.
-
-The same mark follows the content elsewhere: an offline icon beside a page address when a site is read offline, and on the item the user just acted on while offline.
-:::
 
 ::: ds-example
 /systems/md1/offline-states/unavailable

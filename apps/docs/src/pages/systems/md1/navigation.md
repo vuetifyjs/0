@@ -40,6 +40,8 @@ Pick the navigation from the shape of the app: tabs or bottom navigation for a f
 
 ::: ds-example
 /systems/md1/navigation/tabs
+
+The tab bar sits in the app bar's `Md1Toolbar.Extension`, and the `Md1Tabs` root wraps the whole toolbar so its panels can sit under it. `Md1Tabs.Panel` draws the sibling slide itself and drops it under reduced motion.
 :::
 
 ## Hierarchy
@@ -110,16 +112,6 @@ Each bundle carries its own hue on its icon and title so the three read as separ
 An app with a strong primary view, few alternate views and short, infrequent sessions needs no navigation component at all. The calculator is one screen: the keypad is the view, and its one alternate view, the advanced functions, slides in over it from the end edge on the standard curve when the handle is pressed. There is no app bar, drawer or tab bar.
 
 Choosing a function applies it and puts the panel away, returning the reader to the primary view. The panel is `inert` while closed, so its keys leave the tab order with it.
-:::
-
-::: ds-example
-/systems/md1/navigation/tabs
-
-### Tabs
-
-Tabs move between a small number of equally important views: a group of siblings, or a parent's embedded child views. They suit frequent switching and keep the alternatives in sight. The tab bar sits in the app bar's `Md1Toolbar.Extension`, and the `Md1Tabs` root wraps the whole toolbar so its panels can sit under it.
-
-Switching tabs is a sibling transition: the panels stay at the same elevation, and the new panel slides in from the right while the old one slides off to the left. `Md1Tabs.Panel` draws that slide itself and drops it under reduced motion. Tab switches do not add to navigation history, so Back does not step through tabs.
 :::
 
 ::: ds-example

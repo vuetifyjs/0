@@ -43,6 +43,8 @@ Prevent errors before reporting them. Accept common formats, so a phone number t
 
 ::: ds-example
 /systems/md1/errors/inline
+
+Helper text can show at any time, but error text only after the user has interacted with the field: the Phone field validates on blur, `Md1TextField`'s default (`validateOn: 'blur'`), and the error replaces the helper line in the same place. The rule counts digits only, so "(555) 010-2030" and "5550102030" are the same answer.
 :::
 
 ## Where an error goes
@@ -85,18 +87,6 @@ The errors page restates the text field metrics for the error state. The [text f
 ### Field states
 
 The four states a field moves through on the way to an error, side by side: at rest with hint text, with error text, with helper text, and with the helper text replaced by an error. The error state turns the underline and the text below it to the error colour, Red A400 (`#FF1744`) on both themes; the hint and helper keep the hint ink, 38% black or 50% white. Switch the example's theme to see the dark set.
-:::
-
-::: ds-example
-/systems/md1/errors/inline
-
-### Helper text that becomes error text
-
-Helper text can show before, during and after the user works in a field. Error text shows only after the user has interacted with it. Here the Phone field carries helper text from the start; the rule runs when focus leaves the field, and if fewer than seven digits were typed the helper line turns into the error message in the same place, in the error color, while the underline turns red.
-
-Validation on blur is `Md1TextField`'s default (`validateOn: 'blur'`), which is the guideline's timing: an empty field the user never touched is not an error. The rule counts digits only, so "(555) 010-2030" and "5550102030" are the same answer; accepting both is the cheaper way to avoid an error than explaining one.
-
-Keep form text to the essentials. Not every field needs helper text, and not every field needs a rule: the Name field below has neither.
 :::
 
 ::: ds-example
