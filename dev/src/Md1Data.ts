@@ -9,12 +9,13 @@
  */
 
 // Framework
-import { createFilter } from '@vuetify/v0'
+import { createFilter, isArray } from '@vuetify/v0'
 
 // Utilities
 import { computed, ref, shallowRef, toValue } from 'vue'
 
 // Types
+import type { StorageContext } from '@vuetify/v0'
 import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
 export type Tab = 'primary' | 'social' | 'updates'
@@ -413,4 +414,32 @@ export function search (query: MaybeRefOrGetter<string>): ComputedRef<Group[]> {
 
     return groups.filter(group => group.hits.length > 0)
   })
+}
+
+// Persisted demo state
+
+/** Every persisted md1-demo:* key with its default, so Clear local data can reset them all. */
+const stored: Record<string, unknown> = {
+  'md1-demo:dark': false,
+  'md1-demo:notifications': true,
+  'md1-demo:previews': true,
+  'md1-demo:reports': false,
+  'md1-demo:searches': [],
+  'md1-demo:sound': true,
+  'md1-demo:sync': 'Every hour',
+  'md1-demo:tip-search': false,
+  'md1-demo:updates': true,
+  'md1-demo:wifi': true,
+  'md1-demo:workspace': true,
+}
+
+/**
+ * Reset every persisted md1-demo:* key to its default through the storage
+ * context: its per-key ref cache means the live refs the shell and pages hold
+ * (theme, drawer group, search history, the discovery tip) flip with it.
+ */
+export function resetAll (storage: StorageContext) {
+  for (const [key, value] of Object.entries(stored)) {
+    storage.get(key, value).value = isArray(value) ? [...value] : value
+  }
 }

@@ -4,6 +4,9 @@
   // Framework
   import { useStorage } from '@vuetify/v0'
 
+  // Context
+  import { resetAll } from './Md1Data'
+
   // Utilities
   import { shallowRef } from 'vue'
 
@@ -34,13 +37,7 @@
 
   /** Clearing local data really clears it: every persisted setting returns to its default. */
   function onClear () {
-    updates.value = true
-    reports.value = false
-    notifications.value = true
-    sound.value = true
-    previews.value = true
-    wifi.value = true
-    sync.value = 'Every hour'
+    resetAll(storage)
     cleared.value = true
   }
 </script>
