@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
+import { provideContext } from '#v0/composables/createContext'
 import { createDateContext } from '#v0/composables/useDate'
 
 // Adapters
@@ -13,7 +14,40 @@ import { mount } from '@vue/test-utils'
 import { computed, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { CalendarCell, CalendarContext, CalendarOptions, CalendarRange } from './index'
+import type { CalendarCell, CalendarContext, CalendarOptions, CalendarRange, CalendarValue } from './index'
+
+/** `addMonths` overflows the way `Date` does, so 31 January becomes 3 March. */
+class OverflowMonthAdapter extends PlainDateAdapter {
+  override addMonths (date: Date, amount: number): Date {
+    return new Date(
+      date.getFullYear(),
+      date.getMonth() + amount,
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds(),
+    )
+  }
+}
+
+/** Next midnight is not ahead of the current instant. */
+class FrozenDayAdapter extends PlainDateAdapter {
+  override addDays (date: Date, _amount: number): Date {
+    return new Date(date)
+  }
+
+  override startOfDay (date: Date): Date {
+    return new Date(date)
+  }
+}
+
+/** No current instant. */
+class NullDateAdapter extends PlainDateAdapter {
+  override date (_value?: unknown): Date | null {
+    return null
+  }
+}
 
 describe('createCalendar', () => {
   beforeEach(() => {
@@ -332,6 +366,48 @@ describe('createCalendar', () => {
 
       stop()
     })
+
+    it('should skip the write when preventDeselect selects the current day', () => {
+      const model = shallowRef<CalendarValue>('2026-08-12')
+      const { calendar, stop } = setup({
+        month: '2026-08',
+        value: model,
+        preventDeselect: true,
+      })
+
+      calendar.select('2026-08-12')
+
+      expect(model.value).toBe('2026-08-12')
+
+      stop()
+    })
+
+    it('should replace a non-day controlled value', () => {
+      const model = shallowRef<CalendarValue>(1 as unknown as CalendarValue)
+      const { calendar, stop } = setup({ month: '2026-08', value: model })
+
+      calendar.select('2026-08-09')
+
+      expect(model.value).toBe('2026-08-09')
+
+      stop()
+    })
+
+    it('should treat a cleared unavailable ref as available', async () => {
+      const unavailable = shallowRef<((iso: string) => boolean) | undefined>(
+        (iso: string) => iso === '2026-08-15',
+      )
+      const { calendar, stop } = setup({ month: '2026-08', unavailable })
+
+      expect(cell(calendar, '2026-08-15').unavailable).toBe(true)
+
+      unavailable.value = undefined
+      await nextTick()
+
+      expect(cell(calendar, '2026-08-15').unavailable).toBe(false)
+
+      stop()
+    })
   })
 
   describe('navigation', () => {
@@ -573,6 +649,86 @@ describe('createCalendar', () => {
 
       stop()
     })
+
+    it('should open on today when the month is omitted', () => {
+      const { calendar, stop } = setup()
+
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-04')
+      expect(calendar.weekdays.value[0]).toBe('S')
+      expect(calendar.label.value).toContain('2026')
+
+      stop()
+    })
+
+    it('should keep a month ref when the page stays inside its month', () => {
+      const month = shallowRef('2026-08-04')
+      const { calendar, stop } = setup({ month })
+
+      calendar.goto('2026-08-20')
+
+      expect(month.value).toBe('2026-08-04')
+      expect(calendar.focused.value).toBe('2026-08-20')
+
+      stop()
+    })
+
+    it('should use the first of the month when the shifted day overflows it', () => {
+      const { calendar, stop } = setup({
+        month: '2026-01',
+        adapter: new OverflowMonthAdapter(),
+      })
+
+      calendar.goto('2026-01-31')
+      calendar.step(1)
+
+      expect(calendar.anchor.value).toBe('2026-02')
+      expect(calendar.focused.value).toBe('2026-02-01')
+
+      stop()
+    })
+
+    it('should leave focus when a new wall still contains it', async () => {
+      const max = shallowRef('2026-08-28')
+      const { calendar, stop } = setup({ month: '2026-08', max })
+
+      calendar.goto('2026-08-10')
+      max.value = '2026-08-20'
+      await nextTick()
+
+      expect(calendar.focused.value).toBe('2026-08-10')
+      expect(calendar.anchor.value).toBe('2026-08')
+
+      stop()
+    })
+
+    it('should follow a readonly month without writing it back', async () => {
+      const external = shallowRef('2026-08')
+      const month = computed(() => external.value)
+      const { calendar, stop } = setup({ month })
+
+      external.value = '2026-11'
+      await nextTick()
+
+      expect(calendar.anchor.value).toBe('2026-11')
+      expect(month.value).toBe('2026-11')
+
+      stop()
+    })
+
+    it('should mark days after max disabled', () => {
+      const { calendar, stop } = setup({ month: '2026-08', max: '2026-08-02' })
+
+      expect(calendar.focused.value).toBe('2026-08-02')
+      expect(cell(calendar, '2026-08-03').disabled).toBe(true)
+      expect(cell(calendar, '2026-08-01').disabled).toBe(false)
+
+      calendar.select('2026-08-03')
+
+      expect(calendar.value.value).toBeUndefined()
+
+      stop()
+    })
   })
 
   describe('timer', () => {
@@ -613,6 +769,30 @@ describe('createCalendar', () => {
       expect(vi.getTimerCount()).toBe(pending)
       expect(calendar.weekdays.value[0]).toBe('D')
     })
+
+    it('should fall back to 1970-01-01 when the adapter has no current date', () => {
+      const { calendar, stop } = setup({ adapter: new NullDateAdapter() })
+
+      expect(calendar.anchor.value).toBe('1970-01')
+      expect(calendar.focused.value).toBe('1970-01-01')
+      expect(cell(calendar, '1970-01-01').today).toBe(true)
+
+      stop()
+    })
+
+    it('should fall back when the next midnight is not ahead', () => {
+      const pending = vi.getTimerCount()
+      const { calendar, stop } = setup({
+        month: '2026-08',
+        adapter: new FrozenDayAdapter(),
+      })
+
+      expect(vi.getTimerCount()).toBeGreaterThan(pending)
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-04')
+
+      stop()
+    })
   })
 
   describe('installed date context', () => {
@@ -646,6 +826,57 @@ describe('createCalendar', () => {
       expect(calendar!.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
       expect(calendar!.weekdays.value[0]).toBe('M')
       expect(calendar!.label.value).toContain('Februar')
+      expect(adapter.firstDayOfWeek).toBe(1)
+
+      wrapper.unmount()
+    })
+
+    it('should build its own adapter when nothing is installed', () => {
+      let calendar: CalendarContext | undefined
+
+      const Child = defineComponent({
+        setup () {
+          calendar = createCalendar({ month: '2026-02', firstDayOfWeek: 0 })
+        },
+        template: '<span />',
+      })
+
+      const wrapper = mount(Child)
+
+      expect(calendar!.month.value.weeks).toHaveLength(4)
+      expect(calendar!.month.value.weeks[0]![0]!.iso).toBe('2026-02-01')
+      expect(calendar!.weekdays.value[0]).toBe('S')
+
+      wrapper.unmount()
+    })
+
+    it('should use the adapter locale when the installed locale is unset', () => {
+      const adapter = new PlainDateAdapter('fr-FR')
+      let calendar: CalendarContext | undefined
+
+      const Child = defineComponent({
+        setup () {
+          calendar = createCalendar({ month: '2026-02' })
+        },
+        template: '<span />',
+      })
+
+      const Parent = defineComponent({
+        components: { Child },
+        setup () {
+          provideContext('v0:date', {
+            adapter,
+            locale: shallowRef<string | undefined>(undefined),
+            firstDayOfWeek: shallowRef(0),
+          })
+        },
+        template: '<Child />',
+      })
+
+      const wrapper = mount(Parent)
+
+      expect(calendar!.month.value.weeks[0]![0]!.iso).toBe('2026-02-01')
+      expect(calendar!.weekdays.value[0]).toBe('D')
       expect(adapter.firstDayOfWeek).toBe(1)
 
       wrapper.unmount()
