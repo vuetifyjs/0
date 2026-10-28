@@ -15,7 +15,8 @@
   } from '@paper/md1'
 
   // Framework
-  import { isString, useBreakpoints, useStorage, useTimer } from '@vuetify/v0'
+  import { isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0'
 
   // Context
   import { search } from './Md1Data'
@@ -92,6 +93,26 @@
   const query = shallowRef('')
   const found = search(query)
 
+  const motion = useReducedMotion()
+
+  /**
+   * The row-for-search swap is instant in the package (the spec names no
+   * motion for it); the demo cross-fades the bar through a view transition
+   * scoped to the toolbar, at the standard duration and easing.
+   */
+  function morph (value: boolean) {
+    function run () {
+      searching.value = value
+    }
+
+    if (!IN_BROWSER || motion.isReduced.value || !document.startViewTransition) {
+      run()
+      return
+    }
+
+    document.startViewTransition(run)
+  }
+
   /** Completions straight from the live cross-page search: they always exist. */
   const suggestions = toRef(() => found.value.flatMap(hits => hits.hits.map(hit => hit.title)).slice(0, 6))
 
@@ -101,7 +122,7 @@
     if (!value.trim()) return
 
     history.value = [value, ...history.value.filter(past => past !== value)].slice(0, 5)
-    searching.value = false
+    morph(false)
     router.push({ path: '/md1/search', query: { q: value } })
   }
 
@@ -164,7 +185,7 @@
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="searching = true" />
+                <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="morph(true)" />
               </Md1Tooltip.Activator>
 
               <Md1Tooltip.Content>Search</Md1Tooltip.Content>
@@ -221,10 +242,11 @@
 
       <Md1Toolbar.Search
         v-model="query"
-        v-model:open="searching"
         :history
+        :open="searching"
         :suggestions
         @submit="onFind"
+        @update:open="morph"
       />
     </Md1Toolbar>
 
@@ -283,7 +305,7 @@
     </main>
 
     <!-- Inside the shell (no teleport) so the bar reads the stamped theme. -->
-    <Md1Snackbar.Portal :teleport="false">
+    <Md1Snackbar.Portal class="md1-demo-offer" :teleport="false">
       <Md1Snackbar v-model="ask" action="Start" @action="onTour">Want to take a tour?</Md1Snackbar>
     </Md1Snackbar.Portal>
 
@@ -348,5 +370,44 @@
      teleported portals render outside the shell. */
   body:has(.md1-demo-shell[data-nav]) .md1-snackbar-portal {
     bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* The tour offer sits at the bottom end from 600 px: the spec's floating
+     form offers centre or start, so the end seat is this demo's mirror of the
+     start variant's 24 dp insets, on the package's own inset motion. Under
+     600 px the full-width handset form above stays. */
+  @media (min-width: 600px) {
+    .md1-demo-offer .md1-snackbar {
+      align-self: flex-end;
+      margin-inline-end: var(--md1-spacing-3, 24px);
+      margin-bottom: var(--md1-spacing-3, 24px);
+    }
+
+    .md1-demo-offer .md1-snackbar[data-state='mounted'],
+    .md1-demo-offer .md1-snackbar[data-state='present'] {
+      animation-name: md1-snackbar-enter-inset;
+    }
+
+    .md1-demo-offer .md1-snackbar[data-state='leaving'] {
+      animation-name: md1-snackbar-leave-inset;
+    }
+  }
+
+  /* The toolbar-to-search swap cross-fades through a view transition scoped to
+     the bar; everything else holds still. The morph() guard already skips the
+     transition entirely under reduced motion. */
+  .md1-demo-shell .md1-toolbar[data-app-bar] {
+    view-transition-name: md1-demo-toolbar;
+  }
+
+  ::view-transition-old(md1-demo-toolbar),
+  ::view-transition-new(md1-demo-toolbar) {
+    animation-duration: var(--md1-duration-standard, 300ms);
+    animation-timing-function: var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 </style>
