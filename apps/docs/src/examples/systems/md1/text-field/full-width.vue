@@ -26,7 +26,13 @@
 
       <Md1TextField v-model="topic" dense full-width label="Subject" />
 
-      <Md1TextField v-model="note" dense full-width label="Message" multiline />
+      <Md1TextField
+        v-model="note"
+        dense
+        full-width
+        label="Message"
+        multiline
+      />
     </div>
   </div>
 </template>

@@ -6,7 +6,7 @@
 
 <template>
   <div class="md1-docs-screen md1-docs-fab-list-screen">
-    <div class="md1-docs-fab-list" tabindex="0" role="region" aria-label="Notes">
+    <div aria-label="Notes" class="md1-docs-fab-list" role="region" tabindex="0">
       <Md1List aria-label="Notes">
         <Md1List.Item v-for="note in notes" :key="note">
           <Md1List.Icon name="label" />

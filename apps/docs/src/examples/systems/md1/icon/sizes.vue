@@ -36,7 +36,6 @@
     gap: var(--md1-spacing-2, 16px);
   }
 
-
   /* A row that wraps on a phone keeps its targets and caption centred. */
   .md1-docs-icon-sizes {
     justify-content: center;

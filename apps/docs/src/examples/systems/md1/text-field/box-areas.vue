@@ -15,7 +15,14 @@
       <Md1TextField v-model="title" box label="Title" />
 
       <div class="md1-docs-box-row">
-        <Md1TextField v-model="price" box class="md1-docs-box-price" inputmode="decimal" label="Price" prefix="$" />
+        <Md1TextField
+          v-model="price"
+          box
+          class="md1-docs-box-price"
+          inputmode="decimal"
+          label="Price"
+          prefix="$"
+        />
 
         <Md1TextField v-model="location" box label="Location" optional />
       </div>

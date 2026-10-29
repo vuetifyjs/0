@@ -26,7 +26,13 @@
 
       <p class="md1-docs-heading-subtitle md1-type-subheading">Book a flight to anywhere in the world.</p>
 
-      <Md1TextField v-model="boxed" box heading label="Destination" placeholder="Ex. San Francisco, CA" />
+      <Md1TextField
+        v-model="boxed"
+        box
+        heading
+        label="Destination"
+        placeholder="Ex. San Francisco, CA"
+      />
 
       <div class="md1-docs-heading-actions">
         <Md1Button variant="raised">Submit</Md1Button>
