@@ -2,7 +2,8 @@
  * @module V0DateAdapter
  *
  * @remarks
- * Default DateAdapter for v0, built on the Temporal API.
+ * Temporal `DateAdapter`. Opt in with `new V0DateAdapter()`.
+ * `PlainDateAdapter` is the default and does not load this module.
  * Uses Temporal.PlainDateTime as the primary date type.
  *
  * Implements the full date-io IUtils interface for industry compatibility.

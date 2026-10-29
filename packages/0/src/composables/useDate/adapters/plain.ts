@@ -16,6 +16,9 @@
  * const adapter = new PlainDateAdapter('en-US')
  * adapter.toISO(adapter.parseISO('2026-02-01')) // '2026-02-01'
  * ```
+ *
+ * @todo v2: rename this class to `V0PlainDateAdapter`. The v1 name stays.
+ * The public export and `constructor.name` make the rename a break.
  */
 
 // Globals
