@@ -97,6 +97,13 @@ export type Photo = {
   hue: string
 }
 
+export type Turn = {
+  id: number
+  role: 'user' | 'agent'
+  text: string
+  at: string
+}
+
 export type Profile = {
   name: string
   email: string
@@ -421,6 +428,40 @@ export const photos = {
     const made: Photo = { id: next(photos.all.value.map(p => p.id)), ...photo }
 
     photos.all.value.unshift(made)
+
+    return made
+  },
+}
+
+// Assistant (the prompt page's thread; the canned-reply logic lives in the page)
+
+const clock = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' })
+
+function stamp (): string {
+  return clock.format(new Date())
+}
+
+export const assistant = {
+  thread: ref<Turn[]>([
+    { id: 1, role: 'user', text: 'Which region grew fastest this month?', at: '9:02 AM' },
+    { id: 2, role: 'agent', text: 'Europe: 980 orders, up 12% on September. North America is still the largest at 1,240.', at: '9:02 AM' },
+  ]),
+
+  /** The page flips this while the fake agent is typing. */
+  busy: shallowRef(false),
+
+  send (text: string): Turn {
+    const made: Turn = { id: next(assistant.thread.value.map(t => t.id)), role: 'user', text, at: stamp() }
+
+    assistant.thread.value.push(made)
+
+    return made
+  },
+
+  reply (text: string): Turn {
+    const made: Turn = { id: next(assistant.thread.value.map(t => t.id)), role: 'agent', text, at: stamp() }
+
+    assistant.thread.value.push(made)
 
     return made
   },

@@ -371,6 +371,12 @@
               {{ link.label }}
             </Md1List.Item>
 
+            <Md1List.Item href="/md1/assistant" value="/md1/assistant" @click.prevent="go('/md1/assistant')">
+              <Md1List.Icon name="feedback" />
+
+              Assistant
+            </Md1List.Item>
+
             <Md1List.Group v-model="group" icon="apps" title="Workspace">
               <Md1List.Item
                 v-for="link in tools"

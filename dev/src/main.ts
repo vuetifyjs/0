@@ -36,6 +36,7 @@ import EmeraldSales from './EmeraldSales.vue'
 import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
 import Md1Activity from './Md1Activity.vue'
+import Md1Assistant from './Md1Assistant.vue'
 import Md1Contacts from './Md1Contacts.vue'
 import Md1Dashboard from './Md1Dashboard.vue'
 import Md1Files from './Md1Files.vue'
@@ -103,6 +104,7 @@ export const createApp = ViteSSG(
         children: [
           { path: '', component: Md1Dashboard, meta: { title: 'Overview' } },
           { path: 'activity', component: Md1Activity, meta: { title: 'Activity' } },
+          { path: 'assistant', component: Md1Assistant, meta: { title: 'Assistant' } },
           { path: 'contacts', component: Md1Contacts, meta: { title: 'Contacts' } },
           { path: 'files', component: Md1Files, meta: { title: 'Files' } },
           { path: 'gallery', component: Md1Gallery, meta: { title: 'Gallery' } },
