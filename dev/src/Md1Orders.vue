@@ -3,7 +3,7 @@
   import { Md1Button, Md1DataTable, Md1Icon, Md1Menu, Md1Snackbar, Md1Tooltip } from '@paper/md1'
 
   // Framework
-  import { useDataTable } from '@vuetify/v0'
+  import { Button, useDataTable } from '@vuetify/v0'
 
   // Context
   import { orders } from './Md1Data'
@@ -162,16 +162,15 @@
           <Md1DataTable.Cell>
             <Md1Menu v-model:selected="order.status">
               <Md1Menu.Activator v-slot="{ attrs }">
-                <button
+                <Button.Root
                   v-bind="attrs"
                   :aria-label="`Status for order ${order.id}: ${order.status}`"
                   class="md1-demo-orders__menu"
-                  type="button"
                 >
                   <span class="md1-demo-status" :data-status="order.status">{{ order.status }}</span>
 
                   <Md1Icon name="arrow-drop-down" />
-                </button>
+                </Button.Root>
               </Md1Menu.Activator>
 
               <Md1Menu.Content>
