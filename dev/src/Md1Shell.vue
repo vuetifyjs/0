@@ -479,9 +479,12 @@
     z-index: 1;
   }
 
-  /* The account caret rides the header's account row in its white ink, the
-     glyph turning over while the account actions show. */
-  .md1-demo-shell__caret.md1-button {
+  /* The account caret rides the header's account row in the anatomy's white
+     ink, over the cover in both themes; the selector outranks the solo icon
+     button's primary-text tier (.md1-button[data-solo]:not(...)). */
+  .md1-demo-shell__caret.md1-button[data-solo]:not([data-disabled]),
+  .md1-demo-shell__caret.md1-button[data-solo]:not([data-disabled]):hover,
+  .md1-demo-shell__caret.md1-button[data-solo]:not([data-disabled]):focus-visible {
     color: var(--md1-on-primary, #FFFFFF);
   }
 
