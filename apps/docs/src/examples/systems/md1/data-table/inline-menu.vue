@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { Md1DataTable, Md1Icon, Md1Menu } from '@paper/md1'
+  import { Button } from '@vuetify/v0'
   import { ref } from 'vue'
 
   const categories = ['Frozen', 'Baked', 'Fried', 'Candy']
@@ -39,16 +40,15 @@
             <Md1DataTable.Cell>
               <Md1Menu v-model:selected="dessert.category">
                 <Md1Menu.Activator v-slot="{ attrs }">
-                  <button
+                  <Button.Root
                     v-bind="attrs"
                     :aria-label="`Category for ${dessert.name}: ${dessert.category}`"
                     class="md1-docs-table-inline-menu"
-                    type="button"
                   >
                     <span>{{ dessert.category }}</span>
 
                     <Md1Icon name="arrow-drop-down" />
-                  </button>
+                  </Button.Root>
                 </Md1Menu.Activator>
 
                 <Md1Menu.Content>
