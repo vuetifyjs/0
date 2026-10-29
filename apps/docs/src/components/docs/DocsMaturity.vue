@@ -177,11 +177,9 @@
     }
   }
 
-  function sinceTip (version: unknown, level: unknown): string {
+  function sinceTip (version: unknown): string {
     if (!isString(version)) return ''
-    const name = isString(level) ? level : ''
-    const label = levels[name as Level]?.label ?? name
-    return sinceInFramework(version, label)
+    return sinceInFramework(version)
   }
 
   // Weighted color blend for a group
@@ -374,7 +372,7 @@
                 v-if="item.since"
                 class="block text-on-surface-variant"
                 :class="item.description ? 'mt-1' : undefined"
-              >{{ sinceTip(item.since, item.level) }}</span>
+              >{{ sinceTip(item.since) }}</span>
             </Tooltip.Content>
           </Tooltip.Root>
         </div>
@@ -587,7 +585,7 @@
                   :href="`/releases/?version=v${item.since}`"
                   rel="noopener noreferrer"
                   target="_blank"
-                  :text="sinceTip(item.since, item.level)"
+                  :text="sinceTip(item.since)"
                 >{{ releaseAlias(item.since) }} ↗</AppTooltip>
 
                 <span v-else class="text-on-surface-variant/50">—</span>

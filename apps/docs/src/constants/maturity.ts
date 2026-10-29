@@ -29,16 +29,13 @@ export interface MaturityEntry {
 
 /** Visible definition for the maturity matrix. `since` is inclusion, not the current level. */
 export const SINCE_LEGEND =
-  'Since is the version a feature first shipped in. It does not update when the feature moves to a new level.'
+  'Since is the version a feature was first released in. It does not update when the feature moves to a new level.'
 
-/** Matrix row tooltip. Names the ship version, then rejects the "stable since" reading. */
-export function sinceInFramework (version: string | null | undefined, levelLabel?: string): string {
+/** Matrix row tooltip. Names the release that first included the feature. */
+export function sinceInFramework (version: string | null | undefined): string {
   if (!version) return ''
 
-  const shipped = `First shipped in ${releaseAlias(version)}.`
-  if (!levelLabel) return shipped
-
-  return `${shipped} Not when it became ${levelLabel.toLowerCase()}.`
+  return `This feature was first released in ${releaseAlias(version)}.`
 }
 
 /** Typed view of the `maturity.json` import (which otherwise infers `level: string`). */
