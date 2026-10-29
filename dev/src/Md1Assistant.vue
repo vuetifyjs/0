@@ -138,7 +138,9 @@
             v-if="turn.role === 'user' && me.avatar"
             alt=""
             class="md1-demo-assistant__face"
+            height="40"
             :src="me.avatar"
+            width="40"
           >
 
           <div

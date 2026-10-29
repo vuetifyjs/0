@@ -92,11 +92,14 @@
   <section class="md1-demo-profile">
     <div class="md1-demo-profile__sheet md1-elevation-2">
       <header class="md1-demo-profile__header">
+        <!-- Sized attributes reserve the box before the image decodes, so a cold load never shifts. -->
         <img
           v-if="me.avatar"
           alt=""
           class="md1-demo-profile__avatar"
+          height="64"
           :src="me.avatar"
+          width="64"
         >
 
         <div v-else aria-hidden="true" class="md1-demo-profile__initial">{{ me.name.charAt(0) }}</div>

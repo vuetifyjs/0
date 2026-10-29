@@ -179,7 +179,8 @@
       <div class="md1-demo-inbox-sheet md1-elevation-2">
         <Md1Tabs v-model="tab" class="md1-demo-inbox-tabs">
           <div class="md1-demo-inbox-head">
-            <Md1Toolbar v-if="chosen.length > 0" contextual>
+            <!-- dense: the 48 dp desktop bar, the tab bar's own height, so the swap is between equals. -->
+            <Md1Toolbar v-if="chosen.length > 0" contextual dense>
               <Md1Toolbar.Contextual :count="chosen.length" @clear="chosen = []">
                 <Md1Toolbar.Actions>
                   <Md1Tooltip>
@@ -220,57 +221,60 @@
             </Md1Tabs.List>
           </div>
 
-          <Md1Tabs.Panel
-            v-for="item in tabs"
-            :key="item.value"
-            class="md1-demo-inbox-panel"
-            :value="item.value"
-          >
-            <template v-if="bucket(item.value).length > 0">
-              <template v-for="group in grouped(item.value)" :key="group.day">
-                <Md1Subheader inset :sticky="false">{{ group.day }}</Md1Subheader>
+          <!-- The swap container: panels slide inside it, out of flow and clipped, so a switch never stacks or scrolls the page. -->
+          <div class="md1-demo-inbox-swap">
+            <Md1Tabs.Panel
+              v-for="item in tabs"
+              :key="item.value"
+              class="md1-demo-inbox-panel"
+              :value="item.value"
+            >
+              <template v-if="bucket(item.value).length > 0">
+                <template v-for="group in grouped(item.value)" :key="group.day">
+                  <Md1Subheader inset :sticky="false">{{ group.day }}</Md1Subheader>
 
-                <Md1List :aria-label="`${group.day} messages`" :lines="2" :model-value="wide ? current?.id : undefined">
-                  <Md1List.Item
-                    v-for="message in group.rows"
-                    :key="message.id"
-                    :class="[
-                      message.unread ? 'md1-demo-inbox-unread' : 'md1-demo-inbox-read',
-                      { 'md1-demo-inbox-picked': chosen.includes(message.id) },
-                    ]"
-                    :value="message.id"
-                    @click="onOpen(message)"
-                  >
-                    <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
+                  <Md1List :aria-label="`${group.day} messages`" :lines="2" :model-value="wide ? current?.id : undefined">
+                    <Md1List.Item
+                      v-for="message in group.rows"
+                      :key="message.id"
+                      :class="[
+                        message.unread ? 'md1-demo-inbox-unread' : 'md1-demo-inbox-read',
+                        { 'md1-demo-inbox-picked': chosen.includes(message.id) },
+                      ]"
+                      :value="message.id"
+                      @click="onOpen(message)"
+                    >
+                      <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
 
-                    <Md1List.Content>
-                      <Md1List.Primary>{{ message.from }}</Md1List.Primary>
+                      <Md1List.Content>
+                        <Md1List.Primary>{{ message.from }}</Md1List.Primary>
 
-                      <Md1List.Secondary>{{ message.subject }} — {{ message.preview }}</Md1List.Secondary>
-                    </Md1List.Content>
+                        <Md1List.Secondary>{{ message.subject }} — {{ message.preview }}</Md1List.Secondary>
+                      </Md1List.Content>
 
-                    <Md1List.Action>
-                      <div class="md1-demo-inbox-meta">
-                        <span class="md1-demo-inbox-time">{{ message.time }}</span>
+                      <Md1List.Action>
+                        <div class="md1-demo-inbox-meta">
+                          <span class="md1-demo-inbox-time">{{ message.time }}</span>
 
-                        <Md1Checkbox
-                          :aria-label="`Select the message from ${message.from}`"
-                          :model-value="chosen.includes(message.id)"
-                          @update:model-value="onPick(message)"
-                        />
-                      </div>
-                    </Md1List.Action>
-                  </Md1List.Item>
-                </Md1List>
+                          <Md1Checkbox
+                            :aria-label="`Select the message from ${message.from}`"
+                            :model-value="chosen.includes(message.id)"
+                            @update:model-value="onPick(message)"
+                          />
+                        </div>
+                      </Md1List.Action>
+                    </Md1List.Item>
+                  </Md1List>
+                </template>
               </template>
-            </template>
 
-            <div v-else class="md1-demo-inbox-empty">
-              <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
+              <div v-else class="md1-demo-inbox-empty">
+                <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
 
-              <p class="md1-demo-inbox-empty__tagline">{{ taglines[item.value] }}</p>
-            </div>
-          </Md1Tabs.Panel>
+                <p class="md1-demo-inbox-empty__tagline">{{ taglines[item.value] }}</p>
+              </div>
+            </Md1Tabs.Panel>
+          </div>
         </Md1Tabs>
       </div>
 
@@ -401,6 +405,7 @@
 
   .md1-demo-inbox-sheet {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     min-height: 0;
     background: var(--md1-surface, #FFFFFF);
@@ -414,24 +419,26 @@
     min-height: 0;
   }
 
-  /* The header holds the toolbar's height (56 dp, 64 from 600 px) whether it shows the tabs or the contextual bar, so the swap moves nothing. */
+  /* One 48 dp height for both states — the tab bar's, and the dense contextual bar's — so the swap moves nothing. */
   .md1-demo-inbox-head {
     display: flex;
     flex: 0 0 auto;
     flex-direction: column;
     justify-content: center;
-    min-height: var(--md1-increment, 56px);
+    height: 48px;
   }
 
-  @media (min-width: 600px) {
-    .md1-demo-inbox-head {
-      min-height: var(--md1-increment, 64px);
-    }
+  /* The panels slide inside this box, clipped, never in the page's flow. */
+  .md1-demo-inbox-swap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: clip;
   }
 
   .md1-demo-inbox-panel {
-    flex: 1 1 auto;
-    min-height: 0;
+    position: absolute;
+    inset: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     /* Room under the last row for the 56 dp FAB and its margins, so no row hides behind it. */
