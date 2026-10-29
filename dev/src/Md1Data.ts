@@ -11,6 +11,9 @@
 // Framework
 import { createFilter, isArray } from '@vuetify/v0'
 
+// Assets
+import avatar from './assets/john.png'
+
 // Utilities
 import { computed, ref, shallowRef, toValue } from 'vue'
 
@@ -100,6 +103,8 @@ export type Profile = {
   role: string
   bio: string
   location: string
+  /** The account picture, a local asset URL. */
+  avatar: string
 }
 
 /** A removed row with the slot it came out of, so Undo puts it back in place. */
@@ -421,15 +426,17 @@ export const photos = {
   },
 }
 
-// Profile (the signed-in account; the drawer header and the profile page share it)
+// Profile (the signed-in account; the drawer header and the profile page share
+// it). Seed data, not storage: Clear local data never touches the identity.
 
 export const profile = {
   me: ref<Profile>({
-    name: 'Ana Ribeiro',
-    email: 'ana.ribeiro@example.com',
-    role: 'Operations lead',
-    bio: 'Keeps the orders moving and the dashboards honest. Ten years of logistics, two of them here.',
-    location: 'Porto',
+    name: 'John Leider',
+    email: 'john@vuetifyjs.com',
+    role: 'Founder, Vuetify',
+    bio: 'Keeps the orders moving and the dashboards honest.',
+    location: 'Remote',
+    avatar,
   }),
 
   update (patch: Partial<Profile>) {

@@ -53,9 +53,6 @@
   const cover = 'data:image/svg+xml,'
     + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice"><rect width="320" height="180" fill="#283593"/><circle cx="248" cy="48" r="22" fill="#5C6BC0"/><path d="M0 128 L84 72 L150 118 L214 84 L320 142 V180 H0 Z" fill="#3949AB"/><path d="M0 154 L70 116 L138 150 L226 112 L320 162 V180 H0 Z" fill="#1A237E"/></svg>')
 
-  /** Initials avatar as an inline SVG data URI: the demo ships no raster images. */
-  const avatar = 'data:image/svg+xml,'
-    + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FF8A65"/><text x="32" y="41" fill="#FFFFFF" font-family="Roboto, sans-serif" font-size="26" font-weight="500" text-anchor="middle">AR</text></svg>')
 </script>
 
 <script setup lang="ts">
@@ -333,7 +330,7 @@
       <!-- The account header: cover, 64 dp avatar, name and email, and the
            switcher seat at the end of the account row (navigation-drawer page,
            Header) — here a caret that swaps the list below to account actions. -->
-      <Md1NavigationDrawer.Header :avatar :email="me.email" :image="cover" :name="me.name">
+      <Md1NavigationDrawer.Header :avatar="me.avatar" :email="me.email" :image="cover" :name="me.name">
         <Md1Button
           :aria-expanded="accounts"
           aria-label="Accounts"
