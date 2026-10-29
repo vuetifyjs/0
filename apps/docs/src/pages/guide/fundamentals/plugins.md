@@ -7,9 +7,10 @@ meta:
   - name: description
     content: Extend Vuetify0 with plugins using createPlugin factory. Integrate third-party libraries, add global features, and enhance your Vue 3 application architecture.
   - name: keywords
-    content: vuetify0, plugins, createPlugin, extensions, Vue 3, dependency injection, global features
+    content: vuetify0, plugins, createPlugin, extensions, Vue 3, Nuxt, dependency injection, global features
 related:
   - /guide/fundamentals/core
+  - /guide/integration/nuxt
   - /composables/foundation/create-plugin
   - /composables/plugins/use-theme
   - /composables/plugins/use-locale
@@ -25,6 +26,8 @@ Vuetify0 plugins are Vue plugins built with `createPlugin`. They provide app-wid
 ## Using Built-in Plugins
 
 ### Basic Installation
+
+Vue installs plugins from `main.ts`. [Nuxt](#nuxt) installs them from `plugins/v0.ts`.
 
 ```ts main.ts
 import { createApp } from 'vue'
@@ -85,6 +88,77 @@ app.use(
 > All plugins are optional. Only install what you need—Vuetify0 works without any plugins installed.
 
 > [!ASKAI] Which built-in plugins do I actually need? Can I use Vuetify0 without them?
+
+## Nuxt
+
+Nuxt registers every file in `plugins/` for you. Put the Vuetify0 plugins in `plugins/v0.ts` and install them on `nuxtApp.vueApp`. There is no Vuetify0 Nuxt module.
+
+Add `@vuetify/v0` to `build.transpile`. A second `createThemePlugin()` is skipped, so delete Getting Started's `plugins/vuetify0.ts` if you copied it. That file uses the default theme adapter, which writes no CSS during SSR. Use `createThemePlugin` with `V0UnheadThemeAdapter` instead. The following is an example of how you could set up `plugins/v0.ts`.
+
+```ts plugins/v0.ts collapse
+import { createBreakpointsPlugin, createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+import { V0UnheadThemeAdapter } from '@vuetify/v0/theme/adapters/unhead'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  const themeCookie = useCookie<'light' | 'dark'>('theme')
+  const widthCookie = useCookie<number>('viewport-width', {
+    default: () => 1280,
+  })
+
+  nuxtApp.vueApp.use(createHydrationPlugin())
+  nuxtApp.vueApp.use(
+    createBreakpointsPlugin({
+      ssr: {
+        clientWidth: widthCookie.value || 1280,
+      },
+    }),
+  )
+  nuxtApp.vueApp.use(
+    createThemePlugin({
+      adapter: new V0UnheadThemeAdapter(),
+      default: themeCookie.value === 'dark' ? 'dark' : 'light',
+      themes: {
+        light: {
+          dark: false,
+          colors: {
+            primary: '#3b82f6',
+            surface: '#ffffff',
+            'on-primary': '#ffffff',
+            'on-surface': '#212121',
+          },
+        },
+        dark: {
+          dark: true,
+          colors: {
+            primary: '#60a5fa',
+            surface: '#1e1e1e',
+            'on-primary': '#1a1a1a',
+            'on-surface': '#e0e0e0',
+          },
+        },
+      },
+    }),
+  )
+})
+```
+
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
+})
+```
+
+`V0UnheadThemeAdapter` writes the theme `<style>` tag through Unhead, which Nuxt already runs. `ssr.clientWidth` is the width both the server render and the hydration render share. `createHydrationPlugin()` keeps `isHydrated` false until the root has mounted.
+
+Leave `persist` and `system` off on `createThemePlugin`. The server cannot read `localStorage` or the operating system's color scheme. The `theme` cookie is the value both renders share.
+
+Install any other plugin in this same callback, with another `nuxtApp.vueApp.use(...)`.
+
+`app.vue` stores `theme` and `viewport-width` after the client mounts. The [Nuxt guide](/guide/integration/nuxt) has those watches, plus auto-imports and hydration mismatches.
+
+> [!ASKAI] How do I install Vuetify0 plugins in a Nuxt app?
 
 ## Creating Custom Plugins
 

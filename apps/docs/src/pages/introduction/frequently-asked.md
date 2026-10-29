@@ -56,7 +56,7 @@ Vuetify0 targets modern evergreen browsers: Chrome 52+, Firefox 52+, Safari 10.1
 
 ??? Can I use Vuetify0 with Nuxt?
 
-Yes. Create a Nuxt plugin that registers Vuetify0 plugins, add `@vuetify/v0` to `build.transpile` in your Nuxt config, and you're ready to go. Components and composables can be imported directly or configured for auto-imports. See [Getting Started](/introduction/getting-started#nuxt) for setup instructions and the [Nuxt Guide](/guide/integration/nuxt) for advanced configuration.
+Yes. Create a Nuxt plugin that registers Vuetify0 plugins, add `@vuetify/v0` to `build.transpile` in your Nuxt config, and you're ready to go. Components and composables can be imported directly or configured for auto-imports. See [Plugins](/guide/fundamentals/plugins#nuxt) for the plugin file and the [Nuxt guide](/guide/integration/nuxt) for server rendering, cookies, and auto-imports.
 
 ??? What version of Vue is required?
 
