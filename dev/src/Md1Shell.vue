@@ -4,6 +4,7 @@
     Md1Button,
     Md1Divider,
     Md1FeatureDiscovery,
+    Md1Icon,
     Md1IconToggle,
     Md1List,
     Md1Menu,
@@ -233,6 +234,19 @@
       const el = locate(n)
 
       if (!isNull(el)) {
+        // The tour opened search itself: nobody typed, so the field gives up
+        // its autofocus and the suggestions sheet closes before the prompt
+        // shows (the prompt takes focus anyway).
+        if (n === 3) {
+          document.querySelector<HTMLElement>('.md1-toolbar__input')?.blur()
+
+          try {
+            document.querySelector<HTMLElement>('.md1-toolbar__suggestions')?.hidePopover()
+          } catch {
+            // Already hidden.
+          }
+        }
+
         const rect = el.getBoundingClientRect()
 
         ghost.value = {
@@ -361,6 +375,10 @@
 
   const hue = toRef(() => stop.value === 0 ? undefined : HUES[stop.value])
 
+  /** While any stop is live, the search opened by the tour keeps its history
+      and completions back, so no popover covers the prompt. */
+  const touring = toRef(() => stop.value !== 0)
+
   /**
    * The overflow button anchors its menu and its tooltip: `anchor-name` takes a
    * list, so both names are emitted — letting either overwrite the other lands
@@ -386,7 +404,13 @@
 
       <Md1Toolbar.Actions :style="hue">
         <!-- The tour's finale: pressing the promoted action opens search itself. -->
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @closed="onLeft" @complete="onStop(3)" @dismiss="onQuit">
+        <Md1FeatureDiscovery
+          color="accent"
+          :model-value="stage === 2"
+          @closed="onLeft"
+          @complete="onStop(3)"
+          @dismiss="onQuit"
+        >
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -437,11 +461,23 @@
           </Md1Menu.Content>
         </Md1Menu>
 
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @closed="onLeft" @complete="onStop(2)" @dismiss="onQuit">
+        <Md1FeatureDiscovery
+          color="accent"
+          :model-value="stage === 1"
+          @closed="onLeft"
+          @complete="onStop(2)"
+          @dismiss="onQuit"
+        >
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1IconToggle v-bind="attrs" aria-label="Dark theme" icon="invert-colors" :model-value="dark" @update:model-value="onDark" />
+                <Md1IconToggle
+                  v-bind="attrs"
+                  aria-label="Dark theme"
+                  icon="invert-colors"
+                  :model-value="dark"
+                  @update:model-value="onDark"
+                />
               </Md1Tooltip.Activator>
 
               <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
@@ -480,9 +516,9 @@
 
       <Md1Toolbar.Search
         v-model="query"
-        :history
+        :history="touring ? [] : history"
         :open="searching"
-        :suggestions
+        :suggestions="touring ? [] : suggestions"
         @submit="onFind"
         @update:open="morph"
       />
@@ -582,8 +618,17 @@
          fixed over the real control (arm()). display: contents - no seams out
          here, only the hue needs to reach the in-place portals. -->
     <span style="display: contents" :style="hue">
-      <Md1FeatureDiscovery color="accent" :model-value="stage === 3" @closed="onLeft" @complete="onStop(4)" @dismiss="onQuit">
-        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(3)" />
+      <Md1FeatureDiscovery
+        v-if="stop === 3"
+        color="accent"
+        :model-value="stage === 3"
+        @closed="onLeft"
+        @complete="onStop(4)"
+        @dismiss="onQuit"
+      >
+        <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(3)">
+          <Md1Icon aria-hidden="true" name="arrow-back" />
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Done searching?</Md1FeatureDiscovery.Title>
 
@@ -592,8 +637,17 @@
         </Md1FeatureDiscovery.Text>
       </Md1FeatureDiscovery>
 
-      <Md1FeatureDiscovery color="accent" :model-value="stage === 4" @closed="onLeft" @complete="onStop(5)" @dismiss="onQuit">
-        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(4)" />
+      <Md1FeatureDiscovery
+        v-if="stop === 4"
+        color="accent"
+        :model-value="stage === 4"
+        @closed="onLeft"
+        @complete="onStop(5)"
+        @dismiss="onQuit"
+      >
+        <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(4)">
+          <Md1Icon aria-hidden="true" name="inbox" />
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Your mail lives here</Md1FeatureDiscovery.Title>
 
@@ -602,8 +656,17 @@
         </Md1FeatureDiscovery.Text>
       </Md1FeatureDiscovery>
 
-      <Md1FeatureDiscovery color="accent" :model-value="stage === 5" @closed="onLeft" @complete="onStop(0)" @dismiss="onQuit">
-        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(5)" />
+      <Md1FeatureDiscovery
+        v-if="stop === 5"
+        color="accent"
+        :model-value="stage === 5"
+        @closed="onLeft"
+        @complete="onStop(0)"
+        @dismiss="onQuit"
+      >
+        <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(5)">
+          <Md1Icon aria-hidden="true" name="edit" />
+        </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>
 
@@ -681,6 +744,15 @@
   .md1-demo-shell .md1-navigation-drawer__header > :not(.md1-navigation-drawer__image) {
     position: relative;
     z-index: 1;
+  }
+
+  /* The ghost stop's stand-in glyph: centred on the real control's seat and
+     inked in the prompt colour so it reads on the white disc, like the disc
+     rules ink a wrapped action. */
+  .md1-demo-ghost.md1-feature-discovery__action {
+    align-items: center;
+    justify-content: center;
+    color: var(--md1-accent, #FF4081);
   }
 
   /* The account caret rides the header's account row in the anatomy's white
