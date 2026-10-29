@@ -2,7 +2,7 @@
   import { Md1Checkbox, Md1Dialog, Md1Fab, Md1Icon, Md1List, Md1Snackbar, Md1Subheader, Md1Tabs, Md1TextField, Md1Toolbar, Md1Tooltip, md1Breakpoints, Md1Button } from '@paper/md1'
 
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { createSelection, isNumber, useBreakpoints } from '@vuetify/v0'
 
   // Context
   import Md1InboxDetail from './Md1InboxDetail.vue'
@@ -10,7 +10,7 @@
   import { messages } from './Md1Data'
 
   // Utilities
-  import { nextTick, ref, shallowRef, toRef, watch } from 'vue'
+  import { nextTick, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { Message, Slot, Tab } from './Md1Data'
@@ -87,17 +87,20 @@
     if (!wide.value) reading.value = true
   }
 
-  // Selection mode: the chosen ids; any selection swaps the header to the contextual bar.
-  const chosen = ref<number[]>([])
+  /*
+   * Selection mode on v0's createSelection: every message holds a ticket, the
+   * row checkboxes toggle it, and any selection swaps the header to the
+   * contextual bar.
+   */
+  const selection = createSelection({ multiple: true })
+
+  for (const message of messages.all.value) selection.register({ id: message.id, value: message.id })
+
+  const picked = toRef(() => [...selection.selectedIds].filter(isNumber))
   const removed = shallowRef<Slot<Message>[]>()
 
-  function onPick (message: Message) {
-    const set = new Set(chosen.value)
-
-    if (set.has(message.id)) set.delete(message.id)
-    else set.add(message.id)
-
-    chosen.value = [...set]
+  function clear () {
+    for (const id of selection.selectedIds) selection.unselect(id)
   }
 
   function drop (ids: number[], confirmation: string) {
@@ -108,22 +111,22 @@
       reading.value = false
     }
 
-    chosen.value = []
+    clear()
     notify(confirmation, true)
   }
 
   function onArchive () {
-    drop(chosen.value, `${chosen.value.length} archived`)
+    drop(picked.value, `${picked.value.length} archived`)
   }
 
   function onDelete () {
-    drop(chosen.value, `${chosen.value.length} deleted`)
+    drop(picked.value, `${picked.value.length} deleted`)
   }
 
   function onRead () {
-    for (const id of chosen.value) messages.read(id)
+    for (const id of picked.value) messages.read(id)
 
-    chosen.value = []
+    clear()
     notify('Marked as read')
   }
 
@@ -174,14 +177,14 @@
 </script>
 
 <template>
-  <section class="md1-demo-inbox" @keydown.esc="chosen = []">
+  <section class="md1-demo-inbox" @keydown.esc="clear()">
     <div class="md1-demo-inbox-layout">
       <div class="md1-demo-inbox-sheet md1-elevation-2">
         <Md1Tabs v-model="tab" class="md1-demo-inbox-tabs">
           <div class="md1-demo-inbox-head">
             <!-- dense: the 48 dp desktop bar, the tab bar's own height, so the swap is between equals. -->
-            <Md1Toolbar v-if="chosen.length > 0" contextual dense>
-              <Md1Toolbar.Contextual :count="chosen.length" @clear="chosen = []">
+            <Md1Toolbar v-if="picked.length > 0" contextual dense>
+              <Md1Toolbar.Contextual :count="picked.length" @clear="clear">
                 <Md1Toolbar.Actions>
                   <Md1Tooltip>
                     <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -211,7 +214,7 @@
             </Md1Toolbar>
 
             <!-- v-show, not v-if: unmounting the list would unregister the tabs and hide the open panel. -->
-            <Md1Tabs.List v-show="chosen.length === 0" label="Inbox sections">
+            <Md1Tabs.List v-show="picked.length === 0" label="Inbox sections">
               <Md1Tabs.Item
                 v-for="item in tabs"
                 :key="item.value"
@@ -239,7 +242,7 @@
                       :key="message.id"
                       :class="[
                         message.unread ? 'md1-demo-inbox-unread' : 'md1-demo-inbox-read',
-                        { 'md1-demo-inbox-picked': chosen.includes(message.id) },
+                        { 'md1-demo-inbox-picked': selection.selectedIds.has(message.id) },
                       ]"
                       :value="message.id"
                       @click="onOpen(message)"
@@ -258,8 +261,8 @@
 
                           <Md1Checkbox
                             :aria-label="`Select the message from ${message.from}`"
-                            :model-value="chosen.includes(message.id)"
-                            @update:model-value="onPick(message)"
+                            :model-value="selection.selectedIds.has(message.id)"
+                            @update:model-value="selection.toggle(message.id)"
                           />
                         </div>
                       </Md1List.Action>
@@ -281,6 +284,7 @@
       <aside v-if="wide" aria-label="Reading pane" class="md1-demo-inbox-pane md1-elevation-2">
         <Md1InboxDetail
           v-if="current"
+          :key="current.id"
           :message="current"
           @archive="onArchiveOne"
           @attach="notify('Attachments are stubbed in this demo')"
@@ -320,6 +324,7 @@
 
         <Md1InboxDetail
           v-if="current"
+          :key="current.id"
           :message="current"
           @archive="onArchiveOne"
           @attach="notify('Attachments are stubbed in this demo')"
@@ -529,7 +534,8 @@
     display: flex;
     align-items: center;
     height: 56px;
-    padding: 0 var(--md1-spacing-1, 8px) 0 4px;
+    padding-block: 0;
+    padding-inline: 4px var(--md1-spacing-1, 8px);
     background: var(--md1-primary, #3F51B5);
     color: var(--md1-on-primary, #FFFFFF);
     box-shadow: var(--md1-elevation-4, 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12));
@@ -541,7 +547,8 @@
 
   .md1-demo-inbox-bar .md1-dialog__title {
     flex: 1 1 auto;
-    padding: 0 0 0 20px;
+    padding-block: 0;
+    padding-inline: 20px 0;
     overflow: hidden;
     color: var(--md1-on-primary, #FFFFFF);
     text-overflow: ellipsis;
