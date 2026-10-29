@@ -65,6 +65,7 @@
         :data-mark="mark(cell.iso)"
         :data-outside="cell.outside || undefined"
         :data-today="cell.today || undefined"
+        :disabled="cell.disabled || cell.outside"
         type="button"
         @click="select(cell.iso)"
       >

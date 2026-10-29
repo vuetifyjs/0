@@ -10,6 +10,7 @@ import { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 import { createCalendar } from './index'
 
 // Utilities
+import { isString } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
 import { computed, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
 
@@ -46,6 +47,30 @@ class FrozenDayAdapter extends PlainDateAdapter {
 class NullDateAdapter extends PlainDateAdapter {
   override date (_value?: unknown): Date | null {
     return null
+  }
+}
+
+/**
+ * Years outside 0000–9999 stay valid, as Temporal `toISO` does, but the
+ * string is not a 4-digit day. `parseISO` cannot turn that month back into a date.
+ */
+class ExpandedYearAdapter extends PlainDateAdapter {
+  override toISO (date: Date): string {
+    const year = date.getFullYear()
+
+    if (year >= 0 && year < 10_000) return super.toISO(date)
+
+    const sign = year < 0 ? '-' : '+'
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${sign}${String(Math.abs(year)).padStart(6, '0')}-${month}-${day}`
+  }
+
+  override isValid (date: unknown): date is Date {
+    if (isString(date) && /^[+-]\d{6}-\d{2}-\d{2}$/.test(date)) return true
+
+    return super.isValid(date)
   }
 }
 
@@ -157,6 +182,38 @@ describe('createCalendar', () => {
       await nextTick()
 
       expect(calendar.weekdays.value[0]).toBe('S')
+
+      stop()
+    })
+
+    it('should rebuild the columns when an owned locale changes', async () => {
+      const locale = shallowRef('fr-FR')
+      const { calendar, stop } = setup({ month: '2026-02', locale })
+
+      expect(calendar.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
+      expect(calendar.weekdays.value[0]).toBe('L')
+
+      locale.value = 'en-US'
+      await nextTick()
+
+      expect(calendar.month.value.weeks[0]![0]!.iso).toBe('2026-02-01')
+      expect(calendar.weekdays.value[0]).toBe('S')
+
+      stop()
+    })
+
+    it('should ignore a non-finite week start', () => {
+      const infinite = setup({ month: '2026-02', locale: 'fr-FR', firstDayOfWeek: Number.POSITIVE_INFINITY })
+
+      expect(infinite.calendar.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
+
+      infinite.stop()
+    })
+
+    it('should ignore NaN as a week start', () => {
+      const { calendar, stop } = setup({ month: '2026-02', locale: 'fr-FR', firstDayOfWeek: Number.NaN })
+
+      expect(calendar.month.value.weeks[0]![0]!.iso).toBe('2026-01-26')
 
       stop()
     })
@@ -573,6 +630,16 @@ describe('createCalendar', () => {
       stop()
     })
 
+    it('should clamp a month ref that starts outside min', () => {
+      const month = shallowRef('2026-01')
+      const { calendar, stop } = setup({ month, min: '2026-06-01' })
+
+      expect(month.value).toBe('2026-06')
+      expect(calendar.anchor.value).toBe('2026-06')
+
+      stop()
+    })
+
     it('should write a month ref when paging', () => {
       const month = shallowRef('2026-02')
       const { calendar, stop } = setup({ month, firstDayOfWeek: 0 })
@@ -709,6 +776,153 @@ describe('createCalendar', () => {
       expect(calendar.focused.value).toBe('2026-11-01')
 
       stop()
+    })
+
+    it('should ignore a month outside 1 through 12', () => {
+      const { calendar, stop } = setup({ month: '2026-08' })
+
+      calendar.goto('2026-13')
+      calendar.goto('2026-00')
+
+      expect(calendar.anchor.value).toBe('2026-08')
+      expect(calendar.focused.value).toBe('2026-08-04')
+
+      stop()
+
+      const opened = setup({ month: '2026-13' })
+
+      expect(opened.calendar.anchor.value).toBe('2026-08')
+      expect(opened.calendar.focused.value).toBe('2026-08-04')
+
+      opened.stop()
+    })
+
+    it('should ignore an impossible day', () => {
+      const { calendar, stop } = setup({ month: '2026-02' })
+
+      calendar.goto('2026-02-31')
+
+      expect(calendar.anchor.value).toBe('2026-02')
+      expect(calendar.focused.value).toBe('2026-02-01')
+      expect(() => calendar.next()).not.toThrow()
+      expect(calendar.anchor.value).toBe('2026-03')
+
+      stop()
+    })
+
+    it('should ignore a min that is not a real day', () => {
+      const { calendar, stop } = setup({ month: '2026-02', min: '2026-02-31' })
+
+      expect(calendar.focused.value).toBe('2026-02-01')
+      expect(cell(calendar, '2026-02-01').disabled).toBe(false)
+      expect(() => calendar.next()).not.toThrow()
+
+      stop()
+    })
+
+    it('should stop paging at the first and last representable months', () => {
+      const top = setup({ month: '9999-12', firstDayOfWeek: 0 })
+
+      top.calendar.next()
+
+      expect(top.calendar.anchor.value).toBe('9999-12')
+      expect(top.calendar.isLast.value).toBe(true)
+      expect(top.calendar.month.value.weeks.length).toBeGreaterThan(0)
+
+      top.calendar.goto('9999-12-15')
+      top.calendar.move('year', 1)
+
+      expect(top.calendar.anchor.value).toBe('9999-12')
+      expect(top.calendar.focused.value).toBe('9999-12-31')
+
+      top.stop()
+
+      const bottom = setup({ month: '0000-01', firstDayOfWeek: 0 })
+
+      bottom.calendar.prev()
+
+      expect(bottom.calendar.anchor.value).toBe('0000-01')
+      expect(bottom.calendar.isFirst.value).toBe(true)
+      expect(bottom.calendar.month.value.weeks.length).toBeGreaterThan(0)
+
+      bottom.stop()
+    })
+
+    it('should stop a move on an expanded year', () => {
+      const adapter = new ExpandedYearAdapter()
+      const top = setup({ adapter, month: '9999-12', firstDayOfWeek: 0 })
+
+      top.calendar.goto('9999-12-15')
+      top.calendar.move('year', 1)
+
+      expect(top.calendar.anchor.value).toBe('9999-12')
+      expect(top.calendar.focused.value).toBe('9999-12-31')
+      expect(top.calendar.month.value.weeks.length).toBeGreaterThan(0)
+
+      top.stop()
+
+      const bottom = setup({ adapter, month: '0000-01', firstDayOfWeek: 0 })
+
+      bottom.calendar.goto('0000-01-15')
+      bottom.calendar.move('year', -1)
+
+      expect(bottom.calendar.anchor.value).toBe('0000-01')
+      expect(bottom.calendar.focused.value).toBe('0000-01-01')
+      expect(bottom.calendar.month.value.weeks.length).toBeGreaterThan(0)
+
+      bottom.stop()
+    })
+
+    it('should stop a year move on min and max', () => {
+      const top = setup({ month: '9999-06', max: '9999-06-20', firstDayOfWeek: 0 })
+
+      top.calendar.goto('9999-06-15')
+      top.calendar.move('year', 1)
+
+      expect(top.calendar.anchor.value).toBe('9999-06')
+      expect(top.calendar.focused.value).toBe('9999-06-20')
+
+      top.stop()
+
+      const bottom = setup({ month: '0000-06', min: '0000-06-10', firstDayOfWeek: 0 })
+
+      bottom.calendar.goto('0000-06-15')
+      bottom.calendar.move('year', -1)
+
+      expect(bottom.calendar.anchor.value).toBe('0000-06')
+      expect(bottom.calendar.focused.value).toBe('0000-06-10')
+
+      bottom.stop()
+    })
+
+    it('should disable a spill day that is not a 4-digit day', () => {
+      const top = setup({ month: '9999-12', max: '9999-12-31', firstDayOfWeek: 0 })
+      const topCells = top.calendar.month.value.weeks.flat()
+
+      expect(topCells.length % 7).toBe(0)
+      expect(topCells.some(item => item.iso.startsWith('10000-'))).toBe(true)
+      expect(cell(top.calendar, '9999-12-31').disabled).toBe(false)
+
+      for (const item of topCells) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(item.iso)) continue
+
+        expect(item.outside).toBe(true)
+        expect(item.disabled).toBe(true)
+        expect(item.selected).toBe(false)
+      }
+
+      top.stop()
+
+      const bottom = setup({ month: '0000-01', min: '0000-01-01', firstDayOfWeek: 0 })
+      const leading = bottom.calendar.month.value.weeks[0]![0]!
+
+      expect(leading.iso.startsWith('-')).toBe(true)
+      expect(leading.outside).toBe(true)
+      expect(leading.disabled).toBe(true)
+      expect(cell(bottom.calendar, '0000-01-01').disabled).toBe(false)
+      expect(bottom.calendar.label.value).toBe('January 1')
+
+      bottom.stop()
     })
 
     it('should pull the visible month back when max moves before it', async () => {

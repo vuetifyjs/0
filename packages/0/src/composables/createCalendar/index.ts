@@ -44,14 +44,22 @@ import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 /** `YYYY-MM` or `YYYY-MM-DD`. Structural only, so a bad string no-ops. */
 const SHAPE = /^\d{4}-\d{2}(?:-\d{2})?$/
 
+/** `parseISO` only round-trips these ordinals. */
+const FIRST_MONTH = 0
+const LAST_MONTH = 9999 * 12 + 11
+
 export interface CalendarCell {
-  /** `YYYY-MM-DD`. */
+  /**
+   * `YYYY-MM-DD` when the grid can page to the day. A spill day before year
+   * 0000 or after year 9999 keeps the adapter's string. That cell is outside
+   * and disabled.
+   */
   iso: string
   /** Day of the month, 1–31. */
   day: number
   /** Leading or trailing spill. Not selectable. */
   outside: boolean
-  /** `min`, `max`, or `disabled`. */
+  /** `min`, `max`, `disabled`, or a day that is not `YYYY-MM-DD`. */
   disabled: boolean
   today: boolean
   selected: boolean
@@ -174,7 +182,7 @@ export interface CalendarContext {
   /** The visible month. One object, not an array. */
   month: ComputedRef<CalendarMonth>
   weekdays: ComputedRef<string[]>
-  /** Localized month and year. */
+  /** Localized month and year. Year 0 follows Intl, which numbers that year 1. */
   label: ComputedRef<string>
   /** `YYYY-MM`. */
   anchor: Readonly<Ref<string>>
@@ -182,9 +190,9 @@ export interface CalendarContext {
   focused: Readonly<Ref<string>>
   /** ISO day, or `{ start, end }` in range mode. */
   value: Readonly<Ref<CalendarValue>>
-  /** At the `min` month. */
+  /** At the `min` month, or the first representable month. */
   isFirst: Readonly<Ref<boolean>>
-  /** At the `max` month. */
+  /** At the `max` month, or the last representable month. */
   isLast: Readonly<Ref<boolean>>
   /**
    * Selects an in-month day that is not disabled.
@@ -251,22 +259,30 @@ function ordinal (anchor: string) {
 }
 
 function key (value: number) {
-  const year = Math.floor(value / 12)
+  // `parseISO` only round-trips a 4-digit year. Outside that, the grid throws.
+  const slot = clamp(value, FIRST_MONTH, LAST_MONTH)
+  const year = Math.floor(slot / 12)
 
-  return `${String(year).padStart(4, '0')}-${String(value - year * 12 + 1).padStart(2, '0')}`
+  return `${String(year).padStart(4, '0')}-${String(slot - year * 12 + 1).padStart(2, '0')}`
 }
 
 function shaped (value: unknown): value is string {
   return isString(value) && SHAPE.test(value)
 }
 
-function limit (value: MaybeRefOrGetter<string | undefined> | undefined) {
-  const resolved = toValue(value)
+function monthToken (value: string) {
+  // `2026-13` matches the shape, and `key` would roll it into the next year.
+  const month = Number(value.slice(5, 7))
 
-  return shaped(resolved) ? resolved : undefined
+  if (month < 1 || month > 12) return undefined
+
+  return value.slice(0, 7)
 }
 
 function weekIndex (day: number) {
+  // `NaN` and `Infinity` pass `isNumber` and collapse the grid to `NaN` cells.
+  if (!Number.isFinite(day)) return 0
+
   const index = Math.trunc(day) % 7
 
   return index < 0 ? index + 7 : index
@@ -321,11 +337,27 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   const owned = resolved.owned
   const context = resolved.context
 
+  function limit (value: MaybeRefOrGetter<string | undefined> | undefined) {
+    const iso = toValue(value)
+
+    // A month token is not a day. An impossible day must not become focus:
+    // `step` and `move` parse it, and `parseISO` throws.
+    if (!shaped(iso) || iso.length < 10 || !adapter.isValid(iso)) return undefined
+
+    return iso
+  }
+
+  // Class field. A locale write also changes the adapter's week start, which
+  // the grid must read through a ref or the columns stay on the old start.
+  const ownedWeek = shallowRef(adapter.firstDayOfWeek)
+
   if (owned && !isUndefined(locale)) {
     function applyLocale () {
       const next = toValue(locale)
 
       if (isString(next) && adapter.locale !== next) adapter.locale = next
+
+      ownedWeek.value = adapter.firstDayOfWeek
     }
 
     applyLocale()
@@ -360,11 +392,15 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   }
 
   function currentIso () {
-    const today = adapter.date()
+    // No-arg `date()` is the epoch on the server. Pass the clock so an
+    // omitted month is today there too. `toISO` is the public day string.
+    const today = adapter.date(new Date())
 
     if (isNull(today)) return '1970-01-01'
 
-    return adapter.toISO(today)
+    const iso = adapter.toISO(today)
+
+    return adapter.isValid(iso) ? iso : '1970-01-01'
   }
 
   const now = shallowRef(currentIso())
@@ -386,7 +422,8 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   }
 
   const opening = toValue(month)
-  const anchor = shallowRef(wall(shaped(opening) ? opening.slice(0, 7) : now.value.slice(0, 7)))
+  const opened = shaped(opening) ? monthToken(opening) : undefined
+  const anchor = shallowRef(wall(opened ?? now.value.slice(0, 7)))
   const focused = shallowRef(entry(anchor.value))
 
   function shiftMonth (iso: string, count: number) {
@@ -413,7 +450,12 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   function goto (value: string) {
     if (!shaped(value)) return
 
-    const target = wall(value.slice(0, 7))
+    const token = monthToken(value)
+
+    if (isUndefined(token)) return
+    if (value.length > 7 && !adapter.isValid(value)) return
+
+    const target = wall(token)
 
     focused.value = value.length > 7 && value.startsWith(target) ? bound(value) : entry(target)
     place(target)
@@ -449,6 +491,20 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     }
 
     const iso = adapter.toISO(to)
+
+    // `key` only emits a 4-digit year. An expanded year can still be valid
+    // to the adapter, and slicing it is not a month the grid can parse.
+    // Stop on the bound day when one is set, otherwise the rail day.
+    if (!shaped(iso) || iso.length < 10 || !adapter.isValid(iso)) {
+      const edge = amount < 0
+        ? (limit(min) ?? '0000-01-01')
+        : (limit(max) ?? '9999-12-31')
+
+      goto(edge)
+
+      return
+    }
+
     const low = limit(min)
     const high = limit(max)
 
@@ -519,10 +575,10 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   function resolvedFirst () {
     const explicit = toValue(firstDayOfWeek)
 
-    if (isNumber(explicit)) return weekIndex(explicit)
-    if (context) return context.firstDayOfWeek.value
+    if (isNumber(explicit) && Number.isFinite(explicit)) return weekIndex(explicit)
+    if (context) return weekIndex(context.firstDayOfWeek.value)
 
-    return adapter.firstDayOfWeek
+    return weekIndex(owned ? ownedWeek.value : adapter.firstDayOfWeek)
   }
 
   function resolvedLocale () {
@@ -599,15 +655,17 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
       for (let day = 0; day < 7; day++) {
         const iso = adapter.toISO(current)
+        // `10000-01-01` sorts before `9999-12-31`, so `walled` cannot close it.
+        const round = shaped(iso) && iso.length >= 10
 
         week.push({
           iso,
           day: adapter.getDate(current),
-          outside: !iso.startsWith(value),
-          disabled: closed(iso) || walled(iso),
-          today: iso === today,
-          selected: chosen(iso),
-          focused: iso === focused.value,
+          outside: !round || !iso.startsWith(value),
+          disabled: !round || closed(iso) || walled(iso),
+          today: round && iso === today,
+          selected: round && chosen(iso),
+          focused: round && iso === focused.value,
         })
 
         current = adapter.addDays(current, 1)
@@ -710,21 +768,27 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     }, { flush: 'sync' })
 
     if (!isUndefined(month)) {
+      // The anchor is already clamped, so a non-immediate watch would leave
+      // the ref on the month from before `min` / `max`.
       watch(() => toValue(month), incoming => {
         if (!shaped(incoming)) return
 
-        const target = wall(incoming.slice(0, 7))
+        const token = monthToken(incoming)
+
+        if (isUndefined(token)) return
+
+        const target = wall(token)
 
         if (target !== anchor.value) anchor.value = target
 
         if (isRef(month) && !isReadonly(month)) {
           const current = month.value
 
-          if (incoming.slice(0, 7) !== target && (!isString(current) || current.slice(0, 7) !== target)) {
+          if (token !== target && (!isString(current) || current.slice(0, 7) !== target)) {
             setRef(month, target)
           }
         }
-      })
+      }, { immediate: true })
     }
 
     watch(() => [limit(min), limit(max)] as const, () => {
@@ -758,8 +822,16 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     anchor,
     focused,
     value: selection,
-    isFirst: toRef(() => ordinal(anchor.value) <= floor()),
-    isLast: toRef(() => ordinal(anchor.value) >= ceiling()),
+    isFirst: toRef(() => {
+      const slot = ordinal(anchor.value)
+
+      return slot <= floor() || slot <= FIRST_MONTH
+    }),
+    isLast: toRef(() => {
+      const slot = ordinal(anchor.value)
+
+      return slot >= ceiling() || slot >= LAST_MONTH
+    }),
     select,
     unselect,
     today,

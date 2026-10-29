@@ -116,15 +116,15 @@ flowchart TD
 
 | Option | Type | Default | Purpose |
 | - | - | - | - |
-| `mode` | `'single' \| 'range'` | `'single'` | One day, or a start and end. A ref is read live. Changing it clears the selection |
-| `month` | `YYYY-MM` | current month | Visible month. A ref is written back when the grid pages |
+| `mode` | `'single' \| 'range'` | `'single'` | One day, or a start and end. A ref is read live. Inside a component, changing it clears the selection |
+| `month` | `YYYY-MM` | current month | Visible month. A ref is written back when the grid pages, and when `min` or `max` clamps the month it started on |
 | `value` | ISO day or `{ start, end }` | unset | Selection. A ref is written back |
 | `min` / `max` | `YYYY-MM-DD` | unset | Days outside the range are disabled |
 | `disabled` | `boolean \| string[] \| (iso) => boolean` | `false` | `true` disables every day. An array of `YYYY-MM-DD` days, or a function, disables the days it names. Paging still runs |
 | `readonly` | `boolean` | `false` | `select` no-ops. Days are not marked disabled |
 | `firstDayOfWeek` | `0–6` | adapter locale | Sunday is `0`. Does not write the adapter |
 | `fixedWeeks` | `boolean` | `false` | Pad the grid to six rows |
-| `mandatory` | `boolean` | `false` | A second click and `unselect()` keep the day |
+| `mandatory` | `boolean` | `false` | In single mode a second click keeps the day. `unselect()` does nothing |
 | `locale` | string | adapter default | Applied only when this call owns the adapter |
 | `namespace` | string | `'v0:date'` | Date plugin to borrow when `adapter` is omitted |
 | `weekdayFormat` | `'long' \| 'short' \| 'narrow'` | `'narrow'` | Column labels |
@@ -136,14 +136,14 @@ Single mode stores one `YYYY-MM-DD` string. A second click on that day clears it
 Range mode stores `{ start, end }`.
 
 - The first click sets `start`.
-- A click after `start` sets `end`.
+- While the range is open, a click on or after `start` sets `end`.
 - A click before `start` moves `start` and leaves the range open. It does not swap the ends.
 - A click once both ends exist starts a new range at that day.
 - An open range (`start` and no `end`) completes on a click on or after `start`. A click before `start` moves `start`.
 
 `mode` may be a ref or a getter. Inside a component, switching it clears the selection and writes that empty value back. `mandatory` does not keep the previous day. The next click starts in the new mode.
 
-`select` refuses a spill day and a disabled day. Days between the ends can still be disabled. `readonly` makes `select` and `unselect` do nothing, and it does not mark cells disabled. Paging still runs.
+`select` refuses a spill day and a disabled day. A spill day before year 0000 or after year 9999 is disabled, because it is not a `YYYY-MM-DD` day. Days between the ends can still be disabled. `readonly` makes `select` and `unselect` do nothing, and it does not mark cells disabled. Paging still runs.
 
 ## Reactivity
 
@@ -155,12 +155,12 @@ Range mode stores `{ start, end }`.
 | `anchor` | <AppSuccessIcon /> | Visible month, `YYYY-MM` |
 | `focused` | <AppSuccessIcon /> | Day the grid is on. May be disabled |
 | `value` | <AppSuccessIcon /> | Selected day, or `{ start, end }` |
-| `isFirst` / `isLast` | <AppSuccessIcon /> | Visible month is against `min` or `max` |
+| `isFirst` / `isLast` | <AppSuccessIcon /> | Visible month is against `min`, `max`, or the first or last representable month |
 | `select` / `today` / `move` | <AppErrorIcon /> | Methods |
 
 `today()` pages to the current month and focuses today. It does not select. `selectToday()` selects today when that day is allowed.
 
-When the grid borrows a date plugin, `label` and `weekdays` follow that plugin's locale, and the week start follows the plugin unless `firstDayOfWeek` is set. In the browser, the today marker moves at local midnight.
+When the grid borrows a date plugin, `label` and `weekdays` follow that plugin's locale, and the week start follows the plugin unless `firstDayOfWeek` is set. When this call owns the adapter, a `locale` ref does the same for the title, the labels, and the week columns. The title for year 0000 follows Intl, which numbers that year 1. In the browser, the today marker moves at local midnight.
 
 ## Examples
 
