@@ -121,7 +121,7 @@ A contextual menu changes with the state of the thing it acts on. Each row's ove
 
 `value` on an item and `v-model:selected` on the root make a simple menu that commits a choice. Choosing an option commits it immediately and closes the menu, the guidelines' selection rule; the row whose value matches the model is drawn with the 12% focus shade the buttons page gives a focused surface, and carries `aria-current`.
 
-The guidelines also position a simple menu over the emitting control so the selected item sits on top of it, never below it. `Md1Menu` measures that: when a row is selected, the sheet opens with that row's centre on the trigger's centre and its start edge on the trigger's start edge, and it grows from the trigger. With nothing selected, an action menu, the sheet opens below the trigger as before.[^below] A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
+The guidelines also position a simple menu over the emitting control so the selected item sits on top of it, never below it. `Md1Menu` measures that: when a row is selected, the sheet opens with that row's centre on the trigger's centre and its start edge on the trigger's start edge, and it grows from the trigger. With nothing selected, an action menu, the sheet opens below the trigger as before, toward the side of the screen with the room — an overflow at the end of an app bar grows down and start-ward — and the entrance grows from its origin at the emitting element whichever side that is.[^below] A value picker inside a form field belongs to a dropdown text field, which is a listbox rather than a menu.
 :::
 
 ::: ds-example
