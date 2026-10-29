@@ -175,9 +175,83 @@
     delay.start()
   })
 
+  /** Which stop's hue paints the actions row; outlives `stage` through the exit. */
+  const stop = shallowRef<0 | 1 | 2>(0)
+
+  /** The tapped stop's effect, held until the prompt's circles have left. */
+  let pending: (() => void) | null = null
+
+  /** Whether the finished exit leads to the next stop. */
+  let after = false
+
+  /** One standard transition unit between chained prompts (motion page: the 300 ms mobile standard). */
+  const beat = useTimer(onNext, { duration: 300 })
+
+  function onNext () {
+    stop.value = 2
+    stage.value = 2
+  }
+
   function onTour () {
     ask.value = false
+    beat.stop()
+    pending = null
+    after = false
+    stop.value = 1
     stage.value = 1
+  }
+
+  /** A stop's own control, tapped mid-tour: its effect waits for the circles to leave. */
+  function onDark (value: boolean | undefined) {
+    if (stage.value === 1) {
+      pending = () => {
+        dark.value = !!value
+      }
+
+      return
+    }
+
+    dark.value = !!value
+  }
+
+  function onSearch () {
+    if (stage.value === 2) {
+      pending = () => morph(true)
+
+      return
+    }
+
+    morph(true)
+  }
+
+  function onStop (advance: boolean) {
+    after = advance
+    stage.value = 0
+  }
+
+  function onQuit () {
+    pending = null
+    after = false
+    stage.value = 0
+  }
+
+  // The prompt has fully left: now the page may change under where it stood.
+  function onLeft () {
+    const act = pending
+
+    pending = null
+    act?.()
+
+    if (after) {
+      after = false
+
+      if (motion.isReduced.value) onNext()
+      else beat.start()
+
+      return
+    }
+
+    stop.value = 0
   }
 
   /** The latest unread activity, newest first (the store keeps that order). */
@@ -198,8 +272,8 @@
    * other, and both darker than pink A200 so the white hint reads.
    */
   const hue = toRef(() => {
-    if (stage.value === 1) return { '--md1-accent': 'var(--md1-teal-500, #009688)', '--md1-accent-channels': '0 150 136' }
-    if (stage.value === 2) return { '--md1-accent': 'var(--md1-deep-orange-600, #F4511E)', '--md1-accent-channels': '244 81 30' }
+    if (stop.value === 1) return { '--md1-accent': 'var(--md1-teal-500, #009688)', '--md1-accent-channels': '0 150 136' }
+    if (stop.value === 2) return { '--md1-accent': 'var(--md1-deep-orange-600, #F4511E)', '--md1-accent-channels': '244 81 30' }
 
     return undefined
   })
@@ -229,11 +303,11 @@
 
       <Md1Toolbar.Actions :style="hue">
         <!-- The tour's finale: pressing the promoted action opens search itself. -->
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @complete="stage = 0" @dismiss="stage = 0">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @closed="onLeft" @complete="onStop(false)" @dismiss="onQuit">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="morph(true)" />
+                <Md1Button v-bind="attrs" aria-label="Search" icon="search" @click="onSearch" />
               </Md1Tooltip.Activator>
 
               <Md1Tooltip.Content>Search</Md1Tooltip.Content>
@@ -280,11 +354,11 @@
           </Md1Menu.Content>
         </Md1Menu>
 
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @closed="onLeft" @complete="onStop(true)" @dismiss="onQuit">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
-                <Md1IconToggle v-bind="attrs" v-model="dark" aria-label="Dark theme" icon="invert-colors" />
+                <Md1IconToggle v-bind="attrs" aria-label="Dark theme" icon="invert-colors" :model-value="dark" @update:model-value="onDark" />
               </Md1Tooltip.Activator>
 
               <Md1Tooltip.Content>{{ dark ? 'Light theme' : 'Dark theme' }}</Md1Tooltip.Content>
