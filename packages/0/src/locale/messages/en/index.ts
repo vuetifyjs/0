@@ -89,6 +89,9 @@ export default {
     prev: 'Previous page',
     status: 'Page {page} of {pages}',
   },
+  Progress: {
+    label: 'Loading',
+  },
   Rating: {
     label: 'Rating',
     valueText: '{value} of {size} stars',

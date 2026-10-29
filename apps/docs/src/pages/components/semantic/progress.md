@@ -173,6 +173,7 @@ The Root component manages ARIA attributes automatically.
 | `aria-valuemin` | Min value | From Root's `min` prop (default 0) |
 | `aria-valuemax` | Max value | From Root's `max` prop (default 100) |
 | `aria-valuetext` | `${percent}%` | Omitted when indeterminate |
+| `aria-label` | Locale `Progress.label`, or `"Loading"` | Used when no `Progress.Label` is mounted and `ariaLabel` is omitted |
 | `aria-labelledby` | Label ID | Links to `Progress.Label` |
 | `aria-busy` | `true` | Set when indeterminate |
 | `data-state` | `determinate` / `indeterminate` | Reflects current mode |
