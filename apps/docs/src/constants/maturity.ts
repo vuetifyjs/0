@@ -1,4 +1,5 @@
 import maturityData from '#v0/maturity.json'
+import { releaseAlias } from '@/constants/releases'
 
 /** Maturity ladder shared by DocsMaturity (roadmap matrix) and DocsPageFeatures (stability chip). */
 export type Level = 'draft' | 'preview' | 'stable' | 'mature' | 'deprecated'
@@ -13,13 +14,28 @@ export interface LevelDisplay {
   class: string
 }
 
-/** Shape of a single entry in `packages/0/src/maturity.json`. `since` is omitted on draft entries. */
+/**
+ * Shape of a single entry in `packages/0/src/maturity.json`.
+ * `since` is the first release that included the feature. It does not move
+ * when `level` changes. Omitted on draft entries.
+ */
 export interface MaturityEntry {
   level: Level
   category: string
   since?: string | null
   notes?: string
   description?: string
+}
+
+/** Visible definition for the maturity matrix. `since` is inclusion, not the current level. */
+export const SINCE_LEGEND =
+  'Since is the version a feature was first released in.'
+
+/** Matrix row tooltip. Names the release that first included the feature. */
+export function sinceInFramework (version: string | null | undefined): string {
+  if (!version) return ''
+
+  return `This feature was first released in ${releaseAlias(version)}.`
 }
 
 /** Typed view of the `maturity.json` import (which otherwise infers `level: string`). */
