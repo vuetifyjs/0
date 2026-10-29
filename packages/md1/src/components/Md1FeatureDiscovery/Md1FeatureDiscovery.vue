@@ -74,7 +74,7 @@
     complete: []
     /** Dismissed by a tap outside the background or by Escape. */
     dismiss: []
-    /** The circles finished leaving: the exit animation ended and the prompt unmounted. Follows `complete` or `dismiss`. */
+    /** The circles finished leaving: the exit animation ended and the prompt unmounted. Follows `complete`, `dismiss`, or a model-driven close. */
     closed: []
   }
 
