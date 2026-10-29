@@ -20,7 +20,7 @@ describe('sinceInFramework', () => {
 describe('sINCE_LEGEND', () => {
   it('should define since as the first release', () => {
     expect(SINCE_LEGEND).toBe(
-      'Since is the version a feature was first released in. It does not update when the feature moves to a new level.',
+      'Since is the version a feature was first released in.',
     )
   })
 })

@@ -29,7 +29,7 @@ export interface MaturityEntry {
 
 /** Visible definition for the maturity matrix. `since` is inclusion, not the current level. */
 export const SINCE_LEGEND =
-  'Since is the version a feature was first released in. It does not update when the feature moves to a new level.'
+  'Since is the version a feature was first released in.'
 
 /** Matrix row tooltip. Names the release that first included the feature. */
 export function sinceInFramework (version: string | null | undefined): string {
