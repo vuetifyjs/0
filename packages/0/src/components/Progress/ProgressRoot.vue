@@ -17,6 +17,7 @@
   // Composables
   import { createContext } from '#v0/composables/createContext'
   import { createProgress } from '#v0/composables/createProgress'
+  import { useLocale } from '#v0/composables/useLocale'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
@@ -113,6 +114,7 @@
 
   useProxyModel(progress, internal, { multiple: true })
 
+  const locale = useLocale()
   const labelId = `${id}-label`
   const hasLabel = shallowRef(false)
 
@@ -143,7 +145,7 @@
         'aria-valuemin': min,
         'aria-valuemax': max,
         'aria-valuetext': indeterminate ? undefined : `${Math.round(pct)}%`,
-        'aria-label': hasLabel.value ? undefined : ariaLabel,
+        'aria-label': hasLabel.value ? undefined : (ariaLabel ?? locale.ti('Progress.label') ?? 'Loading'),
         'aria-labelledby': hasLabel.value ? labelId : undefined,
         'aria-busy': indeterminate ? true : undefined,
         'data-state': indeterminate ? 'indeterminate' : 'determinate',

@@ -209,6 +209,14 @@ describe('progress', () => {
       expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
     })
 
+    it('should name an unlabeled bar', async () => {
+      const model = ref(50)
+      const { rootProps, wait } = mountProgress({ model })
+      await wait()
+      expect(rootProps().attrs['aria-label']).toBe('Loading')
+      expect(rootProps().attrs['aria-labelledby']).toBeUndefined()
+    })
+
     it('should set aria-labelledby when Progress.Label is mounted', async () => {
       const model = ref(50)
       const { rootProps, wait } = mountProgress({ model, props: { id: 'test' }, withLabel: true })
