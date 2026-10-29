@@ -12,7 +12,7 @@ import { createCalendar } from './index'
 // Utilities
 import { isString } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
-import { computed, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
+import { computed, customRef, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { CalendarCell, CalendarContext, CalendarDisabled, CalendarOptions, CalendarRange, CalendarValue } from './index'
@@ -104,6 +104,28 @@ describe('createCalendar', () => {
     expect(found).toBeDefined()
 
     return found!
+  }
+
+  function counted<T> (initial: T) {
+    let current = initial
+    let writes = 0
+    const source = customRef<T>((track, trigger) => ({
+      get () {
+        track()
+
+        return current
+      },
+      set (next) {
+        writes++
+        current = next
+        trigger()
+      },
+    }))
+
+    return {
+      source,
+      writes: () => writes,
+    }
   }
 
   describe('grid', () => {
@@ -549,6 +571,78 @@ describe('createCalendar', () => {
       expect(cell(fromGetter.calendar, '2026-08-19').disabled).toBe(false)
 
       fromGetter.stop()
+    })
+  })
+
+  describe('controlled writes', () => {
+    it('should skip the month write when the page stays on its token', () => {
+      const month = counted('2026-08-04')
+      const { calendar, stop } = setup({ month: month.source })
+
+      expect(month.writes()).toBe(0)
+
+      calendar.goto('2026-08-20')
+
+      expect(month.writes()).toBe(0)
+      expect(month.source.value).toBe('2026-08-04')
+      expect(calendar.focused.value).toBe('2026-08-20')
+
+      calendar.next()
+
+      expect(month.writes()).toBe(1)
+      expect(month.source.value).toBe('2026-09')
+      expect(calendar.anchor.value).toBe('2026-09')
+
+      stop()
+    })
+
+    it('should page a month getter without writing it', () => {
+      const { calendar, stop } = setup({ month: () => '2026-02', firstDayOfWeek: 0 })
+
+      calendar.next()
+
+      expect(calendar.anchor.value).toBe('2026-03')
+      expect(calendar.focused.value.startsWith('2026-03')).toBe(true)
+
+      stop()
+    })
+
+    it('should update selection without writing a readonly value', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const model = computed(() => '2026-08-04' as CalendarValue)
+      const { calendar, stop } = setup({ month: '2026-08', value: model })
+
+      calendar.select('2026-08-12')
+      calendar.unselect()
+
+      expect(calendar.value.value).toBeUndefined()
+      expect(model.value).toBe('2026-08-04')
+      expect(spy).not.toHaveBeenCalled()
+
+      stop()
+    })
+
+    it('should skip the value write when the day is already selected', () => {
+      const model = counted<CalendarValue>('2026-08-12')
+      const { calendar, stop } = setup({
+        month: '2026-08',
+        value: model.source,
+        mandatory: true,
+      })
+
+      expect(model.writes()).toBe(0)
+
+      calendar.select('2026-08-12')
+
+      expect(model.writes()).toBe(0)
+      expect(model.source.value).toBe('2026-08-12')
+
+      calendar.select('2026-08-13')
+
+      expect(model.writes()).toBe(1)
+      expect(model.source.value).toBe('2026-08-13')
+
+      stop()
     })
   })
 

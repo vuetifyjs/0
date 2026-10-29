@@ -270,6 +270,14 @@ function shaped (value: unknown): value is string {
   return isString(value) && SHAPE.test(value)
 }
 
+function day (value: unknown): value is string {
+  return shaped(value) && value.length >= 10
+}
+
+function sameMonth (current: unknown, target: string) {
+  return isString(current) && current.slice(0, 7) === target
+}
+
 function monthToken (value: string) {
   // `2026-13` matches the shape, and `key` would roll it into the next year.
   const month = Number(value.slice(5, 7))
@@ -342,7 +350,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
     // A month token is not a day. An impossible day must not become focus:
     // `step` and `move` parse it, and `parseISO` throws.
-    if (!shaped(iso) || iso.length < 10 || !adapter.isValid(iso)) return undefined
+    if (!day(iso) || !adapter.isValid(iso)) return undefined
 
     return iso
   }
@@ -439,12 +447,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
   function place (target: string) {
     anchor.value = target
-
-    if (!isRef(month) || isReadonly(month)) return
-
-    const current = month.value
-
-    if (!isString(current) || current.slice(0, 7) !== target) setRef(month, target)
+    write(month, target, current => sameMonth(current, target))
   }
 
   function goto (value: string) {
@@ -495,7 +498,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     // `key` only emits a 4-digit year. An expanded year can still be valid
     // to the adapter, and slicing it is not a month the grid can parse.
     // Stop on the bound day when one is set, otherwise the rail day.
-    if (!shaped(iso) || iso.length < 10 || !adapter.isValid(iso)) {
+    if (!day(iso) || !adapter.isValid(iso)) {
       const edge = amount < 0
         ? (limit(min) ?? '0000-01-01')
         : (limit(max) ?? '9999-12-31')
@@ -505,17 +508,10 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
       return
     }
 
-    const low = limit(min)
-    const high = limit(max)
+    const landed = bound(iso)
 
-    if (!isUndefined(low) && iso < low) {
-      goto(low)
-
-      return
-    }
-
-    if (!isUndefined(high) && iso > high) {
-      goto(high)
+    if (landed !== iso) {
+      goto(landed)
 
       return
     }
@@ -555,13 +551,9 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   function commit (incoming: CalendarValue) {
     assign(incoming)
 
-    if (!isRef(source) || isReadonly(source)) return
-
     const outgoing = selection.value
 
-    if (sameValue(source.value, outgoing)) return
-
-    setRef(source, outgoing)
+    write(source, outgoing, current => sameValue(current, outgoing))
   }
 
   assign(toValue(source))
@@ -653,10 +645,10 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
       const week: CalendarCell[] = []
 
-      for (let day = 0; day < 7; day++) {
+      for (let index = 0; index < 7; index++) {
         const iso = adapter.toISO(current)
         // `10000-01-01` sorts before `9999-12-31`, so `walled` cannot close it.
-        const round = shaped(iso) && iso.length >= 10
+        const round = day(iso)
 
         week.push({
           iso,
@@ -777,17 +769,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
         if (isUndefined(token)) return
 
-        const target = wall(token)
-
-        if (target !== anchor.value) anchor.value = target
-
-        if (isRef(month) && !isReadonly(month)) {
-          const current = month.value
-
-          if (token !== target && (!isString(current) || current.slice(0, 7) !== target)) {
-            setRef(month, target)
-          }
-        }
+        place(wall(token))
       }, { immediate: true })
     }
 
@@ -877,12 +859,20 @@ function resolveAdapter<Z> (
   }
 }
 
-function setRef<T> (source: MaybeRefOrGetter<T> | undefined, next: T) {
+function write<T> (
+  source: MaybeRefOrGetter<T> | undefined,
+  next: T,
+  same?: (current: T) => boolean,
+) {
   if (!isRef(source) || isReadonly(source)) return
 
-  // ComputedRef shares the Ref shape and keeps `value` readonly. A predicate
-  // does not drop it, so the write goes through a cast after the runtime check.
-  ;(source as unknown as Ref<T>).value = next
+  const current = source as unknown as Ref<T>
+
+  if (same?.(current.value)) return
+
+  // ComputedRef shares the Ref shape and keeps `value` readonly. The runtime
+  // check does not drop it, so the write goes through a cast.
+  current.value = next
 }
 
 function untilMidnight<Z> (adapter: DateAdapter<Z>) {
