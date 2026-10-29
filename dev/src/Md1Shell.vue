@@ -101,6 +101,11 @@
 
   const added = shallowRef(false)
 
+  /** Routes whose primary action sits at the bottom end (the assistant's send,
+      the gallery's speed dial): the offer yields the corner and takes the
+      spec's start placement there instead. */
+  const docked = toRef(() => current.value === '/md1/assistant' || current.value === '/md1/gallery')
+
   function go (to: string) {
     router.push(to)
     open.value = false
@@ -417,7 +422,7 @@
 
     <!-- Inside the shell (no teleport) so the bar reads the stamped theme. -->
     <Md1Snackbar.Portal class="md1-demo-offer" :teleport="false">
-      <Md1Snackbar v-model="ask" action="Start" @action="onTour">Want to take a tour?</Md1Snackbar>
+      <Md1Snackbar v-model="ask" action="Start" :align="docked ? 'start' : undefined" @action="onTour">Want to take a tour?</Md1Snackbar>
 
       <Md1Snackbar v-model="added">Account linking is outside this demo</Md1Snackbar>
     </Md1Snackbar.Portal>
@@ -538,18 +543,18 @@
      start variant's 24 dp insets, on the package's own inset motion. Under
      600 px the full-width handset form above stays. */
   @media (min-width: 600px) {
-    .md1-demo-offer .md1-snackbar {
+    .md1-demo-offer .md1-snackbar:not([data-align='start']) {
       align-self: flex-end;
       margin-inline-end: var(--md1-spacing-3, 24px);
       margin-bottom: var(--md1-spacing-3, 24px);
     }
 
-    .md1-demo-offer .md1-snackbar[data-state='mounted'],
-    .md1-demo-offer .md1-snackbar[data-state='present'] {
+    .md1-demo-offer .md1-snackbar:not([data-align='start'])[data-state='mounted'],
+    .md1-demo-offer .md1-snackbar:not([data-align='start'])[data-state='present'] {
       animation-name: md1-snackbar-enter-inset;
     }
 
-    .md1-demo-offer .md1-snackbar[data-state='leaving'] {
+    .md1-demo-offer .md1-snackbar:not([data-align='start'])[data-state='leaving'] {
       animation-name: md1-snackbar-leave-inset;
     }
   }
