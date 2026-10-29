@@ -16,7 +16,7 @@
   } from '@paper/md1'
 
   // Framework
-  import { isNull, isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
+  import { clamp, isNull, isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
   import { IN_BROWSER } from '@vuetify/v0'
 
   // Context
@@ -202,7 +202,10 @@
    */
   const TARGETS = {
     3: () => '.md1-toolbar__back',
-    4: () => mobile.value ? '.md1-bottom-navigation a[href="/md1/inbox"]' : '.md1-navigation-drawer a[href="/md1/inbox"]',
+    // The row's leading 24 dp glyph, not the full-width row: the spec's figures
+    // frame prompts on glyphs, and a row-wide disc reads as a blob. The press
+    // still reaches the real link: the glyph's click bubbles to its anchor.
+    4: () => mobile.value ? '.md1-bottom-navigation a[href="/md1/inbox"] .md1-icon' : '.md1-navigation-drawer a[href="/md1/inbox"] .md1-icon',
     5: () => '.md1-demo-inbox-fab',
   } as const
 
@@ -247,14 +250,23 @@
           }
         }
 
+        /*
+         * The ghost grows to the 48 dp touch target around the control's
+         * centre, and the centre keeps 44 px off the screen edges so the
+         * 88 dp disc never clips (a drawer glyph sits on the 16 dp keyline).
+         */
         const rect = el.getBoundingClientRect()
+        const half = Math.max(rect.width, rect.height, 48) / 2
+        // 44 = the 88 dp disc's radius: the centre keeps the whole disc on screen.
+        const cx = clamp(rect.left + rect.width / 2, 44, document.documentElement.clientWidth - 44)
+        const cy = rect.top + rect.height / 2
 
         ghost.value = {
           position: 'fixed',
-          left: `${Math.round(rect.left)}px`,
-          top: `${Math.round(rect.top)}px`,
-          width: `${Math.round(rect.width)}px`,
-          height: `${Math.round(rect.height)}px`,
+          left: `${Math.round(cx - half)}px`,
+          top: `${Math.round(cy - half)}px`,
+          width: `${Math.round(half * 2)}px`,
+          height: `${Math.round(half * 2)}px`,
         }
         stop.value = n
         stage.value = n
@@ -274,7 +286,9 @@
       const el = locate(n)
       if (isNull(el)) return
 
-      const control = el.matches('button, a[href]') ? el : el.querySelector<HTMLElement>('button, a[href]') ?? el
+      // A glyph target presses the control it belongs to: closest() climbs to
+      // the real link or button, which an SVG node could not click() itself.
+      const control = el.closest<HTMLElement>('button, a[href]') ?? el.querySelector<HTMLElement>('button, a[href]') ?? el
 
       control.click()
     }
