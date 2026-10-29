@@ -34,6 +34,16 @@
   ].join('')
 
   const media = `data:image/svg+xml,${encodeURIComponent(map)}`
+
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  function filled (value: unknown) {
+    return String(value).trim().length > 0 || 'Error: enter a name'
+  }
+
+  function valid (value: unknown) {
+    return EMAIL.test(String(value)) || 'Error: enter an address like name@example.com'
+  }
 </script>
 
 <script setup lang="ts">
@@ -65,6 +75,9 @@
     location.value = me.value.location
     bio.value = me.value.bio
   })
+
+  /** A draft the shared profile may take: Save stays disabled while the name is blank or the address malformed. */
+  const savable = toRef(() => name.value.trim().length > 0 && EMAIL.test(email.value.trim()))
 
   /** Unsaved changes: the full-screen dialog asks before discarding them. */
   const dirty = toRef(() =>
@@ -189,17 +202,18 @@
 
           <Md1Dialog.Title>Edit profile</Md1Dialog.Title>
 
-          <Md1Dialog.Confirm @confirm="onSave">Save</Md1Dialog.Confirm>
+          <Md1Dialog.Confirm :disabled="!savable" @confirm="onSave">Save</Md1Dialog.Confirm>
         </div>
 
         <div class="md1-demo-profile__form">
-          <Md1TextField v-model="name" label="Name" required />
+          <Md1TextField v-model="name" label="Name" required :rules="[filled]" />
 
           <Md1TextField
             v-model="email"
             inputmode="email"
             label="Email"
             required
+            :rules="[valid]"
             type="email"
           />
 
@@ -267,8 +281,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #BDBDBD;
-    color: #FFFFFF;
+    background: var(--md1-grey-400, #BDBDBD);
+    color: var(--md1-white, #FFFFFF);
     font-size: var(--md1-type-headline-size, 24px);
   }
 
@@ -327,7 +341,8 @@
     display: flex;
     align-items: center;
     height: 56px;
-    padding: 0 var(--md1-spacing-1, 8px) 0 4px;
+    padding-block: 0;
+    padding-inline: 4px var(--md1-spacing-1, 8px);
     background: var(--md1-primary, #3F51B5);
     color: var(--md1-on-primary, #FFFFFF);
     box-shadow: var(--md1-elevation-4, 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12));
@@ -339,7 +354,8 @@
 
   .md1-demo-profile__bar .md1-dialog__title {
     flex: 1 1 auto;
-    padding: 0 0 0 20px;
+    padding-block: 0;
+    padding-inline: 20px 0;
     color: var(--md1-on-primary, #FFFFFF);
   }
 
