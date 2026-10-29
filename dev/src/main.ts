@@ -82,37 +82,39 @@ export const createApp = ViteSSG(
       // never installs createMd1Plugin, so prerendering these would publish an
       // unthemed dashboard under /demo/emerald/. A compile-time boolean, not a
       // BASE_URL test, so the demo build also drops the chunks.
-      ...(!__MD1__
-        ? []
-        : [
-        // Nested so the shell mounts once and only the page swaps on navigation.
-        {
-          path: '/md1',
-          component: () => import('./Md1Shell.vue'),
-          children: [
-            { path: '', component: () => import('./Md1Dashboard.vue'), meta: { title: 'Overview' } },
-            { path: 'activity', component: () => import('./Md1Activity.vue'), meta: { title: 'Activity' } },
-            { path: 'assistant', component: () => import('./Md1Assistant.vue'), meta: { title: 'Assistant' } },
-            { path: 'contacts', component: () => import('./Md1Contacts.vue'), meta: { title: 'Contacts' } },
-            { path: 'files', component: () => import('./Md1Files.vue'), meta: { title: 'Files' } },
-            { path: 'gallery', component: () => import('./Md1Gallery.vue'), meta: { title: 'Gallery' } },
-            { path: 'help', component: () => import('./Md1Help.vue'), meta: { title: 'Help & feedback' } },
-            { path: 'inbox', component: () => import('./Md1Inbox.vue'), meta: { title: 'Inbox' } },
-            { path: 'orders', component: () => import('./Md1Orders.vue'), meta: { title: 'Orders' } },
-            { path: 'orders/new', component: () => import('./Md1OrderForm.vue'), meta: { title: 'New order' } },
-            { path: 'profile', component: () => import('./Md1Profile.vue'), meta: { title: 'Profile' } },
-            { path: 'search', component: () => import('./Md1Search.vue'), meta: { title: 'Search' } },
-            { path: 'settings', component: () => import('./Md1Settings.vue'), meta: { title: 'Settings' } },
-            // Last, after every real child: anything else under /md1 is the 404.
-            { path: ':catchall(.*)', component: () => import('./Md1NotFound.vue'), meta: { title: 'Not found' } },
-          ],
-        },
-        // Siblings of the layout record: the auth pages render without the shell.
-        { path: '/md1/forgot', component: () => import('./Md1Forgot.vue') },
-        { path: '/md1/setup', component: () => import('./Md1Setup.vue') },
-        { path: '/md1/sign-in', component: () => import('./Md1SignIn.vue') },
-        { path: '/md1/sign-up', component: () => import('./Md1SignUp.vue') },
-        ]),
+      ...(__MD1__
+        ? [
+            // Nested so the shell mounts once and only the page swaps on navigation.
+            {
+              path: '/md1',
+              component: () => import('./Md1Shell.vue'),
+              children: [
+                { path: '', component: () => import('./Md1Dashboard.vue'), meta: { title: 'Overview' } },
+                { path: 'activity', component: () => import('./Md1Activity.vue'), meta: { title: 'Activity' } },
+                { path: 'assistant', component: () => import('./Md1Assistant.vue'), meta: { title: 'Assistant' } },
+                { path: 'contacts', component: () => import('./Md1Contacts.vue'), meta: { title: 'Contacts' } },
+                { path: 'files', component: () => import('./Md1Files.vue'), meta: { title: 'Files' } },
+                { path: 'gallery', component: () => import('./Md1Gallery.vue'), meta: { title: 'Gallery' } },
+                { path: 'help', component: () => import('./Md1Help.vue'), meta: { title: 'Help & feedback' } },
+                { path: 'inbox', component: () => import('./Md1Inbox.vue'), meta: { title: 'Inbox' } },
+                { path: 'orders', component: () => import('./Md1Orders.vue'), meta: { title: 'Orders' } },
+                { path: 'orders/new', component: () => import('./Md1OrderForm.vue'), meta: { title: 'New order' } },
+                // Digits only, so an unknown word under /md1/orders/ still reaches the 404 catchall.
+                { path: String.raw`orders/:id(\d+)`, component: () => import('./Md1OrderDetail.vue'), meta: { title: 'Order' } },
+                { path: 'profile', component: () => import('./Md1Profile.vue'), meta: { title: 'Profile' } },
+                { path: 'search', component: () => import('./Md1Search.vue'), meta: { title: 'Search' } },
+                { path: 'settings', component: () => import('./Md1Settings.vue'), meta: { title: 'Settings' } },
+                // Last, after every real child: anything else under /md1 is the 404.
+                { path: ':catchall(.*)', component: () => import('./Md1NotFound.vue'), meta: { title: 'Not found' } },
+              ],
+            },
+            // Siblings of the layout record: the auth pages render without the shell.
+            { path: '/md1/forgot', component: () => import('./Md1Forgot.vue') },
+            { path: '/md1/setup', component: () => import('./Md1Setup.vue') },
+            { path: '/md1/sign-in', component: () => import('./Md1SignIn.vue') },
+            { path: '/md1/sign-up', component: () => import('./Md1SignUp.vue') },
+          ]
+        : []),
     ],
     // The persistent md1 shell swaps pages in place, so the window offset no
     // longer resets itself; everything else keeps the router's default.

@@ -72,6 +72,15 @@
 
   const statuses: Order['status'][] = ['Processing', 'Shipped', 'Delivered', 'Cancelled']
 
+  /** A press on the row opens the order; presses on the row's own controls (checkbox, edits, menus) stay theirs. */
+  function onRow (order: Order, event: Event) {
+    const target = event.target as Element | null
+
+    if (target?.closest('button, a, input, dialog, [role="checkbox"]')) return
+
+    router.push(`/md1/orders/${order.id}`)
+  }
+
   /** An inline edit saves a whole number of items; the total follows at the order's unit price. */
   function onItems (order: Order, value: unknown) {
     const next = Number(value)
@@ -88,7 +97,7 @@
     <Md1Button variant="raised" @click="router.push('/md1/orders/new')">New order</Md1Button>
   </div>
 
-  <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" selectable>
+  <Md1DataTable v-model:rows-per-page="rows" v-model:selected="selected" class="md1-demo-orders__table" selectable>
     <Capture />
 
     <Md1DataTable.Header title="Recent orders">
@@ -142,8 +151,18 @@
           :id="order.id"
           :key="order.id"
           :value="order"
+          @click="onRow(order, $event)"
         >
-          <Md1DataTable.Cell numeric>{{ order.id }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell numeric>
+            <!-- The keyboard path to the detail: the number is a real control; the row click is the pointer shortcut. -->
+            <Button.Root
+              :aria-label="`Open order ${order.id}`"
+              class="md1-demo-orders__open"
+              @click="router.push(`/md1/orders/${order.id}`)"
+            >
+              {{ order.id }}
+            </Button.Root>
+          </Md1DataTable.Cell>
 
           <Md1DataTable.Cell>{{ order.customer }}</Md1DataTable.Cell>
 
@@ -197,6 +216,28 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: var(--md1-spacing-2, 16px);
+  }
+
+  /* Rows open the order detail; their own controls keep their presses. */
+  .md1-demo-orders__table tbody tr {
+    cursor: pointer;
+  }
+
+  /* The order number as the row's focusable control: cell ink, underlined on hover and keyboard focus. */
+  .md1-demo-orders__open {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .md1-demo-orders__open:hover,
+  .md1-demo-orders__open:focus-visible {
+    text-decoration: underline;
+    outline: none;
   }
 
   /* The inline status menu's activator: the cell's own 13 sp at 87%, with the drop-down arrow at the 54% icon ink. */
