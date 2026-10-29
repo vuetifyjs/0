@@ -15,7 +15,7 @@
   } from '@paper/md1'
 
   // Framework
-  import { isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
+  import { isNull, isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
   import { IN_BROWSER } from '@vuetify/v0'
 
   // Context
@@ -157,11 +157,12 @@
     }
   })
 
-  // The tour: a snackbar offer, then two chained one-step prompts (the
-  // feature-discovery page runs a one-step v0 Tour per prompt, so a short
-  // tour is prompts in sequence). 0 = idle, 1 = the theme stop, 2 = search.
+  // The tour: a snackbar offer, then five chained one-step prompts (the
+  // feature-discovery page runs a one-step v0 Tour per prompt; its guided-flow
+  // scenario covers actions that take more than one interaction). 0 = idle,
+  // then theme, search, the search bar's back arrow, Inbox, the compose FAB.
 
-  const stage = shallowRef<0 | 1 | 2>(0)
+  const stage = shallowRef<0 | 1 | 2 | 3 | 4 | 5>(0)
 
   const ask = shallowRef(false)
 
@@ -175,28 +176,101 @@
     delay.start()
   })
 
-  /** Which stop's hue paints the actions row; outlives `stage` through the exit. */
-  const stop = shallowRef<0 | 1 | 2>(0)
+  /** Which stop's hue paints the prompts; outlives `stage` through the exit. */
+  const stop = shallowRef<0 | 1 | 2 | 3 | 4 | 5>(0)
 
   /** The tapped stop's effect, held until the prompt's circles have left. */
   let pending: (() => void) | null = null
 
-  /** Whether the finished exit leads to the next stop. */
-  let after = false
+  /** Where the finished exit leads; 0 ends the tour. */
+  let next: 0 | 2 | 3 | 4 | 5 = 0
+
+  /** The beat's destination while it counts down. */
+  let queued: 2 | 3 | 4 | 5 = 2
 
   /** One standard transition unit between chained prompts (motion page: the 300 ms mobile standard). */
-  const beat = useTimer(onNext, { duration: 300 })
+  const beat = useTimer(() => {
+    advance(queued)
+  }, { duration: 300 })
 
-  function onNext () {
-    stop.value = 2
-    stage.value = 2
+  /**
+   * Stops 3 to 5 target controls the demo cannot wrap (the search bar's back
+   * arrow and the compose FAB are inside components; the Inbox link is a list
+   * item a span may not wrap). Each is found fresh by selector — stop 4 differs
+   * by breakpoint — and its prompt anchors a measured ghost over it.
+   */
+  const TARGETS = {
+    3: () => '.md1-toolbar__back',
+    4: () => mobile.value ? '.md1-bottom-navigation a[href="/md1/inbox"]' : '.md1-navigation-drawer a[href="/md1/inbox"]',
+    5: () => '.md1-demo-inbox-fab',
+  } as const
+
+  function locate (n: 3 | 4 | 5) {
+    return IN_BROWSER ? document.querySelector<HTMLElement>(TARGETS[n]()) : null
+  }
+
+  /** The ghost activator's seat over the real control, measured at arming. */
+  const ghost = shallowRef<Record<string, string>>()
+
+  function advance (n: 2 | 3 | 4 | 5) {
+    if (n === 2) {
+      stop.value = 2
+      stage.value = 2
+
+      return
+    }
+
+    arm(n)
+  }
+
+  /**
+   * Cross-page arming: a stop's target may still be mounting (the FAB follows a
+   * navigation, the back arrow the search transition), so presence is awaited
+   * frame by frame, bounded; a target that never appears ends the tour quietly.
+   */
+  async function arm (n: 3 | 4 | 5) {
+    for (let tick = 0; tick < 150; tick++) {
+      const el = locate(n)
+
+      if (!isNull(el)) {
+        const rect = el.getBoundingClientRect()
+
+        ghost.value = {
+          position: 'fixed',
+          left: `${Math.round(rect.left)}px`,
+          top: `${Math.round(rect.top)}px`,
+          width: `${Math.round(rect.width)}px`,
+          height: `${Math.round(rect.height)}px`,
+        }
+        stop.value = n
+        stage.value = n
+
+        return
+      }
+
+      await new Promise(requestAnimationFrame)
+    }
+
+    stop.value = 0
+  }
+
+  /** A ghost stop's effect: press the real control once the circles have left. */
+  function onGhost (n: 3 | 4 | 5) {
+    pending = () => {
+      const el = locate(n)
+      if (isNull(el)) return
+
+      const control = el.matches('button, a[href]') ? el : el.querySelector<HTMLElement>('button, a[href]') ?? el
+
+      control.click()
+    }
   }
 
   function onTour () {
     ask.value = false
     beat.stop()
     pending = null
-    after = false
+    next = 0
     stop.value = 1
     stage.value = 1
   }
@@ -224,14 +298,19 @@
     morph(true)
   }
 
-  function onStop (advance: boolean) {
-    after = advance
+  function onStop (to: 0 | 2 | 3 | 4 | 5) {
+    next = to
     stage.value = 0
   }
 
+  /**
+   * Dismissal at any stop ends the tour with nothing half-applied: the pending
+   * effect is dropped and no later stop arms. Dismissing at the back-arrow stop
+   * deliberately leaves search open — the reader closes it like any search.
+   */
   function onQuit () {
     pending = null
-    after = false
+    next = 0
     stage.value = 0
   }
 
@@ -242,10 +321,11 @@
     pending = null
     act?.()
 
-    if (after) {
-      after = false
+    if (next !== 0) {
+      queued = next
+      next = 0
 
-      if (motion.isReduced.value) onNext()
+      if (motion.isReduced.value) advance(queued)
       else beat.start()
 
       return
@@ -271,12 +351,15 @@
    * deep orange 600: distinct from the indigo bar, the pink charts and each
    * other, and both darker than pink A200 so the white hint reads.
    */
-  const hue = toRef(() => {
-    if (stop.value === 1) return { '--md1-accent': 'var(--md1-teal-500, #009688)', '--md1-accent-channels': '0 150 136' }
-    if (stop.value === 2) return { '--md1-accent': 'var(--md1-deep-orange-600, #F4511E)', '--md1-accent-channels': '244 81 30' }
+  const HUES = {
+    1: { '--md1-accent': 'var(--md1-teal-500, #009688)', '--md1-accent-channels': '0 150 136' },
+    2: { '--md1-accent': 'var(--md1-deep-orange-600, #F4511E)', '--md1-accent-channels': '244 81 30' },
+    3: { '--md1-accent': 'var(--md1-purple-500, #9C27B0)', '--md1-accent-channels': '156 39 176' },
+    4: { '--md1-accent': 'var(--md1-brown-500, #795548)', '--md1-accent-channels': '121 85 72' },
+    5: { '--md1-accent': 'var(--md1-red-800, #C62828)', '--md1-accent-channels': '198 40 40' },
+  } as const
 
-    return undefined
-  })
+  const hue = toRef(() => stop.value === 0 ? undefined : HUES[stop.value])
 
   /**
    * The overflow button anchors its menu and its tooltip: `anchor-name` takes a
@@ -303,7 +386,7 @@
 
       <Md1Toolbar.Actions :style="hue">
         <!-- The tour's finale: pressing the promoted action opens search itself. -->
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @closed="onLeft" @complete="onStop(false)" @dismiss="onQuit">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 2" @closed="onLeft" @complete="onStop(3)" @dismiss="onQuit">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -354,7 +437,7 @@
           </Md1Menu.Content>
         </Md1Menu>
 
-        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @closed="onLeft" @complete="onStop(true)" @dismiss="onQuit">
+        <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @closed="onLeft" @complete="onStop(2)" @dismiss="onQuit">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
               <Md1Tooltip.Activator v-slot="{ attrs }">
@@ -493,6 +576,42 @@
     <main class="md1-demo-shell__main">
       <RouterView />
     </main>
+
+    <!-- The tour's travelling stops: their targets live inside components or
+         lists a span may not wrap, so each prompt anchors a measured ghost
+         fixed over the real control (arm()). display: contents - no seams out
+         here, only the hue needs to reach the in-place portals. -->
+    <span style="display: contents" :style="hue">
+      <Md1FeatureDiscovery color="accent" :model-value="stage === 3" @closed="onLeft" @complete="onStop(4)" @dismiss="onQuit">
+        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(3)" />
+
+        <Md1FeatureDiscovery.Title>Done searching?</Md1FeatureDiscovery.Title>
+
+        <Md1FeatureDiscovery.Text>
+          The arrow puts the toolbar back the way it was.
+        </Md1FeatureDiscovery.Text>
+      </Md1FeatureDiscovery>
+
+      <Md1FeatureDiscovery color="accent" :model-value="stage === 4" @closed="onLeft" @complete="onStop(5)" @dismiss="onQuit">
+        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(4)" />
+
+        <Md1FeatureDiscovery.Title>Your mail lives here</Md1FeatureDiscovery.Title>
+
+        <Md1FeatureDiscovery.Text>
+          Open the inbox to read, archive and reply.
+        </Md1FeatureDiscovery.Text>
+      </Md1FeatureDiscovery>
+
+      <Md1FeatureDiscovery color="accent" :model-value="stage === 5" @closed="onLeft" @complete="onStop(0)" @dismiss="onQuit">
+        <Md1FeatureDiscovery.Activator :style="ghost" @click="onGhost(5)" />
+
+        <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>
+
+        <Md1FeatureDiscovery.Text>
+          The compose button creates a new message from anywhere in the inbox.
+        </Md1FeatureDiscovery.Text>
+      </Md1FeatureDiscovery>
+    </span>
 
     <!-- Inside the shell (no teleport) so the bar reads the stamped theme. -->
     <Md1Snackbar.Portal class="md1-demo-offer" :teleport="false">
