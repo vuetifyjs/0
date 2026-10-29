@@ -1,8 +1,20 @@
 <script setup lang="ts">
-  import { Md1Stepper } from '@paper/md1'
+  import { Md1Button, Md1Stepper } from '@paper/md1'
   import { shallowRef } from 'vue'
 
   const step = shallowRef('policy')
+  const note = shallowRef('')
+
+  // CANCEL abandons the request: the stepper returns to the first step.
+  function onCancel () {
+    note.value = ''
+    step.value = 'policy'
+  }
+
+  function onDone () {
+    note.value = 'Request sent to your manager'
+    step.value = 'policy'
+  }
 
   const steps = [
     {
@@ -47,10 +59,18 @@
         <Md1Stepper.Content>
           <p v-for="(line, index) in item.body" :key="index" class="md1-docs-stepper-sticky__text">{{ line }}</p>
 
-          <Md1Stepper.Actions />
+          <Md1Stepper.Actions v-if="item.value !== 'confirm'" @cancel="onCancel" />
+
+          <Md1Stepper.Actions v-else>
+            <Md1Button variant="raised" @click="onDone">Send request</Md1Button>
+
+            <Md1Button @click="onCancel">Cancel</Md1Button>
+          </Md1Stepper.Actions>
         </Md1Stepper.Content>
       </Md1Stepper.Step>
     </Md1Stepper>
+
+    <p v-if="note" class="md1-docs-readout md1-docs-stepper-note md1-docs-stepper-sticky__note" role="status">{{ note }}</p>
   </div>
 </template>
 
@@ -81,5 +101,9 @@
 
   .md1-docs-stepper-sticky__text {
     margin: 0 0 var(--md1-spacing-2, 16px);
+  }
+
+  .md1-docs-stepper-sticky__note {
+    margin: var(--md1-spacing-2, 16px) 0 0;
   }
 </style>

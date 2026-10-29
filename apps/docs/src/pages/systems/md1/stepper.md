@@ -35,7 +35,7 @@ The Material Design 1 stepper. Progress through a sequence of numbered steps, on
 
 ## Usage
 
-`Md1Stepper` is a compound. The root owns the active step through `v-model`; each `Step` is one numbered step and holds its `Content`, and `Actions` is the CONTINUE and CANCEL row at the end of a step's body. The stepper is linear by default: each step is completed before the next opens.
+`Md1Stepper` is a compound. The root owns the active step through `v-model`; each `Step` is one numbered step and holds its `Content`, and `Actions` is the CONTINUE and CANCEL row at the end of a step's body. CONTINUE moves to the next step on its own; CANCEL only emits, and what it abandons is the app's call — in these examples it abandons the run and returns the stepper to its first step, and the last step replaces the row with the flow's own finishing action. The stepper is linear by default: each step is completed before the next opens.
 
 ::: ds-example
 /systems/md1/stepper/basic
