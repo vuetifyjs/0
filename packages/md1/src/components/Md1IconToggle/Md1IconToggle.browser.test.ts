@@ -4,8 +4,6 @@ import { userEvent } from 'vitest/browser'
 // Framework
 import { createReducedMotionPlugin } from '@vuetify/v0'
 
-// Components
-import { Md1Toolbar } from '../Md1Toolbar'
 import { Md1IconToggle } from './index'
 
 // Utilities
@@ -20,6 +18,8 @@ import { Md1StyleSheetAdapter } from '../../adapter'
 import { md1Colors, md1DarkColors } from '../../colors'
 // Icons
 import { md1Icons } from '../../icons'
+// Components
+import { Md1Toolbar } from '../Md1Toolbar'
 
 const teardowns: (() => void)[] = []
 

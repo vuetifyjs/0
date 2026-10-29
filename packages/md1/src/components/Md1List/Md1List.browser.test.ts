@@ -1259,7 +1259,7 @@ describe('quList reorder', () => {
     await settle()
 
     const [first] = handles(host)
-    const hint = document.getElementById(first!.getAttribute('aria-describedby')!)
+    const hint = document.querySelector(`#${first!.getAttribute('aria-describedby')!}`)
 
     expect(first!.getAttribute('aria-label')).toBe('Reorder Clair de lune')
     expect(hint!.textContent).toBe('Use the up and down arrow keys to move')
@@ -1384,7 +1384,7 @@ describe('quList reorder', () => {
     const [first] = handles(host)
 
     expect(first!.getAttribute('aria-label')).toBe('Move Clair de lune')
-    expect(document.getElementById(first!.getAttribute('aria-describedby')!)!.textContent).toBe('Arrows move')
+    expect(document.querySelector(`#${first!.getAttribute('aria-describedby')!}`)!.textContent).toBe('Arrows move')
 
     first!.focus()
     await userEvent.keyboard('{ArrowDown}')

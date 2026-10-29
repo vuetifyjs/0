@@ -594,7 +594,9 @@ describe('quStepper', () => {
 
       const header = root.querySelector('.md1-stepper__header')!.getBoundingClientRect()
       const [first, failed, last] = items(root)
-      const hidden = (el: HTMLElement) => el.querySelector('.md1-stepper__text')!.getBoundingClientRect().width <= 1
+      function hidden (el: HTMLElement) {
+        return el.querySelector('.md1-stepper__text')!.getBoundingClientRect().width <= 1
+      }
 
       expect(hidden(first!)).toBe(false)
       expect(hidden(failed!)).toBe(true)
