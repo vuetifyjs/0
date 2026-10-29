@@ -28,9 +28,17 @@ export type Message = {
   from: string
   subject: string
   preview: string
+  /** The full text the reading pane shows. */
+  body: string
   time: string
-  unread?: boolean
+  day: 'Today' | 'Yesterday' | 'Earlier'
   tab: Tab
+  unread?: boolean
+  starred?: boolean
+  /** Attachment file names; the reading pane renders them as chips. */
+  attachments?: string[]
+  /** Replies sent from the reading pane, oldest first. */
+  replies?: string[]
 }
 
 export type Contact = {
@@ -154,25 +162,56 @@ function push<Z> (list: Z[], slots: Slot<Z>[]) {
 
 export const messages = {
   all: ref<Message[]>([
-    { id: 1, from: 'Ana Ribeiro', subject: 'Photos from Sintra', preview: 'The light on the coast was unreal, take a look.', time: '9:14 AM', unread: true, tab: 'social' },
-    { id: 2, from: 'Ben Okafor', subject: 'Lunch on Thursday?', preview: 'The new place by the park does a weekday menu.', time: '8:47 AM', unread: true, tab: 'primary' },
-    { id: 3, from: 'Chloe Martin', subject: 'Minutes from the planning call', preview: 'Decisions and owners are at the top, details below.', time: '7:32 AM', tab: 'primary' },
-    { id: 4, from: 'Dev Patel', subject: 'Your order has shipped', preview: 'Order 4126 left the warehouse this morning.', time: 'Yesterday', tab: 'updates' },
-    { id: 5, from: 'Elena Rossi', subject: 'Book club: next pick', preview: 'Three candidates this month, vote by Friday.', time: 'Yesterday', unread: true, tab: 'social' },
-    { id: 6, from: 'Farid Haddad', subject: 'Quarterly numbers, first pass', preview: 'Revenue is ahead of plan, costs need a look.', time: 'Yesterday', tab: 'updates' },
-    { id: 7, from: 'Greta Lindqvist', subject: 'Hiking on Saturday?', preview: 'Forecast looks clear, thinking the ridge loop.', time: 'Friday', tab: 'primary' },
-    { id: 8, from: 'Hugo Alves', subject: 'Draft of the press note', preview: 'Second paragraph still reads stiff, suggestions welcome.', time: 'Friday', tab: 'primary' },
-    { id: 9, from: 'Imani Said', subject: 'New apartment photos', preview: 'Before the furniture arrives, the empty rooms.', time: 'Thursday', tab: 'social' },
-    { id: 10, from: 'Jonas Weber', subject: 'The recipe you asked about', preview: 'The trick is resting the dough overnight.', time: 'Thursday', tab: 'primary' },
+    { id: 11, from: 'Kenji Sato', subject: 'Standup moved to 9:30', preview: 'One-off change for tomorrow only.', body: 'One-off change for tomorrow only. The retro stays where it is. The calendar is already updated.', time: '10:05 AM', day: 'Today', tab: 'primary', unread: true },
+    { id: 12, from: 'Lucia Moreau', subject: 'Invoice 221 received', preview: 'Payment landed this morning.', body: 'Payment landed this morning and the receipt is in the portal. Nothing further is needed from you.', time: '9:50 AM', day: 'Today', tab: 'updates' },
+    { id: 13, from: 'Mateo Silva', subject: 'Weekend five-a-side', preview: 'We\'re one short for Sunday morning.', body: 'We\'re one short for Sunday morning. Same pitch, same time. First yes gets the spot.', time: '9:21 AM', day: 'Today', tab: 'social', unread: true },
+    { id: 1, from: 'Ana Ribeiro', subject: 'Photos from Sintra', preview: 'The light on the coast was unreal, take a look.', body: 'The light on the coast was unreal, take a look. We walked the palace gardens at opening and had them to ourselves. Two favourites attached — the rest land in the shared album tonight.', time: '9:14 AM', day: 'Today', tab: 'social', unread: true, attachments: ['sintra-coast.jpg', 'palace-steps.jpg'] },
+    { id: 2, from: 'Ben Okafor', subject: 'Lunch on Thursday?', preview: 'The new place by the park does a weekday menu.', body: 'The new place by the park does a weekday menu. Thursday at noon works for everyone else — does it work for you? I\'ll book for six if you\'re in.', time: '8:47 AM', day: 'Today', tab: 'primary', unread: true },
+    { id: 14, from: 'Nadia Petrova', subject: 'Design review notes', preview: 'Annotated frames attached, two small blockers.', body: 'Annotated frames attached. Two blockers, both small: the empty-state copy and the focus order in the dialog. Everything else is ready to build.', time: '8:12 AM', day: 'Today', tab: 'primary', attachments: ['review-notes.doc', 'frames.png'] },
+    { id: 3, from: 'Chloe Martin', subject: 'Minutes from the planning call', preview: 'Decisions and owners are at the top, details below.', body: 'Decisions and owners are at the top, details below. Two items moved to next sprint; the capacity question is parked until the numbers land. Full minutes attached.', time: '7:32 AM', day: 'Today', tab: 'primary', attachments: ['planning-minutes.doc'] },
+    { id: 4, from: 'Dev Patel', subject: 'Your order has shipped', preview: 'Order 4126 left the warehouse this morning.', body: 'Order 4126 left the warehouse this morning. Tracking says Thursday before noon. Everything in the order shipped together.', time: 'Yesterday', day: 'Yesterday', tab: 'updates' },
+    { id: 5, from: 'Elena Rossi', subject: 'Book club: next pick', preview: 'Three candidates this month, vote by Friday.', body: 'Three candidates this month, vote by Friday. The shortlist is in the usual sheet — one long, one short, one translated. Ties break toward the short one.', time: 'Yesterday', day: 'Yesterday', tab: 'social', unread: true },
+    { id: 6, from: 'Farid Haddad', subject: 'Quarterly numbers, first pass', preview: 'Revenue is ahead of plan, costs need a look.', body: 'Revenue is ahead of plan, costs need a look. Shipping ate most of the variance; the rest is the currency swing. First pass attached before the Friday review.', time: 'Yesterday', day: 'Yesterday', tab: 'updates', attachments: ['q3-first-pass.xls'] },
+    { id: 15, from: 'Omar Haddad', subject: 'Dinner at ours, Saturday', preview: 'Nothing fancy, come at seven.', body: 'Nothing fancy, come at seven. Bring the card game you kept talking about. And remind me about the allergies again?', time: 'Yesterday', day: 'Yesterday', tab: 'social' },
+    { id: 16, from: 'Priya Sharma', subject: 'Expense report approved', preview: 'October\'s report cleared review.', body: 'October\'s report cleared review. Reimbursement lands with the next payroll run.', time: 'Yesterday', day: 'Yesterday', tab: 'updates' },
+    { id: 17, from: 'Quinn Murphy', subject: 'Offsite agenda, v1', preview: 'Draft agenda for the two days attached.', body: 'Draft agenda for the two days attached. Morning sessions are fixed; the afternoons still have room. Flag anything missing by Wednesday.', time: 'Yesterday', day: 'Yesterday', tab: 'primary', unread: true, attachments: ['offsite-agenda.doc'] },
+    { id: 18, from: 'Rosa Alvarez', subject: 'Photos from the launch party', preview: 'Finally went through the camera roll.', body: 'Finally went through the camera roll. The team photo came out great — printing one for the office. More in the shared folder.', time: 'Yesterday', day: 'Yesterday', tab: 'social', attachments: ['launch-party.jpg'] },
+    { id: 7, from: 'Greta Lindqvist', subject: 'Hiking on Saturday?', preview: 'Forecast looks clear, thinking the ridge loop.', body: 'Forecast looks clear, thinking the ridge loop. Eight kilometres, one steep bit, coffee after. The train leaves at 8:40 if you want to join.', time: 'Friday', day: 'Earlier', tab: 'primary' },
+    { id: 8, from: 'Hugo Alves', subject: 'Draft of the press note', preview: 'Second paragraph still reads stiff, suggestions welcome.', body: 'Second paragraph still reads stiff, suggestions welcome. The quote is approved, the dates are confirmed, the headline is not. Latest draft attached.', time: 'Friday', day: 'Earlier', tab: 'primary', attachments: ['press-note-v2.doc'] },
+    { id: 9, from: 'Imani Said', subject: 'New apartment photos', preview: 'Before the furniture arrives, the empty rooms.', body: 'Before the furniture arrives, the empty rooms. The light in the back room is the reason we took it. Housewarming once the boxes are gone — you\'re invited.', time: 'Thursday', day: 'Earlier', tab: 'social' },
+    { id: 10, from: 'Jonas Weber', subject: 'The recipe you asked about', preview: 'The trick is resting the dough overnight.', body: 'The trick is resting the dough overnight. Everything else is the standard method, just slower. Written version below so you can\'t blame my handwriting.', time: 'Thursday', day: 'Earlier', tab: 'primary' },
+    { id: 19, from: 'Sana Khalid', subject: 'Password expires in 7 days', preview: 'Change it from Settings before it lapses.', body: 'Your workspace password expires next week. Change it from Settings before it lapses to keep your sessions signed in.', time: 'Oct 20', day: 'Earlier', tab: 'updates' },
+    { id: 20, from: 'Tomas Novak', subject: 'Coffee next week?', preview: 'Long overdue.', body: 'Long overdue. I\'m near the office Tuesday and Wednesday. Pick a morning and I\'ll be there.', time: 'Oct 20', day: 'Earlier', tab: 'primary' },
+    { id: 21, from: 'Uma Patel', subject: 'Book swap, round two', preview: 'The pile on my desk is yours if you want it.', body: 'The pile on my desk is yours if you want it. Mostly the ones you recommended last time, finally finished. Trade you for whatever you are done with.', time: 'Oct 19', day: 'Earlier', tab: 'social' },
+    { id: 22, from: 'Viktor Eriksen', subject: 'Storage almost full', preview: 'Your workspace is at 92% of its storage.', body: 'Your workspace is at 92% of its storage. Archive old files or raise the plan before uploads start failing.', time: 'Oct 19', day: 'Earlier', tab: 'updates', unread: true },
+    { id: 23, from: 'Wendy Zhao', subject: 'Thanks for the intro', preview: 'We talked for an hour.', body: 'We talked for an hour and it could have gone three. Exactly the person I needed to meet — I owe you one.', time: 'Oct 18', day: 'Earlier', tab: 'primary' },
+    { id: 24, from: 'Yara Aziz', subject: 'Sunday picnic album', preview: 'Everyone\'s photos in one place at last.', body: 'Everyone\'s photos in one place at last. Add yours when you get a minute.', time: 'Oct 17', day: 'Earlier', tab: 'social', attachments: ['picnic.jpg'] },
   ]),
 
-  /** Remove the message and hand back its slot for the snackbar's Undo. */
-  archive (id: number): Slot<Message> | undefined {
-    return pull(messages.all.value, [id])[0]
+  /** Remove messages and hand back their slots for the snackbar's Undo. */
+  remove (ids: number[]): Slot<Message>[] {
+    return pull(messages.all.value, ids)
   },
 
-  restore (message: Message, index: number) {
-    push(messages.all.value, [{ row: message, index }])
+  /** Put removed messages back in the slots they came out of. */
+  restore (slots: Slot<Message>[]) {
+    push(messages.all.value, slots)
+  },
+
+  read (id: number) {
+    const message = messages.all.value.find(row => row.id === id)
+    if (message) message.unread = false
+  },
+
+  star (id: number) {
+    const message = messages.all.value.find(row => row.id === id)
+    if (message) message.starred = !message.starred
+  },
+
+  /** Append a sent reply to the message's own thread. */
+  reply (id: number, text: string) {
+    const message = messages.all.value.find(row => row.id === id)
+    if (message) message.replies = [...message.replies ?? [], text]
   },
 }
 
