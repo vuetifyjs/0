@@ -17,8 +17,8 @@
  * adapter.toISO(adapter.parseISO('2026-02-01')) // '2026-02-01'
  * ```
  *
- * @todo v2: rename this class to `V0PlainDateAdapter`. The v1 name stays.
- * The public export and `constructor.name` make the rename a break.
+ * @todo v2: rename the class to `V0PlainDateAdapter` so `constructor.name`
+ * matches the alias. The v1 class name stays `PlainDateAdapter`.
  */
 
 // Globals
@@ -867,3 +867,16 @@ export class PlainDateAdapter extends DateAdapter<Date> {
     return formatter
   }
 }
+
+/**
+ * Alias of `PlainDateAdapter`. Same class, so `constructor.name` stays
+ * `PlainDateAdapter` until the v2 rename. Import it from `@vuetify/v0`.
+ *
+ * @example
+ * ```ts
+ * import { V0PlainDateAdapter } from '@vuetify/v0'
+ *
+ * const adapter = new V0PlainDateAdapter('en-US')
+ * ```
+ */
+export { PlainDateAdapter as V0PlainDateAdapter }

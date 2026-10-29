@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { PlainDateAdapter } from './plain'
+import { PlainDateAdapter, V0PlainDateAdapter } from './plain'
 
 // Utilities
 import { isV0Error } from '#v0/utilities'
@@ -9,6 +9,12 @@ describe('plainDateAdapter', () => {
   function setup () {
     return new PlainDateAdapter('en-US')
   }
+
+  it('should alias V0PlainDateAdapter to the same class', () => {
+    expect(V0PlainDateAdapter).toBe(PlainDateAdapter)
+    expect(new V0PlainDateAdapter('en-US')).toBeInstanceOf(PlainDateAdapter)
+    expect(V0PlainDateAdapter.name).toBe('PlainDateAdapter')
+  })
 
   describe('parse and format', () => {
     it('should parse a date-only string as local midnight', () => {

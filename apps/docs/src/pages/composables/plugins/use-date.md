@@ -80,9 +80,10 @@ Adapters let you swap the underlying date library without changing your applicat
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `PlainDateAdapter` | `@vuetify/v0` | JavaScript `Date`. Default when no adapter is passed |
+| `PlainDateAdapter` | `@vuetify/v0` | JavaScript `Date`. Default when no adapter is passed[^plain-alias] |
 | `V0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
 
+[^plain-alias]: Also exported as `V0PlainDateAdapter`. Same class. `constructor.name` stays `PlainDateAdapter` until the class is renamed in v2.
 [^temporal]: Uses native Temporal when the runtime provides it; otherwise requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) optional peer. Install with `pnpm add @js-temporal/polyfill`.
 
 ### DateAdapter Interface

@@ -66,7 +66,7 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef, ObjectPlugin, Ref } from 'vue'
 
 // Exports
-export { DateAdapter, PlainDateAdapter } from '#v0/composables/useDate/adapters'
+export { DateAdapter, PlainDateAdapter, V0PlainDateAdapter } from '#v0/composables/useDate/adapters'
 
 export interface DateContext<Z> {
   /** The date adapter instance */
