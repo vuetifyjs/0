@@ -237,6 +237,23 @@
     padding: var(--md1-spacing-3, 24px) var(--md1-keyline-margin, 16px) var(--md1-spacing-1, 8px);
   }
 
+  /*
+   * On a handset the header stacks deterministically. Left to flex-wrap, the
+   * identity line sits beside the avatar until the web font's metrics land,
+   * then wraps under it — a cold-load layout shift the fixed stack removes.
+   */
+  @media (width < 600px) {
+    .md1-demo-profile__header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .md1-demo-profile__identity {
+      flex: none;
+      width: 100%;
+    }
+  }
+
   .md1-demo-profile__avatar,
   .md1-demo-profile__initial {
     width: 64px;
