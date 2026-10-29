@@ -111,6 +111,11 @@
     open.value = false
   }
 
+  /** A link's rendered href, through the router so a non-root base holds. */
+  function href (to: string) {
+    return router.resolve(to).href
+  }
+
   // Toolbar search
 
   const searching = shallowRef(false)
@@ -204,7 +209,7 @@
     // The row's leading 24 dp glyph, not the full-width row: the spec's figures
     // frame prompts on glyphs, and a row-wide disc reads as a blob. The press
     // still reaches the real link: the glyph's click bubbles to its anchor.
-    4: () => mobile.value ? '.md1-bottom-navigation a[href="/md1/inbox"] .md1-icon' : '.md1-navigation-drawer a[href="/md1/inbox"] .md1-icon',
+    4: () => `${mobile.value ? '.md1-bottom-navigation' : '.md1-navigation-drawer'} a[href="${href('/md1/inbox')}"] .md1-icon`,
     5: () => '.md1-demo-inbox-fab',
   } as const
 
@@ -570,7 +575,7 @@
         <!-- The caret swaps the destinations for the account actions, the
              account-chooser arrangement of the period's drawers. -->
         <Md1List v-if="accounts" aria-label="Account">
-          <Md1List.Item href="/md1/profile" value="/md1/profile" @click.prevent="onAccount('/md1/profile')">
+          <Md1List.Item :href="href('/md1/profile')" value="/md1/profile" @click.prevent="onAccount('/md1/profile')">
             Profile
           </Md1List.Item>
 
@@ -578,7 +583,7 @@
             Add account
           </Md1List.Item>
 
-          <Md1List.Item href="/md1/sign-in" value="/md1/sign-in" @click.prevent="onAccount('/md1/sign-in')">
+          <Md1List.Item :href="href('/md1/sign-in')" value="/md1/sign-in" @click.prevent="onAccount('/md1/sign-in')">
             Sign out
           </Md1List.Item>
         </Md1List>
@@ -588,7 +593,7 @@
             <Md1List.Item
               v-for="link in links"
               :key="link.to"
-              :href="link.to"
+              :href="href(link.to)"
               :value="link.to"
               @click.prevent="go(link.to)"
             >
@@ -597,7 +602,7 @@
               {{ link.label }}
             </Md1List.Item>
 
-            <Md1List.Item href="/md1/assistant" value="/md1/assistant" @click.prevent="go('/md1/assistant')">
+            <Md1List.Item :href="href('/md1/assistant')" value="/md1/assistant" @click.prevent="go('/md1/assistant')">
               <Md1List.Icon name="feedback" />
 
               Assistant
@@ -607,7 +612,7 @@
               <Md1List.Item
                 v-for="link in tools"
                 :key="link.to"
-                :href="link.to"
+                :href="href(link.to)"
                 :value="link.to"
                 @click.prevent="go(link.to)"
               >
@@ -621,13 +626,13 @@
           <Md1Divider v-if="!group" />
 
           <Md1List :model-value="current">
-            <Md1List.Item href="/md1/settings" value="/md1/settings" @click.prevent="go('/md1/settings')">
+            <Md1List.Item :href="href('/md1/settings')" value="/md1/settings" @click.prevent="go('/md1/settings')">
               <Md1List.Icon name="settings" />
 
               Settings
             </Md1List.Item>
 
-            <Md1List.Item href="/md1/help" value="/md1/help" @click.prevent="go('/md1/help')">
+            <Md1List.Item :href="href('/md1/help')" value="/md1/help" @click.prevent="go('/md1/help')">
               <Md1List.Icon name="help" />
 
               Help &amp; feedback
@@ -726,7 +731,7 @@
       <Md1BottomNavigation.Action
         v-for="link in links"
         :key="link.to"
-        :href="link.to"
+        :href="href(link.to)"
         :icon="link.icon"
         :label="link.label"
         :value="link.to"

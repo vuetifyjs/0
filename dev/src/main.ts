@@ -35,25 +35,6 @@ import EmeraldProductivity from './EmeraldProductivity.vue'
 import EmeraldSales from './EmeraldSales.vue'
 import EmeraldSettings from './EmeraldSettings.vue'
 import EmeraldSignIn from './EmeraldSignIn.vue'
-import Md1Activity from './Md1Activity.vue'
-import Md1Assistant from './Md1Assistant.vue'
-import Md1Contacts from './Md1Contacts.vue'
-import Md1Dashboard from './Md1Dashboard.vue'
-import Md1Files from './Md1Files.vue'
-import Md1Forgot from './Md1Forgot.vue'
-import Md1Gallery from './Md1Gallery.vue'
-import Md1Help from './Md1Help.vue'
-import Md1Inbox from './Md1Inbox.vue'
-import Md1NotFound from './Md1NotFound.vue'
-import Md1OrderForm from './Md1OrderForm.vue'
-import Md1Orders from './Md1Orders.vue'
-import Md1Profile from './Md1Profile.vue'
-import Md1Search from './Md1Search.vue'
-import Md1Settings from './Md1Settings.vue'
-import Md1Setup from './Md1Setup.vue'
-import Md1Shell from './Md1Shell.vue'
-import Md1SignIn from './Md1SignIn.vue'
-import Md1SignUp from './Md1SignUp.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -97,33 +78,41 @@ export const createApp = ViteSSG(
       { path: '/emerald/contacts', component: EmeraldContacts },
       { path: '/emerald/datatable', component: EmeraldDatatable },
       { path: '/emerald/forms', component: EmeraldForms },
-      // Nested so the shell mounts once and only the page swaps on navigation.
-      {
-        path: '/md1',
-        component: Md1Shell,
-        children: [
-          { path: '', component: Md1Dashboard, meta: { title: 'Overview' } },
-          { path: 'activity', component: Md1Activity, meta: { title: 'Activity' } },
-          { path: 'assistant', component: Md1Assistant, meta: { title: 'Assistant' } },
-          { path: 'contacts', component: Md1Contacts, meta: { title: 'Contacts' } },
-          { path: 'files', component: Md1Files, meta: { title: 'Files' } },
-          { path: 'gallery', component: Md1Gallery, meta: { title: 'Gallery' } },
-          { path: 'help', component: Md1Help, meta: { title: 'Help & feedback' } },
-          { path: 'inbox', component: Md1Inbox, meta: { title: 'Inbox' } },
-          { path: 'orders', component: Md1Orders, meta: { title: 'Orders' } },
-          { path: 'orders/new', component: Md1OrderForm, meta: { title: 'New order' } },
-          { path: 'profile', component: Md1Profile, meta: { title: 'Profile' } },
-          { path: 'search', component: Md1Search, meta: { title: 'Search' } },
-          { path: 'settings', component: Md1Settings, meta: { title: 'Settings' } },
-          // Last, after every real child: anything else under /md1 is the 404.
-          { path: ':catchall(.*)', component: Md1NotFound, meta: { title: 'Not found' } },
-        ],
-      },
-      // Siblings of the layout record: the auth pages render without the shell.
-      { path: '/md1/forgot', component: Md1Forgot },
-      { path: '/md1/setup', component: Md1Setup },
-      { path: '/md1/sign-in', component: Md1SignIn },
-      { path: '/md1/sign-up', component: Md1SignUp },
+      // The md1 dashboard exists only outside the Emerald demo deploy: the demo
+      // never installs createMd1Plugin, so prerendering these would publish an
+      // unthemed dashboard under /demo/emerald/. A compile-time boolean, not a
+      // BASE_URL test, so the demo build also drops the chunks.
+      ...(!__MD1__
+        ? []
+        : [
+        // Nested so the shell mounts once and only the page swaps on navigation.
+        {
+          path: '/md1',
+          component: () => import('./Md1Shell.vue'),
+          children: [
+            { path: '', component: () => import('./Md1Dashboard.vue'), meta: { title: 'Overview' } },
+            { path: 'activity', component: () => import('./Md1Activity.vue'), meta: { title: 'Activity' } },
+            { path: 'assistant', component: () => import('./Md1Assistant.vue'), meta: { title: 'Assistant' } },
+            { path: 'contacts', component: () => import('./Md1Contacts.vue'), meta: { title: 'Contacts' } },
+            { path: 'files', component: () => import('./Md1Files.vue'), meta: { title: 'Files' } },
+            { path: 'gallery', component: () => import('./Md1Gallery.vue'), meta: { title: 'Gallery' } },
+            { path: 'help', component: () => import('./Md1Help.vue'), meta: { title: 'Help & feedback' } },
+            { path: 'inbox', component: () => import('./Md1Inbox.vue'), meta: { title: 'Inbox' } },
+            { path: 'orders', component: () => import('./Md1Orders.vue'), meta: { title: 'Orders' } },
+            { path: 'orders/new', component: () => import('./Md1OrderForm.vue'), meta: { title: 'New order' } },
+            { path: 'profile', component: () => import('./Md1Profile.vue'), meta: { title: 'Profile' } },
+            { path: 'search', component: () => import('./Md1Search.vue'), meta: { title: 'Search' } },
+            { path: 'settings', component: () => import('./Md1Settings.vue'), meta: { title: 'Settings' } },
+            // Last, after every real child: anything else under /md1 is the 404.
+            { path: ':catchall(.*)', component: () => import('./Md1NotFound.vue'), meta: { title: 'Not found' } },
+          ],
+        },
+        // Siblings of the layout record: the auth pages render without the shell.
+        { path: '/md1/forgot', component: () => import('./Md1Forgot.vue') },
+        { path: '/md1/setup', component: () => import('./Md1Setup.vue') },
+        { path: '/md1/sign-in', component: () => import('./Md1SignIn.vue') },
+        { path: '/md1/sign-up', component: () => import('./Md1SignUp.vue') },
+        ]),
     ],
     // The persistent md1 shell swaps pages in place, so the window offset no
     // longer resets itself; everything else keeps the router's default.

@@ -24,6 +24,11 @@
   function open (to: string) {
     router.push(to)
   }
+
+  /** A hit's rendered href, through the router so a non-root base holds. */
+  function href (to: string) {
+    return router.resolve(to).href
+  }
 </script>
 
 <template>
@@ -41,7 +46,7 @@
             <Md1List.Item
               v-for="hit in group.hits"
               :key="hit.id"
-              :href="hit.to"
+              :href="href(hit.to)"
               :value="hit.id"
               @click.prevent="open(hit.to)"
             >

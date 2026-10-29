@@ -56,6 +56,9 @@ export default defineConfig({
   ],
   define: {
     'process.env': {},
+    // The md1 dashboard is excluded from the Emerald demo deploy at compile
+    // time, so its chunks (and the account avatar) never reach that dist.
+    '__MD1__': JSON.stringify(!(process.env.DEMO_BASE ?? '').includes('/demo/')),
     '__DEV__': process.env.NODE_ENV !== 'production',
     '__VITE_LOGGER_ENABLED__': JSON.stringify(process.env.VITE_LOGGER_ENABLED ?? 'false'),
     '__VERSION__': '"0.0.1"',
