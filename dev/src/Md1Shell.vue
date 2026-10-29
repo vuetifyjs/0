@@ -656,9 +656,9 @@
         @dismiss="onQuit"
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(3)">
-          <Md1Icon aria-hidden="true" name="arrow-back" />
+          <Md1Icon v-if="stage === 3" aria-hidden="true" name="arrow-back" />
 
-          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 3" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Done searching?</Md1FeatureDiscovery.Title>
@@ -677,9 +677,9 @@
         @dismiss="onQuit"
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(4)">
-          <Md1Icon aria-hidden="true" name="inbox" />
+          <Md1Icon v-if="stage === 4" aria-hidden="true" name="inbox" />
 
-          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 4" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Your mail lives here</Md1FeatureDiscovery.Title>
@@ -698,9 +698,9 @@
         @dismiss="onQuit"
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(5)">
-          <Md1Icon aria-hidden="true" name="edit" />
+          <Md1Icon v-if="stage === 5" aria-hidden="true" name="edit" />
 
-          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 5" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>
@@ -800,6 +800,11 @@
     align-items: center;
     justify-content: center;
     color: var(--md1-accent, #FF4081);
+    cursor: pointer;
+  }
+
+  .md1-demo-ghost .md1-feature-discovery__pulse {
+    cursor: pointer;
   }
 
   /* The account caret rides the header's account row in the anatomy's white
