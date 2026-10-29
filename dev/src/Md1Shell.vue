@@ -216,6 +216,10 @@
   /** The ghost activator's seat over the real control, measured at arming. */
   const ghost = shallowRef<Record<string, string>>()
 
+  /** The whole real control's rect: a pressable reach beyond the glyph-sized
+      disc, so pressing the visible row works, not just the circle. */
+  const reach = shallowRef<Record<string, string>>()
+
   function advance (n: 2 | 3 | 4 | 5) {
     if (n === 2) {
       stop.value = 2
@@ -267,6 +271,17 @@
           top: `${Math.round(cy - half)}px`,
           width: `${Math.round(half * 2)}px`,
           height: `${Math.round(half * 2)}px`,
+        }
+
+        const control = el.closest<HTMLElement>('button, a[href]') ?? el
+        const box = control.getBoundingClientRect()
+
+        reach.value = {
+          position: 'fixed',
+          left: `${Math.round(box.left)}px`,
+          top: `${Math.round(box.top)}px`,
+          width: `${Math.round(box.width)}px`,
+          height: `${Math.round(box.height)}px`,
         }
         stop.value = n
         stage.value = n
@@ -642,6 +657,8 @@
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(3)">
           <Md1Icon aria-hidden="true" name="arrow-back" />
+
+          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Done searching?</Md1FeatureDiscovery.Title>
@@ -661,6 +678,8 @@
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(4)">
           <Md1Icon aria-hidden="true" name="inbox" />
+
+          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Your mail lives here</Md1FeatureDiscovery.Title>
@@ -680,6 +699,8 @@
       >
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(5)">
           <Md1Icon aria-hidden="true" name="edit" />
+
+          <span aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>
@@ -758,6 +779,18 @@
   .md1-demo-shell .md1-navigation-drawer__header > :not(.md1-navigation-drawer__image) {
     position: relative;
     z-index: 1;
+  }
+
+  /* The press reaches the whole real control, not just the disc. It rides
+     inside the activator so a press is never a dismissal; the ghost's pulse is
+     stilled because its animating transform would re-anchor the fixed reach
+     (the package stills it under reduced motion the same way). */
+  .md1-demo-ghost.md1-feature-discovery__action[data-active] > .md1-feature-discovery__pulse {
+    animation: none;
+  }
+
+  .md1-demo-reach {
+    cursor: pointer;
   }
 
   /* The ghost stop's stand-in glyph: centred on the real control's seat and
