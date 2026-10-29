@@ -16,7 +16,7 @@
   } from '@paper/md1'
 
   // Framework
-  import { useBreakpoints, useTimer } from '@vuetify/v0'
+  import { createSelection, useBreakpoints, useTimer } from '@vuetify/v0'
 
   // Context
   import { files } from './Md1Data'
@@ -66,7 +66,23 @@
   const mobile = toRef(() => width.value < md1Breakpoints[600])
 
   const filter = shallowRef<'all' | Kind>('all')
-  const chosen = ref<number[]>([])
+
+  /** Tile selection on v0: tickets track the store's rows, so a removed file never stays selected. */
+  const picks = createSelection({ multiple: true })
+
+  watch(() => files.all.value.map(item => item.id), ids => {
+    const wanted = new Set<unknown>(ids)
+
+    for (const id of picks.keys()) {
+      if (!wanted.has(id)) picks.unregister(id)
+    }
+
+    for (const id of ids) {
+      if (!picks.has(id)) picks.register({ id })
+    }
+  }, { immediate: true })
+
+  const count = toRef(() => picks.selectedIds.size)
 
   /** The last removal's slots, so the snackbar's Undo puts the entries back in place. */
   const batch = ref<Slot<Item>[]>([])
@@ -81,14 +97,8 @@
 
   const total = toRef(() => files.all.value.length)
 
-  function onToggle (id: number) {
-    chosen.value = chosen.value.includes(id)
-      ? chosen.value.filter(value => value !== id)
-      : [...chosen.value, id]
-  }
-
   function onClear () {
-    chosen.value = []
+    for (const id of picks.selectedIds) picks.unselect(id)
   }
 
   function say (text: string, undo: boolean) {
@@ -98,11 +108,11 @@
   }
 
   function onDelete () {
-    const count = chosen.value.length
+    const ids = [...picks.selectedIds] as number[]
 
-    batch.value = files.remove(chosen.value)
-    chosen.value = []
-    say(count === 1 ? 'Deleted 1 item' : `Deleted ${count} items`, true)
+    onClear()
+    batch.value = files.remove(ids)
+    say(ids.length === 1 ? 'Deleted 1 item' : `Deleted ${ids.length} items`, true)
   }
 
   function onUndo () {
@@ -141,8 +151,8 @@
   }
 
   function onRemove (item: Item) {
+    picks.unselect(item.id)
     batch.value = files.remove([item.id])
-    chosen.value = chosen.value.filter(value => value !== item.id)
     say('Deleted 1 item', true)
   }
 
@@ -193,9 +203,9 @@
   <div class="md1-demo-files">
     <!-- The selection pattern's contextual bar replaces the filter row while tiles are selected, as the data table's contextual header does. -->
     <div class="md1-demo-files__bar">
-      <template v-if="chosen.length > 0">
+      <template v-if="count > 0">
         <span class="md1-demo-files__count" role="status">
-          {{ chosen.length === 1 ? '1 item selected' : `${chosen.length} items selected` }}
+          {{ count === 1 ? '1 item selected' : `${count} items selected` }}
         </span>
 
         <Md1Tooltip>
@@ -236,9 +246,9 @@
       <Md1GridList.Tile
         v-for="item in shown"
         :key="item.id"
-        :selected="chosen.includes(item.id)"
+        :selected="picks.selectedIds.has(item.id)"
         :src="thumbs[item.kind]"
-        @click="onToggle(item.id)"
+        @click="picks.toggle(item.id)"
       >
         <Md1GridList.Bar :subtitle="item.meta" :title="item.name" />
 
