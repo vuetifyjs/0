@@ -204,7 +204,7 @@ Public composables and utilities. `(mature)`, `(stable)`, and `(draft)` are mark
 
 **Forms:**
 
-- `createCalendar` — Gregorian month grid with single and range selection. Days outside min and max are disabled. A separate predicate marks days unavailable.
+- `createCalendar` — Gregorian month grid with single and range selection. Days outside min and max are disabled, and a list or a predicate can disable individual days.
 - `createCombobox` — Low-level combobox coordinator for custom implementations. Most users should use the `Combobox` component instead.
 - `createDatePicker` — Picker chrome around a month grid: popover, text field, and preset ranges. The grid itself is createCalendar. (draft)
 - `createForm` — Coordinates validation across multiple inputs. Provides `submit()`, `reset()`, and aggregate validity state.

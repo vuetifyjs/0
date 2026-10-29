@@ -14,7 +14,7 @@ import { mount } from '@vue/test-utils'
 import { computed, defineComponent, effectScope, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { CalendarCell, CalendarContext, CalendarOptions, CalendarRange, CalendarValue } from './index'
+import type { CalendarCell, CalendarContext, CalendarDisabled, CalendarOptions, CalendarRange, CalendarValue } from './index'
 
 /** `addMonths` overflows the way `Date` does, so 31 January becomes 3 March. */
 class OverflowMonthAdapter extends PlainDateAdapter {
@@ -191,15 +191,16 @@ describe('createCalendar', () => {
       stop()
     })
 
-    it('should keep the day when preventDeselect is set', () => {
+    it('should keep the day when mandatory is set', () => {
       const { calendar, stop } = setup({
         month: '2026-02',
         firstDayOfWeek: 0,
-        preventDeselect: true,
+        mandatory: true,
       })
 
       calendar.select('2026-02-10')
       calendar.select('2026-02-10')
+      calendar.unselect()
 
       expect(calendar.value.value).toBe('2026-02-10')
 
@@ -246,21 +247,17 @@ describe('createCalendar', () => {
       stop()
     })
 
-    it('should refuse outside, disabled, and unavailable days', () => {
+    it('should refuse outside days and days a predicate disables', () => {
       const { calendar, stop } = setup({
         month: '2026-02',
         firstDayOfWeek: 1,
         min: '2026-02-10',
-        unavailable: (iso: string) => iso === '2026-02-12',
+        disabled: (iso: string) => iso === '2026-02-12',
       })
 
-      const early = cell(calendar, '2026-02-09')
-      const booked = cell(calendar, '2026-02-12')
-
-      expect(early.disabled).toBe(true)
-      expect(early.unavailable).toBe(false)
-      expect(booked.disabled).toBe(false)
-      expect(booked.unavailable).toBe(true)
+      expect(cell(calendar, '2026-02-09').disabled).toBe(true)
+      expect(cell(calendar, '2026-02-12').disabled).toBe(true)
+      expect(cell(calendar, '2026-02-13').disabled).toBe(false)
 
       calendar.select('2026-01-26')
       calendar.select('2026-02-09')
@@ -271,21 +268,6 @@ describe('createCalendar', () => {
       calendar.select('2026-02-13')
 
       expect(calendar.value.value).toBe('2026-02-13')
-
-      stop()
-    })
-
-    it('should mark a day both disabled and unavailable', () => {
-      const { calendar, stop } = setup({
-        month: '2026-02',
-        firstDayOfWeek: 0,
-        min: '2026-02-10',
-        unavailable: (iso: string) => iso === '2026-02-05',
-      })
-      const day = cell(calendar, '2026-02-05')
-
-      expect(day.disabled).toBe(true)
-      expect(day.unavailable).toBe(true)
 
       stop()
     })
@@ -349,30 +331,60 @@ describe('createCalendar', () => {
       stop()
     })
 
-    it('should read an unavailable ref', async () => {
-      const unavailable = shallowRef<(iso: string) => boolean>(() => false)
-      const { calendar, stop } = setup({ month: '2026-08', unavailable })
+    it('should clear the selection when mode changes', async () => {
+      const mode = shallowRef<'single' | 'range'>('single')
+      const model = shallowRef<CalendarValue>('2026-08-12')
+      const { calendar, stop } = setup({ month: '2026-08', mode, value: model, mandatory: true })
 
-      expect(cell(calendar, '2026-08-15').unavailable).toBe(false)
+      expect(calendar.value.value).toBe('2026-08-12')
+      expect(cell(calendar, '2026-08-12').selected).toBe(true)
 
-      unavailable.value = (iso: string) => iso === '2026-08-15'
+      calendar.unselect()
+      expect(model.value).toBe('2026-08-12')
+
+      mode.value = 'range'
       await nextTick()
 
-      expect(cell(calendar, '2026-08-15').unavailable).toBe(true)
+      expect(calendar.value.value).toEqual({})
+      expect(model.value).toEqual({})
+      expect(cell(calendar, '2026-08-12').selected).toBe(false)
 
-      calendar.select('2026-08-15')
+      calendar.select('2026-08-10')
+      calendar.select('2026-08-14')
+      expect(model.value).toEqual({ start: '2026-08-10', end: '2026-08-14' })
+
+      mode.value = 'single'
+      await nextTick()
 
       expect(calendar.value.value).toBeUndefined()
+      expect(model.value).toBeUndefined()
+
+      calendar.select('2026-08-18')
+      expect(model.value).toBe('2026-08-18')
+      expect(cell(calendar, '2026-08-18').selected).toBe(true)
+
+      mode.value = 'range'
+      calendar.select('2026-08-11')
+      await nextTick()
+
+      expect(model.value).toEqual({ start: '2026-08-11' })
+
+      mode.value = 'single'
+      model.value = '2026-08-19'
+      await nextTick()
+
+      expect(model.value).toBe('2026-08-19')
+      expect(cell(calendar, '2026-08-19').selected).toBe(true)
 
       stop()
     })
 
-    it('should skip the write when preventDeselect selects the current day', () => {
+    it('should skip the write when mandatory selects the current day', () => {
       const model = shallowRef<CalendarValue>('2026-08-12')
       const { calendar, stop } = setup({
         month: '2026-08',
         value: model,
-        preventDeselect: true,
+        mandatory: true,
       })
 
       calendar.select('2026-08-12')
@@ -393,20 +405,93 @@ describe('createCalendar', () => {
       stop()
     })
 
-    it('should treat a cleared unavailable ref as available', async () => {
-      const unavailable = shallowRef<((iso: string) => boolean) | undefined>(
-        (iso: string) => iso === '2026-08-15',
-      )
-      const { calendar, stop } = setup({ month: '2026-08', unavailable })
+    it('should treat a cleared disabled ref as enabled', async () => {
+      function closedDay (iso: string) {
+        return iso === '2026-08-15'
+      }
 
-      expect(cell(calendar, '2026-08-15').unavailable).toBe(true)
+      const disabled = shallowRef<CalendarDisabled>(closedDay)
+      const { calendar, stop } = setup({ month: '2026-08', disabled })
 
-      unavailable.value = undefined
+      expect(cell(calendar, '2026-08-15').disabled).toBe(true)
+
+      disabled.value = false
       await nextTick()
 
-      expect(cell(calendar, '2026-08-15').unavailable).toBe(false)
+      expect(cell(calendar, '2026-08-15').disabled).toBe(false)
 
       stop()
+    })
+
+    it('should read a disabled ref and a getter that returns a predicate', async () => {
+      const disabled = shallowRef<boolean | ((iso: string) => boolean)>(false)
+      const controlled = setup({ month: '2026-08', disabled })
+
+      expect(cell(controlled.calendar, '2026-08-15').disabled).toBe(false)
+
+      disabled.value = (iso: string) => iso === '2026-08-15'
+      await nextTick()
+
+      expect(cell(controlled.calendar, '2026-08-15').disabled).toBe(true)
+      expect(cell(controlled.calendar, '2026-08-16').disabled).toBe(false)
+
+      controlled.calendar.select('2026-08-15')
+
+      expect(controlled.calendar.value.value).toBeUndefined()
+
+      controlled.stop()
+
+      function booked (iso: string) {
+        return iso === '2026-08-16'
+      }
+
+      const derived = setup({ month: '2026-08', disabled: () => booked })
+
+      expect(cell(derived.calendar, '2026-08-16').disabled).toBe(true)
+      expect(cell(derived.calendar, '2026-08-15').disabled).toBe(false)
+
+      derived.stop()
+    })
+
+    it('should disable the days named in an array', async () => {
+      const listed = setup({
+        month: '2026-08',
+        disabled: ['2026-08-15', '2026-08-16'],
+      })
+
+      expect(cell(listed.calendar, '2026-08-15').disabled).toBe(true)
+      expect(cell(listed.calendar, '2026-08-16').disabled).toBe(true)
+      expect(cell(listed.calendar, '2026-08-14').disabled).toBe(false)
+
+      listed.calendar.select('2026-08-15')
+
+      expect(listed.calendar.value.value).toBeUndefined()
+
+      listed.calendar.select('2026-08-14')
+
+      expect(listed.calendar.value.value).toBe('2026-08-14')
+
+      listed.stop()
+
+      const days = shallowRef<readonly string[]>(['2026-08-12'])
+      const controlled = setup({ month: '2026-08', disabled: days })
+
+      expect(cell(controlled.calendar, '2026-08-12').disabled).toBe(true)
+
+      days.value = ['2026-08-18']
+      await nextTick()
+
+      expect(cell(controlled.calendar, '2026-08-12').disabled).toBe(false)
+      expect(cell(controlled.calendar, '2026-08-18').disabled).toBe(true)
+
+      controlled.stop()
+
+      const fromGetter = setup({ month: '2026-08', disabled: () => ['2026-08-20'] })
+
+      expect(cell(fromGetter.calendar, '2026-08-20').disabled).toBe(true)
+      expect(cell(fromGetter.calendar, '2026-08-19').disabled).toBe(false)
+
+      fromGetter.stop()
     })
   })
 

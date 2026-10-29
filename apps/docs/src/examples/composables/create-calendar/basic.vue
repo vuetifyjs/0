@@ -1,69 +1,61 @@
 <script setup lang="ts">
+  import CalendarGrid from './CalendarGrid.vue'
+  import { caption, day, mark } from './month'
   import { createCalendar } from '@vuetify/v0'
+  import { shallowRef, toRef } from 'vue'
+
+  const mode = shallowRef<'single' | 'range'>('range')
 
   const calendar = createCalendar({
-    month: '2026-08',
-    min: '2026-08-10',
-    unavailable: (iso: string) => iso === '2026-08-15' || iso === '2026-08-16',
+    mode,
+    min: day(10),
+    disabled: (iso: string) => iso === day(15) || iso === day(16),
+    value: { start: day(12), end: day(20) },
   })
 
   const { month, label, weekdays, value } = calendar
+
+  const summary = toRef(() => caption(value.value, mode.value))
+
+  function paint (iso: string) {
+    return mark(value.value, iso)
+  }
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <div class="flex items-center justify-between gap-2">
+  <div class="flex flex-col gap-3 p-3">
+    <CalendarGrid
+      :label
+      :mark="paint"
+      :next="calendar.next"
+      :prev="calendar.prev"
+      :select="calendar.select"
+      :weekdays
+      :weeks="month.weeks"
+    />
+
+    <div class="flex items-center justify-center gap-2">
       <button
-        class="rounded border border-divider px-2 py-1"
+        class="rounded border border-divider px-2 py-1 data-[state=on]:bg-primary data-[state=on]:text-on-primary"
+        :data-state="mode === 'single' ? 'on' : undefined"
         type="button"
-        @click="calendar.prev()"
+        @click="mode = 'single'"
       >
-        Prev
+        Single
       </button>
 
-      <span>{{ label }}</span>
-
       <button
-        class="rounded border border-divider px-2 py-1"
+        class="rounded border border-divider px-2 py-1 data-[state=on]:bg-primary data-[state=on]:text-on-primary"
+        :data-state="mode === 'range' ? 'on' : undefined"
         type="button"
-        @click="calendar.next()"
+        @click="mode = 'range'"
       >
-        Next
-      </button>
-    </div>
-
-    <div class="grid grid-cols-7 text-center text-xs">
-      <span
-        v-for="(name, index) in weekdays"
-        :key="index"
-      >
-        {{ name }}
-      </span>
-    </div>
-
-    <div
-      v-for="(week, weekIndex) in month.weeks"
-      :key="weekIndex"
-      class="grid grid-cols-7"
-    >
-      <button
-        v-for="cell in week"
-        :key="cell.iso"
-        class="h-8 rounded data-[disabled=true]:opacity-40 data-[outside=true]:opacity-40 data-[selected=true]:bg-primary data-[selected=true]:text-on-surface data-[today=true]:border data-[today=true]:border-divider data-[unavailable=true]:line-through"
-        :data-disabled="cell.disabled || undefined"
-        :data-outside="cell.outside || undefined"
-        :data-selected="cell.selected || undefined"
-        :data-today="cell.today || undefined"
-        :data-unavailable="cell.unavailable || undefined"
-        type="button"
-        @click="calendar.select(cell.iso)"
-      >
-        {{ cell.day }}
+        Range
       </button>
     </div>
 
     <p class="text-sm">
-      {{ value ?? 'No date' }}
+      {{ summary }}
     </p>
   </div>
 </template>

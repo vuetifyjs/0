@@ -6,7 +6,7 @@
  * @remarks
  * Gregorian month grid with single and range selection. The visible month
  * and the focused day correct each other. Days outside `min` and `max` are
- * disabled. A separate predicate marks days unavailable. Spill days are
+ * disabled. `disabled` may be a boolean, a list of days, or a per-day predicate. Spill days are
  * visible and not selectable.
  *
  * Keyboard handling belongs to a component. This factory exposes `move`,
@@ -34,12 +34,12 @@ import { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { clamp, isFunction, isNull, isNumber, isObject, isString, isUndefined } from '#v0/utilities'
-import { computed, getCurrentScope, hasInjectionContext, isReadonly, isRef, ref, shallowRef, toRef, toValue, watch, watchEffect } from 'vue'
+import { clamp, isArray, isFunction, isNull, isNumber, isObject, isString, isUndefined } from '#v0/utilities'
+import { computed, getCurrentScope, hasInjectionContext, isReadonly, isRef, shallowRef, toRef, toValue, watch, watchEffect } from 'vue'
 
 // Types
 import type { DateAdapter } from '#v0/composables/useDate/adapters'
-import type { ComputedRef, MaybeRef, MaybeRefOrGetter, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /** `YYYY-MM` or `YYYY-MM-DD`. Structural only, so a bad string no-ops. */
 const SHAPE = /^\d{4}-\d{2}(?:-\d{2})?$/
@@ -51,10 +51,8 @@ export interface CalendarCell {
   day: number
   /** Leading or trailing spill. Not selectable. */
   outside: boolean
-  /** `min`, `max`, or the whole control. */
+  /** `min`, `max`, or `disabled`. */
   disabled: boolean
-  /** Caller predicate. Independent of `disabled`. */
-  unavailable: boolean
   today: boolean
   selected: boolean
   focused: boolean
@@ -87,6 +85,9 @@ export type CalendarValue = string | CalendarRange | undefined
 
 export type CalendarMode = 'single' | 'range'
 
+/** Whole grid, a list of `YYYY-MM-DD` days, or a per-day predicate. */
+export type CalendarDisabled = boolean | readonly string[] | ((iso: string) => boolean)
+
 export type CalendarUnit = 'day' | 'week' | 'month' | 'year'
 
 export type CalendarWeekdayFormat = 'long' | 'short' | 'narrow'
@@ -101,7 +102,7 @@ export type CalendarWeekdayFormat = 'long' | 'short' | 'narrow'
  *   month: '2026-08',
  *   min: '2026-08-01',
  *   max: '2026-08-31',
- *   unavailable: iso => iso === '2026-08-15',
+ *   disabled: iso => iso === '2026-08-15',
  *   firstDayOfWeek: 1,
  * })
  * ```
@@ -119,27 +120,38 @@ export interface CalendarOptions<Z = Date> {
   month?: MaybeRefOrGetter<string | undefined>
   /** Selected day, or a range. A ref is written back. */
   value?: MaybeRefOrGetter<CalendarValue>
-  /** @default 'single' */
-  mode?: CalendarMode
+  /**
+   * `'single'` selects one day. `'range'` selects a start and an end.
+   * A ref or getter is read on each interaction. Changing it clears the selection.
+   *
+   * @default 'single'
+   */
+  mode?: MaybeRefOrGetter<CalendarMode>
   /** `YYYY-MM-DD`. Days before it are disabled. */
   min?: MaybeRefOrGetter<string | undefined>
   /** `YYYY-MM-DD`. Days after it are disabled. */
   max?: MaybeRefOrGetter<string | undefined>
-  /** Disables every day. Navigation still runs. */
-  disabled?: MaybeRefOrGetter<boolean>
   /**
-   * Per-day rejection. A bare function is called with the ISO day.
-   * It is not passed through `toValue`, which would invoke it with no argument.
+   * `true` disables every day. An array of `YYYY-MM-DD` days disables those
+   * days. A function disables the days it returns true for. A bare function is
+   * the predicate and is called with the ISO day, not passed through `toValue`.
+   * Navigation still runs.
+   *
+   * @default false
    */
-  unavailable?: MaybeRef<((iso: string) => boolean) | undefined> | ComputedRef<((iso: string) => boolean) | undefined>
+  disabled?: MaybeRefOrGetter<CalendarDisabled>
   /** `select` no-ops. Cells are not marked disabled. */
   readonly?: MaybeRefOrGetter<boolean>
   /** 0 = Sunday. Overrides the adapter without writing the adapter. */
   firstDayOfWeek?: MaybeRefOrGetter<number | undefined>
   /** Pad the grid to six rows. @default false */
   fixedWeeks?: MaybeRefOrGetter<boolean>
-  /** Second click keeps the day. @default false */
-  preventDeselect?: MaybeRefOrGetter<boolean>
+  /**
+   * When true, a selected day cannot be cleared by a second click or `unselect()`.
+   *
+   * @default false
+   */
+  mandatory?: MaybeRefOrGetter<boolean>
   /** Applied only when this call constructs its own adapter. */
   locale?: MaybeRefOrGetter<string | undefined>
   /** @default 'narrow' */
@@ -175,8 +187,9 @@ export interface CalendarContext {
   /** At the `max` month. */
   isLast: Readonly<Ref<boolean>>
   /**
-   * Selects an in-month day that is neither disabled nor unavailable.
-   * A second click clears, unless `preventDeselect` is set.
+   * Selects an in-month day that is not disabled.
+   * In single mode, a second click on that day clears it, unless `mandatory` is set.
+   * In range mode, a later click sets the end or starts a new range.
    *
    * @example
    * ```ts
@@ -185,7 +198,7 @@ export interface CalendarContext {
    * ```
    */
   select: (iso: string) => void
-  /** Clears the selection. */
+  /** Clears the selection. No-ops when `mandatory` is set. */
   unselect: () => void
   /**
    * Pages to the current month and focuses today. Selects nothing.
@@ -295,11 +308,10 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     min,
     max,
     disabled,
-    unavailable,
     readonly,
     firstDayOfWeek,
     fixedWeeks,
-    preventDeselect,
+    mandatory = false,
     locale,
     weekdayFormat = 'narrow',
   } = options
@@ -459,25 +471,29 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     if (target !== anchor.value) place(target)
   }
 
-  const picked = shallowRef<string | undefined>()
-  const span = ref<CalendarRange>({})
+  function ranged () {
+    return toValue(mode) === 'range'
+  }
+
+  const selection = shallowRef<CalendarValue>(undefined)
 
   function assign (incoming: CalendarValue) {
-    if (mode === 'range') {
+    if (ranged()) {
       const next = readRange(incoming)
+      const current = selection.value
 
-      if (span.value.start === next.start && span.value.end === next.end) return
+      if (isObject(current) && current.start === next.start && current.end === next.end) return
 
-      span.value = next
+      selection.value = next
 
       return
     }
 
     const next = isString(incoming) ? incoming : undefined
 
-    if (picked.value === next) return
+    if (selection.value === next) return
 
-    picked.value = next
+    selection.value = next
   }
 
   function commit (incoming: CalendarValue) {
@@ -485,9 +501,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
     if (!isRef(source) || isReadonly(source)) return
 
-    const outgoing: CalendarValue = mode === 'range'
-      ? { start: span.value.start, end: span.value.end }
-      : picked.value
+    const outgoing = selection.value
 
     if (sameValue(source.value, outgoing)) return
 
@@ -527,15 +541,15 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     return adapter.locale
   }
 
-  function rejected (iso: string) {
-    if (isUndefined(unavailable)) return false
+  function closed (iso: string) {
+    // toValue invokes a function. A bare predicate must run with the day.
+    // A getter may return a boolean, a day list, or a predicate.
+    const value = isFunction(disabled) ? disabled(iso) : toValue(disabled)
 
-    // toValue invokes a function. A predicate must run with the day.
-    if (isFunction(unavailable)) return unavailable(iso)
+    if (isArray(value)) return value.includes(iso)
+    if (isFunction(value)) return value(iso) === true
 
-    const predicate = toValue(unavailable)
-
-    return isFunction(predicate) ? predicate(iso) : false
+    return value === true
   }
 
   function walled (iso: string) {
@@ -546,9 +560,13 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   }
 
   function chosen (iso: string) {
-    if (mode === 'range') {
-      const start = span.value.start
-      const end = span.value.end
+    const current = selection.value
+
+    if (ranged()) {
+      if (!isObject(current)) return false
+
+      const start = current.start
+      const end = current.end
 
       if (!isString(start)) return false
       if (!isString(end)) return iso === start
@@ -560,7 +578,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
       return iso >= low && iso <= high
     }
 
-    return iso === picked.value
+    return iso === current
   }
 
   const shown = computed((): CalendarMonth => {
@@ -571,7 +589,6 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     const start = weekStartOf(adapter.startOfMonth(cursor), first)
     const end = adapter.endOfDay(adapter.addDays(weekStartOf(adapter.endOfMonth(cursor), first), 6))
     const today = now.value
-    const locked = toValue(disabled) === true
     let current = start
     const weeks: CalendarCell[][] = []
 
@@ -587,8 +604,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
           iso,
           day: adapter.getDate(current),
           outside: !iso.startsWith(value),
-          disabled: locked || walled(iso),
-          unavailable: rejected(iso),
+          disabled: closed(iso) || walled(iso),
           today: iso === today,
           selected: chosen(iso),
           focused: iso === focused.value,
@@ -636,13 +652,14 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
 
     const cell = find(iso)
 
-    if (!cell || cell.outside || cell.disabled || cell.unavailable) return
+    if (!cell || cell.outside || cell.disabled) return
 
     focused.value = iso
 
-    if (mode === 'range') {
-      const start = span.value.start
-      const end = span.value.end
+    if (ranged()) {
+      const current = selection.value
+      const start = isObject(current) ? current.start : undefined
+      const end = isObject(current) ? current.end : undefined
 
       if (!isString(start) || isString(end)) {
         commit({ start: iso })
@@ -661,7 +678,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
       return
     }
 
-    if (picked.value === iso && toValue(preventDeselect) !== true) {
+    if (selection.value === iso && toValue(mandatory) !== true) {
       commit(undefined)
 
       return
@@ -671,7 +688,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
   }
 
   function unselect () {
-    if (toValue(readonly) === true) return
+    if (toValue(readonly) === true || toValue(mandatory) === true) return
 
     commit(undefined)
   }
@@ -727,6 +744,11 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     if (!isUndefined(source)) {
       watch(() => toValue(source), assign)
     }
+
+    // Sync so a select or value write later in the same turn survives the clear.
+    watch(() => ranged(), () => {
+      commit(undefined)
+    }, { flush: 'sync' })
   }
 
   return {
@@ -735,7 +757,7 @@ export function createCalendar<Z = Date> (options: CalendarOptions<Z> = {}): Cal
     label,
     anchor,
     focused,
-    value: (mode === 'range' ? span : picked) as Readonly<Ref<CalendarValue>>,
+    value: selection,
     isFirst: toRef(() => ordinal(anchor.value) <= floor()),
     isLast: toRef(() => ordinal(anchor.value) >= ceiling()),
     select,
