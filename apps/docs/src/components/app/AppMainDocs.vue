@@ -127,7 +127,7 @@
     :data-ask-open="ask.isOpen.value || undefined"
     :data-has-toc="!ask.isOpen.value && hasToc || undefined"
   >
-    <div class="max-w-[730px] mx-auto pb-4">
+    <div class="max-w-[730px] mx-auto pb-4" data-docs-prose>
       <DocsPageLogo :frontmatter="page?.frontmatter" />
 
       <router-view v-slot="{ Component }">
