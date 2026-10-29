@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { Carousel } from '@vuetify/v0'
-  import { mdiChevronLeft, mdiChevronRight, mdiPause, mdiPlay } from '@mdi/js'
+  import { mdiChevronLeft, mdiChevronRight, mdiPlay, mdiStop } from '@mdi/js'
   import type { Photo } from './useGallery'
 
   const { photos, interval } = defineProps<{
@@ -17,8 +17,29 @@
     v-model="active"
     :autoplay="interval"
     circular
+    class="flex flex-col"
   >
-    <div class="relative">
+    <div class="flex items-center justify-between mt-3 order-3">
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-divider text-sm hover:bg-surface-variant"
+        type="button"
+        @click="isAutoplay ? stop() : play()"
+      >
+        <svg class="size-4" viewBox="0 0 24 24"><path :d="isAutoplay ? mdiStop : mdiPlay" fill="currentColor" /></svg>
+        {{ isAutoplay ? 'Stop' : 'Play' }}
+      </button>
+
+      <Carousel.Indicator v-slot="{ items }" class="flex items-center gap-1.5">
+        <button
+          v-for="item in items"
+          :key="item.index"
+          v-bind="item.attrs"
+          class="size-2 rounded-full bg-surface-variant transition-all data-[selected]:w-5 data-[selected]:bg-primary"
+        />
+      </Carousel.Indicator>
+    </div>
+
+    <div class="relative order-1">
       <Carousel.Viewport class="rounded-xl gap-4 px-12 cursor-grab data-[dragging]:cursor-grabbing">
         <Carousel.Item
           v-for="photo in photos"
@@ -41,28 +62,8 @@
       </Carousel.Next>
     </div>
 
-    <div class="mt-3 h-1 rounded-full bg-surface-variant overflow-hidden">
+    <div class="mt-3 h-1 rounded-full bg-surface-variant overflow-hidden order-2">
       <Carousel.Progress class="block h-full bg-primary transition-[width] duration-100 ease-linear data-[state=idle]:opacity-0" />
-    </div>
-
-    <div class="flex items-center justify-between mt-3">
-      <button
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-divider text-sm hover:bg-surface-variant"
-        type="button"
-        @click="isAutoplay ? stop() : play()"
-      >
-        <svg class="size-4" viewBox="0 0 24 24"><path :d="isAutoplay ? mdiPause : mdiPlay" fill="currentColor" /></svg>
-        {{ isAutoplay ? 'Pause' : 'Play' }}
-      </button>
-
-      <Carousel.Indicator v-slot="{ items }" class="flex items-center gap-1.5">
-        <button
-          v-for="item in items"
-          :key="item.index"
-          v-bind="item.attrs"
-          class="size-2 rounded-full bg-surface-variant transition-all data-[selected]:w-5 data-[selected]:bg-primary"
-        />
-      </Carousel.Indicator>
     </div>
   </Carousel.Root>
 </template>

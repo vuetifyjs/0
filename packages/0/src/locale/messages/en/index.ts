@@ -35,7 +35,7 @@ export default {
   Carousel: {
     indicator: 'Go to slide {current} of {size}',
     indicators: 'Carousel indicators',
-    label: 'Carousel',
+    label: 'Slides',
     liveRegion: 'Slide {current} of {size}',
     next: 'Next slide',
     prev: 'Previous slide',

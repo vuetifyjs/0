@@ -1953,6 +1953,44 @@ describe('carousel', () => {
       expect(regionProps.attrs.role).toBe('status')
     })
 
+    it('should silence the live region while autoplay is running', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+      let regionProps: any
+
+      mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [
+              h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+              h(Carousel.LiveRegion as any, {}, {
+                default: (p: any) => {
+                  regionProps = p
+                  return h('div', p.text)
+                },
+              }),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('polite')
+
+      rootProps.play()
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('off')
+
+      rootProps.stop()
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('polite')
+
+      vi.useRealTimers()
+    })
+
     it('should reflect current slide index (1-indexed)', async () => {
       let regionProps: any
 
@@ -2375,7 +2413,7 @@ describe('carousel', () => {
       expect(styles.includes('user-select') || styles.includes('scroll-snap-type: none')).toBe(true)
     })
 
-    it('should pause autoplay on touchstart and resume on touchend', async () => {
+    it('should stop autoplay on touch and leave it stopped', async () => {
       vi.useFakeTimers()
 
       let rootProps: any
@@ -2400,16 +2438,78 @@ describe('carousel', () => {
       await nextTick()
       rootProps.play()
       await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
 
       const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
 
       viewportEl.dispatchEvent(new Event('touchstart'))
       await nextTick()
-      expect(rootProps.isPaused).toBe(true)
+      expect(rootProps.isAutoplay).toBe(false)
+      expect(rootProps.isPaused).toBe(false)
 
       viewportEl.dispatchEvent(new Event('touchend'))
       await nextTick()
-      expect(rootProps.isPaused).toBe(false)
+      expect(rootProps.isAutoplay).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should stop autoplay when focus enters and not restart when it leaves', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('focusin'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      wrapper.element.dispatchEvent(new Event('focusout'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should stop autoplay when the pointer enters', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
 
       vi.useRealTimers()
     })
@@ -3134,7 +3234,7 @@ describe('carousel', () => {
         },
       })
 
-      expect(rootProps.attrs['aria-label']).toBe('Carousel')
+      expect(rootProps.attrs['aria-label']).toBe('Slides')
     })
 
     it('should use the translated locale string for aria-label when one is registered', async () => {
