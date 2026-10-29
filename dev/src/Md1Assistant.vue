@@ -7,7 +7,7 @@
   import { assistant, contacts, files, messages, orders, profile } from './Md1Data'
 
   // Utilities
-  import { nextTick, onMounted, shallowRef, toRef, useTemplateRef } from 'vue'
+  import { nextTick, onMounted, onUnmounted, shallowRef, toRef, useTemplateRef } from 'vue'
 
   const suggestions = [
     'Summarize this week\'s orders',
@@ -16,6 +16,15 @@
   ]
 
   const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
+
+  const fallback = 'I can summarize orders, files, contacts and your inbox. Try one of the suggestions below the thread.'
+
+  /*
+   * The reply being typed. Module state, not page state: the store's `busy`
+   * survives navigation, so the text it owes must survive the page instance
+   * that asked for it.
+   */
+  const owed = { text: '' }
 </script>
 
 <script setup lang="ts">
@@ -26,7 +35,6 @@
   const busy = assistant.busy
 
   const draft = shallowRef('')
-  const pending = shallowRef('')
   const stubbed = shallowRef(false)
 
   const region = useTemplateRef<HTMLElement>('region')
@@ -62,8 +70,26 @@
       return `You have ${contacts.all.value.length} contacts; ${work} are labelled Work.`
     }
 
-    return 'I can summarize orders, files, contacts and your inbox. Try one of the suggestions below the thread.'
+    return fallback
   }
+
+  /** Land the owed reply and release the composer; safe to call twice. */
+  function settle () {
+    if (!busy.value) return
+
+    assistant.reply(owed.text || fallback)
+    owed.text = ''
+    busy.value = false
+  }
+
+  /*
+   * A page instance that leaves mid-reply (navigation, or a dev-server update
+   * replacing it) takes its timer with it; the reply lands now instead of never.
+   */
+  onUnmounted(settle)
+
+  // A session stranded busy by an older page instance heals on arrival.
+  settle()
 
   async function follow () {
     await nextTick()
@@ -72,8 +98,7 @@
   }
 
   const timer = useTimer(() => {
-    assistant.reply(pending.value)
-    busy.value = false
+    settle()
     follow()
   }, { duration: 1500 })
 
@@ -85,7 +110,7 @@
     assistant.send(text)
     draft.value = ''
     // The answer reads the stores as they are at ask time.
-    pending.value = respond(text)
+    owed.text = respond(text)
     busy.value = true
     timer.start()
     follow()
@@ -138,8 +163,8 @@
       </div>
 
       <!-- The strip holds its 4 dp whether or not the agent is typing, so nothing jumps. -->
-      <div aria-hidden="true" class="md1-demo-assistant__busy">
-        <Md1ProgressLinear v-show="busy" />
+      <div class="md1-demo-assistant__busy">
+        <Md1ProgressLinear :active="busy" aria-label="The assistant is replying" />
       </div>
 
       <div class="md1-demo-assistant__chips">
