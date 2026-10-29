@@ -1,12 +1,16 @@
 <script lang="ts">
+  import { Md1Checkbox, Md1Dialog, Md1Fab, Md1Icon, Md1List, Md1Snackbar, Md1Subheader, Md1Tabs, Md1TextField, Md1Toolbar, Md1Tooltip, md1Breakpoints, Md1Button } from '@paper/md1'
+
   // Framework
-  import { Md1Button, Md1Dialog, Md1Fab, Md1Icon, Md1List, Md1Snackbar, Md1Tabs, Md1TextField, Md1Tooltip } from '@paper/md1'
+  import { useBreakpoints } from '@vuetify/v0'
 
   // Context
+  import Md1InboxDetail from './Md1InboxDetail.vue'
+
   import { messages } from './Md1Data'
 
   // Utilities
-  import { nextTick, shallowRef, watch } from 'vue'
+  import { nextTick, ref, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { Message, Slot, Tab } from './Md1Data'
@@ -16,6 +20,8 @@
     { value: 'social', label: 'Social' },
     { value: 'updates', label: 'Updates' },
   ]
+
+  const days = ['Today', 'Yesterday', 'Earlier'] as const
 
   const taglines: Record<Tab, string> = {
     primary: 'All caught up — new messages gather here',
@@ -27,11 +33,26 @@
 <script setup lang="ts">
   defineOptions({ name: 'Md1Inbox' })
 
+  const { width } = useBreakpoints()
+
+  /** From 960 dp the inbox is the MD1-era two-pane web client; below it, a full-screen reading dialog. */
+  const wide = toRef(() => width.value >= md1Breakpoints[960])
+
   const tab = shallowRef<Tab>('primary')
-  const removed = shallowRef<Slot<Message>>()
 
   function bucket (value: Tab) {
     return messages.all.value.filter(message => message.tab === value)
+  }
+
+  /** The tab's rows under their day subheaders, empty days dropped. */
+  function grouped (value: Tab) {
+    return days
+      .map(day => ({ day, rows: bucket(value).filter(message => message.day === day) }))
+      .filter(group => group.rows.length > 0)
+  }
+
+  function unread (value: Tab) {
+    return bucket(value).filter(message => message.unread).length
   }
 
   /*
@@ -55,15 +76,65 @@
     open.value = true
   }
 
-  function onArchive (message: Message) {
-    removed.value = messages.archive(message.id)
-    notify('Message archived', true)
+  // Reading: the open message, in the end pane or the full-screen dialog.
+  const current = shallowRef<Message>()
+  const reading = shallowRef(false)
+
+  function onOpen (message: Message) {
+    messages.read(message.id)
+    current.value = message
+
+    if (!wide.value) reading.value = true
+  }
+
+  // Selection mode: the chosen ids; any selection swaps the header to the contextual bar.
+  const chosen = ref<number[]>([])
+  const removed = shallowRef<Slot<Message>[]>()
+
+  function onPick (message: Message) {
+    const set = new Set(chosen.value)
+
+    if (set.has(message.id)) set.delete(message.id)
+    else set.add(message.id)
+
+    chosen.value = [...set]
+  }
+
+  function drop (ids: number[], confirmation: string) {
+    removed.value = messages.remove(ids)
+
+    if (current.value && ids.includes(current.value.id)) {
+      current.value = undefined
+      reading.value = false
+    }
+
+    chosen.value = []
+    notify(confirmation, true)
+  }
+
+  function onArchive () {
+    drop(chosen.value, `${chosen.value.length} archived`)
+  }
+
+  function onDelete () {
+    drop(chosen.value, `${chosen.value.length} deleted`)
+  }
+
+  function onRead () {
+    for (const id of chosen.value) messages.read(id)
+
+    chosen.value = []
+    notify('Marked as read')
+  }
+
+  function onArchiveOne () {
+    if (current.value) drop([current.value.id], 'Message archived')
   }
 
   function onUndo () {
     if (!removed.value) return
 
-    messages.restore(removed.value.row, removed.value.index)
+    messages.restore(removed.value)
     removed.value = undefined
   }
 
@@ -103,67 +174,121 @@
 </script>
 
 <template>
-  <section class="md1-demo-inbox">
-    <div class="md1-demo-inbox-sheet md1-elevation-2">
-      <Md1Tabs v-model="tab">
-        <Md1Tabs.List label="Inbox sections">
-          <Md1Tabs.Item
-            v-for="item in tabs"
-            :key="item.value"
-            :label="`${item.label} (${bucket(item.value).length})`"
-            :value="item.value"
-          />
-        </Md1Tabs.List>
+  <section class="md1-demo-inbox" @keydown.esc="chosen = []">
+    <div class="md1-demo-inbox-layout">
+      <div class="md1-demo-inbox-sheet md1-elevation-2">
+        <Md1Tabs v-model="tab" class="md1-demo-inbox-tabs">
+          <div class="md1-demo-inbox-head">
+            <Md1Toolbar v-if="chosen.length > 0" contextual>
+              <Md1Toolbar.Contextual :count="chosen.length" @clear="chosen = []">
+                <Md1Toolbar.Actions>
+                  <Md1Tooltip>
+                    <Md1Tooltip.Activator v-slot="{ attrs }">
+                      <Md1Button v-bind="attrs" aria-label="Mark as read" icon="drafts" @click="onRead" />
+                    </Md1Tooltip.Activator>
 
-        <Md1Tabs.Panel
-          v-for="item in tabs"
-          :key="item.value"
-          class="md1-demo-inbox-panel"
-          :value="item.value"
-        >
-          <Md1List v-if="bucket(item.value).length > 0" aria-label="Messages" :lines="2">
-            <Md1List.Item
-              v-for="message in bucket(item.value)"
-              :key="message.id"
-              :class="{ 'md1-demo-inbox-unread': message.unread }"
-            >
-              <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
-
-              <Md1List.Content>
-                <Md1List.Primary>{{ message.from }}</Md1List.Primary>
-
-                <Md1List.Secondary>{{ message.subject }}</Md1List.Secondary>
-              </Md1List.Content>
-
-              <Md1List.Action>
-                <div class="md1-demo-inbox-meta">
-                  <span class="md1-demo-inbox-time">{{ message.time }}</span>
+                    <Md1Tooltip.Content>Mark as read</Md1Tooltip.Content>
+                  </Md1Tooltip>
 
                   <Md1Tooltip>
                     <Md1Tooltip.Activator v-slot="{ attrs }">
-                      <Md1Button
-                        v-bind="attrs"
-                        :aria-label="`Archive message from ${message.from}`"
-                        class="md1-demo-inbox-archive"
-                        icon="done"
-                        @click="onArchive(message)"
-                      />
+                      <Md1Button v-bind="attrs" aria-label="Archive" icon="done" @click="onArchive" />
                     </Md1Tooltip.Activator>
 
                     <Md1Tooltip.Content>Archive</Md1Tooltip.Content>
                   </Md1Tooltip>
-                </div>
-              </Md1List.Action>
-            </Md1List.Item>
-          </Md1List>
 
-          <div v-else class="md1-demo-inbox-empty">
-            <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
+                  <Md1Tooltip>
+                    <Md1Tooltip.Activator v-slot="{ attrs }">
+                      <Md1Button v-bind="attrs" aria-label="Delete" icon="delete" @click="onDelete" />
+                    </Md1Tooltip.Activator>
 
-            <p class="md1-demo-inbox-empty__tagline">{{ taglines[item.value] }}</p>
+                    <Md1Tooltip.Content>Delete</Md1Tooltip.Content>
+                  </Md1Tooltip>
+                </Md1Toolbar.Actions>
+              </Md1Toolbar.Contextual>
+            </Md1Toolbar>
+
+            <!-- v-show, not v-if: unmounting the list would unregister the tabs and hide the open panel. -->
+            <Md1Tabs.List v-show="chosen.length === 0" label="Inbox sections">
+              <Md1Tabs.Item
+                v-for="item in tabs"
+                :key="item.value"
+                :label="`${item.label} (${unread(item.value)})`"
+                :value="item.value"
+              />
+            </Md1Tabs.List>
           </div>
-        </Md1Tabs.Panel>
-      </Md1Tabs>
+
+          <Md1Tabs.Panel
+            v-for="item in tabs"
+            :key="item.value"
+            class="md1-demo-inbox-panel"
+            :value="item.value"
+          >
+            <template v-if="bucket(item.value).length > 0">
+              <template v-for="group in grouped(item.value)" :key="group.day">
+                <Md1Subheader inset :sticky="false">{{ group.day }}</Md1Subheader>
+
+                <Md1List :aria-label="`${group.day} messages`" :lines="2" :model-value="wide ? current?.id : undefined">
+                  <Md1List.Item
+                    v-for="message in group.rows"
+                    :key="message.id"
+                    :class="[
+                      message.unread ? 'md1-demo-inbox-unread' : 'md1-demo-inbox-read',
+                      { 'md1-demo-inbox-picked': chosen.includes(message.id) },
+                    ]"
+                    :value="message.id"
+                    @click="onOpen(message)"
+                  >
+                    <Md1List.Avatar>{{ message.from.charAt(0) }}</Md1List.Avatar>
+
+                    <Md1List.Content>
+                      <Md1List.Primary>{{ message.from }}</Md1List.Primary>
+
+                      <Md1List.Secondary>{{ message.subject }} — {{ message.preview }}</Md1List.Secondary>
+                    </Md1List.Content>
+
+                    <Md1List.Action>
+                      <div class="md1-demo-inbox-meta">
+                        <span class="md1-demo-inbox-time">{{ message.time }}</span>
+
+                        <Md1Checkbox
+                          :aria-label="`Select the message from ${message.from}`"
+                          :model-value="chosen.includes(message.id)"
+                          @update:model-value="onPick(message)"
+                        />
+                      </div>
+                    </Md1List.Action>
+                  </Md1List.Item>
+                </Md1List>
+              </template>
+            </template>
+
+            <div v-else class="md1-demo-inbox-empty">
+              <Md1Icon class="md1-demo-inbox-empty__art" name="inbox" />
+
+              <p class="md1-demo-inbox-empty__tagline">{{ taglines[item.value] }}</p>
+            </div>
+          </Md1Tabs.Panel>
+        </Md1Tabs>
+      </div>
+
+      <aside v-if="wide" aria-label="Reading pane" class="md1-demo-inbox-pane md1-elevation-2">
+        <Md1InboxDetail
+          v-if="current"
+          :message="current"
+          @archive="onArchiveOne"
+          @attach="notify('Attachments are stubbed in this demo')"
+          @reply="notify('Reply sent')"
+        />
+
+        <div v-else class="md1-demo-inbox-empty">
+          <Md1Icon class="md1-demo-inbox-empty__art" name="email" />
+
+          <p class="md1-demo-inbox-empty__tagline">Select a message to read it</p>
+        </div>
+      </aside>
     </div>
 
     <Md1Tooltip>
@@ -179,6 +304,25 @@
 
       <Md1Tooltip.Content>Compose</Md1Tooltip.Content>
     </Md1Tooltip>
+
+    <!-- Below 960 dp the open message reads in the full-screen dialog, the kind that saves nothing: an up arrow and no verb. -->
+    <Md1Dialog v-model="reading" variant="full-screen">
+      <Md1Dialog.Content>
+        <div class="md1-demo-inbox-bar">
+          <Md1Button aria-label="Back to the inbox" icon="arrow-back" @click="reading = false" />
+
+          <Md1Dialog.Title>{{ current?.subject }}</Md1Dialog.Title>
+        </div>
+
+        <Md1InboxDetail
+          v-if="current"
+          :message="current"
+          @archive="onArchiveOne"
+          @attach="notify('Attachments are stubbed in this demo')"
+          @reply="notify('Reply sent')"
+        />
+      </Md1Dialog.Content>
+    </Md1Dialog>
 
     <Md1Dialog v-slot="{ commit }" v-model="composing" v-model:value="draft" variant="confirmation">
       <Md1Dialog.Content>
@@ -220,59 +364,133 @@
 </template>
 
 <style>
+  /* The page owns its height: each column scrolls inside it, so the window never moves on a tab change. */
   .md1-demo-inbox {
+    display: flex;
+    flex-direction: column;
     max-width: 840px;
+    height: calc(100dvh - var(--md1-increment, 56px) - 2 * var(--md1-keyline-margin, 16px));
     margin-inline: auto;
-    /* Room under the list for the 56 dp FAB and its margins, so no row hides behind it. */
-    padding-bottom: calc(56px + 2 * var(--md1-keyline-margin, 16px));
+  }
+
+  @media (width < 960px) {
+    .md1-demo-inbox {
+      height: calc(100dvh - var(--md1-increment, 56px) - 2 * var(--md1-keyline-margin, 16px) - var(--md1-demo-seam, 0px));
+    }
+  }
+
+  .md1-demo-inbox-layout {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* From 960 dp, the MD1-era web client: the list at the start, the reading pane at the end. */
+  @media (min-width: 960px) {
+    .md1-demo-inbox {
+      max-width: 1280px;
+    }
+
+    .md1-demo-inbox-layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 5fr) 7fr;
+      gap: var(--md1-keyline-margin, 16px);
+    }
   }
 
   .md1-demo-inbox-sheet {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     background: var(--md1-surface, #FFFFFF);
     border-radius: var(--md1-radius, 2px);
   }
 
-  /*
-   * Every panel reserves the tallest tab's height (five 72 dp rows plus the
-   * list's padding), so changing tabs never moves the page under the pointer.
-   */
-  .md1-demo-inbox-panel {
-    min-height: 376px;
+  .md1-demo-inbox-tabs {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
   }
 
-  /* An unread tile: the bolder ink of unread mail, on the sender and its time. */
+  /* The header holds the toolbar's height (56 dp, 64 from 600 px) whether it shows the tabs or the contextual bar, so the swap moves nothing. */
+  .md1-demo-inbox-head {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: center;
+    min-height: var(--md1-increment, 56px);
+  }
+
+  @media (min-width: 600px) {
+    .md1-demo-inbox-head {
+      min-height: var(--md1-increment, 64px);
+    }
+  }
+
+  .md1-demo-inbox-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Room under the last row for the 56 dp FAB and its margins, so no row hides behind it. */
+    padding-bottom: calc(56px + 2 * var(--md1-keyline-margin, 16px));
+  }
+
+  .md1-demo-inbox-pane {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* The reply footer must clear the fixed FAB, like the list's last row. */
+    padding-bottom: calc(56px + 2 * var(--md1-keyline-margin, 16px));
+    background: var(--md1-surface, #FFFFFF);
+    border-radius: var(--md1-radius, 2px);
+  }
+
+  /* An unread tile: the bolder ink of unread mail on the sender and its time, the secondary line at its full ink. */
   .md1-demo-inbox-unread .md1-list__primary,
   .md1-demo-inbox-unread .md1-demo-inbox-time {
     font-weight: 500;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
   }
 
-  /* The end column stacks the secondary info over the row's one action. */
+  /* A read tile steps each line down one ink tier, so opening a message visibly quiets its row. */
+  .md1-demo-inbox-read .md1-list__primary {
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  .md1-demo-inbox-read .md1-list__secondary,
+  .md1-demo-inbox-read .md1-demo-inbox-time {
+    color: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
+  }
+
+  /* A chosen row carries the selection pattern's band, the data-table's checkbox-selection scrim. */
+  .md1-demo-inbox-picked {
+    background: var(--md1-list-selected, rgba(0, 0, 0, 0.07));
+  }
+
+  /* The end column stacks the time over the row's select checkbox. */
   .md1-demo-inbox-meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   }
 
-  /* Secondary info in the end column: Caption at the secondary ink (lists: controls). */
   .md1-demo-inbox-time {
     font-size: var(--md1-type-caption-size, 12px);
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
   }
 
-  /* A list's secondary action is an icon in the active icon ink, not an accent-coloured flat button. */
-  .md1-demo-inbox-archive.md1-button[data-solo]:not([data-disabled]) {
-    color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
-  }
-
-  /* The empty tab: a 96 dp glyph in the disabled ink and a Subheading tagline, centred in the reserved panel. */
+  /* The empty tab or pane: a 96 dp glyph in the disabled ink and a Subheading tagline. */
   .md1-demo-inbox-empty {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: var(--md1-spacing-2, 16px);
-    min-height: inherit;
+    height: 100%;
     padding: var(--md1-spacing-3, 24px) var(--md1-keyline-margin, 16px);
     text-align: center;
   }
@@ -291,6 +509,36 @@
     line-height: var(--md1-type-subheading-leading, 24px);
     letter-spacing: var(--md1-type-subheading-tracking, 0.01em);
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  /*
+   * The reading dialog's app bar, the dialog docs' saved-immediately form: an
+   * up arrow, the title on the keyline and no verb.
+   */
+  .md1-demo-inbox-bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 var(--md1-spacing-1, 8px) 0 4px;
+    background: var(--md1-primary, #3F51B5);
+    color: var(--md1-on-primary, #FFFFFF);
+    box-shadow: var(--md1-elevation-4, 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12));
+  }
+
+  .md1-demo-inbox-bar .md1-button[data-variant] {
+    color: var(--md1-on-primary, #FFFFFF);
+  }
+
+  .md1-demo-inbox-bar .md1-dialog__title {
+    flex: 1 1 auto;
+    padding: 0 0 0 20px;
+    overflow: hidden;
+    color: var(--md1-on-primary, #FFFFFF);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* The compose fields sit on the dialog's 24 dp content keyline. */
