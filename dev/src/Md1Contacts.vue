@@ -18,7 +18,7 @@
 
   /** Initials avatar as an inline SVG data URI: the demo ships no raster images. */
   function photo (contact: Contact): string {
-    const fill = palette[contact.name.charCodeAt(0) % palette.length]
+    const fill = palette[contact.name.codePointAt(0)! % palette.length]
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="${fill}"/><text x="20" y="26" fill="#FFFFFF" font-family="Roboto, sans-serif" font-size="18" text-anchor="middle">${contact.name.charAt(0)}</text></svg>`
 
     return `data:image/svg+xml,${encodeURIComponent(svg)}`

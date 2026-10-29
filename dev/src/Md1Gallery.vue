@@ -32,19 +32,21 @@
     const high = 46 + (id * 17) % 16
     const low = 68 + (id * 11) % 14
 
-    return 'data:image/svg+xml,' + encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" preserveAspectRatio="xMidYMid slice">`
-      + '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">'
-        + '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>'
-      + '<stop offset="0.65" stop-color="#FFFFFF" stop-opacity="0"/>'
-        + '</linearGradient></defs>'
-      + `<rect width="120" height="120" fill="${hue}"/>`
-        + '<rect width="120" height="120" fill="url(#sky)"/>'
-      + `<circle cx="${sun}" cy="30" r="11" fill="#FFFFFF" fill-opacity="0.85"/>`
-        + `<path d="M0 ${high + 18} L34 ${high} L62 ${high + 14} L88 ${high - 6} L120 ${high + 12} V120 H0 Z" fill="#000000" fill-opacity="0.22"/>`
-      + `<path d="M0 ${low + 14} L30 ${low} L58 ${low + 10} L92 ${low - 4} L120 ${low + 8} V120 H0 Z" fill="#000000" fill-opacity="0.38"/>`
-        + '</svg>',
-    )
+    const scene = [
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" preserveAspectRatio="xMidYMid slice">`,
+      '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">',
+      '<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>',
+      '<stop offset="0.65" stop-color="#FFFFFF" stop-opacity="0"/>',
+      '</linearGradient></defs>',
+      `<rect width="120" height="120" fill="${hue}"/>`,
+      '<rect width="120" height="120" fill="url(#sky)"/>',
+      `<circle cx="${sun}" cy="30" r="11" fill="#FFFFFF" fill-opacity="0.85"/>`,
+      `<path d="M0 ${high + 18} L34 ${high} L62 ${high + 14} L88 ${high - 6} L120 ${high + 12} V120 H0 Z" fill="#000000" fill-opacity="0.22"/>`,
+      `<path d="M0 ${low + 14} L30 ${low} L58 ${low + 10} L92 ${low - 4} L120 ${low + 8} V120 H0 Z" fill="#000000" fill-opacity="0.38"/>`,
+      '</svg>',
+    ].join('')
+
+    return 'data:image/svg+xml,' + encodeURIComponent(scene)
   }
 
   const { width } = useBreakpoints()

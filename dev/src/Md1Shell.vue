@@ -16,8 +16,7 @@
   } from '@paper/md1'
 
   // Framework
-  import { clamp, isNull, isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { clamp, IN_BROWSER, isNull, isString, useBreakpoints, useReducedMotion, useStorage, useTimer } from '@vuetify/v0'
 
   // Context
   import { activity, profile, search } from './Md1Data'
@@ -658,7 +657,7 @@
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(3)">
           <Md1Icon v-if="stage === 3" aria-hidden="true" name="arrow-back" />
 
-          <span v-if="stage === 3" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 3" aria-hidden="true" class="md1-demo-reach" :style="reach" />
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Done searching?</Md1FeatureDiscovery.Title>
@@ -679,7 +678,7 @@
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(4)">
           <Md1Icon v-if="stage === 4" aria-hidden="true" name="inbox" />
 
-          <span v-if="stage === 4" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 4" aria-hidden="true" class="md1-demo-reach" :style="reach" />
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Your mail lives here</Md1FeatureDiscovery.Title>
@@ -700,7 +699,7 @@
         <Md1FeatureDiscovery.Activator class="md1-demo-ghost" :style="ghost" @click="onGhost(5)">
           <Md1Icon v-if="stage === 5" aria-hidden="true" name="edit" />
 
-          <span v-if="stage === 5" aria-hidden="true" class="md1-demo-reach" :style="reach"></span>
+          <span v-if="stage === 5" aria-hidden="true" class="md1-demo-reach" :style="reach" />
         </Md1FeatureDiscovery.Activator>
 
         <Md1FeatureDiscovery.Title>Start a message</Md1FeatureDiscovery.Title>

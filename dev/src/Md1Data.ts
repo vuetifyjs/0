@@ -145,7 +145,7 @@ function pull<Z extends { id: number }> (list: Z[], ids: number[]): Slot<Z>[] {
   }
 
   // Remove bottom-up so earlier splices cannot shift the remaining indexes.
-  for (const slot of [...slots].sort((a, b) => b.index - a.index)) {
+  for (const slot of slots.toSorted((a, b) => b.index - a.index)) {
     list.splice(slot.index, 1)
   }
 
@@ -153,7 +153,7 @@ function pull<Z extends { id: number }> (list: Z[], ids: number[]): Slot<Z>[] {
 }
 
 function push<Z> (list: Z[], slots: Slot<Z>[]) {
-  for (const slot of [...slots].sort((a, b) => a.index - b.index)) {
+  for (const slot of slots.toSorted((a, b) => a.index - b.index)) {
     list.splice(Math.min(slot.index, list.length), 0, slot.row)
   }
 }
