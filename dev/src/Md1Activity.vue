@@ -51,7 +51,8 @@
           <Md1List.Item
             v-for="entry in group.rows"
             :key="entry.id"
-            :class="{ 'md1-demo-activity-unread': entry.unread }"
+            :class="entry.unread ? 'md1-demo-activity-unread' : 'md1-demo-activity-read'"
+            @click="activity.read(entry.id)"
           >
             <Md1List.Avatar>{{ entry.actor.charAt(0) }}</Md1List.Avatar>
 
@@ -128,11 +129,21 @@
     border-radius: var(--md1-radius, 2px);
   }
 
-  /* An unread row: the bolder ink of unread mail, on the action line and its time. */
+  /* An unread row: the bolder ink of unread mail on the action line and its time, the secondary line at its full ink. */
   .md1-demo-activity-unread .md1-list__primary,
   .md1-demo-activity-unread .md1-demo-activity__time {
     font-weight: 500;
     color: var(--md1-text-primary, rgba(0, 0, 0, 0.87));
+  }
+
+  /* A read row steps each line down one ink tier, so pressing a row visibly quiets it. */
+  .md1-demo-activity-read .md1-list__primary {
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  .md1-demo-activity-read .md1-list__secondary,
+  .md1-demo-activity-read .md1-demo-activity__time {
+    color: var(--md1-text-disabled, rgba(0, 0, 0, 0.38));
   }
 
   /* The end column stacks the timestamp over the row's star. */
