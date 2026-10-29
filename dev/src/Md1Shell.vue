@@ -464,6 +464,24 @@
     text-overflow: ellipsis;
   }
 
+  /* Text protection over the cover (imagery page): the dark scrim's gradient,
+     40% black at the account row's edge, centred at 50 dp, gone by 168 dp —
+     the same recipe Md1Card.Media ships. The image keeps its own paint; the
+     name, email, avatar and caret lift above the scrim. */
+  .md1-demo-shell .md1-navigation-drawer__header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(to top, color-mix(in srgb, var(--md1-black, #000000) 40%, transparent), 50px, transparent 168px);
+    pointer-events: none;
+  }
+
+  .md1-demo-shell .md1-navigation-drawer__header > :not(.md1-navigation-drawer__image) {
+    position: relative;
+    z-index: 1;
+  }
+
   /* The account caret rides the header's account row in its white ink, the
      glyph turning over while the account actions show. */
   .md1-demo-shell__caret.md1-button {
