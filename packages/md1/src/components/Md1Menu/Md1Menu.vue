@@ -177,6 +177,13 @@
     transform-origin: top right;
   }
 
+  /* A sheet that opens toward the inline start carries the screen margin on
+     that side instead, so its anchored end edge stays on the emitter's. */
+  .md1-menu[data-start] {
+    inset-inline-end: 0;
+    inset-inline-start: var(--md1-keyline-margin, 16px);
+  }
+
   /* The desktop sheet runs in 64 px units from 2x (128 px) and has no stated maximum (the width redline draws 6x and 7x menus); the screen margin still holds. */
   .md1-menu[data-desktop] {
     inline-size: calc-size(max-content, round(up, size, 64px));

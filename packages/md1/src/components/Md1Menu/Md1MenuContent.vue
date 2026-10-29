@@ -59,6 +59,28 @@
     return isNull(trigger) ? null : trigger.querySelector('.md1-list__content')
   }
 
+  /*
+   * The sheet opens toward the side of the screen with the room: an action
+   * menu at the end of an app bar grows down and start-ward by intent rather
+   * than by edge pressure (menus page: menus position "based on their
+   * proximity to screen edges"). Measured per open; the server and a closed
+   * sheet keep the default, and position-try still covers whatever changes
+   * after the guess.
+   */
+  const area = toRef(() => {
+    if (!IN_BROWSER || menu.path.value.length === 0) return 'block-end span-inline-end'
+
+    const trigger = document.querySelector(`#${CSS.escape(menu.triggerId(menu.defaultLayer))}`)
+
+    if (isNull(trigger)) return 'block-end span-inline-end'
+
+    const rect = trigger.getBoundingClientRect()
+    const after = rect.left + rect.width / 2 > document.documentElement.clientWidth / 2
+    const rtl = getComputedStyle(trigger).direction === 'rtl'
+
+    return after === rtl ? 'block-end span-inline-end' : 'block-end span-inline-start'
+  })
+
   // The selected row lands on the emitting element (menus page, "Location"). A
   // cascading sub sheet is not a simple menu: it keeps its place beside its row.
   provideOver({
@@ -76,9 +98,10 @@
     class="md1-menu"
     :data-dense="dense || undefined"
     :data-desktop="desktop || undefined"
+    :data-start="area.endsWith('span-inline-start') || undefined"
     :eager
     :namespace
-    position-area="block-end span-inline-end"
+    :position-area="area"
     position-try="flip-block, flip-inline, flip-block flip-inline, --md1-menu-wide, --md1-menu-wide-flip, --md1-menu-fit, --md1-menu-fit-wide"
   >
     <div class="md1-menu__list">

@@ -260,6 +260,47 @@ describe('quMenu', () => {
       expect(sheet().getBoundingClientRect().right).toBeLessThanOrEqual(document.documentElement.clientWidth - 16)
     })
 
+    it('should open toward the side with the room: end-aligned for a trigger past half the screen', async () => {
+      const host = menu(simple)
+      // Past the midline, with room for the sheet on either side: alignment by
+      // intent, not by the edge pushing a start-aligned sheet back.
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '60%', top: '8px' })
+      await settle()
+
+      await show(host)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const anchor = trigger(host).getBoundingClientRect()
+      const rect = sheet().getBoundingClientRect()
+
+      expect(Math.round(rect.top)).toBe(Math.round(anchor.bottom))
+      expect(Math.round(rect.right)).toBe(Math.round(anchor.right))
+      expect(rect.left).toBeLessThan(anchor.left)
+    })
+
+    it('should mirror the roomier side under rtl', async () => {
+      document.documentElement.setAttribute('dir', 'rtl')
+
+      try {
+        const host = menu(simple)
+        Object.assign(host.style, { position: 'fixed', padding: '0', right: '60%', top: '8px' })
+        await settle()
+
+        await show(host)
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+        const anchor = trigger(host).getBoundingClientRect()
+        const rect = sheet().getBoundingClientRect()
+
+        // The trigger sits in the inline-end half (the left in rtl): the sheet
+        // pins its left (inline-end) edge on the trigger's and grows toward the centre.
+        expect(Math.round(rect.top)).toBe(Math.round(anchor.bottom))
+        expect(Math.round(rect.left)).toBe(Math.round(anchor.left))
+      } finally {
+        document.documentElement.removeAttribute('dir')
+      }
+    })
+
     it('should grow from its origin at the emitting element when the sheet flips toward the start', async () => {
       const host = menu(simple)
       Object.assign(host.style, { position: 'fixed', padding: '0', right: '24px', top: '8px' })
