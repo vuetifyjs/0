@@ -312,7 +312,8 @@
       </Md1Dialog.Content>
     </Md1Dialog>
 
-    <Md1Snackbar.Portal>
+    <!-- In place, not the top layer, so the bar reads the shell's theme scope. -->
+    <Md1Snackbar.Portal :teleport="false">
       <Md1Snackbar v-model="open" :timeout="4000">{{ saved }}</Md1Snackbar>
     </Md1Snackbar.Portal>
   </section>

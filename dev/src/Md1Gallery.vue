@@ -212,7 +212,8 @@
       <Md1Fab.Action icon="photo" label="Take photo" value="camera" />
     </Md1Fab>
 
-    <Md1Snackbar.Portal>
+    <!-- In place, not the top layer, so the bar reads the shell's theme scope. -->
+    <Md1Snackbar.Portal :teleport="false">
       <Md1Snackbar v-model="open" :action="act ? 'Undo' : undefined" @action="onUndo">{{ note }}</Md1Snackbar>
     </Md1Snackbar.Portal>
   </div>
