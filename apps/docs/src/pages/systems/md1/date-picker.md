@@ -36,7 +36,7 @@ The Material Design 1 date picker: the chosen date in a coloured header over a m
 
 ## Usage
 
-`Md1DatePicker` is a shell component with no parts. `v-model` is an ISO date string (`YYYY-MM-DD`). Put it inside `Md1Dialog variant="confirmation"`, which supplies Cancel and OK: the picker holds its date in the dialog until OK, and the dialog's `v-model:value` receives it.
+`Md1DatePicker` is a shell component with no parts. `v-model` is an ISO date string (`YYYY-MM-DD`). Put it inside `Md1Dialog variant="confirmation"`, which supplies Cancel and OK: the dialog holds each pick until OK writes it to the dialog's `v-model:value`. The picker still emits every pick on its own model as it happens — that emit is how a hosting field formats what it shows — so keep committed state on `v-model:value`; a binding on the picker's model sees picks that Cancel never reverts.
 
 ::: ds-example
 /systems/md1/date-picker/basic
@@ -58,7 +58,7 @@ The Material Design 1 date picker: the chosen date in a coloured header over a m
 
 v0's [createDatePicker](/roadmap) is still a draft, so the calendar logic is Material Design 1's own until it lands: the visible month, the focused day, the six-week matrix, the year list and the selection write. The grid's keyboard model is v0's [useRovingFocus](/composables/system/use-roving-focus) in its seven-column grid mode, and every day, the header year and the two chevrons are v0 [Button](/components/actions/button) roots. When the app installs v0's [date plugin](/composables/plugins/use-date), its adapter formats the month label, the day names and the year, and its locale supplies the first weekday; without it the picker formats through `Intl` on the browser's locale.
 
-Inside a confirmation `Md1Dialog` the picker reads the date the dialog holds and writes back through it, so OK commits and Cancel discards without any wiring. Anywhere else it reads and writes its own `v-model`. `data-view` (`date` or `year`) and `data-landscape` are Material Design 1's hooks; the day buttons carry `data-selected` and `data-today`.
+Inside a confirmation `Md1Dialog` the picker reads the date the dialog holds and writes each pick back through it, so OK commits and Cancel discards without any wiring; the pick is also emitted on the picker's own model before OK, which is how the [text field's picker mode](/systems/md1/text-field#pickers) re-commits the display form it shows. Anywhere else it reads and writes its own `v-model`. `data-view` (`date` or `year`) and `data-landscape` are Material Design 1's hooks; the day buttons carry `data-selected` and `data-today`.
 
 ## Examples
 
@@ -112,7 +112,7 @@ The portrait and landscape pickers on the dark theme's #303030 canvas. The heade
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `modelValue` | `string` | | The selected date, `YYYY-MM-DD`. A value in another shape is ignored. Inside a confirmation `Md1Dialog` the dialog's held value is used instead |
+| `modelValue` | `string` | | The selected date, `YYYY-MM-DD`. A value in another shape is ignored. Inside a confirmation `Md1Dialog` the picker reads the dialog's held value in its place, and still emits every pick here before OK — bind committed state to the dialog's `v-model:value`, since Cancel does not revert these emits |
 | `landscape` | `boolean` | `false` | The landscape layout: a 168 dp header column beside a 344 dp body with 32 dp rows |
 | `firstDayOfWeek` | `number` | | The weekday the grid starts on, `0` for Sunday. Unset, it follows the installed date plugin's locale, or Sunday without one |
 
