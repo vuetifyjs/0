@@ -149,6 +149,9 @@
   const saved = shallowRef('')
 
   async function onSave (submit: () => Promise<boolean>) {
+    // One order per save: the redirect timer runs after a success, and a second press must not add a twin.
+    if (timer.isActive.value) return
+
     missing.value = customer.value ? undefined : 'Error: choose a customer'
 
     const name = customer.value
@@ -288,7 +291,7 @@
         <p class="md1-demo-order__legend">* Required fields</p>
 
         <div class="md1-demo-order__actions">
-          <Md1Button variant="raised" @click="onSave(submit)">Save</Md1Button>
+          <Md1Button :disabled="timer.isActive.value" variant="raised" @click="onSave(submit)">Save</Md1Button>
 
           <Md1Button @click="onDiscard">Discard</Md1Button>
         </div>
