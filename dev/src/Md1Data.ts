@@ -320,6 +320,11 @@ export const activity = {
     if (entry) entry.starred = !entry.starred
   },
 
+  read (id: number) {
+    const entry = activity.all.value.find(row => row.id === id)
+    if (entry) entry.unread = false
+  },
+
   allRead () {
     for (const entry of activity.all.value) entry.unread = false
   },

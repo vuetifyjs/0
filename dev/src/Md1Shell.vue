@@ -19,7 +19,7 @@
   import { IN_BROWSER } from '@vuetify/v0'
 
   // Context
-  import { profile, search } from './Md1Data'
+  import { activity, profile, search } from './Md1Data'
 
   // Utilities
   import { mergeProps, onMounted, shallowRef, toRef, watch } from 'vue'
@@ -48,6 +48,10 @@
     { label: 'Files', to: '/md1/files', icon: 'folder' },
     { label: 'Gallery', to: '/md1/gallery', icon: 'photo' },
   ]
+
+  /** The header's 16:9 cover, a flat indigo dusk scene: the demo ships no raster images. */
+  const cover = 'data:image/svg+xml,'
+    + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice"><rect width="320" height="180" fill="#283593"/><circle cx="248" cy="48" r="22" fill="#5C6BC0"/><path d="M0 128 L84 72 L150 118 L214 84 L320 142 V180 H0 Z" fill="#3949AB"/><path d="M0 154 L70 116 L138 150 L226 112 L320 162 V180 H0 Z" fill="#1A237E"/></svg>')
 
   /** Initials avatar as an inline SVG data URI: the demo ships no raster images. */
   const avatar = 'data:image/svg+xml,'
@@ -84,6 +88,21 @@
   const group = storage.get('md1-demo:workspace', true)
 
   const current = toRef(() => route.path.length > 1 ? route.path.replace(/\/+$/, '') : route.path)
+
+  /** The header caret swaps the drawer between the destinations and the account actions. */
+  const accounts = shallowRef(false)
+
+  /** A closed or navigated drawer returns to the destinations. */
+  watch([open, () => route.path], () => {
+    accounts.value = false
+  })
+
+  function onAccount (to: string) {
+    accounts.value = false
+    go(to)
+  }
+
+  const added = shallowRef(false)
 
   function go (to: string) {
     router.push(to)
@@ -159,6 +178,14 @@
     stage.value = 1
   }
 
+  /** The latest unread activity, newest first (the store keeps that order). */
+  const news = toRef(() => activity.all.value.filter(entry => entry.unread).slice(0, 4))
+
+  function onEntry (id: number) {
+    activity.read(id)
+    go('/md1/activity')
+  }
+
   /**
    * The active stop's hue, carried by the actions row itself: a wrapper element
    * would cut the toolbar's direct-child ink seams, and only one prompt is ever
@@ -218,6 +245,39 @@
           </Md1FeatureDiscovery.Text>
         </Md1FeatureDiscovery>
 
+        <Md1Menu>
+          <Md1Menu.Activator v-slot="menu">
+            <Md1Tooltip>
+              <Md1Tooltip.Activator v-slot="tool">
+                <Md1Button
+                  v-bind="bind(menu, tool)"
+                  :aria-label="news.length > 0 ? `Notifications, ${news.length} unread` : 'Notifications'"
+                  icon="notifications"
+                />
+              </Md1Tooltip.Activator>
+
+              <Md1Tooltip.Content>Notifications</Md1Tooltip.Content>
+            </Md1Tooltip>
+          </Md1Menu.Activator>
+
+          <Md1Menu.Content class="md1-demo-news">
+            <Md1Menu.Item
+              v-for="entry in news"
+              :key="entry.id"
+              :info="entry.time"
+              @select="onEntry(entry.id)"
+            >
+              {{ entry.action }}
+            </Md1Menu.Item>
+
+            <Md1Menu.Item v-if="news.length === 0" disabled>All caught up</Md1Menu.Item>
+
+            <Md1Menu.Divider />
+
+            <Md1Menu.Item @select="go('/md1/activity')">See all activity</Md1Menu.Item>
+          </Md1Menu.Content>
+        </Md1Menu>
+
         <Md1FeatureDiscovery color="accent" :model-value="stage === 1" @complete="stage = 2" @dismiss="stage = 0">
           <Md1FeatureDiscovery.Activator>
             <Md1Tooltip>
@@ -270,61 +330,81 @@
     </Md1Toolbar>
 
     <Md1NavigationDrawer v-model="open" :clipped="!mobile" :type="mobile ? 'temporary' : 'permanent'">
-      <Md1NavigationDrawer.Header :avatar :email="me.email" :name="me.name">
-        <!-- The whole account block is the way to the profile: a stretched
-             link over the header, on the keyboard path like any anchor. -->
-        <a
-          :aria-label="`${me.name}, open profile`"
-          class="md1-demo-shell__profile"
-          href="/md1/profile"
-          @click.prevent="go('/md1/profile')"
-        ></a>
+      <!-- The account header: cover, 64 dp avatar, name and email, and the
+           switcher seat at the end of the account row (navigation-drawer page,
+           Header) — here a caret that swaps the list below to account actions. -->
+      <Md1NavigationDrawer.Header :avatar :email="me.email" :image="cover" :name="me.name">
+        <Md1Button
+          :aria-expanded="accounts"
+          aria-label="Accounts"
+          class="md1-demo-shell__caret"
+          icon="arrow-drop-down"
+          @click="accounts = !accounts"
+        />
       </Md1NavigationDrawer.Header>
 
       <Md1NavigationDrawer.Content>
-        <Md1List :model-value="current">
-          <Md1List.Item
-            v-for="link in links"
-            :key="link.to"
-            :href="link.to"
-            :value="link.to"
-            @click.prevent="go(link.to)"
-          >
-            <Md1List.Icon :name="link.icon" />
-
-            {{ link.label }}
+        <!-- The caret swaps the destinations for the account actions, the
+             account-chooser arrangement of the period's drawers. -->
+        <Md1List v-if="accounts" aria-label="Account">
+          <Md1List.Item href="/md1/profile" value="/md1/profile" @click.prevent="onAccount('/md1/profile')">
+            Profile
           </Md1List.Item>
 
-          <Md1List.Group v-model="group" icon="apps" title="Workspace">
+          <Md1List.Item @click="added = true">
+            Add account
+          </Md1List.Item>
+
+          <Md1List.Item href="/md1/sign-in" value="/md1/sign-in" @click.prevent="onAccount('/md1/sign-in')">
+            Sign out
+          </Md1List.Item>
+        </Md1List>
+
+        <template v-else>
+          <Md1List :model-value="current">
             <Md1List.Item
-              v-for="link in tools"
+              v-for="link in links"
               :key="link.to"
               :href="link.to"
               :value="link.to"
               @click.prevent="go(link.to)"
             >
+              <Md1List.Icon :name="link.icon" />
+
               {{ link.label }}
             </Md1List.Item>
-          </Md1List.Group>
-        </Md1List>
 
-        <!-- An open group already closes itself off with a full-bleed divider
-             (lists page); the section divider stands in only while it is shut. -->
-        <Md1Divider v-if="!group" />
+            <Md1List.Group v-model="group" icon="apps" title="Workspace">
+              <Md1List.Item
+                v-for="link in tools"
+                :key="link.to"
+                :href="link.to"
+                :value="link.to"
+                @click.prevent="go(link.to)"
+              >
+                {{ link.label }}
+              </Md1List.Item>
+            </Md1List.Group>
+          </Md1List>
 
-        <Md1List :model-value="current">
-          <Md1List.Item href="/md1/settings" value="/md1/settings" @click.prevent="go('/md1/settings')">
-            <Md1List.Icon name="settings" />
+          <!-- An open group already closes itself off with a full-bleed divider
+               (lists page); the section divider stands in only while it is shut. -->
+          <Md1Divider v-if="!group" />
 
-            Settings
-          </Md1List.Item>
+          <Md1List :model-value="current">
+            <Md1List.Item href="/md1/settings" value="/md1/settings" @click.prevent="go('/md1/settings')">
+              <Md1List.Icon name="settings" />
 
-          <Md1List.Item href="/md1/help" value="/md1/help" @click.prevent="go('/md1/help')">
-            <Md1List.Icon name="help" />
+              Settings
+            </Md1List.Item>
 
-            Help &amp; feedback
-          </Md1List.Item>
-        </Md1List>
+            <Md1List.Item href="/md1/help" value="/md1/help" @click.prevent="go('/md1/help')">
+              <Md1List.Icon name="help" />
+
+              Help &amp; feedback
+            </Md1List.Item>
+          </Md1List>
+        </template>
       </Md1NavigationDrawer.Content>
     </Md1NavigationDrawer>
 
@@ -335,6 +415,8 @@
     <!-- Inside the shell (no teleport) so the bar reads the stamped theme. -->
     <Md1Snackbar.Portal class="md1-demo-offer" :teleport="false">
       <Md1Snackbar v-model="ask" action="Start" @action="onTour">Want to take a tour?</Md1Snackbar>
+
+      <Md1Snackbar v-model="added">Account linking is outside this demo</Md1Snackbar>
     </Md1Snackbar.Portal>
 
     <Md1BottomNavigation
@@ -375,19 +457,31 @@
     color-scheme: dark;
   }
 
-  /* The stretched profile link covers the drawer's account header. */
-  .md1-demo-shell .md1-navigation-drawer__header {
-    position: relative;
+  /* Long activity lines yield to their trailing time instead of clipping at
+     the sheet's 280 dp cap. */
+  .md1-demo-news .md1-menu__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .md1-demo-shell__profile {
-    position: absolute;
-    inset: 0;
+  /* The account caret rides the header's account row in its white ink, the
+     glyph turning over while the account actions show. */
+  .md1-demo-shell__caret.md1-button {
+    color: var(--md1-on-primary, #FFFFFF);
   }
 
-  .md1-demo-shell__profile:focus-visible {
-    outline: 2px solid var(--md1-on-primary, #FFFFFF);
-    outline-offset: -2px;
+  .md1-demo-shell__caret .md1-icon {
+    transition: rotate var(--md1-duration-standard, 300ms) var(--md1-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+  }
+
+  .md1-demo-shell__caret[aria-expanded='true'] .md1-icon {
+    rotate: 180deg;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .md1-demo-shell__caret .md1-icon {
+      transition: none;
+    }
   }
 
   .md1-demo-shell__main {
