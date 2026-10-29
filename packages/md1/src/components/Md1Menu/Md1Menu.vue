@@ -160,6 +160,9 @@
     overflow-y: auto;
     font-family: var(--md1-font-family, Roboto, Noto, sans-serif);
     outline: none;
+    /* The resting fallback for the default area; once open, the placement
+       adapter measures the true origin at the emitting element, whichever
+       position-try area won (over.ts). */
     transform-origin: top left;
     opacity: 0;
     transform: scale(0.9);

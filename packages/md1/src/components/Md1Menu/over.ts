@@ -76,6 +76,7 @@ export class Md1OverAdapter extends PopoverAdapter {
     const { item: find, emitter, inset: _inset = 0, text, label } = this.options
     const base = this.fallback.setup(context)
     const placed = shallowRef<Record<string, string> | null>(null)
+    const origin = shallowRef<string | null>(null)
     // Pixels from the sheet's top to the selected row's centre, fixed at open so a scroll inside the sheet does not move it.
     let center: number | null = null
     let row: HTMLElement | null = null
@@ -144,10 +145,43 @@ export class Md1OverAdapter extends PopoverAdapter {
       }
     }
 
+    /*
+     * The anchored path's growth origin. CSS cannot point transform-origin at
+     * the anchor, so the static `top left` only holds for the default area;
+     * once a position-try fallback flips the sheet, the entrance grows away
+     * from the emitter. Measured from the used insets (untouched by the
+     * entrance scale) after the areas resolve, so the sheet grows from its
+     * origin at the emitting element (motion page) whichever area won.
+     */
+    async function aim () {
+      await nextTick()
+
+      const sheet = context.contentEl.value
+      const target = anchor()
+
+      if (!context.isOpen.value || isNullOrUndefined(sheet) || isNull(target) || !isNull(placed.value)) return
+
+      // The used insets read as auto on an anchor-positioned box, so the
+      // untransformed corner comes from the rect, unwound from the entrance
+      // scale about whatever origin is in effect right now.
+      const style = getComputedStyle(sheet)
+      const rect = target.getBoundingClientRect()
+      const box = sheet.getBoundingClientRect()
+      const scale = sheet.offsetWidth > 0 ? box.width / sheet.offsetWidth : 1
+      const [ox = 0, oy = 0] = style.transformOrigin.split(' ').map(part => Number.parseFloat(part))
+      const left = box.left - ox * (1 - scale)
+      const top = box.top - oy * (1 - scale)
+      const x = clamp(rect.left + rect.width / 2 - left, 0, sheet.offsetWidth)
+      const y = clamp(rect.top + rect.height / 2 - top, 0, sheet.offsetHeight)
+
+      origin.value = `${Math.round(x)}px ${Math.round(y)}px`
+    }
+
     async function open () {
       center = null
       row = null
       placed.value = null
+      origin.value = null
 
       await nextTick()
 
@@ -175,17 +209,26 @@ export class Md1OverAdapter extends PopoverAdapter {
       place()
     }
 
-    watch([context.isOpen, context.contentEl, context.anchorEl], ([isOpen]) => {
-      if (IN_BROWSER && isOpen) open()
+    watch([context.isOpen, context.contentEl, context.anchorEl], async ([isOpen]) => {
+      if (!IN_BROWSER || !isOpen) return
+
+      await open()
+      aim()
     }, { immediate: true, flush: 'post' })
 
     function onMove (event: Event) {
-      if (!context.isOpen.value || isNull(placed.value) || isNull(center)) return
+      if (!context.isOpen.value) return
 
       const sheet = context.contentEl.value
 
       // The sheet's own scroll is the reader moving through it, not the emitter moving.
       if (event.target instanceof Node && sheet?.contains(event.target)) return
+
+      // The anchored path follows the emitter through CSS; only its origin re-measures.
+      if (isNull(placed.value) || isNull(center)) {
+        aim()
+        return
+      }
 
       place()
     }
@@ -195,7 +238,12 @@ export class Md1OverAdapter extends PopoverAdapter {
       useEventListener(window, 'scroll', onMove, { capture: true, passive: true })
     }
 
-    return toRef(() => placed.value ?? base.value)
+    return toRef(() => {
+      if (!isNull(placed.value)) return placed.value
+      if (isNull(origin.value)) return base.value
+
+      return { ...base.value, 'transform-origin': origin.value }
+    })
   }
 }
 

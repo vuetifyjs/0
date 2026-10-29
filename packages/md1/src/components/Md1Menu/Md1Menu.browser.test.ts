@@ -259,6 +259,29 @@ describe('quMenu', () => {
 
       expect(sheet().getBoundingClientRect().right).toBeLessThanOrEqual(document.documentElement.clientWidth - 16)
     })
+
+    it('should grow from its origin at the emitting element when the sheet flips toward the start', async () => {
+      const host = menu(simple)
+      Object.assign(host.style, { position: 'fixed', padding: '0', right: '24px', top: '8px' })
+      await settle()
+
+      await show(host)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const el = sheet()
+      const anchor = trigger(host).getBoundingClientRect()
+      const [x = 0, y = 0] = getComputedStyle(el).transformOrigin.split(' ').map(part => Number.parseFloat(part))
+
+      // An end-aligned sheet's emitter sits at its top-end corner: the static
+      // top-left origin would grow the entrance away from the trigger.
+      expect(x).toBeGreaterThan(el.offsetWidth / 2)
+      expect(y).toBeLessThanOrEqual(1)
+
+      // Past the entrance the rect is untransformed: the origin lands on the
+      // trigger's centre, in the sheet's own space.
+      await new Promise(resolve => setTimeout(resolve, 300))
+      expect(Math.abs(el.getBoundingClientRect().left + x - (anchor.left + anchor.width / 2))).toBeLessThanOrEqual(1)
+    })
   })
 
   describe('metrics', () => {
