@@ -275,8 +275,8 @@
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    background: #BDBDBD;
-    color: #FFFFFF;
+    background: var(--md1-grey-400, #BDBDBD);
+    color: var(--md1-white, #FFFFFF);
     font-size: var(--md1-type-subheading-size, 16px);
   }
 
