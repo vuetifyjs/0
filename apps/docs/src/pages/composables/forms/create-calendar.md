@@ -39,7 +39,7 @@ calendar.today() // pages to today and selects nothing
 
 ## Adapters
 
-`createCalendar` uses an installed date plugin when one is there. That plugin is the context [useDate](/composables/plugins/use-date) returns, so both get the same adapter, locale, and week start. The grid does not call `useDate()`. That function throws outside a component, and the grid still runs there. The grid also does not install the plugin.
+Inside a component, an omitted `adapter` comes from the installed [date plugin](/composables/plugins/use-date). [useDate](/composables/plugins/use-date) reads that same context, so both share its [DateAdapter](/composables/plugins/use-date#dateadapter-interface), locale, and week start. The grid does not call `useDate()`. That call throws outside a component. There, or with no plugin, the grid constructs a [PlainDateAdapter](/composables/plugins/use-date#adapters). It does not install the plugin.
 
 The first match wins:
 
@@ -92,24 +92,22 @@ const calendar = createCalendar({
 
 ## Architecture
 
-The grid owns the visible month, the focused day, and the selection. The adapter owns arithmetic and the month title.
+`month`, `focused`, and `value` stay on the grid. Day math and the month title go through the [DateAdapter](/composables/plugins/use-date#dateadapter-interface). Weeks are built with `addDays` from the week start.
 
-```mermaid "createCalendar"
+```mermaid "createCalendar Architecture"
 flowchart TD
+  Adapter["DateAdapter"]
   Cal["createCalendar"]:::primary
-  Choice{"Engine"}
-  Passed["adapter argument"]
-  Plugin["installed date plugin"]
-  Plain["PlainDateAdapter"]
-  Grid["month, focus, selection"]
+  Month["month"]
+  Focus["focused"]
+  Value["value"]
+  Weeks["weeks"]
 
-  Cal --> Choice
-  Choice --> Passed
-  Choice --> Plugin
-  Choice --> Plain
-  Passed --> Grid
-  Plugin --> Grid
-  Plain --> Grid
+  Adapter -->|addDays, format| Cal
+  Cal --> Month
+  Cal --> Focus
+  Cal --> Value
+  Month --> Weeks
 ```
 
 ## Options
