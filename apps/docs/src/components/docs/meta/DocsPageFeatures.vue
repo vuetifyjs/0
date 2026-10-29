@@ -19,7 +19,7 @@
   // Data
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
   // Constants
-  import { MATURITY, MATURITY_LEVELS } from '@/constants/maturity'
+  import { MATURITY, MATURITY_LEVELS, sinceInFramework } from '@/constants/maturity'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -278,16 +278,16 @@
       }
       case 'preview': {
         title = entry.since
-          ? `Implemented — API may change. Since ${entry.since}`
+          ? `Implemented — API may change. ${sinceInFramework(entry.since)}`
           : 'Implemented — API may change. Not yet released'
         break
       }
       case 'stable': {
-        title = entry.since ? `Production-ready. Stable since ${entry.since}` : 'Production-ready'
+        title = entry.since ? `Production-ready. ${sinceInFramework(entry.since)}` : 'Production-ready'
         break
       }
       case 'mature': {
-        title = entry.since ? `API frozen. Mature since ${entry.since}` : 'API frozen'
+        title = entry.since ? `API frozen. ${sinceInFramework(entry.since)}` : 'API frozen'
         break
       }
       case 'deprecated': {

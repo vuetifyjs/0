@@ -31,7 +31,7 @@ export interface MaturityEntry {
 export const SINCE_LEGEND =
   'Since is the version a feature was first released in.'
 
-/** Matrix row tooltip. Names the release that first included the feature. */
+/** Tooltip naming the release that first included the feature. */
 export function sinceInFramework (version: string | null | undefined): string {
   if (!version) return ''
 
