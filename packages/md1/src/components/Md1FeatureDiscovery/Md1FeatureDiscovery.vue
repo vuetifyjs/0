@@ -74,6 +74,8 @@
     complete: []
     /** Dismissed by a tap outside the background or by Escape. */
     dismiss: []
+    /** The circles finished leaving: the exit animation ended and the prompt unmounted. Follows `complete` or `dismiss`. */
+    closed: []
   }
 
   interface Area {
@@ -348,9 +350,15 @@
     loop.cancel()
   }, { immediate: true })
 
+  // Post flush: `closed` promises the prompt has left the DOM, so a consumer
+  // sequencing prompts, or mutating what the prompt anchors to, waits for it
+  // rather than timing the exit.
   watch(() => presence.isMounted.value, mounted => {
-    if (!mounted) geometry.value = null
-  })
+    if (mounted) return
+
+    geometry.value = null
+    emit('closed')
+  }, { flush: 'post' })
 
   watch(open, value => {
     if (value) tour.start()

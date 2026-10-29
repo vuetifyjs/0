@@ -45,6 +45,7 @@ interface Options extends Md1FeatureDiscoveryProps {
   card?: { width: number, height: number }
   onComplete?: () => void
   onDismiss?: () => void
+  onClosed?: () => void
   onAction?: () => void
 }
 
@@ -57,6 +58,7 @@ function prompt (options: Options = {}): HTMLElement {
     card,
     onComplete,
     onDismiss,
+    onClosed,
     onAction,
     ...props
   } = options
@@ -74,6 +76,7 @@ function prompt (options: Options = {}): HTMLElement {
       },
       onComplete,
       onDismiss,
+      onClosed,
     }, () => [
       card
         ? h('div', {
@@ -894,6 +897,23 @@ describe('quFeatureDiscovery', () => {
       await settle()
 
       await expect.poll(() => getComputedStyle(document.querySelector('#nav')!).color).toBe('rgb(255, 255, 255)')
+    })
+
+    it('should emit closed once the exit has finished, after complete', async () => {
+      const order: string[] = []
+
+      prompt({
+        onComplete: () => order.push(`complete:${document.querySelector('.md1-feature-discovery') ? 'mounted' : 'gone'}`),
+        onClosed: () => order.push(`closed:${document.querySelector('.md1-feature-discovery') ? 'mounted' : 'gone'}`),
+      })
+      await ready()
+
+      document.querySelector<HTMLElement>('#action')!.click()
+
+      await expect.poll(() => order.at(-1)).toContain('closed')
+      // The action's tap completes while the circles still show; closed waits
+      // for the exit to finish and the prompt to unmount.
+      expect(order).toEqual(['complete:mounted', 'closed:gone'])
     })
 
     it('should ink an icon toggle in the prompt colour, and white on the primary bar once closed', async () => {
