@@ -19,7 +19,7 @@
   import { IN_BROWSER } from '@vuetify/v0'
 
   // Context
-  import { search } from './Md1Data'
+  import { profile, search } from './Md1Data'
 
   // Utilities
   import { mergeProps, onMounted, shallowRef, toRef, watch } from 'vue'
@@ -46,6 +46,7 @@
   const tools: Link[] = [
     { label: 'Orders', to: '/md1/orders', icon: 'reorder' },
     { label: 'Files', to: '/md1/files', icon: 'folder' },
+    { label: 'Gallery', to: '/md1/gallery', icon: 'photo' },
   ]
 
   /** Initials avatar as an inline SVG data URI: the demo ships no raster images. */
@@ -59,6 +60,8 @@
   const route = useRoute()
   const router = useRouter()
   const storage = useStorage()
+
+  const me = profile.me
 
   /** The page name in the app bar, carried by each child route's `meta.title`. */
   const title = toRef(() => isString(route.meta.title) ? route.meta.title : 'Overview')
@@ -267,7 +270,16 @@
     </Md1Toolbar>
 
     <Md1NavigationDrawer v-model="open" :clipped="!mobile" :type="mobile ? 'temporary' : 'permanent'">
-      <Md1NavigationDrawer.Header :avatar email="ana.ribeiro@example.com" name="Ana Ribeiro" />
+      <Md1NavigationDrawer.Header :avatar :email="me.email" :name="me.name">
+        <!-- The whole account block is the way to the profile: a stretched
+             link over the header, on the keyboard path like any anchor. -->
+        <a
+          :aria-label="`${me.name}, open profile`"
+          class="md1-demo-shell__profile"
+          href="/md1/profile"
+          @click.prevent="go('/md1/profile')"
+        ></a>
+      </Md1NavigationDrawer.Header>
 
       <Md1NavigationDrawer.Content>
         <Md1List :model-value="current">
@@ -361,6 +373,21 @@
      :root for the app-wide selection, and this shell themes only itself. */
   .md1-demo-shell[data-theme='md1-dark'] {
     color-scheme: dark;
+  }
+
+  /* The stretched profile link covers the drawer's account header. */
+  .md1-demo-shell .md1-navigation-drawer__header {
+    position: relative;
+  }
+
+  .md1-demo-shell__profile {
+    position: absolute;
+    inset: 0;
+  }
+
+  .md1-demo-shell__profile:focus-visible {
+    outline: 2px solid var(--md1-on-primary, #FFFFFF);
+    outline-offset: -2px;
   }
 
   .md1-demo-shell__main {

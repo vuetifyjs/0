@@ -78,6 +78,30 @@ export type Region = {
   share: number
 }
 
+export type Todo = {
+  id: number
+  text: string
+  done: boolean
+  order: number
+}
+
+export type Photo = {
+  id: number
+  title: string
+  album: 'Travel' | 'Team' | 'Product'
+  taken: string
+  /** The flat field colour the gallery draws the CSS/SVG "photo" from. */
+  hue: string
+}
+
+export type Profile = {
+  name: string
+  email: string
+  role: string
+  bio: string
+  location: string
+}
+
 /** A removed row with the slot it came out of, so Undo puts it back in place. */
 export type Slot<Z> = {
   row: Z
@@ -309,6 +333,105 @@ export const activity = {
   },
 }
 
+// Todos (overview widgets band)
+
+export const todos = {
+  all: ref<Todo[]>([
+    { id: 1, text: 'Confirm the venue for the spring offsite', done: false, order: 0 },
+    { id: 2, text: 'Reply to Ben about Thursday lunch', done: false, order: 1 },
+    { id: 3, text: 'Review the quarterly numbers draft', done: true, order: 2 },
+    { id: 4, text: 'Rotate the API keys for staging', done: false, order: 3 },
+    { id: 5, text: 'File the October receipts', done: true, order: 4 },
+    { id: 6, text: 'Draft the release note outline', done: false, order: 5 },
+  ]),
+
+  toggle (id: number) {
+    const todo = todos.all.value.find(row => row.id === id)
+    if (todo) todo.done = !todo.done
+  },
+
+  add (text: string): Todo {
+    const made: Todo = { id: next(todos.all.value.map(t => t.id)), text, done: false, order: todos.all.value.length }
+
+    todos.all.value.push(made)
+
+    return made
+  },
+
+  remove (id: number): Slot<Todo> | undefined {
+    return pull(todos.all.value, [id])[0]
+  },
+
+  restore (slot: Slot<Todo>) {
+    push(todos.all.value, [slot])
+  },
+
+  /** Rewrite the list to the given id order; ids it misses keep their place at the end. */
+  reorder (ids: number[]) {
+    const rest = todos.all.value.filter(row => !ids.includes(row.id))
+    const moved = ids
+      .map(id => todos.all.value.find(row => row.id === id))
+      .filter((row): row is Todo => !isUndefined(row))
+
+    todos.all.value = [...moved, ...rest]
+
+    for (const [index, row] of todos.all.value.entries()) row.order = index
+  },
+}
+
+// Photos (gallery)
+
+export type Album = 'Travel' | 'Team' | 'Product'
+
+export const photos = {
+  all: ref<Photo[]>([
+    { id: 1, title: 'Harbour at dawn', album: 'Travel', taken: 'Oct 18', hue: '#00695C' },
+    { id: 2, title: 'Pine ridge', album: 'Travel', taken: 'Oct 14', hue: '#33691E' },
+    { id: 3, title: 'Old town stairs', album: 'Travel', taken: 'Oct 9', hue: '#4E342E' },
+    { id: 4, title: 'Night market', album: 'Travel', taken: 'Sep 30', hue: '#283593' },
+    { id: 5, title: 'Sprint planning', album: 'Team', taken: 'Oct 21', hue: '#00838F' },
+    { id: 6, title: 'Offsite hike', album: 'Team', taken: 'Oct 6', hue: '#558B2F' },
+    { id: 7, title: 'Launch day', album: 'Team', taken: 'Sep 28', hue: '#6A1B9A' },
+    { id: 8, title: 'New badge wall', album: 'Team', taken: 'Sep 24', hue: '#4527A0' },
+    { id: 9, title: 'Carton redesign', album: 'Product', taken: 'Oct 17', hue: '#EF6C00' },
+    { id: 10, title: 'Label press check', album: 'Product', taken: 'Oct 11', hue: '#C62828' },
+    { id: 11, title: 'Shelf mockup', album: 'Product', taken: 'Oct 3', hue: '#AD1457' },
+    { id: 12, title: 'Studio lighting test', album: 'Product', taken: 'Sep 22', hue: '#37474F' },
+  ]),
+
+  remove (ids: number[]): Slot<Photo>[] {
+    return pull(photos.all.value, ids)
+  },
+
+  restore (slots: Slot<Photo>[]) {
+    push(photos.all.value, slots)
+  },
+
+  add (photo: Omit<Photo, 'id'>): Photo {
+    const made: Photo = { id: next(photos.all.value.map(p => p.id)), ...photo }
+
+    photos.all.value.unshift(made)
+
+    return made
+  },
+}
+
+// Profile (the signed-in account; the drawer header and the profile page share it)
+
+export const profile = {
+  me: ref<Profile>({
+    name: 'Ana Ribeiro',
+    email: 'ana.ribeiro@example.com',
+    role: 'Operations lead',
+    bio: 'Keeps the orders moving and the dashboards honest. Ten years of logistics, two of them here.',
+    location: 'Porto',
+  }),
+
+  update (patch: Partial<Profile>) {
+    Object.assign(profile.me.value, patch)
+  },
+}
+
 // Sales (overview table, read-only)
 
 export const sales = {
@@ -345,6 +468,8 @@ const engines = {
   files: createFilter<Item>({ keys: ['name', 'kind', 'meta'] }),
   messages: createFilter<Message>({ keys: ['from', 'subject', 'preview'] }),
   activity: createFilter<Entry>({ keys: ['actor', 'action', 'detail'] }),
+  todos: createFilter<Todo>({ keys: ['text'] }),
+  photos: createFilter<Photo>({ keys: ['title', 'album', 'taken'] }),
 }
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
@@ -360,6 +485,8 @@ export function search (query: MaybeRefOrGetter<string>): ComputedRef<Group[]> {
     files: engines.files.apply(query, () => files.all.value).items,
     messages: engines.messages.apply(query, () => messages.all.value).items,
     activity: engines.activity.apply(query, () => activity.all.value).items,
+    todos: engines.todos.apply(query, () => todos.all.value).items,
+    photos: engines.photos.apply(query, () => photos.all.value).items,
   }
 
   return computed(() => {
@@ -404,6 +531,26 @@ export function search (query: MaybeRefOrGetter<string>): ComputedRef<Group[]> {
           title: message.subject,
           detail: `${message.from} — ${message.preview}`,
           to: '/md1/inbox',
+        })),
+      },
+      {
+        label: 'Todos',
+        icon: 'check',
+        hits: found.todos.value.map(todo => ({
+          id: `todo-${todo.id}`,
+          title: todo.text,
+          detail: todo.done ? 'Done' : 'To do',
+          to: '/md1',
+        })),
+      },
+      {
+        label: 'Photos',
+        icon: 'photo',
+        hits: found.photos.value.map(photo => ({
+          id: `photo-${photo.id}`,
+          title: photo.title,
+          detail: `${photo.album} · ${photo.taken}`,
+          to: '/md1/gallery',
         })),
       },
       {

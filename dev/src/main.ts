@@ -39,16 +39,20 @@ import Md1Activity from './Md1Activity.vue'
 import Md1Contacts from './Md1Contacts.vue'
 import Md1Dashboard from './Md1Dashboard.vue'
 import Md1Files from './Md1Files.vue'
+import Md1Forgot from './Md1Forgot.vue'
+import Md1Gallery from './Md1Gallery.vue'
 import Md1Help from './Md1Help.vue'
 import Md1Inbox from './Md1Inbox.vue'
 import Md1NotFound from './Md1NotFound.vue'
 import Md1OrderForm from './Md1OrderForm.vue'
 import Md1Orders from './Md1Orders.vue'
+import Md1Profile from './Md1Profile.vue'
 import Md1Search from './Md1Search.vue'
 import Md1Settings from './Md1Settings.vue'
 import Md1Setup from './Md1Setup.vue'
 import Md1Shell from './Md1Shell.vue'
 import Md1SignIn from './Md1SignIn.vue'
+import Md1SignUp from './Md1SignUp.vue'
 import Playground from './Playground.vue'
 
 import 'virtual:uno.css'
@@ -101,10 +105,12 @@ export const createApp = ViteSSG(
           { path: 'activity', component: Md1Activity, meta: { title: 'Activity' } },
           { path: 'contacts', component: Md1Contacts, meta: { title: 'Contacts' } },
           { path: 'files', component: Md1Files, meta: { title: 'Files' } },
+          { path: 'gallery', component: Md1Gallery, meta: { title: 'Gallery' } },
           { path: 'help', component: Md1Help, meta: { title: 'Help & feedback' } },
           { path: 'inbox', component: Md1Inbox, meta: { title: 'Inbox' } },
           { path: 'orders', component: Md1Orders, meta: { title: 'Orders' } },
           { path: 'orders/new', component: Md1OrderForm, meta: { title: 'New order' } },
+          { path: 'profile', component: Md1Profile, meta: { title: 'Profile' } },
           { path: 'search', component: Md1Search, meta: { title: 'Search' } },
           { path: 'settings', component: Md1Settings, meta: { title: 'Settings' } },
           // Last, after every real child: anything else under /md1 is the 404.
@@ -112,8 +118,10 @@ export const createApp = ViteSSG(
         ],
       },
       // Siblings of the layout record: the auth pages render without the shell.
+      { path: '/md1/forgot', component: Md1Forgot },
       { path: '/md1/setup', component: Md1Setup },
       { path: '/md1/sign-in', component: Md1SignIn },
+      { path: '/md1/sign-up', component: Md1SignUp },
     ],
     // The persistent md1 shell swaps pages in place, so the window offset no
     // longer resets itself; everything else keeps the router's default.

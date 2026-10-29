@@ -67,10 +67,14 @@
           />
         </div>
 
+        <div class="md1-demo-auth__forgot">
+          <Md1Button dense @click="router.push('/md1/forgot')">Forgot password?</Md1Button>
+        </div>
+
         <div class="md1-demo-auth__actions">
           <Md1Button variant="raised" @click="onSignIn(submit)">Sign in</Md1Button>
 
-          <Md1Button @click="router.push('/md1/setup')">Create account</Md1Button>
+          <Md1Button @click="router.push('/md1/sign-up')">Create account</Md1Button>
         </div>
       </Form>
     </main>
@@ -113,6 +117,13 @@
     line-height: var(--md1-type-body-1-leading, 20px);
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
     text-align: center;
+  }
+
+  /* The recovery link hugs the fields it recovers, start-aligned and quiet. */
+  .md1-demo-auth__forgot {
+    display: flex;
+    justify-content: flex-start;
+    margin: calc(-1 * var(--md1-spacing-1, 8px)) 0;
   }
 
   .md1-demo-auth__form,
