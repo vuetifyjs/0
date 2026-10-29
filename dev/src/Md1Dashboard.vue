@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1Ripple, Md1Switch } from '@paper/md1'
+  import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1List, Md1Ripple, Md1Switch, Md1TextField } from '@paper/md1'
 
   // Framework
   import { Button } from '@vuetify/v0'
 
-  import { sales } from './Md1Data'
+  import { sales, todos } from './Md1Data'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { computed, shallowRef, toRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   /** Each gauge tile presses through to the page behind its number. */
@@ -53,6 +53,21 @@
 
   /** The regions table rows live in the shared store (Md1Data). */
   const regions = sales.all
+
+  /** Fictional browsers: real ones are brands. Hues clear of the gauges, the bar and the tour. */
+  const browsers = [
+    { name: 'Comet', share: 46, hue: 'var(--md1-blue-500, #2196F3)' },
+    { name: 'Nimbus', share: 27, hue: 'var(--md1-green-500, #4CAF50)' },
+    { name: 'Falcon', share: 18, hue: 'var(--md1-amber-600, #FFB300)' },
+    { name: 'Other', share: 9, hue: 'var(--md1-blue-grey-400, #78909C)' },
+  ]
+
+  /** Each segment's sweep and start along the r=20 ring. */
+  const arcs = browsers.map((browser, index) => ({
+    ...browser,
+    sweep: (browser.share / 100) * RING,
+    from: browsers.slice(0, index).reduce((sum, prev) => sum + (prev.share / 100) * RING, 0),
+  }))
 </script>
 
 <script setup lang="ts">
@@ -64,6 +79,23 @@
   const refresh = shallowRef(true)
   const compact = shallowRef(false)
   const beta = shallowRef(false)
+
+  // The todo card: rows in store order, the list's own reorder writing back.
+  const order = computed({
+    get: () => todos.all.value.map(todo => todo.id),
+    set: ids => todos.reorder(ids as number[]),
+  })
+
+  const done = toRef(() => todos.all.value.filter(todo => todo.done).length)
+  const draft = shallowRef('')
+
+  function onAdd () {
+    const text = draft.value.trim()
+    if (!text) return
+
+    todos.add(text)
+    draft.value = ''
+  }
 </script>
 
 <template>
@@ -174,6 +206,76 @@
 
       <div class="md1-demo-options">
         <Md1Switch v-model="beta" label="Beta dashboard" />
+      </div>
+    </Md1Card>
+
+    <Md1Card class="md1-demo-wide">
+      <Md1Card.Title>To do</Md1Card.Title>
+
+      <p class="md1-demo-count" role="status">{{ done }} of {{ order.length }} done</p>
+
+      <Md1List v-model:order="order" aria-label="Tasks" class="md1-demo-todo">
+        <!-- The checkbox is the row's primary action (lists: controls page):
+             the tile press toggles, the leading glyph is the box. -->
+        <Md1List.Item
+          v-for="todo in todos.all.value"
+          :key="todo.id"
+          :aria-pressed="todo.done"
+          :data-done="todo.done || undefined"
+          :value="todo.id"
+          @click="todos.toggle(todo.id)"
+        >
+          <Md1List.Icon :name="todo.done ? 'check-box' : 'check-box-outline-blank'" />
+
+          <Md1List.Content>
+            <Md1List.Primary>{{ todo.text }}</Md1List.Primary>
+          </Md1List.Content>
+
+          <Md1List.Reorder />
+        </Md1List.Item>
+      </Md1List>
+
+      <div class="md1-demo-add" @keydown.enter="onAdd">
+        <Md1TextField v-model="draft" dense label="Add a task" />
+
+        <Md1Button aria-label="Add the task" icon="add" @click="onAdd" />
+      </div>
+    </Md1Card>
+
+    <Md1Card class="md1-demo-half">
+      <Md1Card.Title>Browser usage</Md1Card.Title>
+
+      <div class="md1-demo-pad md1-demo-usage">
+        <svg
+          aria-label="Browser usage: Comet 46 percent, Nimbus 27, Falcon 18, other 9"
+          class="md1-demo-donut"
+          role="img"
+          viewBox="0 0 48 48"
+        >
+          <circle
+            v-for="arc in arcs"
+            :key="arc.name"
+            cx="24"
+            cy="24"
+            fill="none"
+            r="20"
+            :stroke="arc.hue"
+            :stroke-dasharray="`${arc.sweep} ${RING}`"
+            :stroke-dashoffset="-arc.from"
+            stroke-width="6"
+            transform="rotate(-90 24 24)"
+          />
+        </svg>
+
+        <ul class="md1-demo-legend">
+          <li v-for="browser in browsers" :key="browser.name" class="md1-demo-legend__row">
+            <span aria-hidden="true" class="md1-demo-legend__dot" :style="{ background: browser.hue }" />
+
+            <span class="md1-type-body-2">{{ browser.name }}</span>
+
+            <span class="md1-demo-legend__share md1-type-body-2">{{ browser.share }}%</span>
+          </li>
+        </ul>
       </div>
     </Md1Card>
 
@@ -345,6 +447,71 @@
 
   .md1-demo-chart__dot {
     fill: var(--md1-primary-ink, #3F51B5);
+  }
+
+  /* The todo card's completed count, under the title like a card subtitle. */
+  .md1-demo-count {
+    margin: calc(-1 * var(--md1-spacing-1, 8px)) 0 0;
+    padding: 0 var(--md1-spacing-2, 16px) var(--md1-spacing-1, 8px);
+    font-size: var(--md1-type-body-1-size, 14px);
+    line-height: var(--md1-type-body-1-leading, 20px);
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+  }
+
+  .md1-demo-todo [data-done] .md1-list__primary {
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
+    text-decoration: line-through;
+  }
+
+  .md1-demo-add {
+    display: flex;
+    align-items: center;
+    gap: var(--md1-spacing-1, 8px);
+    padding: 0 var(--md1-spacing-2, 16px) var(--md1-spacing-2, 16px);
+  }
+
+  .md1-demo-add > :first-child {
+    flex: 1 1 auto;
+  }
+
+  .md1-demo-usage {
+    display: flex;
+    align-items: center;
+    gap: var(--md1-spacing-3, 24px);
+  }
+
+  .md1-demo-donut {
+    width: 128px;
+    height: 128px;
+    flex: none;
+  }
+
+  .md1-demo-legend {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--md1-spacing-1, 8px);
+  }
+
+  .md1-demo-legend__row {
+    display: flex;
+    align-items: center;
+    gap: var(--md1-spacing-1, 8px);
+  }
+
+  .md1-demo-legend__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .md1-demo-legend__share {
+    margin-left: auto;
+    color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
   }
 
   .md1-demo-options {
