@@ -248,8 +248,7 @@
               <Md1Button v-bind="attrs" :aria-label="`Actions for ${item.name}`" icon="more-vert" />
             </Md1Menu.Activator>
 
-            <!-- The tile's overflow sits at the end corner, so the sheet opens down and start-ward, staying over its own column. -->
-            <Md1Menu.Content position-area="block-end span-inline-start">
+            <Md1Menu.Content>
               <Md1Menu.Item icon="open-in-new" @select="onOpen(item)">Open</Md1Menu.Item>
 
               <Md1Menu.Item icon="edit" @select="onRename(item)">Rename</Md1Menu.Item>
