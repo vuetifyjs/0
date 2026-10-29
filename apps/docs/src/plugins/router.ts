@@ -40,11 +40,12 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
 
     // A text fragment is the painter's scroll target. On a fresh load the
     // browser has already stripped `:~:text=` from `to.hash`, so the arrival
-    // entry is the only signal. Snapping to a saved offset or to `top: 0`
-    // would throw the highlight away.
+    // entry is the only signal. Return false, not {}: any truthy position
+    // becomes window.scrollTo, and scrollTo({}) aborts the painter's scroll
+    // before the first frame. Snapping to a saved offset would do the same.
     if (to.hash.includes(':~:') || (isInitialNavigation && readTextFragment())) {
       isInitialNavigation = false
-      return {}
+      return false
     }
 
     // If the user navigated via browser back/forward, restore their position
