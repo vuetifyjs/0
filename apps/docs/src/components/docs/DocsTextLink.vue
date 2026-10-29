@@ -5,7 +5,6 @@
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
-  import { useSettings } from '@/composables/useSettings'
 
   // Transformers
   import { clearTextMarks, paintTextFragment, readTextFragment, toFragmentUrl, toTextDirective, toTextQuote } from '@/composables/toTextFragment'
@@ -18,7 +17,6 @@
   const PAD = 8
 
   const route = useRoute()
-  const settings = useSettings()
   const clipboard = useClipboard()
   const isOpen = shallowRef(false)
   const link = shallowRef('')
@@ -193,10 +191,8 @@
     const hidden = rect.top < 80 || rect.bottom > window.innerHeight - 24
     if (!hidden) return
 
-    mark.scrollIntoView({
-      block: 'center',
-      behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth',
-    })
+    // A heading link from another page jumps. Match that.
+    mark.scrollIntoView({ block: 'center', behavior: 'auto' })
   }
 
   function wait (): Promise<void> {
