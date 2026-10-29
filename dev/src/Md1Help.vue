@@ -2,10 +2,10 @@
   import { Md1Button, Md1Dialog, Md1Divider, Md1ExpansionPanel, Md1Icon, Md1List, Md1Radio, Md1SearchBar, Md1Snackbar, Md1Subheader, Md1TextField } from '@paper/md1'
 
   // Framework
-  import { isString } from '@vuetify/v0'
+  import { createFilter, isString } from '@vuetify/v0'
 
   // Utilities
-  import { computed, shallowRef, watch } from 'vue'
+  import { shallowRef, watch } from 'vue'
 
   type Topic = {
     title: string
@@ -98,6 +98,9 @@
   function text (value: unknown) {
     return isString(value) ? value : ''
   }
+
+  /** The topic search, on v0's createFilter — the same engine the store's cross-page search uses. */
+  const engine = createFilter<Topic>({ keys: ['title', 'lede'] })
 </script>
 
 <script setup lang="ts">
@@ -106,13 +109,7 @@
   // Search over the popular topics
   const query = shallowRef('')
 
-  const found = computed(() => {
-    const needle = query.value.trim().toLowerCase()
-
-    if (!needle) return topics
-
-    return topics.filter(topic => `${topic.title} ${topic.lede}`.toLowerCase().includes(needle))
-  })
+  const found = engine.apply(query, () => topics).items
 
   // The article dialog
   const reading = shallowRef(false)
