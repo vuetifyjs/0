@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Md1Button, Md1DataTable, Md1Snackbar, Md1Tooltip } from '@paper/md1'
+  import { Md1Button, Md1DataTable, Md1Icon, Md1Menu, Md1Snackbar, Md1Tooltip } from '@paper/md1'
 
   // Framework
   import { useDataTable } from '@vuetify/v0'
@@ -68,6 +68,18 @@
     // Once the restored rows have re-registered, realign the registry with the data order.
     await nextTick()
     table.value?.reorder(list.value.map(order => order.id))
+  }
+
+  const statuses: Order['status'][] = ['Processing', 'Shipped', 'Delivered', 'Cancelled']
+
+  /** An inline edit saves a whole number of items; the total follows at the order's unit price. */
+  function onItems (order: Order, value: unknown) {
+    const next = Number(value)
+
+    if (!Number.isInteger(next) || next < 1 || next === order.items) return
+
+    order.total = Math.round(order.total / order.items * next * 100) / 100
+    order.items = next
   }
 </script>
 
@@ -137,12 +149,35 @@
 
           <Md1DataTable.Cell>{{ order.shown }}</Md1DataTable.Cell>
 
-          <Md1DataTable.Cell numeric>{{ order.items }}</Md1DataTable.Cell>
+          <Md1DataTable.Cell
+            editable="small"
+            label="Items"
+            :model-value="String(order.items)"
+            numeric
+            @update:model-value="onItems(order, $event)"
+          />
 
           <Md1DataTable.Cell numeric>{{ order.total.toFixed(2) }}</Md1DataTable.Cell>
 
           <Md1DataTable.Cell>
-            <span class="md1-demo-status" :data-status="order.status">{{ order.status }}</span>
+            <Md1Menu v-model:selected="order.status">
+              <Md1Menu.Activator v-slot="{ attrs }">
+                <button
+                  v-bind="attrs"
+                  :aria-label="`Status for order ${order.id}: ${order.status}`"
+                  class="md1-demo-orders__menu"
+                  type="button"
+                >
+                  <span class="md1-demo-status" :data-status="order.status">{{ order.status }}</span>
+
+                  <Md1Icon name="arrow-drop-down" />
+                </button>
+              </Md1Menu.Activator>
+
+              <Md1Menu.Content>
+                <Md1Menu.Item v-for="status in statuses" :key="status" :value="status">{{ status }}</Md1Menu.Item>
+              </Md1Menu.Content>
+            </Md1Menu>
           </Md1DataTable.Cell>
         </Md1DataTable.Row>
       </Md1DataTable.Body>
@@ -162,6 +197,25 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: var(--md1-spacing-2, 16px);
+  }
+
+  /* The inline status menu's activator: the cell's own 13 sp at 87%, with the drop-down arrow at the 54% icon ink. */
+  .md1-demo-orders__menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 48px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .md1-demo-orders__menu .md1-icon {
+    color: var(--md1-icon-active, rgba(0, 0, 0, 0.54));
   }
 
   /* Status at the data row's ink with a severity dot: the data table page styles no cell content, so the dot leans on the kit-bridge severities. */
