@@ -42,6 +42,9 @@ Use the explorer to browse the static palettes. Click any swatch to copy its tok
 | `@vuetify/v0/palettes/tailwind` | Tailwind CSS | 22 | 50-950 |
 | `@vuetify/v0/palettes/radix` | Radix Colors | 31 | 1-12 |
 | `@vuetify/v0/palettes/ant` | Ant Design | 12 | 1-10 |
+| Docs themes[^bulma-scheme] | Bulma 1.0.4 | scheme roles | light, dark |
+
+[^bulma-scheme]: The explorer's Bulma option is the `bulma-light` / `bulma-dark` scheme pair. Copy Config inlines those colors. There is no `@vuetify/v0/palettes/bulma` export.
 
 ```ts
 import { tailwind } from '@vuetify/v0/palettes/tailwind'

@@ -14,6 +14,9 @@
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 
+  // Themes
+  import { themes } from '@/themes'
+
   // Utilities
   import { computed, ref, shallowRef, watch } from 'vue'
 
@@ -36,6 +39,43 @@
     return out
   }
 
+  /** A theme color the swatch can paint. Token aliases (`{…}`) are not colors. */
+  function isPaint (value: string): boolean {
+    return value.startsWith('#') || value.startsWith('rgb')
+  }
+
+  /** Docs-shell colors that ride along on every theme. Not Bulma scheme steps. */
+  const BULMA_SKIP = new Set(['discord', 'github', 'glass-surface', 'mastered', 'scrollbar-thumb', 'vue'])
+
+  /**
+   * Bulma 1.0.4 scheme pair from the docs themes. Each role is a row;
+   * `light` and `dark` are the two steps.
+   */
+  function bulmaSchemes (): Record<string, Record<string, string>> {
+    const light = themes['bulma-light'].colors
+    const dark = themes['bulma-dark'].colors
+    const data: Record<string, Record<string, string>> = {}
+    for (const key of Object.keys(light)) {
+      if (BULMA_SKIP.has(key)) continue
+      const left = light[key]
+      const right = dark[key]
+      if (!left || !right || !isPaint(left) || !isPaint(right)) continue
+      data[key] = { light: left, dark: right }
+    }
+    return data
+  }
+
+  function bulmaSource (data: Record<string, Record<string, string>>): string {
+    const lines = ['const bulma = {']
+    for (const [role, scheme] of Object.entries(data)) {
+      lines.push(`  '${role}': { light: '${scheme.light}', dark: '${scheme.dark}' },`)
+    }
+    lines.push('}')
+    return lines.join('\n')
+  }
+
+  const bulma = bulmaSchemes()
+
   const PALETTES: Record<string, PaletteEntry> = {
     tailwind: { label: 'Tailwind', data: tailwind as Record<string, Record<string, string>>, namespace: 'tw' },
     md1: { label: 'MD1', data: md1 as Record<string, Record<string, string>>, namespace: 'md1' },
@@ -43,6 +83,13 @@
     material: { label: 'Material 3', data: material as Record<string, Record<string, string>>, namespace: 'md' },
     radix: { label: 'Radix', data: radix as Record<string, Record<string, string>>, namespace: 'radix' },
     ant: { label: 'Ant Design', data: ant as Record<string, Record<string, string>>, namespace: 'ant' },
+    bulma: {
+      label: 'Bulma',
+      data: bulma,
+      namespace: 'bu',
+      importLine: bulmaSource(bulma),
+      value: 'bulma',
+    },
     emerald: {
       label: 'Emerald',
       data: { primary: ladder(primary), secondary: ladder(secondary), neutral: ladder(neutral), danger: ladder(danger), alert: ladder(alert), success: ladder(success), info: ladder(info) },
@@ -69,6 +116,8 @@
         keys.add(key)
       }
     }
+    // Scheme pair: light sits left of dark. Named steps are not a numeric ladder.
+    if (keys.size === 2 && keys.has('light') && keys.has('dark')) return ['light', 'dark']
     // Sort: numeric first (by number), then accent (A-prefixed)
     const numeric: string[] = []
     const accent: string[] = []
@@ -85,6 +134,15 @@
   })
 
   const rows = computed(() => Object.entries(palette.value.data))
+
+  // Long role names (`on-surface-variant`) need more than the 80px hue gutter.
+  const labelWidth = computed(() => {
+    let longest = 0
+    for (const [hue] of rows.value) {
+      if (hue.length > longest) longest = hue.length
+    }
+    return `${Math.max(10, longest + 2)}ch`
+  })
 
   // Transpose when there are more shades than hues (e.g., Material: 6 groups × 26 tones)
   // This swaps axes so groups become columns and tones become rows
@@ -258,7 +316,7 @@
         v-else
         class="grid gap-px min-w-fit"
         :style="{
-          gridTemplateColumns: `80px repeat(${columns.length}, minmax(28px, 1fr))`,
+          gridTemplateColumns: `${labelWidth} repeat(${columns.length}, minmax(28px, 1fr))`,
         }"
       >
         <!-- Column headers -->
