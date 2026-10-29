@@ -9,7 +9,7 @@
  */
 
 // Framework
-import { createFilter, isArray } from '@vuetify/v0'
+import { createFilter, isArray, isUndefined } from '@vuetify/v0'
 
 // Assets
 import avatar from './assets/john.png'
@@ -129,7 +129,8 @@ export type Slot<Z> = {
 }
 
 function next (ids: number[]): number {
-  return Math.max(...ids) + 1
+  // The 0 floor: Math.max of an emptied domain is -Infinity.
+  return Math.max(0, ...ids) + 1
 }
 
 function pull<Z extends { id: number }> (list: Z[], ids: number[]): Slot<Z>[] {
@@ -680,7 +681,7 @@ const stored: Record<string, unknown> = {
 /**
  * Reset every persisted md1-demo:* key to its default through the storage
  * context: its per-key ref cache means the live refs the shell and pages hold
- * (theme, drawer group, search history, the discovery tip) flip with it.
+ * (theme, drawer group, search history, the settings toggles) flip with it.
  */
 export function resetAll (storage: StorageContext) {
   for (const [key, value] of Object.entries(stored)) {
