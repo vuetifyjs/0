@@ -323,6 +323,37 @@ describe('quMenu', () => {
       await new Promise(resolve => setTimeout(resolve, 300))
       expect(Math.abs(el.getBoundingClientRect().left + x - (anchor.left + anchor.width / 2))).toBeLessThanOrEqual(1)
     })
+
+    it('should hold the measured area through the close so the fading sheet keeps its seat', async () => {
+      // The exit transition is the regression surface: without it the sheet
+      // vanishes before a mid-exit re-seat could ever paint.
+      document.body.dataset.reducedMotion = 'no-preference'
+
+      const open = shallowRef(false)
+      const host = menu(simple, { open })
+      // Past the midline with room on either side: a mid-exit reset to the
+      // default would re-seat the sheet, and no screen edge pulls it back.
+      Object.assign(host.style, { position: 'fixed', padding: '0', left: '60%', top: '8px' })
+      await settle()
+
+      await show(host)
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
+      const el = sheet()
+      const before = el.getBoundingClientRect()
+
+      // Close through the model so the assertions land inside the exit window.
+      open.value = false
+      await settle()
+
+      // The exit still plays: the sheet stays painted on the measured side
+      // instead of re-seating to the default alignment.
+      expect(el.matches(':popover-open')).toBe(false)
+      const during = el.getBoundingClientRect()
+      expect(during.width).toBeGreaterThan(0)
+      expect(Math.abs(during.right - before.right)).toBeLessThanOrEqual(2)
+      expect(Object.hasOwn(el.dataset, 'start')).toBe(true)
+    })
   })
 
   describe('metrics', () => {

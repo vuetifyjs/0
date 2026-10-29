@@ -9,7 +9,7 @@
   import { provideOver } from './over'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { MenuContentProps } from '@vuetify/v0'
@@ -63,23 +63,30 @@
    * The sheet opens toward the side of the screen with the room: an action
    * menu at the end of an app bar grows down and start-ward by intent rather
    * than by edge pressure (menus page: menus position "based on their
-   * proximity to screen edges"). Measured per open; the server and a closed
-   * sheet keep the default, and position-try still covers whatever changes
-   * after the guess.
+   * proximity to screen edges"). Measured once per open and held through the
+   * close: the path empties while the exit still plays, and a reset to the
+   * default would re-seat a start-aligned sheet mid-fade wherever both sides
+   * fit — position-try only pulls it back at a screen edge. The server keeps
+   * the default.
    */
-  const area = toRef(() => {
-    if (!IN_BROWSER || menu.path.value.length === 0) return 'block-end span-inline-end'
+  const area = shallowRef('block-end span-inline-end')
+
+  watch(() => menu.path.value.length > 0, open => {
+    if (!open || !IN_BROWSER) return
 
     const trigger = document.querySelector(`#${CSS.escape(menu.triggerId(menu.defaultLayer))}`)
 
-    if (isNull(trigger)) return 'block-end span-inline-end'
+    if (isNull(trigger)) {
+      area.value = 'block-end span-inline-end'
+      return
+    }
 
     const rect = trigger.getBoundingClientRect()
     const after = rect.left + rect.width / 2 > document.documentElement.clientWidth / 2
     const rtl = getComputedStyle(trigger).direction === 'rtl'
 
-    return after === rtl ? 'block-end span-inline-end' : 'block-end span-inline-start'
-  })
+    area.value = after === rtl ? 'block-end span-inline-end' : 'block-end span-inline-start'
+  }, { immediate: true })
 
   // The selected row lands on the emitting element (menus page, "Location"). A
   // cascading sub sheet is not a simple menu: it keeps its place beside its row.
