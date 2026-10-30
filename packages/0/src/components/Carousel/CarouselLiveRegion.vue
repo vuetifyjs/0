@@ -5,7 +5,8 @@
  *
  * @remarks
  * Visually hidden live region that announces slide changes to screen readers.
- * Uses aria-live="polite" to announce without interrupting the user.
+ * Announces with aria-live="polite" while rotation is stopped, and aria-live="off"
+ * while the carousel is auto-rotating.
  *
  * The live region must exist in the DOM before content changes for screen readers
  * to detect updates. A small delay (100ms) is used after slide changes to ensure
@@ -53,7 +54,7 @@
     /** Attributes to bind to the live region element */
     attrs: {
       'aria-atomic': true
-      'aria-live': 'polite'
+      'aria-live': 'off' | 'polite'
       'role': 'status'
     }
   }
@@ -106,13 +107,17 @@
   onBeforeUnmount(() => clearTimeout(pending))
   /* v8 ignore stop */
 
+  const live = toRef((): 'off' | 'polite' =>
+    carousel.isAutoplay.value && !carousel.isPaused.value ? 'off' : 'polite',
+  )
+
   const slotProps = toRef((): CarouselLiveRegionSlotProps => ({
     current: carousel.selectedIndex.value + 1,
     size: carousel.size,
     text: text.value,
     attrs: {
       'aria-atomic': true,
-      'aria-live': 'polite',
+      'aria-live': live.value,
       'role': 'status',
     },
   }))

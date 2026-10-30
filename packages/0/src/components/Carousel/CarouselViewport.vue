@@ -187,7 +187,7 @@
       /* v8 ignore next -- defensive: mousedown only fires on attached viewport */
       if (!viewport) return
 
-      carousel.pause()
+      carousel.stop()
       dragStart = isVertical.value ? e.clientY : e.clientX
       scrollStart = isVertical.value ? viewport.scrollTop : viewport.scrollLeft
       snapDisabled.value = true
@@ -212,7 +212,6 @@
 
       useDocumentEventListener('mouseup', () => {
         const viewport = el.value
-        carousel.resume()
 
         if (!viewport || slideStep.value === 0) {
           snapDisabled.value = false
@@ -240,17 +239,12 @@
       })
 
       onScopeDispose(() => {
-        carousel.resume()
         snapDisabled.value = false
         isDragging.value = false
       })
     })
 
-    useEventListener(el, 'touchstart', () => carousel.pause(), { passive: true })
-    useEventListener(el, 'touchend', () => carousel.resume(), { passive: true })
-
-    useEventListener(el, 'focusin', () => carousel.pause())
-    useEventListener(el, 'focusout', () => carousel.resume())
+    useEventListener(el, 'touchstart', () => carousel.stop(), { passive: true })
   }
 
   watch(() => carousel.selectedIndex.value, index => {

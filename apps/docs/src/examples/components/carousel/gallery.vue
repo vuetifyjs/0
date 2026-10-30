@@ -19,7 +19,7 @@
     </div>
 
     <p class="text-xs text-on-surface-variant">
-      Drag, or use the arrows and dots to browse. Press Play to auto-advance — autoplay pauses automatically while you drag.
+      Drag, or use the arrows and dots to browse. Press Play to auto-advance. Hovering, focusing, or dragging stops it until you press Play again.
     </p>
   </div>
 </template>

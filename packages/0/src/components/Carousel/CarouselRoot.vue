@@ -17,16 +17,20 @@
   import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createStep } from '#v0/composables/createStep'
+  import { useEventListener } from '#v0/composables/useEventListener'
   import { useLocale } from '#v0/composables/useLocale'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useTimer } from '#v0/composables/useTimer'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
   import { useId } from '#v0/utilities'
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext, RegistryTicketInput } from '#v0/composables/createRegistry'
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
@@ -131,6 +135,8 @@
     isPaused: Readonly<Ref<boolean>>
     /** Restart autoplay from full interval */
     play: () => void
+    /** Stop autoplay and reset the timer */
+    stop: () => void
     /** Pause autoplay timer */
     pause: () => void
     /** Resume autoplay timer from remaining time */
@@ -218,6 +224,11 @@
     timer?.stop()
   }
 
+  const atomRef = useTemplateRef<AtomExpose>('root')
+  const rootEl = toRef(() => toElement(atomRef.value?.element) ?? null)
+  useEventListener(rootEl, 'pointerenter', () => stop())
+  useEventListener(rootEl, 'focusin', () => stop())
+
   const parts = createRegistry<CarouselPartTicket>()
 
   const context: CarouselContext = {
@@ -225,6 +236,7 @@
     next,
     prev,
     play,
+    stop,
     pause,
     resume,
     orientation: toRef(() => orientation),
@@ -264,7 +276,7 @@
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',
-      'aria-label': label ?? locale.ti('Carousel.label') ?? 'Carousel',
+      'aria-label': label ?? locale.ti('Carousel.label') ?? 'Slides',
       'aria-disabled': toValue(step.disabled),
       'data-disabled': toValue(step.disabled) || undefined,
     },
@@ -272,7 +284,7 @@
 </script>
 
 <template>
-  <Atom v-bind="slotProps.attrs" :as :renderless>
+  <Atom ref="root" v-bind="slotProps.attrs" :as :renderless>
     <slot v-bind="slotProps" />
   </Atom>
 </template>
