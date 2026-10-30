@@ -339,6 +339,7 @@
     }
   }
 
+  /* md1Breakpoints[1280]: the spec's 1280 nets to 1264 inside browser chrome. */
   @media (min-width: 1264px) {
     .md1-demo-dash > .md1-demo-tile {
       grid-column: span 3;
