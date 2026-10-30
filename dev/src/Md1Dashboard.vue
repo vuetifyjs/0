@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Md1Button, Md1Card, Md1DataTable, Md1Divider, Md1List, Md1Ripple, Md1Switch, Md1TextField } from '@paper/md1'
+  import { Md1Button, Md1Card, Md1Checkbox, Md1DataTable, Md1Divider, Md1List, Md1Ripple, Md1Switch, Md1TextField } from '@paper/md1'
 
   // Framework
   import { Button } from '@vuetify/v0'
@@ -215,21 +215,27 @@
       <p class="md1-demo-count" role="status">{{ done }} of {{ order.length }} done</p>
 
       <Md1List v-model:order="order" aria-label="Tasks" class="md1-demo-todo">
-        <!-- The checkbox is the row's primary action (lists: controls page):
-             the tile press toggles, the leading glyph is the box. -->
+        <!-- The checkbox is its own target beside the tile (lists: controls
+             page, secondary actions). A tile press can't be the toggle: the
+             rows carry values for the reorder handle, and a valued tile press
+             marks the row the list's current destination. -->
         <Md1List.Item
           v-for="todo in todos.all.value"
           :key="todo.id"
-          :aria-pressed="todo.done"
           :data-done="todo.done || undefined"
           :value="todo.id"
-          @click="todos.toggle(todo.id)"
         >
-          <Md1List.Icon :name="todo.done ? 'check-box' : 'check-box-outline-blank'" />
-
           <Md1List.Content>
             <Md1List.Primary>{{ todo.text }}</Md1List.Primary>
           </Md1List.Content>
+
+          <Md1List.Action>
+            <Md1Checkbox
+              :aria-label="`Done: ${todo.text}`"
+              :model-value="todo.done"
+              @update:model-value="todos.toggle(todo.id)"
+            />
+          </Md1List.Action>
 
           <Md1List.Reorder />
         </Md1List.Item>
@@ -458,7 +464,30 @@
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
   }
 
-  .md1-demo-todo [data-done] .md1-list__primary {
+  /* Two trailing targets, the box and the handle: each takes a column of its
+     own, where the package grid seats a single action. */
+  .md1-demo-todo .md1-list__item {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .md1-demo-todo .md1-list__action.md1-list__reorder {
+    grid-column: 3;
+  }
+
+  /* A to-do row is no destination: mute the current-item paint a valued
+     (reorderable) tile takes on tap, leaving the drop line its primary ink.
+     The tap itself stays a package gap. */
+  .md1-demo-todo .md1-list__item[data-selected] .md1-list__body,
+  .md1-demo-todo .md1-list__item[data-selected] .md1-list__primary {
+    color: inherit;
+  }
+
+  .md1-demo-todo .md1-list__item[data-selected] > .md1-list__tile {
+    background-color: transparent;
+  }
+
+  /* The row's own attrs land on the tile, so [data-done] sits there. */
+  .md1-demo-todo .md1-list__tile[data-done] .md1-list__primary {
     color: var(--md1-text-secondary, rgba(0, 0, 0, 0.54));
     text-decoration: line-through;
   }
