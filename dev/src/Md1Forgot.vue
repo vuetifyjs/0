@@ -26,10 +26,6 @@
     router.push('/md1/sign-in')
   }, { duration: 1400 })
 
-  function onSubmit ({ valid }: { valid: boolean }) {
-    if (valid) onSent()
-  }
-
   async function onSend (submit: () => Promise<boolean>) {
     if (await submit()) onSent()
   }
@@ -47,8 +43,9 @@
 
       <p class="md1-demo-auth__hint">We'll email you a link to reset your password</p>
 
-      <Form v-slot="{ submit }" class="md1-demo-auth__form" @submit="onSubmit">
-        <!-- No native submit button exists, so Enter needs its own path to send the link. -->
+      <Form v-slot="{ submit }" class="md1-demo-auth__form">
+        <!-- No native submit button exists and Enter's default is prevented:
+             the keydown path below is the one way in from the keyboard. -->
         <div class="md1-demo-auth__fields" @keydown.enter.prevent="onSend(submit)">
           <Md1TextField
             v-model="email"

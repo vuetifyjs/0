@@ -41,10 +41,6 @@
     router.push('/md1/setup')
   }, { duration: 1400 })
 
-  function onSubmit ({ valid }: { valid: boolean }) {
-    if (valid) onCreated()
-  }
-
   async function onCreate (submit: () => Promise<boolean>) {
     if (await submit()) onCreated()
   }
@@ -62,8 +58,9 @@
 
       <p class="md1-demo-auth__hint">Create your workspace account</p>
 
-      <Form v-slot="{ submit }" class="md1-demo-auth__form" @submit="onSubmit">
-        <!-- No native submit button exists, so Enter needs its own path to create the account. -->
+      <Form v-slot="{ submit }" class="md1-demo-auth__form">
+        <!-- No native submit button exists and Enter's default is prevented:
+             the keydown path below is the one way in from the keyboard. -->
         <div class="md1-demo-auth__fields" @keydown.enter.prevent="onCreate(submit)">
           <Md1TextField
             v-model="name"

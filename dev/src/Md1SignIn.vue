@@ -25,11 +25,6 @@
   const email = shallowRef('')
   const password = shallowRef('')
 
-  /** Enter in a field drives the native form submission; v0's Form has already validated. */
-  function onSubmit ({ valid }: { valid: boolean }) {
-    if (valid) router.push('/md1')
-  }
-
   async function onSignIn (submit: () => Promise<boolean>) {
     if (await submit()) router.push('/md1')
   }
@@ -42,8 +37,9 @@
 
       <p class="md1-demo-auth__hint">Sign in to your workspace</p>
 
-      <Form v-slot="{ submit }" class="md1-demo-auth__form" @submit="onSubmit">
-        <!-- No native submit button exists, so Enter needs its own path to sign in. -->
+      <Form v-slot="{ submit }" class="md1-demo-auth__form">
+        <!-- No native submit button exists and Enter's default is prevented:
+             the keydown path below is the one way in from the keyboard. -->
         <div class="md1-demo-auth__fields" @keydown.enter.prevent="onSignIn(submit)">
           <Md1TextField
             v-model="email"
