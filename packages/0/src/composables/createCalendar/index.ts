@@ -48,6 +48,12 @@ const SHAPE = /^\d{4}-\d{2}(?:-\d{2})?$/
 const FIRST_MONTH = 0
 const LAST_MONTH = 9999 * 12 + 11
 
+/**
+ * One day in the visible grid.
+ *
+ * A spill day from the adjacent month stays in the row. It is `outside` and
+ * not selectable.
+ */
 export interface CalendarCell {
   /**
    * `YYYY-MM-DD` when the grid can page to the day. A spill day before year
@@ -61,14 +67,19 @@ export interface CalendarCell {
   outside: boolean
   /** `min`, `max`, `disabled`, or a day that is not `YYYY-MM-DD`. */
   disabled: boolean
+  /** This cell is the current day. */
   today: boolean
+  /** This cell is the selected day, or it lies inside the range. */
   selected: boolean
+  /** This cell is the focused day. It may also be disabled. */
   focused: boolean
 }
 
+/** One visible month. Not a list of months. */
 export interface CalendarMonth {
   /** `YYYY-MM`. */
   anchor: string
+  /** Rows of 7 cells. Four to six rows, or six when `fixedWeeks` is set. */
   weeks: CalendarCell[][]
 }
 
@@ -85,19 +96,25 @@ export interface CalendarMonth {
  * ```
  */
 export interface CalendarRange {
+  /** `YYYY-MM-DD`. Replaced when the next day is earlier, or when the range is already closed. */
   start?: string
+  /** `YYYY-MM-DD`. Set for a day on or after `start` while the range is still open. */
   end?: string
 }
 
+/** Selected day, an open or closed range, or nothing. */
 export type CalendarValue = string | CalendarRange | undefined
 
+/** One day, or a start and an end. */
 export type CalendarMode = 'single' | 'range'
 
 /** Whole grid, a list of `YYYY-MM-DD` days, or a per-day predicate. */
 export type CalendarDisabled = boolean | readonly string[] | ((iso: string) => boolean)
 
+/** Step size for `move`. */
 export type CalendarUnit = 'day' | 'week' | 'month' | 'year'
 
+/** Intl weekday length. `narrow` is one letter in most locales. */
 export type CalendarWeekdayFormat = 'long' | 'short' | 'narrow'
 
 /**
@@ -124,13 +141,24 @@ export interface CalendarOptions<Z = Date> {
   adapter?: DateAdapter<Z>
   /** Namespace of an installed date plugin. @default 'v0:date' */
   namespace?: string
-  /** Visible month, `YYYY-MM`. Uncontrolled when omitted. */
+  /**
+   * Visible month. `YYYY-MM`, or a day whose month is used. Omitted means the
+   * current month, clamped to `min` and `max`. A writable ref is written as
+   * `YYYY-MM` when the grid pages. Inside a component it is also written when
+   * `min` or `max` clamps the month it opened on. A day token stays while the
+   * page stays in that month. A getter or a readonly ref is not written.
+   */
   month?: MaybeRefOrGetter<string | undefined>
-  /** Selected day, or a range. A ref is written back. */
+  /**
+   * Selected day, or `{ start, end }` in range mode. A ref is written back.
+   * A getter or a readonly ref is not. Inside a component, changing `mode`
+   * clears it.
+   */
   value?: MaybeRefOrGetter<CalendarValue>
   /**
    * `'single'` selects one day. `'range'` selects a start and an end.
-   * A ref or getter is read on each interaction. Changing it clears the selection.
+   * A ref or getter is read on each interaction. Inside a component, changing
+   * it clears the selection.
    *
    * @default 'single'
    */
@@ -148,21 +176,34 @@ export interface CalendarOptions<Z = Date> {
    * @default false
    */
   disabled?: MaybeRefOrGetter<CalendarDisabled>
-  /** `select` no-ops. Cells are not marked disabled. */
+  /**
+   * `select` and `unselect` no-op. Cells stay enabled, and paging still runs.
+   *
+   * @default false
+   */
   readonly?: MaybeRefOrGetter<boolean>
-  /** 0 = Sunday. Overrides the adapter without writing the adapter. */
+  /**
+   * Week start. `0` is Sunday. A finite number wins and is not written onto
+   * the adapter. Omit it to follow the adapter, or an owned `locale`.
+   */
   firstDayOfWeek?: MaybeRefOrGetter<number | undefined>
   /** Pad the grid to six rows. @default false */
   fixedWeeks?: MaybeRefOrGetter<boolean>
   /**
-   * When true, a selected day cannot be cleared by a second click or `unselect()`.
+   * In single mode, clicking the selected day again does not clear it.
+   * Another day still replaces it. `unselect()` no-ops. Range clicks ignore
+   * this. Nothing is selected until the caller selects a day.
    *
    * @default false
    */
   mandatory?: MaybeRefOrGetter<boolean>
-  /** Applied only when this call constructs its own adapter. */
+  /**
+   * BCP 47 tag. Written onto the adapter only when this call constructs it,
+   * which moves the weekday columns and the month label. A borrowed adapter
+   * keeps its own locale.
+   */
   locale?: MaybeRefOrGetter<string | undefined>
-  /** @default 'narrow' */
+  /** Weekday column labels. @default 'narrow' */
   weekdayFormat?: CalendarWeekdayFormat
 }
 
@@ -181,6 +222,7 @@ export interface CalendarOptions<Z = Date> {
 export interface CalendarContext {
   /** The visible month. One object, not an array. */
   month: ComputedRef<CalendarMonth>
+  /** Seven labels, rotated to the week start. */
   weekdays: ComputedRef<string[]>
   /** Localized month and year. Year 0 follows Intl, which numbers that year 1. */
   label: ComputedRef<string>
@@ -206,7 +248,7 @@ export interface CalendarContext {
    * ```
    */
   select: (iso: string) => void
-  /** Clears the selection. No-ops when `mandatory` is set. */
+  /** Clears the selection. No-ops when `mandatory` or `readonly` is set. */
   unselect: () => void
   /**
    * Pages to the current month and focuses today. Selects nothing.
@@ -227,7 +269,9 @@ export interface CalendarContext {
    * ```
    */
   selectToday: () => void
+  /** Page to the next month, clamped to `max`. */
   next: () => void
+  /** Page to the previous month, clamped to `min`. */
   prev: () => void
   /** Page by whole months, clamped to `min` and `max`. */
   step: (count: number) => void
