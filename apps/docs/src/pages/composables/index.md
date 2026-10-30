@@ -243,6 +243,7 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
+| [createCalendar](/composables/forms/create-calendar) | Gregorian month grid with single and range selection |
 | [createCombobox](/composables/forms/create-combobox) | Coordinate selection, popover, virtual focus, and filtering for autocomplete |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |

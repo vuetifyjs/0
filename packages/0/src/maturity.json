@@ -127,10 +127,16 @@
       "category": "forms",
       "description": "Fixed-length one-time-password or verification-code value with pattern-gated entry and completion detection."
     },
+    "createCalendar": {
+      "level": "preview",
+      "since": null,
+      "category": "forms",
+      "description": "Gregorian month grid with single and range selection. Days outside min and max are disabled, and a list or a predicate can disable individual days."
+    },
     "createDatePicker": {
       "level": "draft",
       "category": "forms",
-      "description": "Headless date state with calendar-grid geometry, single-date and range modes, preset ranges, min/max bounds, and disabled-date rules. Composable-first, without an `@internationalized/date` dependency."
+      "description": "Picker chrome around a month grid: popover, text field, and preset ranges. The grid itself is createCalendar."
     },
     "createTimePicker": {
       "level": "draft",

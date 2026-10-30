@@ -13,6 +13,7 @@ features:
 related:
   - /composables/plugins/use-locale
   - /composables/foundation/create-plugin
+  - /composables/forms/create-calendar
 ---
 
 # useDate
@@ -382,7 +383,7 @@ A navigable month grid with click-to-select, built entirely from the adapter. `u
 
 The composable precomputes each `weeks` cell into a flat `{ date, day, today, selected, outside }` record, so `CalendarGrid.vue` renders the surface from plain props — `weekdays`, `weeks`, `monthYear`, plus the `prev`, `next`, `today`, and `select` callbacks — without ever touching the adapter directly. The entry instantiates the calendar once and reads `selectedLabel` and `locale` for the summary panel. This is the structural half of the adapter interface — building and navigating grids — rather than the formatting presets shown in the Usage example above.
 
-Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter should own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
+The selection model for a month grid is [createCalendar](/composables/forms/create-calendar). This example stays on the adapter so you can see `getWeekArray` directly. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
 
 | File | Role |
 |------|------|

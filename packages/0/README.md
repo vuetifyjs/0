@@ -231,6 +231,7 @@ Selection management composables built on `createRegistry`:
 
 #### Forms
 
+- [`createCalendar`](https://0.vuetifyjs.com/composables/forms/create-calendar) - Gregorian month grid with single and range selection
 - [`createForm`](https://0.vuetifyjs.com/composables/forms/create-form) - Form validation and state management with async rules
 - [`createInput`](https://0.vuetifyjs.com/composables/forms/create-input) - Shared form field state: validation, dirty/pristine, ARIA IDs
 - [`createNumberField`](https://0.vuetifyjs.com/composables/forms/create-number-field) - Numeric input state with formatting, stepping, and validation
