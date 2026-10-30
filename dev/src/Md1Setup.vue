@@ -13,15 +13,38 @@
   import { Form, useBreakpoints, useTimer } from '@vuetify/v0'
 
   // Utilities
-  import { shallowRef, toRef, watch } from 'vue'
+  import { defineComponent, shallowRef, toRef, watch, watchEffect } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
+  import type { PropType } from 'vue'
+
   type Submit = () => Promise<boolean>
 
   function address (value: unknown) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value)) || 'Error: enter an address like name@example.com'
   }
+
+  /**
+   * Banks a Form slot's `submit` where the wizard can reach it: Continue,
+   * Finish and the mobile bar's gate validate steps they do not render in,
+   * and the slot alone sees the function.
+   */
+  const Enlist = defineComponent({
+    name: 'Md1DemoEnlist',
+    props: {
+      at: { type: Number, required: true },
+      bank: { type: Array as PropType<Submit[]>, required: true },
+      submit: { type: Function as PropType<Submit>, required: true },
+    },
+    setup (props) {
+      watchEffect(() => {
+        props.bank[props.at] = props.submit
+      })
+
+      return () => null
+    },
+  })
 </script>
 
 <script setup lang="ts">
@@ -51,16 +74,8 @@
   const done = shallowRef(false)
   const leave = useTimer(() => router.push('/md1'), { duration: 1400 })
 
-  /**
-   * Each step's v0 Form hands `submit` to its slot alone; the steps bank them
-   * here so Continue, Finish and the mobile bar's gate can all validate a step.
-   */
+  /** Each step's banked `submit`, filled by `Enlist` as the Forms mount. */
   const submits: Submit[] = []
-
-  function enlist (index: number, submit: Submit) {
-    submits[index] = submit
-    return ''
-  }
 
   async function advance (index: number) {
     if (await submits[index]?.()) step.value = index + 1
@@ -103,7 +118,7 @@
         <Md1Stepper.Step label="Account" :value="0">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <span hidden>{{ enlist(0, submit) }}</span>
+              <Enlist :at="0" :bank="submits" :submit />
 
               <Md1TextField v-model="name" autocomplete="name" label="Name" required />
 
@@ -128,7 +143,7 @@
         <Md1Stepper.Step label="Workspace" :value="1">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <span hidden>{{ enlist(1, submit) }}</span>
+              <Enlist :at="1" :bank="submits" :submit />
 
               <Md1TextField
                 v-model="workspace"
@@ -157,7 +172,7 @@
         <Md1Stepper.Step label="Preferences" :value="2">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <span hidden>{{ enlist(2, submit) }}</span>
+              <Enlist :at="2" :bank="submits" :submit />
 
               <div class="md1-demo-setup__choices">
                 <Md1Switch v-model="digest" label="Weekly digest" />
