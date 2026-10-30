@@ -29,20 +29,20 @@
   const REASONS = ['Complete the account fields', 'Name the workspace'] as const
 
   /**
-   * Banks a Form slot's `submit` where the wizard can reach it: Continue,
-   * Finish and the mobile bar's gate validate steps they do not render in,
-   * and the slot alone sees the function.
+   * Hands a Form slot's `submit` to the wizard's registrar: Continue, Finish
+   * and the mobile bar's gate validate steps they do not render in, and the
+   * slot alone sees the function.
    */
   const Enlist = defineComponent({
     name: 'Md1DemoEnlist',
     props: {
       at: { type: Number, required: true },
-      bank: { type: Array as PropType<Submit[]>, required: true },
+      bank: { type: Function as PropType<(at: number, submit: Submit) => void>, required: true },
       submit: { type: Function as PropType<Submit>, required: true },
     },
     setup (props) {
       watchEffect(() => {
-        props.bank[props.at] = props.submit
+        props.bank(props.at, props.submit)
       })
 
       return () => null
@@ -77,8 +77,12 @@
   const done = shallowRef(false)
   const leave = useTimer(() => router.push('/md1'), { duration: 1400 })
 
-  /** Each step's banked `submit`, filled by `Enlist` as the Forms mount. */
+  /** Each step's banked `submit`, registered by `Enlist` as the Forms mount. */
   const submits: Submit[] = []
+
+  function enlist (at: number, submit: Submit) {
+    submits[at] = submit
+  }
 
   /** Step-header errors: a failed gate raises the error form, a pass clears it. */
   const faults = ref<(string | undefined)[]>([])
@@ -131,8 +135,8 @@
       <Md1Stepper v-model="step" :mobile="mobile ? 'text' : undefined">
         <Md1Stepper.Step editable :error="faults[0]" label="Account" :value="0">
           <Md1Stepper.Content>
-            <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <Enlist :at="0" :bank="submits" :submit />
+            <Form v-slot="{ submit: account }" class="md1-demo-setup__form">
+              <Enlist :at="0" :bank="enlist" :submit="account" />
 
               <Md1TextField v-model="name" autocomplete="name" label="Name" required />
 
@@ -156,8 +160,8 @@
 
         <Md1Stepper.Step editable :error="faults[1]" label="Workspace" :value="1">
           <Md1Stepper.Content>
-            <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <Enlist :at="1" :bank="submits" :submit />
+            <Form v-slot="{ submit: space }" class="md1-demo-setup__form">
+              <Enlist :at="1" :bank="enlist" :submit="space" />
 
               <Md1TextField
                 v-model="workspace"
@@ -185,8 +189,8 @@
 
         <Md1Stepper.Step label="Preferences" optional :value="2">
           <Md1Stepper.Content>
-            <Form v-slot="{ submit }" class="md1-demo-setup__form">
-              <Enlist :at="2" :bank="submits" :submit />
+            <Form v-slot="{ submit: prefs }" class="md1-demo-setup__form">
+              <Enlist :at="2" :bank="enlist" :submit="prefs" />
 
               <div class="md1-demo-setup__choices">
                 <Md1Switch v-model="digest" label="Weekly digest" />
