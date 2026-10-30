@@ -101,7 +101,13 @@
 
     place(range)
     shown = key
-    link.value = toFragmentUrl(window.location.href, toTextDirective(quote.text, quote.quote, quote.at))
+    link.value = toFragmentUrl(window.location.href, toTextDirective(
+      quote.text,
+      quote.quote,
+      quote.at,
+      quote.tail,
+      quote.tailAt,
+    ))
     dismiss.stop()
     isOpen.value = true
   }

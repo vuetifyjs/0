@@ -135,8 +135,58 @@ describe('toTextFragment', () => {
       expect(toTextQuote(root, range)).toMatchObject({ quote: 'target', at })
     })
 
-    it('should refuse a selection that crosses paragraphs', () => {
-      const root = mount('<div><p>one two</p><p>three four</p></div>')
+    it('should link a selection that runs through a heading and a bullet', () => {
+      const root = mount('<div><p>one two</p><h2>Usage heading</h2><ul><li>first bullet</li><li>second bullet</li></ul></div>')
+      const first = root.querySelector('p')?.firstChild
+      const last = root.querySelectorAll('li')[1]?.firstChild
+
+      expect(first).toBeInstanceOf(Text)
+      expect(last).toBeInstanceOf(Text)
+      if (!(first instanceof Text) || !(last instanceof Text)) return
+
+      const range = document.createRange()
+      range.setStart(first, 0)
+      range.setEnd(last, last.data.length)
+
+      const quote = toTextQuote(root, range)
+
+      expect(quote).toMatchObject({ quote: 'one two', tail: 'second bullet' })
+      if (!quote?.tail || quote.tailAt === undefined) return
+
+      const directive = toTextDirective(quote.text, quote.quote, quote.at, quote.tail, quote.tailAt)
+
+      expect(directive.start).toBe('one two')
+      expect(directive.end).toBe('second bullet')
+      expect(directive.start).not.toContain('Usage')
+      expect(paintTextFragment(root, directive)).toBe(true)
+
+      const marked = [...root.querySelectorAll('mark.docs-text-mark')].map(mark => mark.textContent).join('')
+      expect(marked).toContain('one two')
+      expect(marked).toContain('Usage heading')
+      expect(marked).toContain('first bullet')
+      expect(marked).toContain('second bullet')
+    })
+
+    it('should link a selection that crosses two bullets', () => {
+      const root = mount('<ul><li>alpha beta</li><li>gamma delta</li></ul>')
+      const first = root.querySelector('li')?.firstChild
+      const second = root.querySelectorAll('li')[1]?.firstChild
+
+      expect(first).toBeInstanceOf(Text)
+      expect(second).toBeInstanceOf(Text)
+      if (!(first instanceof Text) || !(second instanceof Text)) return
+
+      const range = document.createRange()
+      range.setStart(first, first.data.indexOf('beta'))
+      range.setEnd(second, second.data.indexOf('delta'))
+
+      const quote = toTextQuote(root, range)
+
+      expect(quote).toMatchObject({ quote: 'beta', tail: 'gamma' })
+    })
+
+    it('should link a loose list whose items wrap a paragraph', () => {
+      const root = mount('<ul><li><p>alpha beta</p></li><li><p>gamma delta</p></li></ul>')
       const first = root.querySelector('p')?.firstChild
       const second = root.querySelectorAll('p')[1]?.firstChild
 
@@ -148,7 +198,41 @@ describe('toTextFragment', () => {
       range.setStart(first, 0)
       range.setEnd(second, second.data.length)
 
-      expect(toTextQuote(root, range)).toBeUndefined()
+      expect(toTextQuote(root, range)).toMatchObject({ quote: 'alpha beta', tail: 'gamma delta' })
+    })
+
+    it('should disambiguate a repeated passage that crosses a heading', () => {
+      const root = mount([
+        '<div>',
+        '<p>See the registry</p><h2>Notes</h2><ul><li>the registry grows</li></ul>',
+        '<p>See the registry</p><h2>Later</h2><ul><li>the registry stops</li></ul>',
+        '</div>',
+      ].join(''))
+      const paragraphs = root.querySelectorAll('p')
+      const items = root.querySelectorAll('li')
+      const first = paragraphs[1]?.firstChild
+      const last = items[1]?.firstChild
+
+      expect(first).toBeInstanceOf(Text)
+      expect(last).toBeInstanceOf(Text)
+      if (!(first instanceof Text) || !(last instanceof Text)) return
+
+      const range = document.createRange()
+      range.setStart(first, 0)
+      range.setEnd(last, last.data.length)
+
+      const quote = toTextQuote(root, range)
+
+      expect(quote).toMatchObject({ quote: 'See the registry', tail: 'the registry stops' })
+      if (!quote?.tail || quote.tailAt === undefined) return
+
+      const directive = toTextDirective(quote.text, quote.quote, quote.at, quote.tail, quote.tailAt)
+
+      expect(paintTextFragment(root, directive)).toBe(true)
+
+      const marked = [...root.querySelectorAll('mark.docs-text-mark')].map(mark => mark.textContent).join('')
+      expect(marked).toContain('Later')
+      expect(marked).not.toContain('Notes')
     })
   })
 })
