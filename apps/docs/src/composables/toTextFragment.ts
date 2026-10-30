@@ -28,6 +28,8 @@ export interface TextQuote {
   quote: string
   at: number
   text: string
+  tail?: string
+  tailAt?: number
 }
 
 interface Piece {
@@ -208,15 +210,30 @@ function occurrences (text: string, directive: TextDirective): Array<[number, nu
     const startAt = text.indexOf(directive.start, from)
     if (startAt === -1) break
 
-    let endAt = startAt + directive.start.length
+    const startEnd = startAt + directive.start.length
 
-    if (directive.end) {
-      const endPos = text.indexOf(directive.end, endAt)
-      if (endPos === -1) break
-      endAt = endPos + directive.end.length
+    if (!directive.end) {
+      if (beside(text, startAt, startEnd, directive)) ranges.push([startAt, startEnd])
+      from = startAt + 1
+      continue
     }
 
-    if (beside(text, startAt, endAt, directive)) ranges.push([startAt, endAt])
+    let endPos = text.indexOf(directive.end, startEnd)
+    let matched = false
+
+    // The first `end` may sit in a block the selection only passes through.
+    // Keep looking until the one that carries this suffix.
+    while (endPos !== -1) {
+      const endAt = endPos + directive.end.length
+      if (beside(text, startAt, endAt, directive)) {
+        ranges.push([startAt, endAt])
+        matched = true
+        break
+      }
+      endPos = text.indexOf(directive.end, endPos + 1)
+    }
+
+    if (!matched && !text.includes(directive.end, startEnd)) break
 
     from = startAt + 1
   }
@@ -269,17 +286,97 @@ function buildDirective (text: string, quote: string, at: number): TextDirective
 }
 
 /**
+ * Where `phrase` sits inside `quote`. A long quote keeps the words at the
+ * chosen edge so each term stays inside one block.
+ */
+function phraseAt (quote: string, edge: 'end' | 'start'): { phrase: string, shift: number } {
+  if (quote.length <= EXACT_LIMIT) return { phrase: quote, shift: 0 }
+
+  const words = quote.split(/\s+/).filter(Boolean)
+  if (words.length < 8) return { phrase: quote, shift: 0 }
+
+  const phrase = edge === 'start'
+    ? words.slice(0, 4).join(' ')
+    : words.slice(-4).join(' ')
+  const shift = edge === 'start' ? quote.indexOf(phrase) : quote.lastIndexOf(phrase)
+
+  if (shift < 0) return { phrase: quote, shift: 0 }
+
+  return { phrase, shift }
+}
+
+function buildRangeDirective (
+  text: string,
+  start: string,
+  startAt: number,
+  end: string,
+  endAt: number,
+): TextDirective {
+  let prefix: string | undefined
+  let suffix: string | undefined
+  let prefixFrom = startAt
+  let suffixTo = endAt + end.length
+
+  for (let step = 0; step < CONTEXT_LIMIT; step++) {
+    const next = directive({ prefix, start, end, suffix })
+    const found = occurrences(text, next)
+    const hit = found[0]
+
+    if (found.length === 1 && hit?.[0] === startAt && hit[1] === endAt + end.length) return next
+
+    const before = wordBefore(text, prefixFrom)
+    const after = wordAfter(text, suffixTo)
+
+    if (!before && !after) return next
+
+    if (before) {
+      prefix = prefix ? `${before.word} ${prefix}` : before.word
+      prefixFrom = before.from
+    }
+
+    if (after) {
+      suffix = suffix ? `${suffix} ${after.word}` : after.word
+      suffixTo = after.to
+    }
+  }
+
+  return directive({ prefix, start, end, suffix })
+}
+
+/**
  * A directive parsed from a hash, or one that points at `quote` starting at `at`.
  * Exact text when the phrase is unique; surrounding words until it isn't.
+ * `tail` is the last block of a selection that crosses a heading or a list item.
  */
 export function toTextDirective (hash: string): TextDirective | undefined
-export function toTextDirective (text: string, quote: string, at: number): TextDirective
+export function toTextDirective (
+  text: string,
+  quote: string,
+  at: number,
+  tail?: string,
+  tailAt?: number,
+): TextDirective
 export function toTextDirective (
   textOrHash: string,
   quote?: string,
   at?: number,
+  tail?: string,
+  tailAt?: number,
 ): TextDirective | undefined {
   if (isUndefined(quote) || isUndefined(at)) return parseDirective(textOrHash)
+
+  if (!isUndefined(tail) && !isUndefined(tailAt)) {
+    const head = phraseAt(quote, 'start')
+    const last = phraseAt(tail, 'end')
+
+    return buildRangeDirective(
+      textOrHash,
+      head.phrase,
+      at + head.shift,
+      last.phrase,
+      tailAt + last.shift,
+    )
+  }
 
   return buildDirective(textOrHash, quote, at)
 }
@@ -397,10 +494,146 @@ function flatten (root: HTMLElement): { text: string, pieces: Piece[] } {
   return { text, pieces }
 }
 
+interface Segment {
+  text: string
+  pieces: Piece[]
+}
+
+function isBlock (node: Node): node is HTMLElement {
+  return node instanceof HTMLElement && node.matches(BLOCKS)
+}
+
 /**
- * The selected phrase, if it sits in one block inside `root`. Cross-block
- * selections are refused: a flattened article glues paragraphs together, and
- * a highlight of that glue would paint the wrong span.
+ * Searchable text, split where a block begins. A heading or a list item is
+ * its own segment, so a term taken from one segment cannot glue two blocks
+ * together.
+ */
+function segmentsIn (root: HTMLElement): Segment[] {
+  const segments: Segment[] = []
+  let current: Segment | undefined
+
+  function flush () {
+    if (current?.text.trim()) segments.push(current)
+    current = undefined
+  }
+
+  function ensure (): Segment {
+    if (!current) current = { text: '', pieces: [] }
+    return current
+  }
+
+  function visit (node: Node) {
+    if (rejected(node)) return
+
+    if (node instanceof Element && isBlock(node)) {
+      flush()
+      for (const child of node.childNodes) visit(child)
+      flush()
+      return
+    }
+
+    if (node instanceof Text) {
+      if (!node.data) return
+      const segment = ensure()
+      segment.pieces.push({ node, start: segment.text.length })
+      segment.text += node.data
+      return
+    }
+
+    if (!(node instanceof Element)) return
+
+    for (const child of node.childNodes) visit(child)
+  }
+
+  for (const child of root.childNodes) visit(child)
+  flush()
+
+  return segments
+}
+
+function locate (segment: Segment, offset: number): { node: Text, local: number } | undefined {
+  for (let index = 0; index < segment.pieces.length; index++) {
+    const piece = segment.pieces[index]
+    if (!piece) continue
+
+    const end = piece.start + piece.node.data.length
+    const last = index === segment.pieces.length - 1
+    if (offset < end || (last && offset === end)) {
+      return { node: piece.node, local: offset - piece.start }
+    }
+  }
+
+  return undefined
+}
+
+function offsetIn (pieces: readonly Piece[], node: Text, local: number): number | undefined {
+  const piece = pieces.find(item => item.node === node)
+  if (!piece) return undefined
+  return piece.start + local
+}
+
+function inside (node: Text, start: Text, end: Text): boolean {
+  if (node === start || node === end) return true
+
+  const afterStart = start.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING
+  const beforeEnd = end.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING
+
+  return afterStart !== 0 && beforeEnd !== 0
+}
+
+function covered (
+  segment: Segment,
+  rangeStart: { node: Text, local: number },
+  rangeEnd: { node: Text, local: number },
+): { from: number, to: number } | undefined {
+  let from: number | undefined
+  let to: number | undefined
+
+  for (const piece of segment.pieces) {
+    const node = piece.node
+    if (!inside(node, rangeStart.node, rangeEnd.node)) continue
+
+    const localFrom = node === rangeStart.node ? rangeStart.local : 0
+    const localTo = node === rangeEnd.node ? rangeEnd.local : node.data.length
+    if (localFrom >= localTo) continue
+
+    if (isUndefined(from)) from = piece.start + localFrom
+    to = piece.start + localTo
+  }
+
+  if (isUndefined(from) || isUndefined(to)) return undefined
+
+  return { from, to }
+}
+
+function quoted (
+  segment: Segment,
+  span: { from: number, to: number },
+  pieces: readonly Piece[],
+  text: string,
+): { quote: string, at: number } | undefined {
+  const raw = segment.text.slice(span.from, span.to)
+  const lead = raw.length - raw.trimStart().length
+  const quote = raw.trim()
+  if (!quote) return undefined
+
+  const point = locate(segment, span.from + lead)
+  if (!point) return undefined
+
+  const at = offsetIn(pieces, point.node, point.local)
+  if (isUndefined(at)) return undefined
+  if (text.slice(at, at + quote.length) !== quote) return undefined
+
+  return { quote, at }
+}
+
+/**
+ * The selected phrase, when it sits inside `root`.
+ *
+ * One block is an exact quote. A selection that runs through a heading or a
+ * list item keeps the first block in `quote` and the last block in `tail`:
+ * each text-fragment term has to stay inside one block, and the range from
+ * the start term to the end term is what crosses them.
  */
 export function toTextQuote (root: HTMLElement, range: Range): TextQuote | undefined {
   if (range.collapsed) return undefined
@@ -408,29 +641,68 @@ export function toTextQuote (root: HTMLElement, range: Range): TextQuote | undef
   if (rejected(range.startContainer) || rejected(range.endContainer)) return undefined
 
   const block = blockOf(range.startContainer)
+  const endBlock = blockOf(range.endContainer)
 
-  if (!block || block !== blockOf(range.endContainer)) return undefined
-
-  const raw = range.toString()
-  const lead = raw.length - raw.trimStart().length
-  const quote = raw.trim()
-
-  if (quote.length < 2) return undefined
+  if (!block || !endBlock) return undefined
 
   const flat = flatten(root)
   const start = textPoint(range.startContainer, range.startOffset, 'start')
 
   if (!start) return undefined
 
-  const piece = flat.pieces.find(item => item.node === start.node)
+  if (block === endBlock) {
+    const raw = range.toString()
+    const lead = raw.length - raw.trimStart().length
+    const quote = raw.trim()
 
-  if (!piece) return undefined
+    if (quote.length < 2) return undefined
 
-  const at = piece.start + start.local + lead
+    const piece = flat.pieces.find(item => item.node === start.node)
 
-  if (flat.text.slice(at, at + quote.length) !== quote) return undefined
+    if (!piece) return undefined
 
-  return { quote, at, text: flat.text }
+    const at = piece.start + start.local + lead
+
+    if (flat.text.slice(at, at + quote.length) !== quote) return undefined
+
+    return { quote, at, text: flat.text }
+  }
+
+  const rangeEnd = textPoint(range.endContainer, range.endOffset, 'end')
+  if (!rangeEnd) return undefined
+
+  const hits: Array<{ segment: Segment, span: { from: number, to: number } }> = []
+
+  for (const segment of segmentsIn(root)) {
+    const span = covered(segment, start, rangeEnd)
+    if (!span) continue
+    if (!segment.text.slice(span.from, span.to).trim()) continue
+    hits.push({ segment, span })
+  }
+
+  const first = hits[0]
+  const last = hits.at(-1)
+  if (!first || !last) return undefined
+
+  const head = quoted(first.segment, first.span, flat.pieces, flat.text)
+  if (!head) return undefined
+
+  if (hits.length === 1) {
+    if (head.quote.length < 2) return undefined
+    return { quote: head.quote, at: head.at, text: flat.text }
+  }
+
+  const tail = quoted(last.segment, last.span, flat.pieces, flat.text)
+  if (!tail) return undefined
+  if (head.quote.length + tail.quote.length < 2) return undefined
+
+  return {
+    quote: head.quote,
+    at: head.at,
+    text: flat.text,
+    tail: tail.quote,
+    tailAt: tail.at,
+  }
 }
 
 function paint (pieces: readonly Piece[], from: number, to: number) {
