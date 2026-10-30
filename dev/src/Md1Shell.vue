@@ -187,6 +187,9 @@
   /** The tapped stop's effect, held until the prompt's circles have left. */
   let pending: (() => void) | null = null
 
+  /** Arming generation: a restart or dismissal orphans an in-flight poll. */
+  let armed = 0
+
   /** Where the finished exit leads; 0 ends the tour. */
   let next: 0 | 2 | 3 | 4 | 5 = 0
 
@@ -239,8 +242,12 @@
    * Cross-page arming: a stop's target may still be mounting (the FAB follows a
    * navigation, the back arrow the search transition), so presence is awaited
    * frame by frame, bounded; a target that never appears ends the tour quietly.
+   * The generation mark keeps a poll outlived by a restart or a dismissal from
+   * hijacking the fresh tour or ending it on timeout.
    */
   async function arm (n: 3 | 4 | 5) {
+    const mark = ++armed
+
     for (let tick = 0; tick < 150; tick++) {
       const el = locate(n)
 
@@ -294,9 +301,11 @@
       }
 
       await new Promise(requestAnimationFrame)
+
+      if (mark !== armed) return
     }
 
-    stop.value = 0
+    if (mark === armed) stop.value = 0
   }
 
   /** A ghost stop's effect: press the real control once the circles have left. */
@@ -316,6 +325,7 @@
   function onTour () {
     ask.value = false
     beat.stop()
+    armed++
     pending = null
     next = 0
     stop.value = 1
@@ -356,6 +366,7 @@
    * deliberately leaves search open — the reader closes it like any search.
    */
   function onQuit () {
+    armed++
     pending = null
     next = 0
     stage.value = 0
