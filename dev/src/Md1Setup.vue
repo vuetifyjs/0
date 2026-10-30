@@ -13,7 +13,7 @@
   import { Form, useBreakpoints, useTimer } from '@vuetify/v0'
 
   // Utilities
-  import { defineComponent, shallowRef, toRef, watch, watchEffect } from 'vue'
+  import { defineComponent, ref, shallowRef, toRef, watch, watchEffect } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -24,6 +24,9 @@
   function address (value: unknown) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value)) || 'Error: enter an address like name@example.com'
   }
+
+  /** The error form's one-line fix per gated step (stepper: steps in error). */
+  const REASONS = ['Complete the account fields', 'Name the workspace'] as const
 
   /**
    * Banks a Form slot's `submit` where the wizard can reach it: Continue,
@@ -77,8 +80,19 @@
   /** Each step's banked `submit`, filled by `Enlist` as the Forms mount. */
   const submits: Submit[] = []
 
+  /** Step-header errors: a failed gate raises the error form, a pass clears it. */
+  const faults = ref<(string | undefined)[]>([])
+
+  async function gate (index: number): Promise<boolean> {
+    const ok = (await submits[index]?.()) ?? true
+
+    faults.value[index] = ok ? undefined : REASONS[index]
+
+    return ok
+  }
+
   async function advance (index: number) {
-    if (await submits[index]?.()) step.value = index + 1
+    if (await gate(index)) step.value = index + 1
   }
 
   function back () {
@@ -86,7 +100,7 @@
   }
 
   async function finish () {
-    if (!(await submits[2]?.())) return
+    if (!(await gate(2))) return
 
     done.value = true
     leave.start()
@@ -98,7 +112,7 @@
     if (next <= prev) return
 
     for (let index = prev; index < next; index++) {
-      if (!(await submits[index]?.())) {
+      if (!(await gate(index))) {
         step.value = index
         return
       }
@@ -115,7 +129,7 @@
       <p class="md1-demo-auth__hint">Three short steps, and the dashboard is yours</p>
 
       <Md1Stepper v-model="step" :mobile="mobile ? 'text' : undefined">
-        <Md1Stepper.Step label="Account" :value="0">
+        <Md1Stepper.Step editable :error="faults[0]" label="Account" :value="0">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
               <Enlist :at="0" :bank="submits" :submit />
@@ -140,7 +154,7 @@
           </Md1Stepper.Content>
         </Md1Stepper.Step>
 
-        <Md1Stepper.Step label="Workspace" :value="1">
+        <Md1Stepper.Step editable :error="faults[1]" label="Workspace" :value="1">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
               <Enlist :at="1" :bank="submits" :submit />
@@ -169,7 +183,7 @@
           </Md1Stepper.Content>
         </Md1Stepper.Step>
 
-        <Md1Stepper.Step label="Preferences" :value="2">
+        <Md1Stepper.Step label="Preferences" optional :value="2">
           <Md1Stepper.Content>
             <Form v-slot="{ submit }" class="md1-demo-setup__form">
               <Enlist :at="2" :bank="submits" :submit />
