@@ -2331,6 +2331,36 @@ describe('carousel', () => {
       expect(viewportProps.attrs.style).toBeDefined()
     })
 
+    it('should expose the viewport element', async () => {
+      const wrapper = mount(Carousel.Root, {
+        slots: {
+          default: () => h(Carousel.Viewport as any, {}, {
+            default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any)
+      expect(viewport.vm.element).toBe(viewport.element)
+    })
+
+    it('should expose a null element when the viewport is renderless', async () => {
+      const wrapper = mount(Carousel.Root, {
+        slots: {
+          default: () => h(Carousel.Viewport as any, { renderless: true }, {
+            default: () => h('span', 'A'),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any)
+      expect(viewport.vm.element).toBeNull()
+    })
+
     it('should expose vertical orientation in attrs', async () => {
       let viewportProps: any
 
