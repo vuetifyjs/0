@@ -83,7 +83,7 @@ Reach for this layout when a single carousel needs to be discoverable through se
 
 ### Circular Navigation
 
-Enable wrapping from last slide to first with the `circular` prop.
+Enable wrapping from last slide to first with the `circular` prop. The viewport then scrolls back to the first slide.
 
 ```vue
 <template>
