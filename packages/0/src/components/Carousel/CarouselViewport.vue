@@ -201,7 +201,8 @@
       snapDisabled.value = true
       // The reactive style lands on the next render. A slow drag can cross the
       // snap threshold before that, and mandatory snap then finishes the slide.
-      viewport.style.scrollSnapType = 'none'
+      const node = viewport as HTMLElement
+      node.style.scrollSnapType = 'none'
     })
 
     useToggleScope(() => snapDisabled.value, () => {
@@ -211,7 +212,8 @@
         if (!viewport) return
         e.preventDefault()
         // A render while the button is down can put the snap style back.
-        viewport.style.scrollSnapType = 'none'
+        const node = viewport as HTMLElement
+        node.style.scrollSnapType = 'none'
 
         const pos = isVertical.value ? e.clientY : e.clientX
         const delta = pos - lastPointer
@@ -229,7 +231,7 @@
 
         if (!viewport || slideStep.value === 0) {
           pressed.value = false
-          if (viewport) viewport.style.scrollSnapType = ''
+          if (viewport) (viewport as HTMLElement).style.scrollSnapType = ''
           snapDisabled.value = false
           isDragging.value = false
           return
@@ -251,7 +253,8 @@
         }
 
         pressed.value = false
-        viewport.style.scrollSnapType = ''
+        const node = viewport as HTMLElement
+        node.style.scrollSnapType = ''
         snapDisabled.value = false
         isDragging.value = false
       })
