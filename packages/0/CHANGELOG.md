@@ -1,5 +1,29 @@
 # @vuetify/v0
 
+## 1.3.2
+
+### Patch Changes
+
+- [#1128](https://github.com/vuetifyjs/0/pull/1128) [`ba9aefc`](https://github.com/vuetifyjs/0/commit/ba9aefc38ae3970e0edf04bc7df68863d599e0b8) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): autoplay stays stopped until play() is called again
+
+  Moving keyboard focus into the carousel, or dragging a slide, stops rotation. It does not start again on its own. While rotation is running, the slide announcement region is silent. The default accessible name is "Slides".
+
+- [#1135](https://github.com/vuetifyjs/0/pull/1135) [`b687a1f`](https://github.com/vuetifyjs/0/commit/b687a1f5d5f7df8be8304c52d9c9dd409853a721) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): a drag keeps the slide under the pointer until release
+
+  The track no longer snaps onto the nearest slide while the pointer button is still down.
+
+- [#1132](https://github.com/vuetifyjs/0/pull/1132) [`b14720d`](https://github.com/vuetifyjs/0/commit/b14720d1e4c56f74334291f3549996298f13a22d) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): hovering pauses autoplay until the pointer leaves
+
+  Hovering the slides, arrows, dots, or progress pauses rotation and leaving resumes it. A play button in the root still starts rotation while the pointer is on it. A Stop press, a pause() call, or keyboard focus inside the carousel keeps it from resuming.
+
+- [#1133](https://github.com/vuetifyjs/0/pull/1133) [`abf8ee6`](https://github.com/vuetifyjs/0/commit/abf8ee668363f7285006709dccb8e3ea530f9690) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): expose the viewport element
+
+  Carousel.Viewport exposes its scroll element, so a template ref can listen for scrollend.
+
+- [#1129](https://github.com/vuetifyjs/0/pull/1129) [`3e64c98`](https://github.com/vuetifyjs/0/commit/3e64c98d47439d3ee14eb7d088ec9d7a6fb30624) Thanks [@johnleider](https://github.com/johnleider)! - fix(Progress): an unlabeled bar has an accessible name
+
+  A bar with no `Progress.Label` and no `ariaLabel` is named "Loading" (locale key `Progress.label`). A visible label or `ariaLabel` still wins.
+
 ## 1.3.1
 
 ### Patch Changes
