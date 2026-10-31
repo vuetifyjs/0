@@ -75,10 +75,9 @@
   const isDragging = shallowRef(false)
   const syncing = shallowRef(false)
   const snapDisabled = shallowRef(false)
-  // Held from mousedown to mouseup so a scrollend between drag samples
-  // cannot round the track onto the nearest slide. A plain let inside the
-  // browser block is invisible to the selection watch below, and that watch
-  // then throws instead of scrolling.
+  // The selection watch below sits outside this block. A plain let is
+  // invisible to it, so the watch would scroll the track while the button
+  // is still down.
   const pressed = shallowRef(false)
 
   const viewportId = `${carousel.rootId}-viewport`
@@ -139,7 +138,7 @@
 
   if (IN_BROWSER) {
     useEventListener(el, 'scrollend', () => {
-      if (syncing.value || snapDisabled.value || pressed.value) {
+      if (syncing.value || snapDisabled.value) {
         syncing.value = false
         return
       }
