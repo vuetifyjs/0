@@ -108,6 +108,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/virtualizer': RouteRecordInfo<
+      '/components/data/virtualizer',
+      '/components/data/virtualizer',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -892,6 +899,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-typeahead': RouteRecordInfo<
+      '/composables/system/use-typeahead',
+      '/composables/system/use-typeahead',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-virtual-focus': RouteRecordInfo<
       '/composables/system/use-virtual-focus',
       '/composables/system/use-virtual-focus',
@@ -923,6 +937,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/convert': RouteRecordInfo<
+      '/convert',
+      '/convert',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1238,6 +1259,349 @@ declare module 'vue-router/auto-routes' {
     '/sponsor': RouteRecordInfo<
       '/sponsor',
       '/sponsor',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/': RouteRecordInfo<
+      '/systems/bootstrap/',
+      '/systems/bootstrap',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/accordion': RouteRecordInfo<
+      '/systems/bootstrap/accordion',
+      '/systems/bootstrap/accordion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/alert': RouteRecordInfo<
+      '/systems/bootstrap/alert',
+      '/systems/bootstrap/alert',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/avatar': RouteRecordInfo<
+      '/systems/bootstrap/avatar',
+      '/systems/bootstrap/avatar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/badge': RouteRecordInfo<
+      '/systems/bootstrap/badge',
+      '/systems/bootstrap/badge',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/breadcrumb': RouteRecordInfo<
+      '/systems/bootstrap/breadcrumb',
+      '/systems/bootstrap/breadcrumb',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/button': RouteRecordInfo<
+      '/systems/bootstrap/button',
+      '/systems/bootstrap/button',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/button-group': RouteRecordInfo<
+      '/systems/bootstrap/button-group',
+      '/systems/bootstrap/button-group',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/card': RouteRecordInfo<
+      '/systems/bootstrap/card',
+      '/systems/bootstrap/card',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/carousel': RouteRecordInfo<
+      '/systems/bootstrap/carousel',
+      '/systems/bootstrap/carousel',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/check': RouteRecordInfo<
+      '/systems/bootstrap/check',
+      '/systems/bootstrap/check',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/chips': RouteRecordInfo<
+      '/systems/bootstrap/chips',
+      '/systems/bootstrap/chips',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/close': RouteRecordInfo<
+      '/systems/bootstrap/close',
+      '/systems/bootstrap/close',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/col': RouteRecordInfo<
+      '/systems/bootstrap/col',
+      '/systems/bootstrap/col',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/collapse': RouteRecordInfo<
+      '/systems/bootstrap/collapse',
+      '/systems/bootstrap/collapse',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/combobox': RouteRecordInfo<
+      '/systems/bootstrap/combobox',
+      '/systems/bootstrap/combobox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/container': RouteRecordInfo<
+      '/systems/bootstrap/container',
+      '/systems/bootstrap/container',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/dialog': RouteRecordInfo<
+      '/systems/bootstrap/dialog',
+      '/systems/bootstrap/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/drawer': RouteRecordInfo<
+      '/systems/bootstrap/drawer',
+      '/systems/bootstrap/drawer',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/file': RouteRecordInfo<
+      '/systems/bootstrap/file',
+      '/systems/bootstrap/file',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-adorn': RouteRecordInfo<
+      '/systems/bootstrap/form-adorn',
+      '/systems/bootstrap/form-adorn',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-control': RouteRecordInfo<
+      '/systems/bootstrap/form-control',
+      '/systems/bootstrap/form-control',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-feedback': RouteRecordInfo<
+      '/systems/bootstrap/form-feedback',
+      '/systems/bootstrap/form-feedback',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-field': RouteRecordInfo<
+      '/systems/bootstrap/form-field',
+      '/systems/bootstrap/form-field',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-label': RouteRecordInfo<
+      '/systems/bootstrap/form-label',
+      '/systems/bootstrap/form-label',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/form-text': RouteRecordInfo<
+      '/systems/bootstrap/form-text',
+      '/systems/bootstrap/form-text',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/input-group': RouteRecordInfo<
+      '/systems/bootstrap/input-group',
+      '/systems/bootstrap/input-group',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/list-group': RouteRecordInfo<
+      '/systems/bootstrap/list-group',
+      '/systems/bootstrap/list-group',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/menu': RouteRecordInfo<
+      '/systems/bootstrap/menu',
+      '/systems/bootstrap/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/nav': RouteRecordInfo<
+      '/systems/bootstrap/nav',
+      '/systems/bootstrap/nav',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/nav-overflow': RouteRecordInfo<
+      '/systems/bootstrap/nav-overflow',
+      '/systems/bootstrap/nav-overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/navbar': RouteRecordInfo<
+      '/systems/bootstrap/navbar',
+      '/systems/bootstrap/navbar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/otp': RouteRecordInfo<
+      '/systems/bootstrap/otp',
+      '/systems/bootstrap/otp',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/pagination': RouteRecordInfo<
+      '/systems/bootstrap/pagination',
+      '/systems/bootstrap/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/placeholder': RouteRecordInfo<
+      '/systems/bootstrap/placeholder',
+      '/systems/bootstrap/placeholder',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/popover': RouteRecordInfo<
+      '/systems/bootstrap/popover',
+      '/systems/bootstrap/popover',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/progress': RouteRecordInfo<
+      '/systems/bootstrap/progress',
+      '/systems/bootstrap/progress',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/radio': RouteRecordInfo<
+      '/systems/bootstrap/radio',
+      '/systems/bootstrap/radio',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/range': RouteRecordInfo<
+      '/systems/bootstrap/range',
+      '/systems/bootstrap/range',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/row': RouteRecordInfo<
+      '/systems/bootstrap/row',
+      '/systems/bootstrap/row',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/scrollspy': RouteRecordInfo<
+      '/systems/bootstrap/scrollspy',
+      '/systems/bootstrap/scrollspy',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/spinner': RouteRecordInfo<
+      '/systems/bootstrap/spinner',
+      '/systems/bootstrap/spinner',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/stepper': RouteRecordInfo<
+      '/systems/bootstrap/stepper',
+      '/systems/bootstrap/stepper',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/strength': RouteRecordInfo<
+      '/systems/bootstrap/strength',
+      '/systems/bootstrap/strength',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/switch': RouteRecordInfo<
+      '/systems/bootstrap/switch',
+      '/systems/bootstrap/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/tabs': RouteRecordInfo<
+      '/systems/bootstrap/tabs',
+      '/systems/bootstrap/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/toast': RouteRecordInfo<
+      '/systems/bootstrap/toast',
+      '/systems/bootstrap/toast',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/toggler': RouteRecordInfo<
+      '/systems/bootstrap/toggler',
+      '/systems/bootstrap/toggler',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/bootstrap/tooltip': RouteRecordInfo<
+      '/systems/bootstrap/tooltip',
+      '/systems/bootstrap/tooltip',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1681,6 +2045,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/data/kanban.md': {
       routes:
         | '/components/data/kanban'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/data/virtualizer.md': {
+      routes:
+        | '/components/data/virtualizer'
       views:
         | never
       pathParamNames:
@@ -2582,6 +2954,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/composables/system/use-typeahead.md': {
+      routes:
+        | '/composables/system/use-typeahead'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/composables/system/use-virtual-focus.md': {
       routes:
         | '/composables/system/use-virtual-focus'
@@ -2617,6 +2997,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/convert.vue': {
+      routes:
+        | '/convert'
       views:
         | never
       pathParamNames:
@@ -2977,6 +3365,398 @@ declare module 'vue-router/auto-routes' {
     'src/pages/sponsor.md': {
       routes:
         | '/sponsor'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/index.md': {
+      routes:
+        | '/systems/bootstrap/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/accordion.md': {
+      routes:
+        | '/systems/bootstrap/accordion'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/alert.md': {
+      routes:
+        | '/systems/bootstrap/alert'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/avatar.md': {
+      routes:
+        | '/systems/bootstrap/avatar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/badge.md': {
+      routes:
+        | '/systems/bootstrap/badge'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/breadcrumb.md': {
+      routes:
+        | '/systems/bootstrap/breadcrumb'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/button.md': {
+      routes:
+        | '/systems/bootstrap/button'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/button-group.md': {
+      routes:
+        | '/systems/bootstrap/button-group'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/card.md': {
+      routes:
+        | '/systems/bootstrap/card'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/carousel.md': {
+      routes:
+        | '/systems/bootstrap/carousel'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/check.md': {
+      routes:
+        | '/systems/bootstrap/check'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/chips.md': {
+      routes:
+        | '/systems/bootstrap/chips'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/close.md': {
+      routes:
+        | '/systems/bootstrap/close'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/col.md': {
+      routes:
+        | '/systems/bootstrap/col'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/collapse.md': {
+      routes:
+        | '/systems/bootstrap/collapse'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/combobox.md': {
+      routes:
+        | '/systems/bootstrap/combobox'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/container.md': {
+      routes:
+        | '/systems/bootstrap/container'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/dialog.md': {
+      routes:
+        | '/systems/bootstrap/dialog'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/drawer.md': {
+      routes:
+        | '/systems/bootstrap/drawer'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/file.md': {
+      routes:
+        | '/systems/bootstrap/file'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-adorn.md': {
+      routes:
+        | '/systems/bootstrap/form-adorn'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-control.md': {
+      routes:
+        | '/systems/bootstrap/form-control'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-feedback.md': {
+      routes:
+        | '/systems/bootstrap/form-feedback'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-field.md': {
+      routes:
+        | '/systems/bootstrap/form-field'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-label.md': {
+      routes:
+        | '/systems/bootstrap/form-label'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/form-text.md': {
+      routes:
+        | '/systems/bootstrap/form-text'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/input-group.md': {
+      routes:
+        | '/systems/bootstrap/input-group'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/list-group.md': {
+      routes:
+        | '/systems/bootstrap/list-group'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/menu.md': {
+      routes:
+        | '/systems/bootstrap/menu'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/nav.md': {
+      routes:
+        | '/systems/bootstrap/nav'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/nav-overflow.md': {
+      routes:
+        | '/systems/bootstrap/nav-overflow'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/navbar.md': {
+      routes:
+        | '/systems/bootstrap/navbar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/otp.md': {
+      routes:
+        | '/systems/bootstrap/otp'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/pagination.md': {
+      routes:
+        | '/systems/bootstrap/pagination'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/placeholder.md': {
+      routes:
+        | '/systems/bootstrap/placeholder'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/popover.md': {
+      routes:
+        | '/systems/bootstrap/popover'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/progress.md': {
+      routes:
+        | '/systems/bootstrap/progress'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/radio.md': {
+      routes:
+        | '/systems/bootstrap/radio'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/range.md': {
+      routes:
+        | '/systems/bootstrap/range'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/row.md': {
+      routes:
+        | '/systems/bootstrap/row'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/scrollspy.md': {
+      routes:
+        | '/systems/bootstrap/scrollspy'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/spinner.md': {
+      routes:
+        | '/systems/bootstrap/spinner'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/stepper.md': {
+      routes:
+        | '/systems/bootstrap/stepper'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/strength.md': {
+      routes:
+        | '/systems/bootstrap/strength'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/switch.md': {
+      routes:
+        | '/systems/bootstrap/switch'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/tabs.md': {
+      routes:
+        | '/systems/bootstrap/tabs'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/toast.md': {
+      routes:
+        | '/systems/bootstrap/toast'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/toggler.md': {
+      routes:
+        | '/systems/bootstrap/toggler'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/bootstrap/tooltip.md': {
+      routes:
+        | '/systems/bootstrap/tooltip'
       views:
         | never
       pathParamNames:

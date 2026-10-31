@@ -3,7 +3,7 @@
   import { useEventListener, useMutationObserver, useResizeObserver } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, useTemplateRef } from 'vue'
+  import { onMounted, onScopeDispose, useTemplateRef } from 'vue'
 
   // Types
   import type { Component } from 'vue'
@@ -12,22 +12,29 @@
     is,
     name,
     themes = { light: 'light', dark: 'dark' },
+    themeAttribute = 'data-theme',
   } = defineProps<{
     /** Resolved example component, or undefined when the query names nothing. */
     is?: Component
     /** Example path from the query string, shown when resolution fails. */
     name: string
     /**
-     * What each scheme is called in `data-theme`. The docs page only ever speaks
-     * in light and dark; a design system is free to name its themes something
-     * else, and Emerald does (`emerald-light` / `emerald-dark`) because those are the
-     * ids its stylesheet keys on. Defaulting to the scheme names themselves
-     * keeps every system that agrees with the docs — Bulma — untouched.
+     * What each scheme is called on `themeAttribute`. The docs page only ever
+     * speaks in light and dark; a design system is free to name its themes
+     * something else, and Emerald does (`emerald-light` / `emerald-dark`)
+     * because those are the ids its stylesheet keys on. Defaulting to the
+     * scheme names themselves keeps every system that agrees with the docs —
+     * Bulma — untouched.
      *
      * Upstream candidate: this is the one piece of the sandbox that is not
      * system-agnostic, and it belongs next to the entry that owns the frame.
      */
     themes?: Record<'light' | 'dark', string>
+    /**
+     * Attribute the scheme is written to. Bulma and Emerald use `data-theme`.
+     * Bootstrap 6 keys its stylesheet on `data-bs-theme`.
+     */
+    themeAttribute?: string
   }>()
 
   // Subpixel slack, so a menu flush with the box edge is not read as escaping it.
@@ -93,7 +100,12 @@
   type Rect = { top: number, left: number, width: number, height: number }
 
   function toRect (rect: DOMRect): Rect {
-    return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
+    return {
+      top: Math.round(rect.top),
+      left: Math.round(rect.left),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+    }
   }
 
   // A fixed element that accepts no pointer input anywhere in its subtree is a
@@ -128,64 +140,167 @@
   //
   //   overlay  something is laid out against the viewport (a modal and its
   //            backdrop). Meant to cover everything, page chrome included.
+  //            Bulma: `position: fixed`. Bootstrap 6: an open `<dialog>`, a
+  //            dialog still exiting under `.hiding`, or `.drawer.show`.
   //   float    out-of-flow content spilled past the example's box AND is owned
-  //            by component state — Bulma marks that with `is-active`, which
-  //            only this package's JS sets. It belongs to the page, so page
-  //            chrome occludes it.
+  //            by component state. Bulma marks that with `is-active`. Bootstrap
+  //            6 marks it with `.tooltip.show`, `.popover.show`, `.menu.show`,
+  //            or the `show` class on the absolute element. It belongs to the
+  //            page, so page chrome occludes it. A downward menu uses this
+  //            same path. The pin happens before the frame is promoted, so
+  //            the anchor does not jump.
   //   grow     everything else, including a pure-CSS `:hover` reveal
-  //            (`is-hoverable`), which carries no `is-active` anywhere. The
-  //            frame makes room for it instead of being promoted.
+  //            (`is-hoverable`), which carries neither `is-active` nor `show`.
+  //            The frame makes room for it instead of being promoted.
   //
   // `escaping` is reported either way: promotion clips to it, growth sizes
   // around it.
-  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[], escaping: Rect[] } {
+  function floats (el: HTMLElement): { tier: 'overlay' | 'float' | null, rects: Rect[], escaping: Rect[], holdFade: boolean } {
     const box = el.getBoundingClientRect()
     const escaping: Rect[] = []
 
     let tier: 'overlay' | 'float' | null = null
+    let holdFade = false
 
     for (const node of el.querySelectorAll<HTMLElement>('*')) {
       if (!node.checkVisibility()) continue
 
+      // A closed `<dialog>` stays `position: absolute` (author `display` beats
+      // the UA `display: none`) and `checkVisibility()` still counts it.
+      // Its box is the modal, not the example, and reserving it leaves an
+      // empty band under the trigger.
+      // `.hiding` is the exit. The frame stays promoted until the class
+      // comes off, or a slide that has already dropped `open` runs inside
+      // the example card and the panel sweeps the trigger.
+      if (
+        node instanceof HTMLDialogElement
+        && !node.open
+        && !node.classList.contains('hiding')
+      ) continue
+
       const style = getComputedStyle(node)
       const position = style.position
+      // The open dialog itself, not its descendants. Children that are merely
+      // in normal flow must not each become their own overlay. A dialog can
+      // sit inside the example box and still cover the viewport via
+      // `::backdrop`, so ownership does not require the box to be escaped.
+      // `.hiding` keeps that ownership after `open` has dropped.
+      const owner = (node instanceof HTMLDialogElement && (node.open || node.classList.contains('hiding')))
+        || (node.classList.contains('drawer') && node.classList.contains('show'))
 
-      if (position !== 'fixed' && position !== 'absolute') continue
+      if (position !== 'fixed' && position !== 'absolute' && !owner) continue
 
-      if (position === 'fixed' && inert(node, style)) continue
+      if (position === 'fixed' && !owner && inert(node, style)) continue
 
       const rect = node.getBoundingClientRect()
+      // CSS-anchor tooltips and popovers are `position: fixed` and still page
+      // content. Fixed positioning is the overlay signal for a dialog. A tip
+      // stays float, and only a rect that spills the box counts as escaped.
+      // A closed tip stays `display: block` at opacity 0; it must not reserve
+      // space or promote the frame. A menu drops `.show` while it is still
+      // painted, and the fade is `position: fixed`. Demoting on that same
+      // turn re-anchors the menu inside the small frame, so it jumps onto
+      // the control and fades there. Hold a promotion that is already open
+      // until the menu is no longer painted. A closed menu never starts one.
+      const menu = node.closest('.menu')
+      const tip = node.closest('.tooltip, .popover')
+      if (tip && !tip.classList.contains('show')) continue
+      if (menu && !menu.classList.contains('show')) {
+        // `0.00` from the ease-out is still `display: flex` for a few frames.
+        // Holding those frames leaves the clip showing the iframe's white
+        // canvas. Anything under a couple percent is already gone.
+        const opacity = Number(getComputedStyle(menu).opacity)
+        const painted = opacity > 0.02
+          && menu.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+
+        if (!open || !painted) continue
+
+        holdFade = true
+      }
+
+      const anchored = menu ?? tip
+      const spillsX = rect.left < box.left - SLACK || rect.right > box.right + SLACK
+      const spillsY = rect.top < box.top - SLACK || rect.bottom > box.bottom + SLACK
 
       // Laid out against the viewport (a modal backdrop), or out-of-flow and
-      // spilling past the box the example occupies inline. A menu that fits
-      // inside the box needs nothing — it is already painted there.
-      const escapes = position === 'fixed'
-        || rect.top < box.top - SLACK
-        || rect.bottom > box.bottom + SLACK
-        || rect.left < box.left - SLACK
-        || rect.right > box.right + SLACK
+      // spilling past the box the example occupies inline. A menu or tip that
+      // fits inside the box needs nothing — it is already painted there.
+      const escapes = (position === 'fixed' && !anchored)
+        || spillsX
+        || spillsY
 
-      if (!escapes) continue
+      if (!escapes && !owner) continue
 
-      escaping.push(toRect(rect))
+      if (rect.width > 0 || rect.height > 0) escaping.push(toRect(rect))
 
-      if (position === 'fixed') tier = 'overlay'
-      else if (node.closest('.is-active')) tier ??= 'float'
+      if (menu) {
+        tier ??= 'float'
+      } else if (tip) {
+        if (tip.classList.contains('show')) tier ??= 'float'
+      } else if (position === 'fixed' || owner) tier = 'overlay'
+      else if (node.closest('.is-active, .menu.show') || node.classList.contains('show')) tier ??= 'float'
     }
 
     return {
       tier,
       rects: tier ? [toRect(box), ...escaping] : [],
       escaping,
+      holdFade,
     }
   }
+
+  // Opacity does not mutate the DOM, so the close fade needs its own read.
+  // One frame at a time: a queued read that finds the menu still painted
+  // queues the next.
+  let fadeFrame = 0
+
+  function queueFade () {
+    if (fadeFrame !== 0) return
+
+    fadeFrame = requestAnimationFrame(() => {
+      fadeFrame = 0
+      measure()
+    })
+  }
+
+  onScopeDispose(() => {
+    if (fadeFrame !== 0) cancelAnimationFrame(fadeFrame)
+  })
+
+  // The parent answers every size with a box, and that box measures again.
+  // Repeating an unchanged result is a synchronous loop: one idle example
+  // posted ~37,000 sizes in two seconds, which is the tab that grows overnight.
+  let sentSize = ''
+  let sentRects = ''
+  let menuStable = 0
 
   function measure () {
     const el = root.value
 
-    if (!el || !ready || pending) return
+    if (!el || !ready) return
+
+    // The open gate used to drop every read for 300ms so the pin could settle.
+    // A menu scales from 0.95 with the background clipped to the padding box,
+    // so a clip frozen on the first frame cuts the border off until the gate
+    // opens. Keep sampling, and once the promotion is up let the clip follow.
+    // A close that finishes during the gate still falls through.
+    if (pending && !open) {
+      const gated = floats(el)
+
+      if (gated.holdFade || gated.tier) {
+        queueFade()
+
+        return
+      }
+
+      pending = false
+    }
+
+    if (pending) queueFade()
 
     const found = floats(el)
+
+    if (found.holdFade) queueFade()
     const tier = found.tier
 
     // Never ask to be promoted from an unpinned state: without a box to pin
@@ -214,12 +329,20 @@
       if (overlay) {
         pin()
 
+        // A previous close can leave the clip key equal to the opening
+        // scale's box. Forget it so this open follows the border back out.
+        if (el.querySelector('.menu.show')) {
+          sentRects = ''
+          menuStable = 0
+        }
+
         send({ type: 'v0:sandbox:overlay', open: true, tier, rects: floats(el).rects })
 
         // Never stay gated on a parent that went quiet: a stuck `pending` would
         // leave an invisible full-viewport frame swallowing the page.
         setTimeout(() => {
           pending = false
+          measure()
         }, 300)
       } else {
         send({ type: 'v0:sandbox:overlay', open: false, tier, rects: [] })
@@ -235,7 +358,21 @@
     // collapse the placeholder the docs page is holding open in the flow. The
     // regions still have to keep up: a menu resizes under its own content.
     if (overlay) {
-      send({ type: 'v0:sandbox:rects', tier, rects: found.rects })
+      const key = `${tier}:${JSON.stringify(found.rects)}`
+
+      if (key === sentRects) {
+        menuStable += 1
+      } else {
+        sentRects = key
+        menuStable = 0
+        send({ type: 'v0:sandbox:rects', tier, rects: found.rects })
+      }
+
+      // The opening scale mutates nothing and resizes nothing the observers
+      // watch. The border box grows for ~150ms, and a clip stuck on the
+      // first frame cuts the border off until a later read. Follow it until
+      // the rect settles.
+      if (menuStable < 2 && el.querySelector('.menu.show')) queueFade()
 
       return
     }
@@ -251,7 +388,13 @@
     // `grown` marks a height that only exists because something is spilling out
     // of the box right now. The docs page still applies it — the frame has to
     // make room — but it must not remember it as what this example rests at.
-    send({ type: 'v0:sandbox:size', height, grown: found.escaping.length > 0 })
+    const grown = found.escaping.length > 0 || height > el.offsetHeight + 1
+    const key = `${height}:${grown}`
+
+    if (key === sentSize) return
+
+    sentSize = key
+    send({ type: 'v0:sandbox:size', height, grown })
   }
 
   useResizeObserver(root, () => measure())
@@ -277,7 +420,7 @@
 
     switch (event.data?.type) {
       case 'v0:sandbox:theme': {
-        document.documentElement.dataset.theme = event.data.dark ? themes.dark : themes.light
+        document.documentElement.setAttribute(themeAttribute, event.data.dark ? themes.dark : themes.light)
         break
       }
       // Also the parent's acknowledgement that the frame has settled: re-pin
@@ -300,6 +443,10 @@
       }
     }
   })
+
+  // Same gutter the preflight stamps on this document. Inline, so it wins
+  // even when the injected stylesheet lands later. See bootstrap.html.
+  document.documentElement.style.scrollbarGutter = 'auto'
 
   // The frame loads lazily, so the theme carried on the URL can be stale by the
   // time it does — ask the parent for the current one. The example is resolved

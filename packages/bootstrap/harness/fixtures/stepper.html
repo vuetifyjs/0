@@ -1,0 +1,24 @@
+<!--
+  Bootstrap 6 stepper markup from the pinned v6-dev docs.
+  .active marks every reached step, not only the current one.
+  The first pinned example marks the first two items .active.
+  stepper-overflow wraps the list. It is not a class on the ol.
+-->
+
+<!-- fixture: basic -->
+<ol class="stepper">
+  <li class="stepper-item active">Create account</li>
+  <li class="stepper-item active">Confirm email</li>
+  <li class="stepper-item">Update profile</li>
+  <li class="stepper-item">Finish</li>
+</ol>
+
+<!-- fixture: overflow -->
+<div class="stepper-overflow">
+  <ol class="stepper">
+    <li class="stepper-item active">Create account</li>
+    <li class="stepper-item active">Confirm email</li>
+    <li class="stepper-item">Update profile</li>
+    <li class="stepper-item">Finish</li>
+  </ol>
+</div>
