@@ -2,6 +2,6 @@
 '@vuetify/v0': minor
 ---
 
-feat(useDate): export `V0PlainDateAdapter` as an alias of `PlainDateAdapter`
+feat(useDate): name the default date adapter `V0PlainDateAdapter`
 
-Same class. `constructor.name` stays `PlainDateAdapter` until v2.
+`PlainDateAdapter` still imports that class. `constructor.name` is `V0PlainDateAdapter`.

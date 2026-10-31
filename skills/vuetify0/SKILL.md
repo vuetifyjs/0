@@ -25,7 +25,7 @@ import { Tabs, Dialog } from '@vuetify/v0/components'
 
 In this repo, import internals from `#v0/` (`#v0/composables`, `#v0/utilities`, `#v0/constants/globals`). Published imports are `@vuetify/v0`, `@vuetify/v0/components`, `@vuetify/v0/utilities`, and `@vuetify/v0/constants`.
 
-Most `use*` composables run without a plugin and fall back to defaults. Inside a component, `useDate` does too: with no plugin it uses `PlainDateAdapter`. Outside a component it still throws. Pass `V0DateAdapter` when you want Temporal. For app-wide theme, locale, storage, or breakpoints, install `createThemePlugin`, `createLocalePlugin`, `createStoragePlugin`, or `createBreakpointsPlugin`.
+Most `use*` composables run without a plugin and fall back to defaults. Inside a component, `useDate` does too: with no plugin it uses `V0PlainDateAdapter`. Outside a component it still throws. Pass `V0DateAdapter` when you want Temporal. For app-wide theme, locale, storage, or breakpoints, install `createThemePlugin`, `createLocalePlugin`, `createStoragePlugin`, or `createBreakpointsPlugin`.
 
 Selection and a button. Neither needs a plugin.
 

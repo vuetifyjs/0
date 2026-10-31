@@ -2,13 +2,13 @@
  * @module DateAdapter
  *
  * @remarks
- * Date adapter contract and built-in implementations. `PlainDateAdapter`
- * uses a JavaScript `Date`. `V0PlainDateAdapter` is that same class.
- * `V0DateAdapter` uses Temporal; import it from `@vuetify/v0/date`.
+ * Date adapter contract and built-in implementations. `V0PlainDateAdapter`
+ * uses a JavaScript `Date`. `V0DateAdapter` uses Temporal; import it from
+ * `@vuetify/v0/date`.
  *
  * @example
  * ```ts
- * import { PlainDateAdapter, V0PlainDateAdapter } from '@vuetify/v0'
+ * import { V0PlainDateAdapter } from '@vuetify/v0'
  * import { V0DateAdapter } from '@vuetify/v0/date'
  * ```
  */

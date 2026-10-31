@@ -50,7 +50,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
-import { PlainDateAdapter } from './adapters/plain'
+import { V0PlainDateAdapter } from './adapters/plain'
 
 // Week info
 import { deriveWeekInfo } from './weekinfo'
@@ -80,7 +80,7 @@ export interface DateContext<Z> {
 /** Options for date composables */
 export interface DateOptions<Z> {
   /**
-   * Date adapter instance. Omit it to use `PlainDateAdapter`.
+   * Date adapter instance. Omit it to use `V0PlainDateAdapter`.
    * Pass `V0DateAdapter` for Temporal. An adapter you pass is not replaced.
    *
    * @example
@@ -164,7 +164,7 @@ export function createDate<
     locale: initialLocale,
     firstDayOfWeek: explicitFirstDay,
   } = options
-  const adapter = (provided ?? new PlainDateAdapter()) as DateAdapter<Z>
+  const adapter = (provided ?? new V0PlainDateAdapter()) as DateAdapter<Z>
 
   // Try to get selected locale from useLocale if available — inject() (which
   // useLocale relies on) resolves inside a component's setup() and inside a
@@ -314,7 +314,7 @@ export function createDatePlugin<
 /**
  * Returns the current date context.
  *
- * Inside a component with no plugin, returns a `PlainDateAdapter` context.
+ * Inside a component with no plugin, returns a `V0PlainDateAdapter` context.
  * Outside a component, throws. A plugin you installed is used as-is.
  *
  * @param namespace The namespace to look up (defaults to 'v0:date').
@@ -368,5 +368,5 @@ export function useDate<
 
   if (!isNull(installed)) return installed
 
-  return createDate({ adapter: new PlainDateAdapter() }) as E
+  return createDate({ adapter: new V0PlainDateAdapter() }) as E
 }

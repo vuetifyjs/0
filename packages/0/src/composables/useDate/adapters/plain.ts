@@ -1,5 +1,5 @@
 /**
- * @module PlainDateAdapter
+ * @module V0PlainDateAdapter
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-date
  *
@@ -11,14 +11,11 @@
  *
  * @example
  * ```ts
- * import { PlainDateAdapter } from '@vuetify/v0'
+ * import { V0PlainDateAdapter } from '@vuetify/v0'
  *
- * const adapter = new PlainDateAdapter('en-US')
+ * const adapter = new V0PlainDateAdapter('en-US')
  * adapter.toISO(adapter.parseISO('2026-02-01')) // '2026-02-01'
  * ```
- *
- * @todo v2: rename the class to `V0PlainDateAdapter` so `constructor.name`
- * matches the alias. The v1 class name stays `PlainDateAdapter`.
  */
 
 // Globals
@@ -41,7 +38,7 @@ const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/
 
 const TIMED = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|[+-]\d{2}:\d{2})?$/i
 
-export class PlainDateAdapter extends DateAdapter<Date> {
+export class V0PlainDateAdapter extends DateAdapter<Date> {
   private _locale: string
   private _firstDayOfWeek = 0
   private _minimalDays = 1
@@ -869,14 +866,6 @@ export class PlainDateAdapter extends DateAdapter<Date> {
 }
 
 /**
- * Alias of `PlainDateAdapter`. Same class, so `constructor.name` stays
- * `PlainDateAdapter` until the v2 rename. Import it from `@vuetify/v0`.
- *
- * @example
- * ```ts
- * import { V0PlainDateAdapter } from '@vuetify/v0'
- *
- * const adapter = new V0PlainDateAdapter('en-US')
- * ```
+ * Previous name of `V0PlainDateAdapter`. Same class.
  */
-export { PlainDateAdapter as V0PlainDateAdapter }
+export { V0PlainDateAdapter as PlainDateAdapter }

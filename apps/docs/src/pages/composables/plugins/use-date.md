@@ -64,7 +64,7 @@ app.use(
 ```
 
 > [!NOTE]
-> The `adapter` option is optional. Omit it and `createDate()` / `useDate()` inside a component use `PlainDateAdapter`. Pass `V0DateAdapter` for Temporal. That class is exported from `@vuetify/v0/date` so the Temporal polyfill stays out of the main entry. `useDate()` outside a component still throws.
+> The `adapter` option is optional. Omit it and `createDate()` / `useDate()` inside a component use `V0PlainDateAdapter`. Pass `V0DateAdapter` for Temporal. That class is exported from `@vuetify/v0/date` so the Temporal polyfill stays out of the main entry. `useDate()` outside a component still throws.
 
 ## Usage
 
@@ -80,10 +80,9 @@ Adapters let you swap the underlying date library without changing your applicat
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
-| `PlainDateAdapter` | `@vuetify/v0` | JavaScript `Date`. Default when no adapter is passed[^plain-alias] |
+| `V0PlainDateAdapter` | `@vuetify/v0` | JavaScript `Date`. Default when no adapter is passed |
 | `V0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
 
-[^plain-alias]: Also exported as `V0PlainDateAdapter`. Same class. `constructor.name` stays `PlainDateAdapter` until the class is renamed in v2.
 [^temporal]: Uses native Temporal when the runtime provides it; otherwise requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) optional peer. Install with `pnpm add @js-temporal/polyfill`.
 
 ### DateAdapter Interface
@@ -342,14 +341,14 @@ app.use(
 
 ## Architecture
 
-`useDate` is a thin plugin around a `DateAdapter`. The default is `PlainDateAdapter` (a JavaScript `Date`). Pass `V0DateAdapter` for Temporal, or any other `DateAdapter` subclass. It resolves the active locale (from `useLocale` when present, otherwise its own option) and pushes it plus the derived `firstDayOfWeek` onto the adapter; all date math is delegated.
+`useDate` is a thin plugin around a `DateAdapter`. The default is `V0PlainDateAdapter` (a JavaScript `Date`). Pass `V0DateAdapter` for Temporal, or any other `DateAdapter` subclass. It resolves the active locale (from `useLocale` when present, otherwise its own option) and pushes it plus the derived `firstDayOfWeek` onto the adapter; all date math is delegated.
 
 ```mermaid "useDate Architecture"
 flowchart TD
   Locale["useLocale"]
   UD["useDate"]:::primary
   Adapter["DateAdapter"]
-  Plain["PlainDateAdapter"]
+  Plain["V0PlainDateAdapter"]
   V0["V0DateAdapter (Temporal)"]
   Custom["Custom adapter (date-fns, dayjs, …)"]
 
@@ -457,7 +456,7 @@ The `parse()` method's format parameter is ignored. Both built-in adapters deleg
 
 Date formatting can cause hydration mismatches in SSR applications because the server and client environments may produce different formatted output. Two effects are at play:
 
-- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time. On the server it returns the epoch (`1970-01-01`) so a render does not depend on the request clock. `PlainDateAdapter` uses a JavaScript `Date`. `V0DateAdapter` uses `Temporal.Now.plainDateTimeISO()`. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
+- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time. On the server it returns the epoch (`1970-01-01`) so a render does not depend on the request clock. `V0PlainDateAdapter` uses a JavaScript `Date`. `V0DateAdapter` uses `Temporal.Now.plainDateTimeISO()`. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
 - **`Intl.DateTimeFormat` uses the system timezone.** Server environments (often UTC) and client browsers (the user's local timezone) produce different formatted strings.
 
 ??? How do I avoid date hydration mismatches in SSR?
@@ -518,7 +517,7 @@ The adapter prefers `globalThis.Temporal` at runtime and falls back to [@js-temp
 
 ??? Can I use date-fns, luxon, or dayjs instead of Temporal?
 
-Yes. The adapter pattern decouples date operations from the library. Extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. `PlainDateAdapter` is the built-in default. `V0DateAdapter` is the built-in Temporal adapter. Other libraries need a custom adapter.
+Yes. The adapter pattern decouples date operations from the library. Extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. `V0PlainDateAdapter` is the built-in default. `V0DateAdapter` is the built-in Temporal adapter. Other libraries need a custom adapter.
 
 ??? What's the difference between `format()` and `formatByString()`?
 

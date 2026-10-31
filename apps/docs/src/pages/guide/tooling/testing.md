@@ -137,7 +137,7 @@ it('should throw V0_PLUGIN_MISSING when the date plugin is absent', () => {
 | `V0_PALETTE_INVALID_SEED` | An invalid seed color was passed to a palette factory |
 | `V0_PALETTE_UNKNOWN_VARIANT` | An unrecognised variant name was given to the Material palette |
 | `V0_ADAPTER_INSTANCE_MISSING` | The adapter composable was called without a mounted adapter instance |
-| `V0_DATE_INVALID` | `PlainDateAdapter` could not parse the string as a date |
+| `V0_DATE_INVALID` | `V0PlainDateAdapter` could not parse the string as a date |
 
 ## Asserting warnings
 

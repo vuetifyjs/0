@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Adapters
-import { PlainDateAdapter } from './adapters/plain'
+import { V0PlainDateAdapter } from './adapters/plain'
 import { Temporal, V0DateAdapter } from './adapters/v0'
 
 import { deriveWeekInfo } from './weekinfo'
@@ -1610,10 +1610,10 @@ describe('createDate', () => {
   })
 
   describe('createDate', () => {
-    it('should default to PlainDateAdapter when no adapter is passed', () => {
+    it('should default to V0PlainDateAdapter when no adapter is passed', () => {
       const { adapter } = createDate()
 
-      expect(adapter).toBeInstanceOf(PlainDateAdapter)
+      expect(adapter).toBeInstanceOf(V0PlainDateAdapter)
       expect(adapter.toISO(adapter.parseISO('2026-02-01'))).toBe('2026-02-01')
     })
 
@@ -1823,7 +1823,7 @@ describe('createDate', () => {
       }
     })
 
-    it('should fall back to PlainDateAdapter inside a component when no plugin is installed', async () => {
+    it('should fall back to V0PlainDateAdapter inside a component when no plugin is installed', async () => {
       const { mount } = await import('@vue/test-utils')
       const { defineComponent } = await import('vue')
 
@@ -1840,12 +1840,12 @@ describe('createDate', () => {
 
       const wrapper = mount(TestComponent)
 
-      expect(name).toBe('PlainDateAdapter')
+      expect(name).toBe('V0PlainDateAdapter')
 
       wrapper.unmount()
     })
 
-    it('should install PlainDateAdapter when the plugin is given no adapter', async () => {
+    it('should install V0PlainDateAdapter when the plugin is given no adapter', async () => {
       const { mount } = await import('@vue/test-utils')
       const { defineComponent } = await import('vue')
 
@@ -1866,7 +1866,7 @@ describe('createDate', () => {
         },
       })
 
-      expect(name).toBe('PlainDateAdapter')
+      expect(name).toBe('V0PlainDateAdapter')
 
       wrapper.unmount()
     })
