@@ -288,6 +288,12 @@
       'style': viewportStyle.value,
     },
   }))
+
+  defineExpose<AtomExpose>({
+    get element () {
+      return (viewportRef.value?.element ?? null) as AtomExpose['element']
+    },
+  })
 </script>
 
 <template>
