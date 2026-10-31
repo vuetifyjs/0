@@ -44,12 +44,19 @@
         <Carousel.Item
           v-for="photo in photos"
           :key="photo.id"
-          class="flex flex-col justify-end h-56 rounded-xl p-4 text-white font-medium flex-[0_0_100%] transition-opacity opacity-40 data-[active]:opacity-100"
-          :class="photo.color"
+          class="relative flex flex-col justify-end h-56 overflow-hidden rounded-xl p-4 text-white font-medium flex-[0_0_100%] transition-opacity opacity-40 data-[active]:opacity-100"
           :value="photo.id"
         >
-          <span class="text-lg font-semibold">{{ photo.title }}</span>
-          <span class="text-sm text-white/80">{{ photo.location }}</span>
+          <img
+            :alt="photo.title"
+            class="absolute inset-0 size-full object-cover pointer-events-none"
+            draggable="false"
+            :src="photo.src"
+          >
+
+          <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 to-transparent" />
+          <span class="relative text-lg font-semibold">{{ photo.title }}</span>
+          <span class="relative text-sm text-white/80">{{ photo.location }}</span>
         </Carousel.Item>
       </Carousel.Viewport>
 
