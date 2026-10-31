@@ -28,7 +28,7 @@ import { useContext } from '#v0/composables/createContext'
 import { useTimer } from '#v0/composables/useTimer'
 
 // Adapters
-import { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
+import { V0PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -135,7 +135,7 @@ export type CalendarWeekdayFormat = 'long' | 'short' | 'narrow'
 export interface CalendarOptions<Z = Date> {
   /**
    * Date engine. Omit it to borrow an installed date plugin, or to use
-   * `PlainDateAdapter` when none is installed. An adapter you pass is not
+   * `V0PlainDateAdapter` when none is installed. An adapter you pass is not
    * replaced, and its `firstDayOfWeek` is not written.
    */
   adapter?: DateAdapter<Z>
@@ -897,7 +897,7 @@ function resolveAdapter<Z> (
   }
 
   return {
-    adapter: new PlainDateAdapter() as unknown as DateAdapter<Z>,
+    adapter: new V0PlainDateAdapter() as unknown as DateAdapter<Z>,
     owned: true,
     context: undefined,
   }

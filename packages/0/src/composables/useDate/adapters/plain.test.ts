@@ -1,14 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
-import { PlainDateAdapter } from './plain'
+import { PlainDateAdapter, V0PlainDateAdapter } from './plain'
 
 // Utilities
 import { isV0Error } from '#v0/utilities'
 
-describe('plainDateAdapter', () => {
+describe('v0PlainDateAdapter', () => {
   function setup () {
-    return new PlainDateAdapter('en-US')
+    return new V0PlainDateAdapter('en-US')
   }
+
+  it('should alias PlainDateAdapter to the same class', () => {
+    expect(PlainDateAdapter).toBe(V0PlainDateAdapter)
+    expect(new PlainDateAdapter('en-US')).toBeInstanceOf(V0PlainDateAdapter)
+    expect(V0PlainDateAdapter.name).toBe('V0PlainDateAdapter')
+  })
 
   describe('parse and format', () => {
     it('should parse a date-only string as local midnight', () => {
@@ -332,7 +338,7 @@ describe('plainDateAdapter', () => {
       expect(adapter.isNullish(morning)).toBe(false)
       expect(adapter.getCurrentLocaleCode()).toBe('en-US')
       expect(adapter.is12HourCycleInCurrentLocale()).toBe(true)
-      expect(new PlainDateAdapter('de-DE').is12HourCycleInCurrentLocale()).toBe(false)
+      expect(new V0PlainDateAdapter('de-DE').is12HourCycleInCurrentLocale()).toBe(false)
 
       adapter.locale = 'en-US'
 
@@ -369,8 +375,8 @@ describe('plainDateAdapter', () => {
       expect(adapter.formatNumber('1234')).toBe('1,234')
       expect(adapter.getMeridiemText('am').toLowerCase()).toContain('am')
       expect(adapter.getMeridiemText('pm').toLowerCase()).toContain('pm')
-      expect(new PlainDateAdapter('hu-HU').getMeridiemText('am')).toBe('AM')
-      expect(new PlainDateAdapter('hu-HU').getMeridiemText('pm')).toBe('PM')
+      expect(new V0PlainDateAdapter('hu-HU').getMeridiemText('am')).toBe('AM')
+      expect(new V0PlainDateAdapter('hu-HU').getMeridiemText('pm')).toBe('PM')
       expect(adapter.getWeekdays('long')[0]).toBe('Sunday')
       expect(adapter.getWeekdays('short')[0]).toBe('Sun')
       expect(adapter.getWeekdays()[0]).toBe('S')

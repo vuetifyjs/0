@@ -5,7 +5,7 @@ import { provideContext } from '#v0/composables/createContext'
 import { createDateContext } from '#v0/composables/useDate'
 
 // Adapters
-import { PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
+import { V0PlainDateAdapter } from '#v0/composables/useDate/adapters/plain'
 
 import { createCalendar } from './index'
 
@@ -18,7 +18,7 @@ import { computed, customRef, defineComponent, effectScope, nextTick, shallowRef
 import type { CalendarCell, CalendarContext, CalendarDisabled, CalendarOptions, CalendarRange, CalendarValue } from './index'
 
 /** `addMonths` overflows the way `Date` does, so 31 January becomes 3 March. */
-class OverflowMonthAdapter extends PlainDateAdapter {
+class OverflowMonthAdapter extends V0PlainDateAdapter {
   override addMonths (date: Date, amount: number): Date {
     return new Date(
       date.getFullYear(),
@@ -33,7 +33,7 @@ class OverflowMonthAdapter extends PlainDateAdapter {
 }
 
 /** Next midnight is not ahead of the current instant. */
-class FrozenDayAdapter extends PlainDateAdapter {
+class FrozenDayAdapter extends V0PlainDateAdapter {
   override addDays (date: Date, _amount: number): Date {
     return new Date(date)
   }
@@ -44,7 +44,7 @@ class FrozenDayAdapter extends PlainDateAdapter {
 }
 
 /** No current instant. */
-class NullDateAdapter extends PlainDateAdapter {
+class NullDateAdapter extends V0PlainDateAdapter {
   override date (_value?: unknown): Date | null {
     return null
   }
@@ -54,7 +54,7 @@ class NullDateAdapter extends PlainDateAdapter {
  * Years outside 0000–9999 stay valid, as Temporal `toISO` does, but the
  * string is not a 4-digit day. `parseISO` cannot turn that month back into a date.
  */
-class ExpandedYearAdapter extends PlainDateAdapter {
+class ExpandedYearAdapter extends V0PlainDateAdapter {
   override toISO (date: Date): string {
     const year = date.getFullYear()
 
@@ -157,7 +157,7 @@ describe('createCalendar', () => {
     })
 
     it('should rotate a Monday start without writing the adapter', () => {
-      const adapter = new PlainDateAdapter('en-US')
+      const adapter = new V0PlainDateAdapter('en-US')
       const weeks = vi.spyOn(adapter, 'getWeekArray')
       const { calendar, stop } = setup({
         adapter,
@@ -243,7 +243,7 @@ describe('createCalendar', () => {
     it('should read weekday labels from an explicit adapter', () => {
       const { calendar, stop } = setup({
         month: '2026-02',
-        adapter: new PlainDateAdapter('fr-FR'),
+        adapter: new V0PlainDateAdapter('fr-FR'),
       })
 
       expect(calendar.weekdays.value[0]).toBe('L')
@@ -1190,7 +1190,7 @@ describe('createCalendar', () => {
 
   describe('installed date context', () => {
     it('should borrow the installed adapter, locale, and week start', () => {
-      const adapter = new PlainDateAdapter('de-DE')
+      const adapter = new V0PlainDateAdapter('de-DE')
       const [, provideDate, context] = createDateContext({
         adapter,
         locale: 'de-DE',
@@ -1244,7 +1244,7 @@ describe('createCalendar', () => {
     })
 
     it('should use the adapter locale when the installed locale is unset', () => {
-      const adapter = new PlainDateAdapter('fr-FR')
+      const adapter = new V0PlainDateAdapter('fr-FR')
       let calendar: CalendarContext | undefined
 
       const Child = defineComponent({

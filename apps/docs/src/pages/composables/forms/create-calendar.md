@@ -39,7 +39,7 @@ calendar.today() // pages to today and selects nothing
 
 ## Adapters
 
-Inside a component, an omitted `adapter` comes from the installed [date plugin](/composables/plugins/use-date). [useDate](/composables/plugins/use-date) reads that same context, so both share its [DateAdapter](/composables/plugins/use-date#dateadapter-interface), locale, and week start. The grid does not call `useDate()`. That call throws outside a component. There, or with no plugin, the grid constructs a [PlainDateAdapter](/composables/plugins/use-date#adapters). It does not install the plugin.
+Inside a component, an omitted `adapter` comes from the installed [date plugin](/composables/plugins/use-date). [useDate](/composables/plugins/use-date) reads that same context, so both share its [DateAdapter](/composables/plugins/use-date#dateadapter-interface), locale, and week start. The grid does not call `useDate()`. That call throws outside a component. There, or with no plugin, the grid constructs a [V0PlainDateAdapter](/composables/plugins/use-date#adapters). It does not install the plugin.
 
 The first match wins:
 
@@ -47,7 +47,7 @@ The first match wins:
 | - | - |
 | The `adapter` argument | That instance. This call does not write its locale or its week start, and it does not read the plugin |
 | An installed date plugin, inside a component | That plugin's adapter, locale, and week start. This is the context `useDate()` returns |
-| Nothing installed, or a call outside a component | A new `PlainDateAdapter`, a JavaScript `Date`. `useDate()` throws outside a component. This call does not |
+| Nothing installed, or a call outside a component | A new `V0PlainDateAdapter`, a JavaScript `Date`. `useDate()` throws outside a component. This call does not |
 
 `locale` is applied only in the last case. `firstDayOfWeek` overrides the week start for this grid and is not written back onto a borrowed adapter.
 
@@ -55,7 +55,7 @@ Weeks are built with `addDays` from that week start. The grid does not call `get
 
 | Adapter | Import | Role here |
 | - | - | - |
-| `PlainDateAdapter` | `@vuetify/v0` | Default when this call owns the engine |
+| `V0PlainDateAdapter` | `@vuetify/v0` | Default when this call owns the engine |
 | `V0DateAdapter` | `@vuetify/v0/date` | Temporal. Pass it, or install the date plugin with it |
 | A `DateAdapter` subclass | Your module | Pass it, or install it on the plugin |
 
@@ -195,7 +195,7 @@ The grid is one month. `month` is that month. A length-1 list would only pretend
 
 ??? Does createCalendar use an installed date plugin?
 
-Yes. Inside a component it reads the same context `useDate()` returns. It does not call `useDate()`, because that throws outside a component. With no plugin, the grid uses `PlainDateAdapter` and does not throw. The order is in [Adapters](#adapters).
+Yes. Inside a component it reads the same context `useDate()` returns. It does not call `useDate()`, because that throws outside a component. With no plugin, the grid uses `V0PlainDateAdapter` and does not throw. The order is in [Adapters](#adapters).
 
 ??? Are selected days Date objects?
 
