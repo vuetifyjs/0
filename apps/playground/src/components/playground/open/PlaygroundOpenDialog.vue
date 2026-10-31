@@ -1,10 +1,11 @@
 <script setup lang="ts">
   // Framework
-  import { createFilter, IN_BROWSER, Select, useStorage } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, Select, Switch, useStorage } from '@vuetify/v0'
 
   // Components
   import AppCloseButton from '@/components/app/AppCloseButton.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
+  import AppTooltip from '@/components/app/AppTooltip.vue'
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Context
@@ -14,6 +15,14 @@
   import PlaygroundOpenSaved from './PlaygroundOpenSaved.vue'
 
   // Composables
+  import {
+    filterPlaygroundsByScope,
+    playgroundScope,
+    playgroundTeamId,
+    readUserTeam,
+    settledTeamId,
+    shouldAssignTeam,
+  } from '@/composables/teamPlaygrounds'
   import { ONE_API, useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Data
@@ -39,6 +48,9 @@
     type VuetifyPlayground,
   } from './types'
 
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
+
   // Utilities
   import { isNumber } from '#v0/utilities'
   import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -51,7 +63,11 @@
   const emit = defineEmits<{ close: [] }>()
 
   const playground = usePlayground()
+  const auth = useAuthStore()
   const one = useOnePlaygrounds()
+  const userTeam = toRef(() => readUserTeam(auth.user))
+  const savedScope = toRef(() => userTeam.value ? playgroundScope.value : 'personal')
+  const assigning = shallowRef(false)
   const storage = useStorage()
   /** Optional larger Open card. Restore puts it back; it does not dismiss. */
   const maximized = storage.get('playground-open-maximized', false)
@@ -155,26 +171,28 @@
     return items.value.filter(item => featureBucket(item) === kind.value)
   })
 
+  const scopedSaved = computed(() => filterPlaygroundsByScope(saved.value, savedScope.value))
+
   const savedCounts = computed(() => ({
-    favorite: saved.value.filter(item => item.favorite).length,
-    pinned: saved.value.filter(item => item.pinned).length,
+    favorite: scopedSaved.value.filter(item => item.favorite).length,
+    pinned: scopedSaved.value.filter(item => item.pinned).length,
   }))
 
   const savedChips = computed(() => [
-    { id: 'all' as const, label: 'All', count: saved.value.length },
+    { id: 'all' as const, label: 'All', count: scopedSaved.value.length },
     { id: 'favorite' as const, label: 'Favorites', count: savedCounts.value.favorite },
   ].filter(chip => chip.id === 'all' || chip.count > 0))
 
   const pinnedItems = computed(() =>
     sortPlaygrounds(
-      saved.value.filter(item => item.pinned),
+      scopedSaved.value.filter(item => item.pinned),
       savedSort.value,
       savedSortDir.value,
     ),
   )
 
   const savedPool = computed(() => {
-    const unpinned = saved.value.filter(item => !item.pinned)
+    const unpinned = scopedSaved.value.filter(item => !item.pinned)
     const pool = savedChip.value === 'favorite'
       ? unpinned.filter(item => item.favorite)
       : unpinned
@@ -320,7 +338,7 @@
   const showSearch = computed(() => {
     if (selected.value || selectedVuetify.value) return false
     if (rail.value === 'saved') {
-      return !savedLoading.value && !savedError.value && saved.value.length > 0
+      return !savedLoading.value && !savedError.value && scopedSaved.value.length > 0
     }
     if (rail.value === 'bins') {
       return !binsLoading.value && !binsError.value && bins.value.length > 0
@@ -342,7 +360,7 @@
     rail.value === 'saved'
     && !savedLoading.value
     && !savedError.value
-    && saved.value.length > 0
+    && scopedSaved.value.length > 0
     && savedChips.value.length > 1,
   )
 
@@ -350,7 +368,16 @@
     rail.value === 'saved'
     && !savedLoading.value
     && !savedError.value
-    && saved.value.length > 0,
+    && scopedSaved.value.length > 0,
+  )
+
+  const showTeamSwitch = computed(() =>
+    rail.value === 'saved'
+    && !selected.value
+    && !selectedVuetify.value
+    && userTeam.value !== null
+    && !savedLoading.value
+    && !savedError.value,
   )
 
   const showBinsChips = computed(() =>
@@ -774,6 +801,38 @@
     }
   }
 
+  function onTeamScope (team: boolean) {
+    playgroundScope.value = team ? 'team' : 'personal'
+  }
+
+  async function onAssign (payload: { ids: string[], teamId: string | null }) {
+    if (assigning.value) return
+    assigning.value = true
+    const userId = auth.user?.id
+    try {
+      for (const id of payload.ids) {
+        const item = saved.value.find(entry => entry.id === id)
+        if (!item || !shouldAssignTeam(item, userId, payload.teamId)) continue
+        try {
+          const result = await one.patchMeta({ teamId: payload.teamId }, item.id, {
+            title: item.title,
+            favorite: item.favorite ?? false,
+            pinned: item.pinned ?? false,
+            locked: item.locked ?? false,
+            visibility: item.visibility ?? 'public',
+            teamId: playgroundTeamId(item),
+          })
+          const teamId = settledTeamId(playgroundTeamId(item), result, true)
+          onUpdate({ ...item, ...result, teamId })
+        } catch {
+          // Leave the row. The next list load shows the server value.
+        }
+      }
+    } finally {
+      assigning.value = false
+    }
+  }
+
   function onUpdate (next: VuetifyPlayground) {
     saved.value = saved.value.map(entry => (
       entry.id === next.id ? { ...entry, ...next } : entry
@@ -998,6 +1057,7 @@
   async function openSaved (item: VuetifyPlayground) {
     let content = item.content
     let owner = item.owner?.id
+    let teamId = item.teamId ?? null
     if (!content) {
       const res = await fetch(`${ONE_API}/one/playgrounds/${item.id}`, {
         credentials: 'include',
@@ -1007,6 +1067,7 @@
       const playground_ = data.playground ?? data
       content = playground_.content
       owner = playground_.owner?.id ?? owner
+      if (Object.hasOwn(playground_, 'teamId')) teamId = playground_.teamId || null
     }
     if (!content) return
     // Pause autosave while REPL loads so we don't POST the previous editor state.
@@ -1018,7 +1079,7 @@
         pinned: item.pinned ?? false,
         locked: item.locked ?? false,
         visibility: item.visibility ?? 'public',
-      }, { skipUrlSync: true, owner })
+      }, { skipUrlSync: true, owner, teamId })
       one.markSynced(content)
       emit('close')
       await playground.openPlayground(content)
@@ -1207,7 +1268,7 @@
           </div>
 
           <div
-            v-if="showSearch || showKindChips || showListChips || showListSort"
+            v-if="showSearch || showKindChips || showListChips || showListSort || showTeamSwitch"
             class="px-4 py-2.5 border-b border-divider shrink-0 flex flex-col gap-2"
           >
             <div
@@ -1255,13 +1316,36 @@
             </div>
 
             <div
-              v-if="showListChips || showListSort"
+              v-if="showListChips || showListSort || showTeamSwitch"
               class="flex flex-wrap items-center justify-between gap-2"
             >
               <div
-                v-if="showListChips || showBinType"
+                v-if="showTeamSwitch || showListChips || showBinType"
                 class="flex flex-wrap items-center gap-1.5"
               >
+                <AppTooltip
+                  v-if="showTeamSwitch"
+                  as="span"
+                  class="inline-flex"
+                  position-area="top"
+                  text="Show playgrounds shared with your team"
+                >
+                  <span class="inline-flex items-center gap-1.5 text-[11px] text-on-surface-variant">
+                    <Switch.Root
+                      class="inline-flex items-center border-none bg-transparent p-0 outline-none"
+                      label="Team"
+                      :model-value="savedScope === 'team'"
+                      @update:model-value="onTeamScope"
+                    >
+                      <Switch.Track class="relative inline-flex items-center rounded-full transition-colors h-4 w-7 bg-surface-variant data-[state=checked]:bg-primary">
+                        <Switch.Thumb class="block size-3 rounded-full bg-on-surface-variant shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.5 data-[state=checked]:bg-on-primary" />
+                      </Switch.Track>
+                    </Switch.Root>
+
+                    <span>Team</span>
+                  </span>
+                </AppTooltip>
+
                 <div
                   v-if="showListChips"
                   :aria-label="rail === 'bins' ? 'Filter Vuetify Bin' : 'Filter Vuetify Play'"
@@ -1412,12 +1496,19 @@
 
             <PlaygroundOpenSaved
               v-else-if="rail === 'saved'"
+              :assigning
+              :can-team="userTeam !== null"
+              :catalog="scopedSaved"
+              :empty="savedScope === 'team' ? 'No team playgrounds' : 'No Vuetify Play playgrounds'"
               :error="savedError"
               :items="filteredSaved"
               :loading="savedLoading"
               :pinned="pinnedItems"
               :query
-              :total="saved.length"
+              :scope="savedScope"
+              :total="scopedSaved.length"
+              :user-team-id="userTeam?.id"
+              @assign="onAssign"
               @open="openSaved"
               @remove="onRemove"
               @unpin="onUnpin"

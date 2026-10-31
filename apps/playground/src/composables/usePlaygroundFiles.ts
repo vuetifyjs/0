@@ -210,7 +210,7 @@ export function usePlaygroundFiles () {
             pinned: playground.pinned ?? false,
             locked: playground.locked ?? false,
             visibility: playground.visibility ?? 'public',
-          }, { owner: playground.owner?.id })
+          }, { owner: playground.owner?.id, teamId: playground.teamId ?? null })
           one.markSynced(playground.content)
           await openPlayground(playground.content)
         } else {

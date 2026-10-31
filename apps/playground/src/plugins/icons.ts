@@ -1,6 +1,8 @@
 // Icons
 import {
   mdiAccountCircleOutline,
+  mdiAccountGroupOutline,
+  mdiAccountOutline,
   mdiAlertCircleOutline,
   mdiArrowCollapseVertical,
   mdiAspectRatio,
@@ -162,6 +164,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'cloud-check': mdiCloudCheckOutline,
     'cloud-sync': mdiCloudSyncOutline,
     'account': mdiAccountCircleOutline,
+    'account-group': mdiAccountGroupOutline,
+    'account-outline': mdiAccountOutline,
     'star': mdiStar,
     'star-outline': mdiStarOutline,
     'pin': mdiPin,

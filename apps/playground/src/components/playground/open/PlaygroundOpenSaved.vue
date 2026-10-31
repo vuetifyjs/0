@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button, createVirtual } from '@vuetify/v0'
+  import { Button, createSelection, createVirtual } from '@vuetify/v0'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -12,27 +12,43 @@
   import PlaygroundOpenSavedRow from './PlaygroundOpenSavedRow.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { computed, shallowRef, toRef, watch } from 'vue'
 
   // Types
   import type { VuetifyPlayground } from './types'
+  import type { PlaygroundScope } from '@/composables/teamPlaygrounds'
 
   const {
+    catalog,
     items,
     pinned = [],
     loading = false,
     error,
     query = '',
     total = 0,
+    empty = 'No Vuetify Play playgrounds',
+    scope = 'personal',
+    canTeam = false,
+    assigning = false,
+    userTeamId,
   } = defineProps<{
+    /** Scoped list before search. Selection survives a filter that hides a row. */
+    catalog: VuetifyPlayground[]
     items: VuetifyPlayground[]
     /** Always-visible pinned pills, independent of chip/search. */
     pinned?: VuetifyPlayground[]
     loading?: boolean
     error?: string
     query?: string
-    /** Unfiltered count for empty vs no-match copy. */
+    /** Unfiltered scoped count for empty vs no-match copy. */
     total?: number
+    empty?: string
+    scope?: PlaygroundScope
+    /** User belongs to a team, so bulk move is available. */
+    canTeam?: boolean
+    assigning?: boolean
+    /** Signed-in user's team id. Bulk "Make team" assigns this. */
+    userTeamId?: string
   }>()
 
   const emit = defineEmits<{
@@ -40,6 +56,7 @@
     unpin: [item: VuetifyPlayground]
     update: [item: VuetifyPlayground]
     remove: [id: string]
+    assign: [payload: { ids: string[], teamId: string | null }]
   }>()
 
   const ROW_HEIGHT = 48
@@ -48,6 +65,70 @@
     overscan: 8,
   })
   const { element, items: virtualItems, offset, size, scroll } = virtual
+  const picked = createSelection({ multiple: true })
+  const selecting = shallowRef(false)
+  const flip = shallowRef(scope === 'team')
+
+  const selectedCount = computed(() => picked.selectedIds.size)
+  const bulkLabel = computed(() => flip.value ? 'Make personal' : 'Make team')
+
+  function isSelected (id: string) {
+    return picked.selectedIds.has(id)
+  }
+
+  function onToggle (id: string) {
+    picked.toggle(id)
+  }
+
+  function clearPicked () {
+    for (const id of picked.selectedIds) {
+      picked.unselect(id)
+    }
+  }
+
+  function onDone () {
+    selecting.value = false
+    clearPicked()
+  }
+
+  function onAssign () {
+    if (selectedCount.value === 0 || assigning) return
+    const teamId = flip.value ? null : userTeamId
+    if (teamId === undefined) return
+    emit('assign', {
+      ids: [...picked.selectedIds].map(String),
+      teamId,
+    })
+  }
+
+  function sync (rows: VuetifyPlayground[]) {
+    const next = new Set(rows.map(row => row.id))
+    for (const id of picked.keys()) {
+      if (!next.has(String(id))) picked.unregister(id)
+    }
+    const fresh = rows.filter(row => !picked.has(row.id))
+    if (fresh.length === 0) return
+    picked.onboard(fresh.map(row => ({ id: row.id })))
+  }
+
+  watch(() => catalog.map(item => item.id).join('\n'), () => {
+    sync(catalog)
+  }, { immediate: true })
+
+  watch(() => scope, next => {
+    clearPicked()
+    selecting.value = false
+    flip.value = next === 'team'
+  })
+
+  watch(() => canTeam, value => {
+    if (value) return
+    selecting.value = false
+    clearPicked()
+  })
+
+  const bulkClass = 'h-6 inline-flex items-center gap-1 px-2 rounded-md border border-primary bg-primary/10 text-[11px] font-medium text-primary cursor-pointer shrink-0 data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed'
+  const quietClass = 'h-6 inline-flex items-center px-2 rounded-md border border-divider text-[11px] text-on-surface-variant hover:text-on-surface cursor-pointer shrink-0'
 </script>
 
 <template>
@@ -69,13 +150,62 @@
     v-else-if="total === 0"
     class="p-8 text-center flex items-center justify-center h-full"
   >
-    <p class="text-sm text-on-surface-variant">No Vuetify Play playgrounds</p>
+    <p class="text-sm text-on-surface-variant">{{ empty }}</p>
   </div>
 
   <div
     v-else
     class="h-full min-h-0 flex-1 flex flex-col"
   >
+    <div
+      v-if="canTeam && total > 0"
+      class="flex items-center justify-end gap-2 px-3 py-2 shrink-0 border-b border-divider"
+    >
+      <template v-if="selecting">
+        <span
+          v-if="selectedCount > 0"
+          class="me-auto text-xs text-on-surface truncate"
+        >
+          {{ selectedCount }} selected
+        </span>
+
+        <Button.Root
+          :aria-label="bulkLabel"
+          :class="bulkClass"
+          :disabled="selectedCount === 0 || assigning"
+          @click="onAssign"
+        >
+          <AppIcon :icon="flip ? 'account-outline' : 'account-group'" :size="12" />
+          {{ bulkLabel }}
+        </Button.Root>
+
+        <Button.Root
+          :aria-label="flip ? 'Make team instead' : 'Make personal instead'"
+          :class="quietClass"
+          :disabled="assigning"
+          @click="flip = !flip"
+        >
+          Flip
+        </Button.Root>
+
+        <Button.Root
+          :class="quietClass"
+          :disabled="assigning"
+          @click="onDone"
+        >
+          Done
+        </Button.Root>
+      </template>
+
+      <Button.Root
+        v-else
+        :class="quietClass"
+        @click="selecting = true"
+      >
+        Select
+      </Button.Root>
+    </div>
+
     <div
       v-if="pinned.length > 0"
       class="flex flex-wrap gap-1 px-3 pt-2 shrink-0"
@@ -136,8 +266,12 @@
         v-for="entry in virtualItems"
         :key="entry.raw.id"
         :item="entry.raw"
+        :scope
+        :selected="isSelected(entry.raw.id)"
+        :selecting
         @open="emit('open', $event)"
         @remove="emit('remove', $event)"
+        @toggle="onToggle"
         @update="emit('update', $event)"
       />
 

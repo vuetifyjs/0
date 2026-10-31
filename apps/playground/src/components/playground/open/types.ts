@@ -35,10 +35,12 @@ export interface VuetifyPlayground {
   pinned?: boolean
   locked?: boolean
   visibility?: 'private' | 'public'
+  /** Absent before team playgrounds. Null and empty are personal. */
+  teamId?: string | null
   createdAt: string
   updatedAt: string
   /** Owner from API response (publicUserResponse shape). */
-  owner?: { id: string }
+  owner?: { id: string, name?: string }
 }
 
 /** Languages the REPL compiles. Other bins are still added as files. */
