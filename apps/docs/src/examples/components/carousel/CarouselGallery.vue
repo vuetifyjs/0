@@ -23,7 +23,7 @@
       <button
         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-divider text-sm hover:bg-surface-variant"
         type="button"
-        @click="isAutoplay ? stop() : play()"
+        @click.stop="isAutoplay ? stop() : play()"
       >
         <svg class="size-4" viewBox="0 0 24 24"><path :d="isAutoplay ? mdiStop : mdiPlay" fill="currentColor" /></svg>
         {{ isAutoplay ? 'Stop' : 'Play' }}

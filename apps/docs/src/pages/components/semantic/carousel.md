@@ -68,7 +68,7 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 The gallery uses dot indicators, overlay Previous/Next arrows, autoplay with a stop/play control and a timer bar, and a peek viewport that reveals the edges of the neighbouring slides. The selected slide drives a caption panel below the carousel, so the demo also shows how to read the active value back out.
 
-The gallery leans on the full compound surface. `Carousel.Root` is `circular` with `:autoplay` set to a fixed interval, and its `v-model` carries the active slide value — the same value `Carousel.Item` registers with `:value`. `Carousel.Indicator` hands each dot an `attrs` object (role, `aria-selected`, `aria-controls`, and roving tabindex) that you bind with `v-bind="item.attrs"` for keyboard navigation. The peek is pure CSS: horizontal padding on `Carousel.Viewport` carves the bleed, and the component mirrors that padding onto `scroll-padding` so snap points stay aligned. Autoplay does not start on its own — the play button calls the root's `play` and `stop` slot props. Hovering the carousel, moving focus into it, or dragging a slide stops rotation, and it stays stopped until that button starts it again. `Carousel.Progress` visualizes the remaining time, faded out via `data-[state=idle]:opacity-0` until playback begins.
+The gallery leans on the full compound surface. `Carousel.Root` is `circular` with `:autoplay` set to a fixed interval, and its `v-model` carries the active slide value — the same value `Carousel.Item` registers with `:value`. `Carousel.Indicator` hands each dot an `attrs` object (role, `aria-selected`, `aria-controls`, and roving tabindex) that you bind with `v-bind="item.attrs"` for keyboard navigation. The peek is pure CSS: horizontal padding on `Carousel.Viewport` carves the bleed, and the component mirrors that padding onto `scroll-padding` so snap points stay aligned. Autoplay does not start on its own. The play button calls the root's `play` and `stop` slot props, and its click is stopped so it does not fall through to the carousel. Hovering the slides, arrows, dots, or progress pauses rotation, and moving the pointer away starts it again. The play button still starts rotation while the pointer is on it. Moving focus into the carousel, or dragging a slide, stops rotation until that button starts it again. `Carousel.Progress` visualizes the remaining time, faded out via `data-[state=idle]:opacity-0` until playback begins.
 
 Reach for this layout when a single carousel needs to be discoverable through several input paths at once — common for marketing heroes, onboarding flows, and product galleries. The tradeoff is surface area: a barebones swipe carousel needs only Root, Viewport, and Item. Because navigation is built on [createStep](/composables/selection/create-step), you get the same first/last/next/prev model the [Step provider](/components/providers/step) exposes; for fade transitions instead of scroll-snap sliding, compose Step with Presence rather than reaching for this scroll-based layout.
 
@@ -199,12 +199,12 @@ The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade
 
 ??? How do I build an autoplay carousel?
 
-Set `autoplay` to an interval in milliseconds. Nothing rotates until `play()` runs. Put that control first inside `Carousel.Root` so it is the first tab stop. Hovering the carousel, moving keyboard focus into it, or dragging a slide calls `stop()`, and rotation stays stopped until `play()` runs again. `pause()` and `resume()` are still there when you want to hold the timer yourself. Use `Carousel.Progress` to visualize it.
+Set `autoplay` to an interval in milliseconds. Nothing rotates until `play()` runs. Put that control first inside `Carousel.Root` so it is the first tab stop, and stop its click. Hovering the slides, arrows, dots, or progress pauses rotation until the pointer leaves. The play control still starts rotation while the pointer is on it. Moving keyboard focus into the carousel, or dragging a slide, calls `stop()`, and rotation stays stopped until `play()` runs again. `pause()` and `resume()` are still there when you want to hold the timer yourself. Use `Carousel.Progress` to visualize it.
 
 ```vue
 <template>
   <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
-    <button type="button" @click="isAutoplay ? stop() : play()">
+    <button type="button" @click.stop="isAutoplay ? stop() : play()">
       {{ isAutoplay ? 'Stop slide rotation' : 'Start slide rotation' }}
     </button>
 

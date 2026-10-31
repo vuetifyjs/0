@@ -2484,7 +2484,45 @@ describe('carousel', () => {
       vi.useRealTimers()
     })
 
-    it('should stop autoplay when the pointer enters', async () => {
+    it('should keep autoplay running when the pointer is over a control outside the slides', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [
+              h(Carousel.Viewport as any, {}, {
+                default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+              }),
+              h('button', { id: 'play' }, 'Play'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.get('#play').element.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      viewport.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should pause autoplay while the pointer is over the carousel', async () => {
       vi.useFakeTimers()
 
       let rootProps: any
@@ -2505,11 +2543,101 @@ describe('carousel', () => {
 
       wrapper.element.dispatchEvent(new Event('pointerenter'))
       await nextTick()
-      expect(rootProps.isAutoplay).toBe(false)
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
 
       wrapper.element.dispatchEvent(new Event('pointerleave'))
       await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should not resume on pointer leave after stop', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      rootProps.stop()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
       expect(rootProps.isAutoplay).toBe(false)
+      expect(rootProps.isPaused).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should not stop autoplay when focus comes from a click', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerdown'))
+      wrapper.element.dispatchEvent(new Event('focusin'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      window.dispatchEvent(new Event('pointerup'))
+
+      vi.useRealTimers()
+    })
+
+    it('should not resume a consumer pause on pointer leave', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      rootProps.pause()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
 
       vi.useRealTimers()
     })
