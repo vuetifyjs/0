@@ -2859,6 +2859,105 @@ describe('carousel', () => {
       expect(wrapper.exists()).toBe(true)
     })
 
+    it('should settle the slide under the pointer when the step is known', async () => {
+      // happy-dom reports 0×0, so the step stays 0 and mouseup bails before
+      // the release. A width here is what lets the measurement run.
+      const style = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        width: '400px',
+        height: '200px',
+        paddingTop: '0px',
+        paddingRight: '0px',
+        paddingBottom: '0px',
+        paddingLeft: '0px',
+        borderTopWidth: '0px',
+        borderRightWidth: '0px',
+        borderBottomWidth: '0px',
+        borderLeftWidth: '0px',
+        boxSizing: 'content-box',
+        writingMode: 'horizontal-tb',
+      } as CSSStyleDeclaration)
+      const protoScrollTo = HTMLElement.prototype.scrollTo
+
+      try {
+        const wrapper = mount(Carousel.Root, {
+          slots: {
+            default: () => [
+              h(Carousel.Viewport as any, {}, {
+                default: () => [
+                  h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+                  h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+                ],
+              }),
+            ],
+          },
+        })
+
+        const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+        const items = wrapper.findAllComponents(Carousel.Item as any)
+        Object.defineProperty(items[0].element, 'offsetLeft', { configurable: true, value: 0 })
+        Object.defineProperty(items[1].element, 'offsetLeft', { configurable: true, value: 200 })
+        Object.defineProperty(viewportEl, 'scrollLeft', { configurable: true, writable: true, value: 200 })
+        const scrollTo = vi.fn()
+        HTMLElement.prototype.scrollTo = scrollTo
+
+        // mousedown is bound on a post flush; the document listeners follow
+        // the snapDisabled watch on the flush after the press.
+        await nextTick()
+        viewportEl.dispatchEvent(new MouseEvent('mousedown', {
+          button: 0,
+          clientX: 100,
+          bubbles: true,
+        }))
+        await nextTick()
+        document.dispatchEvent(new MouseEvent('mousemove', { clientX: 80, bubbles: true }))
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+        await nextTick()
+
+        expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ left: 200 }))
+        expect(viewportEl.style.scrollSnapType).toContain('mandatory')
+      } finally {
+        HTMLElement.prototype.scrollTo = protoScrollTo
+        style.mockRestore()
+      }
+    })
+
+    it('should release a drag after the viewport element is gone', async () => {
+      const renderless = ref(false)
+      let viewportProps: any
+
+      const Host = defineComponent({
+        setup () {
+          return () => h(Carousel.Root, null, {
+            default: () => h(Carousel.Viewport as any, { renderless: renderless.value }, {
+              default: (props: any) => {
+                viewportProps = props
+                return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+              },
+            }),
+          })
+        },
+      })
+
+      const wrapper = mount(Host)
+      await nextTick()
+
+      const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      viewportEl.dispatchEvent(new MouseEvent('mousedown', {
+        button: 0,
+        clientX: 40,
+        bubbles: true,
+      }))
+      await nextTick()
+
+      renderless.value = true
+      await nextTick()
+
+      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+      await nextTick()
+
+      expect(viewportProps.isDragging).toBe(false)
+    })
+
     it('should fire scrollend listener and reset syncing', async () => {
       const wrapper = mount(Carousel.Root, {
         slots: {
