@@ -75,6 +75,11 @@
   const isDragging = shallowRef(false)
   const syncing = shallowRef(false)
   const snapDisabled = shallowRef(false)
+  // Held from mousedown to mouseup so a scrollend between drag samples
+  // cannot round the track onto the nearest slide. A plain let inside the
+  // browser block is invisible to the selection watch below, and that watch
+  // then throws instead of scrolling.
+  const pressed = shallowRef(false)
 
   const viewportId = `${carousel.rootId}-viewport`
 
@@ -134,7 +139,7 @@
 
   if (IN_BROWSER) {
     useEventListener(el, 'scrollend', () => {
-      if (syncing.value || snapDisabled.value) {
+      if (syncing.value || snapDisabled.value || pressed.value) {
         syncing.value = false
         return
       }
@@ -178,8 +183,11 @@
       else carousel.prev()
     }, { passive: false })
 
-    let dragStart = 0
-    let scrollStart = 0
+    // Last pointer position, not the position at mousedown. A listener can
+    // move the track while the button is held (a loop rotating its buffer);
+    // restoring scroll from the drag origin would throw that adjustment away
+    // on the next move.
+    let lastPointer = 0
 
     useEventListener(el, 'mousedown', (e: MouseEvent) => {
       if (e.button !== 0) return
@@ -188,9 +196,12 @@
       if (!viewport) return
 
       carousel.stop()
-      dragStart = isVertical.value ? e.clientY : e.clientX
-      scrollStart = isVertical.value ? viewport.scrollTop : viewport.scrollLeft
+      lastPointer = isVertical.value ? e.clientY : e.clientX
+      pressed.value = true
       snapDisabled.value = true
+      // The reactive style lands on the next render. A slow drag can cross the
+      // snap threshold before that, and mandatory snap then finishes the slide.
+      viewport.style.scrollSnapType = 'none'
     })
 
     useToggleScope(() => snapDisabled.value, () => {
@@ -199,14 +210,17 @@
         /* v8 ignore next -- defensive: mousemove only fires within active drag scope */
         if (!viewport) return
         e.preventDefault()
+        // A render while the button is down can put the snap style back.
+        viewport.style.scrollSnapType = 'none'
 
         const pos = isVertical.value ? e.clientY : e.clientX
-        const delta = pos - dragStart
+        const delta = pos - lastPointer
+        lastPointer = pos
 
         if (isVertical.value) {
-          viewport.scrollTop = scrollStart - delta
+          viewport.scrollTop -= delta
         } else {
-          viewport.scrollLeft = scrollStart - delta
+          viewport.scrollLeft -= delta
         }
       })
 
@@ -214,6 +228,8 @@
         const viewport = el.value
 
         if (!viewport || slideStep.value === 0) {
+          pressed.value = false
+          if (viewport) viewport.style.scrollSnapType = ''
           snapDisabled.value = false
           isDragging.value = false
           return
@@ -234,11 +250,14 @@
           carousel.select(id)
         }
 
+        pressed.value = false
+        viewport.style.scrollSnapType = ''
         snapDisabled.value = false
         isDragging.value = false
       })
 
       onScopeDispose(() => {
+        pressed.value = false
         snapDisabled.value = false
         isDragging.value = false
       })
@@ -250,7 +269,7 @@
   watch(() => carousel.selectedIndex.value, index => {
     const viewport = el.value
     /* v8 ignore next -- defensive: viewport always present when watch fires after mount */
-    if (!viewport || slideStep.value === 0) return
+    if (!viewport || slideStep.value === 0 || pressed.value || snapDisabled.value) return
 
     syncing.value = true
 
