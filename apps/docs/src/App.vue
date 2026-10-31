@@ -241,7 +241,7 @@
     :style="{ '--line-opacity': `${settings.dotGridIntensity.value}%`, '--dot-coverage': `${settings.dotGridCoverage.value}%` }"
   >
     <a
-      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:start-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
+      class="fixed top-2 start-2 z-50 px-4 py-2 bg-primary text-on-primary rounded -translate-y-[200%] focus:translate-y-0"
       href="#main-content"
     >
       Skip to main content
