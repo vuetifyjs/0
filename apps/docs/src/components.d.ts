@@ -152,6 +152,8 @@ declare module 'vue' {
     DocsMetaRenderless: typeof import('./components/docs/meta/DocsMetaRenderless.vue')['default']
     DocsMetaSkillLevel: typeof import('./components/docs/meta/DocsMetaSkillLevel.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
+    DocsNightlyVersionList: typeof import('./components/docs/DocsNightlyVersionList.vue')['default']
+    DocsNightlyVersions: typeof import('./components/docs/DocsNightlyVersions.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/meta/DocsPageFeatures.vue')['default']
     DocsPageLogo: typeof import('./components/docs/meta/DocsPageLogo.vue')['default']
     DocsPaletteBrowse: typeof import('./components/docs/DocsPaletteBrowse.vue')['default']

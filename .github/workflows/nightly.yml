@@ -97,10 +97,47 @@ jobs:
         if: steps.check-commits.outputs.should-release == 'true'
         run: pnpm --filter @vuetify/v0 build
 
-      - name: Publish
+      # Rewrite after the build so web-types stay keyed to @vuetify/v0 (alias installs).
+      # Workspace-local only. Nightly versions and dist-tags must never land on @vuetify/v0.
+      - name: Retarget package name
         if: steps.check-commits.outputs.should-release == 'true'
         run: |
+          node --input-type=module <<'EOF'
+          import { readFileSync, writeFileSync } from 'node:fs'
+
+          const path = 'packages/0/package.json'
+          const pkg = JSON.parse(readFileSync(path, 'utf8'))
+
+          if (pkg.name !== '@vuetify/v0') {
+            console.error(`::error::Expected @vuetify/v0 before retarget, found ${pkg.name}`)
+            process.exit(1)
+          }
+
+          pkg.name = '@vuetify/v0-nightly'
+          writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n')
+          console.log('Package name is now @vuetify/v0-nightly')
+          EOF
+
+      # OIDC cannot create the package name. The first @vuetify/v0-nightly
+      # publish is a manual `npm publish`, then a trusted publisher for
+      # workflow nightly.yml and environment preview.
+      - name: Publish
+        if: steps.check-commits.outputs.should-release == 'true'
+        env:
+          NPM_TAG: ${{ matrix.tag }}
+        run: |
+          NAME=$(node -p "require('./packages/0/package.json').name")
+          if [ "$NAME" != "@vuetify/v0-nightly" ]; then
+            echo "::error::Refusing to publish '${NAME}'. Nightlies publish only @vuetify/v0-nightly."
+            exit 1
+          fi
+
+          if [ -z "$NPM_TAG" ] || [ "$NPM_TAG" = "latest" ]; then
+            echo "::error::Refusing tag '${NPM_TAG}'. Nightlies must not move the latest tag."
+            exit 1
+          fi
+
           pnpm publish ./packages/0 \
             --no-git-checks \
-            --tag "${{ matrix.tag }}" \
+            --tag "$NPM_TAG" \
             --access public

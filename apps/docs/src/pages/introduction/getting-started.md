@@ -133,6 +133,20 @@ bun add @vuetify/v0
 
 :::
 
+### Nightly builds
+
+Daily snapshots of `master` and `dev` publish as [@vuetify/v0-nightly](https://www.npmjs.com/package/@vuetify/v0-nightly). Alias that package so imports stay `@vuetify/v0`:
+
+```json package.json
+{
+  "dependencies": {
+    "@vuetify/v0": "npm:@vuetify/v0-nightly@1.3.0-master.2026-10-20"
+  }
+}
+```
+
+That version is an example of `<version>-<branch>.<date>`. `nightly` tracks master and `nightly-dev` tracks dev. Both tags are on `@vuetify/v0-nightly`, not on `@vuetify/v0`. Nightlies are unstable. The [Nightly Builds](/introduction/nightly-builds) page lists published versions and the alias for each.
+
 Create a plugin file to configure v0:
 
 ```ts src/plugins/vuetify0.ts collapse
