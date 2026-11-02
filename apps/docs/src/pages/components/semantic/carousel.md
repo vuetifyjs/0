@@ -11,6 +11,7 @@ features:
   github: /components/Carousel/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/carousel/
 related:
   - /components/providers/step
   - /composables/selection/create-step

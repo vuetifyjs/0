@@ -11,6 +11,7 @@ features:
   github: /components/Popover/
   renderless: true
   level: 2
+  spec: https://html.spec.whatwg.org/multipage/popover.html#the-popover-attribute
 related:
   - /composables/system/use-popover
   - /components/disclosure/expansion-panel

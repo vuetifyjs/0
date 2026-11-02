@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Progress/
   renderless: true
+  spec: https://www.w3.org/TR/wai-aria/#progressbar
 related:
   - /composables/semantic/create-progress
 ---

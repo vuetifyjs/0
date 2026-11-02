@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Switch/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/switch/
 related:
   - /composables/selection/create-group
   - /components/providers/group

@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Radio/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/radio/
 related:
   - /composables/selection/create-single
   - /components/providers/single

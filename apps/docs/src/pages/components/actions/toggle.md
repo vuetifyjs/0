@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Toggle/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/button/
 related:
   - /composables/selection/create-single
   - /composables/selection/create-group

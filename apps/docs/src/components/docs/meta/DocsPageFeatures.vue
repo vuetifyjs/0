@@ -4,7 +4,7 @@
   import { catalog } from 'virtual:registry-catalog'
 
   // Framework
-  import { isUndefined, Tooltip, useDate, useLogger } from '@vuetify/v0'
+  import { isString, isUndefined, Tooltip, useDate, useLogger } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -20,6 +20,7 @@
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
   // Constants
   import { MATURITY, MATURITY_LEVELS, sinceInFramework } from '@/constants/maturity'
+  import { useIconContext } from '@/plugins/icons'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -76,6 +77,8 @@
         label: string
         level?: 1 | 2 | 3
         renderless?: boolean
+        spec?: string
+        specIcon?: string
       }
     }
   }>()
@@ -144,6 +147,29 @@
     if (!github) return false
 
     return `${base}/tree/master/packages/0/src${github}`
+  })
+
+  const icons = useIconContext()
+  const unknownSpecIcons = new Set<string>()
+
+  const spec = toRef(() => {
+    const href = props.frontmatter?.features?.spec
+    if (!isString(href) || !href.startsWith('https://')) return null
+
+    let icon = 'book-open'
+    const named = props.frontmatter?.features?.specIcon
+    if (isString(named) && named.length > 0) {
+      if (isUndefined(icons.resolve(named))) {
+        if (!unknownSpecIcons.has(named)) {
+          unknownSpecIcons.add(named)
+          logger.warn(`Unknown specification icon "${named}"`)
+        }
+      } else {
+        icon = named
+      }
+    }
+
+    return { href, icon }
   })
 
   const label = toRef(() => {
@@ -430,6 +456,14 @@
           icon="github"
           text="Source"
           title="View source code on GitHub"
+        />
+
+        <DocsActionChip
+          v-if="spec"
+          :href="spec.href"
+          :icon="spec.icon"
+          text="Specification"
+          title="View the specification"
         />
 
         <Tooltip.Root v-if="cli" interactive>

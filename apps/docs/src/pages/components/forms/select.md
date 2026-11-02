@@ -11,6 +11,7 @@ features:
   github: /components/Select/
   level: 2
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 related:
   - /composables/selection/create-selection
   - /composables/selection/create-group

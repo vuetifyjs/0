@@ -11,6 +11,7 @@ features:
   github: /components/Pagination/
   renderless: false
   level: 2
+  spec: https://www.w3.org/TR/wai-aria/#aria-current
 related:
   - /composables/data/create-pagination
   - /composables/semantic/create-overflow

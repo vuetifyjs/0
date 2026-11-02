@@ -39,6 +39,8 @@ features:
   github: /components/Dialog/     # source path under packages/0/src/
   renderless: false               # components only
   level: 2                        # see "Skill Levels" below
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/  # optional https URL
+  specIcon: book-open             # optional icon token; default book-open
 related:
   - /composables/selection/create-group
   - /components/forms/checkbox
@@ -46,6 +48,7 @@ related:
 ```
 
 - Required fields: title, meta (description + keywords), features, related. [intent:194, intent:245]
+- `features.spec` is optional. An `https://` URL renders a Specification chip in the page-action row. Set it to the published specification the page implements. Prefer the WAI-ARIA APG pattern. When there is no pattern, a platform spec is fine: the HTML `popover` attribute, the ARIA `progressbar` role, `aria-current` for pagination. Omit it when nothing published describes the component. `features.specIcon` is an optional icon token from `apps/docs/src/plugins/icons.ts`. Missing or unknown names use `book-open`.
 - `meta` list items sit at column 0 under `meta:` (`- name:`, not `  - name:`). YAML accepts both forms; column 0 is the docs-site convention. [intent:193]
 
 ## Page Intro
