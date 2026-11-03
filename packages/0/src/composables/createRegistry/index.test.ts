@@ -542,6 +542,65 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledWith(ticket)
     })
 
+    it('should dispatch reindex:registry before unregister:ticket when an unregister reindexes eagerly', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      const events: string[] = []
+      registry.on('reindex:registry', () => events.push('reindex:registry'))
+      registry.on('unregister:ticket', () => events.push('unregister:ticket'))
+
+      registry.unregister('b')
+
+      expect(events).toEqual(['reindex:registry', 'unregister:ticket'])
+    })
+
+    it('should dispatch unregister:ticket synchronously and reindex:registry on the next tick when an unregister defers', async () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }, { id: 'c', value: 'z' }])
+
+      const events: string[] = []
+      registry.on('reindex:registry', () => events.push('reindex:registry'))
+      registry.on('unregister:ticket', () => events.push('unregister:ticket'))
+
+      registry.unregister('b')
+
+      expect(events).toEqual(['unregister:ticket'])
+
+      await nextTick()
+
+      expect(events).toEqual(['unregister:ticket', 'reindex:registry'])
+    })
+
+    it('should dispatch unregister:ticket for every removed ticket before reindex:registry during offboard', () => {
+      const registry = createRegistry({ events: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }])
+
+      const events: string[] = []
+      registry.on('reindex:registry', () => events.push('reindex:registry'))
+      registry.on('unregister:ticket', ticket => events.push(`unregister:ticket ${ticket.id}`))
+
+      registry.offboard(['b', 'c'])
+
+      expect(events).toEqual(['unregister:ticket b', 'unregister:ticket c', 'reindex:registry'])
+    })
+
+    it('should dispatch clear:registry on dispose and nothing afterwards', () => {
+      const registry = createRegistry({ events: true })
+      registry.register({ id: 'a' })
+
+      const events: string[] = []
+      registry.on('clear:registry', () => events.push('clear:registry'))
+      registry.on('register:ticket', () => events.push('register:ticket'))
+      registry.on('unregister:ticket', () => events.push('unregister:ticket'))
+
+      registry.dispose()
+      registry.register({ id: 'b' })
+      registry.unregister('b')
+
+      expect(events).toEqual(['clear:registry'])
+    })
+
     it('should emit update:ticket event when upserting existing ticket', () => {
       const registry = createRegistry({ events: true })
       const listener = vi.fn()
