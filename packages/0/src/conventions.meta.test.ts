@@ -67,7 +67,6 @@ const BROWSER_TEST_ALLOWLIST = [
   'Image',
   'Locale',
   'NumberField',
-  'Overflow',
   'Progress',
   'Rating',
   'Tooltip',

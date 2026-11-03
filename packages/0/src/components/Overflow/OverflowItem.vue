@@ -24,7 +24,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { isNull } from '#v0/utilities'
+  import { isUndefined } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -75,27 +75,23 @@
     disabled: _disabled,
   })
 
-  // Track the index we last wrote to the overflow widths map so that registry
-  // reindexing (after a sibling unmounts) doesn't leave orphan entries when a
-  // later watch firing writes the new index without clearing the old.
-  let lastMeasuredIndex: number | null = null
+  // Width recorded under `last`; a reindex re-keys it without reading a possibly hidden element.
+  let width: number | undefined
+  let last = ticket.index
 
   watch(
     () => [_disabled.value, el.value, ticket.index] as const,
-    ([isDisabled, element, index]) => {
-      if (!isNull(lastMeasuredIndex) && lastMeasuredIndex !== index) {
-        root.overflow.measure(lastMeasuredIndex, undefined)
-      }
-      lastMeasuredIndex = index
-      root.overflow.measure(index, isDisabled ? undefined : element ?? undefined)
+    ([isDisabled, element, index], previous) => {
+      const changed = isUndefined(previous) || element !== previous[1] || isDisabled !== previous[0]
+      const source = isDisabled ? undefined : element ?? undefined
+      width = root.overflow.measure(index, changed ? source : width)
+      last = index
     },
     { immediate: true },
   )
 
   onBeforeUnmount(() => {
-    if (!isNull(lastMeasuredIndex)) {
-      root.overflow.measure(lastMeasuredIndex, undefined)
-    }
+    root.overflow.measure(last, undefined)
     root.registry.unregister(ticket.id)
   })
 
