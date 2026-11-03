@@ -321,6 +321,19 @@ describe('createRegistry', () => {
       expect(new Set(registry.keys()).size).toBe(registry.size)
     })
 
+    it('should keep the ticket bound to this registry on upsert', () => {
+      const a = createRegistry()
+      const b = createRegistry()
+      a.register({ id: 'x', value: 1 })
+      b.register({ id: 'x', value: 1 })
+
+      b.upsert('x', a.get('x')!)
+      b.get('x')!.unregister()
+
+      expect(b.has('x')).toBe(false)
+      expect(a.has('x')).toBe(true)
+    })
+
     it('should not remove an item if unregistering a non-existent id', () => {
       const registry = createRegistry()
       const tickets = registry.onboard([
