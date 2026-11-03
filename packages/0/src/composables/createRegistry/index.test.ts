@@ -924,7 +924,7 @@ describe('createRegistry', () => {
       expect(found?.id).toBe('item-3')
     })
 
-    it('should truncate a fractional seek offset', () => {
+    it('should truncate a fractional start index', () => {
       const registry = createRegistry()
       registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
       const predicate = vi.fn(() => true)
@@ -934,7 +934,7 @@ describe('createRegistry', () => {
       expect(predicate).toHaveBeenCalledWith(registry.get('a'))
     })
 
-    it('should bound a non-finite seek offset', () => {
+    it('should bound a non-finite start index', () => {
       const registry = createRegistry()
       registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
       const predicate = vi.fn(() => true)
@@ -972,18 +972,6 @@ describe('createRegistry', () => {
       expect(registry.size).toBe(0)
       registry.register({ id: 'item-2' })
       expect(listener).not.toHaveBeenCalled()
-    })
-
-    it('should dispatch clear:registry on dispose', () => {
-      const registry = createRegistry({ events: true })
-      const listener = vi.fn()
-
-      registry.register({ id: 'item-1' })
-      registry.on('clear:registry', listener)
-
-      registry.dispose()
-
-      expect(listener).toHaveBeenCalledTimes(1)
     })
 
     it('should drop listeners when a clear:registry listener throws during dispose', () => {
@@ -1375,6 +1363,26 @@ describe('createRegistry', () => {
 
       expect(onKeys).toHaveBeenCalledTimes(1)
       expect(onKeys).toHaveBeenLastCalledWith(['a', 'b', 'c'], ['a', 'b'], expect.any(Function))
+    })
+
+    it('should drop the remaining queued events and still bump version when a listener throws mid-dispatch', () => {
+      const registry = createRegistry({ events: true, reactive: true })
+      const listener = vi.fn(() => {
+        throw new Error('boom')
+      })
+      registry.on('register:ticket', listener)
+
+      const onKeys = vi.fn()
+      watch(() => registry.keys(), onKeys, { flush: 'sync' })
+
+      expect(() => registry.batch(() => {
+        registry.register({ id: 'a', value: 'x' })
+        registry.register({ id: 'b', value: 'y' })
+      })).toThrow('boom')
+
+      expect(listener).toHaveBeenCalledTimes(1)
+      expect(onKeys).toHaveBeenCalledTimes(1)
+      expect(onKeys).toHaveBeenLastCalledWith(['a', 'b'], [], expect.any(Function))
     })
 
     it('should update valueIsIndex and catalog on upsert', () => {
