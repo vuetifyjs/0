@@ -25,48 +25,15 @@ Headless board of movable items in columns. Each column binds its items with `v-
 
 ## Usage
 
-Give each column its own array and bind that array with `v-model` on `Kanban.Column`. Render the column slot's `items`. The `value` on `Kanban.Item` must be that same array entry (`===`), and every value on the board must be unique.
-
-`Kanban.List` may only contain `Kanban.Item` elements. Put headers and counters outside the list. Put `Kanban.Instructions` and `Kanban.LiveRegion` inside the root, visually hidden. `Kanban.Root` emits `move` when a drop commits. Arrow keys and Escape do not.
-
-```vue
-<script setup lang="ts">
-  import { Kanban } from '@vuetify/v0'
-  import { ref } from 'vue'
-
-  const todo = ref([{ id: 1, title: 'Write the spec' }])
-  const done = ref([{ id: 2, title: 'Kickoff' }])
-</script>
-
-<template>
-  <Kanban.Root label="Project board">
-    <Kanban.Column id="todo" v-slot="{ items }" v-model="todo" label="Todo">
-      <Kanban.List>
-        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
-          {{ card.title }}
-        </Kanban.Item>
-      </Kanban.List>
-    </Kanban.Column>
-
-    <Kanban.Column id="done" v-slot="{ items }" v-model="done" label="Done">
-      <Kanban.List>
-        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
-          {{ card.title }}
-        </Kanban.Item>
-      </Kanban.List>
-    </Kanban.Column>
-
-    <Kanban.Instructions class="sr-only" />
-    <Kanban.LiveRegion class="sr-only" />
-  </Kanban.Root>
-</template>
-```
-
-A pointer drag fades the card (`data-state="dragging"`) and tints a list that can take it (`data-over`). Space or Enter picks the card up (`data-state="grabbed"`). Arrows then move a target. The column and list get `data-target`, and the card it would land beside gets `data-drop`. That insertion line is keyboard only. Add `touch-none` on the card, or a touch drag loses to page panning.
+Each column binds its own array with `v-model`. Render that column's `items`, and set each card's `value` to the same entry.
 
 ::: gn-example
 /components/kanban/basic
 :::
+
+`Kanban.List` may only contain `Kanban.Item` elements. Put headers and counters outside the list. The `value` on `Kanban.Item` must be that same array entry (`===`), and every value on the board must be unique. Put `Kanban.Instructions` and `Kanban.LiveRegion` inside the root, visually hidden. `Kanban.Root` emits `move` when a drop commits. Arrow keys and Escape do not.
+
+A pointer drag fades the card (`data-state="dragging"`) and tints a list that can take it (`data-over`). Space or Enter picks the card up (`data-state="grabbed"`). Arrows then move a target. The column and list get `data-target`, and the card it would land beside gets `data-drop`. That insertion line is keyboard only. Add `touch-none` on the card, or a touch drag loses to page panning.
 
 ## Anatomy
 
@@ -126,6 +93,41 @@ Arrow keys only move the preview. Escape cancels it. Tab cancels it and moves fo
 :::
 
 ## Recipes
+
+### Smallest board
+
+```vue
+<script setup lang="ts">
+  import { Kanban } from '@vuetify/v0'
+  import { ref } from 'vue'
+
+  const todo = ref([{ id: 1, title: 'Write the spec' }])
+  const done = ref([{ id: 2, title: 'Kickoff' }])
+</script>
+
+<template>
+  <Kanban.Root label="Project board">
+    <Kanban.Column id="todo" v-slot="{ items }" v-model="todo" label="Todo">
+      <Kanban.List>
+        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
+          {{ card.title }}
+        </Kanban.Item>
+      </Kanban.List>
+    </Kanban.Column>
+
+    <Kanban.Column id="done" v-slot="{ items }" v-model="done" label="Done">
+      <Kanban.List>
+        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
+          {{ card.title }}
+        </Kanban.Item>
+      </Kanban.List>
+    </Kanban.Column>
+
+    <Kanban.Instructions class="sr-only" />
+    <Kanban.LiveRegion class="sr-only" />
+  </Kanban.Root>
+</template>
+```
 
 ### Adding and removing cards
 
