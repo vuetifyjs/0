@@ -2095,7 +2095,7 @@ describe('createRegistry', () => {
         [...registry.keys()],
         registry.values().map(ticket => ticket.id),
         registry.entries().map(([id]) => id),
-        registry.browse(value) ?? [],
+        [...registry.browse(value) ?? []],
       ]
     }
 
