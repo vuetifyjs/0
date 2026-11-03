@@ -2079,13 +2079,15 @@ describe('createRegistry', () => {
   })
 
   describe('offboard reindex + id provenance + batch version', () => {
-    // Reads every iteration view, so a call before the mutation warms all three
-    // caches and a call from inside a sync effect shows what that effect sees.
-    function views (registry: RegistryContext): ID[][] {
+    // Reads every iteration view plus the catalog bucket for `value`, so a call
+    // before the mutation warms all three caches and a call from inside a sync
+    // effect shows what that effect sees.
+    function views (registry: RegistryContext, value: unknown): ID[][] {
       return [
         [...registry.keys()],
         registry.values().map(ticket => ticket.id),
         registry.entries().map(([id]) => id),
+        registry.browse(value) ?? [],
       ]
     }
 
@@ -2216,68 +2218,84 @@ describe('createRegistry', () => {
     it('should never expose a removed id to a sync effect firing mid-unregister when the reindex is deferred', () => {
       const registry = createRegistry({ reactive: true })
       registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }, { id: 'c', value: 'z' }])
-      views(registry)
+      views(registry, 'y')
 
       let seen: ID[][] = []
       const stop = watch(() => registry.collection.size, () => {
-        seen = views(registry)
+        seen = views(registry, 'y')
       }, { flush: 'sync' })
 
       registry.unregister('b')
       stop()
 
-      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c']])
+      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c'], []])
     })
 
     it('should never expose a removed id to a sync effect firing mid-unregister when the reindex is eager', () => {
       const registry = createRegistry({ reactive: true })
       registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
-      views(registry)
+      views(registry, 1)
 
       let seen: ID[][] = []
       const stop = watch(() => registry.collection.size, () => {
-        seen = views(registry)
+        seen = views(registry, 1)
       }, { flush: 'sync' })
 
       registry.unregister('b')
       stop()
 
-      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c']])
+      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c'], []])
+    })
+
+    it('should never expose a removed id to a sync effect firing mid-offboard', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }, { id: 'c', value: 'z' }])
+      views(registry, 'y')
+
+      let seen: ID[][] = []
+      const stop = watch(() => registry.collection.size, () => {
+        seen = views(registry, 'y')
+      }, { flush: 'sync' })
+
+      registry.offboard(['b'])
+      stop()
+
+      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c'], []])
     })
 
     it('should never expose cleared ids to a sync effect firing mid-clear', () => {
       const registry = createRegistry({ reactive: true })
       registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }])
-      views(registry)
+      views(registry, 'x')
 
       let seen: ID[][] = []
       const stop = watch(() => registry.collection.size, () => {
-        seen = views(registry)
+        seen = views(registry, 'x')
       }, { flush: 'sync' })
 
       registry.clear()
       stop()
 
-      expect(seen).toEqual([[], [], []])
+      expect(seen).toEqual([[], [], [], []])
     })
 
     it('should expose the new id to a sync effect firing mid-register', () => {
       const registry = createRegistry({ reactive: true })
       registry.register({ id: 'a', value: 'x' })
-      views(registry)
+      views(registry, 'y')
 
       let seen: ID[][] = []
       let size = 0
       const stop = watch(() => registry.collection.size, () => {
         size = registry.size
-        seen = views(registry)
+        seen = views(registry, 'y')
       }, { flush: 'sync' })
 
       registry.register({ id: 'b', value: 'y' })
       stop()
 
       expect(size).toBe(2)
-      expect(seen).toEqual([['a', 'b'], ['a', 'b'], ['a', 'b']])
+      expect(seen).toEqual([['a', 'b'], ['a', 'b'], ['a', 'b'], ['b']])
     })
 
     it('should notify iteration subscribers after a tail offboard', () => {

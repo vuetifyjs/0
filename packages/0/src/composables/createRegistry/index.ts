@@ -983,15 +983,15 @@ export function createRegistry<
 
   function clear () {
     order.length = 0
-    cache.clear()
-    collection.clear()
     catalog.clear()
     directory.clear()
-    invalidate()
     indexDependentCount = 0
     needsReindex = false
     minDirtyIndex = Infinity
     maxDirtyIndex = -Infinity
+    cache.clear()
+    collection.clear()
+    invalidate()
     emit('clear:registry')
   }
 
@@ -1171,10 +1171,10 @@ export function createRegistry<
     }
     if (orderPos !== -1) order.splice(orderPos, 1)
 
-    cache.clear()
-    collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
+    cache.clear()
+    collection.delete(ticket.id)
 
     const shifted = ticket.index < collection.size
     const willReindex = indexDependentCount > 0 && shifted
@@ -1231,18 +1231,14 @@ export function createRegistry<
     if (removed.length === 0) return []
 
     batch(() => {
-      // Compact order FIRST so that Vue sync effects triggered by the subsequent
-      // Map mutations see a consistent snapshot (no dangling IDs in order).
+      // Compact order and finish the directory/catalog bookkeeping FIRST so that
+      // Vue sync effects triggered by the subsequent Map deletes see a consistent
+      // snapshot (no dangling IDs anywhere).
       let w = 0
       for (const ticket of order) {
         if (!removedIds.has(ticket.id)) order[w++] = ticket
       }
       order.length = w
-
-      // Drop the stale iteration cache now that `order` is compacted, so a sync
-      // effect firing off the Map deletes below rebuilds keys/values/entries from
-      // the surviving set instead of returning removed ids from a warm cache.
-      invalidate()
 
       let lowest = Infinity
       for (const ticket of removed) {
@@ -1250,10 +1246,16 @@ export function createRegistry<
           indexDependentCount--
         }
         lowest = Math.min(lowest, ticket.index)
-        collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
       }
+
+      // Drop the stale iteration cache now that `order` is compacted, so a sync
+      // effect firing off the Map deletes below rebuilds keys/values/entries from
+      // the surviving set instead of returning removed ids from a warm cache.
+      invalidate()
+
+      for (const ticket of removed) collection.delete(ticket.id)
 
       for (const ticket of removed) {
         emit('unregister:ticket', ticket)
