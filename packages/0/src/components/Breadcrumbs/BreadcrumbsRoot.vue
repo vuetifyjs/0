@@ -137,9 +137,8 @@
   // an interactive BreadcrumbsEllipsis).
   const expanded = shallowRef(false)
 
-  // Written imperatively by the visibility watcher below rather than derived.
-  // The group is not `reactive`, so membership is not a tracked dependency and
-  // a getter would go stale inside render effects when crumbs come and go.
+  // Not derived from selection: this counts the collapsed plan, which an open
+  // disclosure reveals without changing. Written by the visibility watcher below.
   const hiddenCount = shallowRef(0)
 
   // Element measurement routing — first item/divider write to reserved refs,

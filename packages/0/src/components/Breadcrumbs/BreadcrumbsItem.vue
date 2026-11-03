@@ -18,6 +18,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
+  import { isNull } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -81,16 +82,21 @@
     type: 'item' as const,
   })
 
+  // The index this width is pooled under; a sibling unmount reindexes the ticket.
+  let last: number | null = null
+
   watch(
-    () => elRef.value?.element,
-    element => {
-      context.measureElement(ticket.index, 'item', element ?? undefined)
+    () => [elRef.value?.element, ticket.index] as const,
+    ([element, index]) => {
+      if (!isNull(last) && last !== index) context.measureElement(last, 'item', undefined)
+      last = index
+      context.measureElement(index, 'item', element ?? undefined)
     },
     { immediate: true },
   )
 
   onBeforeUnmount(() => {
-    context.measureElement(ticket.index, 'item', undefined)
+    if (!isNull(last)) context.measureElement(last, 'item', undefined)
     context.group.unregister(ticket.id)
     context.breadcrumbs.unregister(crumb.id)
   })

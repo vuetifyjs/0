@@ -1918,5 +1918,41 @@ describe('breadcrumbs', () => {
 
       el.remove()
     })
+
+    it('should drop pooled widths of crumbs that unmounted', async () => {
+      const trail = ref(['Home', 'Products', 'Shoes'])
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h(Breadcrumbs.Root as never, {}, {
+            default: (props: BreadcrumbsRootSlotProps) => {
+              slotProps = props
+              return trail.value.flatMap((text, index) => {
+                const crumb = h(Breadcrumbs.Item as never, { key: text, style: 'display: inline-block; width: 80px' }, () => text)
+                if (index === trail.value.length - 1) return [crumb]
+                return [crumb, h(Breadcrumbs.Divider as never, { key: `divider-${text}`, style: 'display: inline-block; width: 10px' })]
+              })
+            },
+          })
+        },
+      }), { attachTo: document.body })
+
+      await nextTick()
+      triggerResize(220)
+      await nextTick()
+
+      // reserved = 80 + 8 + 10 + 8 = 106; pool = 80 + 18 + 88 = 186 > 114
+      expect(slotProps!.isOverflowing).toBe(true)
+
+      trail.value = ['Home', 'Cart']
+      await nextTick()
+      await nextTick()
+
+      // pool = 80 <= 114 once Products, its divider and Shoes are gone
+      expect(slotProps!.isOverflowing).toBe(false)
+
+      wrapper.unmount()
+    })
   })
 })
