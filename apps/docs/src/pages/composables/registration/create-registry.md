@@ -28,15 +28,19 @@ Foundation for ordered, keyed collections. Items are registered with IDs and ind
 
 The `createRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
 
+Pass both generics: the input shape you hand to `register()` first, the resolved ticket you read back second. With only the input type, `ticket.value` widens to `string | undefined`; passing the output type alone is reserved for wrappers that fix their own ticket shape, such as `createForm` and `createQueue`.
+
 ```ts collapse
 import { createRegistry } from '@vuetify/v0'
-import type { RegistryTicket } from '@vuetify/v0'
+import type { RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
 
-interface Item extends RegistryTicket<string> {
+interface ItemInput extends RegistryTicketInput<string> {
   label: string
 }
 
-const registry = createRegistry<Item>()
+type Item = RegistryTicket<string> & ItemInput
+
+const registry = createRegistry<ItemInput, Item>()
 
 // Register individual items
 const a = registry.register({ label: 'Alpha' })

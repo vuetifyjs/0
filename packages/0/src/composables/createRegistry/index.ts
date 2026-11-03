@@ -43,11 +43,32 @@ import type { Extensible, ID } from '#v0/types'
 /**
  * User-facing input shape for registry tickets.
  *
- * Extend this when defining custom ticket types passed to `register()` and `onboard()`.
- * The registry adds the computed fields (`index`, `valueIsIndex`) automatically — those
- * live on {@link RegistryTicket}, which is the output type returned by `get()` and `values()`.
+ * Extend this when defining custom ticket types passed to `register()` and `onboard()`,
+ * and pair it with the resolved ticket type: `createRegistry<ItemInput, Item>()`, input
+ * first, output second. The registry adds the computed fields (`index`, `valueIsIndex`)
+ * automatically — those live on {@link RegistryTicket}, which is the output type returned
+ * by `get()` and `values()`. Passing only the input type leaves `value` typed `V | undefined`
+ * on the resolved ticket; passing only the output type is reserved for wrappers that fix
+ * their own ticket shape (`createForm`, `createQueue`).
  *
  * @template V The type of the ticket value.
+ *
+ * @example
+ * ```ts
+ * import { createRegistry } from '@vuetify/v0'
+ * import type { RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
+ *
+ * interface ItemInput extends RegistryTicketInput<string> {
+ *   label: string
+ * }
+ *
+ * type Item = RegistryTicket<string> & ItemInput
+ *
+ * const registry = createRegistry<ItemInput, Item>()
+ * const ticket = registry.register({ value: 'first', label: 'First' })
+ *
+ * ticket.value // string
+ * ```
  */
 export interface RegistryTicketInput<V = unknown> {
   /** The unique identifier. Optional — auto-generated if not provided. */

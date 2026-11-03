@@ -2,9 +2,9 @@
   import { createRegistry } from '@vuetify/v0'
   import { computed, shallowRef } from 'vue'
 
-  import { provideTaskRegistry, type TaskTicketInput } from './context'
+  import { provideTaskRegistry, type TaskTicket, type TaskTicketInput } from './context'
 
-  const registry = createRegistry<TaskTicketInput>({ events: true })
+  const registry = createRegistry<TaskTicketInput, TaskTicket>({ events: true })
   const version = shallowRef(0)
   const events = shallowRef<string[]>([])
 
