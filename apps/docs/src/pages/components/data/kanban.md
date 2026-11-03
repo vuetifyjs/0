@@ -2,7 +2,7 @@
 title: Kanban - Accessible Drag-and-Drop Board
 meta:
 - name: description
-  content: Headless kanban board for Vue 3 with per-column v-model, pointer drag, keyboard pick-up and move, accept predicates, and live-region announcements. Built on createKanban.
+  content: Headless kanban board for Vue 3. Each column binds its own items. Cards move by pointer or keyboard, and a move event fires when the drop commits.
 - name: keywords
   content: kanban, board, drag and drop, sortable, columns, keyboard drag, accessible, Vue 3, headless
 features:
@@ -19,17 +19,21 @@ related:
 
 # Kanban
 
-Headless board of movable items in columns. Each column binds its items with `v-model`; items move by pointer drag or by keyboard, and every move writes the new order back.
+Headless board of movable items in columns. Each column binds its items with `v-model`. Items move by pointer drag or by keyboard, and every committed move writes the new order back.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-Bind each column's item array with `v-model` and render items from the column's `items` slot prop. Style state through data attributes — `data-state` on items, `data-over` on lists.
+Each column binds its own array with `v-model`. Render that column's `items`, and set each card's `value` to the same entry.
 
 ::: gn-example
 /components/kanban/basic
 :::
+
+`Kanban.List` may only contain `Kanban.Item` elements. Put headers and counters outside the list. The `value` on `Kanban.Item` must be that same array entry (`===`), and every value on the board must be unique. Put `Kanban.Instructions` and `Kanban.LiveRegion` inside the root, visually hidden. `Kanban.Root` emits `move` when a drop commits. Arrow keys and Escape do not.
+
+A pointer drag fades the card (`data-state="dragging"`) and tints a list that can take it (`data-over`). Space or Enter picks the card up (`data-state="grabbed"`). Arrows then move a target. The column and list get `data-target`, and the card it would land beside gets `data-drop`. That insertion line is keyboard only. Add `touch-none` on the card, or a touch drag loses to page panning.
 
 ## Anatomy
 
@@ -55,77 +59,79 @@ Bind each column's item array with `v-model` and render items from the column's 
 
 | Part | Role |
 |------|------|
-| `Kanban.Root` | Owns the [createKanban](/composables/data/create-kanban) board and the pointer [useDragDrop](/composables/system/use-drag-drop) context. Emits `move` |
-| `Kanban.Column` | Registers a column. `v-model` is the column's item array; `disabled` and `accept` gate moves |
-| `Kanban.List` | Drop zone for one column's items. Must be the direct parent of its `Kanban.Item` elements |
-| `Kanban.Item` | A movable item, identified by `value` |
-| `Kanban.Instructions` | Keyboard instructions every item references with `aria-describedby` |
-| `Kanban.LiveRegion` | Polite live region for move announcements |
+| `Kanban.Root` | The board. `label` names it. Emits `move` when a drop commits |
+| `Kanban.Column` | One column. `v-model` is its item array. `disabled` freezes it. `accept` refuses cards coming in from other columns |
+| `Kanban.List` | Drop zone for that column. Its only element children are `Kanban.Item` |
+| `Kanban.Item` | One card. `value` is the array entry the board tracks |
+| `Kanban.Instructions` | Keyboard instructions. Each item points at them with `aria-describedby` |
+| `Kanban.LiveRegion` | Announces each move |
 
 ## Examples
 
 ::: gn-example
-/components/kanban/columns.ts 1
-/components/kanban/wip-limit.vue 2
+/components/kanban/wip-limit
 
-### WIP limit and locked column
+### Refusing a column
 
-`accept(value, from, index)` vetoes a card coming in from another column. It has to return synchronously. Doing uses it to cap the column at two cards. `disabled` freezes a column. Shipped is locked, so nothing moves in, out, or within it.
+`accept` on `Kanban.Column` runs when a card would enter from another column. Return `false` to refuse it. It must return a boolean, not a Promise. A Promise is treated as a refusal. A reorder inside the column does not call `accept`.
 
-A pointer drop on a refusing column is rejected and announced. ArrowLeft and ArrowRight skip it. Once Doing is full, ArrowRight from Backlog lands on Review. A reorder inside Doing still works. The veto only runs on the way in.
+`disabled` on a column blocks moves into it, out of it, and within it. `disabled` on an item pins that card. `disabled` on the root freezes the board. Arrow keys skip a column that is disabled or that refuses the card. A pointer drop on a refusing column is rejected and announced.
 
-Style the pending keyboard target from `data-target` on the column and the list, and from `data-drop` on the neighbouring item. Column policy lives in `columns.ts`. The Vue file is the board. The same `accept` option exists on a column ticket in [createKanban](/composables/data/create-kanban). Pointer drags come from [useDragDrop](/composables/system/use-drag-drop).
+In this board, Doing holds at most two cards, and Shipped is locked.
 
-| File | Role |
-|------|------|
-| `columns.ts` | Column policy. Doing caps at two cards. Shipped is locked |
-| `wip-limit.vue` | Board layout. Each column binds its items with `v-model` |
 :::
 
 ::: gn-example
-/components/kanban/format.ts 1
-/components/kanban/move-log.vue 2
+/components/kanban/move-log
 
-### Observing moves
+### Recording a move
 
-`@move` fires once each time a drop commits. The payload is `{ value, from, to, fromIndex, toIndex }`. A pointer drop and a keyboard commit emit the same object. That covers a reorder inside one column and a transfer between columns.
+`@move` on `Kanban.Root` fires once when a drop commits. The payload is `{ value, from, to, fromIndex, toIndex }`. `value` is the item's bound value. `from` and `to` are column ids. A pointer drop and a keyboard commit emit the same object, whether the card reordered inside one column or changed columns.
 
-Arrow keys only move the preview. Escape discards it. Neither emits. A listener can treat `@move` as the moment the board changed. Use it to record history, sync a server, or show a log.
+Arrow keys only move the preview. Escape cancels it. Tab cancels it and moves focus on. None of those emit `move`. Listen to `move` to record history or sync a server.
 
-`format.ts` turns the payload into the line under the board. The log keeps the four newest lines. [createKanban](/composables/data/create-kanban) splits that moment into `transfer:ticket` for a cross-column move and `move:ticket` on a column's items for a reorder. `@move` on `Kanban.Root` is the one event for both.
-
-| File | Role |
-|------|------|
-| `format.ts` | Turns a `KanbanMovePayload` into one log line |
-| `move-log.vue` | Two-column board that records each committed move |
 :::
 
 ## Recipes
 
-### Item identity
-
-The value bound on `Kanban.Item` is the identity the board tracks. It must equal (`===`) an entry of the parent column's `v-model` array, and every value on the board must be unique. Objects work by reference; strings and numbers work when they are unique. Key the `v-for` by a stable id.
+### Smallest board
 
 ```vue
+<script setup lang="ts">
+  import { Kanban } from '@vuetify/v0'
+  import { ref } from 'vue'
+
+  const todo = ref([{ id: 1, title: 'Write the spec' }])
+  const done = ref([{ id: 2, title: 'Kickoff' }])
+</script>
+
 <template>
-  <Kanban.Column v-slot="{ items }" v-model="todo" label="Todo">
-    <Kanban.List>
-      <Kanban.Item
-        v-for="card in items"
-        :key="card.id"
-        :label="card.title"
-        :value="card"
-      >
-        {{ card.title }}
-      </Kanban.Item>
-    </Kanban.List>
-  </Kanban.Column>
+  <Kanban.Root label="Project board">
+    <Kanban.Column id="todo" v-slot="{ items }" v-model="todo" label="Todo">
+      <Kanban.List>
+        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
+          {{ card.title }}
+        </Kanban.Item>
+      </Kanban.List>
+    </Kanban.Column>
+
+    <Kanban.Column id="done" v-slot="{ items }" v-model="done" label="Done">
+      <Kanban.List>
+        <Kanban.Item v-for="card in items" :key="card.id" :value="card">
+          {{ card.title }}
+        </Kanban.Item>
+      </Kanban.List>
+    </Kanban.Column>
+
+    <Kanban.Instructions class="sr-only" />
+    <Kanban.LiveRegion class="sr-only" />
+  </Kanban.Root>
 </template>
 ```
 
-### Changing the board from code
+### Adding and removing cards
 
-The bound arrays are the source of truth. Push, splice, or replace them and the board reconciles — new values register, removed values unregister, and a reordered array reorders the column. There is no imperative move API on the component; moving an item between two arrays yourself is a move.
+The bound arrays are the board. Push, filter, or replace an array and the column updates. That edit does not emit `move`. The event fires only when a pointer or keyboard drop commits.
 
 ```ts
 todo.value.push({ id: 6, title: 'New card' })
@@ -134,47 +140,24 @@ todo.value = todo.value.filter(card => card.id !== 2)
 
 ### Swimlanes
 
-`orientation="vertical"` stacks columns vertically and lays items out horizontally. Keyboard arrows follow the layout: Left and Right move within a column, Up and Down move between columns. Lists expose `data-orientation` for styling.
-
-### Keyboard drop preview
-
-While an item is picked up, the arrow keys move a drop target instead of the item, and the board is not touched until Space or Enter commits one move. Style the pending target from data attributes: `data-target` on the target `Kanban.Column` and `Kanban.List`, and `data-drop="before"` on the item the dropped one would land before — or `data-drop="after"` on the last item when it would land at the end. An empty target list carries only `data-target`.
-
-```vue
-<template>
-  <Kanban.List class="data-[target]:bg-surface-tint">
-    <Kanban.Item
-      v-for="card in items"
-      :key="card.id"
-      class="data-[drop=after]:border-b-primary data-[drop=before]:border-t-primary"
-      :value="card"
-    >
-      {{ card.title }}
-    </Kanban.Item>
-  </Kanban.List>
-</template>
-```
-
-### Disabling
-
-`disabled` on `Kanban.Root` freezes the whole board, on `Kanban.Column` freezes moves into, out of, and within that column, and on `Kanban.Item` pins one item. Disabled items drop out of the tab order.
+`orientation="vertical"` stacks the columns and lays each column's cards out in a row. Left and Right move within a column. Up and Down move between columns. Lists expose `data-orientation` for styling.
 
 ## Accessibility
 
-Moves never require a pointer. Each item is focusable and keyboard-movable, every move is announced through `Kanban.LiveRegion`, and `Kanban.Instructions` tells screen-reader users how to start. Render both, visually hidden — without them moves still work but are silent.
+Moves never require a pointer. Each item is focusable and keyboard-movable, every move is announced through `Kanban.LiveRegion`, and `Kanban.Instructions` tells screen-reader users how to start. Render both, visually hidden. Without them, moves still work, and they are silent.
 
 ### Keyboard
 
 | Key | Action |
 |-----|--------|
-| Space / Enter | Pick up the focused item; when picked up, move it to the drop target |
-| ArrowUp / ArrowDown | Move the drop target one slot within its column (between columns for `orientation="vertical"`) |
-| ArrowLeft / ArrowRight | Move the drop target to the previous / next column that can take the item, keeping its index when it fits (within its column for `orientation="vertical"`). Disabled columns and columns whose `accept` refuses the item are skipped. RTL-aware |
-| Home / End | Move the drop target to the start / end of its column |
-| Escape | Discard the drop target; nothing moves |
+| Space / Enter | Pick up the focused item. When it is picked up, move it to the drop target |
+| ArrowUp / ArrowDown | Move the drop target one slot within its column. Between columns when `orientation="vertical"` |
+| ArrowLeft / ArrowRight | Move the drop target to the previous or next column that can take the item, keeping its index when it fits. Within the column when `orientation="vertical"`. Disabled columns, and columns whose `accept` refuses the item, are skipped. RTL-aware |
+| Home / End | Move the drop target to the start or end of its column |
+| Escape | Discard the drop target. Nothing moves |
 | Tab | Discard the drop target and move focus on |
 
-Each target step is announced. Focus follows the item: when a drop re-renders it in another column, the new element takes focus.
+Each target step is announced. Focus follows the item. When a drop renders it in another column, the new element takes focus.
 
 ### ARIA
 
@@ -202,7 +185,7 @@ Each target step is announced. Focus follows the item: when a drop re-renders it
 | Column, List | `data-target` | Present while a pending keyboard drop would land here |
 | List | `data-orientation` | Axis the list's items flow along |
 | Item | `data-state` | `grabbed` (keyboard) \| `dragging` (pointer) \| `idle` |
-| Item | `data-drop` | `before` \| `after` — the pending keyboard drop lands on this side of the item |
+| Item | `data-drop` | `before` \| `after`. The pending keyboard drop lands on this side of the item. Pointer drags do not set it |
 
 ## FAQ
 
@@ -210,11 +193,11 @@ Each target step is announced. Focus follows the item: when a drop re-renders it
 
 ??? Why is the item not draggable on touch devices?
 
-Pointer drags start from `pointerdown`; the browser's own panning wins unless the item opts out. Add `touch-action: none` (the `touch-none` utility) to the item.
+Pointer drags start from `pointerdown`. The browser's own panning wins unless the item opts out. Add `touch-action: none` (the `touch-none` utility) to the item.
 
 ??? Can I use createKanban directly instead?
 
-Yes. The component is a thin shell over [createKanban](/composables/data/create-kanban) and [useDragDrop](/composables/system/use-drag-drop). Reach for the composables when the board is not rendered as columns of lists — a calendar, a seating chart — or when you need column reordering, which the component does not expose.
+Yes. Use [createKanban](/composables/data/create-kanban) when the board is not rendered as columns of lists, or when the columns themselves have to be reordered. This component does not reorder columns.
 
 ??? Why does my drop land one slot off?
 
