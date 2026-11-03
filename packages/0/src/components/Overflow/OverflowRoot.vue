@@ -88,6 +88,9 @@
 
   // Items keep the key they leave on a reindex, since a sibling may own it; keys past the size drop here.
   watch(() => registry.size, (size, previous) => {
+    if (size >= previous) return
+    // Value-carrying tickets defer the reindex; drain it so survivors hold fresh indexes first.
+    void registry.lookup(0)
     for (let key = size; key < previous; key++) overflow.measure(key, undefined)
   })
 

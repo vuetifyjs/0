@@ -2,6 +2,6 @@
 "@vuetify/v0": minor
 ---
 
-feat(createOverflow): record widths by number so re-keyed hidden items keep their size
+feat(createOverflow): measure() takes a width in pixels and returns the recorded width
 
-`measure(index, source)` now also accepts a number and returns the width it recorded, so an item whose index shifts can re-key its entry without reading a hidden element. Breadcrumbs and Overflow use it: removing a crumb or item no longer leaves departed widths in the pool or records zero for collapsed siblings, so the ellipsis and the indicator match a fresh mount of the same trail.
+`measure(index, source)` accepts a number as well as an element and returns the width it recorded, so an item that moves to another index can keep the width it had while visible. Breadcrumbs and Overflow do this now: removing a crumb or item no longer leaves its width behind or records a collapsed sibling as zero, so the ellipsis and the indicator match a fresh mount of the remaining items.

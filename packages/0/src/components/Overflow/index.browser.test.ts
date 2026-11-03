@@ -49,7 +49,7 @@ interface Snapshot {
   hidden: string[]
 }
 
-function mountItems (items: Ref<string[]>) {
+function mountItems (items: Ref<string[]>, valued = false) {
   let slotProps: OverflowRootSlotProps | undefined
 
   const wrapper = mount(defineComponent({
@@ -58,7 +58,12 @@ function mountItems (items: Ref<string[]>) {
         default: (props: OverflowRootSlotProps) => {
           slotProps = props
           return items.value.map(text =>
-            h(Overflow.Item as never, { 'key': text, 'data-t': text, 'style': 'display: inline-block; width: 100px' }, () => text),
+            h(Overflow.Item as never, {
+              'key': text,
+              'value': valued ? text : undefined,
+              'data-t': text,
+              'style': 'display: inline-block; width: 100px',
+            }, () => text),
           )
         },
       })
@@ -87,31 +92,35 @@ describe('overflow', () => {
     vi.unstubAllGlobals()
   })
 
-  it('should keep hidden item widths when a sibling unmounts', async () => {
-    const items = ref(['a', 'b', 'c', 'd', 'e'])
-    const tree = mountItems(items)
-    await settle()
-    triggerResize(250)
-    await settle()
+  // Items without a value reindex eagerly on a sibling unmount; items with one
+  // defer the reindex, so both registration shapes are covered.
+  for (const valued of [false, true]) {
+    it(`should keep hidden item widths when a sibling ${valued ? 'with a value ' : ''}unmounts`, async () => {
+      const items = ref(['a', 'b', 'c', 'd', 'e'])
+      const tree = mountItems(items, valued)
+      await settle()
+      triggerResize(250)
+      await settle()
 
-    expect(tree.snapshot().hidden).toEqual(['c', 'd', 'e'])
+      expect(tree.snapshot().hidden).toEqual(['c', 'd', 'e'])
 
-    items.value = ['a', 'c', 'd', 'e']
-    await settle()
-    triggerResize(350)
-    await settle()
-    const after = tree.snapshot()
-    tree.wrapper.unmount()
+      items.value = ['a', 'c', 'd', 'e']
+      await settle()
+      triggerResize(350)
+      await settle()
+      const after = tree.snapshot()
+      tree.wrapper.unmount()
 
-    observers.length = 0
-    const fresh = mountItems(ref(['a', 'c', 'd', 'e']))
-    await settle()
-    triggerResize(350)
-    await settle()
-    const oracle = fresh.snapshot()
-    fresh.wrapper.unmount()
+      observers.length = 0
+      const fresh = mountItems(ref(['a', 'c', 'd', 'e']), valued)
+      await settle()
+      triggerResize(350)
+      await settle()
+      const oracle = fresh.snapshot()
+      fresh.wrapper.unmount()
 
-    expect(oracle).toEqual({ capacity: 3, isOverflowing: true, hidden: ['e'] })
-    expect(after).toEqual(oracle)
-  })
+      expect(oracle).toEqual({ capacity: 3, isOverflowing: true, hidden: ['e'] })
+      expect(after).toEqual(oracle)
+    })
+  }
 })

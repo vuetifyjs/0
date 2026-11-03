@@ -160,7 +160,8 @@
     const live = new Set<number>()
     for (const ticket of group.values()) {
       if (ticket.type !== 'item' && ticket.type !== 'divider') continue
-      if (ticket.index === _firstItemIndex || ticket.index === _firstDividerIndex) continue
+      if (ticket.type === 'item' && ticket.index === _firstItemIndex) continue
+      if (ticket.type === 'divider' && ticket.index === _firstDividerIndex) continue
       live.add(ticket.index)
     }
     for (let key = 0; key <= max; key++) {
