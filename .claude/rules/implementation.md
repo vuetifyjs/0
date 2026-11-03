@@ -61,14 +61,14 @@ Before writing a new helper, check `#v0/utilities`. The barrel (`packages/0/src/
 | `pxToNumber(value, fallback = 0)` | Parse a `px` string to a number |
 | `hexToRgb(hex)`, `rgbToHex(rgb)` | Hex ↔ `RGB` (3/4/6/8-digit hex, optional alpha) |
 | `apca(text, background)`, `foreground(hex)` | APCA contrast score; black-or-white text color for a background |
-| `findMatchRanges(text, query, options?)` | Case- and accent-folded `[start, end]` match ranges |
+| `findMatchRanges(text, query, options?)` | `[start, end)` ranges of `query` in `text`; case/accent folding opt-in via `ignoreCase` / `ignoreAccents` (default `false`, `diacritics.ts:242-247`) |
 | `resolveIds(ids, getter)`, `resolveIndexes(items)` | `@internal` registry helpers: ids → items, items → defined indexes |
 | `instanceExists()`, `instanceName()` | `@internal` Vapor-safe `getCurrentInstance` reads (see Scope Guards in `composables.md`) |
 | `UNSAFE_KEYS` | `@internal` constant — `__proto__` / `constructor` / `prototype` (see Security primitives) |
 
-Regenerate this table from `grep -n '^export' packages/0/src/utilities/*.ts` whenever the barrel changes.
+Regenerate this table from `grep -n '^export' packages/0/src/utilities/*.ts` whenever a `utilities/*.ts` export changes.
 
-All helpers carry `/* #__NO_SIDE_EFFECTS__ */` and are tree-shakeable. Module-level allocating constants (e.g., a top-level `new Set([...])`) carry `/* @__PURE__ */` instead — see `utilities/helpers.ts` (the `UNSAFE_KEYS` set) and `utilities/instance.ts` (the `INSTANCE_KEY` literal) for the placement convention. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
+Every helper carries `/* #__NO_SIDE_EFFECTS__ */` directly above its declaration (a lint directive may sit between, `helpers.ts:118-120`) and is tree-shakeable; the one exception is `isV0Error`, whose marker sits above its JSDoc block rather than the declaration (`errors.ts:94-123`) — place new markers directly above the declaration. Module-level allocating constants (e.g., a top-level `new Set([...])`) carry `/* @__PURE__ */` instead — see `utilities/helpers.ts:367` (the `UNSAFE_KEYS` set) for the placement convention. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
 
 ## Security primitives — reuse, never reinvent
 
