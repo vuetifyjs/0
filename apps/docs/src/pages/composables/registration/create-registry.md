@@ -209,7 +209,7 @@ Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and
 
 ??? How do I run several mutations without notifying subscribers on each one?
 
-Wrap them in `batch(fn)`. Events queue until the callback returns and iteration subscribers are notified once, so a sequence of `register` / `move` / `unregister` calls settles once instead of per mutation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once `batch()` returns.
+Wrap them in `batch(fn)`. Events queue until the callback returns and iteration subscribers are notified once, so a sequence of `register` / `move` / `unregister` calls settles once instead of per mutation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once the outermost `batch()` returns.
 
 ??? Does unregistering many tickets one at a time scale?
 
