@@ -318,11 +318,24 @@ export function createSelection<
     return tickets
   }
 
+  // `register` seeds these ahead of the spread so a wrapper can override them,
+  // which means a transferred input would otherwise keep this registry's bindings.
+  function offboard (ids: ID[]): Partial<Z>[] {
+    return model.offboard(ids).map(input => {
+      const rest = { ...input } as Record<string, unknown>
+      delete rest.select
+      delete rest.unselect
+      delete rest.toggle
+      return rest as Partial<Z>
+    })
+  }
+
   return {
     ...model,
     multiple,
     register,
     onboard,
+    offboard,
     unselect,
     toggle,
     apply,

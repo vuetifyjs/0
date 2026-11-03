@@ -769,6 +769,28 @@ describe('createSelection', () => {
         expect(selection.selectedIds.has('item-2')).toBe(false)
       })
 
+      it('should transfer tickets without carrying source closures', () => {
+        const a = createSelection()
+        const b = createSelection()
+
+        a.register({ id: 'x', value: 1 })
+        b.onboard(a.offboard(['x']))
+        a.register({ id: 'x', value: 1 })
+
+        const ticket = b.get('x')!
+
+        ticket.select()
+        expect(b.selectedIds.has('x')).toBe(true)
+        expect(a.selectedIds.has('x')).toBe(false)
+
+        ticket.unselect()
+        expect(b.selectedIds.has('x')).toBe(false)
+
+        ticket.toggle()
+        expect(b.selectedIds.has('x')).toBe(true)
+        expect(a.selectedIds.has('x')).toBe(false)
+      })
+
       it('should handle offboard with non-existent IDs gracefully', () => {
         const selection = createSelection({ multiple: true })
 
