@@ -103,7 +103,7 @@ export function createFoo <
 }
 ```
 
-A spread copies accessor values at spread time; re-declare `size` after the spread (PHILOSOPHY §2.6).
+A spread copies accessor values at spread time; re-declare every accessor the child surface needs (here `size`) after the spread (PHILOSOPHY §2.6).
 
 [intent:121]
 

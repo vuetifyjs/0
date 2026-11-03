@@ -937,6 +937,10 @@ describe('rating', () => {
       await wrapper.setProps({ size: 7 })
 
       expect(context!.size).toBe(7)
+
+      await wrapper.setProps({ half: true })
+
+      expect(context!.half).toBe(true)
     })
   })
 })
