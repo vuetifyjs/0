@@ -254,6 +254,83 @@ describe('kanban (browser)', () => {
 
       pointer(document, 'pointercancel', { x: rect.left + 20, y: rect.bottom - 20 })
     })
+
+    it('should mark the anchored card while a pointer drag is over a list', async () => {
+      const { el, center, pointer } = mountBoard()
+      const source = el('[data-item="a"]')
+      const from = center(source)
+      const card = el('[data-item="d"]')
+      const item = card.getBoundingClientRect()
+      const list = el('[data-list="doing"]')
+      const column = list.parentElement as HTMLElement
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y + 10 })
+      await nextTick()
+
+      pointer(document, 'pointermove', { x: item.left + item.width / 2, y: item.top + 4 })
+      await nextTick()
+
+      expect(card.dataset.drop).toBe('before')
+      expect(source.dataset.drop).toBeUndefined()
+      expect(list.dataset.target).toBeDefined()
+      expect(column.dataset.target).toBeDefined()
+      expect(el('[data-list="todo"]').dataset.target).toBeUndefined()
+
+      pointer(document, 'pointermove', { x: item.left + item.width / 2, y: item.bottom - 4 })
+      await nextTick()
+
+      expect(card.dataset.drop).toBe('after')
+      expect(list.dataset.target).toBeDefined()
+
+      pointer(document, 'pointercancel', { x: item.left + item.width / 2, y: item.bottom - 4 })
+      await nextTick()
+
+      expect(card.dataset.drop).toBeUndefined()
+      expect(list.dataset.target).toBeUndefined()
+      expect(column.dataset.target).toBeUndefined()
+    })
+
+    it('should mark an empty column without a card drop', async () => {
+      const { el, center, pointer, wrapper } = mountBoard({ board: { todo: ['a'], doing: [] } })
+      const source = el('[data-item="a"]')
+      const from = center(source)
+      const list = el('[data-list="doing"]')
+      const rect = list.getBoundingClientRect()
+      const column = list.parentElement as HTMLElement
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y + 10 })
+      await nextTick()
+      pointer(document, 'pointermove', { x: rect.left + rect.width / 2, y: rect.top + 40 })
+      await nextTick()
+
+      expect(list.dataset.target).toBeDefined()
+      expect(list.dataset.over).toBeDefined()
+      expect(column.dataset.target).toBeDefined()
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
+
+      pointer(document, 'pointercancel', { x: rect.left + rect.width / 2, y: rect.top + 40 })
+    })
+
+    it('should not mark a card when the pointer stays on the dragged item', async () => {
+      const { el, center, pointer, wrapper } = mountBoard()
+      const source = el('[data-item="b"]')
+      const from = center(source)
+      const list = el('[data-list="todo"]')
+
+      pointer(source, 'pointerdown', from)
+      pointer(document, 'pointermove', { x: from.x + 10, y: from.y + 10 })
+      await nextTick()
+      pointer(document, 'pointermove', from)
+      await nextTick()
+
+      expect(wrapper.find('[data-drop]').exists()).toBe(false)
+      expect(list.dataset.target).toBeDefined()
+      expect(list.dataset.over).toBeDefined()
+
+      pointer(document, 'pointercancel', from)
+    })
   })
 
   describe('keyboard', () => {
