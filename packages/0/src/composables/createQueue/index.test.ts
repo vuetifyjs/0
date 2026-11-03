@@ -315,6 +315,29 @@ describe('createQueue', () => {
     })
   })
 
+  describe('ticket.unregister', () => {
+    it('should stop the timer and resume the next ticket', () => {
+      const queue = createQueue({ timeout: 1000 })
+      const a = queue.register({ value: 'a' })
+      const b = queue.register({ value: 'b' })
+
+      expect(b.isPaused).toBe(true)
+
+      a.unregister()
+
+      expect(queue.size).toBe(1)
+      expect(queue.get(a.id)).toBeUndefined()
+      expect(queue.get(b.id)?.isPaused).toBe(false)
+
+      // b's timer runs from the moment a left, not from when a's timer would have fired
+      vi.advanceTimersByTime(999)
+      expect(queue.size).toBe(1)
+
+      vi.advanceTimersByTime(1)
+      expect(queue.size).toBe(0)
+    })
+  })
+
   describe('clear and dispose', () => {
     it('should clear all tickets and timeouts', () => {
       const queue = createQueue({ timeout: 5000 })
