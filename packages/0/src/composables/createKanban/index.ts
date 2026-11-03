@@ -505,6 +505,8 @@ export function createKanban<
       return undefined
     }
 
+    // ticket.index may lag a same-tick removal from the source column until it drains.
+    void source.items.lookup(0)
     const fromIndex = ticket.index
 
     if (toColumnId === fromColumnId) {

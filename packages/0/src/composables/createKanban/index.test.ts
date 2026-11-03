@@ -517,6 +517,43 @@ describe('createKanban', () => {
     })
   })
 
+  describe('same-tick source removal', () => {
+    function setup () {
+      const kanban = createKanban<CardInput, ColumnInput>()
+      const todo = kanban.columns.register({ value: { title: 'Todo' } })
+      const done = kanban.columns.register({ value: { title: 'Done' } })
+      const a = todo.items.register({ value: { title: 'a' } })
+      const b = todo.items.register({ value: { title: 'b' } })
+      const c = todo.items.register({ value: { title: 'c' } })
+      const handler = vi.fn()
+      kanban.on('transfer:ticket', handler)
+      return { kanban, todo, done, a, b, c, handler }
+    }
+
+    it('reports a canonical fromIndex on consecutive transfers in one tick', () => {
+      const { kanban, done, a, b, handler } = setup()
+
+      kanban.transfer(a.id, done.id, 0)
+      kanban.transfer(b.id, done.id, 0)
+
+      expect(handler).toHaveBeenCalledTimes(2)
+      expect(handler.mock.calls[1]![0].fromIndex).toBe(0)
+      expect(done.items.values().map(ticket => ticket.id)).toEqual([b.id, a.id])
+    })
+
+    it('reports a canonical fromIndex after an unbatched removal from the source column', () => {
+      const { kanban, todo, done, a, b, c, handler } = setup()
+
+      todo.items.unregister(a.id)
+      const moved = kanban.transfer(b.id, done.id, 0)
+
+      expect(moved?.index).toBe(0)
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(handler.mock.calls[0]![0].fromIndex).toBe(0)
+      expect(todo.items.values().map(ticket => ticket.id)).toEqual([c.id])
+    })
+  })
+
   describe('column lifecycle', () => {
     it('should not be findable for transfer after the source column is unregistered', () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
