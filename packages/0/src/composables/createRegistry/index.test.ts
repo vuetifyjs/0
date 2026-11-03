@@ -7,7 +7,7 @@ import { computed, isReactive, nextTick, shallowRef, watch, watchEffect, watchSy
 
 // Types
 import type { ID } from '#v0/types'
-import type { RegistryTicketInput } from './index'
+import type { RegistryContext, RegistryTicketInput } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {
@@ -1900,6 +1900,16 @@ describe('createRegistry', () => {
   })
 
   describe('offboard reindex + id provenance + batch version', () => {
+    // Reads every iteration view, so a call before the mutation warms all three
+    // caches and a call from inside a sync effect shows what that effect sees.
+    function views (registry: RegistryContext): ID[][] {
+      return [
+        [...registry.keys()],
+        registry.values().map(ticket => ticket.id),
+        registry.entries().map(([id]) => id),
+      ]
+    }
+
     it('should eagerly heal index and value of index-derived tickets after a mid-list offboard', () => {
       const registry = createRegistry()
       const tickets = registry.onboard([{}, {}, {}, {}])
@@ -2022,6 +2032,73 @@ describe('createRegistry', () => {
 
       expect(seen.every(snapshot => !snapshot.includes('b'))).toBe(true)
       expect(registry.keys()).toEqual(['a', 'c'])
+    })
+
+    it('should never expose a removed id to a sync effect firing mid-unregister when the reindex is deferred', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }, { id: 'c', value: 'z' }])
+      views(registry)
+
+      let seen: ID[][] = []
+      const stop = watch(() => registry.collection.size, () => {
+        seen = views(registry)
+      }, { flush: 'sync' })
+
+      registry.unregister('b')
+      stop()
+
+      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c']])
+    })
+
+    it('should never expose a removed id to a sync effect firing mid-unregister when the reindex is eager', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      views(registry)
+
+      let seen: ID[][] = []
+      const stop = watch(() => registry.collection.size, () => {
+        seen = views(registry)
+      }, { flush: 'sync' })
+
+      registry.unregister('b')
+      stop()
+
+      expect(seen).toEqual([['a', 'c'], ['a', 'c'], ['a', 'c']])
+    })
+
+    it('should never expose cleared ids to a sync effect firing mid-clear', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }])
+      views(registry)
+
+      let seen: ID[][] = []
+      const stop = watch(() => registry.collection.size, () => {
+        seen = views(registry)
+      }, { flush: 'sync' })
+
+      registry.clear()
+      stop()
+
+      expect(seen).toEqual([[], [], []])
+    })
+
+    it('should expose the new id to a sync effect firing mid-register', () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'a', value: 'x' })
+      views(registry)
+
+      let seen: ID[][] = []
+      let size = 0
+      const stop = watch(() => registry.collection.size, () => {
+        size = registry.size
+        seen = views(registry)
+      }, { flush: 'sync' })
+
+      registry.register({ id: 'b', value: 'y' })
+      stop()
+
+      expect(size).toBe(2)
+      expect(seen).toEqual([['a', 'b'], ['a', 'b'], ['a', 'b']])
     })
 
     it('should notify iteration subscribers after a tail offboard', () => {

@@ -971,6 +971,7 @@ export function createRegistry<
 
   function clear () {
     order.length = 0
+    cache.clear()
     collection.clear()
     catalog.clear()
     directory.clear()
@@ -1115,11 +1116,13 @@ export function createRegistry<
 
     if (auto) minted.add(ticket)
 
-    collection.set(ticket.id, ticket)
     order.push(ticket)
     directory.set(ticket.index, ticket.id)
-
     assign(ticket.value, ticket.id)
+
+    // Map write last: sync effects it fires rebuild keys/values/entries from the updated order.
+    cache.clear()
+    collection.set(ticket.id, ticket)
     invalidate()
     emit('register:ticket', ticket)
 
@@ -1145,6 +1148,7 @@ export function createRegistry<
     }
     if (orderPos !== -1) order.splice(orderPos, 1)
 
+    cache.clear()
     collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
