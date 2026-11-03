@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
-import { Radio } from './index'
+import { Radio, useRadioGroup } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick, ref, type Ref } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
 // Types
 import type { VueWrapper } from '@vue/test-utils'
@@ -1254,6 +1254,38 @@ describe('radio', () => {
 
         expect(() => (wrapper.vm as any).focus({ preventScroll: true })).not.toThrow()
       })
+    })
+  })
+
+  describe('context size', () => {
+    it('should provide a live size', async () => {
+      let context: ReturnType<typeof useRadioGroup> | undefined
+      const third = shallowRef(false)
+
+      const Spy = defineComponent({
+        setup () {
+          context = useRadioGroup('v0:radio:group')
+          return () => null
+        },
+      })
+
+      mount(Radio.Group, {
+        slots: {
+          default: () => [
+            h(Radio.Root as any, { value: 'a' }, () => 'a'),
+            h(Radio.Root as any, { value: 'b' }, () => 'b'),
+            third.value ? h(Radio.Root as any, { value: 'c' }, () => 'c') : null,
+            h(Spy),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(context!.size).toBe(2)
+
+      third.value = true
+      await nextTick()
+      expect(context!.size).toBe(3)
     })
   })
 })

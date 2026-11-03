@@ -143,6 +143,9 @@
 
   const context: TabsContext = {
     ...step,
+    get size () {
+      return step.size
+    },
     orientation: toRef(() => orientation),
     activation: toRef(() => activation),
     circular: toRef(() => circular),

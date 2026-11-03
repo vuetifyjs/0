@@ -120,6 +120,9 @@
 
   const context: ProgressRootContext = {
     ...progress,
+    get size () {
+      return progress.size
+    },
     id,
     name,
     labelId,

@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { Slider } from './index'
+import { Slider, useSliderRoot } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>
@@ -1455,6 +1455,39 @@ describe('slider', () => {
 
       // Middle thumb should have moved to 60 (closest match for click at 60%)
       expect(model.value[1]).toBe(60)
+    })
+  })
+
+  describe('context size', () => {
+    it('should provide a live size', async () => {
+      let context: ReturnType<typeof useSliderRoot> | undefined
+      const third = shallowRef(false)
+
+      const Spy = defineComponent({
+        setup () {
+          context = useSliderRoot('v0:slider:root')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Slider.Root, {
+        slots: {
+          default: () => [
+            h(Slider.Thumb as any, {}, () => h('span', 'thumb')),
+            h(Slider.Thumb as any, {}, () => h('span', 'thumb')),
+            third.value ? h(Slider.Thumb as any, {}, () => h('span', 'thumb')) : null,
+            h(Spy),
+          ],
+        },
+      })
+      wrappers.push(wrapper)
+
+      await nextTick()
+      expect(context!.size).toBe(2)
+
+      third.value = true
+      await nextTick()
+      expect(context!.size).toBe(3)
     })
   })
 })
