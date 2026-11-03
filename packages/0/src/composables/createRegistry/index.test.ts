@@ -986,6 +986,36 @@ describe('createRegistry', () => {
       expect(listener).toHaveBeenCalledTimes(1)
     })
 
+    it('should drop listeners when a clear:registry listener throws during dispose', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      registry.register({ id: 'item-1' })
+      registry.on('clear:registry', () => {
+        throw new Error('boom')
+      })
+      registry.on('register:ticket', listener)
+
+      expect(() => registry.dispose()).toThrow('boom')
+
+      expect(registry.size).toBe(0)
+      registry.register({ id: 'item-2' })
+      expect(listener).not.toHaveBeenCalled()
+    })
+
+    it('should ignore a re-entrant dispose from a clear:registry listener', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn(() => registry.dispose())
+
+      registry.register({ id: 'item-1' })
+      registry.on('clear:registry', listener)
+
+      expect(() => registry.dispose()).not.toThrow()
+
+      expect(listener).toHaveBeenCalledTimes(1)
+      expect(registry.size).toBe(0)
+    })
+
     it('should not throw when disposing registry without events', () => {
       const registry = createRegistry({ events: false })
       registry.register({ id: 'item-1' })

@@ -804,6 +804,7 @@ export function createRegistry<
   let isBatching = false
   let structural = false
   let batched: Array<{ event: string, data: unknown }> = []
+  let disposing = false
 
   function dispatch (event: string, data: unknown) {
     const cbs = listeners.get(event)
@@ -846,8 +847,14 @@ export function createRegistry<
   }
 
   function dispose () {
-    clear()
-    listeners.clear()
+    if (disposing) return
+    disposing = true
+    try {
+      clear()
+    } finally {
+      listeners.clear()
+      disposing = false
+    }
   }
 
   function get (id: ID) {
