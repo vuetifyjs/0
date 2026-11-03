@@ -61,6 +61,9 @@ function createUserContext() {
 export const [useUser, provideUser, context] = createUserContext()
 ```
 
+> [!WARNING]
+> The default context (the third tuple member) is created once, at module scope. For client-side only apps you can call `provideUser()` bare and share it. Under SSR that one instance is shared by every request on the server, so build the context per app instance and pass it to the provider — `provideUser(context)` — to ensure each request gets its own state.
+
 ## Architecture
 
 `createTrinity` builds on `createContext` to provide a standardized 3-tuple pattern:

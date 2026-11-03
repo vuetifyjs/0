@@ -1385,7 +1385,7 @@ export function createRegistry<
  *
  * @example
  * ```ts
- * import { createRegistryContext } from '@vuetify/v0'
+ * import { createRegistry, createRegistryContext } from '@vuetify/v0'
  *
  * // With default namespace 'v0:registry'
  * export const [useItems, provideItems, items] = createRegistryContext()
@@ -1393,12 +1393,12 @@ export function createRegistry<
  * // Or with custom namespace
  * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items' })
  *
- * // In a parent component:
- * provideItems()
+ * // In the root component — one registry per app instance (and per SSR request):
+ * provideItems(createRegistry())
  *
  * // In a child component:
- * const items = useItems()
- * items.register({ id: 'item-1', value: 'Value 1' })
+ * const registry = useItems()
+ * registry.register({ id: 'item-1', value: 'Value 1' })
  * ```
  */
 export function createRegistryContext<

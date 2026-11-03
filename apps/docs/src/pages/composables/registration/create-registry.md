@@ -77,18 +77,18 @@ registry.offboard(['x', 'y'])
 
 ## Context / DI
 
-Use `createRegistryContext` to share a registry across a component tree:
+Use `createRegistryContext` to share a registry across a component tree. Pass a fresh `createRegistry()` to the provider so each app instance owns its registry; a bare `provideItems()` provides the trinity's module-scope default instead.
 
 ```ts
-import { createRegistryContext } from '@vuetify/v0'
+import { createRegistry, createRegistryContext } from '@vuetify/v0'
 
 export const [useItems, provideItems, items] =
   createRegistryContext({ namespace: 'my:items' })
 
-// In parent component
-provideItems()
+// In the root component — one registry per app instance
+provideItems(createRegistry())
 
-// In child component
+// In child components
 const registry = useItems()
 registry.register({ id: 'item-1', value: 'First' })
 ```
@@ -214,6 +214,10 @@ Wrap them in `batch(fn)`. It defers cache invalidation and event emission until 
 ??? Does unregistering many tickets one at a time scale?
 
 Each `unregister` does an O(n) scan to locate and splice the ticket, so tearing down N tickets individually — a parent unmounting hundreds of registered children, for example — is O(n²). Batch removals through `offboard(ids)` or `clear()`, which compact in a single pass, and keep the mounted (and therefore registered) count bounded with [createVirtual](/composables/data/create-virtual) for large lists.
+
+??? Why does the Context / DI snippet pass `createRegistry()` to `provideItems`?
+
+A bare `provideItems()` provides the trinity's module-scope default, which under SSR is shared by every request on the server — see the per-request warning on [createTrinity](/composables/foundation/create-trinity#usage).
 
 :::
 
