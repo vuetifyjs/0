@@ -123,7 +123,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `reorder(ids)` | Reorder the registry to match a canonical permutation in one O(n) pass |
 | `onboard(tickets)` | Batch-register an array of tickets |
 | `offboard(ids)` | Batch-unregister an array of IDs |
-| `batch(fn)` | Run multiple mutations with deferred cache invalidation and events |
+| `batch(fn)` | Run multiple mutations with events and the reactive notification deferred to the end |
 | `get(id)` | Retrieve a ticket by ID |
 | `has(id)` | Check whether a ticket ID is registered |
 | `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
@@ -207,13 +207,13 @@ createRegistry is the base ordered, keyed collection — registration, indexing,
 
 Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive directly on the registry. Reach for [useProxyRegistry](/composables/reactivity/use-proxy-registry) when you want event-driven snapshots, `deep: true` tracking, or reactivity without wrapping the tickets themselves.
 
-??? How do I run several mutations without firing events and reindexing on each one?
+??? How do I run several mutations without notifying subscribers on each one?
 
-Wrap them in `batch(fn)`. It defers cache invalidation and event emission until the callback finishes, so a sequence of `register` / `move` / `unregister` calls settles once instead of per-mutation.
+Wrap them in `batch(fn)`. Events queue until the callback returns and iteration subscribers are notified once, so a sequence of `register` / `move` / `unregister` calls settles once instead of per mutation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once `batch()` returns.
 
 ??? Does unregistering many tickets one at a time scale?
 
-Each `unregister` does an O(n) scan to locate and splice the ticket, so tearing down N tickets individually — a parent unmounting hundreds of registered children, for example — is O(n²). Batch removals through `offboard(ids)` or `clear()`, which compact in a single pass, and keep the mounted (and therefore registered) count bounded with [createVirtual](/composables/data/create-virtual) for large lists.
+Yes. Locating a ticket is O(1) while its `index` is canonical, and a removal from a registry whose tickets all carry explicit values defers the reindex instead of renumbering survivors on the spot. Survivors' `index` is canonical again at the end of the enclosing `batch()`, after any index-based call (`lookup`, `browse`, `seek`, `move`, `reorder`, `register`, `upsert`), and in all cases before the next tick, because the registry drains itself on `nextTick`. Tearing down N tickets one by one — a parent unmounting hundreds of registered children, for example — therefore costs one coalesced reindex, not a scan per `unregister`. Index-derived tickets (no explicit `value`) reindex eagerly on every mid-list removal, so keep those registries small, or bound the mounted count with [createVirtual](/composables/data/create-virtual). `offboard(ids)` and `clear()` remain the explicit bulk paths.
 
 ??? Why does the Context / DI snippet pass `createRegistry()` to `provideItems`?
 
