@@ -319,12 +319,18 @@ describe('createQueue', () => {
     it('should stop the timer and resume the next ticket', () => {
       const queue = createQueue({ timeout: 1000 })
       const a = queue.register({ value: 'a' })
+      // the timers one running ticket schedules; b registers paused and adds none
+      const live = vi.getTimerCount()
       const b = queue.register({ value: 'b' })
 
+      expect(live).toBeGreaterThan(0)
+      expect(vi.getTimerCount()).toBe(live)
       expect(b.isPaused).toBe(true)
 
       a.unregister()
 
+      // a's timers are cleared and b's have started: still one ticket's worth
+      expect(vi.getTimerCount()).toBe(live)
       expect(queue.size).toBe(1)
       expect(queue.get(a.id)).toBeUndefined()
       expect(queue.get(b.id)?.isPaused).toBe(false)
