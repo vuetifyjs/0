@@ -2195,6 +2195,23 @@ describe('createRegistry', () => {
       expect(registry.get('b')?.index).toBe(1)
     })
 
+    it('should not reindex after a tail offboard that follows a tail unregister', async () => {
+      const registry = explicit(['a', 'b', 'c', 'd', 'e'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('e')
+      registry.register({ id: 'f', value: 'f' })
+      registry.register({ id: 'g', value: 'g' })
+      registry.offboard(['g'])
+
+      await nextTick()
+
+      expect(onReindex).not.toHaveBeenCalled()
+      expect(registry.get('f')?.index).toBe(4)
+      expect(registry.lookup(4)).toBe('f')
+    })
+
     it('should drain once when register follows a deferred removal', async () => {
       const registry = explicit(['a', 'b', 'c'])
       const onReindex = vi.fn()

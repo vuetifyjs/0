@@ -616,7 +616,7 @@ export interface RegistryContext<
    * Order matches the input `ids` array. Missing ids are silently skipped — the
    * returned array may be shorter than `ids`.
    * @remarks Unregisters multiple tickets in a single compaction pass and leaves
-   * the survivors' indexes canonical before returning. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * the survivors' indexes canonical before returning, or at the end of the enclosing `batch()`. The inverse of `onboard`: onboard takes inputs and returns outputs;
    * offboard takes ids and returns the inputs back. Pair with `onboard` on a
    * different registry to move tickets across registries.
    *
@@ -1001,7 +1001,12 @@ export function createRegistry<
     scheduled = true
     queuePostFlushCb(() => {
       scheduled = false
-      if (needsReindex) reindex()
+      if (!needsReindex) return
+      try {
+        reindex()
+      } catch (error) {
+        logger.error('deferred reindex threw', error)
+      }
     })
   }
 
@@ -1015,21 +1020,24 @@ export function createRegistry<
     try {
       return fn()
     } finally {
-      if (needsReindex) reindex()
-      isBatching = false
-      const queue = batched
-      batched = []
-      cache.clear()
-
       try {
-        for (const { event, data } of queue) {
-          dispatch(event, data)
-        }
+        if (needsReindex) reindex()
       } finally {
-        // Only notify iteration subscribers when the batch actually changed
-        // membership or order; a field-only-upsert batch leaves `structural`
-        // false and must not re-notify (mirrors the non-batched upsert path).
-        if (structural) version.value++
+        isBatching = false
+        const queue = batched
+        batched = []
+        cache.clear()
+
+        try {
+          for (const { event, data } of queue) {
+            dispatch(event, data)
+          }
+        } finally {
+          // Only notify iteration subscribers when the batch actually changed
+          // membership or order; a field-only-upsert batch leaves `structural`
+          // false and must not re-notify (mirrors the non-batched upsert path).
+          if (structural) version.value++
+        }
       }
     }
   }
@@ -1153,11 +1161,13 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && shifted
     if (!willReindex) invalidate()
 
-    minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
-    if (willReindex) {
-      reindex()
-    } else if (shifted) {
-      defer()
+    if (shifted) {
+      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+      if (willReindex) {
+        reindex()
+      } else {
+        defer()
+      }
     }
 
     emit('unregister:ticket', ticket)
@@ -1215,11 +1225,12 @@ export function createRegistry<
       // the surviving set instead of returning removed ids from a warm cache.
       invalidate()
 
+      let lowest = Infinity
       for (const ticket of removed) {
         if (ticket.valueIsIndex) {
           indexDependentCount--
         }
-        minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+        lowest = Math.min(lowest, ticket.index)
         collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
@@ -1234,11 +1245,13 @@ export function createRegistry<
       // inside the compacted range) so iteration/proxy consumers never read stale
       // index/value. Otherwise defer to the end of this batch; a tail-block
       // removal shifts nobody and leaves every survivor canonical as is.
-      const shifted = minDirtyIndex < collection.size
-      if (indexDependentCount > 0 && shifted) {
-        reindex()
-      } else if (shifted) {
-        defer()
+      if (lowest < collection.size) {
+        minDirtyIndex = Math.min(minDirtyIndex, lowest)
+        if (indexDependentCount > 0) {
+          reindex()
+        } else {
+          defer()
+        }
       }
     })
 
