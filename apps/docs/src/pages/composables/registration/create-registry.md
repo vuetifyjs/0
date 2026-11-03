@@ -43,9 +43,9 @@ type Item = RegistryTicket<string> & ItemInput
 const registry = createRegistry<ItemInput, Item>()
 
 // Register individual items
-const a = registry.register({ label: 'Alpha' })
-const b = registry.register({ label: 'Beta' })
-const c = registry.register({ label: 'Gamma' })
+const a = registry.register({ value: 'alpha', label: 'Alpha' })
+const b = registry.register({ value: 'beta', label: 'Beta' })
+const c = registry.register({ value: 'gamma', label: 'Gamma' })
 
 console.log(registry.size) // 3
 console.log(a.index)       // 0
@@ -67,8 +67,8 @@ console.log(registry.size) // 2
 
 // Bulk load
 registry.onboard([
-  { id: 'x', label: 'X' },
-  { id: 'y', label: 'Y' },
+  { id: 'x', value: 'x', label: 'X' },
+  { id: 'y', value: 'y', label: 'Y' },
 ])
 
 // Bulk remove
@@ -77,16 +77,16 @@ registry.offboard(['x', 'y'])
 
 ## Context / DI
 
-Use `createRegistryContext` to share a registry across a component tree. Pass a fresh `createRegistry()` to the provider so each app instance owns its registry; a bare `provideItems()` provides the trinity's module-scope default instead.
+Use `createRegistryContext` to share a registry across a component tree. Pass a fresh `createRegistry()` to the provider so each app instance owns its registry, created with the same options: what you pass to `createRegistryContext` only configures the module-scope default that a bare `provideItems()` would provide.
 
 ```ts
 import { createRegistry, createRegistryContext } from '@vuetify/v0'
 
 export const [useItems, provideItems, items] =
-  createRegistryContext({ namespace: 'my:items' })
+  createRegistryContext({ namespace: 'my:items', events: true })
 
-// In the root component — one registry per app instance
-provideItems(createRegistry())
+// In the root component — one registry per app instance, with the same options
+provideItems(createRegistry({ events: true }))
 
 // In child components
 const registry = useItems()
@@ -213,7 +213,7 @@ Wrap them in `batch(fn)`. Events queue until the callback returns and iteration 
 
 ??? Does unregistering many tickets one at a time scale?
 
-Yes. Locating a ticket is O(1) while its `index` is canonical, and a removal from a registry whose tickets all carry explicit values defers the reindex instead of renumbering survivors on the spot. Survivors' `index` is canonical again at the end of the enclosing `batch()`, after any index-based call (`lookup`, `browse`, `seek`, `move`, `reorder`, `register`, `upsert`), and in all cases before the next tick, because the registry drains itself on `nextTick`. Tearing down N tickets one by one — a parent unmounting hundreds of registered children, for example — therefore costs one coalesced reindex, not a scan per `unregister`. Index-derived tickets (no explicit `value`) reindex eagerly on every mid-list removal, so keep those registries small, or bound the mounted count with [createVirtual](/composables/data/create-virtual). `offboard(ids)` and `clear()` remain the explicit bulk paths.
+Yes for head-first or tail-first teardown. Locating a ticket is O(1) while its `index` is canonical, and a removal from a registry whose tickets all carry explicit values defers the reindex instead of renumbering survivors on the spot. Survivors' `index` is canonical again at the end of the enclosing `batch()`, after any index-based call (`lookup`, `browse`, `seek`, `move`, `reorder`, `register`, `upsert`), and in all cases in Vue's post-flush queue, which settles before `await nextTick()` resolves. While that reindex is pending, each further `unregister` in the same tick misses its O(1) position check and falls back to an `indexOf` scan. A parent unmounting hundreds of registered children removes them head-first, so the scan finds each ticket at slot 0; tail-first removals never shift anything; both cost one coalesced reindex. Scattered one-by-one removals in a single tick walk about half the list each time, so route those through `offboard(ids)`, which compacts once. Index-derived tickets (no explicit `value`) reindex eagerly on every mid-list removal, so keep those registries small, or bound the mounted count with [createVirtual](/composables/data/create-virtual).
 
 ??? Why does the Context / DI snippet pass `createRegistry()` to `provideItems`?
 

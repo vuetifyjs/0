@@ -1387,11 +1387,12 @@ export function createRegistry<
  * // With default namespace 'v0:registry'
  * export const [useItems, provideItems, items] = createRegistryContext()
  *
- * // Or with custom namespace
- * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items' })
+ * // Or with custom namespace and registry options
+ * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items', events: true })
  *
- * // In the root component — one registry per app instance (and per SSR request):
- * provideItems(createRegistry())
+ * // In the root component — one registry per app instance (and per SSR request), created
+ * // with the same options: those passed above only configure the default `items` instance
+ * provideItems(createRegistry({ events: true }))
  *
  * // In a child component:
  * const registry = useItems()
