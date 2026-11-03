@@ -208,9 +208,15 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:299
-const model = createModel(options)
-return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
+// packages/0/src/composables/createSelection/index.ts:215,321-334
+const model = createModel<Z, E>({ ...options, multiple, enroll: false })
+return {
+  ...model,
+  multiple, register, onboard, unselect, toggle, apply, mandate, seek,
+  get size () {
+    return model.size
+  },
+} satisfies SelectionContext<Z, E> as R
 ```
 
 Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
@@ -429,11 +435,11 @@ Layer 2: Complex orchestrators
   createCombobox, createDataTable
 ```
 
-**Layer 0 is "no upward deps", not "no v0 deps at all".** Foundation primitives are allowed to lean on a small core of Layer-0 siblings — for example, `createObserver` uses `useHydration`, `createRegistry` uses `useLogger` (per the §9.2 Layer-0 console exception), and `useEventListener` uses `toArray`. The bright line is direction: foundation must never import from Layer 1+. [intent:146]
+**Layer 0 is "no upward deps", not "no v0 deps at all".** Foundation primitives are allowed to lean on a small core of Layer-0 siblings — for example, `createObserver` uses `useHydration`, `createRegistry` uses `useLogger` (`createRegistry/index.ts:769` — that is the §9.2 rule path; the Layer-0 exception covers only the raw `console` sites §9.2 lists), and `useEventListener` uses `toArray`. The bright line is direction: foundation must never import from Layer 1+. [intent:146]
 
 ## Registry System (PHILOSOPHY §6)
 
-`createRegistry` is the foundational factory. Returns an enhanced Map with indexing, caching, and event hooks. Manages tickets with `id`, `index`, `value`, `valueIsIndex`. [intent:96]
+`createRegistry` is the foundational factory. Returns a plain object (`createRegistry/index.ts:1325-1352`) over a `ReadonlyMap` exposed as `collection` (`:1326`; `shallowReactive` when `reactive: true`, `:774`), adding indexing, caching, and event hooks. Manages tickets with `id`, `index`, `value`, `valueIsIndex`. [intent:96]
 
 Extension is always via `...spread`. 100% consistent across every registry-based composable in the package. [intent:147]
 
@@ -493,7 +499,7 @@ This split is why `useTheme` and `useLocale` work fine even though their reactiv
 
 Reactive reads are version-memoized (PHILOSOPHY §4.4), so iteration cost no longer differentiates the two paths; what `reactive: true` still pays at scale is one `shallowReactive` proxy per ticket. Decide by contract:
 
-- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`, with a plugin-options opt-out for allocation-sensitive scale (`useNotifications`).
+- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`. Plugins force it after the options spread so it cannot be disabled from outside (`useNotifications/index.ts:156-160` sets `events: true, reactive: true` after `...options`); there is no allocation-sensitive opt-out.
 - Iteration confined to internal computeds, or no reactive ticket-field reads → non-reactive registry (`events: true`) + `useProxyRegistry` (`createDataTable`'s row registry). Don't hand-roll an event-driven snapshot; `useProxyRegistry` is that pattern.
 
 ### `useProxyRegistry` vs `reactive: true`

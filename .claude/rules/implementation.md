@@ -44,17 +44,29 @@ See PHILOSOPHY §3.7. Comments explain *why*, never repeat *what*. The only exce
 
 ## Utilities First (PHILOSOPHY §2.3, §2.7)
 
-Before writing a new helper, check `#v0/utilities`. Available today:
+Before writing a new helper, check `#v0/utilities`. The barrel (`packages/0/src/utilities/index.ts`) re-exports `helpers.ts`, `instance.ts`, `errors.ts`, `color.ts`, `apca.ts`, and `diacritics.ts`. Available today — 30 functions plus one class and one constant; `@internal` entries are exported but not public API:
 
 | Helper | Purpose |
 |--------|---------|
 | `isFunction`, `isString`, `isNumber`, `isBoolean` | Type guards |
 | `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
 | `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement` | Type guards |
-| `mergeDeep(target, ...sources)` | Deep object merge with `DeepPartial<T>` |
+| `isThenable(item)` | Duck-typed Promise-like guard (`then` is a function) |
+| `isV0Error(value, code?)`, `V0Error` | Narrow to a v0-thrown error, optionally by `V0ErrorCode`; the coded error class itself |
+| `getActiveElement()` | Deepest focused element through open shadow roots; `null` under SSR |
+| `mergeDeep(target, ...sources)` | Deep object merge with `DeepPartial<T>`; skips `UNSAFE_KEYS` |
 | `useId()` | SSR-safe ID generation (see §2.8) |
-| `clamp(value, min, max)` | Clamp number to range |
-| `range(length, start)` | Create sequential number array |
+| `clamp(value, min = 0, max = 1)` | Clamp number to range |
+| `range(length, start = 0)` | Create sequential number array |
+| `pxToNumber(value, fallback = 0)` | Parse a `px` string to a number |
+| `hexToRgb(hex)`, `rgbToHex(rgb)` | Hex ↔ `RGB` (3/4/6/8-digit hex, optional alpha) |
+| `apca(text, background)`, `foreground(hex)` | APCA contrast score; black-or-white text color for a background |
+| `findMatchRanges(text, query, options?)` | Case- and accent-folded `[start, end]` match ranges |
+| `resolveIds(ids, getter)`, `resolveIndexes(items)` | `@internal` registry helpers: ids → items, items → defined indexes |
+| `instanceExists()`, `instanceName()` | `@internal` Vapor-safe `getCurrentInstance` reads (see Scope Guards in `composables.md`) |
+| `UNSAFE_KEYS` | `@internal` constant — `__proto__` / `constructor` / `prototype` (see Security primitives) |
+
+Regenerate this table from `grep -n '^export' packages/0/src/utilities/*.ts` whenever the barrel changes.
 
 All helpers carry `/* #__NO_SIDE_EFFECTS__ */` and are tree-shakeable. Module-level allocating constants (e.g., a top-level `new Set([...])`) carry `/* @__PURE__ */` instead — see `utilities/helpers.ts` (the `UNSAFE_KEYS` set) and `utilities/instance.ts` (the `INSTANCE_KEY` literal) for the placement convention. Never add a new utility that introduces a top-level side effect — the barrel cannot absorb it. [PHILOSOPHY §2.7]
 
@@ -80,16 +92,16 @@ This is the proactive half. `feedback_bug_family_audit` is the reactive half: af
 ```
 RegistryTicketInput
   ├── ModelTicketInput
-  │     ├── SelectionTicketInput
-  │     │     └── SingleTicketInput
-  │     │           └── StepTicketInput
-  │     └── GroupTicketInput
-  │           └── NestedTicketInput
+  │     └── SelectionTicketInput
+  │           ├── SingleTicketInput
+  │           │     └── StepTicketInput
+  │           └── GroupTicketInput
+  │                 └── NestedTicketInput
   ├── QueueTicketInput
   └── FormTicketInput
 ```
 
-Base interface (see `packages/0/src/composables/createRegistry/index.ts`):
+`GroupTicketInput` extends `SelectionTicketInput` (`createGroup/index.ts:57`), not `ModelTicketInput` — the tree is identical to PHILOSOPHY §6.2. Base interface (see `packages/0/src/composables/createRegistry/index.ts`):
 
 ```ts
 interface RegistryTicket {
@@ -112,7 +124,7 @@ interface RegistryTicket {
 | `QueueTicket` | `timeout`, `isPaused`, `dismiss()` |
 | `FormTicket` | `RegistryTicket<FormValue> & Z` — no extra ticket fields; `submit()`, `reset()`, `isValid`, `isValidating` live on `FormContext` |
 
-**Naming pair (enforced).** Input/output types always pair: `FooTicketInput` → `FooTicket`. Defined together, exported together. [intent:97]
+**Naming pair (enforced).** Input/output types pair: `FooTicketInput` → `FooTicket`. Defined together, exported together. [intent:97] Current exceptions, kept as-is (no renames): `TokenTicket` (`createTokens/index.ts:64`) and `TimelineTicket` (`createTimeline/index.ts:93`) declare the output shape only and pass it as the registry's single generic (`createRegistry<Z>` at `createTokens/index.ts:169` and `createTimeline/index.ts:146`); `PermissionTicket` (`usePermissions/index.ts:48`) is output-only on top of `TokenTicket`; component-local tickets extend a chain ticket and register the same way (`BreadcrumbsTicket` in `components/Breadcrumbs/types.ts:17` → `createGroup<BreadcrumbsTicket>`, `RadioTicket` → `createSingle<RadioTicket>`, `CarouselTicket` → `createStep<CarouselTicket>`, …); `CarouselPartTicket` (`components/Carousel/CarouselRoot.vue:110`) is an input shape (`extends RegistryTicketInput`) carrying the output name. New types follow the pair.
 
 **Ticket state typing (enforced).**
 - Boolean state on **selection-chain** tickets: `Readonly<Ref<boolean>>` — e.g., `isSelected`, `isMixed`. [intent:98]
@@ -220,8 +232,21 @@ Three gating mechanisms, in order of preference:
 3. Adapter-level: any adapter that touches the DOM must gate in its own setters. [intent:112]
 
 ```ts
-// packages/0/src/composables/useStorage/index.ts — adapter default in createStorage()'s options destructure
-const storage = IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()
+// packages/0/src/composables/useStorage/index.ts:102-110 — the gate is a helper, so the
+// SecurityError a browser policy can throw on `window.localStorage` is caught in one place
+function localStorageOrNull (): Storage | null {
+  if (!IN_BROWSER) return null
+
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
+// :139-142 — createStorage() then defaults the adapter off that gate
+const local = localStorageOrNull()
+const { adapter = local ?? new MemoryStorageAdapter(), /* … */ } = options
 ```
 
 The rule is per-composable. Even a handler that only runs client-side should gate, so the composable's type-level promise ("safe to call under SSR") holds everywhere.
