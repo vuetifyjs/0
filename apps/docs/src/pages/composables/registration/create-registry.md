@@ -148,7 +148,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ### Task Manager
 
-This example demonstrates the full `createRegistry` lifecycle paired with `createContext` so registry mutations stay encapsulated in the provider and the consumer only sees clean, typed methods.
+This example demonstrates the full `createRegistry` lifecycle paired with `createContext` so registry mutations stay encapsulated in the provider and the consumer only sees a reactive `useProxyRegistry` view plus clean, typed methods.
 
 ```mermaid "Event Flow"
 sequenceDiagram
@@ -157,11 +157,12 @@ sequenceDiagram
   participant R as registry
   participant L as listener
 
-  C->>P: addTask(text, priority)
+  C->>P: add(text, priority)
   P->>R: register(ticket)
   R->>L: emit "register:ticket"
-  L->>P: eventLog.push(...)
-  P->>C: tasks computed invalidated
+  L->>P: events.push(...)
+  R->>P: proxy.values recomputes
+  P->>C: filteredTasks and stats re-run
 ```
 
 **File breakdown:**
@@ -169,8 +170,8 @@ sequenceDiagram
 | File | Role |
 |------|------|
 | `context.ts` | Defines `TaskTicketInput` (extending `RegistryTicketInput`) and `TaskContext`, then creates the `[useTaskRegistry, provideTaskRegistry]` tuple |
-| `TaskProvider.vue` | Creates the registry with `events: true`, wires lifecycle listeners, seeds initial data via `onboard`, and exposes mutation methods through context |
-| `TaskConsumer.vue` | Calls `useTaskRegistry()` to access tasks and methods; owns local UI state (filter, new-task input) and derives `filteredTasks` and `stats` as computed |
+| `TaskProvider.vue` | Creates the registry with `events: true`, wraps it in `useProxyRegistry`, wires lifecycle listeners, seeds initial data via `onboard`, and exposes the proxy and mutation methods through context |
+| `TaskConsumer.vue` | Calls `useTaskRegistry()` to read `proxy.values` and the mutation methods; owns local UI state (filter, new-task input) and derives `filteredTasks` and `stats` as computed |
 | `task-manager.vue` | Entry point—composes `TaskProvider` around `TaskConsumer` |
 
 **Key patterns:**
@@ -178,10 +179,9 @@ sequenceDiagram
 - onboard — bulk-loads the initial task list in a single batch
 - `registry.register()` — adds a ticket with custom fields (`value`, `priority`, `done`)
 - `registry.upsert()` — patches a single field without touching the rest of the ticket
-- `registry.move()` — moves a ticket to a new index position, triggers reindex
 - `registry.offboard()` — batch-removes all completed tasks in one call
 - `registry.on('register:ticket')` / `on('unregister:ticket')` — reacts to lifecycle events for the audit log
-- `void version.value` inside a computed — the standard pattern for making a non-reactive `registry.values()` snapshot reactive
+- `useProxyRegistry(registry)` — the registry is `events: true`, so iterate through the proxy's reactive `values` and `size` (or opt into `reactive: true`) rather than a hand-rolled version counter
 
 Add tasks, toggle completion, and filter by priority. Watch the event log at the bottom track every registration change in real time.
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-  import { createRegistry } from '@vuetify/v0'
-  import { computed, shallowRef } from 'vue'
+  import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
   import { provideTaskRegistry, type TaskTicket, type TaskTicketInput } from './context'
 
   const registry = createRegistry<TaskTicketInput, TaskTicket>({ events: true })
-  const version = shallowRef(0)
+  const proxy = useProxyRegistry(registry)
   const events = shallowRef<string[]>([])
 
   registry.on('register:ticket', ticket => {
@@ -24,34 +24,25 @@
     { id: 'task-5', value: 'Refactor auth module', priority: 'medium', done: false },
   ])
 
-  const tasks = computed(() => {
-    void version.value
-    return registry.values()
-  })
-
   function add (text: string, priority: TaskTicketInput['priority']) {
     registry.register({ value: text, priority, done: false })
-    version.value++
   }
 
   function remove (id: string | number) {
     registry.unregister(id)
-    version.value++
   }
 
   function toggle (id: string | number) {
     const ticket = registry.get(id)
     if (!ticket) return
     registry.upsert(id, { done: !ticket.done })
-    version.value++
   }
 
   function clear () {
-    registry.offboard(tasks.value.filter(t => t.done).map(t => t.id))
-    version.value++
+    registry.offboard(registry.values().filter(t => t.done).map(t => t.id))
   }
 
-  provideTaskRegistry({ tasks, events, add, remove, toggle, clear })
+  provideTaskRegistry({ proxy, events, add, remove, toggle, clear })
 </script>
 
 <template>
