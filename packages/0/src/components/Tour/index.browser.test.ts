@@ -173,6 +173,24 @@ describe('tour', () => {
       scroll.mockRestore()
     })
 
+    it('should scroll the nearest edge and size the margin to the card', async () => {
+      const { tour } = mountTour()
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      const scroll = vi.spyOn(target, 'scrollIntoView')
+
+      await startAndWait(tour)
+
+      await vi.waitFor(() => {
+        const box = content().getBoundingClientRect()
+        expect(box.height).toBeGreaterThan(0)
+        expect(target.style.scrollMarginBottom).toBe(`${Math.ceil(box.height + 16)}px`)
+      })
+
+      expect(target.style.scrollMarginTop).toBe('')
+      expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'instant' })
+      scroll.mockRestore()
+    })
+
     it('should skip scrolling when the activator renders no element', async () => {
       let tour!: TourContext
 
@@ -1065,14 +1083,116 @@ describe('tour', () => {
     it('should fall back to edge offsets when anchor positioning is unavailable', async () => {
       const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
 
-      const { tour } = mountPlaced(
-        [{ id: 'one', placement: 'left' }, { id: 'two' }],
-        { placement: 'bottom' },
-      )
+      try {
+        const { tour } = mountPlaced(
+          [{ id: 'one', placement: 'left' }, { id: 'two' }],
+          { placement: 'bottom' },
+        )
+        await startAndWait(tour)
+
+        await vi.waitFor(() => {
+          const el = content()
+          const box = el.getBoundingClientRect()
+          expect(box.width).toBeGreaterThan(0)
+
+          const activator = document.querySelector('[data-part="activator"]') as HTMLElement
+          const target = activator.getBoundingClientRect()
+          const gap = 16
+          const left = target.left - gap - box.width
+          const right = window.innerWidth - target.right - gap - box.width
+          const side = left >= 0 ? 'left' : (right > left ? 'right' : 'left')
+
+          expect(placed(el)).toBe(side)
+        })
+
+        expect(content().style.getPropertyValue('--tour-offset')).toBe('16px')
+      } finally {
+        supports.mockRestore()
+      }
+    })
+
+    it('should flip the card onto the side with room', async () => {
+      let tour!: TourContext
+
+      const Host = defineComponent({
+        setup () {
+          const [, provideTour, context] = createTourContext()
+          provideTour()
+          tour = context
+          tour.steps.onboard([{ id: 'one' }])
+
+          return () => h(Tour.Root, { step: 'one' }, () => [
+            h(Tour.Activator, {
+              step: 'one',
+              style: 'position: fixed; bottom: 0; left: 8px; height: 24px',
+            }, () => 'Target'),
+            h(Tour.Content, { placement: 'bottom' }, {
+              default: (props: { placement: TourPlacement }) => h('div', {
+                'data-used': props.placement,
+                'style': 'height: 120px; width: 160px',
+              }, 'Card'),
+            }),
+          ])
+        },
+      })
+
+      const wrapper = mount(Host, {
+        attachTo: document.body,
+        global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+      })
+      wrappers.push(wrapper)
+
       await startAndWait(tour)
 
-      expect(placed(content())).toBe('left')
-      supports.mockRestore()
+      await vi.waitFor(() => {
+        expect(document.querySelector('[data-used="top"]')).not.toBeNull()
+      })
+
+      expect(placed(content())).toBe('bottom')
+      expect(content().style.getPropertyValue('position-try-fallbacks')).toBe('flip-block')
+    })
+
+    it('should flip a viewport-edge card onto the side with room', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      try {
+        let tour!: TourContext
+
+        const Host = defineComponent({
+          setup () {
+            const [, provideTour, context] = createTourContext()
+            provideTour()
+            tour = context
+            tour.steps.onboard([{ id: 'one' }])
+
+            return () => h(Tour.Root, { step: 'one' }, () => [
+              h(Tour.Activator, {
+                step: 'one',
+                style: 'position: fixed; bottom: 0; left: 8px; height: 24px',
+              }, () => 'Target'),
+              h(Tour.Content, { placement: 'bottom' }, () => h('div', {
+                style: 'height: 120px; width: 160px',
+              }, 'Card')),
+            ])
+          },
+        })
+
+        const wrapper = mount(Host, {
+          attachTo: document.body,
+          global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+        })
+        wrappers.push(wrapper)
+
+        await startAndWait(tour)
+
+        await vi.waitFor(() => {
+          expect(placed(content())).toBe('top')
+        })
+
+        expect(content().style.top).toBe('var(--tour-offset)')
+      } finally {
+        supports.mockRestore()
+      }
     })
 
     it('should stay hidden until the activator registers', async () => {
