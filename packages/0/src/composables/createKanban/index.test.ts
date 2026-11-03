@@ -530,7 +530,7 @@ describe('createKanban', () => {
       return { kanban, todo, done, a, b, c, handler }
     }
 
-    it('reports a canonical fromIndex on consecutive transfers in one tick', () => {
+    it('should report a canonical fromIndex on consecutive transfers in one tick', () => {
       const { kanban, done, a, b, handler } = setup()
 
       kanban.transfer(a.id, done.id, 0)
@@ -541,7 +541,7 @@ describe('createKanban', () => {
       expect(done.items.values().map(ticket => ticket.id)).toEqual([b.id, a.id])
     })
 
-    it('reports a canonical fromIndex after an unbatched removal from the source column', () => {
+    it('should report a canonical fromIndex after an unbatched removal from the source column', () => {
       const { kanban, todo, done, a, b, c, handler } = setup()
 
       todo.items.unregister(a.id)

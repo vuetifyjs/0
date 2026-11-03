@@ -420,7 +420,7 @@ describe('createSortable', () => {
       return { sortable, events }
     }
 
-    it('swaps correctly in the same tick as a sibling removal', () => {
+    it('should swap correctly in the same tick as a sibling removal', () => {
       const { sortable, events } = setup()
 
       sortable.swap('a', 'd')
@@ -429,7 +429,7 @@ describe('createSortable', () => {
       expect(events).toEqual([{ id: 'a', from: 0, to: 2 }, { id: 'd', from: 2, to: 0 }])
     })
 
-    it('swaps the two tickets after the removed sibling', () => {
+    it('should swap the two tickets after the removed sibling', () => {
       const { sortable, events } = setup()
 
       sortable.swap('c', 'd')
@@ -438,7 +438,7 @@ describe('createSortable', () => {
       expect(events).toEqual([{ id: 'c', from: 1, to: 2 }, { id: 'd', from: 2, to: 1 }])
     })
 
-    it('reports a canonical origin for move', () => {
+    it('should report a canonical origin for move', () => {
       const { sortable, events } = setup()
 
       sortable.move('d', 0)
@@ -447,7 +447,7 @@ describe('createSortable', () => {
       expect(events).toEqual([{ id: 'd', from: 2, to: 0 }])
     })
 
-    it('reports canonical origins for reorder', () => {
+    it('should report canonical origins for reorder', () => {
       const { sortable, events } = setup()
 
       sortable.reorder(['c', 'a', 'd'])

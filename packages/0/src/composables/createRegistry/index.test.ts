@@ -2094,7 +2094,7 @@ describe('createRegistry', () => {
       return registry
     }
 
-    it('drains a deferred reindex before the next tick', async () => {
+    it('should drain a deferred reindex before the next tick', async () => {
       const registry = explicit(['a', 'b', 'c'])
       const c = registry.get('c')!
       const onReindex = vi.fn()
@@ -2112,7 +2112,7 @@ describe('createRegistry', () => {
       expect(onReindex).toHaveBeenCalledTimes(1)
     })
 
-    it('coalesces head-first removals into one reindex', async () => {
+    it('should coalesce head-first removals into one reindex', async () => {
       const registry = explicit(Array.from({ length: 200 }, (_, i) => `item-${i}`))
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2130,7 +2130,7 @@ describe('createRegistry', () => {
       }
     })
 
-    it('leaves indexes canonical when batch returns', () => {
+    it('should leave indexes canonical when batch returns', () => {
       const registry = explicit(['a', 'b', 'c', 'd'], { reactive: true })
       const events: string[] = []
       registry.on('unregister:ticket', () => events.push('unregister:ticket'))
@@ -2151,7 +2151,7 @@ describe('createRegistry', () => {
       expect(onKeys).toHaveBeenLastCalledWith(['c', 'd'], ['a', 'b', 'c', 'd'], expect.any(Function))
     })
 
-    it('leaves indexes canonical when batch throws', () => {
+    it('should leave indexes canonical when batch throws', () => {
       const registry = explicit(['a', 'b', 'c'])
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2167,7 +2167,7 @@ describe('createRegistry', () => {
       expect(onReindex).toHaveBeenCalledTimes(1)
     })
 
-    it('offboard leaves indexes canonical synchronously', () => {
+    it('should leave indexes canonical synchronously after offboard', () => {
       const registry = explicit(['a', 'b', 'c', 'd', 'e'])
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2180,7 +2180,7 @@ describe('createRegistry', () => {
       expect(onReindex).toHaveBeenCalledTimes(1)
     })
 
-    it('does not reindex after a tail removal', async () => {
+    it('should not reindex after a tail removal', async () => {
       const registry = explicit(['a', 'b', 'c', 'd'])
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2195,7 +2195,7 @@ describe('createRegistry', () => {
       expect(registry.get('b')?.index).toBe(1)
     })
 
-    it('register after a deferred removal drains once', async () => {
+    it('should drain once when register follows a deferred removal', async () => {
       const registry = explicit(['a', 'b', 'c'])
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2212,7 +2212,7 @@ describe('createRegistry', () => {
       expect(onReindex).toHaveBeenCalledTimes(1)
     })
 
-    it('clear and dispose cancel a pending drain', async () => {
+    it('should cancel a pending drain on clear and dispose', async () => {
       const cleared = explicit(['a', 'b', 'c'])
       const b = cleared.get('b')!
       const onReindex = vi.fn()
@@ -2236,7 +2236,7 @@ describe('createRegistry', () => {
       expect(disposed.size).toBe(0)
     })
 
-    it('drains a removal deferred after clear in the same tick', async () => {
+    it('should drain a removal deferred after clear in the same tick', async () => {
       const registry = explicit(['a', 'b', 'c'])
       const onReindex = vi.fn()
       registry.on('reindex:registry', onReindex)
@@ -2253,7 +2253,7 @@ describe('createRegistry', () => {
       expect(registry.lookup(0)).toBe('y')
     })
 
-    it('notifies ticket.index watchers after a sibling removal in reactive mode', async () => {
+    it('should notify ticket.index watchers after a sibling removal in reactive mode', async () => {
       const registry = explicit(['a', 'b', 'c'], { reactive: true })
       const c = registry.get('c')!
       const spy = vi.fn()

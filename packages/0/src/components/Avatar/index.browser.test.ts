@@ -1043,7 +1043,7 @@ describe('avatar', () => {
       wrapper.unmount()
     })
 
-    it('keeps max after a leading avatar unmounts', async () => {
+    it('should keep max after a leading avatar unmounts', async () => {
       const show = ref(true)
 
       const wrapper = mount(defineComponent({
