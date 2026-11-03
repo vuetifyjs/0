@@ -394,7 +394,7 @@ export interface RegistryContext<
    * Move a ticket to a new index position
    *
    * @param id The ID of the ticket to move.
-   * @param toIndex The target index position. Clamped to valid range.
+   * @param toIndex The target index position. Truncated to an integer and clamped to the valid range; `Infinity` moves the ticket to the end.
    * @returns The moved ticket, or undefined if the ticket was not found.
    *
    * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
@@ -447,7 +447,7 @@ export interface RegistryContext<
    * Seek for a ticket based on direction and optional predicate
    *
    * @param direction The scan direction (`'first'` = forward, `'last'` = backward). Defaults to `'first'`.
-   * @param from The index to start scanning from. With `'first'` the scan moves forward from `from`; with `'last'` the scan moves backward from `from`. Defaults to `0` for `'first'` and `size - 1` for `'last'`.
+   * @param from The index to start scanning from. With `'first'` the scan moves forward from `from`; with `'last'` the scan moves backward from `from`. Defaults to `0` for `'first'` and `size - 1` for `'last'`. Truncated to an integer and clamped to the valid range; `Infinity` starts at the last position.
    * @param predicate An optional function to test each ticket. The first ticket reached in scan order that satisfies the predicate is returned.
    * @remarks This method allows for flexible searching within the registry, either from the start or end, and can filter tickets based on custom criteria.
    *
@@ -737,6 +737,12 @@ export interface RegistryOptions {
 
 export interface RegistryContextOptions extends RegistryOptions {
   namespace?: string
+}
+
+// Caller-supplied positions reach `order[index]`, which needs an integer in [0, max].
+function bound (index: number, max: number): number {
+  if (index === Infinity) return max
+  return clamp(Math.trunc(index), 0, max)
 }
 
 /**
@@ -1262,7 +1268,7 @@ export function createRegistry<
     if (!ticket) return undefined
 
     const size = collection.size
-    const target = clamp(toIndex, 0, size - 1)
+    const target = bound(toIndex, size - 1)
     const from = ticket.index
 
     if (from === target) return ticket
@@ -1324,7 +1330,7 @@ export function createRegistry<
       return direction === 'first' ? order[0] : order.at(-1)
     }
 
-    const index = isUndefined(from) ? undefined : clamp(from, 0, n - 1)
+    const index = isUndefined(from) ? undefined : bound(from, n - 1)
 
     if (direction === 'last') {
       const start = isUndefined(index) ? n - 1 : index

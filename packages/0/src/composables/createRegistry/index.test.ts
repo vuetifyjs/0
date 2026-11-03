@@ -865,6 +865,28 @@ describe('createRegistry', () => {
       expect(found?.id).toBe('item-3')
     })
 
+    it('should truncate a fractional seek offset', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      const predicate = vi.fn(() => true)
+
+      expect(registry.seek('first', 0.5, predicate)?.id).toBe('a')
+      expect(predicate).toHaveBeenCalledTimes(1)
+      expect(predicate).toHaveBeenCalledWith(registry.get('a'))
+    })
+
+    it('should bound a non-finite seek offset', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+      const predicate = vi.fn(() => true)
+
+      expect(registry.seek('first', Number.NaN, predicate)?.id).toBe('a')
+      expect(registry.seek('first', -Infinity, predicate)?.id).toBe('a')
+      expect(registry.seek('first', Infinity, predicate)?.id).toBe('c')
+      expect(registry.seek('last', Infinity, predicate)?.id).toBe('c')
+      expect(predicate).toHaveBeenCalledTimes(4)
+    })
+
     it('should seek last from beginning when from is 0', () => {
       const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'a' })
@@ -1519,6 +1541,41 @@ describe('createRegistry', () => {
       registry.move('a', 2)
 
       expect(order).toEqual(['reindex', 'update'])
+    })
+
+    it('should truncate a fractional target index', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      expect(() => registry.move('c', 0.5)).not.toThrow()
+
+      expect(registry.lookup(0)).toBe('c')
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+      for (const [position, ticket] of registry.values().entries()) {
+        expect(ticket.index).toBe(position)
+        expect(registry.lookup(position)).toBe(ticket.id)
+      }
+    })
+
+    it('should move to the last position for an Infinity target index', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      registry.move('a', Infinity)
+
+      expect(registry.keys()).toEqual(['b', 'c', 'a'])
+      expect(registry.lookup(2)).toBe('a')
+    })
+
+    it('should move to the first position for a -Infinity or NaN target index', () => {
+      const registry = createRegistry()
+      registry.onboard([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
+
+      registry.move('c', -Infinity)
+      expect(registry.keys()).toEqual(['c', 'a', 'b'])
+
+      registry.move('b', Number.NaN)
+      expect(registry.keys()).toEqual(['b', 'c', 'a'])
     })
 
     it('should update catalog and directory after move', () => {
