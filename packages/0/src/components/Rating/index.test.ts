@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest'
 // Composables
 import { createLocalePlugin } from '#v0/composables'
 
-import { Rating } from './index'
+import { Rating, useRatingRoot } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 interface MountResult {
   wrapper: ReturnType<typeof mount>
@@ -913,6 +913,30 @@ describe('rating', () => {
       // Re-mount to verify updated value
       const input = wrapper.find('input[type="hidden"]')
       expect(input.exists()).toBe(true)
+    })
+  })
+
+  describe('context size', () => {
+    it('should provide a live size', async () => {
+      let context: ReturnType<typeof useRatingRoot> | undefined
+
+      const Spy = defineComponent({
+        setup () {
+          context = useRatingRoot('v0:rating:root')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Rating.Root, {
+        props: { size: 3 },
+        slots: { default: () => h(Spy) },
+      })
+
+      expect(context!.size).toBe(3)
+
+      await wrapper.setProps({ size: 7 })
+
+      expect(context!.size).toBe(7)
     })
   })
 })

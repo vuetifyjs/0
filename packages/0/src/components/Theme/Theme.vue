@@ -59,6 +59,9 @@
 
   const context = {
     ...parent,
+    get size () {
+      return parent.size
+    },
     selectedId,
     isDark,
     selectedItem: toRef(() => {
