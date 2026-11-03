@@ -158,13 +158,26 @@
   }
 
   function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
+    if (!el) {
+      // A clear routes by where the index was recorded, not by where a new width would land.
+      if (type === 'item' && index === _firstItemIndex) {
+        _firstItemIndex = null
+        firstItemWidth.value = 0
+      } else if (type === 'divider' && index === _firstDividerIndex) {
+        _firstDividerIndex = null
+        firstDividerWidth.value = 0
+      } else {
+        overflow.measure(index, undefined)
+      }
+      return
+    }
     if (type === 'item' && (isNull(_firstItemIndex) || index <= _firstItemIndex)) {
-      _firstItemIndex = el ? index : null
+      _firstItemIndex = index
       measureToRef(el, firstItemWidth)
       return
     }
     if (type === 'divider' && (isNull(_firstDividerIndex) || index <= _firstDividerIndex)) {
-      _firstDividerIndex = el ? index : null
+      _firstDividerIndex = index
       measureToRef(el, firstDividerWidth)
       return
     }
