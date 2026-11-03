@@ -1479,7 +1479,7 @@ describe('createRegistry', () => {
     })
 
     it('should create a context with custom namespace', () => {
-      const [, , context] = createRegistryContext({ namespace: 'custom:registry' })
+      const [, , context] = createRegistryContext({ namespace: 'v0:custom-registry' })
 
       expect(context.size).toBe(0)
       context.register({ id: 'test' })
@@ -1497,8 +1497,8 @@ describe('createRegistry', () => {
     })
 
     it('should create independent contexts', () => {
-      const [, , context1] = createRegistryContext({ namespace: 'test:context-1' })
-      const [, , context2] = createRegistryContext({ namespace: 'test:context-2' })
+      const [, , context1] = createRegistryContext({ namespace: 'v0:context-1' })
+      const [, , context2] = createRegistryContext({ namespace: 'v0:context-2' })
 
       context1.register({ id: 'item-1' })
 
