@@ -40,6 +40,11 @@ const ITEMS_10K: BenchmarkItem[] = Array.from({ length: 10_000 }, (_, i) => ({
   value: `value-${i}`,
 }))
 
+// Index-derived variant: no `value`, so every removal takes the eager reindex path
+const IDS_1K: Array<{ id: string }> = Array.from({ length: 1000 }, (_, i) => ({
+  id: `item-${i}`,
+}))
+
 // Pre-populated registries for READ-ONLY benchmarks only
 function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket> {
   const registry = createRegistry()
@@ -165,17 +170,36 @@ describe('createRegistry benchmarks', () => {
       registry.register({ id: 'temp', value: 'test' })
       registry.unregister('temp')
     })
+
+    // Head-first unregister is FRESH: the loop consumes the whole fixture, so the
+    // O(n) onboard is paid inside the timed block by necessity. Explicit values
+    // take the deferred path (the coalesced drain runs post-flush, outside the
+    // timed block); index-derived values reindex eagerly on every removal.
+    bench('Unregister head-first 1,000 explicit-value items', () => {
+      const registry = createRegistry()
+      registry.onboard(ITEMS_1K)
+      for (const item of ITEMS_1K) registry.unregister(item.id)
+    })
+
+    bench('Unregister head-first 1,000 index-derived items', () => {
+      const registry = createRegistry()
+      registry.onboard(IDS_1K)
+      for (const item of IDS_1K) registry.unregister(item.id)
+    })
   })
 
   // ===========================================================================
   // BATCH OPERATIONS - Bulk actions
-  // The onboard-then-{clear,reindex,offboard} benches stay FRESH: the operation
-  // consumes or re-dirties the fixture (clear empties it, offboard shrinks it,
-  // reindex needs the pending-dirty state onboard leaves), so they measure the
-  // whole batch roundtrip by design and can't share a fixture.
-  // Reorder is WARM: reorder() always does full O(n) work (no already-sorted
-  // short-circuit — see createRegistry reorder()) and is deterministic to its
-  // target order, so a shared fixture isolates the reorder from the onboard.
+  // The onboard-then-{clear,reindex,offboard} benches stay FRESH: clear empties
+  // the fixture and offboard shrinks it, so both measure the whole roundtrip by
+  // design. Onboard leaves nothing pending (register drains at entry and the
+  // batch drains at its end), so onboard-then-reindex times one full reindex
+  // pass over a fresh order and is onboard-dominated — read it against
+  // `Onboard N items`.
+  // Reorder and move are WARM: reorder() always does full O(n) work (no
+  // already-sorted short-circuit — see createRegistry reorder()) and is
+  // deterministic to its target order; move resets to a canonical slot first.
+  // A shared fixture isolates both from the onboard.
   // ===========================================================================
   describe('batch operations', () => {
     bench('Onboard then clear 1,000 items', () => {
@@ -226,6 +250,15 @@ describe('createRegistry benchmarks', () => {
 
     bench('Reorder reverse (10,000 items)', () => {
       reorder10k.reorder(PERMUTATION_10K)
+    })
+
+    const move1k = createPopulatedRegistry(1000)
+
+    bench('Move mid-list 100 times (1,000 items)', () => {
+      move1k.move('item-500', 500)
+      for (let i = 0; i < 100; i++) {
+        move1k.move('item-500', i % 2 ? 400 : 600)
+      }
     })
   })
 
@@ -278,11 +311,12 @@ describe('createRegistry benchmarks', () => {
   // ===========================================================================
   // REACTIVE ACCESS - Version-memoized path (reactive: true tracks one signal)
   // Shared fixture (safe - read-only operations, no state changes)
-  // Measures: full O(n) recompute of keys/values/entries on every call (the
-  // `computed access` group above measures the cached path), plus the combined
-  // snapshot rebuild useProxyRegistry performs (keys + values + entries together)
-  // on each version bump (#280) — the read shape that dominates once a reactive
-  // registry is consumed from a template or computed.
+  // Measures: the reactive read path — a touch of the version signal, then a
+  // cache hit (keys/values/entries are version-memoized since #540, and the
+  // shared fixture is never invalidated, so every call after the very first is
+  // the memoized hit) — plus the three-way read useProxyRegistry performs
+  // (keys + values + entries together) per version bump (#280), the read shape
+  // that dominates once a reactive registry is consumed from a template or computed.
   // ===========================================================================
   describe('reactive access', () => {
     const reactive1k = createReactiveRegistry(1000)
