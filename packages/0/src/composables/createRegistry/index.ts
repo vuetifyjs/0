@@ -771,11 +771,10 @@ function bound (index: number, max: number): number {
 export function createRegistry<
   Z extends RegistryTicketInput = RegistryTicketInput,
   E extends RegistryTicket & Z = RegistryTicket & Z,
-> (options?: RegistryOptions): RegistryContext<Z, E> {
+> (_options: RegistryOptions = {}): RegistryContext<Z, E> {
   const logger = useLogger()
 
-  const events = options?.events ?? false
-  const reactive = options?.reactive ?? false
+  const { events = false, reactive = false } = _options
 
   const collection = reactive ? shallowReactive(new Map<ID, E>()) : new Map<ID, E>()
   const catalog = new Map<unknown, ID[]>()
