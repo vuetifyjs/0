@@ -670,7 +670,7 @@ export interface RegistryContext<
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Events queue until the callback returns and iteration subscribers are notified once, at the end of the batch, instead of after each operation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once `batch()` returns.
+   * @remarks Useful for bulk operations like onboard(). Events queue until the callback returns and iteration subscribers are notified once, at the end of the batch, instead of after each operation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once the outermost `batch()` returns.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
