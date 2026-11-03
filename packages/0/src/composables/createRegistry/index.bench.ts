@@ -3,11 +3,14 @@
  *
  * Structure:
  * - READ-ONLY operations use shared fixtures (safe, isolates operation cost)
- * - WARM operations (upsert, reorder) share a populated fixture and only time
- *   the operation — the O(n) onboard is not re-paid per iteration. Safe because
- *   both are deterministic and idempotent-to-target (no state drift).
- * - FRESH fixtures only where the populate IS the measured op (initialization)
- *   or the op consumes/dirties the fixture (onboard-then-clear/offboard/reindex)
+ * - WARM operations (upsert, reorder, move) share a populated fixture and only
+ *   time the operation — the O(n) onboard is not re-paid per iteration. Safe
+ *   because each is deterministic and idempotent-to-target (upsert, reorder)
+ *   or resets to a canonical slot first (move), so there is no state drift.
+ * - FRESH fixtures only where the populate IS the measured op (initialization,
+ *   onboard-then-reindex — onboard leaves nothing pending, so that bench is
+ *   onboard-dominated) or the op consumes the fixture (onboard-then-clear,
+ *   onboard-then-offboard, head-first unregister)
  * - Tests both 1,000 and 10,000 item datasets
  * - Categories: initialization, lookup, mutation, batch, computed access, seek
  */

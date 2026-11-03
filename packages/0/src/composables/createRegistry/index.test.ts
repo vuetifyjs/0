@@ -2231,24 +2231,22 @@ describe('createRegistry', () => {
 
     it('should cancel a pending drain on clear and dispose', async () => {
       const cleared = explicit(['a', 'b', 'c'])
-      const b = cleared.get('b')!
       const onReindex = vi.fn()
       cleared.on('reindex:registry', onReindex)
       cleared.unregister('b')
       cleared.clear()
 
-      const disposed = explicit(['x', 'y', 'z'])
-      const y = disposed.get('y')!
-      const z = disposed.get('z')!
+      const disposed = explicit(['x', 'y', 'z'], { reactive: true })
+      const onKeys = vi.fn()
+      watch(() => disposed.keys(), onKeys, { flush: 'sync' })
       disposed.unregister('y')
       disposed.dispose()
+      expect(onKeys).toHaveBeenCalledTimes(2)
 
       await nextTick()
 
       expect(onReindex).not.toHaveBeenCalled()
-      expect(b.index).toBe(1)
-      expect(y.index).toBe(1)
-      expect(z.index).toBe(2)
+      expect(onKeys).toHaveBeenCalledTimes(2)
       expect(cleared.size).toBe(0)
       expect(disposed.size).toBe(0)
     })
@@ -2281,6 +2279,44 @@ describe('createRegistry', () => {
       await nextTick()
 
       expect(spy).toHaveBeenCalledWith(1, 2, expect.any(Function))
+    })
+
+    it('should drain again after removals in separate ticks', async () => {
+      const registry = explicit(['a', 'b', 'c', 'd'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('a')
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+      expect(registry.get('d')?.index).toBe(2)
+
+      registry.unregister('b')
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(2)
+      expect(registry.get('d')?.index).toBe(1)
+      expect(registry.lookup(0)).toBe('c')
+    })
+
+    it('should drain a removal made by a reindex listener', async () => {
+      const registry = explicit(['a', 'b', 'c', 'd'])
+      let once = false
+      const onReindex = vi.fn(() => {
+        if (once) return
+        once = true
+        registry.unregister('c')
+      })
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('a')
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(2)
+      expect(registry.values().map(ticket => ticket.id)).toEqual(['b', 'd'])
+      expect(registry.get('d')?.index).toBe(1)
+      expect(registry.lookup(1)).toBe('d')
     })
   })
 })
