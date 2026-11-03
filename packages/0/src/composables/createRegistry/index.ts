@@ -847,8 +847,8 @@ export function createRegistry<
   }
 
   function dispose () {
-    listeners.clear()
     clear()
+    listeners.clear()
   }
 
   function get (id: ID) {

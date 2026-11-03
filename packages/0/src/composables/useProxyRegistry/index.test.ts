@@ -141,5 +141,19 @@ describe('useProxyRegistry', () => {
       expect(registry.off).toHaveBeenCalledWith('clear:registry', expect.any(Function))
       expect(registry.off).toHaveBeenCalledWith('reindex:registry', expect.any(Function))
     })
+
+    it('should empty the snapshot when the registry is disposed', () => {
+      const registry = createRegistry({ events: true })
+      const proxy = useProxyRegistry(registry)
+
+      registry.register({ value: 'Item 1' })
+      expect(proxy.size).toBe(1)
+
+      registry.dispose()
+
+      expect(proxy.size).toBe(0)
+      expect(proxy.keys).toEqual([])
+      expect(proxy.values).toEqual([])
+    })
   })
 })

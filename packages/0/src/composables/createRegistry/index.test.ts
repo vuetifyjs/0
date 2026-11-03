@@ -915,6 +915,18 @@ describe('createRegistry', () => {
       expect(listener).not.toHaveBeenCalled()
     })
 
+    it('should dispatch clear:registry on dispose', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      registry.register({ id: 'item-1' })
+      registry.on('clear:registry', listener)
+
+      registry.dispose()
+
+      expect(listener).toHaveBeenCalledTimes(1)
+    })
+
     it('should not throw when disposing registry without events', () => {
       const registry = createRegistry({ events: false })
       registry.register({ id: 'item-1' })
