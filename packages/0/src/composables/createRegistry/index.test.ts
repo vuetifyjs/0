@@ -1233,6 +1233,27 @@ describe('createRegistry', () => {
       expect(registry.entries().length).toBe(1)
     })
 
+    it('should bump version when a listener opens a batch during end-of-batch dispatch', () => {
+      const registry = createRegistry({ events: true, reactive: true })
+      registry.onboard([{ id: 'a', value: 'x' }, { id: 'b', value: 'y' }])
+
+      registry.on('register:ticket', () => {
+        registry.batch(() => {
+          registry.upsert('a', { value: 'z' })
+        })
+      })
+
+      const onKeys = vi.fn()
+      watch(() => registry.keys(), onKeys, { flush: 'sync' })
+
+      registry.batch(() => {
+        registry.register({ id: 'c', value: 'w' })
+      })
+
+      expect(onKeys).toHaveBeenCalledTimes(1)
+      expect(onKeys).toHaveBeenLastCalledWith(['a', 'b', 'c'], ['a', 'b'], expect.any(Function))
+    })
+
     it('should update valueIsIndex and catalog on upsert', () => {
       const registry = createRegistry()
 

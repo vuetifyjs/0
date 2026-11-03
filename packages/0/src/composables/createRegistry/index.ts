@@ -1019,7 +1019,10 @@ export function createRegistry<
       if (needsReindex) reindex()
       isBatching = false
       const queue = batched
+      // Captured before dispatch: a listener's own batch() resets `structural`.
+      const bump = structural
       batched = []
+      structural = false
       cache.clear()
 
       try {
@@ -1028,9 +1031,9 @@ export function createRegistry<
         }
       } finally {
         // Only notify iteration subscribers when the batch actually changed
-        // membership or order; a field-only-upsert batch leaves `structural`
-        // false and must not re-notify (mirrors the non-batched upsert path).
-        if (structural) version.value++
+        // membership or order; a field-only-upsert batch leaves `bump` false
+        // and must not re-notify (mirrors the non-batched upsert path).
+        if (bump) version.value++
       }
     }
   }
