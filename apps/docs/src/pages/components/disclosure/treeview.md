@@ -11,6 +11,7 @@ features:
   github: /components/Treeview/
   renderless: false
   level: 3
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
 related:
   - /composables/selection/create-nested
   - /composables/system/use-roving-focus

@@ -11,6 +11,7 @@ features:
   github: /components/Tooltip/
   renderless: true
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/
 related:
   - /composables/plugins/use-tooltip
   - /composables/system/use-popover

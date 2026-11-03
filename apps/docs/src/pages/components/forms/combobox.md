@@ -11,6 +11,7 @@ features:
   github: /components/Combobox/
   level: 2
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 related:
   - /composables/forms/create-combobox
   - /composables/selection/create-selection

@@ -11,6 +11,7 @@ features:
   level: 2
   renderless: false
   order: 14
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
 related:
   - /systems/emerald
   - /systems/emerald/icon

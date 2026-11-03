@@ -64,6 +64,7 @@ Every page includes a header area (shown at the top of this page) with breadcrum
 | <span class="whitespace-nowrap"><DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /></span> | File an issue via Vuetify Issues |
 | <span class="whitespace-nowrap"><DocsActionChip color="text-warning" icon="alert" text="Issues" /></span> | View existing GitHub issues for this feature |
 | <span class="whitespace-nowrap"><DocsActionChip icon="github" text="Source" /></span> | Browse source code for components/composables |
+| <span class="whitespace-nowrap"><DocsActionChip icon="book-open" text="Specification" /></span> | Open the specification this page implements, when it names one |
 | <span class="whitespace-nowrap"><DocsActionChip icon="markdown" text="Markdown" /></span> | Copy page content for use with AI tools |
 
 **Metadata** (component and composable pages):

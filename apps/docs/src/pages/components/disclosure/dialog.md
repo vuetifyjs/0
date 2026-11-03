@@ -11,6 +11,7 @@ features:
   github: /components/Dialog/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
 related:
   - /components/disclosure/popover
   - /components/disclosure/expansion-panel

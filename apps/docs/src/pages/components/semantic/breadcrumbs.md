@@ -11,6 +11,7 @@ features:
   github: /components/Breadcrumbs/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/
 related:
   - /composables/semantic/create-breadcrumbs
   - /composables/selection/create-group

@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Checkbox/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/
 related:
   - /composables/selection/create-group
   - /components/providers/group
