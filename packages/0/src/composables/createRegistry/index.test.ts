@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createRegistry, createRegistryContext, useRegistry } from './index'
 
 // Utilities
-import { computed, isReactive, nextTick, shallowRef, watchEffect, watchSyncEffect } from 'vue'
+import { computed, isReactive, nextTick, shallowRef, watch, watchEffect, watchSyncEffect } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -2084,6 +2084,186 @@ describe('createRegistry', () => {
       expect(runs).toHaveBeenCalledTimes(1)
 
       stop()
+    })
+  })
+
+  describe('deferred reindex drain', () => {
+    function explicit (ids: string[], options: { reactive?: boolean } = {}) {
+      const registry = createRegistry<{ value: string }>({ events: true, ...options })
+      registry.onboard(ids.map(id => ({ id, value: id })))
+      return registry
+    }
+
+    it('drains a deferred reindex before the next tick', async () => {
+      const registry = explicit(['a', 'b', 'c'])
+      const c = registry.get('c')!
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('b')
+
+      expect(c.index).toBe(2)
+      expect(onReindex).not.toHaveBeenCalled()
+
+      await nextTick()
+
+      expect(c.index).toBe(1)
+      expect(registry.lookup(1)).toBe('c')
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('coalesces head-first removals into one reindex', async () => {
+      const registry = explicit(Array.from({ length: 200 }, (_, i) => `item-${i}`))
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      for (let i = 0; i < 100; i++) registry.unregister(`item-${i}`)
+
+      expect(onReindex).not.toHaveBeenCalled()
+
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+      expect(registry.size).toBe(100)
+      for (const [position, ticket] of registry.values().entries()) {
+        expect(ticket.index).toBe(position)
+      }
+    })
+
+    it('leaves indexes canonical when batch returns', () => {
+      const registry = explicit(['a', 'b', 'c', 'd'], { reactive: true })
+      const events: string[] = []
+      registry.on('unregister:ticket', () => events.push('unregister:ticket'))
+      registry.on('reindex:registry', () => events.push('reindex:registry'))
+      const onKeys = vi.fn()
+      watch(() => registry.keys(), onKeys, { flush: 'sync' })
+
+      registry.batch(() => {
+        registry.unregister('a')
+        registry.unregister('b')
+      })
+
+      expect(registry.get('c')?.index).toBe(0)
+      expect(registry.get('d')?.index).toBe(1)
+      expect(registry.lookup(0)).toBe('c')
+      expect(events).toEqual(['unregister:ticket', 'unregister:ticket', 'reindex:registry'])
+      expect(onKeys).toHaveBeenCalledTimes(1)
+      expect(onKeys).toHaveBeenLastCalledWith(['c', 'd'], ['a', 'b', 'c', 'd'], expect.any(Function))
+    })
+
+    it('leaves indexes canonical when batch throws', () => {
+      const registry = explicit(['a', 'b', 'c'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      expect(() => registry.batch(() => {
+        registry.unregister('a')
+        throw new Error('x')
+      })).toThrow('x')
+
+      expect(registry.get('b')?.index).toBe(0)
+      expect(registry.get('c')?.index).toBe(1)
+      expect(registry.lookup(1)).toBe('c')
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('offboard leaves indexes canonical synchronously', () => {
+      const registry = explicit(['a', 'b', 'c', 'd', 'e'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.offboard(['b', 'd'])
+
+      expect(registry.values().map(ticket => ticket.index)).toEqual([0, 1, 2])
+      expect(registry.lookup(1)).toBe('c')
+      expect(registry.lookup(2)).toBe('e')
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not reindex after a tail removal', async () => {
+      const registry = explicit(['a', 'b', 'c', 'd'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('d')
+      registry.offboard(['c'])
+
+      await nextTick()
+
+      expect(onReindex).not.toHaveBeenCalled()
+      expect(registry.lookup(registry.size - 1)).toBe('b')
+      expect(registry.get('b')?.index).toBe(1)
+    })
+
+    it('register after a deferred removal drains once', async () => {
+      const registry = explicit(['a', 'b', 'c'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('b')
+      const d = registry.register({ id: 'd', value: 'd' })
+
+      expect(d.index).toBe(2)
+      expect(registry.get('c')?.index).toBe(1)
+      expect(onReindex).toHaveBeenCalledTimes(1)
+
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+    })
+
+    it('clear and dispose cancel a pending drain', async () => {
+      const cleared = explicit(['a', 'b', 'c'])
+      const b = cleared.get('b')!
+      const onReindex = vi.fn()
+      cleared.on('reindex:registry', onReindex)
+      cleared.unregister('b')
+      cleared.clear()
+
+      const disposed = explicit(['x', 'y', 'z'])
+      const y = disposed.get('y')!
+      const z = disposed.get('z')!
+      disposed.unregister('y')
+      disposed.dispose()
+
+      await nextTick()
+
+      expect(onReindex).not.toHaveBeenCalled()
+      expect(b.index).toBe(1)
+      expect(y.index).toBe(1)
+      expect(z.index).toBe(2)
+      expect(cleared.size).toBe(0)
+      expect(disposed.size).toBe(0)
+    })
+
+    it('drains a removal deferred after clear in the same tick', async () => {
+      const registry = explicit(['a', 'b', 'c'])
+      const onReindex = vi.fn()
+      registry.on('reindex:registry', onReindex)
+
+      registry.unregister('b')
+      registry.clear()
+      registry.onboard([{ id: 'x', value: 'x' }, { id: 'y', value: 'y' }, { id: 'z', value: 'z' }])
+      registry.unregister('x')
+
+      await nextTick()
+
+      expect(onReindex).toHaveBeenCalledTimes(1)
+      expect(registry.get('z')?.index).toBe(1)
+      expect(registry.lookup(0)).toBe('y')
+    })
+
+    it('notifies ticket.index watchers after a sibling removal in reactive mode', async () => {
+      const registry = explicit(['a', 'b', 'c'], { reactive: true })
+      const c = registry.get('c')!
+      const spy = vi.fn()
+      watch(() => c.index, spy)
+
+      registry.unregister('b')
+
+      await nextTick()
+
+      expect(spy).toHaveBeenCalledWith(1, 2, expect.any(Function))
     })
   })
 })

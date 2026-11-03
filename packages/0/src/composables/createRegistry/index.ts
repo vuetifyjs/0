@@ -34,7 +34,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isNullOrUndefined, isUndefined, useId } from '#v0/utilities'
-import { shallowReactive, shallowRef } from 'vue'
+import { queuePostFlushCb, shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -62,7 +62,7 @@ export interface RegistryTicket<V = unknown> {
   /**
    * The index of the ticket in the registry.
    *
-   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. When a removal defers its reindex — a tail-block removal, or a registry with no index-derived values — a ticket read via `values()`/`entries()` may carry a stale index until the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`) drains it. A mid-list `unregister`/`offboard` that shifts index-derived survivors reindexes eagerly, so those reads are already current.
+   * @remarks Automatically managed by the registry. Assigned at registration and updated during reindexing; a supplied index is ignored — use `move()` to position a ticket. It's not recommended to manually set this. A mid-list `unregister`/`offboard` reindexes the shifted survivors eagerly when any ticket is index-derived; otherwise the reindex is deferred and drains at the end of the enclosing `batch()`, on the next position-reading call (`register`/`upsert`/`browse`/`lookup`/`move`/`reorder`/`seek`), and in all cases before the next tick. Until then a survivor read synchronously — via `get()`, `values()`/`entries()`, a held ticket, or a `useProxyRegistry` snapshot — may still carry its previous index; call `lookup(0)` first to drain. A tail removal shifts nobody.
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
@@ -353,7 +353,7 @@ export interface RegistryContext<
    * Unregister a ticket by ID
    *
    * @param id The ID of the ticket to unregister.
-   * @remarks Removes the ticket from the registry and reindexes the remaining tickets. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks Removes the ticket from the registry. Survivors that shift are reindexed eagerly when any ticket is index-derived; otherwise the reindex is deferred and drains at the end of the enclosing `batch()`, on the next position-reading call, or before the next tick (see `RegistryTicket.index`). This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -615,8 +615,8 @@ export interface RegistryContext<
    * one. The `value` is stripped only when it was index-derived (`valueIsIndex`).
    * Order matches the input `ids` array. Missing ids are silently skipped — the
    * returned array may be shorter than `ids`.
-   * @remarks Unregisters multiple tickets in a single compaction pass, reindexing
-   * eagerly only when index-derived survivors shift. The inverse of `onboard`: onboard takes inputs and returns outputs;
+   * @remarks Unregisters multiple tickets in a single compaction pass and leaves
+   * the survivors' indexes canonical before returning. The inverse of `onboard`: onboard takes inputs and returns outputs;
    * offboard takes ids and returns the inputs back. Pair with `onboard` on a
    * different registry to move tickets across registries.
    *
@@ -670,7 +670,7 @@ export interface RegistryContext<
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation.
+   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation, and a reindex deferred by a removal inside the batch drains before the batch returns.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -793,6 +793,7 @@ export function createRegistry<
 
   let indexDependentCount = 0
   let needsReindex = false
+  let scheduled = false
   let minDirtyIndex = Infinity
   let maxDirtyIndex = -Infinity
   let isBatching = false
@@ -994,6 +995,16 @@ export function createRegistry<
     version.value++
   }
 
+  function defer () {
+    needsReindex = true
+    if (isBatching || scheduled) return
+    scheduled = true
+    queuePostFlushCb(() => {
+      scheduled = false
+      if (needsReindex) reindex()
+    })
+  }
+
   function batch<R> (fn: () => R): R {
     if (isBatching) return fn()
 
@@ -1004,6 +1015,7 @@ export function createRegistry<
     try {
       return fn()
     } finally {
+      if (needsReindex) reindex()
       isBatching = false
       const queue = batched
       batched = []
@@ -1137,14 +1149,15 @@ export function createRegistry<
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
 
-    const willReindex = indexDependentCount > 0 && ticket.index < collection.size
+    const shifted = ticket.index < collection.size
+    const willReindex = indexDependentCount > 0 && shifted
     if (!willReindex) invalidate()
 
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
       reindex()
-    } else {
-      needsReindex = true
+    } else if (shifted) {
+      defer()
     }
 
     emit('unregister:ticket', ticket)
@@ -1219,12 +1232,13 @@ export function createRegistry<
       // Mirror unregister: eagerly reindex when index-derived survivors shifted
       // (index-dependent tickets remain AND the smallest removed index is still
       // inside the compacted range) so iteration/proxy consumers never read stale
-      // index/value. Otherwise defer — a tail-block removal, or a registry with no
-      // index-derived values whose stale `.index` fields drain lazily.
-      if (indexDependentCount > 0 && minDirtyIndex < collection.size) {
+      // index/value. Otherwise defer to the end of this batch; a tail-block
+      // removal shifts nobody and leaves every survivor canonical as is.
+      const shifted = minDirtyIndex < collection.size
+      if (indexDependentCount > 0 && shifted) {
         reindex()
-      } else {
-        needsReindex = true
+      } else if (shifted) {
+        defer()
       }
     })
 
