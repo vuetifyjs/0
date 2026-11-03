@@ -443,6 +443,15 @@ Layer 2: Complex orchestrators
 
 Extension is always via `...spread`. 100% consistent across every registry-based composable in the package. [intent:147]
 
+### Wrapper conventions
+
+Four conventions for composables that wrap `createRegistry`, each with the source line that models it.
+
+- **Collection writes come last.** A structural write to a `shallowReactive` collection (`collection.set` / `.delete` / `.clear`) happens only after the canonical `order` array and the iteration cache are consistent, because Vue sync effects fire on the Map write and read `keys()` / `values()` / `size` right then. `offboard` is the model (`createRegistry/index.ts:1191-1203`): compact `order`, `invalidate()`, then delete from the Map.
+- **Fixed ticket shape → one generic.** A wrapper that fixes its ticket shape passes the output ticket as the registry's single generic: `createRegistry<FormTicket>` (`createForm/index.ts:142`), `createRegistry<QueueTicket>` (`createQueue/index.ts:317`), `createRegistry<NotificationTicket>` (`useNotifications/index.ts:156`), `createRegistry<Z>` with `Z extends TimelineTicket` / `TokenTicket` (`createTimeline/index.ts:146`, `createTokens/index.ts:169`). Reserve `<Z, E>` for factories that thread both shapes through to the caller (`createModel/index.ts:376`, `createRegistryContext` at `createRegistry/index.ts:1389`).
+- **Force flags after the spread.** A wrapper whose contract depends on a registry flag sets it after `...options` so a caller cannot disable it, and documents the flag as non-overridable: `events: true` where the wrapper or its consumers subscribe or emit (`createTokens/index.ts:169`, its own subscriptions at `:180-184`; `createQueue/index.ts:317`; `useNotifications/index.ts:156-160`, subscription at `:169`), `reactive: true` where the surface is template-reachable (`createForm/index.ts:142`, `useNotifications/index.ts:156-160`).
+- **Both cleanup forms are valid.** `onBeforeUnmount(() => ticket.unregister())` (`components/Carousel/CarouselItem.vue:103-105`) and `onBeforeUnmount(() => parent.unregister(ticket.id))` (PHILOSOPHY §6.8) do the same thing, because `register` binds `unregister: () => unregister(id)` on every ticket (`createRegistry/index.ts:1094`). A wrapper that owns per-ticket cleanup rebinds `unregister` in its own registration so the sugar reaches the wrapper, not the raw registry (`createModel/index.ts:448`).
+
 ### Lazy reindex contract
 
 Methods that compute or read canonical index/catalog state must drain pending reindex at entry:
