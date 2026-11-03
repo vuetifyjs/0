@@ -164,7 +164,7 @@ import { createRegistry } from '../createRegistry'
 
 **Why.** Spread guarantees the child remains substitutable for the parent in types. The registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites. Spread copies accessors by value — a parent's `get size ()` arrives as a data property frozen at spread time — so any accessor the child surface needs must be re-declared after the spread (`get size () { return model.size }`).
 
-**Canonical example.** `packages/0/src/composables/createSelection/index.ts:321-334` — spreads `createModel`, adds `multiple`, `register`, `onboard`, `unselect`, `toggle`, `apply`, `mandate`, `seek`, and re-declares `get size ()`.
+**Canonical example.** The spread `return` closing `createSelection()` in `packages/0/src/composables/createSelection/index.ts` — spreads `createModel`; adds `multiple`, `mandate`; wraps `register`, `onboard`, `unselect`, `toggle`, `apply`, `seek` (all six already exist on the `createModel` return, `seek` via its registry spread); re-declares `get size ()`.
 
 ```ts
 return {
@@ -309,7 +309,7 @@ Three allowable return shapes, in order of prevalence:
 **3.1.1 Plain object.** The dominant shape. Used by ~61 of 73 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:321
+// packages/0/src/composables/createSelection/index.ts — the spread return closing createSelection()
 return {
   ...model,
   multiple,
@@ -319,7 +319,7 @@ return {
 }
 ```
 
-**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Built by two foundation factories, `createTrinity` and `createPluginContext`, and returned unchanged by every `createXContext` wrapper — `createRegistryContext` (`createRegistry/index.ts:1383-1391`), `createSelectionContext`, `createFormContext`, `createStackContext`, … (23 today), each returning `createTrinity(...)` directly. (`createPlugin` itself returns a Vue plugin *object*, not the tuple; `createPluginContext` is the tuple-returning factory.) `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. The factory each wrapper pairs with (`createSelection`, `createForm`, `useStack`, …) returns a plain object per 3.1.1. [intent:80, intent:119, intent:120]
+**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Built by two foundation factories, `createTrinity` and `createPluginContext`, and returned unchanged by every `createXContext` function: the hand-written wrappers (`createRegistryContext` in `createRegistry/index.ts`, `createSelectionContext`, `createFormContext`, `createStackContext`, …) each return `createTrinity(...)` directly, and the `createXContext` member of every `createPluginContext` tuple does the same (`createPlugin/index.ts:231-236`). (`createPlugin` itself returns a Vue plugin *object*, not the tuple; `createPluginContext` is the tuple-returning factory.) `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. The factory each wrapper pairs with (`createSelection`, `createForm`, `createStack` at `useStack/index.ts:269`, …) returns a plain object per 3.1.1; `useStack` (`useStack/index.ts:496`) is the injector, not the factory. [intent:80, intent:119, intent:120]
 
 ```ts
 // packages/0/src/composables/createTrinity/index.ts:100-104
@@ -996,7 +996,7 @@ export function createSortable<
 > (_options: SortableOptions = {}): SortableContext<Z, E>
 ```
 
-**Exceptions — fixed-shape wrappers.** Four registry-based factories take no generics and pass their fixed ticket straight through: `createQueue` (`createQueue/index.ts:315-317`, `createRegistry<QueueTicket>`), `createForm` (`createForm/index.ts:135-142`, `createRegistry<FormTicket>`), `createNotifications` (`useNotifications/index.ts:151-156`, `createRegistry<NotificationTicket>`), and `createNested` (`createNested/index.ts:91,104`, `createGroup<NestedTicketInput, NestedTicket>`). Their tickets are data records patched via `upsert` (`QueueTicket.isPaused: boolean`) or shapes the composable itself owns, not caller-extended selection state. Do not add `Z`/`E` to them unless a caller needs custom ticket fields.
+**Exception — fixed ticket pair, no generics.** A factory whose ticket pair is fixed by its own contract takes no `Z`/`E` and passes the pair straight to the primitive it wraps. The set today: `createQueue` (`createRegistry<QueueTicket>` in `createQueue/index.ts`), `createForm` (`createForm/index.ts:135,142`, `createRegistry<FormTicket>`), `createNotifications` (`useNotifications/index.ts:151,156`, `createRegistry<NotificationTicket>`), `createNested` (`createNested/index.ts:91,104`, `createGroup<NestedTicketInput, NestedTicket>`), `createCombobox` (`createCombobox/index.ts:141,176`, `createSelection<ComboboxTicketInput, ComboboxTicket>`), `createProgress` (`createProgress/index.ts:76,86`, `createModel<ProgressTicketInput, ProgressTicket>`), `createSlider` (`createSlider/index.ts:444,458`, `createModel<SliderTicketInput, SliderTicket>`), `createStack` (`useStack/index.ts:269,277`, `createSelection<StackTicketInput, StackTicket>`), and the plugin factories `createFeatures` (`useFeatures/index.ts:249`), `createLocale` (`useLocale/index.ts:151`), `createTheme` (`useTheme/index.ts:343`), `createPermissions` (`usePermissions/index.ts:89`) and the module-private `createTooltip` (`useTooltip/index.ts:169,175`). Their tickets are data records patched via `upsert` (`QueueTicket.isPaused: boolean`) or shapes the composable itself owns, not caller-extended selection state. Do not add `Z`/`E` to them unless a caller needs custom ticket fields.
 
 ### 8.8 Slot type guardrails
 
@@ -1027,7 +1027,7 @@ Current exempt sites:
 - `packages/0/src/composables/createContext/index.ts:159-161` — namespace-validation warn (Layer 0, circular if it imported `useLogger`)
 - `packages/0/src/utilities/helpers.ts:464-467` — `useId()` SSR-dev warn (foundation dependency of useLogger)
 
-**`__DEV__` gating.** Exempt *diagnostic warnings* must be gated on `__DEV__` so they vanish from production bundles — `createContext`'s namespace warn and `helpers.ts`'s `useId` SSR warn, each carrying the gate inline. The two logger-output sites are not diagnostic warnings and never take `__DEV__`: `V0LoggerAdapter` emits whatever `createLogger` lets through its level gate (`can()` at `useLogger/index.ts:131-161`), and `createFallbackLogger` logs unconditionally (`enabled: () => true`, `:216-218`). The non-exempt path (composables that route through `useLogger`) is level-gated in `createLogger` before the adapter is called, so callers do not repeat the check.
+**`__DEV__` gating.** Exempt *diagnostic warnings* must be gated on `__DEV__` so they vanish from production bundles — `createContext`'s namespace warn and `helpers.ts`'s `useId` SSR warn, each carrying the gate inline. The two logger-output sites are not diagnostic warnings and never take `__DEV__`: with the logger plugin installed, `V0LoggerAdapter` emits whatever `createLogger` lets through its level gate (`can()` at `useLogger/index.ts:131-161`); without it, `useLogger()` resolves to `createFallbackLogger` (the `fallback` at `useLogger/index.ts:249`), which logs unconditionally (`enabled: () => true`, `:216-218`). The non-exempt path (composables that route through `useLogger`) is therefore level-gated only when the plugin is installed — the gate lives in `createLogger` before the adapter is called, so callers never repeat the check.
 
 ### 9.3 Namespace keys contain `:`
 
