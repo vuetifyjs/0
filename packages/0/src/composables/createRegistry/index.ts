@@ -666,11 +666,11 @@ export interface RegistryContext<
   */
   size: number
   /**
-   * Execute operations in a batch, deferring cache invalidation and event emission until complete
+   * Execute operations in a batch, deferring event dispatch and the reactive notification until complete
    *
    * @param fn The function containing batch operations.
    * @returns The return value of the batch function.
-   * @remarks Useful for bulk operations like onboard(). Cache invalidation and events are deferred to the end of the batch instead of running after each operation, and a reindex deferred by a removal inside the batch drains before the batch returns.
+   * @remarks Useful for bulk operations like onboard(). Events queue until the callback returns and iteration subscribers are notified once, at the end of the batch, instead of after each operation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once `batch()` returns.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -680,8 +680,8 @@ export interface RegistryContext<
    *
    * const registry = createRegistry({ events: true })
    *
-   * // Without batch: N invalidations + N events
-   * // With batch: 1 invalidation + N events (after all registrations)
+   * // Without batch: N events, each with its own reactive notification
+   * // With batch: N events and one reactive notification, after all registrations
    * const tickets = registry.batch(() => {
    *   return [
    *     registry.register({ id: 'a' }),
