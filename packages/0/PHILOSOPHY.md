@@ -164,7 +164,7 @@ import { createRegistry } from '../createRegistry'
 
 **Why.** Spread guarantees the child remains substitutable for the parent in types. The registry-based composables all compose this way; consumers who hold a reference to the parent type can upgrade to the child type without refactoring call sites. Spread copies accessors by value — a parent's `get size ()` arrives as a data property frozen at spread time — so any accessor the child surface needs must be re-declared after the spread (`get size () { return model.size }`).
 
-**Canonical example.** `packages/0/src/composables/createSelection/index.ts:299-312` — spreads `createModel`, adds `multiple`, `toggle`, `apply`, `mandate`.
+**Canonical example.** The spread `return` closing `createSelection()` in `packages/0/src/composables/createSelection/index.ts` — spreads `createModel`; adds `multiple`, `mandate`; wraps `register`, `onboard`, `unselect`, `toggle`, `apply`, `seek` (all six already exist on the `createModel` return, `seek` via its registry spread); re-declares `get size ()`.
 
 ```ts
 return {
@@ -176,8 +176,11 @@ return {
   toggle,
   apply,
   mandate,
-  // ...
-}
+  seek,
+  get size () {
+    return model.size
+  },
+} satisfies SelectionContext<Z, E> as R
 ```
 
 ---
@@ -188,7 +191,7 @@ return {
 
 **Why.** Consumers import from a flat barrel. Without the marker, bundlers retain every utility the barrel touches. Meta-frameworks with 71 composables and 43 components cannot afford a lazy barrel.
 
-**Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,113,138,156,174,194,219` — every exported guard carries the comment directly above the function declaration.
+**Canonical example.** `packages/0/src/utilities/helpers.ts:32,49,69,87,118,145,178,202,221,246,272,293,314,335,360,404,458,488,509,546,561,576` — every exported function carries the comment directly above the function declaration.
 
 ```ts
 // packages/0/src/utilities/helpers.ts:32-35
@@ -198,7 +201,7 @@ export function isFunction (item: unknown): item is Function {
 }
 ```
 
-**Complementary marker — `/* @__PURE__ */` on module-level allocations.** `#__NO_SIDE_EFFECTS__` covers exported functions. The complementary marker `/* @__PURE__ */` covers *module-level call expressions* whose return value is bound to a constant — `new Set([...])`, `new Map([...])`, factory calls. Without it, bundlers cannot prove the allocation is side-effect-free and retain the binding even when nothing imports it. See `packages/0/src/utilities/helpers.ts:312` (`UNSAFE_KEYS = /* @__PURE__ */ new Set([...])`) for the placement convention. New module-level `new`/factory allocations (`new Set`, `new Map`, factory calls) inside `packages/0/src/utilities/**` carry `/* @__PURE__ */`; exported functions carry `/* #__NO_SIDE_EFFECTS__ */`. Plain object/array literal initializers (e.g. `const BLACK: RGB = { r: 0, g: 0, b: 0 }` in `apca.ts`) are pure by default and need no marker. Elsewhere in `packages/0/src/`, the marker is a hygiene recommendation rather than a hard rule, but the same logic applies to any allocation a bundler would otherwise pin.
+**Complementary marker — `/* @__PURE__ */` on module-level allocations.** `#__NO_SIDE_EFFECTS__` covers exported functions. The complementary marker `/* @__PURE__ */` covers *module-level call expressions* whose return value is bound to a constant — `new Set([...])`, `new Map([...])`, factory calls. Without it, bundlers cannot prove the allocation is side-effect-free and retain the binding even when nothing imports it. See `packages/0/src/utilities/helpers.ts:367` (`UNSAFE_KEYS = /* @__PURE__ */ new Set([...])`) for the placement convention. New module-level `new`/factory allocations (`new Set`, `new Map`, factory calls) inside `packages/0/src/utilities/**` carry `/* @__PURE__ */`; exported functions carry `/* #__NO_SIDE_EFFECTS__ */`. Plain object/array literal initializers (e.g. `const BLACK: RGB = { r: 0, g: 0, b: 0 }` in `apca.ts`) are pure by default and need no marker. Elsewhere in `packages/0/src/`, the marker is a hygiene recommendation rather than a hard rule, but the same logic applies to any allocation a bundler would otherwise pin.
 
 **Anti-example (do not do this).**
 ```ts
@@ -293,7 +296,7 @@ Bare `Error` is forbidden in `packages/0/src` source by the `vuetify/no-bare-err
 
 **Why.** v0 runs under SSR. An unguarded `window.x` crashes the server build. The gate is one line and composes through adapters.
 
-**Canonical example.** `packages/0/src/composables/useStorage/index.ts:115` — `IN_BROWSER ? window.localStorage : new MemoryStorageAdapter()`.
+**Canonical example.** `packages/0/src/composables/useStorage/index.ts:102-110` — `localStorageOrNull()` returns `null` unless `IN_BROWSER` (and when the browser refuses `window.localStorage`); `createStorage` defaults `adapter = local ?? new MemoryStorageAdapter()` off that gate (`:139-142`).
 
 ---
 
@@ -306,7 +309,7 @@ Three allowable return shapes, in order of prevalence:
 **3.1.1 Plain object.** The dominant shape. Used by ~61 of 73 composable directories. Returned from every selection, registry, model, data, and browser composable that is not a trinity builder itself.
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:299
+// packages/0/src/composables/createSelection/index.ts — the spread return closing createSelection()
 return {
   ...model,
   multiple,
@@ -316,7 +319,7 @@ return {
 }
 ```
 
-**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Returned from exactly two foundation factories: `createTrinity` and `createPluginContext`. (`createPlugin` itself returns a Vue plugin *object*, not the tuple; `createPluginContext` is the tuple-returning factory.) `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. Every other "trinity-using" composable *consumes* these internally and returns a plain object. [intent:80, intent:119, intent:120]
+**3.1.2 Trinity tuple.** `[useX, provideX, defaultX] as const` (registries) or `[createXContext, createXPlugin, useX] as const` (plugins). Built by two foundation factories, `createTrinity` and `createPluginContext`, and returned unchanged by every `createXContext` function: the hand-written wrappers (`createRegistryContext` in `createRegistry/index.ts`, `createSelectionContext`, `createFormContext`, `createStackContext`, …) each return `createTrinity(...)` directly, and the `createXContext` member of every `createPluginContext` tuple does the same (`createPlugin/index.ts:231-236`). (`createPlugin` itself returns a Vue plugin *object*, not the tuple; `createPluginContext` is the tuple-returning factory.) `createContext` returns the `[useX, provideX]` pair that `createTrinity` consumes and extends into the trinity. The factory each wrapper pairs with (`createSelection`, `createForm`, `createStack` at `useStack/index.ts:269`, …) returns a plain object per 3.1.1; `useStack` (`useStack/index.ts:496`) is the injector, not the factory. [intent:80, intent:119, intent:120]
 
 ```ts
 // packages/0/src/composables/createTrinity/index.ts:100-104
@@ -518,7 +521,7 @@ Always use `.value` when reading these in templates. Never rely on Vue's auto-un
 
 - `packages/0/src/composables/useTimer/index.ts:68,70,72` — `remaining`, `isActive`, `isPaused` typed as `ShallowRef<...>` in `TimerContext`. Consumers pause and resume by writing.
 - `packages/0/src/composables/usePopover/index.ts:104` — `isOpen: Ref<boolean>` for v-model bidirectional binding.
-- `packages/0/src/composables/createInput/index.ts:90,94,98` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
+- `packages/0/src/composables/createInput/index.ts:100,104,108` — `value`, `isFocused`, `isTouched` mutable so bound components can write; `isDirty` / `isPristine` are `Readonly<Ref<boolean>>` (do not write).
 
 **Audit (resolved).** `useRovingFocus` and `createFocusTraversal` each expose a single consumer-visible ref (`focusedId` / `activeId`), both declared `ShallowRef<ID | undefined>` in their return interface (`RovingFocusReturn` / `TraversalReturn`). These are intentionally mutable — consumers set focus by writing the ref — so the `ShallowRef<T>` type is the correct contract; no `shallowReadonly` boundary wrapper is required. (Design note: writing the ref directly bypasses the internal `applyFocus()` DOM-focus side-effect; switch to `Readonly<Ref>` + a `focus()` method if direct writes should be disallowed.)
 
@@ -944,7 +947,7 @@ export interface UseFooOptions {
 
 Use `Extensible<T>` for enums that must retain autocomplete while accepting arbitrary string extensions. The trick is `T | (string & {})` — see `packages/0/src/types/index.ts:116`. Without `& {}`, TypeScript collapses `'a' | 'b' | string` down to `string` and drops the autocomplete.
 
-**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:43`:
+**Canonical example.** `packages/0/src/composables/useNotifications/index.ts:42`:
 
 ```ts
 export type NotificationSeverity = Extensible<'info' | 'warning' | 'error' | 'success'>
@@ -983,7 +986,7 @@ return [useX, provideX, context]
 
 ### 8.7 Generic bounds
 
-Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type; leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at two generics with no `R` override. Their shapes vary: `createSortable` carries the input/output-ticket pair (`E extends FooTicket<Z>`); `createTimeline` / `createTokens` pair a ticket `Z` with a context `E` (`FooContext<Z>`); `createKanban` instead parameterizes two input shapes (`ItemZ` / `ColZ`) for its two-level board.
+Registry-based composables carry `Z extends FooTicketInput` (input shape) and `E extends FooTicket<Z>` (output shape); consumers parameterize once at the call site and the composable threads `Z` and `E` through every return-type contract. Factories in the selection chain (`createModel`, `createSelection`, `createSingle`, `createGroup`, `createStep`) add a third generic `R extends FooContext<Z, E>` so subclasses can override the return type — `createNested` closes that chain with fixed shapes and no generics (see the exceptions below); leaf factories (`createSortable`, `createKanban`, `createTimeline`, `createTokens`) stop at two generics with no `R` override. Their shapes vary: `createSortable` carries the input/output-ticket pair (`E extends FooTicket<Z>`); `createTimeline` / `createTokens` pair a ticket `Z` with a context `E` (`FooContext<Z>`); `createKanban` instead parameterizes two input shapes (`ItemZ` / `ColZ`) for its two-level board.
 
 ```ts
 // packages/0/src/composables/createSortable/index.ts
@@ -993,7 +996,7 @@ export function createSortable<
 > (_options: SortableOptions = {}): SortableContext<Z, E>
 ```
 
-**Exception — `createQueue`.** Registry-based and on the §6.10 list, but not parameterized: `createQueue(): QueueContext`. Queue tickets are data records patched via `upsert` (`isPaused: boolean`), not selection-style `Readonly<Ref<boolean>>` ticket state. Do not add `Z`/`E` unless a caller needs custom ticket fields.
+**Exception — fixed ticket pair, no `Z`/`E`.** A factory whose generics name only value or row types (or none) and whose tickets are a fixed pair or the primitive's defaults takes no `Z`/`E`; it passes its fixed pair, or the primitive's default tickets, straight through. Including: `createQueue` (`createRegistry<QueueTicket>` in `createQueue/index.ts`), `createForm` (`createForm/index.ts:135,142`, `createRegistry<FormTicket>`), `createNotifications` (`useNotifications/index.ts:151,156`, `createRegistry<NotificationTicket>`), `createNested` (`createNested/index.ts:91,104`, `createGroup<NestedTicketInput, NestedTicket>`), `createCombobox` (`createCombobox/index.ts:141,176`, `createSelection<ComboboxTicketInput, ComboboxTicket>`), `createProgress` (`createProgress/index.ts:76,86`, `createModel<ProgressTicketInput, ProgressTicket>`), `createSlider` (`createSlider/index.ts:444,458`, `createModel<SliderTicketInput, SliderTicket>`), `createStack` (`useStack/index.ts:269,277`, `createSelection<StackTicketInput, StackTicket>`), `createValidation` (`createValidation/index.ts:136,144`, `createGroup({ ...options, enroll, multiple: true })` with default tickets), `createInput` (`createInput/index.ts:121,159-160` — parameterizes only the value type `T` and builds two default-ticket `createRegistry({ reactive: true })` instances), `createDataTable` (`createDataTable/index.ts:370` — row type `T` only; fixed `DataTableTicketInput<T>` / `DataTableTicket<T>` and `DataTableColumnTicketInput<T>` / `DataTableColumnTicket<T>` pairs at `:388,395` plus a default-ticket `createGroup` at `:421`), `createDataGrid` (`createDataGrid/index.ts:246`, through `createDataTable<T>` at `:256` plus a fixed `createSortable<SortableTicketInput<ID>>` at `:262` — the same indirect path as `createPermissions` via `createTokens`), and the plugin factories `createFeatures` (`useFeatures/index.ts:249,253`, default-ticket `createGroup`), `createLocale` (`useLocale/index.ts:151,154`, default-ticket `createSingle`), `createTheme` (`useTheme/index.ts:343,346`, fixed `SingleTicketInput<ThemeColors>` pair), `createPermissions` (`usePermissions/index.ts:89,109`, through `createTokens`) and the module-private `createTooltip` (`useTooltip/index.ts:169,175`, default-ticket `createRegistry`). Their tickets are data records patched via `upsert` (`QueueTicket.isPaused: boolean`) or shapes the composable itself owns, not caller-extended selection state. Do not add `Z`/`E` to them unless a caller needs custom ticket fields.
 
 ### 8.8 Slot type guardrails
 
@@ -1013,17 +1016,18 @@ See §2.9. Three-way split: throw for bugs, warn for data integrity, silent retu
 
 **Layer-0 bootstrap exception.** Raw `console.*` is permitted only when:
 
-1. The site IS the logger bootstrap (`createFallbackLogger` in `useLogger/index.ts`), OR
+1. The site IS the logger's output path — the no-plugin fallback (`createFallbackLogger` in `useLogger/index.ts`) or the default adapter (`V0LoggerAdapter.log` in `useLogger/adapters/v0.ts`), OR
 2. The site is in a foundation utility that `useLogger` transitively depends on, where calling `useLogger()` would introduce a circular import.
 
 Each exempt site must carry an inline comment explicitly citing this clause. No other rationale qualifies. Code that can import `useLogger` without cycles must use it — convenience is not an exception.
 
 Current exempt sites:
-- `packages/0/src/composables/useLogger/index.ts` — `createFallbackLogger` (logger bootstrap)
-- `packages/0/src/composables/createContext/index.ts` — namespace-validation warn (Layer 0, circular if it imported `useLogger`)
-- `packages/0/src/utilities/helpers.ts` — `useId()` SSR-dev warn (foundation dependency of useLogger)
+- `packages/0/src/composables/useLogger/index.ts:204-215` — `createFallbackLogger` (logger bootstrap; clause comment at `:202-203`)
+- `packages/0/src/composables/useLogger/adapters/v0.ts:97-106` — `V0LoggerAdapter.log`, the default adapter's `console[method]` write (clause 1; carries no clause comment yet)
+- `packages/0/src/composables/createContext/index.ts:159-161` — namespace-validation warn (Layer 0, circular if it imported `useLogger`)
+- `packages/0/src/utilities/helpers.ts:464-467` — `useId()` SSR-dev warn (foundation dependency of useLogger)
 
-**`__DEV__` gating.** Exempt *diagnostic warnings* must be gated on `__DEV__` so they vanish from production bundles — this covers two of the three sites (`createContext`'s namespace warn and `helpers.ts`'s `useId` SSR warn, each carrying the gate inline). The third site, `createFallbackLogger` in `useLogger/index.ts`, is the logger adapter itself, not a diagnostic warning: its `console.*` calls are the production logging output and are gated by log *level* (`enabled` / `level`), never `__DEV__`. The non-exempt path (composables that route through `useLogger`) gates inside the logger adapter, so callers do not repeat the check.
+**`__DEV__` gating.** Exempt *diagnostic warnings* must be gated on `__DEV__` so they vanish from production bundles — `createContext`'s namespace warn and `helpers.ts`'s `useId` SSR warn, each carrying the gate inline. The two logger-output sites are not diagnostic warnings and never take `__DEV__`: with the logger plugin installed and `useLogger()` called inside an injection context, `V0LoggerAdapter` emits whatever `createLogger` lets through its level gate (`can()` at `useLogger/index.ts:131-161`); when the plugin is missing or `useLogger()` runs outside an injection context (`createPlugin/index.ts:298,304` — a module-scope `createRegistryContext()` is the common case), it resolves to `createFallbackLogger` (the `fallback` at `useLogger/index.ts:249`), which logs unconditionally (`enabled: () => true`, `:216-218`). The non-exempt path (composables that route through `useLogger`) is therefore level-gated only when the plugin is installed and the call has an injection context — the gate lives in `createLogger` before the adapter is called, so callers never repeat the check.
 
 ### 9.3 Namespace keys contain `:`
 

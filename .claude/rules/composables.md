@@ -213,9 +213,15 @@ See PHILOSOPHY §2.9 for the three-way split (throw / warn / return) and the ful
 Child spreads parent and adds or overrides: [intent:142]
 
 ```ts
-// packages/0/src/composables/createSelection/index.ts:299
-const model = createModel(options)
-return { ...model, multiple, register, onboard, unselect, toggle, apply, mandate, seek }
+// packages/0/src/composables/createSelection/index.ts — the createModel call and the spread return closing createSelection()
+const model = createModel<Z, E>({ ...options, multiple, enroll: false })
+return {
+  ...model,
+  multiple, register, onboard, unselect, toggle, apply, mandate, seek,
+  get size () {
+    return model.size
+  },
+} satisfies SelectionContext<Z, E> as R
 ```
 
 Used by the selection chain: `createModel → createSelection → { createSingle → createStep, createGroup → createNested }`.
@@ -434,13 +440,23 @@ Layer 2: Complex orchestrators
   createCombobox, createDataTable
 ```
 
-**Layer 0 is "no upward deps", not "no v0 deps at all".** Foundation primitives are allowed to lean on a small core of Layer-0 siblings — for example, `createObserver` uses `useHydration`, `createRegistry` uses `useLogger` (per the §9.2 Layer-0 console exception), and `useEventListener` uses `toArray`. The bright line is direction: foundation must never import from Layer 1+. [intent:146]
+**Layer 0 is "no upward deps", not "no v0 deps at all".** Foundation primitives are allowed to lean on a small core of Layer-0 siblings — for example, `createObserver` uses `useHydration`, `createRegistry` uses `useLogger` (the `useLogger()` call that opens `createRegistry()` — that is the §9.2 rule path; the Layer-0 exception covers only the raw `console` sites §9.2 lists), and `useEventListener` uses `toArray`. The bright line is direction: foundation must never import from Layer 1+. [intent:146]
 
 ## Registry System (PHILOSOPHY §6)
 
-`createRegistry` is the foundational factory. Returns an enhanced Map with indexing, caching, and event hooks. Manages tickets with `id`, `index`, `value`, `valueIsIndex`. [intent:96]
+`createRegistry` is the foundational factory. Returns a plain object over a `ReadonlyMap` exposed as `collection` (the `collection as ReadonlyMap<ID, E>` entry of the object `createRegistry()` returns; the Map is `shallowReactive` when `reactive: true`), adding indexing, caching, and event hooks. Manages tickets with `id`, `index`, `value`, `valueIsIndex`. [intent:96]
 
 Extension is always via `...spread`. 100% consistent across every registry-based composable in the package. [intent:147]
+
+### Wrapper conventions
+
+Conventions for `createRegistry` and the composables that wrap it, each with the source that models it.
+
+- **Collection writes come last (registry internals).** This governs `createRegistry`'s own write paths and any accessor added to it — wrappers only ever see `collection` as a `ReadonlyMap`. A structural write to the `shallowReactive` collection (`collection.set` / `.delete` / `.clear`) happens only after the canonical `order` array and the iteration cache are consistent, because Vue sync effects fire on the Map write and read `keys()` / `values()` / `size` right then. `offboard` in `createRegistry/index.ts` is the model: compact `order`, `invalidate()`, then delete from the Map.
+- **Fixed ticket shape → one generic.** A wrapper that fixes its ticket shape passes the output ticket as the registry's single generic: `createRegistry<FormTicket>` (`createForm/index.ts:142`), `createRegistry<QueueTicket>` (the registry `createQueue()` builds in `createQueue/index.ts`), `createRegistry<NotificationTicket>` (`useNotifications/index.ts:156`), `createRegistry<Z>` with `Z extends TimelineTicket` / `TokenTicket` (`createTimeline/index.ts:146`, `createTokens/index.ts:169`). Reserve `<Z, E>` for factories that thread both shapes through to the caller (`createModel/index.ts:376`, `createRegistryContext` in `createRegistry/index.ts`).
+- **Force flags after the spread.** A wrapper whose contract depends on a registry flag sets it after `...options`, so a caller cannot disable it: `events: true` where the wrapper or its consumers subscribe or emit (`createTokens/index.ts:169`, its own subscriptions at `:180-184`; the registry `createQueue()` builds; `useNotifications/index.ts:156-160`, subscription at `:169`), `reactive: true` where the surface is template-reachable (`createForm/index.ts:142`, `useNotifications/index.ts:156-160`).
+- **Document the forced flag.** A wrapper that forces a flag states it on its options type — JSDoc on the inherited `events` / `reactive` field, or in the factory's `@remarks` — as non-overridable: passing `false` is ignored. The spread order is the mechanism; the doc line is the contract.
+- **Cleanup forms.** `register` in `createRegistry/index.ts` binds `unregister: () => unregister(id)` on every ticket, so against a raw registry `onBeforeUnmount(() => ticket.unregister())` (`components/Carousel/CarouselItem.vue:103-105`) and `onBeforeUnmount(() => parent.unregister(ticket.id))` (PHILOSOPHY §6.8) are interchangeable. Either form is valid only when every wrapper that owns per-ticket cleanup rebinds `unregister` in its own registration (`createModel/index.ts:448`); where a wrapper does not, `ticket.unregister()` reaches the raw registry and skips the wrapper's cleanup.
 
 ### Lazy reindex contract
 
@@ -498,7 +514,7 @@ This split is why `useTheme` and `useLocale` work fine even though their reactiv
 
 Reactive reads are version-memoized (PHILOSOPHY §4.4), so iteration cost no longer differentiates the two paths; what `reactive: true` still pays at scale is one `shallowReactive` proxy per ticket. Decide by contract:
 
-- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`, with a plugin-options opt-out for allocation-sensitive scale (`useNotifications`).
+- Consumers iterate directly **and** need per-ticket field tracking → `reactive: true`. Plugins force it after the options spread so it cannot be disabled from outside (`useNotifications/index.ts:156-160` sets `events: true, reactive: true` after `...options`); there is no allocation-sensitive opt-out.
 - Iteration confined to internal computeds, or no reactive ticket-field reads → non-reactive registry (`events: true`) + `useProxyRegistry` (`createDataTable`'s row registry). Don't hand-roll an event-driven snapshot; `useProxyRegistry` is that pattern.
 
 ### `useProxyRegistry` vs `reactive: true`

@@ -135,7 +135,7 @@ Shoehorning a feature into a category that doesn't fit creates compound confusio
 }
 ```
 
-The `level` surfaces in the docs through the index-page tables and through `<DocsMaturity />` on the roadmap page (see "Cross-reference with docs" below). It is not rendered as a per-page badge today.
+The `level` surfaces in the docs through the `<DocsPageFeatures />` stability chip on each feature page and through `<DocsMaturity />` on the roadmap page (see "Cross-reference with docs" below). The index-page tables carry name and description only.
 
 ### Why `since: null` until first release
 
@@ -169,9 +169,9 @@ The version a feature first shipped in is only known the moment a maintainer cut
 
 `<DocsMaturity />` is the **roadmap aggregator** rendered on `apps/docs/src/pages/roadmap.md` (in the "Maturity Matrix" section). It flattens every entry in `maturity.json` — composables, components, and utilities — into a filterable, groupable `createDataTable` with type chips, level chips, search, and graduation criteria. It accepts no props; it reads the JSON directly. The component links each row to its docs page (or marks it as a non-link for `draft` entries).
 
-There is **no per-page maturity badge** today. Feature pages do not auto-render a "Preview — API may change" notice; the maturity is communicated only through the roadmap matrix and the index pages. If you want a per-page badge, that's a new component — not a change to `DocsMaturity`.
+`<DocsPageFeatures :frontmatter />` renders the per-page stability chip: it resolves the feature from the page's `features.github` frontmatter and reads that `maturity.json` entry (`apps/docs/src/components/docs/meta/DocsPageFeatures.vue:195-218,287-334`), then shows the level label with a title such as "Implemented — API may change", deep-linked to that feature's row in the roadmap matrix. A promotion needs no markdown edit for the chip.
 
-The same `maturity.json` data feeds `pages/components/index.md` and `pages/composables/index.md` category tables. When promoting, do not edit those pages — they regenerate from the JSON.
+`pages/components/index.md` and `pages/composables/index.md` are hand-authored. Their category tables (`composables/index.md:216-226`) are plain `| Name | Description |` rows — step 6 adds the row by hand, and a promotion changes nothing there because the tables carry no level. Only the `<DocsCount />` figure on those pages derives from `maturity.json` (`apps/docs/src/constants/maturity.ts`); their `<DocsPageFeatures />` has no `features.github` to resolve, so it renders no stability chip there.
 
 ## Before writing code (PHILOSOPHY §1)
 
