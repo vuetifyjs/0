@@ -1515,7 +1515,9 @@ const overflow = createOverflow({ container, itemWidth })
 
 // Child registers presence with overflow on mount / unregisters on unmount.
 // The width arg is recorded but ignored by uniform-mode capacity math —
-// only the entry count drives isOverflowing.
+// only the entry count drives isOverflowing. `ticket.index` re-fires this
+// after a sibling unmounts once the registry reindexes: eagerly for
+// index-derived tickets, after the drain (next tick at the latest) otherwise.
 watch(
   () => [el.value, ticket.index] as const,
   ([e, i]) => overflow.measure(i, e ?? undefined),

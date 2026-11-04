@@ -233,11 +233,17 @@ export function createSortable<
   const model = createModel<Z, E>({ ...options, events: true, disabled })
   const logger = useLogger()
 
+  // ticket.index may lag a same-tick sibling removal until the registry drains.
+  function drain () {
+    void model.lookup(0)
+  }
+
   function move (id: ID, toIndex: number): E | undefined {
     if (toValue(disabled)) return undefined
     const ticket = model.get(id)
     if (!ticket) return undefined
     if (toValue(ticket.disabled)) return undefined
+    drain()
     const from = ticket.index
     const result = model.move(id, toIndex)
     if (result && result.index !== from) {
@@ -253,6 +259,7 @@ export function createSortable<
     const tb = model.get(b)
     if (!ta || !tb) return
     if (toValue(ta.disabled) || toValue(tb.disabled)) return
+    drain()
     const indexA = ta.index
     const indexB = tb.index
     model.batch(() => {
@@ -287,6 +294,7 @@ export function createSortable<
       }
       seen.add(id)
     }
+    drain()
     const froms = new Map<ID, number>()
     for (const id of ids) {
       const ticket = model.get(id)

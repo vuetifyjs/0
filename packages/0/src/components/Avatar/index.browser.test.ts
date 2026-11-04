@@ -1042,6 +1042,36 @@ describe('avatar', () => {
 
       wrapper.unmount()
     })
+
+    it('should keep max after a leading avatar unmounts', async () => {
+      const show = ref(true)
+
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h(Avatar.Group, { max: 1 }, () => [
+            show.value ? h(Avatar.Root, { key: 'a', value: 'a' }, () => h(Avatar.Fallback, {}, () => 'A')) : null,
+            h(Avatar.Root, { key: 'b', value: 'b' }, () => h(Avatar.Fallback, {}, () => 'B')),
+            h(Avatar.Root, { key: 'c', value: 'c' }, () => h(Avatar.Fallback, {}, () => 'C')),
+            h(Avatar.Indicator, {}, { default: (props: any) => `+${props.count}` }),
+          ])
+        },
+      }))
+
+      function roots () {
+        return wrapper.findAllComponents(Avatar.Root as any)
+      }
+
+      expect(roots().map(root => root.attributes('data-hidden'))).toEqual([undefined, 'true', 'true'])
+      expect(wrapper.find('[data-overflow-indicator]').text()).toBe('+2')
+
+      show.value = false
+      await nextTick()
+
+      expect(roots().map(root => root.attributes('data-index'))).toEqual(['0', '1'])
+      expect(roots().map(root => root.attributes('data-hidden'))).toEqual([undefined, 'true'])
+      expect(roots().map(root => (root.element as HTMLElement).style.display)).toEqual(['', 'none'])
+      expect(wrapper.find('[data-overflow-indicator]').text()).toBe('+1')
+    })
   })
 
   describe('indicator', () => {

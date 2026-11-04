@@ -469,9 +469,13 @@ function move (id: ID, toIndex: number) {
 }
 ```
 
-This applies to `register`, `upsert`, `browse`, `lookup`, `move`, `seek`. Operations whose self-removal logic uses the ticket's own (potentially stale) `index` field — `unregister`, `offboard` — do not need the drain because they reference fields set at registration. The lazy pattern's invariant: any method that observes `index`, `directory`, `catalog`, or computes a new position from `collection.size` must reindex first; writers that delete by ticket-local data may defer.
+This applies to `register`, `upsert`, `browse`, `lookup`, `move`, `reorder`, `seek`. Operations whose self-removal logic uses the ticket's own (potentially stale) `index` field — `unregister`, `offboard` — do not need the drain because they reference fields set at registration. The lazy pattern's invariant: any method that observes `index`, `directory`, `catalog`, or computes a new position from `collection.size` must reindex first; writers that delete by ticket-local data may defer.
+
+A deferred reindex also drains on its own: at the end of the enclosing `batch()` (before `isBatching` clears, so the pass rides the batch's single version bump and its `reindex:registry` event queues behind the batch's events) and, outside a batch, in a post-flush callback before the next tick resolves. Survivors' `index` is therefore canonical again at the end of the enclosing `batch()`, after any of the draining calls above, and in all cases before the next tick. A tail removal shifts nobody and defers nothing; a removal that shifts index-derived survivors still reindexes eagerly.
 
 When extending `createRegistry` with new accessors, add the `if (needsReindex) reindex()` guard at entry whenever the method observes `index`, `value` (under `valueIsIndex`), or position-derived state.
+
+**Reading `ticket.index` synchronously after a removal in the same tick** — a wrapper that reads a survivor's `index` before any of the points above drains first with `void registry.lookup(0)`: `createStep` (`step`), `createSortable` (`move`/`swap`/`reorder`) and `createKanban` (`transfer`) do this. Across ticks the registry drains itself; do not add a drain to a path that only reads `index` in a later flush (templates, watchers, `useProxyRegistry` snapshots).
 
 ## Plugins and Reactive Defaults
 
@@ -571,7 +575,7 @@ Pure transformers (`toRef`, `toElement`, `toValue`) are fine to call inline — 
 
 **Both signals depend on the `widths` map being populated via `measure(index, el)` — in both modes.** In variable mode the measurement values feed `total`. In uniform mode the values are stored but ignored; only the entry count matters for `isOverflowing`.
 
-**Consumer rule.** Every child must call `overflow.measure(ticket.index, el)` on mount and `overflow.measure(ticket.index, undefined)` on unmount, **regardless of mode**. The pattern in `Overflow/OverflowItem.vue:83-100` is canonical: watch `[el.value, ticket.index]` so registry reindexing after a sibling unmount re-fires measurement at the new index, and `onBeforeUnmount` clears the last index.
+**Consumer rule.** Every child must call `overflow.measure(ticket.index, el)` on mount and `overflow.measure(ticket.index, undefined)` on unmount, **regardless of mode**. The pattern in `Overflow/OverflowItem.vue:83-100` is canonical: watch `[el.value, ticket.index]` so the registry's reindex after a sibling unmount — eager for index-derived tickets, after the drain (next tick at the latest) for value-carrying ones — re-fires measurement at the new index, and `onBeforeUnmount` clears the last index.
 
 If you skip the calls in uniform mode (treating it as "items don't need to measure because itemWidth is the width"), `capacity` will still be correct but `isOverflowing` is permanently `false`. PHILOSOPHY §10.19 spells out the anti-pattern; the AvatarGroup feature shipped with the broken signal and had to work around it client-side until the fix landed.
 

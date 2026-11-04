@@ -119,8 +119,7 @@
     useResizeObserver(el, () => measure())
 
     // el drives measurement and the overflow report; ticket.index is tracked
-    // only to re-key the overflow widths entry when the registry reindexes this
-    // ticket (index-valued registrations — a no-op for value-carrying ones).
+    // only to re-key the overflow widths entry when the registry reindexes this ticket.
     watch(
       () => [el.value, ticket?.index] as const,
       ([element, index]) => {

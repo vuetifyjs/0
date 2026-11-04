@@ -407,4 +407,53 @@ describe('createSortable', () => {
       expect(proxy.size).toBe(3)
     })
   })
+
+  describe('same-tick sibling removal', () => {
+    function setup () {
+      const sortable = createSortable<StringTicket>()
+      for (const id of ['a', 'b', 'c', 'd']) sortable.register({ id, value: id })
+      const events: Array<{ id: ID, from: number, to: number }> = []
+      sortable.on('move:ticket', payload => {
+        events.push({ id: payload.ticket.id, from: payload.from, to: payload.to })
+      })
+      sortable.unregister('b')
+      return { sortable, events }
+    }
+
+    it('should swap correctly in the same tick as a sibling removal', () => {
+      const { sortable, events } = setup()
+
+      sortable.swap('a', 'd')
+
+      expect(sortable.values().map(ticket => ticket.id)).toEqual(['d', 'c', 'a'])
+      expect(events).toEqual([{ id: 'a', from: 0, to: 2 }, { id: 'd', from: 2, to: 0 }])
+    })
+
+    it('should swap the two tickets after the removed sibling', () => {
+      const { sortable, events } = setup()
+
+      sortable.swap('c', 'd')
+
+      expect(sortable.values().map(ticket => ticket.id)).toEqual(['a', 'd', 'c'])
+      expect(events).toEqual([{ id: 'c', from: 1, to: 2 }, { id: 'd', from: 2, to: 1 }])
+    })
+
+    it('should report a canonical origin for move', () => {
+      const { sortable, events } = setup()
+
+      sortable.move('d', 0)
+
+      expect(sortable.values().map(ticket => ticket.id)).toEqual(['d', 'a', 'c'])
+      expect(events).toEqual([{ id: 'd', from: 2, to: 0 }])
+    })
+
+    it('should report canonical origins for reorder', () => {
+      const { sortable, events } = setup()
+
+      sortable.reorder(['c', 'a', 'd'])
+
+      expect(sortable.values().map(ticket => ticket.id)).toEqual(['c', 'a', 'd'])
+      expect(events).toEqual([{ id: 'c', from: 1, to: 0 }, { id: 'a', from: 0, to: 1 }])
+    })
+  })
 })
