@@ -6,7 +6,7 @@ import { nextTick, onMounted, shallowRef, toValue, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
-import type { NavItem, NavItemCategory, NavItemLink } from '@/stores/app'
+import type { NavItem, NavItemCategory, NavItemLink, NavItemSubheader } from '@/stores/app'
 import type { NestedContext, NestedRegistration, NestedTicketInput } from '@vuetify/v0'
 import type { ID } from '@vuetify/v0/types'
 import type { MaybeRefOrGetter, ShallowRef } from 'vue'
@@ -19,7 +19,7 @@ export function isNavItemCategory (item: NavItem): item is NavItemCategory {
   return 'children' in item && isArray(item.children) && !('to' in item)
 }
 
-type NavNestedValue = NavItemLink | NavItemCategory
+type NavNestedValue = NavItemLink | NavItemCategory | NavItemSubheader
 
 /**
  * Transform NavItem[] to NestedRegistration[] for createNested
@@ -33,8 +33,18 @@ export function navToNestedItems (
   let categoryIndex = 0
 
   for (const item of items) {
-    // Skip dividers
+    // Skip dividers. A subheader is a label in the same list as the links
+    // under it, not a parent the section has to open.
     if ('divider' in item) continue
+
+    if ('subheader' in item) {
+      result.push({
+        id: `subheader-${parentId ?? 'root'}-${item.subheader}`,
+        value: item,
+        parentId,
+      })
+      continue
+    }
 
     // Determine ID: route path for links, synthetic for categories
     const id: ID = isNavItemLink(item)

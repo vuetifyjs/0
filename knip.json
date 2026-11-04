@@ -62,6 +62,12 @@
         "#paper": [
           "../../packages/paper/src"
         ],
+        "@paper/bootstrap": [
+          "../../packages/bootstrap/src"
+        ],
+        "#bootstrap": [
+          "../../packages/bootstrap/src"
+        ],
         "@paper/bulma": [
           "../../packages/bulma/src"
         ],

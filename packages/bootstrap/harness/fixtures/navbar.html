@@ -1,0 +1,31 @@
+<!--
+  Bootstrap 6 navbar markup from the pinned v6-dev docs.
+  The collapsed menu is a drawer. data-bs-toggle / data-bs-target are the
+  bundle's behavior hooks — this package does not emit them.
+-->
+
+<!-- fixture: basic -->
+<nav class="navbar md:navbar-expand bg-1">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="btn-icon navbar-toggler" type="button" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon" aria-hidden="true"></span>
+    </button>
+    <dialog class="drawer drawer-end">
+      <div class="drawer-header">
+        <h5 class="drawer-title">Menu</h5>
+        <button type="button" class="btn-close" aria-label="Close"></button>
+      </div>
+      <div class="drawer-body mb-2 md:mb-0">
+        <ul class="nav navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+        </ul>
+      </div>
+    </dialog>
+  </div>
+</nav>

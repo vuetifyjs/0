@@ -86,6 +86,7 @@
       "./palettes": "./dist/palettes/index.mjs",
       "./palettes/ant": "./dist/palettes/ant/index.mjs",
       "./palettes/ant/generate": "./dist/palettes/ant/generate/index.mjs",
+      "./palettes/bootstrap": "./dist/palettes/bootstrap/index.mjs",
       "./palettes/leonardo/generate": "./dist/palettes/leonardo/generate/index.mjs",
       "./palettes/material": "./dist/palettes/material/index.mjs",
       "./palettes/material/generate": "./dist/palettes/material/generate/index.mjs",
@@ -297,6 +298,10 @@
     "./palettes/ant/generate": {
       "development": "./src/palettes/ant/generate/index.ts",
       "default": "./dist/palettes/ant/generate/index.mjs"
+    },
+    "./palettes/bootstrap": {
+      "development": "./src/palettes/bootstrap/index.ts",
+      "default": "./dist/palettes/bootstrap/index.mjs"
     },
     "./palettes/leonardo/generate": {
       "development": "./src/palettes/leonardo/generate/index.ts",

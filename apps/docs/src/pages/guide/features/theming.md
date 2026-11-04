@@ -66,7 +66,7 @@ app.use(
 ```
 
 > [!TIP]
-> Don't want to pick colors manually? Vuetify0 ships [pre-built palettes](/guide/features/palettes) from Material Design, Tailwind, Radix, and Ant Design — plus generators that create a full theme from a single brand color.
+> Don't want to pick colors manually? Vuetify0 ships [pre-built palettes](/guide/features/palettes) from Material Design, Tailwind, Bootstrap, Radix, and Ant Design — plus generators that create a full theme from a single brand color.
 
 ### 2. Use in Components
 

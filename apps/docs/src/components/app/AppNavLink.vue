@@ -26,6 +26,10 @@
     /** Whether this is a top-level item (renders differently) */
     depth?: number
     emphasized?: EmphasisLevel
+    /** Section label. Sits in the list with the links; it does not open them. */
+    subheader?: boolean
+    /** Nudge a link in under a sibling subheader. */
+    inset?: boolean
   }
 
   const {
@@ -36,6 +40,8 @@
     depth = 0,
     emphasized,
     to,
+    subheader = false,
+    inset = false,
     ...props
   } = defineProps<ComponentProps>()
 
@@ -67,15 +73,23 @@
   // Top-level groups always collapse; nested groups only when the nav item opts in.
   const isTopLevel = toRef(() => depth === 0)
   const navItem = toRef(() => navNested.nested.get(id)?.value)
-  const isCollapsible = toRef(() => !navConfig.flatMode.value && hasChildren.value && (isTopLevel.value || !!navItem.value?.collapsible))
+  const itemCollapsible = toRef(() => {
+    const item = navItem.value
+    return !!item && 'collapsible' in item && !!item.collapsible
+  })
+  const isCollapsible = toRef(() => !navConfig.flatMode.value && hasChildren.value && (isTopLevel.value || itemCollapsible.value))
   const isOpen = toRef(() => isCollapsible.value ? navNested.nested.opened(id) : true)
   // Persistent groups keep the section indent. Nested collapsible groups
   // already have a chevron; use a smaller offset so children still line up.
   const childrenIndent = toRef(() => {
-    if (navItem.value?.collapsible) return 'ml-2'
+    if (itemCollapsible.value) return 'ml-2'
     if (isTopLevel.value && !navConfig.flatMode.value) return 'ml-6'
     return undefined
   })
+  const hasSubheader = toRef(() => childIds.value.some(childId => {
+    const value = navNested.nested.get(childId)?.value
+    return !!value && 'subheader' in value
+  }))
 
   // Check if this node is an ancestor of the current route (for highlighting category headers)
   const containsActivePage = toRef(() => {
@@ -87,11 +101,21 @@
     const value = navNested.nested.get(childId)?.value
     if (!value) return null
 
+    if ('subheader' in value) {
+      return {
+        id: childId,
+        name: value.subheader,
+        subheader: true,
+        depth: depth + 1,
+      }
+    }
+
     return {
       id: childId,
       name: value.name,
       to: isNavItemLink(value) ? value.to : undefined,
       emphasized: isNavItemLink(value) ? value.emphasized : undefined,
+      inset: hasSubheader.value,
       depth: depth + 1,
     }
   }
@@ -136,9 +160,12 @@
 
 <template>
   <li ref="item" class="px-3 scroll-my-[100px]">
+    <div v-if="subheader" class="font-semibold truncate">{{ name }}</div>
+
     <div
+      v-else
       class="flex items-center gap-1"
-      :class="[isTopLevel && navConfig.flatMode.value && 'pl-1', !isTopLevel && isCollapsible && '-ml-2']"
+      :class="[inset && 'pl-3', isTopLevel && navConfig.flatMode.value && 'pl-1', !isTopLevel && isCollapsible && '-ml-2']"
     >
       <!-- Expand/collapse toggle button -->
       <button

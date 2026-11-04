@@ -5,9 +5,9 @@ features:
   level: 2
 meta:
   - name: description
-    content: Use pre-built color palettes from Material Design, Tailwind, Radix, and Ant Design. Generate complete themes from a single seed color with algorithmic adapters.
+    content: Use pre-built color palettes from Material, Tailwind, Bootstrap, Radix, and Ant. Generate complete themes from a single seed color with algorithmic adapters.
   - name: keywords
-    content: vuetify0, palettes, color palette, material design, tailwind colors, theme generation, seed color, dynamic color
+    content: vuetify0, palettes, color palette, material design, tailwind colors, bootstrap colors, theme generation, seed color, dynamic color
 related:
   - /guide/features/theming
   - /composables/plugins/use-theme
@@ -42,6 +42,7 @@ Use the explorer to browse the static palettes. Click any swatch to copy its tok
 | `@vuetify/v0/palettes/tailwind` | Tailwind CSS | 22 | 50-950 |
 | `@vuetify/v0/palettes/radix` | Radix Colors | 31 | 1-12 |
 | `@vuetify/v0/palettes/ant` | Ant Design | 12 | 1-10 |
+| `@vuetify/v0/palettes/bootstrap` | Bootstrap 6[^bootstrap-stops] | 16 | 025-975 |
 
 ```ts
 import { tailwind } from '@vuetify/v0/palettes/tailwind'
@@ -64,6 +65,8 @@ app.use(
 
 > [!TIP]
 > Static palettes are just data — they must be namespaced under a key in the `palette` option.
+
+[^bootstrap-stops]: Shade keys are 025, 050, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, and 975. Each value is the sRGB hex for that Bootstrap 6 oklch stop.
 
 ## Generator Adapters
 

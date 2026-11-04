@@ -38,7 +38,7 @@ Original **design systems** ship in this order. Compat work does not wait on it.
 | `@paper/material` (`Md*`) | design system | after Onyx | Complete pinned MD3. Vuetify consumes it (`VBtn` wraps `MdButton`). Ships after Onyx so Material is one language among several, not Paper's definition. |
 | `@paper/genesis` (`Gn*`) | kit | shipping | Docs primitives. Purpose-scoped, `--v0-*` only. |
 | `@paper/bulma` (`Bu*`) | compat | shipping | Bulma markup, v0 JS. |
-| `@paper/bootstrap` (`B*`) | compat | parallel | Prefix reserved. Search wedge; may ship alongside Onyx / Material. |
+| `@paper/bootstrap` (`B*`) | compat | in progress | Bootstrap 6 markup, v0 JS. Scaffolded against a pinned `v6-dev` SHA. May ship alongside Onyx / Material. |
 | daisyUI | compat | external ([daisyfy](https://github.com/J-Sek/v0-daisyui)) | Named; not in-repo. |
 
 ## Three classes
@@ -53,7 +53,7 @@ wrong class.
 | Intent | Complete, exclusive implementation of **one** specification | Purpose-scoped component set | Upstream CSS framework's markup, v0's JavaScript |
 | Exemplars | Emerald, Onyx, Material | Genesis (docs) | Bulma (`@paper/bulma`); daisyUI ([daisyfy](https://github.com/J-Sek/v0-daisyui), external); Bootstrap (`B*`, reserved) |
 | Token namespace | Owns one (`--emerald-*`, `--onyx-*`, `--material-*`) | **None** — consumes `--v0-*` | **None** — consumes upstream's (`--bulma-*`) |
-| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | **Forbidden** at Tier 1. A later plugin would drive upstream vars, never an owned prefix |
+| Theme plugin / adapter | Required (`theme.ts`, `adapter.ts`, `plugin.ts`) | **Forbidden** | Optional. Drives the upstream attribute and variables (`data-bs-theme`, `--bs-*`). Never an owned prefix. Components render without it |
 | Stylesheet artifact | `dist/theme.css` (prebaked default theme) | None — inherits the page's theme | **None** — the user's own upstream CSS is the styling source |
 | Component coverage | The pinned spec, all of it, and nothing else (ruling 7) | Only what the purpose needs | Upstream's documented component / element / form families; composites are labeled Tier 2 |
 | Visual language | Its own | Blends with whatever theme is active | Upstream's, verbatim |
@@ -81,11 +81,13 @@ file per component:
 2. **Native form controls where upstream CSS demands them** (ruling 2). A non-native
    `<select>` gets none of the user's CSS. Rich replacements (combobox, etc.) live in
    Tier 2 on full v0 primitives.
-3. **Upstream state classes, unprefixed** (ruling 3). `is-active` instead of
-   `data-active`. **State classes are component-owned and JS-set, never CSS** — a hard
-   requirement. Docs sandboxes classify overlay / float / grow from the presence of
-   `.is-active`; a future target that styles open state with `:hover` only cannot
-   reuse that classifier.
+3. **Upstream state classes, unprefixed** (ruling 3). Bulma uses `is-active`;
+   Bootstrap 6 uses `.show` or the native `open` attribute. **State classes are
+   component-owned and JS-set, never CSS** — a hard requirement. Docs sandboxes
+   classify overlay / float / grow from those classes (`position: fixed` or an
+   open `<dialog>` / `.drawer.show` is an overlay; `.is-active` or `.menu.show`
+   on an escaped absolute element is a float). A target that styles open state
+   with `:hover` only still grows — it carries neither class.
 
 **Additional rulings, compat only:**
 
@@ -103,8 +105,8 @@ file per component:
 - Isolation comes from upstream class names, not a package prefix. Ruling 3's
   "never `<style scoped>`" still holds.
 
-This addendum is extracted from `@paper/bulma` and daisyfy. A third target
-(Bootstrap) will stress-test it; until then the table is the contract.
+This addendum is extracted from `@paper/bulma` and daisyfy. Bootstrap is the
+third target and is in progress (`packages/bootstrap`); the table is the contract.
 
 ## Rulings
 
