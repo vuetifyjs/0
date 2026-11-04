@@ -19,8 +19,10 @@ export interface CoverageConfig {
   value: number
   label: string
   color: string
-  /** Unit-run breakdown. Absent on the static guide illustration. */
+  /** Unit-run caption. Absent on the static guide illustration. */
   detail?: string
+  /** Statement, function, and branch lines. Absent on the static guide illustration. */
+  lines?: string[]
   /** Test files that exist for this feature. Empty kinds are omitted. */
   rows?: CoverageRow[]
 }

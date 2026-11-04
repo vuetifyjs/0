@@ -9,7 +9,7 @@
   // Components
   import { Discovery } from '@/components/discovery'
   import { cliChip } from '@/components/docs/meta/cliChip'
-  import { coverageDetail, coverageRows } from '@/components/docs/meta/coveragePanel'
+  import { coverageLines, coverageRows } from '@/components/docs/meta/coveragePanel'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -211,7 +211,8 @@
       value: overall,
       label: `${overall}% coverage`,
       color: overall >= 80 ? 'text-success' : (overall >= 60 ? 'text-warning' : 'text-error'),
-      detail: coverageDetail(m.coverage),
+      detail: 'Unit run',
+      lines: coverageLines(m.coverage),
       rows: coverageRows(tests, github),
     }
   })

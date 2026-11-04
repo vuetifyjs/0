@@ -1,19 +1,22 @@
 import { emptyTests } from '@build/feature-tests'
 import { describe, expect, it } from 'vitest'
 
-import { coverageDetail, coverageRows } from './coveragePanel'
+import { coverageLines, coverageRows } from './coveragePanel'
 
-describe('coverageDetail', () => {
-  it('should name the unit run and keep a zero function count', () => {
-    expect(coverageDetail({ statements: 92, functions: 0, branches: 71 })).toBe(
-      'Unit run. Statements 92% · Functions 0% · Branches 71%',
-    )
+describe('coverageLines', () => {
+  it('should keep a zero function count on its own line', () => {
+    expect(coverageLines({ statements: 92, functions: 0, branches: 71 })).toEqual([
+      'Statements 92%',
+      'Functions 0%',
+      'Branches 71%',
+    ])
   })
 
   it('should omit functions when the report has none', () => {
-    expect(coverageDetail({ statements: 100, functions: null, branches: 40 })).toBe(
-      'Unit run. Statements 100% · Branches 40%',
-    )
+    expect(coverageLines({ statements: 100, functions: null, branches: 40 })).toEqual([
+      'Statements 100%',
+      'Branches 40%',
+    ])
   })
 })
 
