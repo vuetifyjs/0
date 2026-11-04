@@ -361,10 +361,10 @@
   },
   "Tour": {
     "coverage": {
-      "statements": 4.8,
+      "statements": 14.3,
       "functions": 0,
       "branches": 0,
-      "overall": 2.4
+      "overall": 7.2
     }
   },
   "Treeview": {
@@ -5131,10 +5131,10 @@
   },
   "createRegistry": {
     "coverage": {
-      "statements": 99.7,
+      "statements": 98.9,
       "functions": 100,
       "branches": 100,
-      "overall": 99.9
+      "overall": 99.5
     },
     "benchmarks": {
       "_groups": {
