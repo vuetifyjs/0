@@ -5,7 +5,7 @@
 
   import type { TaskTicket } from './context'
 
-  const { tasks, events, add, remove, toggle, clear } = useTaskRegistry()
+  const { proxy, events, add, remove, toggle, clear } = useTaskRegistry()
 
   const newTask = shallowRef('')
   const newPriority = shallowRef<TaskTicket['priority']>('medium')
@@ -18,14 +18,14 @@
   ] as const
 
   const filteredTasks = computed(() => {
-    if (filterPriority.value === 'all') return tasks.value
-    return tasks.value.filter(t => t.priority === filterPriority.value)
+    if (filterPriority.value === 'all') return proxy.values
+    return proxy.values.filter(t => t.priority === filterPriority.value)
   })
 
   const stats = computed(() => ({
-    total: tasks.value.length,
-    done: tasks.value.filter(t => t.done).length,
-    high: tasks.value.filter(t => t.priority === 'high' && !t.done).length,
+    total: proxy.size,
+    done: proxy.values.filter(t => t.done).length,
+    high: proxy.values.filter(t => t.priority === 'high' && !t.done).length,
   }))
 
   function onAdd () {
@@ -51,7 +51,7 @@
       <span v-if="stats.high > 0" class="text-error">{{ stats.high }} high priority</span>
 
       <span class="ml-auto font-mono text-on-surface-variant/60">
-        registry.size = {{ tasks.length }}
+        registry.size = {{ proxy.size }}
       </span>
     </div>
 

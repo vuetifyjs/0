@@ -41,25 +41,27 @@ interface UserContext {
   update: (user: User) => void
 }
 
-function createUserContext() {
-  const [useContext, provideContext] = createContext<UserContext>('user')
-
+export function createUser(): UserContext {
   const user = ref<User>({ id: '123', name: 'John Doe' })
 
   function update(record: User) {
     user.value = record
   }
 
-  const context: UserContext = {
-    user,
-    update,
-  }
+  return { user, update }
+}
 
-  return createTrinity<UserContext>(useContext, provideContext, context)
+function createUserContext() {
+  const [useContext, provideContext] = createContext<UserContext>('user')
+
+  return createTrinity<UserContext>(useContext, provideContext, createUser())
 }
 
 export const [useUser, provideUser, context] = createUserContext()
 ```
+
+> [!WARNING]
+> The default context (the third tuple member) is created once, at module scope. For client-side only apps you can call `provideUser()` bare and share it. Under SSR that one instance is shared by every request on the server, so build a fresh context in the root component's setup — `provideUser(createUser())` — to ensure each request gets its own state.
 
 ## Architecture
 

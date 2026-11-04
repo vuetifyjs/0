@@ -10,7 +10,7 @@
  * - Value-based reverse lookup
  * - `unregister()` for individual item removal
  * - Automatic reindexing
- * - Batched event dispatch to prevent N cache invalidations
+ * - `batch()` to coalesce event dispatch and the reactive notification across bulk operations
  * - Performance-optimized caching
  *
  * The registry serves as the base for many other composables in the system,
@@ -43,11 +43,32 @@ import type { Extensible, ID } from '#v0/types'
 /**
  * User-facing input shape for registry tickets.
  *
- * Extend this when defining custom ticket types passed to `register()` and `onboard()`.
- * The registry adds the computed fields (`index`, `valueIsIndex`) automatically — those
- * live on {@link RegistryTicket}, which is the output type returned by `get()` and `values()`.
+ * Extend this when defining custom ticket types passed to `register()` and `onboard()`,
+ * and pair it with the resolved ticket type: `createRegistry<ItemInput, Item>()`, input
+ * first, output second. The registry adds the computed fields (`index`, `valueIsIndex`)
+ * automatically — those live on {@link RegistryTicket}, which is the output type returned
+ * by `get()` and `values()`. Passing only the input type leaves `value` typed `V | undefined`
+ * on the resolved ticket; passing only the output type is reserved for wrappers that fix
+ * their own ticket shape (`createForm`, `createQueue`).
  *
  * @template V The type of the ticket value.
+ *
+ * @example
+ * ```ts
+ * import { createRegistry } from '@vuetify/v0'
+ * import type { RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
+ *
+ * interface ItemInput extends RegistryTicketInput<string> {
+ *   label: string
+ * }
+ *
+ * type Item = RegistryTicket<string> & ItemInput
+ *
+ * const registry = createRegistry<ItemInput, Item>()
+ * const ticket = registry.register({ value: 'first', label: 'First' })
+ *
+ * ticket.value // string
+ * ```
  */
 export interface RegistryTicketInput<V = unknown> {
   /** The unique identifier. Optional — auto-generated if not provided. */
@@ -129,10 +150,7 @@ export interface RegistryContext<
   /**
    * The collection of tickets in the registry
    *
-   * @template ID The type of the ticket ID.
-   * @template E The type of the registry ticket.
-   *
-   * @remarks Read-only view of the internal collection. Use `register`, `unregister`, `upsert`, and `clear` methods to modify.
+   * @remarks Read-only view of the internal `Map`. Use `register`, `unregister`, `upsert`, and `clear` to modify. The Map iterates in insertion order, which diverges from index order after `move()` or `reorder()` — read `keys()`, `values()`, or `entries()` for the canonical order.
    */
   collection: ReadonlyMap<ID, E>
   /**
@@ -182,7 +200,7 @@ export interface RegistryContext<
   /**
    * Get all registered IDs
    *
-   * @remarks Calls `collection.keys` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   * @remarks Reads the canonical order array, not `collection.keys()`, with caching. First call is O(n), subsequent calls are O(1) until the next mutation clears the cache.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -268,7 +286,7 @@ export interface RegistryContext<
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
    * @param event Optional custom event name to emit alongside `update:ticket`. The patched ticket is dispatched as the event payload.
-   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`), and cached `keys()` / `values()` / `entries()` results stay valid (same refs, membership and order unchanged; iterating effects are not re-notified). If it doesn't exist, a new ticket will be created with the given ID and data, which invalidates the cached results.
+   * @remarks If the ticket exists, it will be updated in place — the ticket reference returned by `register()` remains valid and reactive (when `reactive: true`). The iteration cache is cleared, so the next `keys()` / `values()` / `entries()` call returns a fresh array with the same refs, membership and order; `reactive: true` iteration subscribers are not re-notified, while `update:ticket` listeners (including `useProxyRegistry`) are. If it doesn't exist, a new ticket will be created with the given ID and data, which notifies iteration subscribers as `register()` does.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -292,7 +310,7 @@ export interface RegistryContext<
   /**
    * Get all values of registered tickets
    *
-   * @remarks Calls `collection.values` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   * @remarks Reads the canonical order array, not `collection.values()`, with caching. First call is O(n), subsequent calls are O(1) until the next mutation clears the cache.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -312,7 +330,7 @@ export interface RegistryContext<
   /**
    * Get all entries of registered tickets
    *
-   * @remarks Calls `collection.entries` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   * @remarks Reads the canonical order array, not `collection.entries()`, with caching. First call is O(n), subsequent calls are O(1) until the next mutation clears the cache.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -397,7 +415,7 @@ export interface RegistryContext<
    * @param toIndex The target index position. Truncated to an integer and clamped to the valid range; `Infinity` moves the ticket to the end.
    * @returns The moved ticket, or undefined if the ticket was not found.
    *
-   * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   * @remarks Removes the entry from its current position and reinserts it at the target, then reindexes only the `[from..to]` window rather than the whole registry. A reindex deferred by an earlier removal drains first. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/create-registry
    *
@@ -749,8 +767,8 @@ function bound (index: number, max: number): number {
  * Creates a new registry instance.
  *
  * @param options The options for the registry instance.
- * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
- * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
+ * @template Z The input ticket shape (extends RegistryTicketInput).
+ * @template E The resolved ticket type returned by get()/values() (extends RegistryTicket & Z).
  * @returns A new registry instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/create-registry
@@ -1411,28 +1429,29 @@ export function createRegistry<
  * Creates a new registry context.
  *
  * @param options The options for the registry context, including `namespace` (defaults to `'v0:registry'`) and `events`.
- * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
- * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
+ * @template Z The input ticket shape (extends RegistryTicketInput).
+ * @template E The resolved ticket type returned by get()/values() (extends RegistryTicket & Z).
  * @returns A new registry context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/create-registry
  *
  * @example
  * ```ts
- * import { createRegistryContext } from '@vuetify/v0'
+ * import { createRegistry, createRegistryContext } from '@vuetify/v0'
  *
  * // With default namespace 'v0:registry'
  * export const [useItems, provideItems, items] = createRegistryContext()
  *
- * // Or with custom namespace
- * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items' })
+ * // Or with custom namespace and registry options
+ * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items', events: true })
  *
- * // In a parent component:
- * provideItems()
+ * // In the root component — one registry per app instance (and per SSR request), created
+ * // with the same options: those passed above only configure the default `items` instance
+ * provideItems(createRegistry({ events: true }))
  *
  * // In a child component:
- * const items = useItems()
- * items.register({ id: 'item-1', value: 'Value 1' })
+ * const registry = useItems()
+ * registry.register({ id: 'item-1', value: 'Value 1' })
  * ```
  */
 export function createRegistryContext<
@@ -1450,8 +1469,8 @@ export function createRegistryContext<
  * Uses an existing registry from context.
  *
  * @param namespace The namespace for the registry context. Defaults to `'v0:registry'`.
- * @template Z The type of registry ticket that extends RegistryTicket.
- * @template E The type of registry context that extends RegistryContext<Z>.
+ * @template Z The input ticket shape (extends RegistryTicketInput).
+ * @template E The resolved ticket type returned by get()/values() (extends RegistryTicket & Z).
  * @returns The registry instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/create-registry

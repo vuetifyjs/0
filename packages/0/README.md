@@ -228,7 +228,7 @@ Core factories that provide the foundation for all other composables:
 
 Base data structures that most other composables build upon:
 
-- [`createRegistry`](https://0.vuetifyjs.com/composables/registration/create-registry) - Enhanced Map with indexing, caching, and event support
+- [`createRegistry`](https://0.vuetifyjs.com/composables/registration/create-registry) - Ordered, keyed collection — a plain object over a `ReadonlyMap` — with indexing, caching, and event support
 - [`createQueue`](https://0.vuetifyjs.com/composables/registration/create-queue) - FIFO queue with timeout management (notifications/toasts)
 - [`createTimeline`](https://0.vuetifyjs.com/composables/registration/create-timeline) - Bounded undo/redo history
 - [`createTokens`](https://0.vuetifyjs.com/composables/registration/create-tokens) - Design token registry with alias resolution
