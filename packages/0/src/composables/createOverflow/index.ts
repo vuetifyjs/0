@@ -122,9 +122,19 @@ export interface OverflowContext {
    *
    * @example
    * ```ts
-   * const width = overflow.measure(ticket.index, el)
-   * overflow.measure(ticket.index, width) // re-key later without a DOM read
-   * overflow.measure(ticket.index, undefined) // clear
+   * import { useTemplateRef } from 'vue'
+   * import { createOverflow, createRegistry } from '@vuetify/v0'
+   *
+   * const overflow = createOverflow({ container: useTemplateRef('container') })
+   * const registry = createRegistry({ reactive: true })
+   *
+   * // Per item: register, then record its element once it is mounted
+   * const ticket = registry.register()
+   * const el = useTemplateRef('item')
+   * const width = overflow.measure(ticket.index, el.value ?? undefined) // reads the DOM
+   *
+   * overflow.measure(ticket.index, width) // after a reindex: record the number, no DOM read
+   * overflow.measure(ticket.index, undefined) // on unmount: clear
    * ```
    */
   measure: (index: number, source?: Element | number) => number | undefined
