@@ -74,7 +74,7 @@ Bind each column's item array with `v-model` and render items from the column's 
 
 A pointer drop on a refusing column is rejected and announced. ArrowLeft and ArrowRight skip it. Once Doing is full, ArrowRight from Backlog lands on Review. A reorder inside Doing still works. The veto only runs on the way in.
 
-Style the pending keyboard target from `data-target` on the column and the list, and from `data-drop` on the neighbouring item. Column policy lives in `columns.ts`. The Vue file is the board. The same `accept` option exists on a column ticket in [createKanban](/composables/data/create-kanban). Pointer drags come from [useDragDrop](/composables/system/use-drag-drop).
+Style the pending target from `data-target` on the column and the list, and from `data-drop` on the anchored item. A pointer drag sets the same attributes as a keyboard move. Column policy lives in `columns.ts`. The Vue file is the board. The same `accept` option exists on a column ticket in [createKanban](/composables/data/create-kanban). Pointer drags come from [useDragDrop](/composables/system/use-drag-drop).
 
 | File | Role |
 |------|------|
@@ -138,7 +138,7 @@ todo.value = todo.value.filter(card => card.id !== 2)
 
 ### Keyboard drop preview
 
-While an item is picked up, the arrow keys move a drop target instead of the item, and the board is not touched until Space or Enter commits one move. Style the pending target from data attributes: `data-target` on the target `Kanban.Column` and `Kanban.List`, and `data-drop="before"` on the item the dropped one would land before — or `data-drop="after"` on the last item when it would land at the end. An empty target list carries only `data-target`.
+While an item is picked up, the arrow keys move a drop target instead of the item, and the board is not touched until Space or Enter commits one move. Style the pending target from data attributes: `data-target` on the target `Kanban.Column` and `Kanban.List`, and `data-drop="before"` on the item the dropped one would land before — or `data-drop="after"` on the last item when it would land at the end. An empty target list carries only `data-target`. A pointer drag sets those same attributes on the column under the pointer and on the card the drop line is anchored to. An empty column, or a drag that has not left its own slot, carries `data-target` and no `data-drop`.
 
 ```vue
 <template>
@@ -199,10 +199,10 @@ Each target step is announced. Focus follows the item: when a drop re-renders it
 | Root | `data-orientation` | `horizontal` \| `vertical` |
 | Root, Column, List, Item | `data-disabled` | Present when disabled |
 | List | `data-over` | Present while an accepted pointer drag hovers the list |
-| Column, List | `data-target` | Present while a pending keyboard drop would land here |
+| Column, List | `data-target` | Present while a pending keyboard drop or an accepted pointer drag would land here |
 | List | `data-orientation` | Axis the list's items flow along |
 | Item | `data-state` | `grabbed` (keyboard) \| `dragging` (pointer) \| `idle` |
-| Item | `data-drop` | `before` \| `after` — the pending keyboard drop lands on this side of the item |
+| Item | `data-drop` | `before` \| `after` — a pending keyboard or pointer drop is anchored to this side of the item |
 
 ## FAQ
 
