@@ -8,6 +8,7 @@ import {
   ProgressRoot,
   ProgressTrack,
   ProgressValue,
+  useProgressRoot,
 } from './index'
 
 // Utilities
@@ -655,6 +656,38 @@ describe('progress', () => {
       })
       await wait()
       expect(rootProps().percent).toBe(25)
+    })
+  })
+
+  describe('context size', () => {
+    it('should provide a live size', async () => {
+      let context: ReturnType<typeof useProgressRoot> | undefined
+      const third = shallowRef(false)
+
+      const Spy = defineComponent({
+        setup () {
+          context = useProgressRoot('v0:progress:root')
+          return () => null
+        },
+      })
+
+      mount(ProgressRoot, {
+        slots: {
+          default: () => [
+            h(ProgressFill as any, { value: 10 }, () => h('span', 'fill')),
+            h(ProgressFill as any, { value: 20 }, () => h('span', 'fill')),
+            third.value ? h(ProgressFill as any, { value: 30 }, () => h('span', 'fill')) : null,
+            h(Spy),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(context!.size).toBe(2)
+
+      third.value = true
+      await nextTick()
+      expect(context!.size).toBe(3)
     })
   })
 })

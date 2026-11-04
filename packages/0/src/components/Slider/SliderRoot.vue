@@ -259,6 +259,9 @@
 
   const context: SliderRootContext = {
     ...slider,
+    get size () {
+      return slider.size
+    },
     id,
     name,
     form,

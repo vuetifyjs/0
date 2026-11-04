@@ -95,10 +95,15 @@ export function createFoo <
   // ...
   return {
     ...registry,   // Always spread parent (PHILOSOPHY §2.6)
+    get size () {
+      return registry.size
+    },
     // new properties
   } as FooContext<Z, E>
 }
 ```
+
+A spread copies accessor values at spread time; re-declare every accessor the child surface needs (here `size`) after the spread (PHILOSOPHY §2.6).
 
 [intent:121]
 
