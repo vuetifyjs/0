@@ -394,7 +394,7 @@ export interface RegistryContext<
    * Move a ticket to a new index position
    *
    * @param id The ID of the ticket to move.
-   * @param toIndex The target index position. Clamped to valid range.
+   * @param toIndex The target index position. Truncated to an integer and clamped to the valid range; `Infinity` moves the ticket to the end.
    * @returns The moved ticket, or undefined if the ticket was not found.
    *
    * @remarks Rebuilds the internal collection order by removing and reinserting the entry at the target position. Triggers a full reindex after the move. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
@@ -447,7 +447,7 @@ export interface RegistryContext<
    * Seek for a ticket based on direction and optional predicate
    *
    * @param direction The scan direction (`'first'` = forward, `'last'` = backward). Defaults to `'first'`.
-   * @param from The index to start scanning from. With `'first'` the scan moves forward from `from`; with `'last'` the scan moves backward from `from`. Defaults to `0` for `'first'` and `size - 1` for `'last'`.
+   * @param from The index to start scanning from. With `'first'` the scan moves forward from `from`; with `'last'` the scan moves backward from `from`. Defaults to `0` for `'first'` and `size - 1` for `'last'`. Truncated to an integer and clamped to the valid range; `Infinity` starts at the last position.
    * @param predicate An optional function to test each ticket. The first ticket reached in scan order that satisfies the predicate is returned.
    * @remarks This method allows for flexible searching within the registry, either from the start or end, and can filter tickets based on custom criteria.
    *
@@ -739,6 +739,12 @@ export interface RegistryContextOptions extends RegistryOptions {
   namespace?: string
 }
 
+// Caller-supplied positions reach `order[index]`, which needs an integer in [0, max].
+function bound (index: number, max: number): number {
+  if (index === Infinity) return max
+  return clamp(Math.trunc(index), 0, max)
+}
+
 /**
  * Creates a new registry instance.
  *
@@ -765,11 +771,10 @@ export interface RegistryContextOptions extends RegistryOptions {
 export function createRegistry<
   Z extends RegistryTicketInput = RegistryTicketInput,
   E extends RegistryTicket & Z = RegistryTicket & Z,
-> (options?: RegistryOptions): RegistryContext<Z, E> {
+> (options: RegistryOptions = {}): RegistryContext<Z, E> {
   const logger = useLogger()
 
-  const events = options?.events ?? false
-  const reactive = options?.reactive ?? false
+  const { events = false, reactive = false } = options
 
   const collection = reactive ? shallowReactive(new Map<ID, E>()) : new Map<ID, E>()
   const catalog = new Map<unknown, ID[]>()
@@ -799,6 +804,7 @@ export function createRegistry<
   let isBatching = false
   let structural = false
   let batched: Array<{ event: string, data: unknown }> = []
+  let isDisposing = false
 
   function dispatch (event: string, data: unknown) {
     const cbs = listeners.get(event)
@@ -841,8 +847,14 @@ export function createRegistry<
   }
 
   function dispose () {
-    listeners.clear()
-    clear()
+    if (isDisposing) return
+    isDisposing = true
+    try {
+      clear()
+    } finally {
+      listeners.clear()
+      isDisposing = false
+    }
   }
 
   function get (id: ID) {
@@ -971,14 +983,15 @@ export function createRegistry<
 
   function clear () {
     order.length = 0
-    collection.clear()
     catalog.clear()
     directory.clear()
-    invalidate()
     indexDependentCount = 0
     needsReindex = false
     minDirtyIndex = Infinity
     maxDirtyIndex = -Infinity
+    cache.clear()
+    collection.clear()
+    invalidate()
     emit('clear:registry')
   }
 
@@ -1025,7 +1038,10 @@ export function createRegistry<
       } finally {
         isBatching = false
         const queue = batched
+        // Captured before dispatch: a listener's own batch() resets `structural`.
+        const bump = structural
         batched = []
+        structural = false
         cache.clear()
 
         try {
@@ -1034,9 +1050,9 @@ export function createRegistry<
           }
         } finally {
           // Only notify iteration subscribers when the batch actually changed
-          // membership or order; a field-only-upsert batch leaves `structural`
-          // false and must not re-notify (mirrors the non-batched upsert path).
-          if (structural) version.value++
+          // membership or order; a field-only-upsert batch leaves `bump` false
+          // and must not re-notify (mirrors the non-batched upsert path).
+          if (bump) version.value++
         }
       }
     }
@@ -1123,11 +1139,13 @@ export function createRegistry<
 
     if (auto) minted.add(ticket)
 
-    collection.set(ticket.id, ticket)
     order.push(ticket)
     directory.set(ticket.index, ticket.id)
-
     assign(ticket.value, ticket.id)
+
+    // Map write last: sync effects it fires rebuild keys/values/entries from the updated order.
+    cache.clear()
+    collection.set(ticket.id, ticket)
     invalidate()
     emit('register:ticket', ticket)
 
@@ -1153,9 +1171,10 @@ export function createRegistry<
     }
     if (orderPos !== -1) order.splice(orderPos, 1)
 
-    collection.delete(ticket.id)
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
+    cache.clear()
+    collection.delete(ticket.id)
 
     const shifted = ticket.index < collection.size
     const willReindex = indexDependentCount > 0 && shifted
@@ -1212,18 +1231,14 @@ export function createRegistry<
     if (removed.length === 0) return []
 
     batch(() => {
-      // Compact order FIRST so that Vue sync effects triggered by the subsequent
-      // Map mutations see a consistent snapshot (no dangling IDs in order).
+      // Compact order and finish the directory/catalog bookkeeping FIRST so that
+      // Vue sync effects triggered by the subsequent Map deletes see a consistent
+      // snapshot (no dangling IDs anywhere).
       let w = 0
       for (const ticket of order) {
         if (!removedIds.has(ticket.id)) order[w++] = ticket
       }
       order.length = w
-
-      // Drop the stale iteration cache now that `order` is compacted, so a sync
-      // effect firing off the Map deletes below rebuilds keys/values/entries from
-      // the surviving set instead of returning removed ids from a warm cache.
-      invalidate()
 
       let lowest = Infinity
       for (const ticket of removed) {
@@ -1231,10 +1246,16 @@ export function createRegistry<
           indexDependentCount--
         }
         lowest = Math.min(lowest, ticket.index)
-        collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
       }
+
+      // Drop the stale iteration cache now that `order` is compacted, so a sync
+      // effect firing off the Map deletes below rebuilds keys/values/entries from
+      // the surviving set instead of returning removed ids from a warm cache.
+      invalidate()
+
+      for (const ticket of removed) collection.delete(ticket.id)
 
       for (const ticket of removed) {
         emit('unregister:ticket', ticket)
@@ -1268,7 +1289,7 @@ export function createRegistry<
     if (!ticket) return undefined
 
     const size = collection.size
-    const target = clamp(toIndex, 0, size - 1)
+    const target = bound(toIndex, size - 1)
     const from = ticket.index
 
     if (from === target) return ticket
@@ -1330,7 +1351,7 @@ export function createRegistry<
       return direction === 'first' ? order[0] : order.at(-1)
     }
 
-    const index = isUndefined(from) ? undefined : clamp(from, 0, n - 1)
+    const index = isUndefined(from) ? undefined : bound(from, n - 1)
 
     if (direction === 'last') {
       const start = isUndefined(index) ? n - 1 : index

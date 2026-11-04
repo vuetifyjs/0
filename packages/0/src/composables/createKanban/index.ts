@@ -335,11 +335,11 @@ export interface KanbanContext<
    * board the same way.
    *
    * @remarks
-   * Registry `dispose()` clears listeners then `clear()`, and `clear()` never
-   * emits `unregister:ticket`, so the per-column cleanup subscribed on that
-   * event would not run. This method walks current columns and disposes each
-   * inner sortable first, then re-binds that cleanup so a rebuilt board still
-   * cascades on column unregister.
+   * Registry `dispose()` runs `clear()`, which never emits `unregister:ticket`,
+   * so the per-column cleanup subscribed on that event would not run. This
+   * method walks current columns and disposes each inner sortable first, then
+   * re-binds that cleanup so a rebuilt board still cascades on column
+   * unregister.
    *
    * @example
    * ```ts
@@ -447,9 +447,9 @@ export function createKanban<
   }
 
   function dispose (): void {
-    // Walk inners first. Registry dispose() clears listeners then clear(),
-    // and clear() never emits unregister:ticket, so the per-column cleanup
-    // subscribed on that event would not run.
+    // Walk inners first. Registry dispose() runs clear(), which never emits
+    // unregister:ticket, so the per-column cleanup subscribed on that event
+    // would not run.
     for (const column of _columns.values()) column.items.dispose()
     lookup.dispose()
     bus.dispose()
