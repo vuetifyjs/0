@@ -725,6 +725,28 @@ describe('createGroup', () => {
       expect(group.mixedIds.size).toBe(1)
       expect(group.mixedIds.has('item-3')).toBe(true)
     })
+
+    it('should transfer tickets without carrying source closures', () => {
+      const a = createGroup()
+      const b = createGroup()
+
+      a.register({ id: 'x', value: 1 })
+      b.onboard(a.offboard(['x']))
+      a.register({ id: 'x', value: 1 })
+
+      const ticket = b.get('x')!
+
+      ticket.select()
+      expect(b.selectedIds.has('x')).toBe(true)
+      expect(a.selectedIds.has('x')).toBe(false)
+
+      ticket.toggle()
+      expect(b.selectedIds.has('x')).toBe(false)
+
+      ticket.mix()
+      expect(b.mixedIds.has('x')).toBe(true)
+      expect(a.mixedIds.has('x')).toBe(false)
+    })
   })
 
   describe('ticket mixed methods', () => {

@@ -318,11 +318,23 @@ export function createSelection<
     return tickets
   }
 
+  function offboard (ids: ID[]): Partial<Z>[] {
+    return model.offboard(ids).map(input => {
+      const rest = { ...input } as Record<string, unknown>
+      // The receiver's register() spreads these over its own, so a transfer must drop them.
+      delete rest.select
+      delete rest.unselect
+      delete rest.toggle
+      return rest as Partial<Z>
+    })
+  }
+
   return {
     ...model,
     multiple,
     register,
     onboard,
+    offboard,
     unselect,
     toggle,
     apply,

@@ -882,7 +882,14 @@ export function createRegistry<
       }
     }
 
-    Object.assign(existing, patch, { id, index: existing.index, value, valueIsIndex })
+    // The closure installed at registration owns this ticket's removal; a patch never rebinds it.
+    Object.assign(existing, patch, {
+      id,
+      index: existing.index,
+      value,
+      valueIsIndex,
+      unregister: existing.unregister,
+    })
     collection.set(id, existing)
     // Not invalidate(): no structural change, so version subscribers aren't
     // notified — but the clear stays; update:ticket consumers re-reading
