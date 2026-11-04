@@ -5,6 +5,8 @@ import { createBreakpointsPlugin } from '#v0/composables/useBreakpoints'
 import { createStackPlugin } from '#v0/composables/useStack'
 import { createTourContext } from '#v0/composables/useTour'
 
+import { useTourCard } from './card'
+
 import { Tour } from './index'
 
 // Utilities
@@ -1258,12 +1260,274 @@ describe('tour', () => {
 
       const before = document.activeElement
       tour.start()
-      await frame()
+      // schedule() waits a tick, then a frame. One nextTick only flushes the watch.
       await nextTick()
+      await nextTick()
+      await frame()
 
       expect(tour.isActive.value).toBe(true)
       expect(document.querySelector('[data-part="content"]')).toBeNull()
       expect(document.activeElement).toBe(before)
+      expect(useTourCard(tour).value).toBeNull()
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      expect(target.style.scrollMarginBottom).toBe('')
+    })
+
+    it('should keep the preferred side when that side fits', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      try {
+        const { tour } = mountFixed(
+          'bottom',
+          'position: fixed; top: 40px; left: 40px; width: 24px; height: 24px',
+          'height: 40px; width: 40px',
+        )
+        await startAndWait(tour)
+
+        await vi.waitFor(() => {
+          expect(placed(content())).toBe('bottom')
+        })
+      } finally {
+        supports.mockRestore()
+      }
+    })
+
+    it('should flip a top card down when the top has no room', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      try {
+        const { tour } = mountFixed(
+          'top',
+          'position: fixed; top: 0; left: 8px; height: 24px',
+          'height: 120px; width: 80px',
+        )
+        await startAndWait(tour)
+
+        await vi.waitFor(() => {
+          expect(placed(content())).toBe('bottom')
+        })
+      } finally {
+        supports.mockRestore()
+      }
+    })
+
+    it('should flip a right card left and reserve that margin', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      try {
+        const { tour } = mountFixed(
+          'right',
+          'position: fixed; top: 40px; right: 0; width: 24px; height: 24px',
+          'height: 40px; width: 400px',
+        )
+        await startAndWait(tour)
+
+        const target = document.querySelector('[data-part="activator"]') as HTMLElement
+        await vi.waitFor(() => {
+          expect(placed(content())).toBe('left')
+          const box = content().getBoundingClientRect()
+          expect(target.style.scrollMarginLeft).toBe(`${Math.ceil(box.width + 16)}px`)
+        })
+        expect(target.style.scrollMarginRight).toBe('')
+      } finally {
+        supports.mockRestore()
+      }
+    })
+
+    it('should stay on the preferred side when the opposite has less room', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+
+      try {
+        const { tour } = mountFixed(
+          'bottom',
+          'position: fixed; top: 8px; left: 8px; width: 40px; height: 80px',
+          'height: 100vh; width: 40px',
+          'div',
+        )
+        await startAndWait(tour)
+
+        const target = document.querySelector('[data-part="activator"]') as HTMLElement
+        await vi.waitFor(() => {
+          const published = useTourCard(tour).value
+          const activator = target.getBoundingClientRect()
+          const height = published?.height ?? 0
+          const below = window.innerHeight - activator.bottom - 16 - height
+          const above = activator.top - 16 - height
+          expect(height).toBeGreaterThan(0)
+          expect(below).toBeLessThan(0)
+          expect(above).toBeLessThan(below)
+          expect(published?.placement).toBe('bottom')
+          expect(content().style.bottom).toBe('var(--tour-offset)')
+        })
+      } finally {
+        supports.mockRestore()
+      }
+    })
+
+    it('should reserve a left margin when the anchor card is on the left', async () => {
+      const { tour } = mountFixed(
+        'left',
+        'position: fixed; top: 40px; right: 8px; width: 24px; height: 24px',
+        'height: 40px; width: 80px',
+      )
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      await vi.waitFor(() => {
+        const box = content().getBoundingClientRect()
+        expect(box.width).toBeGreaterThan(0)
+        expect(target.style.scrollMarginLeft).toBe(`${Math.ceil(box.width + 16)}px`)
+      })
+    })
+
+    it('should reserve a right margin when the anchor card is on the right', async () => {
+      const { tour } = mountFixed(
+        'right',
+        'position: fixed; top: 40px; left: 8px; width: 24px; height: 24px',
+        'height: 40px; width: 80px',
+      )
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      await vi.waitFor(() => {
+        const box = content().getBoundingClientRect()
+        expect(box.width).toBeGreaterThan(0)
+        expect(target.style.scrollMarginRight).toBe(`${Math.ceil(box.width + 16)}px`)
+      })
+    })
+
+    it('should not reserve a margin for a centered card', async () => {
+      const { tour } = mountFixed(
+        'center',
+        'position: fixed; top: 40px; left: 40px; width: 24px; height: 24px',
+        'height: 80px; width: 80px',
+        'div',
+      )
+      await startAndWait(tour)
+
+      await vi.waitFor(() => {
+        const published = useTourCard(tour).value
+        expect(published?.placement).toBe('center')
+        expect(published?.width).toBeGreaterThan(0)
+        expect(published?.height).toBeGreaterThan(0)
+      })
+      await nextTick()
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      expect(target.style.scrollMarginTop).toBe('')
+      expect(target.style.scrollMarginBottom).toBe('')
+      expect(target.style.scrollMarginLeft).toBe('')
+      expect(target.style.scrollMarginRight).toBe('')
+    })
+
+    it('should keep the preferred side when the activator has no width', async () => {
+      const { tour } = mountFixed(
+        'left',
+        'position: fixed; top: 80px; left: 0; width: 0; min-width: 0; height: 24px; overflow: hidden',
+        'height: 40px; width: 80px',
+        'div',
+      )
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      await vi.waitFor(() => {
+        const activator = target.getBoundingClientRect()
+        const box = content().getBoundingClientRect()
+        expect(CSS.supports('position-area', 'top')).toBe(true)
+        expect(activator.width).toBe(0)
+        expect(activator.height).toBeGreaterThan(0)
+        expect(box.width).toBeGreaterThan(0)
+        expect(box.left).toBeGreaterThan(activator.right)
+        expect(useTourCard(tour).value?.placement).toBe('left')
+      })
+    })
+
+    it('should keep the preferred side when the activator has no height', async () => {
+      const { tour } = mountFixed(
+        'top',
+        'position: fixed; top: 0; left: 80px; width: 24px; height: 0; min-height: 0; overflow: hidden',
+        'height: 40px; width: 80px',
+        'div',
+      )
+      await startAndWait(tour)
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      await vi.waitFor(() => {
+        const activator = target.getBoundingClientRect()
+        const box = content().getBoundingClientRect()
+        expect(activator.width).toBeGreaterThan(0)
+        expect(activator.height).toBe(0)
+        expect(box.height).toBeGreaterThan(0)
+        expect(box.top).toBeGreaterThan(activator.bottom)
+        expect(useTourCard(tour).value?.placement).toBe('top')
+      })
+    })
+
+    it('should ignore a card that has not been laid out', async () => {
+      const { tour } = mountFixed(
+        'bottom',
+        'position: fixed; top: 40px; left: 40px; width: 24px; height: 24px',
+        'width: 0; height: 0; overflow: hidden; font-size: 0',
+        'div',
+      )
+      await startAndWait(tour)
+      await nextTick()
+      await frame()
+
+      const box = content().getBoundingClientRect()
+      expect(box.width).toBe(0)
+      expect(box.height).toBe(0)
+      expect(useTourCard(tour).value).toBeNull()
+
+      const target = document.querySelector('[data-part="activator"]') as HTMLElement
+      expect(target.style.scrollMarginBottom).toBe('')
+    })
+
+    it('should measure again when placement changes', async () => {
+      const supports = vi.spyOn(CSS, 'supports').mockReturnValue(false)
+      const placement = shallowRef<TourPlacement>('bottom')
+
+      try {
+        let tour!: TourContext
+
+        const Host = defineComponent({
+          setup () {
+            const [, provideTour, context] = createTourContext()
+            provideTour()
+            tour = context
+            tour.steps.onboard([{ id: 'one' }])
+
+            return () => h(Tour.Root, { step: 'one' }, () => [
+              h(Tour.Activator, {
+                step: 'one',
+                style: 'position: fixed; top: 80px; left: 80px; width: 24px; height: 24px',
+              }, () => 'Target'),
+              h(Tour.Content, { placement: placement.value }, () => h('div', {
+                style: 'height: 40px; width: 40px',
+              }, 'Card')),
+            ])
+          },
+        })
+
+        const wrapper = mount(Host, {
+          attachTo: document.body,
+          global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+        })
+        wrappers.push(wrapper)
+
+        placement.value = 'top'
+        await nextTick()
+
+        await startAndWait(tour)
+        placement.value = 'left'
+        await vi.waitFor(() => {
+          const el = content()
+          expect(el.style.left === 'var(--tour-offset)' || el.style.right === 'var(--tour-offset)').toBe(true)
+        })
+      } finally {
+        supports.mockRestore()
+      }
     })
   })
 })
@@ -1318,6 +1582,41 @@ function placed (el: HTMLElement): TourPlacement | '' {
   if (el.style.top === 'var(--tour-offset)') return 'top'
 
   return ''
+}
+
+function mountFixed (
+  placement: TourPlacement,
+  activatorStyle: string,
+  cardStyle = 'height: 80px; width: 80px',
+  activatorAs = 'span',
+): Harness {
+  let tour!: TourContext
+
+  const Host = defineComponent({
+    setup () {
+      const [, provideTour, context] = createTourContext()
+      provideTour()
+      tour = context
+      tour.steps.onboard([{ id: 'one', placement }])
+
+      return () => h(Tour.Root, { step: 'one' }, () => [
+        h(Tour.Activator, { as: activatorAs, step: 'one', style: activatorStyle }, () => 'Target'),
+        h(Tour.Content, { placement }, () => h('div', { style: cardStyle }, 'Card')),
+      ])
+    },
+  })
+
+  const wrapper = mount(Host, {
+    attachTo: document.body,
+    global: { plugins: [stackPlugin, createBreakpointsPlugin()] },
+  })
+  wrappers.push(wrapper)
+
+  return {
+    wrapper,
+    tour,
+    slot: () => undefined,
+  }
 }
 
 function mountPlaced (

@@ -114,10 +114,8 @@
     }
   }
 
-  /** Viewport-edge fallback. A zero-size card keeps the preferred side. */
+  /** Viewport-edge fallback. Leaves the preferred side only when the opposite has more room. */
   function choose (preferred: TourSide, activator: DOMRect, width: number, height: number, gap: number): TourSide {
-    if (width === 0 || height === 0) return preferred
-
     const preferredRoom = roomFor(preferred, activator, width, height, gap)
     if (preferredRoom >= 0) return preferred
 
@@ -127,9 +125,8 @@
   }
 
   /** Anchor path. The inline position-area stays the preference; the box is the side in use. */
-  function used (preferred: TourPlacement, content: DOMRect, activator: DOMRect): TourPlacement {
-    if (preferred === 'center') return 'center'
-    if (content.width === 0 || content.height === 0 || activator.width === 0 || activator.height === 0) return preferred
+  function used (preferred: TourSide, content: DOMRect, activator: DOMRect): TourSide {
+    if (activator.width === 0 || activator.height === 0) return preferred
 
     if (preferred === 'top' || preferred === 'bottom') {
       const contentMid = content.top + content.height / 2
@@ -220,12 +217,13 @@
       return {
         ...base,
         inset: gap,
-        ...PLACEMENT_AREA[current] ?? PLACEMENT_AREA.bottom,
+        ...PLACEMENT_AREA[current],
         ...{ positionTryFallbacks: fallbacks } as CSSProperties,
       }
     }
 
-    const side: TourSide = resolved.value === 'center' ? 'bottom' : resolved.value
+    // Center returned above. A published flip is always a side.
+    const side = resolved.value as TourSide
 
     return {
       'inset': 'auto',
@@ -233,7 +231,7 @@
       'maxWidth': `calc(100vw - ${offset * 2}px)`,
       'maxHeight': `calc(100vh - ${offset * 2}px)`,
       '--tour-offset': gap,
-      ...FALLBACK_EDGE[side] ?? FALLBACK_EDGE.bottom,
+      ...FALLBACK_EDGE[side],
     }
   })
 
