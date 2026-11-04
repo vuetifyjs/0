@@ -223,14 +223,17 @@ export function createOverflow<
       return undefined
     }
 
-    let w = source
-    if (!isNumber(w)) {
+    let w: number
+    if (isNumber(source)) {
+      w = source
+    } else {
+      const el = source
       /* v8 ignore start -- browser-only measurement code */
       if (!IN_BROWSER) return undefined
 
-      const style = getComputedStyle(w)
+      const style = getComputedStyle(el)
       const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
-      w = ((w as HTMLElement).offsetWidth || 0) + marginX
+      w = ((el as HTMLElement).offsetWidth || 0) + marginX
       /* v8 ignore stop */
     }
 
