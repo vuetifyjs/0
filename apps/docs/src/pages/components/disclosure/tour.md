@@ -29,7 +29,7 @@ Point each step at a control and show a card next to it. Next, Back, and the key
   anchor="css-anchor-positioning"
 >
 
-Tour.Content positions against the activator with CSS Anchor Positioning. In browsers without `position-area` support it falls back to a viewport-edge `position: fixed` placement.
+Tour.Content positions against the activator with CSS Anchor Positioning and flips to the opposite side when the preferred side does not fit. The activator scrolls with `block: 'nearest'` and a scroll margin sized to the open card. In browsers without `position-area` support the card uses a viewport-edge `position: fixed` placement and flips that edge the same way.
 
 </DocsBrowserSupport>
 
@@ -163,7 +163,7 @@ Content stays hidden until that step's activator has an element. A step with `no
 
 ??? How is placement chosen?
 
-`placement` on Content is the default (bottom). A ticket `placement` of `top`, `bottom`, `left`, `right`, or `center` overrides it. A step with `noActivator` centers.
+`placement` on Content is the default (bottom). A ticket `placement` of `top`, `bottom`, `left`, `right`, or `center` overrides it. A step with `noActivator` centers. When the preferred side does not fit, the card flips to the opposite side. The slot's `placement` is the side actually used.
 
 ??? What is the difference between Next on the last step and Skip?
 

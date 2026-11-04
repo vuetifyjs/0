@@ -19,8 +19,11 @@
   import { toArray } from '#v0/composables/toArray'
   import { toElement } from '#v0/composables/toElement'
 
+  // Context
+  import { useTourCard } from './card'
+
   // Utilities
-  import { isElement, isUndefined } from '#v0/utilities'
+  import { isElement, isNull, isUndefined } from '#v0/utilities'
   import { mergeProps, nextTick, onBeforeUnmount, onMounted, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -48,7 +51,10 @@
       'data-state': 'active' | undefined
       'style': {
         anchorName: string
-        scrollMarginBottom: string
+        scrollMarginTop: string | undefined
+        scrollMarginBottom: string | undefined
+        scrollMarginLeft: string | undefined
+        scrollMarginRight: string | undefined
       }
     }
   }
@@ -73,6 +79,7 @@
 
   const attrs = useAttrs()
   const tour = useTour(namespace)
+  const card = useTourCard(tour)
   const atomRef = useTemplateRef<AtomExpose>('atom')
   const el = toRef(() => toElement(atomRef.value?.element) ?? null)
   const steps = toArray(step)
@@ -102,7 +109,7 @@
     const element = el.value
     if (!isElement(element)) return
 
-    element.scrollIntoView(scrollOptions ?? { block: 'end', behavior: 'instant' })
+    element.scrollIntoView(scrollOptions ?? { block: 'nearest', behavior: 'instant' })
   }
 
   onMounted(onActive)
@@ -117,6 +124,40 @@
     { flush: 'sync' },
   )
 
+  // The first scroll runs before the card is measured. Scroll again once the
+  // margin matches the open card, so the card is not left past the viewport edge.
+  watch(card, box => {
+    if (isNull(box) || !scroll || !isActive.value || !steps.includes(box.step)) return
+    void onActive()
+  })
+
+  const gutter = toRef(() => {
+    const empty = {
+      scrollMarginTop: undefined,
+      scrollMarginBottom: undefined,
+      scrollMarginLeft: undefined,
+      scrollMarginRight: undefined,
+    }
+    const box = card.value
+    if (isNull(box) || box.width === 0 || box.height === 0 || !steps.includes(box.step)) return empty
+
+    const block = `${Math.ceil(box.height + box.offset)}px`
+    const inline = `${Math.ceil(box.width + box.offset)}px`
+
+    switch (box.placement) {
+      case 'top': { return { ...empty, scrollMarginTop: block }
+      }
+      case 'bottom': { return { ...empty, scrollMarginBottom: block }
+      }
+      case 'left': { return { ...empty, scrollMarginLeft: inline }
+      }
+      case 'right': { return { ...empty, scrollMarginRight: inline }
+      }
+      default: { return empty
+      }
+    }
+  })
+
   const slotProps = toRef((): TourActivatorSlotProps => ({
     isActive: isActive.value,
     attrs: {
@@ -125,7 +166,7 @@
       'data-state': isActive.value ? 'active' : undefined,
       'style': {
         anchorName: steps.map(id => `--tour-${id}`).join(', '),
-        scrollMarginBottom: '100px',
+        ...gutter.value,
       },
     },
   }))

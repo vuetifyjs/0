@@ -6,7 +6,8 @@
  * @remarks
  * Headless overlay for a tour step. Portals to body and positions via CSS
  * anchor with a viewport-edge fallback once the step's activator element
- * is available. Renders only while the parent Root is active.
+ * is available. Flips to the opposite side when the preferred side does not
+ * fit. Renders only while the parent Root is active.
  * The panel is a non-modal dialog: the spotlight target stays operable.
  * Escape stops the tour. Focus moves to the panel unless a field already
  * has it, and returns to the opener when the tour ends.
@@ -22,6 +23,7 @@
 
   // Composables
   import { useHotkey } from '#v0/composables/useHotkey'
+  import { useResizeObserver } from '#v0/composables/useResizeObserver'
   import { useTour } from '#v0/composables/useTour'
 
   // Transformers
@@ -30,9 +32,11 @@
   // Globals
   import { IN_BROWSER } from '#v0/constants/globals'
 
+  import { useTourCard } from './card'
+
   // Utilities
-  import { getActiveElement, isUndefined } from '#v0/utilities'
-  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { getActiveElement, isElement, isUndefined } from '#v0/utilities'
+  import { mergeProps, nextTick, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -81,6 +85,59 @@
   function isPlacement (value: unknown): value is TourPlacement {
     return value === 'top' || value === 'bottom' || value === 'left' || value === 'right' || value === 'center'
   }
+
+  type TourSide = Exclude<TourPlacement, 'center'>
+
+  function opposite (side: TourSide): TourSide {
+    switch (side) {
+      case 'top': { return 'bottom'
+      }
+      case 'bottom': { return 'top'
+      }
+      case 'left': { return 'right'
+      }
+      case 'right': { return 'left'
+      }
+    }
+  }
+
+  function roomFor (side: TourSide, activator: DOMRect, width: number, height: number, gap: number): number {
+    switch (side) {
+      case 'bottom': { return window.innerHeight - activator.bottom - gap - height
+      }
+      case 'top': { return activator.top - gap - height
+      }
+      case 'right': { return window.innerWidth - activator.right - gap - width
+      }
+      case 'left': { return activator.left - gap - width
+      }
+    }
+  }
+
+  /** Viewport-edge fallback. Leaves the preferred side only when the opposite has more room. */
+  function choose (preferred: TourSide, activator: DOMRect, width: number, height: number, gap: number): TourSide {
+    const preferredRoom = roomFor(preferred, activator, width, height, gap)
+    if (preferredRoom >= 0) return preferred
+
+    const other = opposite(preferred)
+    const otherRoom = roomFor(other, activator, width, height, gap)
+    return otherRoom > preferredRoom ? other : preferred
+  }
+
+  /** Anchor path. The inline position-area stays the preference; the box is the side in use. */
+  function used (preferred: TourSide, content: DOMRect, activator: DOMRect): TourSide {
+    if (activator.width === 0 || activator.height === 0) return preferred
+
+    if (preferred === 'top' || preferred === 'bottom') {
+      const contentMid = content.top + content.height / 2
+      const activatorMid = activator.top + activator.height / 2
+      return contentMid < activatorMid ? 'top' : 'bottom'
+    }
+
+    const contentMid = content.left + content.width / 2
+    const activatorMid = activator.left + activator.width / 2
+    return contentMid < activatorMid ? 'left' : 'right'
+  }
 </script>
 
 <script setup lang="ts">
@@ -101,7 +158,9 @@
   const attrs = useAttrs()
   const root = useTourRootContext(namespace)
   const tour = useTour(namespace)
+  const card = useTourCard(tour)
   const atomRef = useTemplateRef<AtomExpose>('atom')
+  const el = toRef(() => toElement(atomRef.value?.element) ?? null)
 
   const supportsAnchor = IN_BROWSER && CSS.supports?.('position-area', 'top') === true
 
@@ -118,6 +177,12 @@
     const fromTicket = tour.steps.get(root.step)?.placement
 
     return isPlacement(fromTicket) ? fromTicket : placement
+  })
+
+  const resolved = shallowRef<TourPlacement>(activePlacement.value)
+
+  watch(activePlacement, value => {
+    resolved.value = value
   })
 
   const style = toRef((): CSSProperties => {
@@ -147,12 +212,18 @@
         positionAnchor: `--tour-${root.step}`,
       }
 
+      const fallbacks = current === 'left' || current === 'right' ? 'flip-inline' : 'flip-block'
+
       return {
         ...base,
         inset: gap,
-        ...PLACEMENT_AREA[current] ?? PLACEMENT_AREA.bottom,
+        ...PLACEMENT_AREA[current],
+        ...{ positionTryFallbacks: fallbacks } as CSSProperties,
       }
     }
+
+    // Center returned above. A published flip is always a side.
+    const side = resolved.value as TourSide
 
     return {
       'inset': 'auto',
@@ -160,7 +231,7 @@
       'maxWidth': `calc(100vw - ${offset * 2}px)`,
       'maxHeight': `calc(100vh - ${offset * 2}px)`,
       '--tour-offset': gap,
-      ...FALLBACK_EDGE[current] ?? FALLBACK_EDGE.bottom,
+      ...FALLBACK_EDGE[side],
     }
   })
 
@@ -196,10 +267,81 @@
     root.stop()
   }, { inputs: true, preventDefault: false })
 
+  function clear () {
+    if (card.value?.step !== root.step) return
+    card.value = null
+  }
+
+  function publish () {
+    if (!isVisible.value) return
+
+    const element = el.value
+    if (!isElement(element)) return
+
+    const box = element.getBoundingClientRect()
+    if (box.width === 0 || box.height === 0) return
+
+    const preferred = activePlacement.value
+    const activator = toElement(tour.activators.get(root.step)?.element)
+    let side = preferred
+
+    if (isElement(activator) && preferred !== 'center') {
+      const target = activator.getBoundingClientRect()
+      side = supportsAnchor
+        ? used(preferred, box, target)
+        : choose(preferred, target, box.width, box.height, offset)
+    }
+
+    const current = card.value
+    if (
+      resolved.value === side
+      && current?.step === root.step
+      && current.placement === side
+      && current.width === box.width
+      && current.height === box.height
+      && current.offset === offset
+    ) return
+
+    resolved.value = side
+    card.value = {
+      step: root.step,
+      placement: side,
+      width: box.width,
+      height: box.height,
+      offset,
+    }
+  }
+
+  // A flip changes position without changing size, so a resize observer
+  // alone can miss it. Read the box again on the next frame.
+  function schedule () {
+    if (!IN_BROWSER) return
+    nextTick(() => {
+      requestAnimationFrame(() => publish())
+    })
+  }
+
+  useResizeObserver(el, schedule)
+
+  watch(isVisible, visible => {
+    if (!visible) {
+      clear()
+      return
+    }
+    schedule()
+  })
+
+  watch(activePlacement, () => {
+    if (!isVisible.value) return
+    schedule()
+  })
+
+  onBeforeUnmount(clear)
+
   function getSlotProps (zIndex: number): TourContentSlotProps {
     return {
       isReady: isReady.value,
-      placement: activePlacement.value,
+      placement: resolved.value,
       attrs: {
         'role': 'dialog',
         'aria-labelledby': root.hasTitle.value ? root.titleId : undefined,
