@@ -30,14 +30,16 @@ function testFileHref (github: string, file: string): string {
   return `${BLOB}${root}/${file}`
 }
 
-/** The percent is the unit-project figure. Browser files never enter it. */
-export function coverageDetail (coverage: {
+/** The percent is the unit-project figure. Browser files never enter it. One line each. */
+export function coverageLines (coverage: {
   statements: number
   functions?: number | null
   branches: number
-}): string {
-  const functions = isNullOrUndefined(coverage.functions) ? '' : ` · Functions ${coverage.functions}%`
-  return `Unit run. Statements ${coverage.statements}%${functions} · Branches ${coverage.branches}%`
+}): string[] {
+  const lines = [`Statements ${coverage.statements}%`]
+  if (!isNullOrUndefined(coverage.functions)) lines.push(`Functions ${coverage.functions}%`)
+  lines.push(`Branches ${coverage.branches}%`)
+  return lines
 }
 
 /** Rows for kinds that have at least one file, in panel order. */
