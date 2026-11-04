@@ -1,5 +1,56 @@
 # @vuetify/v0
 
+## 1.3.2
+
+### Patch Changes
+
+- [#1128](https://github.com/vuetifyjs/0/pull/1128) [`ba9aefc`](https://github.com/vuetifyjs/0/commit/ba9aefc38ae3970e0edf04bc7df68863d599e0b8) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): autoplay stays stopped until play() is called again
+
+  Moving keyboard focus into the carousel, or dragging a slide, stops rotation. It does not start again on its own. While rotation is running, the slide announcement region is silent. The default accessible name is "Slides".
+
+- [#1135](https://github.com/vuetifyjs/0/pull/1135) [`b687a1f`](https://github.com/vuetifyjs/0/commit/b687a1f5d5f7df8be8304c52d9c9dd409853a721) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): a drag keeps the slide under the pointer until release
+
+  The track no longer snaps onto the nearest slide while the pointer button is still down.
+
+- [#1132](https://github.com/vuetifyjs/0/pull/1132) [`b14720d`](https://github.com/vuetifyjs/0/commit/b14720d1e4c56f74334291f3549996298f13a22d) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): hovering pauses autoplay until the pointer leaves
+
+  Hovering the slides, arrows, dots, or progress pauses rotation and leaving resumes it. A play button in the root still starts rotation while the pointer is on it. A Stop press, a pause() call, or keyboard focus inside the carousel keeps it from resuming.
+
+- [#1133](https://github.com/vuetifyjs/0/pull/1133) [`abf8ee6`](https://github.com/vuetifyjs/0/commit/abf8ee668363f7285006709dccb8e3ea530f9690) Thanks [@johnleider](https://github.com/johnleider)! - fix(Carousel): expose the viewport element
+
+  Carousel.Viewport exposes its scroll element, so a template ref can listen for scrollend.
+
+- [#1142](https://github.com/vuetifyjs/0/pull/1142) [`5fd4c0a`](https://github.com/vuetifyjs/0/commit/5fd4c0a7daa22f8e0cde15c1a9c78bc299682bb6) Thanks [@johnleider](https://github.com/johnleider)! - fix(components): injected contexts report a live `size`
+
+  The context injected by `Tabs.Root`, `Radio.Group`, `Progress.Root`, `Slider.Root`, `Locale`, and `Theme` now reports the current number of registered items instead of the count when the root mounted. `Rating.Root` follows its `size` and `half` props.
+
+- [#1129](https://github.com/vuetifyjs/0/pull/1129) [`3e64c98`](https://github.com/vuetifyjs/0/commit/3e64c98d47439d3ee14eb7d088ec9d7a6fb30624) Thanks [@johnleider](https://github.com/johnleider)! - fix(Progress): an unlabeled bar has an accessible name
+
+  A bar with no `Progress.Label` and no `ariaLabel` is named "Loading" (locale key `Progress.label`). A visible label or `ariaLabel` still wins.
+
+- [#1139](https://github.com/vuetifyjs/0/pull/1139) [`3ed4743`](https://github.com/vuetifyjs/0/commit/3ed4743f424b4581069a453bf4c836ddfd3a66eb) Thanks [@johnleider](https://github.com/johnleider)! - fix(createQueue): ticket.unregister() clears its timer and advances the queue
+
+  Calling `unregister()` on a queue ticket now matches `dismiss()` and `queue.unregister(id)`: the ticket's timeout is cleared and the next ticket starts its countdown immediately instead of waiting for the removed ticket's timer to fire.
+
+- [#1144](https://github.com/vuetifyjs/0/pull/1144) [`9e97c28`](https://github.com/vuetifyjs/0/commit/9e97c28529e4d21ca7aeeb5e6dc9b230981c0e01) Thanks [@johnleider](https://github.com/johnleider)! - fix(createRegistry): survivors of a removal carry canonical indexes by the end of the batch or the next tick
+
+  Removing a ticket from a registry whose tickets carry explicit values left the remaining tickets' `index` stale until the next position-based call. The registry now reindexes survivors at the end of the enclosing `batch()` and, outside a batch, before the next tick. `createSortable` `move`/`swap`/`reorder` and `createKanban` `transfer` read canonical positions in the same tick as a sibling removal.
+
+- [#1144](https://github.com/vuetifyjs/0/pull/1144) [`9e97c28`](https://github.com/vuetifyjs/0/commit/9e97c28529e4d21ca7aeeb5e6dc9b230981c0e01) Thanks [@johnleider](https://github.com/johnleider)! - fix(createRegistry): keep sync effects and bounds consistent across register, unregister, clear, batch, move, seek and dispose
+
+  - In `reactive: true` mode a sync effect that fires on `register`, `unregister`, `offboard` or `clear` now reads `keys()`, `values()`, `entries()` and `browse()` that already reflect the mutation, never a removed id or a missing new one.
+  - A listener that opens its own `batch()` during end-of-batch dispatch no longer suppresses the outer batch's iteration notification, so templates iterating the registry pick up the registration.
+  - `move()` and `seek()` truncate a fractional index and clamp it to the valid range; `Infinity` targets the last position, `-Infinity` and `NaN` the first. A fractional `move()` no longer throws and leaves the order inconsistent.
+  - `dispose()` dispatches `clear:registry` before dropping listeners, so a `useProxyRegistry` snapshot empties when its registry is disposed. Listeners are dropped even when one of them throws, and a `dispose()` call made from inside a listener is ignored.
+
+- [#1141](https://github.com/vuetifyjs/0/pull/1141) [`3f52e94`](https://github.com/vuetifyjs/0/commit/3f52e946178df943b219a6792d85505fe660200d) Thanks [@johnleider](https://github.com/johnleider)! - fix(createSelection): tickets moved between registries act on the registry that onboards them
+
+  A ticket moved with `destination.onboard(source.offboard(ids))` now selects, unselects and toggles in the destination. Patching an existing ticket with `upsert` keeps its `unregister` bound to the registry that holds it.
+
+- [#1145](https://github.com/vuetifyjs/0/pull/1145) [`7be81d6`](https://github.com/vuetifyjs/0/commit/7be81d62a599415867e741c9699f69d88316fff7) Thanks [@johnleider](https://github.com/johnleider)! - fix(Tour): flip the card when the preferred side does not fit ([#1145](https://github.com/vuetifyjs/0/issues/1145))
+
+  The card moves to the opposite side when the preferred side does not fit. The activator scrolls with room for the open card.
+
 ## 1.3.1
 
 ### Patch Changes
