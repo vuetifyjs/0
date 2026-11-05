@@ -308,15 +308,6 @@ export function usePlaygroundFiles () {
       delete decoded.files['src/import-map.json']
     }
 
-    // Pre-declare Vuetify's cascade-layer order so it is established before any
-    // other style enters the cascade. createVuetify() synchronously injects
-    // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
-    // <link> is appended async — without this preamble vuetify-utilities ends
-    // up declared before vuetify-components and components beat helpers.
-    if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
-      decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
-    }
-
     applyIncomingTheme(decoded)
     syncHostTheme(decoded.theme, decoded.themes)
     await loadExample(decoded.files, decoded.active)
@@ -359,6 +350,18 @@ export function usePlaygroundFiles () {
 
   async function loadExample (incoming: Record<string, string>, activeFile?: string) {
     const files = rewritePackageMacroTypes(incoming)
+
+    // Vuetify Play playgrounds bring their own main.ts, replacing the generated one
+    // that pre-declares Vuetify's layer order. app.use(vuetify) injects
+    // <style>@layer vuetify-utilities{…}</style> before the async vuetify-labs.css
+    // <link> loads, so without this preamble components beat helpers.
+    // setup.ts first: it's hidden and imported before app.use(vuetify).
+    const vuetifyFile = Object.keys(files).find(path => /(?:^|\/)vuetify\.[jt]s$/.test(path))
+    const layersTarget = vuetifyFile && (files['src/setup.ts'] === undefined ? vuetifyFile : 'src/setup.ts')
+    if (layersTarget && !files[layersTarget]!.includes('@layer vuetify-core')) {
+      files[layersTarget] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${files[layersTarget]}`
+    }
+
     const aliases: Record<string, string> = {}
     const nextAliasMap = new Map<string, string>()
 
