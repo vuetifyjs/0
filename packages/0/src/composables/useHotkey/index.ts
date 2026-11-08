@@ -195,13 +195,21 @@ export function useHotkey (
   }
 
   function handler (e: KeyboardEvent) {
+    // Safari sends the IME commit Enter with keyCode 229
+    // eslint-disable-next-line unicorn/prefer-keyboard-event-key
+    if (e.isComposing || e.keyCode === 229) return
+    if (e.repeat && isSequence) return
+
     const group = keyGroups[groupIndex]
 
     if (!group || isInputFocused()) return
 
     if (!matchesKeyGroup(e, group, platformIsMac)) {
-      if (isSequence) resetSequence()
-      return
+      // pressing a modifier on its way to the next step must not reset the sequence
+      if (!isSequence || ['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'].includes(e.key)) return
+      const restart = groupIndex > 0 && matchesKeyGroup(e, keyGroups[0], platformIsMac)
+      resetSequence()
+      if (!restart) return
     }
 
     if (toValue(stopPropagation)) e.stopPropagation()

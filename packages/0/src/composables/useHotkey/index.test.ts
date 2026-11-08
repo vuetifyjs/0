@@ -425,6 +425,49 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
+    it('should restart sequence on a wrong key matching the first step', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('g-h', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not reset sequence when a modifier is pressed between steps', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+b-ctrl+k', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Control', { ctrlKey: true }))
+      window.dispatchEvent(createKeyboardEvent('b', { ctrlKey: true }))
+      window.dispatchEvent(createKeyboardEvent('Control', { ctrlKey: true }))
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not reset sequence when the next step adds a different modifier', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+b-alt+k', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('b', { ctrlKey: true }))
+      window.dispatchEvent(createKeyboardEvent('Alt', { altKey: true }))
+      window.dispatchEvent(createKeyboardEvent('k', { altKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
     it('should reset sequence on timeout', () => {
       const callback = vi.fn()
 
