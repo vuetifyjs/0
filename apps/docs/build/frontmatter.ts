@@ -87,7 +87,7 @@ export function parseFrontmatter (content: string): ParseResult {
       } else if (trimmed.startsWith('label:')) {
         features.label = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
       } else if (trimmed.startsWith('order:')) {
-        features.order = Number.parseInt(trimmed.slice(6).trim(), 10)
+        features.order = Number.parseFloat(trimmed.slice(6).trim())
       } else if (trimmed.startsWith('hidden:')) {
         features.hidden = trimmed.slice(7).trim() === 'true'
       } else if (trimmed.startsWith('level:')) {
