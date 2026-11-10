@@ -152,6 +152,27 @@ Providers that require plugin setup (`locale`, `scrim`) prepend an optional **In
 
 Section order is canonical: pages omit sections they don't need but never reorder them. Bespoke H2 headings are folded to H3 under the nearest canonical parent (default **Recipes**).
 
+## Design system home pages
+
+`pages/systems/<name>/index.md` is the home page for one design system. Home pages share one outline so a reader can leave Emerald and open Bulma without relearning the page. Component pages keep the skeleton under "Design-system examples".
+
+Order:
+
+1. H1, then `<DocsPageFeatures>`.
+2. One definition paragraph. What the package is, and that Vuetify0 supplies behavior. Link to `/systems` only when `pages/systems/index.md` exists.
+3. `<DocsSystemActivator>`. Emerald is the default palette, so it omits the prop. Any other system passes `palette` only after that id exists on `Palette` in `apps/docs/src/composables/useThemeToggle.ts`.
+4. Product `DocsCard`s only when the package has a store kit or a demo. The grid is `grid grid-cols-1 sm:grid-cols-2 gap-4 my-6`. Bulma has none. Do not invent a card to fill the slot.
+5. One reference note (`> [!NOTE]`), one line, pointing at the upstream spec or the sibling page that holds it.
+6. `::: ds-example` overview, only when `src/examples/systems/<name>/overview.vue` exists. Do not invent one.
+7. **Installation**. The four-manager `::: code-group` (`pnpm`, `npm`, `yarn`, `bun`, `no-filename`), then the shortest setup that makes the package render.
+8. **Components**. One sentence, then one flat table: Component, What it wraps, Page. Alphabetical. The What it wraps cell is the API-hover column: mark real v0 component and composable names in backticks, and leave markup-only rows as plain text. After the table, the same sentence on every system: there are no named slots, each region is its own component, and `namespace` is only for nesting two of the same compound.
+
+Those are the only H2s. A preview note after the table is allowed. It is not a heading.
+
+System-specific depth does not get a heading on the home page. Tokens, icon essays, Figma licensing, plugin flags, conformance diffs, and version pins live on a sibling guide page that exists only when that system has the concept. The home page links to it in one sentence from Installation. Give the sibling `features.category: Guide`, a label with no `C:` prefix, and `features.order: 0`. `apps/docs/build/frontmatter.ts` reads `order` with `parseInt`, so a fraction collapses to 0. Order 0 sorts above component pages, which start at 1, and tied guides sort by label. The home page is also `order: 0` and is the subcategory link, not a child.
+
+Do not add Tokens, Icons, Stylesheet, or Reference headings to a system that does not have that material, and do not add them to a system that does. The sibling page is the home for it.
+
 ## Examples
 
 Example files live in `apps/docs/src/examples/{type}/{name}/`. [intent:202]
@@ -215,7 +236,7 @@ The iframe remains the rule for any system that resets elements (Bulma resets `b
 
 Consequences for authoring:
 
-- **Systems pages use their own section skeleton**, not the canonical component-page list above: H1 → `<DocsPageFeatures>` → intro → **Usage** → **Anatomy** → **Composed on v0** → **Examples** → **Props** → **Accessibility**. "Composed on v0" names the compound the component wraps and links to its page; "Props" is hand-authored while `<DocsApi />` does not cover `@paper/*`. The 11-section order in "Component Page Structure" does not apply to `pages/systems/**`.
+- **System component pages** use their own section skeleton, not the canonical component-page list above: H1 → `<DocsPageFeatures>` → intro → **Usage** → **Anatomy** → **Composed on v0** → **Examples** → **Props** → **Accessibility**. "Composed on v0" names the compound the component wraps and links to its page; "Props" is hand-authored while `<DocsApi />` does not cover `@paper/*`. The 11-section order in "Component Page Structure" does not apply to `pages/systems/**`. Home pages (`index.md`) use [Design system home pages](#design-system-home-pages) instead.
 - **Examples live at `src/examples/systems/<system>/<component>/*.vue`.** Emerald paths mount inline (`/systems/emerald/dialog/basic` is the preview component). For iframe systems the path still selects the frame — `/systems/bulma/modal/basic` loads `sandbox/bulma.html?e=modal/basic`. A new iframe system needs its own `sandbox/<system>.html` plus a `src/sandbox/<system>.ts` entry.
 - **No UnoCSS.** Style with the system's own classes and tokens; keep any example-local CSS to structural layout. Utility classes in an iframe system do nothing because the frame loads none.
 - **No element descendants on shared layout classes.** Emerald example CSS is document-global (`useExamples` eager-globs every `.vue`, and `<style>` is unscoped). `.emerald-docs-row span` paints every `Button.Content` span on every page. Put the color/type on a dedicated class (`.emerald-docs-caption`), not `span` / `p` under `.emerald-docs-row` or `.emerald-docs-stack`.

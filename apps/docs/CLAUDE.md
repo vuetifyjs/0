@@ -94,6 +94,8 @@ Feature pages (components/composables): use `::: gn-example` — full authoring 
 
 Design-system pages (`pages/systems/**`): use `::: ds-example`. Same authoring syntax. Emerald examples render inline under `[data-theme="emerald-light"]` / `emerald-dark` via the adapter token sheet (do not import baked `theme.css`). Iframe remains the rule for systems that reset elements (Bulma) — those run against `sandbox/<system>.html`. Examples live in `src/examples/systems/<system>/<component>/`, import from the design system rather than `@vuetify/v0`, and have **no UnoCSS**. Iframe protocol and gotchas in `.claude/rules/docs.md`.
 
+Design-system home pages (`pages/systems/<name>/index.md`) share one outline: definition, activator, optional product cards, one reference note, overview example only when one exists, then Installation and a flat component table. Tokens, Figma, icons, and conformance stay on sibling guide pages. The skeleton is `.claude/rules/docs.md` under "Design system home pages".
+
 Example files live in `src/examples/`:
 ```
 src/examples/components/{component}/basic.vue
