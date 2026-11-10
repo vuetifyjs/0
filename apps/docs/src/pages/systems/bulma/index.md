@@ -2,7 +2,7 @@
 title: Bulma - Vue Behavior for Bulma's Markup
 meta:
 - name: description
-  content: Bulma ships zero JavaScript by design. @paper/bulma is that JavaScript. Real Bulma markup and classes, styled by your own bulma.css, driven by Vuetify0.
+  content: Bulma ships zero JavaScript by design. @paper/bulma supplies that JavaScript. Your bulma.css styles the real Bulma markup and classes. Vuetify0 drives the behavior.
 - name: keywords
   content: bulma, vue, bulma vue components, compat design system, headless, vuetify0, paper
 features:
@@ -90,11 +90,11 @@ Import a component and use it:
 </template>
 ```
 
-Bulma 1.0 or newer is required. The version pin and the markup diff are on the [conformance](/systems/bulma/conformance) page.
+Require Bulma 1.0 or newer. The [conformance](/systems/bulma/conformance) page pins the version and shows the markup diff.
 
 ## Components
 
-Every component below is exported from `@paper/bulma` and has its own page.
+`@paper/bulma` exports every component below, and each one has its own page.
 
 | Component | What it wraps | Page |
 |-----------|---------------|------|
@@ -120,4 +120,4 @@ Every component below is exported from `@paper/bulma` and has its own page.
 | `BuTabs` | v0 `Tabs` | [Tabs](/systems/bulma/tabs) |
 | `BuTextarea` | v0 `Input` | [Textarea](/systems/bulma/textarea) |
 
-There are no named slots. Each region is its own component. Pass `namespace` only when two of the same compound are nested.
+These components have no named slots. Each region is its own component. Pass `namespace` only when you nest two of the same compound.

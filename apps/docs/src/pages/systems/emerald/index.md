@@ -2,7 +2,7 @@
 title: Emerald - Vue design system on Vuetify0
 meta:
 - name: description
-  content: Emerald is a Vue design system built on Vuetify0. It includes CSS tokens, a role-based icon set, and Em* components that wrap v0's headless compounds.
+  content: Emerald builds a Vue design system on Vuetify0. It includes CSS tokens, a role-based icon set, and Em* components that wrap v0's headless compounds.
 - name: keywords
   content: emerald, design system, vuetify0, paper, vue design system, design tokens, emerald components, figma, ui kit
 features:
@@ -20,7 +20,7 @@ related:
 
 <DocsPageFeatures :frontmatter />
 
-Emerald is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS, and `Em*` components. v0 handles behavior and accessibility. Emerald handles appearance.
+Emerald is a design system for Vue that builds on [Vuetify0](/). It ships tokens, CSS, and `Em*` components. v0 handles behavior and accessibility. Emerald handles appearance.
 
 <DocsSystemActivator />
 
@@ -42,7 +42,7 @@ Emerald is a design system for Vue, built on [Vuetify0](/). It ships tokens, CSS
 </div>
 
 > [!NOTE]
-> Reference: [Figma kit](/systems/emerald/figma). The Vue package is MIT. The file is sold separately.
+> Reference: [Figma kit](/systems/emerald/figma). The Vue package is MIT. The Store sells the file separately.
 
 ## Installation
 
@@ -84,11 +84,11 @@ createApp(App)
 
 Use `createEmeraldPlugin()`. It constructs `EmeraldStyleSheetAdapter` for you.
 
-Options that skip the theme or the icon registry, importing the stylesheets without the plugin, and the `--v0-*` color bridge are on the [tokens](/systems/emerald/tokens) page.
+The [tokens](/systems/emerald/tokens) page covers options that skip the theme or the icon registry, importing the stylesheets without the plugin, and the `--v0-*` color bridge.
 
 ## Components
 
-Every component below is exported from `@paper/emerald` and has its own page.
+`@paper/emerald` exports every component below, and each one has its own page.
 
 | Component | What it wraps | Page |
 |-----------|---------------|------|
@@ -122,7 +122,7 @@ Every component below is exported from `@paper/emerald` and has its own page.
 | `EmTextarea` | v0 `Input` | [Textarea](/systems/emerald/textarea) |
 | `EmTooltip` | v0 `Tooltip` | [Tooltip](/systems/emerald/tooltip) |
 
-There are no named slots. Each region is its own component. Pass `namespace` only when two of the same compound are nested.
+These components have no named slots. Each region is its own component. Pass `namespace` only when you nest two of the same compound.
 
 > [!NOTE]
-> Emerald is in preview. Component APIs can change between minor versions. Prop tables on these pages are written by hand until generated API reference covers `@paper/*`.
+> Emerald is in preview. Component APIs can change between minor versions. These pages write their prop tables by hand until the generated API reference covers `@paper/*`.
