@@ -7,6 +7,7 @@ import { IN_BROWSER, isArray, isObject, useStorage, useTheme, useTimer } from '@
 import { binCopyPath, binFileExt, binReplExt } from '@/components/playground/open/types'
 
 // Composables
+import { declareVuetifyLayers } from '@/composables/declareVuetifyLayers'
 import { readPlaygroundIdFromUrl, useOnePlaygrounds, usePlaygroundRouteId } from '@/composables/useOnePlaygrounds'
 import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple, rewritePackageMacroTypes, V0_MACROS_FILE } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
@@ -349,18 +350,8 @@ export function usePlaygroundFiles () {
   }
 
   async function loadExample (incoming: Record<string, string>, activeFile?: string) {
-    const files = rewritePackageMacroTypes(incoming)
-
-    // Vuetify Play playgrounds bring their own main.ts, replacing the generated one
-    // that pre-declares Vuetify's layer order. app.use(vuetify) injects
-    // <style>@layer vuetify-utilities{…}</style> before the async vuetify-labs.css
-    // <link> loads, so without this preamble components beat helpers.
-    // setup.ts first: it's hidden and imported before app.use(vuetify).
-    const vuetifyFile = Object.keys(files).find(path => /(?:^|\/)vuetify\.[jt]s$/.test(path))
-    const layersTarget = vuetifyFile && (files['src/setup.ts'] === undefined ? vuetifyFile : 'src/setup.ts')
-    if (layersTarget && !files[layersTarget]!.includes('@layer vuetify-core')) {
-      files[layersTarget] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${files[layersTarget]}`
-    }
+    // Legacy Play main.ts replaces the generated layer preamble.
+    const files = declareVuetifyLayers(rewritePackageMacroTypes(incoming))
 
     const aliases: Record<string, string> = {}
     const nextAliasMap = new Map<string, string>()
