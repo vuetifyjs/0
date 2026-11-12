@@ -7,6 +7,7 @@ import { IN_BROWSER, isArray, isObject, useStorage, useTheme, useTimer } from '@
 import { binCopyPath, binFileExt, binReplExt } from '@/components/playground/open/types'
 
 // Composables
+import { declareVuetifyLayers } from '@/composables/declareVuetifyLayers'
 import { readPlaygroundIdFromUrl, useOnePlaygrounds, usePlaygroundRouteId } from '@/composables/useOnePlaygrounds'
 import { decodePlaygroundHash, encodePlaygroundHash, isFileRecord, parseVuetifyPlayTuple, rewritePackageMacroTypes, V0_MACROS_FILE } from '@/composables/usePlayground'
 import { usePlaygroundSettings } from '@/composables/usePlaygroundSettings'
@@ -308,15 +309,6 @@ export function usePlaygroundFiles () {
       delete decoded.files['src/import-map.json']
     }
 
-    // Pre-declare Vuetify's cascade-layer order so it is established before any
-    // other style enters the cascade. createVuetify() synchronously injects
-    // <style>@layer vuetify-utilities{…}</style>, while the vuetify-labs.css
-    // <link> is appended async — without this preamble vuetify-utilities ends
-    // up declared before vuetify-components and components beat helpers.
-    if (decoded.files['src/setup.ts']?.includes('vuetify-labs.css')) {
-      decoded.files['src/setup.ts'] = `document.head.insertAdjacentHTML('afterbegin', '<style>@layer vuetify-core,vuetify-components,vuetify-overrides,vuetify-utilities,vuetify-final;</style>')\n${decoded.files['src/setup.ts']}`
-    }
-
     applyIncomingTheme(decoded)
     syncHostTheme(decoded.theme, decoded.themes)
     await loadExample(decoded.files, decoded.active)
@@ -358,7 +350,9 @@ export function usePlaygroundFiles () {
   }
 
   async function loadExample (incoming: Record<string, string>, activeFile?: string) {
-    const files = rewritePackageMacroTypes(incoming)
+    // Legacy Play main.ts replaces the generated layer preamble.
+    const files = declareVuetifyLayers(rewritePackageMacroTypes(incoming))
+
     const aliases: Record<string, string> = {}
     const nextAliasMap = new Map<string, string>()
 
