@@ -207,7 +207,12 @@ export function useHotkey (
     if (!matchesKeyGroup(e, group, platformIsMac)) {
       // pressing a modifier on its way to the next step must not reset the sequence
       if (!isSequence || ['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'].includes(e.key)) return
-      const restart = groupIndex > 0 && matchesKeyGroup(e, keyGroups[0], platformIsMac)
+      // A modifier-only step matches every key held with that modifier,
+      // so ctrl+a must cancel `ctrl-k` instead of restarting it.
+      const first = keyGroups[0]
+      const restart = groupIndex > 0
+        && !isUndefined(parseKeyGroup(first).actualKey)
+        && matchesKeyGroup(e, first, platformIsMac)
       resetSequence()
       if (!restart) return
     }
