@@ -24,6 +24,7 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
+  import { isNullOrUndefined } from '#v0/utilities'
   import { onBeforeUnmount, shallowRef, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
@@ -39,6 +40,9 @@
   }
 
   export const [useTreeviewItem, provideTreeviewItem] = /* @__PURE__ */ createContext<TreeviewItemContext | null>({ suffix: 'item' })
+
+  // Shared across items. A parent hook runs before its children unmount, so descendants can see it.
+  const departing = new WeakSet<object>()
 </script>
 
 <script lang="ts" setup generic="V = unknown">
@@ -67,13 +71,23 @@
   const parentId = parent?.ticket.id
 
   const ticket = nested.register({ id, value, disabled: () => toValue(disabled) ?? false, parentId, el })
+  // Reclaim returns the ticket marked when this node last collapsed. Clear it so a later removal unregisters.
+  departing.delete(ticket)
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(nested.disabled))
   const hasContent = shallowRef(false)
 
   // Roving focus for keyboard navigation (null if no TreeviewList ancestor)
   const roving = useTreeviewList(namespace, null)
 
-  onBeforeUnmount(() => nested.unregister(ticket.id))
+  onBeforeUnmount(() => {
+    departing.add(ticket)
+    const held = !isNullOrUndefined(parent) && (departing.has(parent.ticket) || !toValue(parent.ticket.isOpen))
+    if (held) {
+      nested.release(ticket.id)
+      return
+    }
+    nested.unregister(ticket.id, true)
+  })
 
   // Provide own context for descendant items
   provideTreeviewItem(namespace, { ticket, isDisabled, hasContent })

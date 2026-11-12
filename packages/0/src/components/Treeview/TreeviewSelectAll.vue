@@ -79,6 +79,7 @@
       value: undefined,
       valueIsIndex: false,
       unregister: noop,
+      release: noop,
       // SelectionTicket
       disabled: isDisabled,
       isSelected: isAllSelected,

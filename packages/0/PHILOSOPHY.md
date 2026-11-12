@@ -778,6 +778,8 @@ onBeforeUnmount(() => {
 })
 ```
 
+A tree which must drop its DOM without dropping selection calls `release(id)` instead: the element is cleared, and the ticket and its selection stay registered. `unregister` is structural removal. `TreeviewItem` calls `release` when a collapse unmounts the node.
+
 ### 6.9 `mergeProps` at compound boundaries
 
 **Rule.** When a sub-component forwards `attrs` both from `useAttrs()` (consumer-passed) and from the slot's pre-built `attrs` object (v0-owned), merge them with Vue's `mergeProps`, not spread. `mergeProps` concatenates class/style, merges event handlers (both fire), and preserves attribute precedence. A plain spread picks one or the other. [intent:168]
@@ -1319,6 +1321,8 @@ Reason: §3.6, [intent:172]. `false` writes `data-disabled="false"` to the DOM, 
 - **Registry-driven visibility.** `Breadcrumbs/BreadcrumbsItem.vue`, `BreadcrumbsDivider.vue`, `BreadcrumbsEllipsis.vue`, `Overflow/OverflowItem.vue`, `Avatar/AvatarRoot.vue` — items registered with the Root (or an enclosing group) for measurement, selection, or overflow counting must stay mounted so their ticket survives the flip; `AvatarRoot` hides via `v-show="!isHidden"` when the group's visible count excludes it, yet keeps its ticket so the count stays correct.
 - **Load-state preservation.** `Avatar/AvatarImage.vue` — image load state would reset on remount.
 - **Virtualization.** `Combobox/ComboboxItem.vue` — load-bearing for the filtered list.
+
+`release` is the alternative when the subtree must not stay mounted. `v-show` remains the rule for breadcrumbs, overflow, and combobox.
 
 Everywhere else, `v-if` for structural conditionals. Reason: [intent:188].
 

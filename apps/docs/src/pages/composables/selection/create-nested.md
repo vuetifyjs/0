@@ -341,6 +341,16 @@ tree.unregister('parent', true)
 tree.offboard(['node-1', 'node-2'], true)
 ```
 
+### Release
+
+Drop a node's element without removing it. The ticket, its parent link, and its selection stay. A later `register` with the same id, or with the same parent and value when id is omitted, returns that ticket.
+
+```ts
+tree.release('child')
+
+tree.register({ id: 'child', value: 'Child', parentId: 'parent' })
+```
+
 ## FAQ
 
 ::: faq
@@ -356,6 +366,10 @@ Pass `open: 'single'` so only one node can be open at a time. The default `open:
 ??? When should I use createNested instead of the Treeview component?
 
 Use createNested when you're building custom tree UI and only want the hierarchy logic. The [Treeview](/components/disclosure/treeview) component wraps it with focus management and ARIA already wired up. For flat multi-select with no hierarchy, [createGroup](/composables/selection/create-group) is lighter.
+
+??? What is the difference between release and unregister?
+
+`release` keeps the node and its selection and clears `el`. The next `register` with the same `id`, or with the same parent and value when `id` is omitted, returns that ticket. `unregister` deletes the node.
 
 ??? What happens to a node's children when I unregister it?
 
