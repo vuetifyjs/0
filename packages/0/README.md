@@ -241,6 +241,7 @@ Selection management composables built on `createRegistry`:
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
 - [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
+- [`createTimePicker`](https://0.vuetifyjs.com/composables/forms/create-time-picker) - Segmented time value with 12- and 24-hour cycles, step snapping, and min/max bounds
 
 #### Data
 

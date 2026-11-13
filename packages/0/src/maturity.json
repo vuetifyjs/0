@@ -139,7 +139,8 @@
       "description": "Picker chrome around a month grid: popover, text field, and preset ranges. The grid itself is createCalendar."
     },
     "createTimePicker": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "forms",
       "description": "Segmented time value with hour, minute, and second fields, 12/24-hour modes, meridiem handling, step snapping, and min/max bounds."
     },
