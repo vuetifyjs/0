@@ -116,7 +116,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   let pendingChildren: Map<ID, ID[]> | undefined
   let pendingParents: Map<ID, ID | undefined> | undefined
   let pendingRoots: Set<ID> | undefined
-  let adopting: ID[] | undefined
+  let pendingAdopt: ID[] | undefined
 
   // Computed collections
   const activeItems = computed(() => new Set(resolveIds(activeIds, group.get)))
@@ -801,7 +801,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       activate(id)
     }
 
-    if (batching) adopting!.push(id)
+    if (batching) pendingAdopt!.push(id)
     else adopt(id)
 
     // Recursively register nested children
@@ -885,7 +885,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     pendingChildren = new Map()
     pendingParents = new Map()
     pendingRoots = new Set()
-    adopting = []
+    pendingAdopt = []
 
     try {
       const result = group.batch(() => registrations.map(registration => register(registration)))
@@ -901,7 +901,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       }
 
       // Parent links are invisible until the flush above, so adopt cannot run inside the batch.
-      for (const id of adopting) adopt(id)
+      for (const id of pendingAdopt) adopt(id)
 
       return result
     } finally {
@@ -909,7 +909,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       pendingChildren = undefined
       pendingParents = undefined
       pendingRoots = undefined
-      adopting = undefined
+      pendingAdopt = undefined
     }
   }
 
