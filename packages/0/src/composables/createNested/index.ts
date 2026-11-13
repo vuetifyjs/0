@@ -109,11 +109,14 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   const openedIds = shallowReactive(new Set<ID>())
   const activeIds = shallowReactive(new Set<ID>())
   const rootIds = shallowReactive(new Set<ID>())
+  // Ids whose element was dropped but whose ticket, parent link, and selection remain.
+  const detached = new Set<ID>()
 
   let batching = false
   let pendingChildren: Map<ID, ID[]> | undefined
   let pendingParents: Map<ID, ID | undefined> | undefined
   let pendingRoots: Set<ID> | undefined
+  let pendingAdopt: ID[] | undefined
 
   // Computed collections
   const activeItems = computed(() => new Set(resolveIds(activeIds, group.get)))
@@ -455,7 +458,10 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
       }
       visited.add(parentId)
       const childIds = children.get(parentId)
-      if (childIds && childIds.length > 0) {
+      if (!childIds || childIds.length === 0) {
+        mixedIds.delete(parentId)
+        selectedIds.delete(parentId)
+      } else {
         // Exclude disabled children from the "all selected" test — a disabled
         // child can never be selected, so counting it would trap the parent in
         // the mixed state forever. Mirrors select()'s disabled skip and
@@ -651,8 +657,71 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     }))
   }
 
+  // A fully selected cascade parent selects a brand-new child. A mixed parent does not.
+  function adopt (id: ID): void {
+    if (selectionMode !== 'cascade' || !toValue(multipleOption)) return
+
+    const parentId = parents.get(id)
+    if (isUndefined(parentId) || !group.selected(parentId) || group.mixed(parentId)) return
+
+    const ticket = group.get(id)
+    if (!ticket || toValue(ticket.disabled)) return
+
+    group.mixedIds.delete(id)
+    group.selectedIds.add(id)
+    updateAncestors(id)
+  }
+
+  function pair (registration: NestedRegistration<NestedTicketInput>): ID | undefined {
+    if (!isUndefined(registration.id)) {
+      return detached.has(registration.id) ? registration.id : undefined
+    }
+
+    if (isUndefined(registration.value)) return undefined
+
+    const parentId = registration.parentId
+    const ids = isUndefined(parentId) ? rootIds : children.get(parentId)
+    if (!ids) return undefined
+
+    for (const candidate of ids) {
+      if (!detached.has(candidate)) continue
+      const ticket = group.get(candidate)
+      if (ticket && Object.is(ticket.value, registration.value)) return candidate
+    }
+
+    return undefined
+  }
+
+  function reclaim (registration: NestedRegistration<NestedTicketInput>): NestedTicket | undefined {
+    const id = pair(registration)
+    if (isUndefined(id)) return undefined
+
+    detached.delete(id)
+
+    const patch: Partial<NestedTicketInput> = { el: registration.el }
+    if (!isUndefined(registration.disabled)) patch.disabled = registration.disabled
+    if (!isUndefined(registration.value)) patch.value = registration.value
+
+    return group.upsert(id, patch)
+  }
+
+  /**
+   * Drop the element's binding and keep the ticket registered.
+   * Selection, parent links, and open state stay so a later register can reclaim the same id.
+   */
+  function release (id: ID): void {
+    const ticket = group.get(id)
+    if (!ticket) return
+
+    ticket.el = undefined
+    detached.add(id)
+  }
+
   // Registration
   function register (registration: NestedRegistration<NestedTicketInput> = {} as NestedRegistration<NestedTicketInput>): NestedTicket {
+    const reclaimed = reclaim(registration)
+    if (reclaimed) return reclaimed
+
     const id = registration.id ?? useId()
     const parentId = registration.parentId
     const nested = registration.children
@@ -726,10 +795,14 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     ticket.unselect = () => unselect(id)
     ticket.toggle = () => toggle(id)
     ticket.unregister = () => unregister(id)
+    ticket.release = () => release(id)
 
     if (registration.active) {
       activate(id)
     }
+
+    if (batching) pendingAdopt!.push(id)
+    else adopt(id)
 
     // Recursively register nested children
     if (nested?.length) {
@@ -745,6 +818,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
   function unregister (id: ID, cascade = false): void {
     if (!group.has(id)) return
 
+    detached.delete(id)
     const parentId = parents.get(id)
 
     // Remove from parent's children array
@@ -771,6 +845,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
           openedIds.delete(did)
           activeIds.delete(did)
           rootIds.delete(did)
+          detached.delete(did)
         }
         group.offboard(descendantIds)
       } else {
@@ -786,6 +861,9 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         }
       }
     }
+
+    // Parent link is still intact, so this walk repairs the surviving parent.
+    if (!isUndefined(parentId) && group.has(parentId)) updateAncestors(id)
 
     // Clean up
     parents.delete(id)
@@ -807,6 +885,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     pendingChildren = new Map()
     pendingParents = new Map()
     pendingRoots = new Set()
+    pendingAdopt = []
 
     try {
       const result = group.batch(() => registrations.map(registration => register(registration)))
@@ -821,12 +900,16 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
         rootIds.add(id)
       }
 
+      // Parent links are invisible until the flush above, so adopt cannot run inside the batch.
+      for (const id of pendingAdopt) adopt(id)
+
       return result
     } finally {
       batching = false
       pendingChildren = undefined
       pendingParents = undefined
       pendingRoots = undefined
+      pendingAdopt = undefined
     }
   }
 
@@ -836,6 +919,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     openedIds.clear()
     activeIds.clear()
     rootIds.clear()
+    detached.clear()
     group.clear()
   }
 
@@ -845,6 +929,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     openedIds.clear()
     activeIds.clear()
     rootIds.clear()
+    detached.clear()
     group.reset()
   }
 
@@ -854,6 +939,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     openedIds.clear()
     activeIds.clear()
     rootIds.clear()
+    detached.clear()
     group.dispose()
   }
 
@@ -901,6 +987,7 @@ export function createNested (_options: NestedOptions = {}): NestedContext {
     toggleAll,
     register,
     unregister,
+    release,
     offboard,
     onboard,
     clear,

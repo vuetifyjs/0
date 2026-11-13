@@ -5,7 +5,7 @@ import { Treeview } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref, shallowRef } from 'vue'
 
 describe('treeview', () => {
   describe('root', () => {
@@ -2184,6 +2184,236 @@ describe('treeview', () => {
 
       expect(child1Props.isSelected).toBe(true)
       expect(child2Props.isSelected).toBe(true)
+    })
+
+    it('should keep a child selected across collapse', async () => {
+      let parentProps: any
+      let child1Props: any
+      let child2Props: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, {
+                        default: (props: any) => {
+                          child2Props = props
+                          return h('span', 'Child 2')
+                        },
+                      }),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      parentProps.open()
+      await nextTick()
+
+      child1Props.select()
+      await nextTick()
+
+      expect(parentProps.isMixed).toBe(true)
+
+      parentProps.close()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Child 1')
+      expect(parentProps.isMixed).toBe(true)
+
+      parentProps.open()
+      await nextTick()
+
+      expect(child1Props.isSelected).toBe(true)
+      expect(child2Props.isSelected).toBe(false)
+      expect(parentProps.isMixed).toBe(true)
+    })
+
+    it('should select children that mount under an already selected parent', async () => {
+      let parentProps: any
+      let child1Props: any
+      let child2Props: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Group as any, {}, () => [
+                      h(Treeview.Item as any, { value: 'child-1' }, {
+                        default: (props: any) => {
+                          child1Props = props
+                          return h('span', 'Child 1')
+                        },
+                      }),
+                      h(Treeview.Item as any, { value: 'child-2' }, {
+                        default: (props: any) => {
+                          child2Props = props
+                          return h('span', 'Child 2')
+                        },
+                      }),
+                    ]),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Child 1')
+
+      parentProps.select()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Child 1')
+      expect(parentProps.isSelected).toBe(true)
+
+      parentProps.open()
+      await nextTick()
+
+      expect(child1Props.isSelected).toBe(true)
+      expect(child2Props.isSelected).toBe(true)
+      expect(parentProps.isSelected).toBe(true)
+      expect(parentProps.isMixed).toBe(false)
+    })
+
+    it('should clear the parent when an open selected child is removed', async () => {
+      const show = shallowRef(true)
+      let parentProps: any
+      let childProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'parent' }, {
+              default: (props: any) => {
+                parentProps = props
+                return [
+                  h('span', 'Parent'),
+                  h(Treeview.Content as any, () =>
+                    show.value
+                      ? h(Treeview.Item as any, { value: 'child-1' }, {
+                          default: (props: any) => {
+                            childProps = props
+                            return h('span', 'Child 1')
+                          },
+                        })
+                      : null,
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      parentProps.open()
+      await nextTick()
+
+      childProps.select()
+      await nextTick()
+
+      show.value = false
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Child 1')
+      expect(parentProps.isSelected).toBe(false)
+      expect(parentProps.isMixed).toBe(false)
+    })
+
+    it('should unregister a child removed after an ancestor collapses', async () => {
+      const show = shallowRef(true)
+      let grandProps: any
+      let parentProps: any
+      let childProps: any
+
+      const wrapper = mount(Treeview.Root, {
+        slots: {
+          default: () =>
+            h(Treeview.Item as any, { value: 'grand' }, {
+              default: (props: any) => {
+                grandProps = props
+                return [
+                  h('span', 'Grand'),
+                  h(Treeview.Content as any, () =>
+                    h(Treeview.Item as any, { value: 'parent' }, {
+                      default: (props: any) => {
+                        parentProps = props
+                        return [
+                          h('span', 'Parent'),
+                          h(Treeview.Content as any, () =>
+                            show.value
+                              ? h(Treeview.Item as any, { value: 'child-1' }, {
+                                  default: (props: any) => {
+                                    childProps = props
+                                    return h('span', 'Child 1')
+                                  },
+                                })
+                              : null,
+                          ),
+                        ]
+                      },
+                    }),
+                  ),
+                ]
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      grandProps.open()
+      await nextTick()
+
+      parentProps.open()
+      await nextTick()
+
+      childProps.select()
+      await nextTick()
+
+      expect(parentProps.isSelected).toBe(true)
+
+      grandProps.close()
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Parent')
+
+      grandProps.open()
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Child 1')
+      expect(childProps.isSelected).toBe(true)
+
+      show.value = false
+      await nextTick()
+
+      expect(wrapper.text()).not.toContain('Child 1')
+      expect(parentProps.isSelected).toBe(false)
+      expect(parentProps.isMixed).toBe(false)
     })
   })
 

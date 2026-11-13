@@ -63,6 +63,8 @@ export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = Grou
   siblings: () => ID[]
   /** Get 1-indexed position among siblings (for aria-posinset) */
   position: () => number
+  /** Drop the element and keep this ticket registered */
+  release: () => void
 }
 
 /**
@@ -171,6 +173,8 @@ export interface NestedContext<
   onboard: (registrations: NestedRegistration<Z>[]) => E[]
   /** Unregister a node, optionally cascading to descendants */
   unregister: (id: ID, cascade?: boolean) => void
+  /** Drop a node's element and keep its ticket, parent link, and selection */
+  release: (id: ID) => void
   /** Offboard multiple nodes, optionally cascading */
   offboard: (ids: ID[], cascade?: boolean) => void
   /** Clear all nodes and nested state (children, parents, openedIds) */
