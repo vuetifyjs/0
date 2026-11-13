@@ -11,8 +11,8 @@
  * `createNumeric`. A complete value that falls outside `min` / `max` clamps
  * to that bound.
  *
- * Does not read the clock face, the DOM, or `window`. Pass `hourCycle` from
- * `useDate` when a date adapter is installed; this factory does not call it.
+ * Does not read the DOM or `window`. Pass `hourCycle` from `useDate` when a
+ * date adapter is installed; this factory does not call it.
  *
  * @example
  * ```ts
