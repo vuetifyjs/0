@@ -17,6 +17,7 @@
 
   // Composables
   import { formatActiveFile } from '@/composables/formatActiveFile'
+  import { nextTeamId, readUserTeam } from '@/composables/teamPlaygrounds'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Stores
@@ -32,6 +33,7 @@
     currentTitle: oneTitle,
     isLinked,
     currentMeta,
+    currentTeamId,
     isOwner,
     saving: oneSaving,
     autosaveEnabled,
@@ -61,6 +63,7 @@
   const lifecycleStatus = shallowRef<'idle' | 'busy'>('idle')
 
   const canDelete = toRef(() => !currentMeta.value.favorite && !currentMeta.value.locked)
+  const userTeam = toRef(() => readUserTeam(auth.user))
 
   const resetTimer = useTimer(() => {
     confirming.value = false
@@ -197,6 +200,19 @@
       await patchMeta({ locked: !currentMeta.value.locked })
     } catch {
       // Ignore
+    } finally {
+      lifecycleStatus.value = 'idle'
+    }
+  }
+
+  async function onToggleTeam () {
+    const team = userTeam.value
+    if (lifecycleStatus.value === 'busy' || !team) return
+    lifecycleStatus.value = 'busy'
+    try {
+      await patchMeta({ teamId: nextTeamId(currentTeamId.value, team.id) })
+    } catch {
+      // Ignore — user can retry
     } finally {
       lifecycleStatus.value = 'idle'
     }
@@ -393,6 +409,20 @@
                 />
 
                 <span class="flex-1">{{ currentMeta.visibility === 'public' ? 'Make Private' : 'Make Public' }}</span>
+              </PlaygroundMenuItem>
+
+              <PlaygroundMenuItem
+                v-if="userTeam"
+                :disabled="lifecycleStatus === 'busy'"
+                @click="onToggleTeam"
+              >
+                <AppIcon
+                  :class="currentTeamId ? 'text-warning' : ''"
+                  :icon="currentTeamId ? 'account-outline' : 'account-group'"
+                  :size="14"
+                />
+
+                <span class="flex-1">{{ currentTeamId ? 'Switch to Personal Playground' : 'Switch to Team Playground' }}</span>
               </PlaygroundMenuItem>
 
               <PlaygroundMenuItem

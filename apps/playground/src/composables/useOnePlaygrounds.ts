@@ -10,6 +10,8 @@
 // Framework
 import { IN_BROWSER } from '@vuetify/v0'
 
+import { createTeamField, responseTeamId, settledTeamId, teamField } from './teamPlaygrounds'
+
 // Stores
 import { useAuthStore } from '@vuetify/auth'
 
@@ -45,10 +47,12 @@ export interface OnePlayground {
   pinned: boolean
   locked: boolean
   visibility: 'private' | 'public'
+  /** Absent on APIs from before team playgrounds. Null is personal. */
+  teamId?: string | null
   createdAt: string
   updatedAt: string
   /** Owner from API response (publicUserResponse shape). */
-  owner?: { id: string }
+  owner?: { id: string, name?: string }
 }
 
 export type OnePlaygroundMeta = Pick<OnePlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'>
@@ -87,6 +91,8 @@ const currentMeta = shallowRef<OnePlaygroundMeta>({
 })
 /** Owner user ID of current playground (undefined if not linked). */
 const currentOwner = shallowRef<string>()
+/** Team id of the linked playground. Null is personal, including pre-team APIs. */
+const currentTeamId = shallowRef<string | null>(null)
 const saving = shallowRef(false)
 const error = shallowRef<string>()
 /** User toggle — when false, edits do not POST until manual Save. Default on once linked. */
@@ -192,7 +198,7 @@ export function useOnePlaygrounds () {
     id: string | undefined,
     title?: string,
     meta?: Partial<OnePlaygroundMeta>,
-    options?: { skipUrlSync?: boolean, owner?: string },
+    options?: { skipUrlSync?: boolean, owner?: string, teamId?: string | null },
   ) {
     currentId.value = id
     if (!isUndefined(title)) currentTitle.value = title || 'Untitled'
@@ -207,6 +213,9 @@ export function useOnePlaygrounds () {
     const owner = options?.owner
     if (!isUndefined(owner)) {
       currentOwner.value = owner
+    }
+    if (options && Object.hasOwn(options, 'teamId')) {
+      currentTeamId.value = responseTeamId(options.teamId)
     }
     if (!options?.skipUrlSync) {
       syncUrl(id)
@@ -226,6 +235,7 @@ export function useOnePlaygrounds () {
       visibility: 'public',
     }
     currentOwner.value = undefined
+    currentTeamId.value = null
     if (!options?.skipUrlSync) {
       syncUrl(undefined)
     }
@@ -242,7 +252,10 @@ export function useOnePlaygrounds () {
       pinned: playground.pinned,
       locked: playground.locked,
       visibility: playground.visibility,
-    }, { owner: playground.owner?.id })
+    }, {
+      owner: playground.owner?.id,
+      teamId: responseTeamId(playground.teamId),
+    })
   }
 
   async function fetchById (id: string): Promise<OnePlayground | null> {
@@ -257,7 +270,7 @@ export function useOnePlaygrounds () {
   async function create (
     title: string,
     content: string,
-    options?: { visibility?: 'private' | 'public' },
+    options?: { visibility?: 'private' | 'public', teamId?: string | null },
   ): Promise<OnePlayground> {
     const res = await fetch(`${ONE_API}/one/playgrounds`, {
       method: 'POST',
@@ -271,6 +284,7 @@ export function useOnePlaygrounds () {
           pinned: false,
           locked: false,
           visibility: options?.visibility ?? 'public',
+          ...createTeamField(options?.teamId),
         },
       }),
     })
@@ -365,7 +379,13 @@ export function useOnePlaygrounds () {
    */
   async function save (
     content: string,
-    options: { title?: string, asNew?: boolean, visibility?: 'private' | 'public' } = {},
+    options: {
+      title?: string
+      asNew?: boolean
+      visibility?: 'private' | 'public'
+      /** Create only. Omitted keeps the request identical for personal saves. */
+      teamId?: string | null
+    } = {},
   ): Promise<OnePlayground> {
     if (!IN_BROWSER) throw new Error('Save is only available in the browser')
 
@@ -377,7 +397,10 @@ export function useOnePlaygrounds () {
     try {
       const title = options.title ?? currentTitle.value
       if (options.asNew || !currentId.value) {
-        return await create(title, content, { visibility: options.visibility })
+        return await create(title, content, {
+          visibility: options.visibility,
+          teamId: options.teamId,
+        })
       }
       return await update(currentId.value, title, content)
     } catch (error_) {
@@ -442,9 +465,12 @@ export function useOnePlaygrounds () {
    * Merge `snapshot` (or current title/meta) then spread `patch` last.
    */
   async function patchMeta (
-    patch: Partial<Pick<OnePlaygroundMeta, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
+    patch: Partial<Pick<OnePlaygroundMeta, 'favorite' | 'pinned' | 'locked' | 'visibility'> & {
+      title?: string
+      teamId?: string | null
+    }>,
     id?: string,
-    snapshot?: Pick<OnePlayground, 'title' | 'favorite' | 'pinned' | 'locked' | 'visibility'>,
+    snapshot?: Pick<OnePlayground, 'title' | 'favorite' | 'pinned' | 'locked' | 'visibility' | 'teamId'>,
   ): Promise<OnePlayground> {
     if (!IN_BROWSER) throw new Error('patchMeta is only available in the browser')
     const target = id ?? currentId.value
@@ -460,12 +486,14 @@ export function useOnePlaygrounds () {
     }
 
     const title = ((patch.title ?? source.title) || '').trim() || 'Untitled'
+    const sentTeam = Object.hasOwn(patch, 'teamId')
     const playground = {
       title,
       favorite: patch.favorite ?? source.favorite,
       pinned: patch.pinned ?? source.pinned,
       locked: patch.locked ?? source.locked,
       visibility: patch.visibility ?? source.visibility,
+      ...teamField(patch),
     }
 
     const res = await fetch(`${ONE_API}/one/playgrounds/${target}`, {
@@ -482,8 +510,11 @@ export function useOnePlaygrounds () {
 
     const data = await res.json()
     const result = (data.playground ?? data) as OnePlayground
+    let teamId: string | null | undefined
 
     if (currentId.value === target) {
+      teamId = settledTeamId(currentTeamId.value, result, sentTeam)
+      currentTeamId.value = teamId
       currentTitle.value = result.title
       currentMeta.value = {
         favorite: result.favorite,
@@ -491,9 +522,11 @@ export function useOnePlaygrounds () {
         locked: result.locked,
         visibility: result.visibility,
       }
+    } else if (snapshot && Object.hasOwn(snapshot, 'teamId')) {
+      teamId = settledTeamId(responseTeamId(snapshot.teamId), result, sentTeam)
     }
 
-    return result
+    return isUndefined(teamId) ? result : { ...result, teamId }
   }
 
   /**
@@ -605,6 +638,7 @@ export function useOnePlaygrounds () {
     currentTitle,
     currentMeta,
     currentOwner,
+    currentTeamId,
     isOwner,
     saving,
     error,
