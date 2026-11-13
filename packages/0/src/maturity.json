@@ -617,8 +617,10 @@
       "description": "A switch for on/off state or multi-selection groups with tri-state support."
     },
     "TimePicker": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "since": null,
+      "category": "forms",
+      "description": "Segmented hour, minute, and optional second spinbuttons. A meridiem control appears in 12-hour mode, and a named field submits the 24-hour value."
     },
     "AlertDialog": {
       "level": "preview",

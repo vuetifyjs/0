@@ -174,6 +174,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | [Slider](https://0.vuetifyjs.com/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](https://0.vuetifyjs.com/components/forms/switch) | Toggle switch with on/off states and label association |
+| [TimePicker](https://0.vuetifyjs.com/components/forms/time-picker) | Segmented hour, minute, and second spinbuttons with an optional meridiem |
 
 #### Data
 
