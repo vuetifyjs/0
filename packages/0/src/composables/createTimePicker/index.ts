@@ -19,13 +19,13 @@
  * import { shallowRef } from 'vue'
  * import { createTimePicker } from '@vuetify/v0'
  *
- * const value = shallowRef<string | null>(null)
+ * const value = shallowRef<string | null>('15:30')
  * const time = createTimePicker({ value, hourCycle: 'h12' })
  *
- * time.setHour(3)
- * time.setMinute(30)
- * time.setPeriod('pm')
- * time.value.value // '15:30'
+ * time.hour.value // 3
+ * time.commit('minute', 0)
+ * time.step('hour', -1)
+ * time.value.value // '14:00'
  * ```
  */
 
@@ -42,6 +42,9 @@ import type { MaybeRefOrGetter, Ref } from 'vue'
 export type TimeHourCycle = 'h12' | 'h23'
 
 export type TimePeriod = 'am' | 'pm'
+
+/** One segment of the time value. */
+export type TimePart = 'hour' | 'minute' | 'second' | 'period'
 
 /**
  * @example
@@ -92,8 +95,7 @@ export interface TimePickerContext {
    * @example
    * ```ts
    * const time = createTimePicker({ hourCycle: 'h12' })
-   * time.setHour(3)
-   * time.setMinute(0)
+   * time.commit('hour', 3)
    * time.hour.value // 3
    * ```
    */
@@ -108,9 +110,9 @@ export interface TimePickerContext {
    * @example
    * ```ts
    * const time = createTimePicker({ hourCycle: 'h12' })
-   * time.setHour(3)
-   * time.setMinute(0)
-   * time.setPeriod('pm')
+   * time.commit('hour', 3)
+   * time.commit('minute', 0)
+   * time.commit('period', 'pm')
    * time.period.value // 'pm'
    * time.value.value // '15:00'
    * ```
@@ -125,40 +127,39 @@ export interface TimePickerContext {
   /** Resolved readonly flag. */
   readonly isReadonly: Readonly<Ref<boolean>>
   /**
-   * Set the displayed hour, snapped to `hourStep`. `null` clears it.
-   * In `h12` the number is `1`–`12` and combines with the current period.
+   * Snap one field into the value. `null` clears a numeric field.
+   * Hour, minute, and second snap to their step. A period commit shifts a
+   * set hour by 12, and is remembered when the hour is still empty.
+   * No-op for `period` in `h23`, and for `second` while seconds are off.
+   *
+   * @example
+   * ```ts
+   * const time = createTimePicker({ minuteStep: 15 })
+   * time.commit('hour', 9)
+   * time.value.value // null
+   * time.commit('minute', 7) // snaps to 0
+   * time.value.value // '09:00'
+   * ```
    */
-  setHour: (hour: number | null) => void
-  /** Set the minute, snapped to `minuteStep`. `null` clears it. */
-  setMinute: (minute: number | null) => void
+  commit: {
+    (part: 'hour' | 'minute' | 'second', value: number | null): void
+    (part: 'period', value: TimePeriod): void
+  }
   /**
-   * Set the second, snapped to `secondStep`. No-op while seconds are off.
-   * `null` clears it.
-   */
-  setSecond: (second: number | null) => void
-  /**
-   * Set the meridiem. No-op in `h23`. With an hour already set, this shifts
-   * that hour by 12. Without one, it is remembered for the next `setHour`.
-   */
-  setPeriod: (period: TimePeriod) => void
-  /**
-   * Step the hour by one `hourStep`. Wraps inside `0`–`23` or `1`–`12`.
-   * The first step from empty lands on `0` or `12`.
+   * Step one field by its interval. `direction` defaults to `1`.
+   * A period step flips AM and PM. Wraps inside the field.
+   * The first step from empty lands on `0`, or `12` for an `h12` hour.
    *
    * @example
    * ```ts
    * const time = createTimePicker()
-   * time.setHour(23)
-   * time.setMinute(0)
-   * time.stepHour(1)
+   * time.commit('hour', 23)
+   * time.commit('minute', 0)
+   * time.step('hour', 1)
    * time.value.value // '00:00'
    * ```
    */
-  stepHour: (direction: number) => void
-  /** Step the minute. Wraps inside `0`–`59`. The first step from empty lands on `0`. */
-  stepMinute: (direction: number) => void
-  /** Step the second. No-op while seconds are off. */
-  stepSecond: (direction: number) => void
+  step: (part: TimePart, direction?: number) => void
   /** Clear every field. The value becomes `null`. */
   clear: () => void
 }
@@ -338,101 +339,90 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     }
   }
 
-  function setHour (next: number | null) {
+  function commit (part: 'hour' | 'minute' | 'second', next: number | null): void
+  function commit (part: 'period', next: TimePeriod): void
+  function commit (part: TimePart, next: number | TimePeriod | null): void {
     if (blocked()) return
-    if (isNull(next)) {
-      hour24.value = null
+
+    if (part === 'period') {
+      if (hourCycle.value !== 'h12') return
+      if (next !== 'am' && next !== 'pm') return
+      if (isNull(hour24.value)) {
+        pending.value = next
+        return
+      }
+      hour24.value = to24(displayHour(hour24.value), next)
       publish()
       return
     }
+
+    if (part === 'second' && !seconds.value) return
+
+    if (isNull(next)) {
+      if (part === 'hour') hour24.value = null
+      else if (part === 'minute') minute.value = null
+      else second.value = null
+      publish()
+      return
+    }
+
     if (!isNumber(next) || !Number.isFinite(next)) return
 
-    if (hourCycle.value === 'h12') {
-      const display = snapUnit(next, 1, 12, toValue(hourStep))
-      const meridiem = period.value === 'pm' ? 'pm' : 'am'
-      hour24.value = to24(display, meridiem)
+    if (part === 'hour') {
+      if (hourCycle.value === 'h12') {
+        const display = snapUnit(next, 1, 12, toValue(hourStep))
+        const meridiem = period.value === 'pm' ? 'pm' : 'am'
+        hour24.value = to24(display, meridiem)
+      } else {
+        hour24.value = snapUnit(next, 0, 23, toValue(hourStep))
+      }
+    } else if (part === 'minute') {
+      minute.value = snapUnit(next, 0, 59, toValue(minuteStep))
     } else {
-      hour24.value = snapUnit(next, 0, 23, toValue(hourStep))
+      second.value = snapUnit(next, 0, 59, toValue(secondStep))
     }
     publish()
   }
 
-  function setMinute (next: number | null) {
+  function step (part: TimePart, direction = 1) {
     if (blocked()) return
-    if (isNull(next)) {
-      minute.value = null
+    const sign = signOf(direction)
+    if (sign === 0) return
+
+    if (part === 'period') {
+      if (hourCycle.value !== 'h12') return
+      const current = period.value === 'pm' ? 'pm' : 'am'
+      commit('period', current === 'pm' ? 'am' : 'pm')
+      return
+    }
+
+    if (part === 'hour') {
+      const interval = toValue(hourStep)
+      if (hourCycle.value === 'h12') {
+        const meridiem = period.value === 'pm' ? 'pm' : 'am'
+        const display = isNull(hour24.value)
+          ? snapUnit(12, 1, 12, interval)
+          : stepped(displayHour(hour24.value), 1, 12, interval, sign)
+        hour24.value = to24(display, meridiem)
+      } else {
+        hour24.value = isNull(hour24.value)
+          ? snapUnit(0, 0, 23, interval)
+          : stepped(hour24.value, 0, 23, interval, sign)
+      }
       publish()
       return
     }
-    if (!isNumber(next) || !Number.isFinite(next)) return
-    minute.value = snapUnit(next, 0, 59, toValue(minuteStep))
-    publish()
-  }
 
-  function setSecond (next: number | null) {
-    if (blocked() || !seconds.value) return
-    if (isNull(next)) {
-      second.value = null
-      publish()
-      return
-    }
-    if (!isNumber(next) || !Number.isFinite(next)) return
-    second.value = snapUnit(next, 0, 59, toValue(secondStep))
-    publish()
-  }
+    if (part === 'second' && !seconds.value) return
 
-  function setPeriod (next: TimePeriod) {
-    if (blocked() || hourCycle.value !== 'h12') return
-    if (next !== 'am' && next !== 'pm') return
-    if (isNull(hour24.value)) {
-      pending.value = next
-      return
-    }
-    hour24.value = to24(displayHour(hour24.value), next)
-    publish()
-  }
+    const interval = part === 'minute' ? toValue(minuteStep) : toValue(secondStep)
+    const current = part === 'minute' ? minute.value : second.value
+    const next = isNull(current)
+      ? snapUnit(0, 0, 59, interval)
+      : stepped(current, 0, 59, interval, sign)
 
-  function stepHour (direction: number) {
-    if (blocked()) return
-    const sign = signOf(direction)
-    if (sign === 0) return
-
-    const step = toValue(hourStep)
-    if (hourCycle.value === 'h12') {
-      const meridiem = period.value === 'pm' ? 'pm' : 'am'
-      const display = isNull(hour24.value)
-        ? snapUnit(12, 1, 12, step)
-        : stepped(displayHour(hour24.value), 1, 12, step, sign)
-      hour24.value = to24(display, meridiem)
-    } else {
-      hour24.value = isNull(hour24.value)
-        ? snapUnit(0, 0, 23, step)
-        : stepped(hour24.value, 0, 23, step, sign)
-    }
-    publish()
-  }
-
-  function stepMinute (direction: number) {
-    if (blocked()) return
-    const sign = signOf(direction)
-    if (sign === 0) return
-
-    const step = toValue(minuteStep)
-    minute.value = isNull(minute.value)
-      ? snapUnit(0, 0, 59, step)
-      : stepped(minute.value, 0, 59, step, sign)
-    publish()
-  }
-
-  function stepSecond (direction: number) {
-    if (blocked() || !seconds.value) return
-    const sign = signOf(direction)
-    if (sign === 0) return
-
-    const step = toValue(secondStep)
-    second.value = isNull(second.value)
-      ? snapUnit(0, 0, 59, step)
-      : stepped(second.value, 0, 59, step, sign)
+    if (part === 'minute') minute.value = next
+    else second.value = next
     publish()
   }
 
@@ -483,13 +473,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     seconds,
     isDisabled,
     isReadonly,
-    setHour,
-    setMinute,
-    setSecond,
-    setPeriod,
-    stepHour,
-    stepMinute,
-    stepSecond,
+    commit,
+    step,
     clear,
   }
 }

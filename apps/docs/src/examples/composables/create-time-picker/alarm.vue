@@ -18,7 +18,7 @@
       <button
         class="px-3 py-2 border border-divider rounded"
         type="button"
-        @click="alarm.stepHour(1)"
+        @click="alarm.step('hour', 1)"
       >
         Hour {{ hour ?? '—' }}
       </button>
@@ -26,7 +26,7 @@
       <button
         class="px-3 py-2 border border-divider rounded"
         type="button"
-        @click="alarm.stepMinute(1)"
+        @click="alarm.step('minute', 1)"
       >
         Minute {{ minute ?? '—' }}
       </button>
@@ -34,7 +34,7 @@
       <button
         class="px-3 py-2 border border-divider rounded"
         type="button"
-        @click="alarm.setPeriod(period === 'am' ? 'pm' : 'am')"
+        @click="alarm.step('period')"
       >
         {{ period === 'pm' ? 'PM' : 'AM' }}
       </button>

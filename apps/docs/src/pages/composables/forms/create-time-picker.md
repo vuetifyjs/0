@@ -30,13 +30,13 @@ import { createTimePicker } from '@vuetify/v0'
 const value = shallowRef<string | null>(null)
 const time = createTimePicker({ value, minuteStep: 15 })
 
-time.setHour(9)
+time.commit('hour', 9)
 time.value.value // null. The minute is still empty.
 
-time.setMinute(30)
+time.commit('minute', 30)
 time.value.value // '09:30'
 
-time.stepMinute(1)
+time.step('minute', 1)
 time.value.value // '09:45'
 
 const afternoon = createTimePicker({
@@ -46,7 +46,7 @@ const afternoon = createTimePicker({
 
 afternoon.hour.value // 3
 afternoon.period.value // 'pm'
-afternoon.setPeriod('am')
+afternoon.commit('period', 'am')
 afternoon.value.value // '03:00'
 ```
 
@@ -96,13 +96,8 @@ flowchart TD
 | `seconds` | <AppSuccessIcon /> | Whether the string includes seconds |
 | `isDisabled` | <AppSuccessIcon /> | Resolved disabled flag |
 | `isReadonly` | <AppSuccessIcon /> | Resolved readonly flag |
-| `setHour` | <AppErrorIcon /> | Snaps to `hourStep`. Null clears the hour |
-| `setMinute` | <AppErrorIcon /> | Snaps to `minuteStep`. Null clears the minute |
-| `setSecond` | <AppErrorIcon /> | No-op while seconds are off |
-| `setPeriod` | <AppErrorIcon /> | No-op in `h23`. Shifts a set hour by 12 |
-| `stepHour` | <AppErrorIcon /> | Wraps. The first step from empty lands on 0, or 12 in `h12` |
-| `stepMinute` | <AppErrorIcon /> | Wraps inside 0–59. The first step from empty lands on 0 |
-| `stepSecond` | <AppErrorIcon /> | No-op while seconds are off |
+| `commit` | <AppErrorIcon /> | Snaps one field. Null clears a numeric field. A period commit shifts a set hour by 12 |
+| `step` | <AppErrorIcon /> | Steps one field. Wraps. The first step from empty lands on 0, or 12 for an `h12` hour |
 | `clear` | <AppErrorIcon /> | Clears every field. The value becomes null |
 
 ## Examples
@@ -113,7 +108,7 @@ flowchart TD
 
 ### Weekday alarm
 
-`useAlarm` owns a 12-hour picker that starts at `09:00` and clamps a complete value between `09:00` and `17:00`. The buttons call `stepHour`, `stepMinute`, and `setPeriod` on the composable, so the same value can sit behind any markup.
+`useAlarm` owns a 12-hour picker that starts at `09:00` and clamps a complete value between `09:00` and `17:00`. The buttons call `step` with the field name, so the same value can sit behind any markup.
 
 The public value stays null until the hour and the minute are both set. This demo starts complete, so the line shows `09:00` immediately. Set the period to PM and the stored hour shifts by 12. A result past `17:00` clamps back to `17:00`.
 
@@ -121,7 +116,7 @@ The public value stays null until the hour and the minute are both set. This dem
 
 | File | Role |
 |------|------|
-| `alarm.ts` | Creates the picker and returns the fields and the step methods |
+| `alarm.ts` | Creates the picker and returns the fields and `step` |
 | `alarm.vue` | Buttons that step the hour, the minute, and the period |
 :::
 
@@ -132,7 +127,7 @@ The public value stays null until the hour and the minute are both set. This dem
 
 ### Quarter-hour steps
 
-`minuteStep: 15` snaps each minute step to the next quarter hour. The value stays null until `setHour` and `setMinute` have both run.
+`minuteStep: 15` snaps each minute step to the next quarter hour. The value stays null until `commit` has set both the hour and the minute.
 :::
 
 ## FAQ
@@ -141,11 +136,11 @@ The public value stays null until the hour and the minute are both set. This dem
 
 ??? Why is the value null until every field is set?
 
-A partial time is not a time string. `setHour(9)` alone leaves `value` null. `setMinute(30)` publishes `09:30`. With `seconds`, the second must be set too.
+A partial time is not a time string. `commit('hour', 9)` alone leaves `value` null. `commit('minute', 30)` publishes `09:30`. With `seconds`, the second must be set too.
 
 ??? Does 12-hour mode change the stored string?
 
-`hour` reads 1 through 12, and `value` stays 24-hour. `setPeriod('pm')` shifts a set hour by 12. 12 AM is 00 and 12 PM is 12.
+`hour` reads 1 through 12, and `value` stays 24-hour. `commit('period', 'pm')` shifts a set hour by 12. 12 AM is 00 and 12 PM is 12.
 
 ??? What do min and max do?
 
@@ -153,7 +148,7 @@ They clamp a complete value into the window. An incomplete value stays null and 
 
 ??? What happens when disabled or readonly is true?
 
-`setHour`, `setMinute`, `setSecond`, `setPeriod`, the step methods, and `clear` all no-op.
+`commit`, `step`, and `clear` all no-op.
 
 :::
 

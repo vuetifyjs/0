@@ -14,9 +14,7 @@ export function useAlarm () {
     hour: time.hour,
     minute: time.minute,
     period: time.period,
-    setPeriod: time.setPeriod,
-    stepHour: time.stepHour,
-    stepMinute: time.stepMinute,
+    step: time.step,
     value,
   }
 }

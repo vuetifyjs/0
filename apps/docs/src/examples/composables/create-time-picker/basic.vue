@@ -13,7 +13,7 @@
       <button
         class="px-3 py-2 border border-divider rounded"
         type="button"
-        @click="time.stepHour(1)"
+        @click="time.step('hour', 1)"
       >
         Hour {{ hour ?? '—' }}
       </button>
@@ -21,7 +21,7 @@
       <button
         class="px-3 py-2 border border-divider rounded"
         type="button"
-        @click="time.stepMinute(1)"
+        @click="time.step('minute', 1)"
       >
         Minute {{ minute ?? '—' }}
       </button>

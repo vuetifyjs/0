@@ -125,23 +125,7 @@
     event.preventDefault()
     if (time.isDisabled.value || time.isReadonly.value) return
 
-    const direction = up ? 1 : -1
-    switch (part) {
-      case 'hour': {
-        time.stepHour(direction)
-        break
-      }
-      case 'minute': {
-        time.stepMinute(direction)
-        break
-      }
-      case 'second': {
-        time.stepSecond(direction)
-        break
-      }
-      default: { time.setPeriod(time.period.value === 'pm' ? 'am' : 'pm')
-      }
-    }
+    time.step(part, up ? 1 : -1)
   }
 
   const slotProps = toRef((): TimePickerFieldSlotProps => {
