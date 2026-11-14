@@ -104,6 +104,15 @@ export default {
     releaseToHide: 'Release to hide',
     releaseToOpen: 'Release to open',
   },
+  TimePicker: {
+    am: 'AM',
+    hour: 'Hour',
+    label: 'Time',
+    minute: 'Minute',
+    period: 'AM/PM',
+    pm: 'PM',
+    second: 'Second',
+  },
   Tour: {
     complete: 'Complete tour',
     next: 'Go to next step',

@@ -139,7 +139,8 @@
       "description": "Picker chrome around a month grid: popover, text field, and preset ranges. The grid itself is createCalendar."
     },
     "createTimePicker": {
-      "level": "draft",
+      "level": "preview",
+      "since": null,
       "category": "forms",
       "description": "Segmented time value with hour, minute, and second fields, 12/24-hour modes, meridiem handling, step snapping, and min/max bounds."
     },
@@ -616,8 +617,10 @@
       "description": "A switch for on/off state or multi-selection groups with tri-state support."
     },
     "TimePicker": {
-      "level": "draft",
-      "category": "forms"
+      "level": "preview",
+      "since": null,
+      "category": "forms",
+      "description": "Segmented hour, minute, and optional second spinbuttons. A meridiem control appears in 12-hour mode, and a named field submits the 24-hour value."
     },
     "AlertDialog": {
       "level": "preview",
