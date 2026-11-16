@@ -86,7 +86,9 @@ export interface TimePickerOptions {
    * the step grid, clamped into `min` / `max`, and written back in canonical
    * form. With `seconds` on, `HH:mm` reads as second `0`; with it off,
    * `HH:mm:ss` drops the seconds. An unparseable value empties the fields
-   * and becomes `null`.
+   * and becomes `null`. That pass runs before the next flush, together
+   * with any option that changed in the same tick; until then the fields
+   * show the value as written.
    *
    * @default shallowRef(null)
    */
@@ -158,13 +160,16 @@ export interface TimePickerOptions {
 export interface TimePickerContext {
   /**
    * Canonical 24-hour value, or `null` while a field is still empty.
-   * Writing it from outside replaces every field. The picker writes it on
-   * every edit, and never while disabled or readonly.
+   * Writing it from outside replaces every field at once; the picker
+   * normalizes it before the next flush. The picker writes it on every
+   * edit, and never while disabled or readonly.
    *
    * @example
    * ```ts
    * const time = createTimePicker({ seconds: true })
    * time.value.value = '09:30'
+   * time.hour.value // 9
+   * await nextTick()
    * time.value.value // '09:30:00'
    * ```
    */
@@ -371,8 +376,12 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   const hour24 = shallowRef<number | null>(null)
   const minute = shallowRef<number | null>(null)
-  const second = shallowRef<number | null>(null)
+  const stored = shallowRef<number | null>(null)
   const pending = shallowRef<TimePeriod>('am')
+
+  // Bumped by an incoming value so its normalization shares one pass with
+  // any option that changed alongside it.
+  const stale = shallowRef(0)
 
   let writing = false
 
@@ -385,6 +394,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (isNull(hour24.value)) return null
     return hourCycle.value === 'h12' ? displayHour(hour24.value) : hour24.value
   })
+
+  // An incoming value keeps its seconds until the next pass decides whether
+  // they count, so the option and the value may arrive in either order.
+  const second = toRef(() => seconds.value ? stored.value : null)
 
   const period = toRef((): TimePeriod | null => {
     if (hourCycle.value !== 'h12') return null
@@ -409,7 +422,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   function snap () {
     if (!isNull(hour24.value)) hour24.value = nearest(hours(meridiem(hour24.value)), hour24.value)
     if (!isNull(minute.value)) minute.value = nearest(sixty('minute'), minute.value)
-    if (!isNull(second.value)) second.value = nearest(sixty('second'), second.value)
+    if (!isNull(stored.value)) stored.value = nearest(sixty('second'), stored.value)
   }
 
   function boundSeconds (raw: string | null): number | null {
@@ -423,14 +436,14 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   function applyBound (total: number) {
     hour24.value = Math.floor(total / 3600)
     minute.value = Math.floor((total % 3600) / 60)
-    if (seconds.value) second.value = total % 60
+    if (seconds.value) stored.value = total % 60
   }
 
   function clampToRange () {
     if (isNull(hour24.value) || isNull(minute.value)) return
-    if (seconds.value && isNull(second.value)) return
+    if (seconds.value && isNull(stored.value)) return
 
-    const current = hour24.value * 3600 + minute.value * 60 + (seconds.value ? second.value ?? 0 : 0)
+    const current = hour24.value * 3600 + minute.value * 60 + (seconds.value ? stored.value ?? 0 : 0)
     const low = boundSeconds(toValue(min) ?? null)
     const high = boundSeconds(toValue(max) ?? null)
     if (!isNull(low) && !isNull(high) && low > high) return
@@ -440,11 +453,11 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   function format (): string | null {
     if (isNull(hour24.value) || isNull(minute.value)) return null
-    if (seconds.value && isNull(second.value)) return null
+    if (seconds.value && isNull(stored.value)) return null
 
     const text = `${pad(hour24.value)}:${pad(minute.value)}`
     if (!seconds.value) return text
-    return `${text}:${pad(second.value ?? 0)}`
+    return `${text}:${pad(stored.value ?? 0)}`
   }
 
   function publish () {
@@ -461,7 +474,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (isNullOrUndefined(raw) || raw === '') {
       hour24.value = null
       minute.value = null
-      second.value = null
+      stored.value = null
       pending.value = 'am'
       return
     }
@@ -473,15 +486,25 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       }
       hour24.value = null
       minute.value = null
-      second.value = null
+      stored.value = null
       return
     }
 
     hour24.value = parsed.hour
     minute.value = parsed.minute
-    second.value = seconds.value ? parsed.second ?? 0 : null
+    stored.value = parsed.second ?? 0
     pending.value = meridiem(parsed.hour)
-    if (!blocked()) snap()
+  }
+
+  function normalize (entered: boolean) {
+    if (!seconds.value) {
+      stored.value = null
+    } else if (entered && isNull(stored.value) && !isNull(hour24.value) && !isNull(minute.value)) {
+      stored.value = 0
+    }
+    if (blocked()) return
+    snap()
+    publish()
   }
 
   function commit (part: 'hour' | 'minute' | 'second', next: number | null): void
@@ -508,7 +531,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       } else if (part === 'minute') {
         minute.value = null
       } else {
-        second.value = null
+        stored.value = null
       }
       publish()
       return
@@ -526,7 +549,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     } else if (part === 'minute') {
       minute.value = nearest(sixty('minute'), next)
     } else {
-      second.value = nearest(sixty('second'), next)
+      stored.value = nearest(sixty('second'), next)
     }
     publish()
   }
@@ -551,7 +574,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
     if (part === 'second' && !seconds.value) return
 
-    const field = part === 'minute' ? minute : second
+    const field = part === 'minute' ? minute : stored
     const list = sixty(part)
     field.value = isNull(field.value) ? list[0]! : travel(list, field.value, moves)
     publish()
@@ -561,7 +584,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (blocked()) return
     hour24.value = null
     minute.value = null
-    second.value = null
+    stored.value = null
     pending.value = 'am'
     publish()
   }
@@ -585,37 +608,27 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     watch(value, next => {
       if (writing || next === format()) return
       load(next)
-      publish()
+      stale.value++
     }, { flush: 'sync' })
 
+    // A parent can change the model and an option in one render, and Vue
+    // hands the props over one at a time. Normalizing before the flush keeps
+    // a half-applied batch from being written over the incoming value.
     watch(
       () => [
         seconds.value,
+        blocked(),
         hourCycle.value,
         toValue(min) ?? null,
         toValue(max) ?? null,
         toValue(hourStep),
         toValue(minuteStep),
         toValue(secondStep),
+        stale.value,
       ] as const,
-      (next, previous) => {
-        if (!next[0]) {
-          second.value = null
-        } else if (!previous[0] && isNull(second.value) && !isNull(hour24.value) && !isNull(minute.value)) {
-          second.value = 0
-        }
-        if (blocked()) return
-        snap()
-        publish()
-      },
-      { flush: 'sync' },
+      (next, previous) => normalize(next[0] && !previous[0]),
+      { flush: 'pre' },
     )
-
-    watch(blocked, next => {
-      if (next) return
-      snap()
-      publish()
-    }, { flush: 'sync' })
 
     if (__DEV__) {
       watch(
@@ -637,7 +650,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     }
 
     load(value.value)
-    publish()
+    normalize(false)
   })
 
   return {
