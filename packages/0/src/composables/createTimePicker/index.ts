@@ -39,7 +39,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isNull, isNullOrUndefined, isNumber, isString, isUndefined } from '#v0/utilities'
-import { shallowRef, toRef, toValue, watch } from 'vue'
+import { nextTick, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -94,9 +94,11 @@ export interface TimePickerOptions {
    * with any option that changed in the same tick; until then the fields
    * show the value as written.
    *
-   * The model has the last word. When it does not take a value the picker
-   * wrote, because a parent rejected or replaced the update, the fields
-   * go back to what the model holds after that flush.
+   * The model has the last word. When, after its owner has had a tick to
+   * answer, it does not hold the value the picker wrote, the fields take
+   * the model's value as given and the picker writes nothing further. An
+   * owner that answers later than that is treated the same way until its
+   * value arrives.
    *
    * @default shallowRef(null)
    */
@@ -107,7 +109,7 @@ export interface TimePickerOptions {
    *
    * @default 'h23'
    */
-  hourCycle?: MaybeRefOrGetter<TimeHourCycle>
+  hourCycle?: MaybeRefOrGetter<TimeHourCycle | undefined>
   /**
    * Include seconds in the canonical value. Turning it on for a picker whose
    * hour and minute are set keeps the time and sets the second to `0`.
@@ -169,6 +171,8 @@ export interface TimePickerOptions {
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
    * value.
+   *
+   * @default false
    */
   disabled?: MaybeRefOrGetter<boolean>
   /**
@@ -177,6 +181,8 @@ export interface TimePickerOptions {
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
    * value.
+   *
+   * @default false
    */
   readonly?: MaybeRefOrGetter<boolean>
 }
@@ -256,10 +262,7 @@ export interface TimePickerContext {
    * time.value.value // '09:45'
    * ```
    */
-  commit: {
-    (part: TimeUnit, value: number | null): void
-    (part: 'period', value: TimePeriod): void
-  }
+  commit: ((part: TimeUnit, value: number | null) => void) & ((part: 'period', value: TimePeriod) => void)
   /**
    * Move one field along its grid. The sign of `count` is the direction and
    * its magnitude the number of intervals; it defaults to `1`, fractions
@@ -447,13 +450,24 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // any option that changed alongside it.
   const stale = shallowRef(0)
   // Bumped by a write the model does not hold straight away, so it can be
-  // checked once its owner has had a flush to accept or refuse it.
+  // checked once its owner has had its turn to accept or refuse it.
   const sent = shallowRef(0)
 
   // The value the model and the fields last agreed on. Under a controlled
   // model `value` lags the picker's own writes, so it cannot stand in.
   let settled: unknown
-  let quiet = false
+  let live = true
+  // A write is out and its owner's answer has not been checked yet. A value
+  // that comes in meanwhile is a reply to it.
+  let open = false
+  // Writes since the current edit, incoming value, or option change began.
+  // The first reply is normalized and written back; a reply to that write
+  // is taken as given, so an owner that alters every write cannot keep the
+  // exchange going.
+  let turns = 0
+  // The last value written in this exchange. Its owner already answered it
+  // with something else, so it is not offered again.
+  let tried: string | null | undefined
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -570,7 +584,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     const time = whole()
     if (empty || isNull(time)) return
     if (!isNull(low) && total(time) < low) pin(first)
-    else if (!isNull(high) && total(time) > high) pin(edge(high, false) ?? high)
+    else if (!isNull(high) && total(time) > high) pin(edge(high, false)!)
   }
 
   function format (): string | null {
@@ -585,15 +599,23 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     fit()
     const next = format()
     if (next === settled) return
+    if (next === tried) {
+      load(settled, false)
+      return
+    }
     settled = next
+    tried = next
+    turns++
+    open = true
     value.value = next
-    if (!quiet && value.value !== next) sent.value++
+    if (value.value === next) open = false
+    else sent.value++
   }
 
-  function load (raw: unknown) {
+  function load (raw: unknown, warn = true) {
     const parsed = isString(raw) ? parseTime(raw) : null
     if (isNull(parsed)) {
-      if (__DEV__ && !isNullOrUndefined(raw) && raw !== '') {
+      if (__DEV__ && warn && !isNullOrUndefined(raw) && raw !== '') {
         logger.warn(`createTimePicker: value ${JSON.stringify(raw)} is not a 24-hour HH:mm or HH:mm:ss time; the fields were emptied`)
       }
       hour24.value = null
@@ -623,37 +645,39 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     }
   }
 
+  function begin () {
+    turns = 0
+    tried = undefined
+  }
+
   function normalize () {
     settle()
     if (!blocked()) publish()
   }
 
-  // The owner did not take the last write. Its value becomes the incoming
-  // one, and whatever normalizing it writes is not checked again, so an
-  // owner that keeps refusing cannot start a loop.
-  function reconcile () {
+  // The owner did not take the last write, so the model has the last word:
+  // its value goes into the fields as given and nothing is written back.
+  // It was warned about when it first came in.
+  function adopt () {
     const held = value.value
     if (held === settled) return
     settled = held
-    load(held)
-    quiet = true
-    normalize()
-    quiet = false
+    load(held, false)
   }
 
-  function commit (part: TimeUnit, next: number | null): void
-  function commit (part: 'period', next: TimePeriod): void
-  function commit (part: TimePart, next: number | TimePeriod | null): void {
-    if (blocked()) return
+  // An edit starts from the normalized time, so it gives the same result
+  // whether or not the pass for a change made in the same tick has run.
+  function drain () {
     settle()
+    fit()
+  }
 
+  function assign (part: TimePart, next: number | TimePeriod | null) {
     if (part === 'period') {
       if (hourCycle.value !== 'h12') return
       if (next !== 'am' && next !== 'pm') return
       pending.value = next
-      if (isNull(hour24.value) || meridiem(hour24.value) === next) return
-      hour24.value = nearest(hours(next), to24(displayHour(hour24.value), next))
-      publish()
+      if (!isNull(hour24.value)) hour24.value = to24(displayHour(hour24.value), next)
       return
     }
 
@@ -668,7 +692,6 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       } else {
         stored.value = null
       }
-      publish()
       return
     }
 
@@ -686,26 +709,20 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     } else {
       stored.value = nearest(sixty('second'), next)
     }
-    publish()
   }
 
-  function step (part: TimePart, count = 1) {
-    if (blocked()) return
+  function shift (part: TimePart, count: number) {
     const moves = Number.isFinite(count) ? Math.trunc(count) : 0
     if (moves === 0) return
 
     if (part === 'period') {
-      if (hourCycle.value !== 'h12') return
-      commit('period', period.value === 'pm' ? 'am' : 'pm')
+      assign('period', period.value === 'pm' ? 'am' : 'pm')
       return
     }
-
-    settle()
 
     if (part === 'hour') {
       const list = hours(period.value === 'pm' ? 'pm' : 'am')
       hour24.value = isNull(hour24.value) ? list[0]! : travel(list, hour24.value, moves)
-      publish()
       return
     }
 
@@ -714,12 +731,31 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     const field = part === 'minute' ? minute : stored
     const list = sixty(part)
     field.value = isNull(field.value) ? list[0]! : travel(list, field.value, moves)
+  }
+
+  // Every edit runs between the pending normalization and one publish, so
+  // a call that turns out to change nothing still leaves the value settled.
+  function commit (part: TimeUnit, next: number | null): void
+  function commit (part: 'period', next: TimePeriod): void
+  function commit (part: TimePart, next: number | TimePeriod | null): void {
+    if (blocked()) return
+    begin()
+    drain()
+    assign(part, next)
+    publish()
+  }
+
+  function step (part: TimePart, count = 1) {
+    if (blocked()) return
+    begin()
+    drain()
+    shift(part, count)
     publish()
   }
 
   function clear () {
     if (blocked()) return
-    settle()
+    begin()
     hour24.value = null
     minute.value = null
     stored.value = null
@@ -744,6 +780,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (next === settled) return
     settled = next
     load(next)
+    if (open && turns > 1) return
+    if (!open) begin()
     stale.value++
   }, { flush: 'sync' })
 
@@ -762,11 +800,26 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       toValue(secondStep),
       stale.value,
     ],
-    normalize,
+    (next, previous) => {
+      if (next.at(-1) === previous.at(-1)) begin()
+      normalize()
+    },
     { flush: 'pre' },
   )
 
-  watch(sent, reconcile, { flush: 'post' })
+  // The owner answers in its own queued work, which on a top-level mount
+  // runs after this component's post flush. Waiting one more tick keeps an
+  // accepted write from being read as a refusal.
+  onScopeDispose(() => {
+    live = false
+  }, true)
+
+  watch(sent, () => {
+    void nextTick(() => {
+      open = false
+      if (live) adopt()
+    })
+  }, { flush: 'post' })
 
   if (__DEV__) {
     watch(
