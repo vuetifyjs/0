@@ -291,9 +291,13 @@ Both ignore every key and `clear`, and the picker never emits while either is se
 
 ??? What if the parent refuses an update?
 
-The fields follow the model. When the parent does not accept an emitted value, the fields take the model's value as given, without the step or the bounds applied, and the picker emits nothing more. The parent sees one `update:modelValue` and the fields return to the model's time within two ticks.
+The fields follow the model. When the parent does not accept an emitted value, the fields take the model's value as given, without the step or the bounds applied, and the picker emits nothing more. The parent sees one `update:modelValue`. The fields return to the model's time once the picker has checked the parent's answer, on the render that follows, so wait for the DOM to update rather than for a fixed number of ticks.
 
 When the parent replaces the emitted value with a different one, the picker treats the replacement as an incoming value: it normalizes it and emits the result once. If the parent changes that too, the picker takes the parent's value as given and stops. One edit emits at most twice.
+
+The same holds on mount. A picker that normalizes its initial value emits once, and a parent that replaces that value with a different one gets one more emit a tick later. A parent that only refuses gets one.
+
+A key pressed while the fields show a value taken as given edits what they show. The field moves by the usual rules, then the whole time is normalized and emitted once: with `minute-step="15"` and fields showing `04:50`, ArrowDown gives `04:45`.
 
 Two things follow:
 
