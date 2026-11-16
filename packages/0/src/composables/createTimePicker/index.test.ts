@@ -3,16 +3,18 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createTimePicker } from './index'
 
 // Utilities
-import { customRef, effectScope, nextTick, shallowRef } from 'vue'
+import { isNull } from '#v0/utilities'
+import { computed, customRef, effectScope, nextTick, shallowRef, watch } from 'vue'
 
 // Types
 import type { TimeHourCycle, TimePickerContext, TimePickerOptions } from './index'
 import type { EffectScope } from 'vue'
 
-let scope: EffectScope | undefined
+const scopes: EffectScope[] = []
 
 function setup (options?: TimePickerOptions): TimePickerContext {
-  scope = effectScope()
+  const scope = effectScope()
+  scopes.push(scope)
   let time!: TimePickerContext
   scope.run(() => {
     time = createTimePicker(options)
@@ -30,8 +32,7 @@ function walk (time: TimePickerContext, part: 'hour' | 'minute' | 'second', coun
 }
 
 afterEach(() => {
-  scope?.stop()
-  scope = undefined
+  while (scopes.length > 0) scopes.pop()!.stop()
 })
 
 describe('createTimePicker', () => {
@@ -169,7 +170,7 @@ describe('createTimePicker', () => {
     })
 
     it('should write the end state of edits that return to the last incoming value', () => {
-      let inner: string | null = '09:30'
+      const inner: string | null = '09:30'
       const writes: (string | null)[] = []
 
       // A controlled model keeps returning the old value until the parent
@@ -190,12 +191,62 @@ describe('createTimePicker', () => {
 
       expect(writes).toEqual(['09:31', '09:30'])
 
-      inner = '09:30'
       time.clear()
       time.commit('hour', 9)
       time.commit('minute', 30)
 
       expect(writes).toEqual(['09:31', '09:30', null, '09:30'])
+    })
+
+    it.each([
+      ['the option first', true],
+      ['the value first', false],
+    ])('should take a null written in the same tick seconds turn on, with %s', async (_, first) => {
+      const value = shallowRef<string | null>('10:20')
+      const seconds = shallowRef(false)
+      const time = setup({ value, seconds })
+
+      if (first) seconds.value = true
+      value.value = null
+      if (!first) seconds.value = true
+      await nextTick()
+
+      expect(value.value).toBeNull()
+      expect(time.hour.value).toBeNull()
+    })
+
+    it('should write one valid value when an edit follows an option change in the same tick', async () => {
+      const value = shallowRef<string | null>('10:20')
+      const seconds = shallowRef(false)
+      const minuteStep = shallowRef(1)
+      const time = setup({ value, seconds, minuteStep })
+      const seen: (string | null)[] = []
+      watch(value, next => seen.push(next), { flush: 'sync' })
+
+      seconds.value = true
+      time.commit('minute', 25)
+      await nextTick()
+
+      expect(seen).toEqual(['10:25:00'])
+
+      minuteStep.value = 15
+      time.commit('hour', 11)
+      await nextTick()
+
+      expect(seen).toEqual(['10:25:00', '11:30:00'])
+    })
+
+    it('should write one valid value when an edit follows an incoming value in the same tick', async () => {
+      const value = shallowRef<string | null>('10:00')
+      const time = setup({ value, minuteStep: 15 })
+      const seen: (string | null)[] = []
+      watch(value, next => seen.push(next), { flush: 'sync' })
+
+      value.value = '12:07'
+      time.commit('hour', 11)
+      await nextTick()
+
+      expect(seen).toEqual(['12:07', '11:00'])
     })
 
     it('should not write a canonical value back', async () => {
@@ -222,6 +273,98 @@ describe('createTimePicker', () => {
       await nextTick()
 
       expect(writes).toEqual([])
+    })
+  })
+
+  describe('a model that refuses a write', () => {
+    it('should take over a value the model rewrites', () => {
+      const store = shallowRef<string | null>('09:00')
+      const value = computed<string | null>({
+        get: () => store.value,
+        set: next => {
+          store.value = !isNull(next) && next > '12:00' ? '12:00' : next
+        },
+      })
+      const time = setup({ value })
+
+      time.commit('hour', 15)
+
+      expect(store.value).toBe('12:00')
+      expect(time.hour.value).toBe(12)
+      expect(time.display.value).toBe('12:00')
+    })
+
+    it('should go back to the model when a write is dropped', async () => {
+      const store = shallowRef<string | null>('12:00')
+      const value = computed<string | null>({
+        get: () => store.value,
+        set: next => {
+          if (isNull(next) || next <= '12:00') store.value = next
+        },
+      })
+      const time = setup({ value })
+
+      time.step('hour', 1)
+      await nextTick()
+
+      expect(store.value).toBe('12:00')
+      expect(time.hour.value).toBe(12)
+      expect(time.display.value).toBe('12:00')
+
+      time.step('hour', -1)
+      await nextTick()
+
+      expect(store.value).toBe('11:00')
+      expect(time.hour.value).toBe(11)
+    })
+
+    it('should stop after one retry when the model keeps a value the picker would change', async () => {
+      const writes: (string | null)[] = []
+      const value = customRef<string | null>(track => ({
+        get () {
+          track()
+          return '09:07'
+        },
+        set (next) {
+          writes.push(next)
+        },
+      }))
+      const time = setup({ value, minuteStep: 15 })
+
+      await nextTick()
+      await nextTick()
+      await nextTick()
+
+      expect(writes).toEqual(['09:00', '09:00'])
+      expect(time.minute.value).toBe(0)
+    })
+  })
+
+  describe('display', () => {
+    it('should follow the fields while they are complete', () => {
+      const time = setup({ value: shallowRef('09:30') })
+
+      expect(time.display.value).toBe('09:30')
+
+      time.commit('minute', null)
+      expect(time.display.value).toBeNull()
+    })
+
+    it('should show a blocked value as given', () => {
+      const time = setup({ value: shallowRef('09:07:45'), minuteStep: 15, readonly: true })
+
+      expect(time.value.value).toBe('09:07:45')
+      expect(time.display.value).toBe('09:07')
+    })
+
+    it('should be null for a model the fields cannot show', () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const time = setup({ value: shallowRef('nope'), readonly: true })
+
+      expect(time.value.value).toBe('nope')
+      expect(time.display.value).toBeNull()
+      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -381,6 +524,39 @@ describe('createTimePicker', () => {
       expect(time.hour.value).toBe(12)
       expect(time.period.value).toBe('pm')
       expect(time.value.value).toBe('12:00')
+    })
+
+    it('should reset the remembered period when the value is set to null', async () => {
+      const value = shallowRef<string | null>('15:00')
+      const time = setup({ hourCycle: 'h12', value })
+
+      value.value = null
+      await nextTick()
+
+      expect(time.period.value).toBe('am')
+    })
+
+    it('should reset the remembered period when the value cannot be parsed', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const value = shallowRef<string | null>('15:00')
+      const time = setup({ hourCycle: 'h12', value })
+
+      value.value = 'abc'
+      await nextTick()
+
+      expect(value.value).toBeNull()
+      expect(time.period.value).toBe('am')
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it.each([['h12'], ['h23']] as const)('should snap a fractional %s hour without rounding it first', hourCycle => {
+      const time = setup({ hourCycle, hourStep: 2 })
+
+      time.commit('minute', 0)
+      time.commit('hour', 2.5)
+
+      expect(time.value.value).toBe('02:00')
     })
 
     it('should follow a runtime change of the hour cycle', () => {
@@ -558,6 +734,16 @@ describe('createTimePicker', () => {
       const time = setup({ minuteStep: 15, value: shallowRef('10:58') })
 
       expect(time.value.value).toBe('10:45')
+    })
+
+    it('should resnap when the hour step changes', async () => {
+      const hourStep = shallowRef(1)
+      const time = setup({ hourStep, value: shallowRef('13:00') })
+
+      hourStep.value = 6
+      await nextTick()
+
+      expect(time.value.value).toBe('12:00')
     })
 
     it('should resnap when a step changes', async () => {
@@ -741,6 +927,34 @@ describe('createTimePicker', () => {
       expect(time.value.value).toBe('09:30')
     })
 
+    it('should clamp again when max changes', async () => {
+      const max = shallowRef<string | null>(null)
+      const time = setup({ max, value: shallowRef('18:00') })
+
+      max.value = '17:00'
+      await nextTick()
+
+      expect(time.value.value).toBe('17:00')
+    })
+
+    it('should read an undefined bound or step as unset', () => {
+      const time = setup({
+        min: () => undefined,
+        max: () => undefined,
+        hourStep: () => undefined,
+        minuteStep: () => undefined,
+        secondStep: () => undefined,
+        seconds: true,
+        value: shallowRef('10:00:00'),
+      })
+
+      time.step('hour', 1)
+      time.step('minute', 1)
+      time.step('second', 1)
+
+      expect(time.value.value).toBe('11:01:01')
+    })
+
     it('should clamp an external write', async () => {
       const value = shallowRef<string | null>('12:00')
       setup({ value, max: '17:00' })
@@ -794,6 +1008,150 @@ describe('createTimePicker', () => {
       setup({ min: '', max: null, value: shallowRef('08:00') })
 
       expect(spy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('bounds and the grid', () => {
+    it('should put a value that leaves a bound back on the grid', async () => {
+      const value = shallowRef<string | null>('23:59')
+      const disabled = shallowRef(false)
+      const time = setup({ value, disabled, minuteStep: 15, max: '17:10' })
+
+      expect(value.value).toBe('17:10')
+
+      time.step('hour', -1)
+      expect(value.value).toBe('16:15')
+
+      disabled.value = true
+      await nextTick()
+      disabled.value = false
+      await nextTick()
+
+      expect(value.value).toBe('16:15')
+    })
+
+    it.each([
+      [{ minuteStep: 15, max: '17:10' }, '23:59', '17:10'],
+      [{ minuteStep: 15, min: '17:10' }, '16:00', '17:10'],
+      [{ hourStep: 5, min: '13:10' }, '08:00', '13:10'],
+    ])('should publish a value that survives being read back: %j from %s', async (options, raw, pinned) => {
+      const value = shallowRef<string | null>(raw)
+      const disabled = shallowRef(false)
+      setup({ ...options, value, disabled })
+
+      expect(value.value).toBe(pinned)
+
+      value.value = null
+      await nextTick()
+      value.value = pinned
+      await nextTick()
+      expect(value.value).toBe(pinned)
+
+      disabled.value = true
+      await nextTick()
+      disabled.value = false
+      await nextTick()
+      expect(value.value).toBe(pinned)
+    })
+
+    it('should do nothing when the period committed is the current one', () => {
+      const time = setup({ hourCycle: 'h12', hourStep: 5, min: '13:10', value: shallowRef('13:10') })
+
+      time.commit('period', 'pm')
+
+      expect(time.value.value).toBe('13:10')
+    })
+  })
+
+  describe('second field', () => {
+    it('should move the second on its own step', () => {
+      const time = setup({ seconds: true, secondStep: 20, minuteStep: 15, value: shallowRef('10:00:00') })
+
+      time.step('second', 1)
+      expect(time.value.value).toBe('10:00:20')
+
+      time.step('second', -2)
+      expect(time.value.value).toBe('10:00:40')
+
+      time.commit('second', 58)
+      expect(time.value.value).toBe('10:00:40')
+      expect(time.grid('second')).toEqual({ min: 0, max: 40, step: 20 })
+    })
+
+    it('should clear only the second', () => {
+      const time = setup({ seconds: true, value: shallowRef('10:15:20') })
+
+      time.commit('second', null)
+
+      expect(time.value.value).toBeNull()
+      expect(time.minute.value).toBe(15)
+      expect(time.second.value).toBeNull()
+    })
+
+    it('should resnap when the second step changes', async () => {
+      const secondStep = shallowRef(1)
+      const time = setup({ seconds: true, secondStep, value: shallowRef('10:00:37') })
+
+      secondStep.value = 15
+      await nextTick()
+
+      expect(time.value.value).toBe('10:00:30')
+    })
+
+    it('should start at zero when seconds turn on after the incoming seconds were dropped', async () => {
+      const seconds = shallowRef(false)
+      const value = shallowRef<string | null>('09:30:45')
+      setup({ seconds, value })
+
+      expect(value.value).toBe('09:30')
+
+      seconds.value = true
+      await nextTick()
+
+      expect(value.value).toBe('09:30:00')
+    })
+
+    it('should not keep a second committed or stepped while seconds were off', async () => {
+      const seconds = shallowRef(false)
+      const time = setup({ seconds, value: shallowRef('09:30') })
+
+      time.commit('second', 7)
+      time.step('second', 1)
+      time.step('second', 1)
+      seconds.value = true
+      await nextTick()
+
+      expect(time.value.value).toBe('09:30:00')
+    })
+
+    it('should leave a cleared second empty when another option changes', async () => {
+      const minuteStep = shallowRef(1)
+      const time = setup({ seconds: true, minuteStep, value: shallowRef('09:30:15') })
+
+      time.commit('second', null)
+      minuteStep.value = 5
+      await nextTick()
+
+      expect(time.second.value).toBeNull()
+      expect(time.value.value).toBeNull()
+    })
+
+    it.each([['disabled'], ['readonly']] as const)('should keep incoming seconds while %s and seconds turn on', async flag => {
+      const value = shallowRef<string | null>('09:30:45')
+      const seconds = shallowRef(false)
+      const blocked = shallowRef(true)
+      const time = setup({ value, seconds, [flag]: blocked })
+
+      seconds.value = true
+      await nextTick()
+
+      expect(time.second.value).toBe(45)
+      expect(value.value).toBe('09:30:45')
+
+      blocked.value = false
+      await nextTick()
+
+      expect(value.value).toBe('09:30:45')
     })
   })
 
