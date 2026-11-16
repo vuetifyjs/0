@@ -185,7 +185,9 @@
     }
   })
 
-  defineExpose<AtomExpose>({
+  // No type argument: `defineExpose<AtomExpose>` on a non-generic SFC makes
+  // vue-component-meta report no props, slots, or events for the file.
+  defineExpose({
     get element () {
       return (atomRef.value?.element ?? null) as AtomExpose['element']
     },
