@@ -12,7 +12,8 @@
  * Each field moves on a cyclic grid: the multiples of its step inside the
  * cycle, anchored at `0` on the stored 24-hour value. Stepping wraps around
  * the grid; snapping goes to the nearest grid point and never wraps. A
- * complete value that falls outside `min` / `max` clamps to that bound.
+ * complete value that falls outside `min` / `max` moves to the nearest
+ * on-grid time inside them.
  *
  * Does not read the DOM, `window`, or the date plugin. To follow the locale,
  * map the date adapter yourself:
@@ -86,8 +87,8 @@ export interface TimeGrid {
 export interface TimePickerOptions {
   /**
    * Canonical `HH:mm` or `HH:mm:ss` source. An incoming value is snapped to
-   * the step grid, clamped into `min` / `max`, and written back in canonical
-   * form. With `seconds` on, `HH:mm` reads as second `0`; with it off,
+   * the step grid, moved to the nearest on-grid time inside `min` / `max`
+   * when it falls outside them, and written back in canonical form. With `seconds` on, `HH:mm` reads as second `0`; with it off,
    * `HH:mm:ss` drops the seconds. An unparseable value empties the fields
    * and becomes `null`. That pass runs before the next flush, together
    * with any option that changed in the same tick; until then the fields
@@ -140,20 +141,26 @@ export interface TimePickerOptions {
   secondStep?: MaybeRefOrGetter<number | undefined>
   /**
    * Inclusive lower bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only. A value pushed up to `min` stays there even when `min` is
-   * off the step grid; every other value is on the grid. The bound's
-   * seconds are ignored while `seconds` is off, so `min: '09:00:30'` then
-   * admits `09:00`. An unparseable `min` is ignored on its own; a `min`
-   * above `max`, compared the same way, turns both bounds off.
+   * value only. A value below it moves to the earliest time at or after
+   * `min` that is on every field's step grid; with `minuteStep: 15`,
+   * `min: '10:07'` starts the range at `10:15`. Only when no on-grid time
+   * lies between `min` and `max` is the grid set aside and the value
+   * clamped to the bound itself. The bound's seconds are ignored while
+   * `seconds` is off, so `min: '09:00:30'` then admits `09:00`. An
+   * unparseable `min` is ignored on its own; a `min` above `max`, compared
+   * the same way, turns both bounds off.
    */
   min?: MaybeRefOrGetter<string | null | undefined>
   /**
    * Inclusive upper bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only. A value pulled down to `max` stays there even when `max`
-   * is off the step grid; every other value is on the grid. The bound's
-   * seconds are ignored while `seconds` is off, so `max: '17:00:30'` then
-   * stops at `17:00`. An unparseable `max` is ignored on its own; a `max`
-   * below `min`, compared the same way, turns both bounds off.
+   * value only. A value above it moves to the latest time at or before
+   * `max` that is on every field's step grid; with `minuteStep: 15`,
+   * `max: '17:10'` ends the range at `17:00`. Only when no on-grid time
+   * lies between `min` and `max` is the grid set aside and the value
+   * clamped to the bound itself. The bound's seconds are ignored while
+   * `seconds` is off, so `max: '17:00:30'` then stops at `17:00`. An
+   * unparseable `max` is ignored on its own; a `max` below `min`, compared
+   * the same way, turns both bounds off.
    */
   max?: MaybeRefOrGetter<string | null | undefined>
   /**
@@ -408,7 +415,7 @@ function travel (list: number[], value: number, count: number): number {
  *
  * time.commit('hour', 8)
  * time.commit('minute', 50)
- * value.value // '09:00' — 08:45 on the grid, then pushed up to min
+ * value.value // '09:00' — 08:45 on the grid, then the first time inside the range
  * time.step('minute', 2)
  * value.value // '09:30'
  * ```
@@ -508,24 +515,60 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (seconds.value) stored.value = at % 60
   }
 
-  // A time sitting exactly on a bound is left alone, off the grid or not.
-  // Snapping it could move it inward, and the value would then change the
-  // next time it was read back with nothing edited.
+  // The on-grid time closest to a bound from inside: the earliest at or
+  // after it, or the latest at or before it. Null when there is none.
+  function edge (at: number, after: boolean): number | null {
+    const hourList = hourCycle.value === 'h12' ? [...hours('am'), ...hours('pm')] : hours('am')
+    const minuteList = sixty('minute')
+    const secondList = seconds.value ? sixty('second') : [0]
+
+    function order (list: number[]): number[] {
+      return after ? list : list.toReversed()
+    }
+
+    for (const hour of order(hourList)) {
+      if (after ? hour * 3600 + 3599 < at : hour * 3600 > at) continue
+      for (const minute of order(minuteList)) {
+        const base = hour * 3600 + minute * 60
+        if (after ? base + 59 < at : base > at) continue
+        for (const second of order(secondList)) {
+          if (after ? base + second >= at : base + second <= at) return base + second
+        }
+      }
+    }
+
+    return null
+  }
+
+  // Snap, then pull a time outside the range to the nearest on-grid time
+  // inside it. A range that holds no on-grid time cannot honor the grid, so
+  // there the time is only clamped: snapping first would let a value that
+  // was read back land on the other bound.
   function fit () {
-    const time = whole()
-    const low = boundSeconds(toValue(min) ?? null)
-    const high = boundSeconds(toValue(max) ?? null)
-    const ranged = isNull(low) || isNull(high) || low <= high
-    if (ranged && !isNull(time) && (total(time) === low || total(time) === high)) return
+    const from = boundSeconds(toValue(min) ?? null)
+    const to = boundSeconds(toValue(max) ?? null)
+    const ranged = isNull(from) || isNull(to) || from <= to
+    const low = ranged ? from : null
+    const high = ranged ? to : null
+
+    const first = isNull(low) ? 0 : edge(low, true)
+    const empty = isNull(first) || (!isNull(high) && first > high)
+    const raw = whole()
+
+    if (empty && !isNull(raw)) {
+      if (!isNull(low) && total(raw) < low) pin(low)
+      else if (!isNull(high) && total(raw) > high) pin(high)
+      return
+    }
 
     if (!isNull(hour24.value)) hour24.value = nearest(hours(meridiem(hour24.value)), hour24.value)
     if (!isNull(minute.value)) minute.value = nearest(sixty('minute'), minute.value)
     if (!isNull(stored.value)) stored.value = nearest(sixty('second'), stored.value)
 
-    const snapped = whole()
-    if (!ranged || isNull(snapped)) return
-    if (!isNull(low) && total(snapped) < low) pin(low)
-    else if (!isNull(high) && total(snapped) > high) pin(high)
+    const time = whole()
+    if (empty || isNull(time)) return
+    if (!isNull(low) && total(time) < low) pin(first)
+    else if (!isNull(high) && total(time) > high) pin(edge(high, false) ?? high)
   }
 
   function format (): string | null {
