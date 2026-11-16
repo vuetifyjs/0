@@ -84,7 +84,7 @@ flowchart TD
 | `disabled` | `false` | Blocks every edit and every write to `value` |
 | `readonly` | `false` | Blocks every edit and every write to `value` |
 
-`hourCycle`, `seconds`, the steps, `min`, `max`, `disabled`, and `readonly` accept a `MaybeRefOrGetter`. `value` is a `Ref<string | null>`. A change to `hourCycle`, `seconds`, a step, or a bound re-applies the step and the bounds to the current value.
+`hourCycle`, `seconds`, the steps, `min`, `max`, `disabled`, and `readonly` accept a `MaybeRefOrGetter`. `value` is a `Ref<string | null>`. A change to `hourCycle`, `seconds`, a step, or a bound re-applies the step and the bounds to the current value before the next flush.
 
 ### Step grid
 
@@ -92,8 +92,8 @@ Each field moves on the multiples of its step, counted from 0 on the stored 24-h
 
 - `step` moves along the multiples and wraps at either end. With `minuteStep: 15`, stepping up from 0 gives 15, 30, 45, 0, and stepping down gives 45, 30, 15, 0.
 - `commit` goes to the nearest multiple and never wraps. `commit('minute', 58)` is 45.
-- A fractional step truncates. A non-finite or non-positive step is read as 1. A step larger than the field leaves 0 as its only value.
-- In `h12` the hour stays inside the current half of the day. The multiples are still counted on the 24-hour value, so `hourStep: 5` allows 12, 5, and 10 in the morning and 3 and 8 in the afternoon.
+- A fractional step truncates. A non-finite or non-positive step is read as 1. A minute or second step above 59, or an `h23` hour step above 23, leaves 0 as the field's only value.
+- In `h12` the hour stays inside the current half of the day. The multiples are still counted on the 24-hour value, so `hourStep: 5` allows 12, 5, and 10 in the morning and 3 and 8 in the afternoon. A half of the day that holds no multiple keeps its first hour, so `hourStep: 24` allows 12 AM and 12 PM.
 
 `grid(part)` returns the lowest and highest value a numeric field can show and its resolved step, in display values. An `h12` hour reports the range for the current period.
 
@@ -106,6 +106,8 @@ An empty field lands on its first multiple, whatever the count: 0 for a minute, 
 ### Incoming values
 
 A string written to `value` from outside replaces every field. The picker moves each field to its nearest multiple, clamps a complete time into `min` and `max`, and writes the result back in canonical form.
+
+That pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. A value and an option that change in the same tick are applied together, so the new value is judged by the new options.
 
 | Incoming | Result |
 |----------|--------|
@@ -196,6 +198,10 @@ A partial time is not a time string. `commit('hour', 9)` alone leaves `value` nu
 ??? What do min and max do?
 
 They clamp a complete value into the window, and they win over the step. An incomplete value stays null and is not clamped. If both bounds parse and `min` is later than `max`, the clamp is skipped.
+
+??? Why does setting the value to null not clear a half-entered time?
+
+While a field is still empty the value is already null, so writing null again changes nothing and the picker is not told. Call `clear()` to empty the fields.
 
 ??? What happens when disabled or readonly is true?
 
