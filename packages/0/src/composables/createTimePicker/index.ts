@@ -384,6 +384,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   const stale = shallowRef(0)
 
   let writing = false
+  // The value the model and the fields last agreed on. Under a controlled
+  // model `value` lags the picker's own writes, so it cannot stand in.
+  let settled: unknown
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -464,7 +467,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (blocked()) return
     clampToRange()
     const next = format()
-    if (value.value === next) return
+    if (next === settled) return
+    settled = next
     writing = true
     value.value = next
     writing = false
@@ -606,7 +610,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     // has finished. Re-reading it would drop fields the value cannot carry
     // while it is still partial.
     watch(value, next => {
-      if (writing || next === format()) return
+      if (writing) return
+      settled = next
+      if (next === format()) return
       load(next)
       stale.value++
     }, { flush: 'sync' })
@@ -649,6 +655,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       )
     }
 
+    settled = value.value
     load(value.value)
     normalize(false)
   })
