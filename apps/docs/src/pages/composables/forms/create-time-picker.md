@@ -76,7 +76,7 @@ flowchart TD
 | Option | Type | Default | Notes |
 | - | - | - | - |
 | `value` | `Ref<string \| null>` | `shallowRef(null)` | Canonical 24-hour string, or null. The picker writes normalized values back to it |
-| `hourCycle` | `MaybeRefOrGetter<'h12' \| 'h23'>` | `'h23'` | `'h12'` shows 1–12 and a period. Any other value is read as `'h23'` |
+| `hourCycle` | `MaybeRefOrGetter<TimeHourCycle \| undefined>` | `'h23'` | `'h12'` shows 1–12 and a period. Any other value is read as `'h23'` |
 | `seconds` | `MaybeRefOrGetter<boolean>` | `false` | When true, the string includes seconds |
 | `hourStep` | `MaybeRefOrGetter<number \| undefined>` | `1` | Hour interval |
 | `minuteStep` | `MaybeRefOrGetter<number \| undefined>` | `1` | Minute interval |
@@ -101,7 +101,7 @@ Each field moves on the multiples of its step, counted from 0 on the stored 24-h
 
 ### Step count
 
-`step(part, count)` takes a signed count. The sign is the direction and the magnitude is the number of intervals. The count defaults to 1 and a fractional count truncates. A count of 0 or a non-finite count does nothing.
+`step(part, count)` takes a signed count. The sign is the direction and the magnitude is the number of intervals. The count defaults to 1 and a fractional count truncates. A count of 0 or a non-finite count changes nothing. A field that sits off its multiples moves to the adjacent multiple in the direction of travel on the first interval.
 
 An empty field lands on its first multiple, whatever the count: 0 for a minute, a second, or an `h23` hour. An empty `h12` hour lands on the first hour of the remembered period, which is 12 with the default step. For `period`, any non-zero count toggles AM and PM.
 
@@ -109,7 +109,17 @@ An empty field lands on its first multiple, whatever the count: 0 for a minute, 
 
 A string written to `value` from outside replaces every field. The picker moves each field to its nearest multiple, brings a complete time inside `min` and `max`, and writes the result back in canonical form.
 
-The initial value is normalized inside `createTimePicker`, before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. A value and an option that change in the same tick are applied together, so the new value is judged by the new options. `commit` and `step` apply any pending pass first, then edit, then write once, so an edit made in the same tick as a change gives the same result as one made a tick later.
+The initial value is normalized inside `createTimePicker`, before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. A value and an option that change in the same tick are applied together, so the new value is judged by the new options.
+
+### Edits
+
+`commit` and `step` work on what the fields show. The edited field snaps or steps by the rules above, then the whole time is normalized and written once.
+
+- A value or an option changed earlier in the same tick is applied first, so an edit made in the same tick as a change gives the same result as one made a tick later.
+- A value the fields took as given after a [refused update](#refused-updates) is not normalized before the edit. With `minuteStep: 15` and fields showing `04:50`, `step('minute', -1)` gives `04:45`.
+- A call that changes nothing writes nothing: a zero or non-finite count, the period the hour is already in, `period` in `h23`, `second` while `seconds` is off, a non-finite number, or clearing a field that is already empty. If a same-tick change was waiting, that change is still published.
+- A period commit snaps the hour to the nearest multiple inside its new half of the day.
+- When the model's setter throws, the fields stay on the last value the model and the picker agreed on, and the error propagates to the caller.
 
 | Incoming | Result |
 |----------|--------|
@@ -125,10 +135,12 @@ Turning `seconds` on while the hour and the minute are set keeps the time and se
 
 The model has the last word. A plain ref always takes what the picker writes. A writable computed, or a component model whose parent decides, may not.
 
-- **Refused.** When the model does not hold what the picker wrote, the fields take the model's value as given, without the step or the bounds applied, and the picker writes nothing more. The check runs one tick after the post flush, so the fields settle within two ticks: `await nextTick()` twice. It never runs after the scope is stopped.
+- **Refused.** When the model does not hold what the picker wrote, the fields take the model's value as given, without the step or the bounds applied, and the picker writes nothing more. The check runs one tick after the post flush, so the fields and `display` settle within two ticks: `await nextTick()` twice. Rendered output that reads them follows one render later. The check never runs after the scope is stopped.
 - **Replaced.** When the owner answers a write with a different value, that value is treated as an incoming one: normalized and written back once. If the owner alters that write too, the picker takes the owner's value as given and stops.
 
 One edit costs at most two writes, whatever the owner does. The picker never retries a write.
+
+Creation follows the same rule. Normalizing the initial value is one synchronous write. An owner that replaces it with a different value gets that replacement normalized and written back once, a tick later, so creation can cost two writes. An owner that only refuses gets one.
 
 Two things follow:
 
@@ -228,7 +240,7 @@ While a field is still empty the value is already null, so writing null again ch
 
 ??? What happens when the model does not accept a value?
 
-The fields take the model's value as given and the picker writes nothing more. That happens within two ticks of the refused write. If the owner answered with a different value instead, the picker normalizes it and writes back once. See [Refused updates](#refused-updates). Read `display` for the time the fields show.
+The fields take the model's value as given and the picker writes nothing more. The fields and `display` settle within two ticks of the refused write, and rendered output follows one render later. If the owner answered with a different value instead, the picker normalizes it and writes back once. See [Refused updates](#refused-updates). Read `display` for the time the fields show.
 
 ??? Does it write the model during server rendering?
 
