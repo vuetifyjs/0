@@ -250,8 +250,17 @@ export interface TimePickerContext {
    * nearest grid point without wrapping. In `h12` the hour is read as a
    * display hour in the current meridiem. A period commit moves a set hour
    * to the other half of the day, and is remembered while the hour is
-   * empty. No-op for `period` in `h23`, for the period the hour is already
-   * in, for `second` while seconds are off, and for a non-finite number.
+   * empty.
+   *
+   * The edit works on what the fields show. A value or option changed
+   * earlier in the same tick is applied first; a value the fields took as
+   * given after a refused write is not. The edited field follows the rules
+   * above, then the whole time is normalized and written once.
+   *
+   * Writes nothing for `period` in `h23`, for the period already shown,
+   * for `second` while seconds are off, for `null` on an empty field, and
+   * for a non-finite number, unless a change from the same tick was still
+   * waiting, which is then published.
    *
    * @example
    * ```ts
@@ -273,6 +282,14 @@ export interface TimePickerContext {
    * second, or an `h23` hour, and the first hour of the remembered meridiem
    * for an `h12` hour, which is `12` with the default step. Any non-zero
    * count flips the period.
+   *
+   * The step starts from what the field shows, so a value the fields took
+   * as given after a refused write moves onto the adjacent grid point in
+   * the direction of travel. A value or option changed earlier in the same
+   * tick is applied first. The whole time is then normalized and written
+   * once. A count of `0`, a non-finite count, `period` in `h23`, and
+   * `second` while seconds are off write nothing, unless a change from the
+   * same tick was still waiting, which is then published.
    *
    * @example
    * ```ts
@@ -476,6 +493,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // The last value written in this exchange. Its owner already answered it
   // with something else, so it is not offered again.
   let tried: string | null | undefined
+  // An incoming value is in the fields but the pass has not normalized it.
+  let fresh = false
+  // The options as the last pass saw them, to tell a change it has not.
+  let seen = ''
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -611,11 +632,25 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       load(settled, false)
       return
     }
+    // A setter or an update handler can throw. Nothing was written then, so
+    // the bookkeeping goes back to what it was and the fields return to the
+    // last agreed value, as after a refusal, before the error leaves.
+    const before = { settled, tried, turns, open }
     settled = next
     tried = next
     turns++
     open = true
-    value.value = next
+    try {
+      value.value = next
+    } catch (error) {
+      settled = before.settled
+      tried = before.tried
+      turns = before.turns
+      open = before.open
+      load(settled, false)
+      throw error
+    }
+
     if (value.value === next) open = false
     else sent.value++
   }
@@ -658,8 +693,23 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     tried = undefined
   }
 
+  function mark (): string {
+    return [
+      seconds.value,
+      blocked(),
+      hourCycle.value,
+      toValue(min) ?? null,
+      toValue(max) ?? null,
+      toValue(hourStep),
+      toValue(minuteStep),
+      toValue(secondStep),
+    ].join('\n')
+  }
+
   function normalize () {
     settle()
+    fresh = false
+    seen = mark()
     if (!blocked()) publish()
   }
 
@@ -673,37 +723,47 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     load(held, false)
   }
 
-  // An edit starts from the normalized time, so it gives the same result
-  // whether or not the pass for a change made in the same tick has run.
+  // A value or option that changed in this tick is still waiting for the
+  // pass. Applying it first gives an edit the same result as one made a
+  // tick later.
   function drain () {
     settle()
+    fresh = false
+    seen = mark()
     fit()
   }
 
-  function assign (part: TimePart, next: number | TimePeriod | null) {
+  function assign (part: TimePart, next: number | TimePeriod | null): boolean {
     if (part === 'period') {
-      if (hourCycle.value !== 'h12') return
-      if (next !== 'am' && next !== 'pm') return
+      if (hourCycle.value !== 'h12') return false
+      if (next !== 'am' && next !== 'pm') return false
+      if (period.value === next) return false
+
       pending.value = next
-      if (!isNull(hour24.value)) hour24.value = to24(displayHour(hour24.value), next)
-      return
+      // `fit` sets the grid aside in a range with no on-grid time, so the
+      // hour is snapped into its new half here, as a numeric commit does.
+      if (!isNull(hour24.value)) hour24.value = nearest(hours(next), to24(displayHour(hour24.value), next))
+      return true
     }
 
-    if (part === 'second' && !seconds.value) return
+    if (part === 'second' && !seconds.value) return false
 
     if (isNull(next)) {
       if (part === 'hour') {
-        if (!isNull(hour24.value)) pending.value = meridiem(hour24.value)
+        if (isNull(hour24.value)) return false
+        pending.value = meridiem(hour24.value)
         hour24.value = null
       } else if (part === 'minute') {
+        if (isNull(minute.value)) return false
         minute.value = null
       } else {
+        if (isNull(stored.value)) return false
         stored.value = null
       }
-      return
+      return true
     }
 
-    if (!isNumber(next) || !Number.isFinite(next)) return
+    if (!isNumber(next) || !Number.isFinite(next)) return false
 
     if (part === 'hour') {
       if (hourCycle.value === 'h12') {
@@ -717,48 +777,52 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     } else {
       stored.value = nearest(sixty('second'), next)
     }
+    return true
   }
 
-  function shift (part: TimePart, count: number) {
+  function shift (part: TimePart, count: number): boolean {
     const moves = Number.isFinite(count) ? Math.trunc(count) : 0
-    if (moves === 0) return
+    if (moves === 0) return false
 
-    if (part === 'period') {
-      assign('period', period.value === 'pm' ? 'am' : 'pm')
-      return
-    }
+    if (part === 'period') return assign('period', period.value === 'pm' ? 'am' : 'pm')
 
     if (part === 'hour') {
       const list = hours(period.value === 'pm' ? 'pm' : 'am')
       hour24.value = isNull(hour24.value) ? list[0]! : travel(list, hour24.value, moves)
-      return
+      return true
     }
 
-    if (part === 'second' && !seconds.value) return
+    if (part === 'second' && !seconds.value) return false
 
     const field = part === 'minute' ? minute : stored
     const list = sixty(part)
     field.value = isNull(field.value) ? list[0]! : travel(list, field.value, moves)
+    return true
   }
 
-  // Every edit runs between the pending normalization and one publish, so
-  // a call that turns out to change nothing still leaves the value settled.
+  // An edit works on what the fields show. A value they took as given is
+  // their settled state, so it is not normalized first; only a change still
+  // waiting for the pass is. A call that changes nothing writes nothing,
+  // unless such a change was waiting, which is then published.
+  function edit (change: () => boolean) {
+    if (blocked()) return
+
+    const due = fresh || mark() !== seen
+    if (due) drain()
+    if (!change() && !due) return
+
+    begin()
+    publish()
+  }
+
   function commit (part: TimeUnit, next: number | null): void
   function commit (part: 'period', next: TimePeriod): void
   function commit (part: TimePart, next: number | TimePeriod | null): void {
-    if (blocked()) return
-    begin()
-    drain()
-    assign(part, next)
-    publish()
+    edit(() => assign(part, next))
   }
 
   function step (part: TimePart, count = 1) {
-    if (blocked()) return
-    begin()
-    drain()
-    shift(part, count)
-    publish()
+    edit(() => shift(part, count))
   }
 
   function clear () {
@@ -790,6 +854,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     load(next)
     if (open && turns > 1) return
     if (!open) begin()
+    fresh = true
     stale.value++
   }, { flush: 'sync' })
 
@@ -797,33 +862,27 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // hands the props over one at a time. Normalizing before the flush keeps
   // a half-applied batch from being written over the incoming value.
   watch(
-    () => [
-      seconds.value,
-      blocked(),
-      hourCycle.value,
-      toValue(min) ?? null,
-      toValue(max) ?? null,
-      toValue(hourStep),
-      toValue(minuteStep),
-      toValue(secondStep),
-      stale.value,
-    ],
+    () => [mark(), stale.value] as const,
     (next, previous) => {
-      if (next.at(-1) === previous.at(-1)) begin()
+      if (next[1] === previous[1]) begin()
       normalize()
     },
     { flush: 'pre' },
   )
 
-  // The owner answers in its own queued work, which on a top-level mount
-  // runs after this component's post flush. Waiting one more tick keeps an
-  // accepted write from being read as a refusal.
+  // The deferred check must not touch the fields of a picker that is gone.
   onScopeDispose(() => {
     live = false
   }, true)
 
-  watch(sent, () => {
+  // The owner answers in its own queued work, which on a top-level mount
+  // runs after this component's post flush. Waiting one more tick keeps an
+  // accepted write from being read as a refusal. A check that a later write
+  // has overtaken stands down: that write's answer is not in yet, and its
+  // own check follows.
+  watch(sent, ticket => {
     void nextTick(() => {
+      if (ticket !== sent.value) return
       open = false
       if (live) adopt()
     })
