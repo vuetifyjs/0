@@ -1,15 +1,19 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { TimePicker } from './index'
+import { TimePicker, useTimePickerRoot } from './index'
 
 // Utilities
+import { isUndefined } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, shallowRef } from 'vue'
+import { createVNode, defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { TimePickerPeriodSlotProps, TimePickerRootSlotProps } from './index'
+import type { TimePickerPeriodSlotProps, TimePickerRootContext, TimePickerRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 import type { Component, VNode } from 'vue'
+
+// Vue's PatchFlags.PROPS: the vnode names its dynamic props.
+const PROPS = 8
 
 const wrappers: VueWrapper[] = []
 
@@ -30,23 +34,42 @@ function fields (): VNode[] {
 
 // The host owns the model the way an app does: the picker emits, the host
 // re-renders, and the new prop reaches the picker on a later flush.
+// With `lead` set, the Root vnode is built the way a compiled template
+// builds it, so Vue applies changed props one at a time in template order:
+// `true` lists `v-model` first, `false` lists it last.
 function mountTime (
   props: Record<string, unknown> = {},
   slot: (root: TimePickerRootSlotProps) => VNode[] = fields,
+  lead?: boolean,
 ) {
   const { modelValue = null, ...rest } = props
   const model = shallowRef(modelValue as string | null)
+  const bound = shallowRef(rest)
+  const emitted: (string | null)[] = []
+
+  function onUpdate (value: string | null) {
+    emitted.push(value)
+    model.value = value
+  }
+
+  function root (): VNode {
+    const all: Record<string, unknown> = { ...bound.value, modelValue: model.value }
+    const children = { default: slot }
+    if (isUndefined(lead)) {
+      return h(TimePicker.Root as Component, { ...all, 'onUpdate:modelValue': onUpdate }, children)
+    }
+
+    const keys = Object.keys(bound.value)
+    const dynamic = lead ? ['modelValue', ...keys] : [...keys, 'modelValue']
+    const ordered: Record<string, unknown> = {}
+    for (const key of dynamic) ordered[key] = all[key]
+    ordered['onUpdate:modelValue'] = onUpdate
+
+    return createVNode(TimePicker.Root as Component, ordered, children, PROPS, dynamic)
+  }
 
   const Host = defineComponent({
-    render: () => h('form', [
-      h(TimePicker.Root as Component, {
-        ...rest,
-        'modelValue': model.value,
-        'onUpdate:modelValue': (value: string | null) => {
-          model.value = value
-        },
-      }, { default: slot }),
-    ]),
+    render: () => h('form', [root()]),
   })
 
   const wrapper = mount(Host, { attachTo: document.body })
@@ -54,8 +77,12 @@ function mountTime (
 
   return {
     model,
+    emitted,
     wrapper,
     part: (name: string) => wrapper.get(`[data-part="${name}"]`),
+    set: (next: Record<string, unknown>) => {
+      bound.value = { ...bound.value, ...next }
+    },
     wait: () => nextTick(),
   }
 }
@@ -357,6 +384,133 @@ describe('timePicker', () => {
 
       expect(model.value).toBe('04:07')
       expect(part('minute').attributes('aria-valuenow')).toBe('7')
+    })
+  })
+
+  describe('controlled model', () => {
+    it('should not emit on mount for a canonical value', async () => {
+      const { emitted, model, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      expect(emitted).toEqual([])
+      expect(model.value).toBe('09:30')
+    })
+
+    it('should not emit back a canonical value the host sets after an edit', async () => {
+      const { emitted, model, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      press(part('minute').element, 'ArrowUp')
+      await wait()
+      expect(emitted).toEqual(['09:31'])
+
+      model.value = '12:00'
+      await wait()
+
+      expect(emitted).toEqual(['09:31'])
+      expect(part('hour').attributes('aria-valuenow')).toBe('12')
+    })
+
+    it('should emit the end state of two edits that return to the starting value', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      press(part('minute').element, 'ArrowUp')
+      press(part('minute').element, 'ArrowDown')
+      await wait()
+      await wait()
+
+      expect(model.value).toBe('09:30')
+      expect(part('minute').attributes('aria-valuenow')).toBe('30')
+    })
+
+    it('should emit a value re-entered in the same tick it was cleared', async () => {
+      let time: TimePickerRootContext | undefined
+      const Probe = defineComponent({
+        setup () {
+          time = useTimePickerRoot('v0:time-picker')
+          return () => null
+        },
+      })
+
+      const { model, part, wait } = mountTime({ modelValue: '09:30' }, () => [...fields(), h(Probe, { key: 'probe' })])
+      await wait()
+
+      time!.clear()
+      time!.commit('hour', 9)
+      time!.commit('minute', 30)
+      await wait()
+      await wait()
+
+      expect(model.value).toBe('09:30')
+      expect(part('hour').attributes('aria-valuenow')).toBe('9')
+      expect(part('minute').attributes('aria-valuenow')).toBe('30')
+    })
+
+    describe.each([
+      ['v-model listed last', false],
+      ['v-model listed first', true],
+    ])('with %s', (_, lead) => {
+      it('should keep a model value that arrives together with a bound', async () => {
+        const { model, set, wait } = mountTime({ modelValue: '08:00' }, fields, lead)
+        await wait()
+
+        set({ min: '09:00' })
+        model.value = '10:00'
+        await wait()
+        await wait()
+
+        expect(model.value).toBe('10:00')
+      })
+
+      it('should keep a model value that arrives as a bound is lifted', async () => {
+        const { model, set, wait } = mountTime({ modelValue: '10:00', min: '09:00' }, fields, lead)
+        await wait()
+
+        set({ min: null })
+        model.value = '08:30'
+        await wait()
+        await wait()
+
+        expect(model.value).toBe('08:30')
+      })
+
+      it('should keep the seconds of a model value that arrives as seconds turn on', async () => {
+        const { model, set, wait } = mountTime({ modelValue: '09:30' }, fields, lead)
+        await wait()
+
+        set({ seconds: true })
+        model.value = '11:15:45'
+        await wait()
+        await wait()
+
+        expect(model.value).toBe('11:15:45')
+      })
+
+      it('should keep a model value that arrives as a step is lifted', async () => {
+        const { model, set, wait } = mountTime({ modelValue: '08:00', minuteStep: 15 }, fields, lead)
+        await wait()
+
+        set({ minuteStep: 1 })
+        model.value = '08:07'
+        await wait()
+        await wait()
+
+        expect(model.value).toBe('08:07')
+      })
+
+      it('should keep a model value that arrives as the picker is enabled', async () => {
+        const { model, part, set, wait } = mountTime({ modelValue: '04:07', disabled: true, minuteStep: 15 }, fields, lead)
+        await wait()
+
+        set({ disabled: false })
+        model.value = '10:30'
+        await wait()
+        await wait()
+
+        expect(model.value).toBe('10:30')
+        expect(part('hour').attributes('aria-valuenow')).toBe('10')
+      })
     })
   })
 
