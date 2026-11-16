@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables/useLocale'
+
 import { TimePicker, useTimePickerRoot } from './index'
 
 // Utilities
@@ -88,6 +91,14 @@ function mountTime (
     },
     wait: () => nextTick(),
   }
+}
+
+// A refused write is noticed one tick after the flush that follows it, and
+// the fields it puts back render on the flush after that.
+async function answered () {
+  await nextTick()
+  await nextTick()
+  await nextTick()
 }
 
 function press (element: Element, key: string): KeyboardEvent {
@@ -349,6 +360,20 @@ describe('timePicker', () => {
 
       expect(labelled.part(name).attributes('aria-labelledby')).toBe('outside')
       expect(labelled.part(name).attributes('aria-label')).toBeUndefined()
+    })
+
+    it('should take the order of a 12-hour hour and its meridiem from the locale catalog', async () => {
+      const messages = { en: { TimePicker: { hourText: '{period} / {hour}' } } }
+      const wrapper = mount(TimePicker.Root as Component, {
+        props: { modelValue: '15:07', hourCycle: 'h12' },
+        slots: { default: () => [h(TimePicker.Hour as Component)] },
+        global: { plugins: [createLocalePlugin({ default: 'en', messages })] },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await nextTick()
+
+      expect(wrapper.get('[data-part="hour"]').attributes('aria-valuetext')).toBe('PM / 3')
     })
 
     it('should omit the current value while a field is empty', async () => {
@@ -718,17 +743,16 @@ describe('timePicker', () => {
       ['rewrites', cap],
       ['refuses', refuse],
     ])('should show what the model holds when the host %s an update', async (_, accept) => {
-      const { emitted, model, wrapper, part, wait } = mountTime({ modelValue: '11:00', name: 'alarm' }, fields, true, accept)
-      await wait()
+      const { emitted, model, wrapper, part } = mountTime({ modelValue: '11:00', name: 'alarm' }, fields, true, accept)
+      await answered()
 
       press(part('hour').element, 'ArrowUp')
-      await wait()
+      await answered()
       expect(model.value).toBe('12:00')
       expect(part('hour').attributes('aria-valuenow')).toBe('12')
 
       press(part('hour').element, 'ArrowUp')
-      await wait()
-      await wait()
+      await answered()
 
       expect(model.value).toBe('12:00')
       expect(part('hour').attributes('aria-valuenow')).toBe('12')
@@ -736,8 +760,7 @@ describe('timePicker', () => {
       expect(emitted).toEqual(['12:00', '13:00'])
 
       press(part('hour').element, 'ArrowDown')
-      await wait()
-      await wait()
+      await answered()
 
       expect(model.value).toBe('11:00')
       expect(part('hour').attributes('aria-valuenow')).toBe('11')
@@ -745,16 +768,40 @@ describe('timePicker', () => {
     })
 
     it('should keep a half-entered time the host has no say over', async () => {
-      const { model, part, wait } = mountTime({ modelValue: '11:30' }, fields, true, refuse)
-      await wait()
+      const { model, part } = mountTime({ modelValue: '11:30' }, fields, true, refuse)
+      await answered()
 
       press(part('minute').element, 'Delete')
-      await wait()
-      await wait()
+      await answered()
 
       expect(model.value).toBeNull()
       expect(part('hour').attributes('aria-valuenow')).toBe('11')
       expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+    })
+
+    it('should widen the reported range downward for a value the host insists on', async () => {
+      const { part } = mountTime({ modelValue: '13:00', hourCycle: 'h12', hourStep: 5 }, fields, true, keep)
+      await answered()
+
+      expect(part('hour').attributes('aria-valuenow')).toBe('1')
+      expect(part('hour').attributes('aria-valuemin')).toBe('1')
+      expect(part('hour').attributes('aria-valuemax')).toBe('8')
+    })
+
+    it('should step a value the host insists on from what the field shows', async () => {
+      const { emitted, part } = mountTime({ modelValue: '04:50', minuteStep: 15 }, fields, true, keep)
+      await answered()
+
+      expect(emitted).toEqual(['04:45'])
+      expect(part('minute').attributes('aria-valuenow')).toBe('50')
+
+      press(part('minute').element, 'ArrowDown')
+      expect(emitted).toEqual(['04:45', '04:45'])
+
+      await answered()
+
+      expect(emitted).toEqual(['04:45', '04:45'])
+      expect(part('minute').attributes('aria-valuenow')).toBe('50')
     })
 
     it('should emit once more, and no further, when the host replaces a write with a value off the grid', async () => {
@@ -762,13 +809,11 @@ describe('timePicker', () => {
         return !isNull(value) && value > '12:08' ? '12:08' : value
       }
 
-      const { emitted, model, wrapper, part, wait } = mountTime({ modelValue: '10:00', minuteStep: 15, name: 'alarm' }, fields, true, limit)
-      await wait()
+      const { emitted, model, wrapper, part } = mountTime({ modelValue: '10:00', minuteStep: 15, name: 'alarm' }, fields, true, limit)
+      await answered()
 
       press(part('hour').element, 'End')
-      await wait()
-      await wait()
-      await wait()
+      await answered()
 
       expect(emitted).toEqual(['23:00', '12:15'])
       expect(model.value).toBe('12:08')
@@ -778,10 +823,8 @@ describe('timePicker', () => {
     })
 
     it('should show a value the host insists on as given and take it up again after an option change', async () => {
-      const { emitted, model, part, set, wait } = mountTime({ modelValue: '10:50', minuteStep: 20 }, fields, true, keep)
-      await wait()
-      await wait()
-      await wait()
+      const { emitted, model, part, set } = mountTime({ modelValue: '10:50', minuteStep: 20 }, fields, true, keep)
+      await answered()
 
       expect(emitted).toEqual(['10:40'])
       expect(model.value).toBe('10:50')
@@ -789,8 +832,7 @@ describe('timePicker', () => {
       expect(part('minute').attributes('aria-valuemax')).toBe('50')
 
       set({ minuteStep: 1 })
-      await wait()
-      await wait()
+      await answered()
 
       expect(emitted).toEqual(['10:40'])
       expect(part('minute').attributes('aria-valuenow')).toBe('50')
@@ -800,10 +842,8 @@ describe('timePicker', () => {
     it('should warn once about a model the host will not let go of', async () => {
       using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      const { emitted, model, part, wait } = mountTime({ modelValue: 'bogus' }, fields, true, keep)
-      await wait()
-      await wait()
-      await wait()
+      const { emitted, model, part } = mountTime({ modelValue: 'bogus' }, fields, true, keep)
+      await answered()
 
       expect(emitted).toEqual([null])
       expect(model.value).toBe('bogus')
@@ -812,12 +852,39 @@ describe('timePicker', () => {
     })
   })
 
+  describe('edits close together', () => {
+    it.each([
+      ['a microtask', () => Promise.resolve()],
+      ['a tick', () => nextTick()],
+      ['a macrotask', () => new Promise<void>(resolve => setTimeout(resolve, 0))],
+    ])('should keep a half-entered time when keys come %s apart', async (_, gap) => {
+      const { model, part } = mountTime({ modelValue: '09:30:10', seconds: true }, fields, true)
+      await answered()
+
+      press(part('hour').element, 'ArrowUp')
+      await gap()
+      press(part('hour').element, 'Backspace')
+      await gap()
+      press(part('minute').element, 'ArrowDown')
+      await answered()
+      await answered()
+
+      expect(model.value).toBeNull()
+      expect(part('hour').attributes('aria-valuenow')).toBeUndefined()
+      expect(part('minute').attributes('aria-valuenow')).toBe('29')
+      expect(part('second').attributes('aria-valuenow')).toBe('10')
+
+      press(part('hour').element, 'ArrowUp')
+      await answered()
+
+      expect(model.value).toBe('00:29:10')
+    })
+  })
+
   describe('mount', () => {
     it('should emit once when a top-level mount normalizes the value', async () => {
-      const { emitted, model, part, wait } = mountTime({ modelValue: '09:50', minuteStep: 15 })
-      await wait()
-      await wait()
-      await wait()
+      const { emitted, model, part } = mountTime({ modelValue: '09:50', minuteStep: 15 })
+      await answered()
 
       expect(emitted).toEqual(['09:45'])
       expect(model.value).toBe('09:45')
@@ -846,9 +913,7 @@ describe('timePicker', () => {
       wrappers.push(wrapper)
 
       shown.value = true
-      await nextTick()
-      await nextTick()
-      await nextTick()
+      await answered()
 
       expect(emitted).toEqual(['09:45'])
       expect(wrapper.get('[data-part="minute"]').attributes('aria-valuenow')).toBe('45')
