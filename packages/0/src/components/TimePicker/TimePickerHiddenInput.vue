@@ -5,8 +5,8 @@
  *
  * @remarks
  * Hidden native input for form submission. Auto-rendered by Root when
- * `name` is set. Submits the canonical 24-hour value, or an empty string
- * while a field is still empty.
+ * `name` is set. Submits the time the fields show as a 24-hour string, or
+ * an empty string while a field is still empty.
  */
 
 <script lang="ts">
@@ -32,14 +32,15 @@
   const root = useTimePickerRoot(namespace)
 
   const name = toRef(() => root.name.value)
-  const value = toRef(() => root.value.value ?? '')
+  const value = toRef(() => root.display.value ?? '')
+  const form = toRef(() => root.form.value)
   const isDisabled = toRef(() => root.isDisabled.value)
 </script>
 
 <template>
   <input
     :disabled="isDisabled || undefined"
-    inert
+    :form
     :name
     tabindex="-1"
     type="hidden"

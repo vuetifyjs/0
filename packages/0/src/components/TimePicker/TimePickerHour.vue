@@ -23,6 +23,12 @@
   export interface TimePickerHourProps extends AtomProps {
     /** Namespace for connecting to TimePicker.Root. */
     namespace?: string
+    /** Id of the spinbutton. Defaults to the Root id plus the part name. */
+    id?: string
+    /** Accessible name. Falls back to the locale catalog. */
+    ariaLabel?: string
+    /** Id of the element that labels the spinbutton. Replaces `ariaLabel`. */
+    ariaLabelledby?: string
   }
 
   export interface TimePickerHourSlotProps extends Omit<TimePickerFieldSlotProps, 'value'> {
@@ -42,6 +48,9 @@
     as = 'div',
     renderless,
     namespace = 'v0:time-picker',
+    id,
+    ariaLabel,
+    ariaLabelledby,
   } = defineProps<TimePickerHourProps>()
 
   const fieldRef = useTemplateRef<AtomExpose>('field')
@@ -57,8 +66,11 @@
 
 <template>
   <TimePickerField
+    :id
     ref="field"
     v-slot="slotProps"
+    :aria-label
+    :aria-labelledby
     :as
     :namespace
     part="hour"

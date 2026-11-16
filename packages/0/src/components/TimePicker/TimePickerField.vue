@@ -9,6 +9,8 @@
  * for the values that segment can show, and maps keys onto the context:
  * arrows and Page keys step, Home and End jump to the ends of the grid,
  * Backspace and Delete clear. Not exported; use the named parts.
+ *
+ * @internal
  */
 
 <script lang="ts">
@@ -27,13 +29,20 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-  import type { TimePart, TimePeriod } from '#v0/composables/createTimePicker'
+  import type { TimePart, TimePeriod, TimeUnit } from '#v0/composables/createTimePicker'
+  import type { ID } from '#v0/types'
 
   export interface TimePickerFieldProps extends AtomProps {
     /** Which segment this spinbutton edits. */
     part: TimePart
     /** Namespace for connecting to TimePicker.Root. */
     namespace?: string
+    /** Id of the spinbutton. Defaults to the Root id plus the part name. */
+    id?: string
+    /** Accessible name. Falls back to the locale catalog. */
+    ariaLabel?: string
+    /** Id of the element that labels the spinbutton. Replaces `ariaLabel`. */
+    ariaLabelledby?: string
   }
 
   export interface TimePickerFieldSlotProps {
@@ -47,11 +56,12 @@
     isReadonly: boolean
     /** Attributes for the spinbutton. */
     attrs: {
-      'id': string
+      'id': ID
       'role': 'spinbutton'
       'tabindex': number
       'type': 'button' | undefined
-      'aria-label': string
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
       'aria-disabled': boolean | undefined
       'aria-readonly': true | undefined
       'aria-valuenow': number | undefined
@@ -59,6 +69,7 @@
       'aria-valuemax': number
       'aria-valuetext': string | undefined
       'data-part': TimePart
+      'data-state': 'empty' | 'filled'
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'disabled': true | undefined
@@ -81,6 +92,9 @@
     renderless,
     namespace = 'v0:time-picker',
     part,
+    id,
+    ariaLabel,
+    ariaLabelledby,
   } = defineProps<TimePickerFieldProps>()
 
   const time = useTimePickerRoot(namespace)
@@ -93,8 +107,12 @@
     return true
   })
 
-  function bounds (): { min: number, max: number } {
-    return part === 'period' ? { min: 0, max: 1 } : time.grid(part)
+  // A blocked picker shows the value as given, which may sit off the step
+  // grid, so the range it reports is the whole field.
+  function bounds (unit: TimeUnit): { min: number, max: number } {
+    if (!time.isDisabled.value && !time.isReadonly.value) return time.grid(unit)
+    if (unit !== 'hour') return { min: 0, max: 59 }
+    return time.hourCycle.value === 'h12' ? { min: 1, max: 12 } : { min: 0, max: 23 }
   }
 
   function current (): number | null {
@@ -105,21 +123,31 @@
     return time.period.value === 'pm' ? 1 : 0
   }
 
-  function fieldLabel (): string {
+  function label (): string {
     if (part === 'hour') return locale.ti('TimePicker.hour') ?? 'Hour'
     if (part === 'minute') return locale.ti('TimePicker.minute') ?? 'Minute'
     if (part === 'second') return locale.ti('TimePicker.second') ?? 'Second'
     return locale.ti('TimePicker.period') ?? 'AM/PM'
   }
 
-  function fieldText (value: number | null): string {
-    if (part === 'period') {
-      if (time.period.value === 'pm') return locale.ti('TimePicker.pm') ?? 'PM'
-      if (time.period.value === 'am') return locale.ti('TimePicker.am') ?? 'AM'
-      return ''
-    }
-    if (isNull(value)) return ''
-    return String(value).padStart(2, '0')
+  function meridiem (): string {
+    if (time.period.value === 'pm') return locale.ti('TimePicker.pm') ?? 'PM'
+    if (time.period.value === 'am') return locale.ti('TimePicker.am') ?? 'AM'
+    return ''
+  }
+
+  function text (now: number | null): string {
+    if (part === 'period') return meridiem()
+    return isNull(now) ? '' : String(now).padStart(2, '0')
+  }
+
+  // Only where the number alone does not say it: the period reads as its
+  // label, and a 12-hour hour carries its meridiem.
+  function spoken (now: number | null): string | undefined {
+    if (isNull(now)) return undefined
+    if (part === 'period') return meridiem()
+    if (part === 'hour' && time.hourCycle.value === 'h12') return `${locale.n(now)} ${meridiem()}`
+    return undefined
   }
 
   // About two hours, or fifteen minutes or seconds, in whole intervals.
@@ -177,29 +205,30 @@
 
   const slotProps = toRef((): TimePickerFieldSlotProps => {
     const now = current()
-    const text = fieldText(now)
-    const { min, max } = bounds()
+    const { min, max } = part === 'period' ? { min: 0, max: 1 } : bounds(part)
     const button = as === 'button'
     const blocked = time.isDisabled.value
 
     return {
-      text,
+      text: text(now),
       value: part === 'period' ? time.period.value : now,
       isDisabled: blocked,
       isReadonly: time.isReadonly.value,
       attrs: {
-        'id': `${time.id}-${part}`,
+        'id': id ?? `${time.id}-${part}`,
         'role': 'spinbutton',
         'tabindex': blocked ? -1 : 0,
         'type': button ? 'button' : undefined,
-        'aria-label': fieldLabel(),
+        'aria-label': ariaLabelledby ? undefined : (ariaLabel || label()),
+        'aria-labelledby': ariaLabelledby || undefined,
         'aria-disabled': button ? undefined : blocked,
         'aria-readonly': time.isReadonly.value || undefined,
         'aria-valuenow': isNull(now) ? undefined : now,
         'aria-valuemin': min,
         'aria-valuemax': max,
-        'aria-valuetext': text === '' ? undefined : text,
+        'aria-valuetext': spoken(now),
         'data-part': part,
+        'data-state': isNull(now) ? 'empty' : 'filled',
         'data-disabled': blocked || undefined,
         'data-readonly': time.isReadonly.value || undefined,
         'disabled': button && blocked ? true : undefined,

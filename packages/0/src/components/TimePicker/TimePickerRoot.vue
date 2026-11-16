@@ -23,12 +23,13 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { useId } from '#v0/utilities'
+  import { isNull, useId } from '#v0/utilities'
   import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { TimeHourCycle, TimePeriod, TimePickerContext } from '#v0/composables/createTimePicker'
+  import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
   export interface TimePickerRootProps extends AtomProps {
@@ -52,16 +53,22 @@
     min?: string | null
     /** Inclusive upper bound, `HH:mm` or `HH:mm:ss`. */
     max?: string | null
-    /** Submit the canonical value with a form when set. */
+    /** Submit the displayed time with a form when set. */
     name?: string
+    /** Id of the form the hidden input belongs to, when it sits outside it. */
+    form?: string
     /** Id of the group element. */
     id?: string
     /** Accessible name for the group. Falls back to the locale catalog. */
-    label?: string
+    ariaLabel?: string
+    /** Id of the element that labels the group. Replaces `ariaLabel`. */
+    ariaLabelledby?: string
+    /** Id of the element that describes the group. */
+    ariaDescribedby?: string
   }
 
   export interface TimePickerRootSlotProps {
-    /** Canonical 24-hour value, or `null` while a field is empty. */
+    /** The time the fields show, as a 24-hour string, or `null` while a field is empty. */
     value: string | null
     /** Display hour. `0`–`23` in `h23`, `1`–`12` in `h12`. */
     hour: number | null
@@ -83,19 +90,26 @@
     clear: () => void
     /** Attributes for the group element. */
     attrs: {
-      'id': string
+      'id': ID
       'role': 'group'
-      'aria-label': string
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'aria-disabled': boolean | undefined
       'disabled': true | undefined
       'data-disabled': true | undefined
       'data-readonly': true | undefined
+      'data-complete': true | undefined
     }
   }
 
   export interface TimePickerRootContext extends TimePickerContext {
-    id: string
-    name: Readonly<Ref<string | undefined>>
+    /** Id of the group element; each field derives its own id from it. */
+    readonly id: ID
+    /** Form field name. The hidden input renders while it is set. */
+    readonly name: Readonly<Ref<string | undefined>>
+    /** Id of the form the hidden input is associated with. */
+    readonly form: Readonly<Ref<string | undefined>>
   }
 
   export const [useTimePickerRoot, provideTimePickerRoot] = /* @__PURE__ */ createContext<TimePickerRootContext>()
@@ -128,8 +142,11 @@
     min = null,
     max = null,
     name,
+    form,
     id = useId(),
-    label,
+    ariaLabel,
+    ariaLabelledby,
+    ariaDescribedby,
   } = defineProps<TimePickerRootProps>()
 
   const model = defineModel<string | null>({ default: null })
@@ -152,6 +169,7 @@
     ...time,
     id,
     name: toRef(() => name),
+    form: toRef(() => form),
   }
 
   provideTimePickerRoot(namespace, context)
@@ -163,7 +181,7 @@
     const blocked = time.isDisabled.value
 
     return {
-      value: time.value.value,
+      value: time.display.value,
       hour: time.hour.value,
       minute: time.minute.value,
       second: time.second.value,
@@ -176,11 +194,14 @@
       attrs: {
         id,
         'role': 'group',
-        'aria-label': label || (locale.ti('TimePicker.label') ?? 'Time'),
+        'aria-label': ariaLabelledby ? undefined : (ariaLabel || (locale.ti('TimePicker.label') ?? 'Time')),
+        'aria-labelledby': ariaLabelledby || undefined,
+        'aria-describedby': ariaDescribedby || undefined,
         'aria-disabled': button ? undefined : blocked,
         'disabled': button && blocked ? true : undefined,
         'data-disabled': blocked || undefined,
         'data-readonly': time.isReadonly.value || undefined,
+        'data-complete': isNull(time.display.value) ? undefined : true,
       },
     }
   })
