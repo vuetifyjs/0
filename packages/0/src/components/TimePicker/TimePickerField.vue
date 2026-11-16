@@ -1,3 +1,16 @@
+/**
+ * @module TimePickerField
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Shared spinbutton behind Hour, Minute, Second, and Period. Reads its
+ * segment from the TimePicker.Root context, emits the spinbutton ARIA
+ * for the values that segment can show, and maps keys onto the context:
+ * arrows and Page keys step, Home and End jump to the ends of the grid,
+ * Backspace and Delete clear. Not exported; use the named parts.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
@@ -14,12 +27,11 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-
-  export type TimePickerPart = 'hour' | 'minute' | 'second' | 'period'
+  import type { TimePart, TimePeriod } from '#v0/composables/createTimePicker'
 
   export interface TimePickerFieldProps extends AtomProps {
     /** Which segment this spinbutton edits. */
-    part: TimePickerPart
+    part: TimePart
     /** Namespace for connecting to TimePicker.Root. */
     namespace?: string
   }
@@ -27,8 +39,8 @@
   export interface TimePickerFieldSlotProps {
     /** Visible digits, or the meridiem label. Empty while the field is unset. */
     text: string
-    /** Numeric value of the field, or `null` while unset. */
-    value: number | null
+    /** Value of the field, or `null` while unset. The meridiem for Period. */
+    value: number | TimePeriod | null
     /** Whether edits are ignored. */
     isDisabled: boolean
     /** Whether edits are ignored. */
@@ -46,7 +58,7 @@
       'aria-valuemin': number
       'aria-valuemax': number
       'aria-valuetext': string | undefined
-      'data-part': TimePickerPart
+      'data-part': TimePart
       'data-disabled': true | undefined
       'data-readonly': true | undefined
       'disabled': true | undefined
@@ -82,22 +94,15 @@
   })
 
   function bounds (): { min: number, max: number } {
-    if (part === 'hour') {
-      return time.hourCycle.value === 'h12'
-        ? { min: 1, max: 12 }
-        : { min: 0, max: 23 }
-    }
-    if (part === 'period') return { min: 0, max: 1 }
-    return { min: 0, max: 59 }
+    return part === 'period' ? { min: 0, max: 1 } : time.grid(part)
   }
 
   function current (): number | null {
     if (part === 'hour') return time.hour.value
     if (part === 'minute') return time.minute.value
     if (part === 'second') return time.second.value
-    if (time.period.value === 'pm') return 1
-    if (time.period.value === 'am') return 0
-    return null
+    if (isNull(time.period.value)) return null
+    return time.period.value === 'pm' ? 1 : 0
   }
 
   function fieldLabel (): string {
@@ -117,27 +122,69 @@
     return String(value).padStart(2, '0')
   }
 
-  function onKeydown (event: KeyboardEvent) {
-    const up = event.key === 'ArrowUp'
-    const down = event.key === 'ArrowDown'
-    if (!up && !down) return
+  // About two hours, or fifteen minutes or seconds, in whole intervals.
+  function page (): number {
+    if (part === 'period') return 1
+    return Math.max(1, Math.round((part === 'hour' ? 2 : 15) / time.grid(part).step))
+  }
 
-    event.preventDefault()
+  function edge (side: 'min' | 'max') {
+    if (part === 'period') time.commit('period', side === 'min' ? 'am' : 'pm')
+    else time.commit(part, time.grid(part)[side])
+  }
+
+  function onKeydown (event: KeyboardEvent) {
     if (time.isDisabled.value || time.isReadonly.value) return
 
-    time.step(part, up ? 1 : -1)
+    switch (event.key) {
+      case 'ArrowUp': {
+        time.step(part, 1)
+        break
+      }
+      case 'ArrowDown': {
+        time.step(part, -1)
+        break
+      }
+      case 'PageUp': {
+        time.step(part, page())
+        break
+      }
+      case 'PageDown': {
+        time.step(part, -page())
+        break
+      }
+      case 'Home': {
+        edge('min')
+        break
+      }
+      case 'End': {
+        edge('max')
+        break
+      }
+      case 'Backspace':
+      case 'Delete': {
+        if (part === 'period') return
+        time.commit(part, null)
+        break
+      }
+      default: {
+        return
+      }
+    }
+
+    event.preventDefault()
   }
 
   const slotProps = toRef((): TimePickerFieldSlotProps => {
-    const value = current()
-    const text = fieldText(value)
+    const now = current()
+    const text = fieldText(now)
     const { min, max } = bounds()
     const button = as === 'button'
     const blocked = time.isDisabled.value
 
     return {
       text,
-      value,
+      value: part === 'period' ? time.period.value : now,
       isDisabled: blocked,
       isReadonly: time.isReadonly.value,
       attrs: {
@@ -148,7 +195,7 @@
         'aria-label': fieldLabel(),
         'aria-disabled': button ? undefined : blocked,
         'aria-readonly': time.isReadonly.value || undefined,
-        'aria-valuenow': isNull(value) ? undefined : value,
+        'aria-valuenow': isNull(now) ? undefined : now,
         'aria-valuemin': min,
         'aria-valuemax': max,
         'aria-valuetext': text === '' ? undefined : text,

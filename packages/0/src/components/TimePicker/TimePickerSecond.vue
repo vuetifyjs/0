@@ -1,3 +1,14 @@
+/**
+ * @module TimePickerSecond
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Second spinbutton, `0`–`59`. Renders only while seconds are on.
+ * Arrow, Page, Home, and End keys move it along its step grid;
+ * Backspace and Delete clear it. Must be used within TimePicker.Root.
+ */
+
 <script lang="ts">
   // Context
   import TimePickerField from './TimePickerField.vue'
@@ -14,7 +25,10 @@
     namespace?: string
   }
 
-  export type TimePickerSecondSlotProps = TimePickerFieldSlotProps
+  export interface TimePickerSecondSlotProps extends Omit<TimePickerFieldSlotProps, 'value'> {
+    /** Value of the field, or `null` while unset. */
+    value: number | null
+  }
 </script>
 
 <script setup lang="ts">
@@ -48,6 +62,6 @@
     part="second"
     :renderless
   >
-    <slot v-bind="slotProps" />
+    <slot v-bind="(slotProps as TimePickerSecondSlotProps)" />
   </TimePickerField>
 </template>

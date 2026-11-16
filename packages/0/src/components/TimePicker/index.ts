@@ -50,9 +50,9 @@ import Second from './TimePickerSecond.vue'
 export const TimePicker = {
   /** Group that owns the time value. @example `<TimePicker.Root v-model="value" />` */
   Root,
-  /** Hour spinbutton. Arrow keys step it. @example `<TimePicker.Hour />` */
+  /** Hour spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it. @example `<TimePicker.Hour />` */
   Hour,
-  /** Minute spinbutton. Arrow keys step it. @example `<TimePicker.Minute />` */
+  /** Minute spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it. @example `<TimePicker.Minute />` */
   Minute,
   /** Second spinbutton. Renders only when seconds are on. @example `<TimePicker.Second />` */
   Second,

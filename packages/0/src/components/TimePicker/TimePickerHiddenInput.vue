@@ -1,3 +1,14 @@
+/**
+ * @module TimePickerHiddenInput
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Hidden native input for form submission. Auto-rendered by Root when
+ * `name` is set. Submits the canonical 24-hour value, or an empty string
+ * while a field is still empty.
+ */
+
 <script lang="ts">
   // Context
   import { useTimePickerRoot } from './TimePickerRoot.vue'

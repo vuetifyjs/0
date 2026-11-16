@@ -1,3 +1,14 @@
+/**
+ * @module TimePickerPeriod
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Meridiem spinbutton. Renders only in a 12-hour cycle. Arrow and Page
+ * keys flip it, Home selects AM, and End selects PM. Must be used
+ * within TimePicker.Root.
+ */
+
 <script lang="ts">
   // Context
   import TimePickerField from './TimePickerField.vue'
@@ -7,6 +18,7 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { TimePeriod } from '#v0/composables/createTimePicker'
   import type { TimePickerFieldSlotProps } from './TimePickerField.vue'
 
   export interface TimePickerPeriodProps extends AtomProps {
@@ -14,7 +26,10 @@
     namespace?: string
   }
 
-  export type TimePickerPeriodSlotProps = TimePickerFieldSlotProps
+  export interface TimePickerPeriodSlotProps extends Omit<TimePickerFieldSlotProps, 'value'> {
+    /** Selected meridiem. `aria-valuenow` carries it as `0` for AM and `1` for PM. */
+    value: TimePeriod | null
+  }
 </script>
 
 <script setup lang="ts">
@@ -48,6 +63,6 @@
     part="period"
     :renderless
   >
-    <slot v-bind="slotProps" />
+    <slot v-bind="(slotProps as TimePickerPeriodSlotProps)" />
   </TimePickerField>
 </template>

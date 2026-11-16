@@ -1,3 +1,14 @@
+/**
+ * @module TimePickerMinute
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Minute spinbutton, `0`–`59`. Arrow, Page, Home, and End keys move it
+ * along its step grid; Backspace and Delete clear it. Must be used
+ * within TimePicker.Root.
+ */
+
 <script lang="ts">
   // Context
   import TimePickerField from './TimePickerField.vue'
@@ -14,7 +25,10 @@
     namespace?: string
   }
 
-  export type TimePickerMinuteSlotProps = TimePickerFieldSlotProps
+  export interface TimePickerMinuteSlotProps extends Omit<TimePickerFieldSlotProps, 'value'> {
+    /** Value of the field, or `null` while unset. */
+    value: number | null
+  }
 </script>
 
 <script setup lang="ts">
@@ -48,6 +62,6 @@
     part="minute"
     :renderless
   >
-    <slot v-bind="slotProps" />
+    <slot v-bind="(slotProps as TimePickerMinuteSlotProps)" />
   </TimePickerField>
 </template>

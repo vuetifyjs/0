@@ -1,3 +1,15 @@
+/**
+ * @module TimePickerRoot
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Root component for segmented time entry. Creates the time context via
+ * createTimePicker, bridges v-model, and provides it to the field
+ * components (Hour, Minute, Second, Period, HiddenInput). Renders the
+ * `role="group"` element that names the fields.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
@@ -11,7 +23,8 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { mergeProps, toRef, useAttrs, useId, useTemplateRef } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -21,19 +34,19 @@
   export interface TimePickerRootProps extends AtomProps {
     /** Namespace shared with the field components. */
     namespace?: string
-    /** Ignore every edit, including clear. */
+    /** Ignore every edit, show the value as given, and never emit. */
     disabled?: boolean
-    /** Ignore every edit, including clear. */
+    /** Ignore every edit, show the value as given, and never emit. */
     readonly?: boolean
     /** `h12` shows 1–12 and a meridiem. `h23` shows 0–23. @default 'h23' */
     hourCycle?: TimeHourCycle
     /** Show the second field and include seconds in the value. @default false */
     seconds?: boolean
-    /** Hour snap interval. @default 1 */
+    /** Hour interval. The hour moves on its multiples. @default 1 */
     hourStep?: number
-    /** Minute snap interval. @default 1 */
+    /** Minute interval. The minute moves on its multiples. @default 1 */
     minuteStep?: number
-    /** Second snap interval. @default 1 */
+    /** Second interval. The second moves on its multiples. @default 1 */
     secondStep?: number
     /** Inclusive lower bound, `HH:mm` or `HH:mm:ss`. */
     min?: string | null
@@ -66,6 +79,8 @@
     isDisabled: boolean
     /** Whether edits are ignored. */
     isReadonly: boolean
+    /** Clear every field. The value becomes `null`. */
+    clear: () => void
     /** Attributes for the group element. */
     attrs: {
       'id': string
@@ -157,6 +172,7 @@
       seconds: time.seconds.value,
       isDisabled: blocked,
       isReadonly: time.isReadonly.value,
+      clear: time.clear,
       attrs: {
         id,
         'role': 'group',
