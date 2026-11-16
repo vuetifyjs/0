@@ -34,7 +34,7 @@
   export interface TimePickerRootProps extends AtomProps {
     /** Namespace shared with the field components. */
     namespace?: string
-    /** Ignore every edit, show the value as given, and never emit. */
+    /** Ignore every edit, show the value as given, and never emit. @default false */
     disabled?: boolean
     /** Ignore every edit, show the value as given, and never emit. @default false */
     readonly?: boolean
