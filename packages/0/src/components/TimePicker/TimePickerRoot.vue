@@ -29,7 +29,6 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { TimeHourCycle, TimePeriod, TimePickerContext } from '#v0/composables/createTimePicker'
-  import type { ID } from '#v0/types'
   import type { Ref } from 'vue'
 
   export interface TimePickerRootProps extends AtomProps {
@@ -37,7 +36,7 @@
     namespace?: string
     /** Ignore every edit, show the value as given, and never emit. */
     disabled?: boolean
-    /** Ignore every edit, show the value as given, and never emit. */
+    /** Ignore every edit, show the value as given, and never emit. @default false */
     readonly?: boolean
     /** `h12` shows 1–12 and a meridiem. `h23` shows 0–23. @default 'h23' */
     hourCycle?: TimeHourCycle
@@ -90,7 +89,7 @@
     clear: () => void
     /** Attributes for the group element. */
     attrs: {
-      'id': ID
+      'id': string
       'role': 'group'
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
@@ -105,7 +104,7 @@
 
   export interface TimePickerRootContext extends TimePickerContext {
     /** Id of the group element; each field derives its own id from it. */
-    readonly id: ID
+    readonly id: string
     /** Form field name. The hidden input renders while it is set. */
     readonly name: Readonly<Ref<string | undefined>>
     /** Id of the form the hidden input is associated with. */
@@ -206,11 +205,11 @@
     }
   })
 
-  // No type argument: `defineExpose<AtomExpose>` on a non-generic SFC makes
-  // vue-component-meta report no props, slots, or events for the file.
+  // Untyped on purpose: with `AtomExpose` as the type argument,
+  // vue-component-meta reports no props, slots, or events for the file.
   defineExpose({
     get element () {
-      return (atomRef.value?.element ?? null) as AtomExpose['element']
+      return (atomRef.value?.element ?? null) as HTMLElement | null
     },
   })
 </script>

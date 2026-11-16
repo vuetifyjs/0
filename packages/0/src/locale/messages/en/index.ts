@@ -107,6 +107,7 @@ export default {
   TimePicker: {
     am: 'AM',
     hour: 'Hour',
+    hourText: '{hour} {period}',
     label: 'Time',
     minute: 'Minute',
     period: 'AM/PM',

@@ -55,11 +55,11 @@
 
   const fieldRef = useTemplateRef<AtomExpose>('field')
 
-  // No type argument: `defineExpose<AtomExpose>` on a non-generic SFC makes
-  // vue-component-meta report no props, slots, or events for the file.
+  // Untyped on purpose: with `AtomExpose` as the type argument,
+  // vue-component-meta reports no props, slots, or events for the file.
   defineExpose({
     get element () {
-      return (fieldRef.value?.element ?? null) as AtomExpose['element']
+      return (fieldRef.value?.element ?? null) as HTMLElement | null
     },
   })
 </script>

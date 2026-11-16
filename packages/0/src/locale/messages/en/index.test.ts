@@ -78,6 +78,8 @@ describe('locale/messages/en', () => {
     expect(en.Pagination.status).toContain('{page}')
     expect(en.Pagination.status).toContain('{pages}')
     expect(en.Rating.valueText).toContain('{value}')
+    expect(en.TimePicker.hourText).toContain('{hour}')
+    expect(en.TimePicker.hourText).toContain('{period}')
     expect(en.Carousel.slide).toContain('{current}')
   })
 

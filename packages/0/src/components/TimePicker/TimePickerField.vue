@@ -30,7 +30,6 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { TimePart, TimePeriod, TimeUnit } from '#v0/composables/createTimePicker'
-  import type { ID } from '#v0/types'
 
   export interface TimePickerFieldProps extends AtomProps {
     /** Which segment this spinbutton edits. */
@@ -56,7 +55,7 @@
     isReadonly: boolean
     /** Attributes for the spinbutton. */
     attrs: {
-      'id': ID
+      'id': string
       'role': 'spinbutton'
       'tabindex': number
       'type': 'button' | undefined
@@ -109,10 +108,19 @@
 
   // A blocked picker shows the value as given, which may sit off the step
   // grid, so the range it reports is the whole field.
-  function bounds (unit: TimeUnit): { min: number, max: number } {
+  function reach (unit: TimeUnit): { min: number, max: number } {
     if (!time.isDisabled.value && !time.isReadonly.value) return time.grid(unit)
     if (unit !== 'hour') return { min: 0, max: 59 }
     return time.hourCycle.value === 'h12' ? { min: 1, max: 12 } : { min: 0, max: 23 }
+  }
+
+  // The shown value can sit off the grid without the picker being blocked:
+  // a range with no on-grid time, or a value the model insisted on. The
+  // reported range always contains it.
+  function bounds (now: number | null): { min: number, max: number } {
+    if (part === 'period') return { min: 0, max: 1 }
+    const { min, max } = reach(part)
+    return isNull(now) ? { min, max } : { min: Math.min(min, now), max: Math.max(max, now) }
   }
 
   function current (): number | null {
@@ -146,8 +154,11 @@
   function spoken (now: number | null): string | undefined {
     if (isNull(now)) return undefined
     if (part === 'period') return meridiem()
-    if (part === 'hour' && time.hourCycle.value === 'h12') return `${locale.n(now)} ${meridiem()}`
-    return undefined
+    if (part !== 'hour' || time.hourCycle.value !== 'h12') return undefined
+
+    const hour = locale.n(now)
+    const period = meridiem()
+    return locale.ti('TimePicker.hourText', { hour, period }) ?? `${hour} ${period}`
   }
 
   // About two hours, or fifteen minutes or seconds, in whole intervals.
@@ -205,7 +216,7 @@
 
   const slotProps = toRef((): TimePickerFieldSlotProps => {
     const now = current()
-    const { min, max } = part === 'period' ? { min: 0, max: 1 } : bounds(part)
+    const { min, max } = bounds(now)
     const button = as === 'button'
     const blocked = time.isDisabled.value
 
@@ -237,11 +248,11 @@
     }
   })
 
-  // No type argument: `defineExpose<AtomExpose>` on a non-generic SFC makes
-  // vue-component-meta report no props, slots, or events for the file.
+  // Untyped on purpose: with `AtomExpose` as the type argument,
+  // vue-component-meta reports no props, slots, or events for the file.
   defineExpose({
     get element () {
-      return (atomRef.value?.element ?? null) as AtomExpose['element']
+      return (atomRef.value?.element ?? null) as HTMLElement | null
     },
   })
 </script>
