@@ -38,7 +38,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isNull, isNullOrUndefined, isNumber, isString, isUndefined } from '#v0/utilities'
-import { effectScope, shallowRef, toRef, toValue, watch } from 'vue'
+import { shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -49,6 +49,9 @@ export type TimePeriod = 'am' | 'pm'
 
 /** One segment of the time value. */
 export type TimePart = 'hour' | 'minute' | 'second' | 'period'
+
+/** A segment that holds a number: every part but the period. */
+export type TimeUnit = Exclude<TimePart, 'period'>
 
 /**
  * The values a numeric field can show, in display terms.
@@ -90,6 +93,10 @@ export interface TimePickerOptions {
    * with any option that changed in the same tick; until then the fields
    * show the value as written.
    *
+   * The model has the last word. When it does not take a value the picker
+   * wrote, because a parent rejected or replaced the update, the fields
+   * go back to what the model holds after that flush.
+   *
    * @default shallowRef(null)
    */
   value?: Ref<string | null>
@@ -116,7 +123,7 @@ export interface TimePickerOptions {
    *
    * @default 1
    */
-  hourStep?: MaybeRefOrGetter<number>
+  hourStep?: MaybeRefOrGetter<number | undefined>
   /**
    * Minute interval. The minute moves on the multiples of the step inside
    * `0`–`59`. Fractions truncate, and a non-finite or non-positive step is
@@ -124,35 +131,43 @@ export interface TimePickerOptions {
    *
    * @default 1
    */
-  minuteStep?: MaybeRefOrGetter<number>
+  minuteStep?: MaybeRefOrGetter<number | undefined>
   /**
    * Second interval. Same rules as `minuteStep`.
    *
    * @default 1
    */
-  secondStep?: MaybeRefOrGetter<number>
+  secondStep?: MaybeRefOrGetter<number | undefined>
   /**
    * Inclusive lower bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only, and wins over the step grid. An unparseable `min` is
-   * ignored on its own; a `min` above `max` turns both bounds off.
+   * value only. A value pushed up to `min` stays there even when `min` is
+   * off the step grid; every other value is on the grid. The bound's
+   * seconds are ignored while `seconds` is off, so `min: '09:00:30'` then
+   * admits `09:00`. An unparseable `min` is ignored on its own; a `min`
+   * above `max`, compared the same way, turns both bounds off.
    */
-  min?: MaybeRefOrGetter<string | null>
+  min?: MaybeRefOrGetter<string | null | undefined>
   /**
    * Inclusive upper bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only, and wins over the step grid. An unparseable `max` is
-   * ignored on its own; a `max` below `min` turns both bounds off.
+   * value only. A value pulled down to `max` stays there even when `max`
+   * is off the step grid; every other value is on the grid. The bound's
+   * seconds are ignored while `seconds` is off, so `max: '17:00:30'` then
+   * stops at `17:00`. An unparseable `max` is ignored on its own; a `max`
+   * below `min`, compared the same way, turns both bounds off.
    */
-  max?: MaybeRefOrGetter<string | null>
+  max?: MaybeRefOrGetter<string | null | undefined>
   /**
    * While true, `commit`, `step`, and `clear` do nothing and the picker
    * never writes `value`: an incoming value is shown as given, without
-   * snapping or clamping. Turning it off normalizes the value.
+   * snapping, clamping, or dropping its seconds. Turning it off normalizes
+   * the value.
    */
   disabled?: MaybeRefOrGetter<boolean>
   /**
    * While true, `commit`, `step`, and `clear` do nothing and the picker
    * never writes `value`: an incoming value is shown as given, without
-   * snapping or clamping. Turning it off normalizes the value.
+   * snapping, clamping, or dropping its seconds. Turning it off normalizes
+   * the value.
    */
   readonly?: MaybeRefOrGetter<boolean>
 }
@@ -193,7 +208,7 @@ export interface TimePickerContext {
    * Meridiem. `null` in `h23`. In `h12` with an empty hour, the remembered
    * meridiem: the last one committed, the one the hour had when it was
    * cleared, or the one of the last incoming value. `clear()` and an
-   * incoming `null` or `''` reset it to `'am'`.
+   * incoming `null`, `''`, or unparseable value reset it to `'am'`.
    *
    * @example
    * ```ts
@@ -216,12 +231,12 @@ export interface TimePickerContext {
   readonly isReadonly: Readonly<Ref<boolean>>
   /**
    * Set one field. `null` clears a numeric field and the value becomes
-   * `null`. A number is rounded, held inside the field's range, and snapped
-   * to the nearest grid point without wrapping. In `h12` the hour is read
-   * as a display hour in the current meridiem. A period commit moves a set
-   * hour to the other half of the day, and is remembered while the hour is
-   * empty. No-op for `period` in `h23`, for `second` while seconds are off,
-   * and for a non-finite number.
+   * `null`. A number is held inside the field's range and snapped to the
+   * nearest grid point without wrapping. In `h12` the hour is read as a
+   * display hour in the current meridiem. A period commit moves a set hour
+   * to the other half of the day, and is remembered while the hour is
+   * empty. No-op for `period` in `h23`, for the period the hour is already
+   * in, for `second` while seconds are off, and for a non-finite number.
    *
    * @example
    * ```ts
@@ -233,7 +248,7 @@ export interface TimePickerContext {
    * ```
    */
   commit: {
-    (part: 'hour' | 'minute' | 'second', value: number | null): void
+    (part: TimeUnit, value: number | null): void
     (part: 'period', value: TimePeriod): void
   }
   /**
@@ -283,13 +298,31 @@ export interface TimePickerContext {
    * time.grid('hour') // { min: 3, max: 8, step: 5 } — 3 and 8 PM
    * ```
    */
-  grid: (part: 'hour' | 'minute' | 'second') => TimeGrid
+  grid: (part: TimeUnit) => TimeGrid
+  /**
+   * The time the fields show, as the canonical string, or `null` while a
+   * field is empty. Matches `value` except where the model holds something
+   * the fields do not: an unparseable string, or a value a disabled or
+   * readonly picker has not normalized.
+   *
+   * @example
+   * ```ts
+   * const time = createTimePicker({ value: shallowRef('nope'), readonly: true })
+   * time.value.value // 'nope'
+   * time.display.value // null
+   * ```
+   */
+  readonly display: Readonly<Ref<string | null>>
 }
 
 interface ParsedTime {
   hour: number
   minute: number
   second: number | null
+}
+
+interface WholeTime extends ParsedTime {
+  second: number
 }
 
 function pad (value: number): string {
@@ -358,6 +391,28 @@ function travel (list: number[], value: number, count: number): number {
   return list[((offset % size) + size) % size]!
 }
 
+/**
+ * Creates a segmented time value.
+ *
+ * @param options Value source, hour cycle, seconds, steps, bounds, and the
+ * disabled and readonly flags.
+ * @returns The fields, the canonical value, and the methods that edit them.
+ *
+ * @example
+ * ```ts
+ * import { shallowRef } from 'vue'
+ * import { createTimePicker } from '@vuetify/v0'
+ *
+ * const value = shallowRef<string | null>(null)
+ * const time = createTimePicker({ value, minuteStep: 15, min: '09:00', max: '17:00' })
+ *
+ * time.commit('hour', 8)
+ * time.commit('minute', 50)
+ * value.value // '09:00' — 08:45 on the grid, then pushed up to min
+ * time.step('minute', 2)
+ * value.value // '09:30'
+ * ```
+ */
 export function createTimePicker (options: TimePickerOptions = {}): TimePickerContext {
   const {
     value = shallowRef<string | null>(null),
@@ -382,16 +437,22 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // Bumped by an incoming value so its normalization shares one pass with
   // any option that changed alongside it.
   const stale = shallowRef(0)
+  // Bumped by a write the model does not hold straight away, so it can be
+  // checked once its owner has had a flush to accept or refuse it.
+  const sent = shallowRef(0)
 
-  let writing = false
   // The value the model and the fields last agreed on. Under a controlled
   // model `value` lags the picker's own writes, so it cannot stand in.
   let settled: unknown
+  let quiet = false
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
   const isDisabled = toRef(() => Boolean(toValue(disabled)))
   const isReadonly = toRef(() => Boolean(toValue(_readonly)))
+
+  // Whether seconds counted at the last pass, to tell them turning on.
+  let timed = seconds.value
 
   const hour = toRef((): number | null => {
     if (isNull(hour24.value)) return null
@@ -408,89 +469,92 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     return meridiem(hour24.value)
   })
 
+  const display = toRef(format)
+
   function blocked (): boolean {
     return isDisabled.value || isReadonly.value
   }
 
   function hours (half: TimePeriod): number[] {
-    const step = interval(toValue(hourStep))
+    const step = interval(toValue(hourStep) ?? 1)
     if (hourCycle.value !== 'h12') return points(0, 23, step)
     return half === 'pm' ? points(12, 23, step) : points(0, 11, step)
   }
 
   function sixty (part: 'minute' | 'second'): number[] {
-    return points(0, 59, interval(toValue(part === 'minute' ? minuteStep : secondStep)))
+    return points(0, 59, interval(toValue(part === 'minute' ? minuteStep : secondStep) ?? 1))
   }
 
-  function snap () {
-    if (!isNull(hour24.value)) hour24.value = nearest(hours(meridiem(hour24.value)), hour24.value)
-    if (!isNull(minute.value)) minute.value = nearest(sixty('minute'), minute.value)
-    if (!isNull(stored.value)) stored.value = nearest(sixty('second'), stored.value)
+  function whole (): WholeTime | null {
+    const second = seconds.value ? stored.value : 0
+    if (isNull(hour24.value) || isNull(minute.value) || isNull(second)) return null
+    return { hour: hour24.value, minute: minute.value, second }
+  }
+
+  function total (time: WholeTime): number {
+    return time.hour * 3600 + time.minute * 60 + time.second
   }
 
   function boundSeconds (raw: string | null): number | null {
     if (!isString(raw)) return null
     const parsed = parseTime(raw)
     if (isNull(parsed)) return null
-    const secondPart = seconds.value ? (parsed.second ?? 0) : 0
-    return parsed.hour * 3600 + parsed.minute * 60 + secondPart
+    return total({ ...parsed, second: seconds.value ? parsed.second ?? 0 : 0 })
   }
 
-  function applyBound (total: number) {
-    hour24.value = Math.floor(total / 3600)
-    minute.value = Math.floor((total % 3600) / 60)
-    if (seconds.value) stored.value = total % 60
+  function pin (at: number) {
+    hour24.value = Math.floor(at / 3600)
+    minute.value = Math.floor((at % 3600) / 60)
+    if (seconds.value) stored.value = at % 60
   }
 
-  function clampToRange () {
-    if (isNull(hour24.value) || isNull(minute.value)) return
-    if (seconds.value && isNull(stored.value)) return
-
-    const current = hour24.value * 3600 + minute.value * 60 + (seconds.value ? stored.value ?? 0 : 0)
+  // A time sitting exactly on a bound is left alone, off the grid or not.
+  // Snapping it could move it inward, and the value would then change the
+  // next time it was read back with nothing edited.
+  function fit () {
+    const time = whole()
     const low = boundSeconds(toValue(min) ?? null)
     const high = boundSeconds(toValue(max) ?? null)
-    if (!isNull(low) && !isNull(high) && low > high) return
-    if (!isNull(low) && current < low) applyBound(low)
-    else if (!isNull(high) && current > high) applyBound(high)
+    const ranged = isNull(low) || isNull(high) || low <= high
+    if (ranged && !isNull(time) && (total(time) === low || total(time) === high)) return
+
+    if (!isNull(hour24.value)) hour24.value = nearest(hours(meridiem(hour24.value)), hour24.value)
+    if (!isNull(minute.value)) minute.value = nearest(sixty('minute'), minute.value)
+    if (!isNull(stored.value)) stored.value = nearest(sixty('second'), stored.value)
+
+    const snapped = whole()
+    if (!ranged || isNull(snapped)) return
+    if (!isNull(low) && total(snapped) < low) pin(low)
+    else if (!isNull(high) && total(snapped) > high) pin(high)
   }
 
   function format (): string | null {
-    if (isNull(hour24.value) || isNull(minute.value)) return null
-    if (seconds.value && isNull(stored.value)) return null
+    const time = whole()
+    if (isNull(time)) return null
 
-    const text = `${pad(hour24.value)}:${pad(minute.value)}`
-    if (!seconds.value) return text
-    return `${text}:${pad(stored.value ?? 0)}`
+    const text = `${pad(time.hour)}:${pad(time.minute)}`
+    return seconds.value ? `${text}:${pad(time.second)}` : text
   }
 
   function publish () {
-    if (blocked()) return
-    clampToRange()
+    fit()
     const next = format()
     if (next === settled) return
     settled = next
-    writing = true
     value.value = next
-    writing = false
+    if (!quiet && value.value !== next) sent.value++
   }
 
   function load (raw: unknown) {
-    if (isNullOrUndefined(raw) || raw === '') {
-      hour24.value = null
-      minute.value = null
-      stored.value = null
-      pending.value = 'am'
-      return
-    }
-
     const parsed = isString(raw) ? parseTime(raw) : null
     if (isNull(parsed)) {
-      if (__DEV__) {
+      if (__DEV__ && !isNullOrUndefined(raw) && raw !== '') {
         logger.warn(`createTimePicker: value ${JSON.stringify(raw)} is not a 24-hour HH:mm or HH:mm:ss time; the fields were emptied`)
       }
       hour24.value = null
       minute.value = null
       stored.value = null
+      pending.value = 'am'
       return
     }
 
@@ -500,27 +564,49 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     pending.value = meridiem(parsed.hour)
   }
 
-  function normalize (entered: boolean) {
+  // Seconds that just turned on start at 0 for a time that was complete
+  // without them. Seconds that are off are dropped, but not while blocked,
+  // where the incoming value is kept as given.
+  function settle () {
+    const entered = seconds.value && !timed
+    timed = seconds.value
+
     if (!seconds.value) {
-      stored.value = null
+      if (!blocked()) stored.value = null
     } else if (entered && isNull(stored.value) && !isNull(hour24.value) && !isNull(minute.value)) {
       stored.value = 0
     }
-    if (blocked()) return
-    snap()
-    publish()
   }
 
-  function commit (part: 'hour' | 'minute' | 'second', next: number | null): void
+  function normalize () {
+    settle()
+    if (!blocked()) publish()
+  }
+
+  // The owner did not take the last write. Its value becomes the incoming
+  // one, and whatever normalizing it writes is not checked again, so an
+  // owner that keeps refusing cannot start a loop.
+  function reconcile () {
+    const held = value.value
+    if (held === settled) return
+    settled = held
+    load(held)
+    quiet = true
+    normalize()
+    quiet = false
+  }
+
+  function commit (part: TimeUnit, next: number | null): void
   function commit (part: 'period', next: TimePeriod): void
   function commit (part: TimePart, next: number | TimePeriod | null): void {
     if (blocked()) return
+    settle()
 
     if (part === 'period') {
       if (hourCycle.value !== 'h12') return
       if (next !== 'am' && next !== 'pm') return
       pending.value = next
-      if (isNull(hour24.value)) return
+      if (isNull(hour24.value) || meridiem(hour24.value) === next) return
       hour24.value = nearest(hours(next), to24(displayHour(hour24.value), next))
       publish()
       return
@@ -546,7 +632,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     if (part === 'hour') {
       if (hourCycle.value === 'h12') {
         const half = period.value === 'pm' ? 'pm' : 'am'
-        hour24.value = nearest(hours(half), to24(clamp(Math.round(next), 1, 12), half))
+        hour24.value = nearest(hours(half), to24(clamp(next, 1, 12), half))
       } else {
         hour24.value = nearest(hours('am'), next)
       }
@@ -569,6 +655,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       return
     }
 
+    settle()
+
     if (part === 'hour') {
       const list = hours(period.value === 'pm' ? 'pm' : 'am')
       hour24.value = isNull(hour24.value) ? list[0]! : travel(list, hour24.value, moves)
@@ -586,6 +674,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   function clear () {
     if (blocked()) return
+    settle()
     hour24.value = null
     minute.value = null
     stored.value = null
@@ -593,72 +682,69 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     publish()
   }
 
-  function grid (part: 'hour' | 'minute' | 'second'): TimeGrid {
+  function grid (part: TimeUnit): TimeGrid {
     if (part !== 'hour') {
       const list = sixty(part)
-      return { min: list[0]!, max: list.at(-1)!, step: interval(toValue(part === 'minute' ? minuteStep : secondStep)) }
+      return { min: list[0]!, max: list.at(-1)!, step: interval(toValue(part === 'minute' ? minuteStep : secondStep) ?? 1) }
     }
 
     const shown = hours(period.value === 'pm' ? 'pm' : 'am')
       .map(point => hourCycle.value === 'h12' ? displayHour(point) : point)
-    return { min: Math.min(...shown), max: Math.max(...shown), step: interval(toValue(hourStep)) }
+    return { min: Math.min(...shown), max: Math.max(...shown), step: interval(toValue(hourStep) ?? 1) }
   }
 
-  const scope = effectScope()
-  scope.run(() => {
-    // A controlled v-model hands the picker's own output back after the write
-    // has finished. Re-reading it would drop fields the value cannot carry
-    // while it is still partial.
-    watch(value, next => {
-      if (writing) return
-      settled = next
-      if (next === format()) return
-      load(next)
-      stale.value++
-    }, { flush: 'sync' })
+  // The picker's own write coming back is `settled` and is skipped, so
+  // fields the value cannot carry while it is partial survive the echo.
+  watch(value, next => {
+    if (next === settled) return
+    settled = next
+    load(next)
+    stale.value++
+  }, { flush: 'sync' })
 
-    // A parent can change the model and an option in one render, and Vue
-    // hands the props over one at a time. Normalizing before the flush keeps
-    // a half-applied batch from being written over the incoming value.
+  // A parent can change the model and an option in one render, and Vue
+  // hands the props over one at a time. Normalizing before the flush keeps
+  // a half-applied batch from being written over the incoming value.
+  watch(
+    () => [
+      seconds.value,
+      blocked(),
+      hourCycle.value,
+      toValue(min) ?? null,
+      toValue(max) ?? null,
+      toValue(hourStep),
+      toValue(minuteStep),
+      toValue(secondStep),
+      stale.value,
+    ],
+    normalize,
+    { flush: 'pre' },
+  )
+
+  watch(sent, reconcile, { flush: 'post' })
+
+  if (__DEV__) {
     watch(
-      () => [
-        seconds.value,
-        blocked(),
-        hourCycle.value,
-        toValue(min) ?? null,
-        toValue(max) ?? null,
-        toValue(hourStep),
-        toValue(minuteStep),
-        toValue(secondStep),
-        stale.value,
-      ] as const,
-      (next, previous) => normalize(next[0] && !previous[0]),
-      { flush: 'pre' },
+      () => [toValue(min) ?? null, toValue(max) ?? null] as const,
+      ([low, high]) => {
+        for (const [name, raw] of [['min', low], ['max', high]] as const) {
+          if (isNull(raw) || raw === '' || !isNull(boundSeconds(raw))) continue
+          logger.warn(`createTimePicker: ${name} ${JSON.stringify(raw)} is not a 24-hour HH:mm or HH:mm:ss time; the bound is ignored`)
+        }
+
+        const from = boundSeconds(low)
+        const to = boundSeconds(high)
+        if (!isNull(from) && !isNull(to) && from > to) {
+          logger.warn(`createTimePicker: min ${JSON.stringify(low)} is after max ${JSON.stringify(high)}; the range is ignored`)
+        }
+      },
+      { flush: 'sync', immediate: true },
     )
+  }
 
-    if (__DEV__) {
-      watch(
-        () => [toValue(min) ?? null, toValue(max) ?? null] as const,
-        ([low, high]) => {
-          for (const [name, raw] of [['min', low], ['max', high]] as const) {
-            if (isNull(raw) || raw === '' || !isNull(boundSeconds(raw))) continue
-            logger.warn(`createTimePicker: ${name} ${JSON.stringify(raw)} is not a 24-hour HH:mm or HH:mm:ss time; the bound is ignored`)
-          }
-
-          const from = boundSeconds(low)
-          const to = boundSeconds(high)
-          if (!isNull(from) && !isNull(to) && from > to) {
-            logger.warn(`createTimePicker: min ${JSON.stringify(low)} is after max ${JSON.stringify(high)}; the range is ignored`)
-          }
-        },
-        { flush: 'sync', immediate: true },
-      )
-    }
-
-    settled = value.value
-    load(value.value)
-    normalize(false)
-  })
+  settled = value.value
+  load(value.value)
+  normalize()
 
   return {
     value,
@@ -670,6 +756,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     seconds,
     isDisabled,
     isReadonly,
+    display,
     commit,
     step,
     clear,
