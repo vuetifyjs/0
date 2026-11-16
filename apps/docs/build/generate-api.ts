@@ -17,6 +17,7 @@ import { createChecker } from 'vue-component-meta'
 
 import { toCamel, toPascal } from './api-names'
 import { parseFrontmatter } from './frontmatter'
+import { isInternal } from './internal'
 
 // Types
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
@@ -265,14 +266,6 @@ function extractComponentApi (filePath: string): ComponentApi | null {
   }
 }
 
-// An SFC whose header block is tagged `@internal` is a building block the
-// barrel does not export, so it gets no API page.
-function isInternal (file: string): boolean {
-  const source = readFileSync(file, 'utf8')
-  const header = source.slice(0, Math.max(0, source.indexOf('<script')))
-  return header.includes('@internal')
-}
-
 async function findComponentFiles (): Promise<string[]> {
   const files: string[] = []
   const dirs = await readdir(COMPONENTS_DIR)
@@ -282,8 +275,10 @@ async function findComponentFiles (): Promise<string[]> {
     const entries = await readdir(dirPath).catch(() => [])
 
     for (const entry of entries) {
+      if (!entry.endsWith('.vue')) continue
+
       const file = resolve(dirPath, entry)
-      if (entry.endsWith('.vue') && !isInternal(file)) files.push(file)
+      if (!isInternal(readFileSync(file, 'utf8'))) files.push(file)
     }
   }
 
