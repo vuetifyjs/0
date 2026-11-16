@@ -4,7 +4,7 @@ import { createTimePicker } from './index'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { computed, customRef, effectScope, nextTick, shallowRef, watch } from 'vue'
+import { computed, createApp, customRef, effectScope, nextTick, shallowRef, watch } from 'vue'
 
 // Types
 import type { TimeHourCycle, TimePickerContext, TimePickerOptions } from './index'
@@ -26,6 +26,48 @@ function setup (options?: TimePickerOptions): TimePickerContext {
 async function answer () {
   await nextTick()
   await nextTick()
+}
+
+// An owner that answers a write in its own later job, the way a parent
+// re-render does. `reply` maps the written value to what the owner stores.
+function lagging (start: string | null, reply: (next: string | null) => string | null = next => next) {
+  let inner = start
+  const writes: (string | null)[] = []
+  let notify!: () => void
+
+  const value = customRef<string | null>((track, trigger) => {
+    notify = trigger
+    return {
+      get () {
+        track()
+        return inner
+      },
+      set (next) {
+        writes.push(next)
+        void Promise.resolve().then(() => {
+          const answered = reply(next)
+          if (answered === inner) return
+          inner = answered
+          trigger()
+        })
+      },
+    }
+  })
+
+  function put (next: string | null) {
+    inner = next
+    notify()
+  }
+
+  return { value, writes, put, held: () => inner }
+}
+
+function bump (next: string | null): string | null {
+  return isNull(next) ? null : `${next.slice(0, 3)}${String(Number(next.slice(3)) + 1).padStart(2, '0')}`
+}
+
+async function rest (rounds = 4) {
+  for (let index = 0; index < rounds; index++) await answer()
 }
 
 function walk (time: TimePickerContext, part: 'hour' | 'minute' | 'second', count: number, times: number): (number | null)[] {
@@ -281,6 +323,17 @@ describe('createTimePicker', () => {
       expect(seen).toEqual(['12:07', '11:00'])
     })
 
+    it('should normalize incoming values that snap to the time already shown', async () => {
+      const value = shallowRef<string | null>('10:00')
+      setup({ value, minuteStep: 15 })
+
+      for (const [raw, wanted] of [['10:07', '10:00'], ['10:05', '10:00'], ['11:05', '11:00'], ['12:05', '12:00']]) {
+        value.value = raw!
+        await answer()
+        expect(value.value).toBe(wanted)
+      }
+    })
+
     it('should not write a canonical value back', async () => {
       const writes: (string | null)[] = []
       let inner: string | null = '09:30'
@@ -480,7 +533,10 @@ describe('createTimePicker', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
-    it('should leave the fields alone once its scope has stopped', async () => {
+    it.each([
+      ['before the check is queued', 0],
+      ['with the check already queued', 1],
+    ])('should leave the fields alone when its scope stops %s', async (_, ticks) => {
       const value = customRef<string | null>(track => ({
         get () {
           track()
@@ -490,11 +546,267 @@ describe('createTimePicker', () => {
       }))
       const time = setup({ value, minuteStep: 15 })
 
+      for (let index = 0; index < ticks; index++) await nextTick()
       scopes.at(-1)!.stop()
-      await answer()
-      await answer()
+      await rest()
 
       expect(time.minute.value).toBe(0)
+    })
+  })
+
+  describe('an owner that answers later', () => {
+    it('should stop after two writes when the owner alters every write', async () => {
+      const owner = lagging('09:00', bump)
+      const time = setup({ value: owner.value, minuteStep: 2 })
+
+      time.commit('minute', 10)
+      await rest(8)
+
+      expect(owner.writes).toEqual(['09:10', '09:12'])
+      expect(time.display.value).toBe('09:13')
+    })
+
+    it('should normalize a value the owner sets after an exchange used its writes', async () => {
+      const owner = lagging('09:00', bump)
+      const time = setup({ value: owner.value, minuteStep: 2 })
+
+      time.commit('minute', 10)
+      await rest()
+      owner.put('10:05')
+      await rest()
+
+      expect(owner.writes).toEqual(['09:10', '09:12', '10:06', '10:08'])
+      expect(time.display.value).toBe('10:09')
+    })
+
+    it('should normalize each value an accepting owner sets after an edit', async () => {
+      const owner = lagging('09:00')
+      const time = setup({ value: owner.value, minuteStep: 15 })
+
+      time.commit('minute', 30)
+      await rest()
+
+      for (const hour of ['10', '11', '12']) {
+        owner.put(`${hour}:07`)
+        await rest()
+        expect(owner.held()).toBe(`${hour}:00`)
+      }
+
+      expect(time.display.value).toBe('12:00')
+    })
+
+    it('should keep a half-entered time when the owner accepts the null a tick later', async () => {
+      const owner = lagging('11:30')
+      const time = setup({ value: owner.value })
+
+      time.commit('minute', null)
+      await rest()
+
+      expect(owner.held()).toBeNull()
+      expect(time.hour.value).toBe(11)
+      expect(time.minute.value).toBeNull()
+    })
+
+    it.each([
+      ['a microtask', () => Promise.resolve()],
+      ['a tick', () => nextTick()],
+      ['a macrotask', () => new Promise<void>(resolve => setTimeout(resolve, 0))],
+    ])('should keep a half-entered time when a second edit comes %s after the first', async (_, gap) => {
+      const owner = lagging('09:30:10')
+      const time = setup({ value: owner.value, seconds: true })
+
+      time.step('hour', 1)
+      await gap()
+      time.commit('hour', null)
+      await gap()
+      time.step('minute', -1)
+      await rest()
+
+      expect(owner.held()).toBeNull()
+      expect(time.hour.value).toBeNull()
+      expect(time.minute.value).toBe(29)
+      expect(time.second.value).toBe(10)
+
+      time.step('hour', 1)
+      await rest()
+
+      expect(owner.held()).toBe('00:29:10')
+    })
+
+    it('should let a step reach a value again after the model moved away from it', async () => {
+      const owner = lagging('10:00')
+      const time = setup({ value: owner.value })
+
+      time.step('minute', 1)
+      time.step('minute', 1)
+      await rest()
+      expect(owner.held()).toBe('10:02')
+
+      time.step('minute', -1)
+      time.step('minute', -1)
+      await rest()
+      expect(owner.held()).toBe('10:00')
+    })
+  })
+
+  describe('a value taken as given', () => {
+    function stubborn (held: string) {
+      const writes: (string | null)[] = []
+      const value = customRef<string | null>(track => ({
+        get () {
+          track()
+          return held
+        },
+        set (next) {
+          writes.push(next)
+        },
+      }))
+      return { value, writes }
+    }
+
+    it('should write once for an edit the model refuses and return to its value', async () => {
+      const { value, writes } = stubborn('09:07')
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+      expect(writes).toEqual(['09:00'])
+
+      time.commit('minute', 30)
+      await rest()
+
+      expect(writes).toEqual(['09:00', '09:30'])
+      expect(time.display.value).toBe('09:07')
+    })
+
+    it.each([
+      ['04:50', -1, '04:45'],
+      ['12:08', 1, '12:15'],
+    ])('should step %s by %i from what the field shows', async (held, count, wanted) => {
+      const { value, writes } = stubborn(held)
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+      writes.length = 0
+
+      time.step('minute', count)
+
+      expect(writes).toEqual([wanted])
+    })
+
+    it('should normalize the other fields when one is edited', async () => {
+      const { value, writes } = stubborn('09:07')
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+      writes.length = 0
+
+      time.step('hour', 1)
+
+      expect(writes).toEqual(['10:00'])
+    })
+
+    it('should write nothing for a call that changes nothing', async () => {
+      const { value, writes } = stubborn('09:07')
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+      writes.length = 0
+
+      time.step('hour', 0)
+      time.step('minute', Number.NaN)
+      time.commit('minute', Number.NaN)
+      time.commit('second', 5)
+      time.step('second', 1)
+      time.commit('period', 'pm')
+      time.step('period', 1)
+      await rest()
+
+      expect(writes).toEqual([])
+      expect(time.display.value).toBe('09:07')
+    })
+
+    it('should write nothing when the period committed is the one shown', async () => {
+      const { value, writes } = stubborn('09:07')
+      const time = setup({ value, minuteStep: 15, hourCycle: 'h12' })
+
+      await rest()
+      writes.length = 0
+
+      time.commit('period', 'am')
+      await rest()
+
+      expect(writes).toEqual([])
+      expect(time.display.value).toBe('09:07')
+    })
+  })
+
+  describe('a write that throws', () => {
+    function fragile (start: string | null) {
+      const state = { held: start, fail: false, writes: [] as (string | null)[] }
+      const value = customRef<string | null>((track, trigger) => ({
+        get () {
+          track()
+          return state.held
+        },
+        set (next) {
+          if (state.fail) throw new Error('refused')
+          state.writes.push(next)
+          state.held = next
+          trigger()
+        },
+      }))
+      return { value, state }
+    }
+
+    it('should write the same value again once the model stops throwing', () => {
+      const { value, state } = fragile('09:00')
+      const time = setup({ value })
+
+      state.fail = true
+      expect(() => time.commit('minute', 30)).toThrow('refused')
+      expect(time.display.value).toBe('09:00')
+
+      state.fail = false
+      time.commit('minute', 30)
+
+      expect(state.writes).toEqual(['09:30'])
+      expect(state.held).toBe('09:30')
+    })
+
+    it('should still normalize an incoming value after a second write threw', async () => {
+      const store = shallowRef<string | null>('09:00')
+      const writes: (string | null)[] = []
+      let fail = false
+      const value = computed<string | null>({
+        get: () => store.value,
+        set: next => {
+          if (fail) throw new Error('refused')
+          writes.push(next)
+          store.value = bump(next)
+        },
+      })
+      // The second write happens in a flush, so the error surfaces through
+      // the app's handler instead of the caller.
+      const caught: unknown[] = []
+      const app = createApp({
+        setup () {
+          createTimePicker({ value, minuteStep: 2 }).commit('minute', 10)
+          fail = true
+          return () => null
+        },
+      })
+      app.config.errorHandler = error => caught.push(error)
+      app.mount(document.createElement('div'))
+
+      await rest()
+      fail = false
+
+      store.value = '10:05'
+      await rest()
+      app.unmount()
+
+      expect(caught).toHaveLength(1)
+      expect(writes).toEqual(['09:10', '10:06', '10:08'])
     })
   })
 
@@ -1325,6 +1637,21 @@ describe('createTimePicker', () => {
       disabled.value = false
       await nextTick()
       expect(value.value).toBe('10:08')
+    })
+
+    it('should snap and clamp the hour of a period commit as a numeric commit would', () => {
+      const options = { hourCycle: 'h12', hourStep: 20, min: '01:12', max: '16:44' } as const
+      const value = shallowRef<string | null>('01:12')
+      const time = setup({ ...options, value })
+
+      expect(value.value).toBe('01:12')
+
+      time.commit('period', 'pm')
+      expect(value.value).toBe('16:44')
+
+      const numeric = shallowRef<string | null>('13:12')
+      setup({ ...options, value: numeric, disabled: shallowRef(false) }).commit('hour', 1)
+      expect(numeric.value).toBe('16:44')
     })
 
     it('should do nothing when the period committed is the current one', () => {
