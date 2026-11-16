@@ -1,9 +1,9 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { TimePicker, useTimePickerRoot } from './index'
 
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { isNull, isUndefined } from '#v0/utilities'
 import { mount } from '@vue/test-utils'
 import { createVNode, defineComponent, h, nextTick, shallowRef } from 'vue'
 
@@ -37,10 +37,13 @@ function fields (): VNode[] {
 // With `lead` set, the Root vnode is built the way a compiled template
 // builds it, so Vue applies changed props one at a time in template order:
 // `true` lists `v-model` first, `false` lists it last.
+// `accept` stands in for a host that vets updates: it returns what the host
+// stores for an emitted value.
 function mountTime (
   props: Record<string, unknown> = {},
   slot: (root: TimePickerRootSlotProps) => VNode[] = fields,
   lead?: boolean,
+  accept: (value: string | null, current: string | null) => string | null = value => value,
 ) {
   const { modelValue = null, ...rest } = props
   const model = shallowRef(modelValue as string | null)
@@ -49,7 +52,7 @@ function mountTime (
 
   function onUpdate (value: string | null) {
     emitted.push(value)
-    model.value = value
+    model.value = accept(value, model.value)
   }
 
   function root (): VNode {
@@ -140,6 +143,61 @@ describe('timePicker', () => {
     })
   })
 
+  describe('options', () => {
+    it('should pass the second step and the upper bound through to the picker', async () => {
+      const { model, part, wait } = mountTime({
+        modelValue: '10:00:00',
+        seconds: true,
+        secondStep: 20,
+        max: '10:00:30',
+      })
+      await wait()
+
+      expect(part('second').attributes('aria-valuemax')).toBe('40')
+
+      press(part('second').element, 'ArrowUp')
+      await wait()
+      expect(model.value).toBe('10:00:20')
+
+      press(part('second').element, 'ArrowUp')
+      await wait()
+      expect(model.value).toBe('10:00:30')
+    })
+
+    it('should connect fields and the hidden input through a custom namespace', async () => {
+      const { model, wrapper, part, wait } = mountTime(
+        { modelValue: '09:30', name: 'alarm', namespace: 'v0:alarm' },
+        () => [h(TimePicker.Hour as Component, { key: 'hour', namespace: 'v0:alarm' })],
+      )
+      await wait()
+
+      press(part('hour').element, 'ArrowUp')
+      await wait()
+
+      expect(model.value).toBe('10:30')
+      expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).value).toBe('10:30')
+    })
+  })
+
+  describe('state hooks', () => {
+    it('should mark each field empty or filled and the group complete', async () => {
+      const { wrapper, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      expect(group.attributes('data-complete')).toBe('true')
+      expect(part('hour').attributes('data-state')).toBe('filled')
+      expect(part('minute').attributes('data-state')).toBe('filled')
+
+      press(part('minute').element, 'Delete')
+      await wait()
+
+      expect(group.attributes('data-complete')).toBeUndefined()
+      expect(part('hour').attributes('data-state')).toBe('filled')
+      expect(part('minute').attributes('data-state')).toBe('empty')
+    })
+  })
+
   describe('aria', () => {
     it('should describe a 24-hour time', async () => {
       const { part, wait } = mountTime({ modelValue: '09:30', minuteStep: 15 })
@@ -148,7 +206,8 @@ describe('timePicker', () => {
       expect(part('hour').attributes('aria-valuemin')).toBe('0')
       expect(part('hour').attributes('aria-valuemax')).toBe('23')
       expect(part('hour').attributes('aria-valuenow')).toBe('9')
-      expect(part('hour').attributes('aria-valuetext')).toBe('09')
+      expect(part('hour').attributes('aria-valuetext')).toBeUndefined()
+      expect(part('minute').attributes('aria-valuetext')).toBeUndefined()
       expect(part('minute').attributes('aria-valuemin')).toBe('0')
       expect(part('minute').attributes('aria-valuemax')).toBe('45')
       expect(part('minute').attributes('aria-valuenow')).toBe('30')
@@ -174,6 +233,71 @@ describe('timePicker', () => {
 
       expect(part('hour').attributes('aria-valuemin')).toBe('3')
       expect(part('hour').attributes('aria-valuemax')).toBe('8')
+    })
+
+    it('should speak a 12-hour hour with its meridiem', async () => {
+      const { part, wait } = mountTime({ modelValue: '15:00', hourCycle: 'h12' })
+      await wait()
+
+      expect(part('hour').attributes('aria-valuetext')).toBe('3 PM')
+      expect(part('minute').attributes('aria-valuetext')).toBeUndefined()
+    })
+
+    it.each([['readonly'], ['disabled']])('should report the whole field as the range while %s', async flag => {
+      const { part, set, wait } = mountTime({ modelValue: '04:50', minuteStep: 15, hourStep: 5, [flag]: true })
+      await wait()
+
+      expect(part('minute').attributes('aria-valuenow')).toBe('50')
+      expect(part('minute').attributes('aria-valuemin')).toBe('0')
+      expect(part('minute').attributes('aria-valuemax')).toBe('59')
+      expect(part('hour').attributes('aria-valuemin')).toBe('0')
+      expect(part('hour').attributes('aria-valuemax')).toBe('23')
+
+      set({ hourCycle: 'h12' })
+      await wait()
+
+      expect(part('hour').attributes('aria-valuemin')).toBe('1')
+      expect(part('hour').attributes('aria-valuemax')).toBe('12')
+    })
+
+    it('should name the group and the fields from props', async () => {
+      const { wrapper, part, wait } = mountTime({ modelValue: '09:30', ariaLabel: 'Start', ariaDescribedby: 'hint' }, () => [
+        h(TimePicker.Hour as Component, { key: 'hour', ariaLabel: 'Start hour' }),
+        h(TimePicker.Minute as Component, { 'key': 'minute', 'aria-label': 'Start minute' }),
+      ])
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      expect(group.attributes('aria-label')).toBe('Start')
+      expect(group.attributes('aria-describedby')).toBe('hint')
+      expect(part('hour').attributes('aria-label')).toBe('Start hour')
+      expect(part('minute').attributes('aria-label')).toBe('Start minute')
+    })
+
+    it('should drop the default name when the group or a field is labelled by an element', async () => {
+      const { wrapper, part, wait } = mountTime({ modelValue: '09:30', ariaLabelledby: 'legend' }, () => [
+        h(TimePicker.Hour as Component, { key: 'hour', ariaLabelledby: 'hour-label' }),
+        h(TimePicker.Minute as Component, { key: 'minute' }),
+      ])
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      expect(group.attributes('aria-labelledby')).toBe('legend')
+      expect(group.attributes('aria-label')).toBeUndefined()
+      expect(part('hour').attributes('aria-labelledby')).toBe('hour-label')
+      expect(part('hour').attributes('aria-label')).toBeUndefined()
+      expect(part('minute').attributes('aria-label')).toBeDefined()
+    })
+
+    it('should derive field ids from the group and let a field override its own', async () => {
+      const { part, wait } = mountTime({ modelValue: '09:30', id: 'start' }, () => [
+        h(TimePicker.Hour as Component, { key: 'hour' }),
+        h(TimePicker.Minute as Component, { key: 'minute', id: 'custom' }),
+      ])
+      await wait()
+
+      expect(part('hour').attributes('id')).toBe('start-hour')
+      expect(part('minute').attributes('id')).toBe('custom')
     })
 
     it('should omit the current value while a field is empty', async () => {
@@ -361,6 +485,18 @@ describe('timePicker', () => {
       expect(part('minute').attributes('aria-valuenow')).toBe('7')
     })
 
+    it('should disable a native button host natively', async () => {
+      const { part, wait } = mountTime(
+        { modelValue: '09:00', disabled: true },
+        () => [h(TimePicker.Hour as Component, { as: 'button', key: 'hour' })],
+      )
+      await wait()
+
+      expect((part('hour').element as HTMLButtonElement).disabled).toBe(true)
+      expect(part('hour').attributes('aria-disabled')).toBeUndefined()
+      expect(part('hour').attributes('data-disabled')).toBe('true')
+    })
+
     it('should mark a readonly picker and ignore every key', async () => {
       const { model, wrapper, part, wait } = mountTime({
         modelValue: '04:07',
@@ -514,6 +650,57 @@ describe('timePicker', () => {
     })
   })
 
+  describe('a host that vets updates', () => {
+    function cap (value: string | null) {
+      return !isNull(value) && value > '12:00' ? '12:00' : value
+    }
+
+    function refuse (value: string | null, current: string | null) {
+      return !isNull(value) && value > '12:00' ? current : value
+    }
+
+    it.each([
+      ['rewrites', cap],
+      ['refuses', refuse],
+    ])('should show what the model holds when the host %s an update', async (_, accept) => {
+      const { model, wrapper, part, wait } = mountTime({ modelValue: '11:00', name: 'alarm' }, fields, true, accept)
+      await wait()
+
+      press(part('hour').element, 'ArrowUp')
+      await wait()
+      expect(model.value).toBe('12:00')
+      expect(part('hour').attributes('aria-valuenow')).toBe('12')
+
+      press(part('hour').element, 'ArrowUp')
+      await wait()
+      await wait()
+
+      expect(model.value).toBe('12:00')
+      expect(part('hour').attributes('aria-valuenow')).toBe('12')
+      expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).value).toBe('12:00')
+
+      press(part('hour').element, 'ArrowDown')
+      await wait()
+      await wait()
+
+      expect(model.value).toBe('11:00')
+      expect(part('hour').attributes('aria-valuenow')).toBe('11')
+    })
+
+    it('should keep a half-entered time the host has no say over', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '11:30' }, fields, true, refuse)
+      await wait()
+
+      press(part('minute').element, 'Delete')
+      await wait()
+      await wait()
+
+      expect(model.value).toBeNull()
+      expect(part('hour').attributes('aria-valuenow')).toBe('11')
+      expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+    })
+  })
+
   describe('slot props', () => {
     it('should expose the meridiem as the period value', async () => {
       let captured: TimePickerPeriodSlotProps | undefined
@@ -580,6 +767,49 @@ describe('timePicker', () => {
       await wait()
 
       expect(new FormData(wrapper.element as HTMLFormElement).get('alarm')).toBe('')
+    })
+
+    it('should submit what the fields show, not the raw model', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      let root: TimePickerRootSlotProps | undefined
+      const { model, wrapper, part, wait } = mountTime({ modelValue: 'bogus', name: 'alarm', readonly: true }, props => {
+        root = props
+        return fields()
+      })
+      await wait()
+
+      expect(model.value).toBe('bogus')
+      expect(part('hour').attributes('aria-valuenow')).toBeUndefined()
+      expect(root!.value).toBeNull()
+      expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).value).toBe('')
+      expect(new FormData(wrapper.element as HTMLFormElement).get('alarm')).toBe('')
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should leave a disabled picker out of the form data', async () => {
+      const { wrapper, wait } = mountTime({ modelValue: '09:30', name: 'alarm', disabled: true })
+      await wait()
+
+      expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).disabled).toBe(true)
+      expect(new FormData(wrapper.element as HTMLFormElement).has('alarm')).toBe(false)
+    })
+
+    it('should associate the hidden input with the form named by the form prop', async () => {
+      const outside = document.createElement('form')
+      outside.id = 'outside'
+      document.body.append(outside)
+
+      const { wrapper, wait } = mountTime({ modelValue: '09:30', name: 'alarm', form: 'outside' })
+      await wait()
+
+      const input = wrapper.get('input[type="hidden"]')
+      expect(input.attributes('form')).toBe('outside')
+      expect(input.attributes('inert')).toBeUndefined()
+      expect(new FormData(outside).get('alarm')).toBe('09:30')
+      expect(new FormData(wrapper.element as HTMLFormElement).has('alarm')).toBe(false)
+
+      outside.remove()
     })
 
     it('should render no hidden input without a name', async () => {
