@@ -161,7 +161,11 @@ describe('timePicker', () => {
 
       press(part('second').element, 'ArrowUp')
       await wait()
-      expect(model.value).toBe('10:00:30')
+      expect(model.value).toBe('10:00:20')
+
+      press(part('second').element, 'ArrowDown')
+      await wait()
+      expect(model.value).toBe('10:00:00')
     })
 
     it('should connect fields and the hidden input through a custom namespace', async () => {

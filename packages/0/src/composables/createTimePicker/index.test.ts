@@ -686,15 +686,16 @@ describe('createTimePicker', () => {
     })
 
     it('should step an off-grid value onto the adjacent grid point', () => {
-      const up = setup({ minuteStep: 15, min: '10:07', value: shallowRef('10:00') })
-      expect(up.value.value).toBe('10:07')
-      up.step('minute', 1)
-      expect(up.value.value).toBe('10:15')
+      const value = shallowRef<string | null>(null)
+      const time = setup({ value, minuteStep: 15 })
 
-      const down = setup({ minuteStep: 15, max: '10:53', value: shallowRef('11:00') })
-      expect(down.value.value).toBe('10:53')
-      down.step('minute', -1)
-      expect(down.value.value).toBe('10:45')
+      value.value = '10:07'
+      time.step('minute', 1)
+      expect(value.value).toBe('10:15')
+
+      value.value = '10:53'
+      time.step('minute', -1)
+      expect(value.value).toBe('10:45')
     })
 
     it('should snap a commit to the nearest grid point without wrapping', () => {
@@ -1012,50 +1013,118 @@ describe('createTimePicker', () => {
   })
 
   describe('bounds and the grid', () => {
-    it('should put a value that leaves a bound back on the grid', async () => {
-      const value = shallowRef<string | null>('23:59')
-      const disabled = shallowRef(false)
-      const time = setup({ value, disabled, minuteStep: 15, max: '17:10' })
-
-      expect(value.value).toBe('17:10')
-
-      time.step('hour', -1)
-      expect(value.value).toBe('16:15')
-
-      disabled.value = true
-      await nextTick()
-      disabled.value = false
-      await nextTick()
-
-      expect(value.value).toBe('16:15')
-    })
-
     it.each([
-      [{ minuteStep: 15, max: '17:10' }, '23:59', '17:10'],
-      [{ minuteStep: 15, min: '17:10' }, '16:00', '17:10'],
-      [{ hourStep: 5, min: '13:10' }, '08:00', '13:10'],
-    ])('should publish a value that survives being read back: %j from %s', async (options, raw, pinned) => {
+      [{ minuteStep: 15, min: '10:07' }, '09:00', '10:15'],
+      [{ minuteStep: 15, max: '17:10' }, '23:59', '17:00'],
+      [{ minuteStep: 15, max: '17:10' }, '17:10', '17:00'],
+      [{ minuteStep: 15, min: '17:10' }, '17:10', '17:15'],
+      [{ hourStep: 7, min: '16:57' }, '00:00', '21:00'],
+      [{ hourStep: 5, min: '13:10' }, '08:00', '15:00'],
+      [{ hourCycle: 'h12', hourStep: 5, max: '14:59' }, '23:00', '10:59'],
+      [{ seconds: true, minuteStep: 15, secondStep: 20, min: '09:59:50' }, '08:00:00', '10:00:00'],
+      [{ seconds: true, minuteStep: 15, secondStep: 20, max: '10:14:10' }, '12:00:00', '10:00:40'],
+      [{ max: '17:00' }, '17:30', '17:00'],
+    ] as const)('should move %j from %s to the nearest on-grid time in range', async (options, raw, wanted) => {
       const value = shallowRef<string | null>(raw)
       const disabled = shallowRef(false)
       setup({ ...options, value, disabled })
 
-      expect(value.value).toBe(pinned)
-
-      value.value = null
-      await nextTick()
-      value.value = pinned
-      await nextTick()
-      expect(value.value).toBe(pinned)
+      expect(value.value).toBe(wanted)
 
       disabled.value = true
       await nextTick()
       disabled.value = false
       await nextTick()
-      expect(value.value).toBe(pinned)
+      expect(value.value).toBe(wanted)
+
+      const again = shallowRef<string | null>(wanted)
+      setup({ ...options, value: again })
+      expect(again.value).toBe(wanted)
+    })
+
+    it('should leave no dead key next to a bound that is off the grid', () => {
+      const time = setup({ hourStep: 7, min: '16:57', value: shallowRef('00:00') })
+
+      expect(time.value.value).toBe('21:00')
+
+      time.step('minute', 1)
+      expect(time.value.value).toBe('21:01')
+
+      time.step('minute', -2)
+      expect(time.value.value).toBe('21:59')
+
+      time.step('hour', 1)
+      expect(time.value.value).toBe('21:00')
+    })
+
+    it('should stop a 12-hour step at an on-grid upper bound', () => {
+      const time = setup({ hourCycle: 'h12', max: '17:00', value: shallowRef('17:00') })
+
+      time.step('hour', 1)
+
+      expect(time.value.value).toBe('17:00')
+    })
+
+    it.each([
+      [{ minuteStep: 15, min: '10:00', max: '10:15' }],
+      [{ minuteStep: 15, min: '10:40', max: '11:05' }],
+      [{ hourStep: 7, min: '16:57' }],
+      [{ hourCycle: 'h12', hourStep: 5, minuteStep: 30, min: '09:10', max: '15:10' }],
+      [{ seconds: true, minuteStep: 30, secondStep: 30, min: '23:29:40', max: '23:30:40' }],
+    ] as const)('should always leave a step that changes the value: %j', options => {
+      const time = setup({ ...options, value: shallowRef('00:00:00') })
+      const parts = ['hour', 'minute', 'second'] as const
+      const seen = new Set<string | null>()
+
+      for (let index = 0; index < 8; index++) {
+        const before = time.value.value
+        seen.add(before)
+
+        const moved = parts.some(part => [1, -1].some(count => {
+          time.step(part, count)
+          if (time.value.value !== before) return true
+          return false
+        }))
+
+        expect(moved).toBe(true)
+      }
+
+      expect(seen.size).toBeGreaterThan(1)
+    })
+
+    it('should only clamp when the range holds no on-grid time', async () => {
+      const value = shallowRef<string | null>('09:00')
+      const disabled = shallowRef(false)
+      const time = setup({ value, disabled, minuteStep: 15, min: '10:07', max: '10:10' })
+
+      expect(value.value).toBe('10:07')
+
+      time.step('minute', 1)
+      expect(value.value).toBe('10:10')
+
+      time.step('minute', 1)
+      time.step('hour', 1)
+      expect(value.value).toBe('10:10')
+
+      value.value = '10:08'
+      await nextTick()
+      expect(value.value).toBe('10:08')
+
+      disabled.value = true
+      await nextTick()
+      disabled.value = false
+      await nextTick()
+      expect(value.value).toBe('10:08')
     })
 
     it('should do nothing when the period committed is the current one', () => {
-      const time = setup({ hourCycle: 'h12', hourStep: 5, min: '13:10', value: shallowRef('13:10') })
+      const time = setup({
+        hourCycle: 'h12',
+        hourStep: 5,
+        min: '13:10',
+        max: '13:20',
+        value: shallowRef('13:10'),
+      })
 
       time.commit('period', 'pm')
 
