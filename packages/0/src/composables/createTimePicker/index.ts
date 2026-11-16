@@ -131,14 +131,14 @@ export interface TimePickerOptions {
   secondStep?: MaybeRefOrGetter<number>
   /**
    * Inclusive lower bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only, and wins over the step grid. An unparseable bound, or a
-   * `min` above `max`, turns clamping off.
+   * value only, and wins over the step grid. An unparseable `min` is
+   * ignored on its own; a `min` above `max` turns both bounds off.
    */
   min?: MaybeRefOrGetter<string | null>
   /**
    * Inclusive upper bound, `HH:mm` or `HH:mm:ss`. Applies to a complete
-   * value only, and wins over the step grid. An unparseable bound, or a
-   * `max` below `min`, turns clamping off.
+   * value only, and wins over the step grid. An unparseable `max` is
+   * ignored on its own; a `max` below `min` turns both bounds off.
    */
   max?: MaybeRefOrGetter<string | null>
   /**
@@ -186,8 +186,9 @@ export interface TimePickerContext {
   readonly second: Readonly<Ref<number | null>>
   /**
    * Meridiem. `null` in `h23`. In `h12` with an empty hour, the remembered
-   * meridiem: the last one committed, or the one the hour had when it was
-   * cleared.
+   * meridiem: the last one committed, the one the hour had when it was
+   * cleared, or the one of the last incoming value. `clear()` and an
+   * incoming `null` or `''` reset it to `'am'`.
    *
    * @example
    * ```ts
@@ -236,8 +237,10 @@ export interface TimePickerContext {
    * truncate, and `0` or a non-finite count does nothing. The field wraps
    * past either end, and a value off the grid first moves onto the adjacent
    * grid point. An `h12` hour stays inside its meridiem. An empty field
-   * lands on its first grid point, `0`, or `12` for an `h12` hour, whatever
-   * the count. Any non-zero count flips the period.
+   * lands on its first grid point, whatever the count: `0` for a minute, a
+   * second, or an `h23` hour, and the first hour of the remembered meridiem
+   * for an `h12` hour, which is `12` with the default step. Any non-zero
+   * count flips the period.
    *
    * @example
    * ```ts
