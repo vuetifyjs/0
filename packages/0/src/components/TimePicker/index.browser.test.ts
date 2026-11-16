@@ -4,11 +4,12 @@ import { TimePicker } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, shallowRef } from 'vue'
+import { defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
+import type { TimePickerPeriodSlotProps, TimePickerRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
-import type { Component } from 'vue'
+import type { Component, VNode } from 'vue'
 
 const wrappers: VueWrapper[] = []
 
@@ -18,29 +19,37 @@ afterEach(() => {
   }
 })
 
-function mountTime (props: Record<string, unknown> = {}) {
-  const model = shallowRef<string | null>((props.modelValue as string | null | undefined) ?? null)
+function fields (): VNode[] {
+  return [
+    h(TimePicker.Hour as Component, { key: 'hour' }),
+    h(TimePicker.Minute as Component, { key: 'minute' }),
+    h(TimePicker.Second as Component, { key: 'second' }),
+    h(TimePicker.Period as Component, { key: 'period' }),
+  ]
+}
 
-  const wrapper = mount(TimePicker.Root as Component, {
-    props: {
-      ...props,
-      'modelValue': model.value,
-      'onUpdate:modelValue': (value: string | null) => {
-        model.value = value
-        return wrapper.setProps({ modelValue: value })
-      },
-    },
-    slots: {
-      default: () => [
-        h(TimePicker.Hour as Component, { key: 'hour' }),
-        h(TimePicker.Minute as Component, { key: 'minute' }),
-        h(TimePicker.Second as Component, { key: 'second' }),
-        h(TimePicker.Period as Component, { key: 'period' }),
-      ],
-    },
-    attachTo: document.body,
+// The host owns the model the way an app does: the picker emits, the host
+// re-renders, and the new prop reaches the picker on a later flush.
+function mountTime (
+  props: Record<string, unknown> = {},
+  slot: (root: TimePickerRootSlotProps) => VNode[] = fields,
+) {
+  const { modelValue = null, ...rest } = props
+  const model = shallowRef(modelValue as string | null)
+
+  const Host = defineComponent({
+    render: () => h('form', [
+      h(TimePicker.Root as Component, {
+        ...rest,
+        'modelValue': model.value,
+        'onUpdate:modelValue': (value: string | null) => {
+          model.value = value
+        },
+      }, { default: slot }),
+    ]),
   })
 
+  const wrapper = mount(Host, { attachTo: document.body })
   wrappers.push(wrapper)
 
   return {
@@ -51,138 +60,379 @@ function mountTime (props: Record<string, unknown> = {}) {
   }
 }
 
-function press (element: Element, key: string) {
-  element.dispatchEvent(new KeyboardEvent('keydown', {
+function press (element: Element, key: string): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', {
     key,
     bubbles: true,
     cancelable: true,
-  }))
+  })
+  element.dispatchEvent(event)
+  return event
 }
 
 describe('timePicker', () => {
-  it('should expose hour and minute spinbuttons', async () => {
-    const { wrapper, part, wait } = mountTime()
-    await wait()
+  describe('rendering', () => {
+    it('should render a group with hour and minute spinbuttons', async () => {
+      const { wrapper, part, wait } = mountTime()
+      await wait()
 
-    expect(wrapper.get('[role="group"]').attributes('role')).toBe('group')
-    expect(part('hour').attributes('role')).toBe('spinbutton')
-    expect(part('minute').attributes('role')).toBe('spinbutton')
-    expect(wrapper.findAll('[role="spinbutton"]')).toHaveLength(2)
-  })
-
-  it('should name the group and the fields from the locale catalog', async () => {
-    const { wrapper, part, wait } = mountTime()
-    await wait()
-
-    expect(wrapper.get('[role="group"]').attributes('aria-label')).toBeDefined()
-    expect(part('hour').attributes('aria-label')).toBeDefined()
-    expect(part('minute').attributes('aria-label')).toBeDefined()
-  })
-
-  it('should step the focused field with arrow keys', async () => {
-    const { model, part, wait } = mountTime({ modelValue: '09:30' })
-    await wait()
-
-    press(part('hour').element, 'ArrowUp')
-    await wait()
-    expect(model.value).toBe('10:30')
-
-    press(part('minute').element, 'ArrowDown')
-    await wait()
-    expect(model.value).toBe('10:29')
-  })
-
-  it('should omit the period control in a 24-hour cycle', async () => {
-    const { wrapper, wait } = mountTime({ modelValue: '15:00' })
-    await wait()
-
-    expect(wrapper.find('[data-part="period"]').exists()).toBe(false)
-  })
-
-  it('should render the period control in a 12-hour cycle and step it', async () => {
-    const { model, part, wait } = mountTime({
-      modelValue: '03:00',
-      hourCycle: 'h12',
+      expect(wrapper.find('[role="group"]').exists()).toBe(true)
+      expect(part('hour').attributes('role')).toBe('spinbutton')
+      expect(part('minute').attributes('role')).toBe('spinbutton')
+      expect(wrapper.findAll('[role="spinbutton"]')).toHaveLength(2)
     })
-    await wait()
 
-    expect(part('period').attributes('role')).toBe('spinbutton')
-    expect(part('period').attributes('aria-label')).toBeDefined()
-    expect(part('hour').attributes('aria-valuenow')).toBe('3')
+    it('should name the group and the fields from the locale catalog', async () => {
+      const { wrapper, part, wait } = mountTime()
+      await wait()
 
-    press(part('period').element, 'ArrowUp')
-    await wait()
-
-    expect(model.value).toBe('15:00')
-    expect(part('hour').attributes('aria-valuenow')).toBe('3')
-  })
-
-  it('should omit seconds unless they are enabled', async () => {
-    const off = mountTime({ modelValue: '09:30' })
-    await off.wait()
-    expect(off.wrapper.find('[data-part="second"]').exists()).toBe(false)
-
-    const on = mountTime({ modelValue: '09:30:00', seconds: true })
-    await on.wait()
-    expect(on.part('second').attributes('role')).toBe('spinbutton')
-
-    press(on.part('second').element, 'ArrowUp')
-    await on.wait()
-    expect(on.model.value).toBe('09:30:01')
-  })
-
-  it('should submit the value through a hidden input when name is set', async () => {
-    const named = mountTime({ modelValue: '09:30', name: 'alarm' })
-    await named.wait()
-
-    const input = named.wrapper.get('input[type="hidden"]')
-    expect(input.attributes('name')).toBe('alarm')
-    expect(input.attributes('tabindex')).toBe('-1')
-    expect((input.element as HTMLInputElement).value).toBe('09:30')
-
-    const plain = mountTime({ modelValue: '09:30' })
-    await plain.wait()
-    expect(plain.wrapper.find('input[type="hidden"]').exists()).toBe(false)
-  })
-
-  it('should ignore arrow keys while disabled', async () => {
-    const { model, part, wait } = mountTime({
-      modelValue: '04:00',
-      disabled: true,
+      expect(wrapper.get('[role="group"]').attributes('aria-label')).toBeDefined()
+      expect(part('hour').attributes('aria-label')).toBeDefined()
+      expect(part('minute').attributes('aria-label')).toBeDefined()
     })
-    await wait()
 
-    press(part('hour').element, 'ArrowUp')
-    await wait()
-    expect(model.value).toBe('04:00')
+    it('should omit the period control in a 24-hour cycle', async () => {
+      const { wrapper, wait } = mountTime({ modelValue: '15:00' })
+      await wait()
+
+      expect(wrapper.find('[data-part="period"]').exists()).toBe(false)
+    })
+
+    it('should omit seconds unless they are enabled', async () => {
+      const off = mountTime({ modelValue: '09:30' })
+      await off.wait()
+      expect(off.wrapper.find('[data-part="second"]').exists()).toBe(false)
+
+      const on = mountTime({ modelValue: '09:30:00', seconds: true })
+      await on.wait()
+      expect(on.part('second').attributes('role')).toBe('spinbutton')
+
+      press(on.part('second').element, 'ArrowUp')
+      await on.wait()
+      expect(on.model.value).toBe('09:30:01')
+    })
   })
 
-  it('should step a native button host once', async () => {
-    const model = shallowRef<string | null>('09:00')
+  describe('aria', () => {
+    it('should describe a 24-hour time', async () => {
+      const { part, wait } = mountTime({ modelValue: '09:30', minuteStep: 15 })
+      await wait()
 
-    const wrapper = mount(TimePicker.Root as Component, {
-      props: {
-        'modelValue': model.value,
-        'onUpdate:modelValue': (value: string | null) => {
-          model.value = value
-          return wrapper.setProps({ modelValue: value })
-        },
-      },
-      slots: {
-        default: () => h(TimePicker.Hour as Component, { as: 'button', key: 'hour' }),
-      },
-      attachTo: document.body,
+      expect(part('hour').attributes('aria-valuemin')).toBe('0')
+      expect(part('hour').attributes('aria-valuemax')).toBe('23')
+      expect(part('hour').attributes('aria-valuenow')).toBe('9')
+      expect(part('hour').attributes('aria-valuetext')).toBe('09')
+      expect(part('minute').attributes('aria-valuemin')).toBe('0')
+      expect(part('minute').attributes('aria-valuemax')).toBe('45')
+      expect(part('minute').attributes('aria-valuenow')).toBe('30')
     })
-    wrappers.push(wrapper)
-    await nextTick()
 
-    const hour = wrapper.get('[data-part="hour"]')
-    expect(hour.element.tagName).toBe('BUTTON')
-    expect(hour.attributes('type')).toBe('button')
-    expect(hour.attributes('role')).toBe('spinbutton')
+    it('should describe a 12-hour time', async () => {
+      const { part, wait } = mountTime({ modelValue: '15:00', hourCycle: 'h12' })
+      await wait()
 
-    press(hour.element, 'ArrowUp')
-    await nextTick()
-    expect(model.value).toBe('10:00')
+      expect(part('hour').attributes('aria-valuemin')).toBe('1')
+      expect(part('hour').attributes('aria-valuemax')).toBe('12')
+      expect(part('hour').attributes('aria-valuenow')).toBe('3')
+      expect(part('period').attributes('aria-valuemin')).toBe('0')
+      expect(part('period').attributes('aria-valuemax')).toBe('1')
+      expect(part('period').attributes('aria-valuenow')).toBe('1')
+      expect(part('period').attributes('aria-valuetext')).toBeDefined()
+      expect(part('period').attributes('aria-label')).toBeDefined()
+    })
+
+    it('should narrow the 12-hour range to the hours the step can reach', async () => {
+      const { part, wait } = mountTime({ modelValue: '15:00', hourCycle: 'h12', hourStep: 5 })
+      await wait()
+
+      expect(part('hour').attributes('aria-valuemin')).toBe('3')
+      expect(part('hour').attributes('aria-valuemax')).toBe('8')
+    })
+
+    it('should omit the current value while a field is empty', async () => {
+      const { part, wait } = mountTime()
+      await wait()
+
+      expect(part('hour').attributes('aria-valuenow')).toBeUndefined()
+      expect(part('hour').attributes('aria-valuetext')).toBeUndefined()
+      expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+    })
+  })
+
+  describe('keyboard', () => {
+    it('should step the focused field with arrow keys', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      expect(press(part('hour').element, 'ArrowUp').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('10:30')
+
+      expect(press(part('minute').element, 'ArrowDown').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('10:29')
+    })
+
+    it.each(['Backspace', 'Delete'])('should clear the focused field with %s and keep the others', async key => {
+      const { model, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      expect(press(part('minute').element, key).defaultPrevented).toBe(true)
+      await wait()
+
+      expect(model.value).toBeNull()
+      expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+      expect(part('hour').attributes('aria-valuenow')).toBe('9')
+
+      press(part('minute').element, 'ArrowUp')
+      await wait()
+      expect(model.value).toBe('09:00')
+    })
+
+    it('should jump to the ends of the grid with Home and End', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '09:30', minuteStep: 15 })
+      await wait()
+
+      expect(press(part('minute').element, 'End').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('09:45')
+
+      expect(press(part('minute').element, 'Home').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('09:00')
+
+      press(part('hour').element, 'End')
+      await wait()
+      expect(model.value).toBe('23:00')
+
+      press(part('hour').element, 'Home')
+      await wait()
+      expect(model.value).toBe('00:00')
+    })
+
+    it('should jump to 1 and 12 inside the meridiem in a 12-hour cycle', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '15:00', hourCycle: 'h12' })
+      await wait()
+
+      press(part('hour').element, 'Home')
+      await wait()
+      expect(model.value).toBe('13:00')
+
+      press(part('hour').element, 'End')
+      await wait()
+      expect(model.value).toBe('12:00')
+    })
+
+    it('should move about two hours or fifteen minutes with the Page keys', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      expect(press(part('hour').element, 'PageUp').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('11:30')
+
+      expect(press(part('minute').element, 'PageDown').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('11:15')
+    })
+
+    it('should never page by less than one interval', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '10:00', hourStep: 5, minuteStep: 20 })
+      await wait()
+
+      press(part('hour').element, 'PageUp')
+      await wait()
+      expect(model.value).toBe('15:00')
+
+      press(part('minute').element, 'PageUp')
+      await wait()
+      expect(model.value).toBe('15:20')
+    })
+
+    it('should drive the period with arrows, Page keys, Home, and End', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '03:00', hourCycle: 'h12' })
+      await wait()
+
+      expect(press(part('period').element, 'ArrowUp').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('15:00')
+      expect(part('hour').attributes('aria-valuenow')).toBe('3')
+
+      expect(press(part('period').element, 'PageDown').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('03:00')
+
+      expect(press(part('period').element, 'End').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('15:00')
+
+      expect(press(part('period').element, 'End').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('15:00')
+
+      expect(press(part('period').element, 'Home').defaultPrevented).toBe(true)
+      await wait()
+      expect(model.value).toBe('03:00')
+    })
+
+    it('should leave keys it does not act on alone', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '03:00', hourCycle: 'h12' })
+      await wait()
+
+      expect(press(part('hour').element, 'Tab').defaultPrevented).toBe(false)
+      expect(press(part('hour').element, '5').defaultPrevented).toBe(false)
+      expect(press(part('hour').element, 'Enter').defaultPrevented).toBe(false)
+      expect(press(part('period').element, 'Backspace').defaultPrevented).toBe(false)
+      expect(press(part('period').element, 'Delete').defaultPrevented).toBe(false)
+      await wait()
+
+      expect(model.value).toBe('03:00')
+    })
+
+    it('should step a native button host once', async () => {
+      const { model, part, wait } = mountTime(
+        { modelValue: '09:00' },
+        () => [h(TimePicker.Hour as Component, { as: 'button', key: 'hour' })],
+      )
+      await wait()
+
+      const hour = part('hour')
+      expect(hour.element.tagName).toBe('BUTTON')
+      expect(hour.attributes('type')).toBe('button')
+      expect(hour.attributes('role')).toBe('spinbutton')
+
+      press(hour.element, 'ArrowUp')
+      await wait()
+      expect(model.value).toBe('10:00')
+    })
+  })
+
+  describe('blocked', () => {
+    const keys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', 'Backspace', 'Delete']
+
+    it('should mark a disabled picker and ignore every key', async () => {
+      const { model, wrapper, part, wait } = mountTime({
+        modelValue: '04:07',
+        minuteStep: 15,
+        disabled: true,
+      })
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      expect(group.attributes('aria-disabled')).toBe('true')
+      expect(group.attributes('data-disabled')).toBe('true')
+      expect(part('hour').attributes('aria-disabled')).toBe('true')
+      expect(part('hour').attributes('data-disabled')).toBe('true')
+      expect(part('hour').attributes('tabindex')).toBe('-1')
+
+      for (const key of keys) {
+        expect(press(part('minute').element, key).defaultPrevented).toBe(false)
+      }
+      await wait()
+
+      expect(model.value).toBe('04:07')
+      expect(part('minute').attributes('aria-valuenow')).toBe('7')
+    })
+
+    it('should mark a readonly picker and ignore every key', async () => {
+      const { model, wrapper, part, wait } = mountTime({
+        modelValue: '04:07',
+        minuteStep: 15,
+        readonly: true,
+      })
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      expect(group.attributes('data-readonly')).toBe('true')
+      expect(group.attributes('data-disabled')).toBeUndefined()
+      expect(part('hour').attributes('aria-readonly')).toBe('true')
+      expect(part('hour').attributes('data-readonly')).toBe('true')
+      expect(part('hour').attributes('aria-disabled')).toBe('false')
+      expect(part('hour').attributes('tabindex')).toBe('0')
+
+      for (const key of keys) {
+        expect(press(part('minute').element, key).defaultPrevented).toBe(false)
+      }
+      await wait()
+
+      expect(model.value).toBe('04:07')
+      expect(part('minute').attributes('aria-valuenow')).toBe('7')
+    })
+  })
+
+  describe('slot props', () => {
+    it('should expose the meridiem as the period value', async () => {
+      let captured: TimePickerPeriodSlotProps | undefined
+
+      const { part, wait } = mountTime(
+        { modelValue: '15:00', hourCycle: 'h12' },
+        () => [
+          h(TimePicker.Period as Component, { key: 'period' }, {
+            default: (props: TimePickerPeriodSlotProps) => {
+              captured = props
+              return props.text
+            },
+          }),
+        ],
+      )
+      await wait()
+
+      expect(captured?.value).toBe('pm')
+      expect(captured?.attrs['aria-valuenow']).toBe(1)
+
+      press(part('period').element, 'ArrowDown')
+      await wait()
+
+      expect(captured?.value).toBe('am')
+      expect(captured?.attrs['aria-valuenow']).toBe(0)
+    })
+
+    it('should clear every field through the root slot', async () => {
+      let root: TimePickerRootSlotProps | undefined
+
+      const { model, part, wait } = mountTime({ modelValue: '09:30' }, props => {
+        root = props
+        return fields()
+      })
+      await wait()
+
+      root!.clear()
+      await wait()
+
+      expect(model.value).toBeNull()
+      expect(root!.value).toBeNull()
+      expect(part('hour').attributes('aria-valuenow')).toBeUndefined()
+      expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+    })
+  })
+
+  describe('form', () => {
+    it('should submit the stepped value through a hidden input when name is set', async () => {
+      const { wrapper, part, wait } = mountTime({ modelValue: '09:30', name: 'alarm' })
+      await wait()
+
+      const input = wrapper.get('input[type="hidden"]')
+      expect(input.attributes('name')).toBe('alarm')
+      expect(input.attributes('tabindex')).toBe('-1')
+      expect((input.element as HTMLInputElement).value).toBe('09:30')
+
+      press(part('hour').element, 'ArrowUp')
+      await wait()
+
+      expect((input.element as HTMLInputElement).value).toBe('10:30')
+      expect(new FormData(wrapper.element as HTMLFormElement).get('alarm')).toBe('10:30')
+
+      press(part('minute').element, 'Delete')
+      await wait()
+
+      expect(new FormData(wrapper.element as HTMLFormElement).get('alarm')).toBe('')
+    })
+
+    it('should render no hidden input without a name', async () => {
+      const { wrapper, wait } = mountTime({ modelValue: '09:30' })
+      await wait()
+
+      expect(wrapper.find('input[type="hidden"]').exists()).toBe(false)
+    })
   })
 })
