@@ -144,28 +144,27 @@ describe('timePicker', () => {
   })
 
   describe('options', () => {
-    it('should pass the second step and the upper bound through to the picker', async () => {
+    it('should pass the second step and both bounds through to the picker', async () => {
       const { model, part, wait } = mountTime({
         modelValue: '10:00:00',
         seconds: true,
         secondStep: 20,
-        max: '10:00:30',
+        min: '10:00:10',
+        max: '10:00:50',
       })
       await wait()
+      await wait()
 
+      expect(model.value).toBe('10:00:20')
       expect(part('second').attributes('aria-valuemax')).toBe('40')
 
       press(part('second').element, 'ArrowUp')
       await wait()
-      expect(model.value).toBe('10:00:20')
+      expect(model.value).toBe('10:00:40')
 
       press(part('second').element, 'ArrowUp')
       await wait()
       expect(model.value).toBe('10:00:20')
-
-      press(part('second').element, 'ArrowDown')
-      await wait()
-      expect(model.value).toBe('10:00:00')
     })
 
     it('should connect fields and the hidden input through a custom namespace', async () => {
@@ -199,6 +198,17 @@ describe('timePicker', () => {
       expect(group.attributes('data-complete')).toBeUndefined()
       expect(part('hour').attributes('data-state')).toBe('filled')
       expect(part('minute').attributes('data-state')).toBe('empty')
+    })
+
+    it('should not call a model the fields cannot show complete', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const { model, wrapper, wait } = mountTime({ modelValue: 'bogus', readonly: true })
+      await wait()
+
+      expect(model.value).toBe('bogus')
+      expect(wrapper.get('[role="group"]').attributes('data-complete')).toBeUndefined()
+      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -302,6 +312,43 @@ describe('timePicker', () => {
 
       expect(part('hour').attributes('id')).toBe('start-hour')
       expect(part('minute').attributes('id')).toBe('custom')
+    })
+
+    it('should widen the reported range to hold a value that sits off the grid', async () => {
+      const { model, part, wait } = mountTime({ modelValue: '11:00', minuteStep: 15, min: '10:50', max: '10:55' })
+      await wait()
+      await wait()
+
+      expect(model.value).toBe('10:55')
+      expect(part('minute').attributes('aria-valuenow')).toBe('55')
+      expect(part('minute').attributes('aria-valuemin')).toBe('0')
+      expect(part('minute').attributes('aria-valuemax')).toBe('55')
+    })
+
+    it.each([
+      ['hour', TimePicker.Hour],
+      ['minute', TimePicker.Minute],
+      ['second', TimePicker.Second],
+      ['period', TimePicker.Period],
+    ] as const)('should forward id, names, and namespace on the %s part', async (name, Part) => {
+      const props = { modelValue: '15:30:00', hourCycle: 'h12', seconds: true, namespace: 'v0:alarm' }
+
+      const named = mountTime(props, () => [
+        h(Part as Component, { key: name, namespace: 'v0:alarm', id: 'custom', ariaLabel: 'Custom' }),
+      ])
+      await named.wait()
+
+      expect(named.part(name).attributes('id')).toBe('custom')
+      expect(named.part(name).attributes('aria-label')).toBe('Custom')
+      expect(named.part(name).attributes('aria-valuenow')).toBeDefined()
+
+      const labelled = mountTime(props, () => [
+        h(Part as Component, { key: name, namespace: 'v0:alarm', ariaLabelledby: 'outside' }),
+      ])
+      await labelled.wait()
+
+      expect(labelled.part(name).attributes('aria-labelledby')).toBe('outside')
+      expect(labelled.part(name).attributes('aria-label')).toBeUndefined()
     })
 
     it('should omit the current value while a field is empty', async () => {
@@ -663,11 +710,15 @@ describe('timePicker', () => {
       return !isNull(value) && value > '12:00' ? current : value
     }
 
+    function keep (_: string | null, current: string | null) {
+      return current
+    }
+
     it.each([
       ['rewrites', cap],
       ['refuses', refuse],
     ])('should show what the model holds when the host %s an update', async (_, accept) => {
-      const { model, wrapper, part, wait } = mountTime({ modelValue: '11:00', name: 'alarm' }, fields, true, accept)
+      const { emitted, model, wrapper, part, wait } = mountTime({ modelValue: '11:00', name: 'alarm' }, fields, true, accept)
       await wait()
 
       press(part('hour').element, 'ArrowUp')
@@ -682,6 +733,7 @@ describe('timePicker', () => {
       expect(model.value).toBe('12:00')
       expect(part('hour').attributes('aria-valuenow')).toBe('12')
       expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).value).toBe('12:00')
+      expect(emitted).toEqual(['12:00', '13:00'])
 
       press(part('hour').element, 'ArrowDown')
       await wait()
@@ -689,6 +741,7 @@ describe('timePicker', () => {
 
       expect(model.value).toBe('11:00')
       expect(part('hour').attributes('aria-valuenow')).toBe('11')
+      expect(emitted).toEqual(['12:00', '13:00', '11:00'])
     })
 
     it('should keep a half-entered time the host has no say over', async () => {
@@ -702,6 +755,103 @@ describe('timePicker', () => {
       expect(model.value).toBeNull()
       expect(part('hour').attributes('aria-valuenow')).toBe('11')
       expect(part('minute').attributes('aria-valuenow')).toBeUndefined()
+    })
+
+    it('should emit once more, and no further, when the host replaces a write with a value off the grid', async () => {
+      function limit (value: string | null) {
+        return !isNull(value) && value > '12:08' ? '12:08' : value
+      }
+
+      const { emitted, model, wrapper, part, wait } = mountTime({ modelValue: '10:00', minuteStep: 15, name: 'alarm' }, fields, true, limit)
+      await wait()
+
+      press(part('hour').element, 'End')
+      await wait()
+      await wait()
+      await wait()
+
+      expect(emitted).toEqual(['23:00', '12:15'])
+      expect(model.value).toBe('12:08')
+      expect(part('hour').attributes('aria-valuenow')).toBe('12')
+      expect(part('minute').attributes('aria-valuenow')).toBe('8')
+      expect((wrapper.get('input[type="hidden"]').element as HTMLInputElement).value).toBe('12:08')
+    })
+
+    it('should show a value the host insists on as given and take it up again after an option change', async () => {
+      const { emitted, model, part, set, wait } = mountTime({ modelValue: '10:50', minuteStep: 20 }, fields, true, keep)
+      await wait()
+      await wait()
+      await wait()
+
+      expect(emitted).toEqual(['10:40'])
+      expect(model.value).toBe('10:50')
+      expect(part('minute').attributes('aria-valuenow')).toBe('50')
+      expect(part('minute').attributes('aria-valuemax')).toBe('50')
+
+      set({ minuteStep: 1 })
+      await wait()
+      await wait()
+
+      expect(emitted).toEqual(['10:40'])
+      expect(part('minute').attributes('aria-valuenow')).toBe('50')
+      expect(part('minute').attributes('aria-valuemax')).toBe('59')
+    })
+
+    it('should warn once about a model the host will not let go of', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const { emitted, model, part, wait } = mountTime({ modelValue: 'bogus' }, fields, true, keep)
+      await wait()
+      await wait()
+      await wait()
+
+      expect(emitted).toEqual([null])
+      expect(model.value).toBe('bogus')
+      expect(part('hour').attributes('aria-valuenow')).toBeUndefined()
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('mount', () => {
+    it('should emit once when a top-level mount normalizes the value', async () => {
+      const { emitted, model, part, wait } = mountTime({ modelValue: '09:50', minuteStep: 15 })
+      await wait()
+      await wait()
+      await wait()
+
+      expect(emitted).toEqual(['09:45'])
+      expect(model.value).toBe('09:45')
+      expect(part('minute').attributes('aria-valuenow')).toBe('45')
+    })
+
+    it('should emit once when a mount inside a flush normalizes the value', async () => {
+      const shown = shallowRef(false)
+      const model = shallowRef<string | null>('09:50')
+      const emitted: (string | null)[] = []
+
+      const Host = defineComponent({
+        render: () => shown.value
+          ? h(TimePicker.Root as Component, {
+              'modelValue': model.value,
+              'minuteStep': 15,
+              'onUpdate:modelValue': (value: string | null) => {
+                emitted.push(value)
+                model.value = value
+              },
+            }, { default: fields })
+          : h('div'),
+      })
+
+      const wrapper = mount(Host, { attachTo: document.body })
+      wrappers.push(wrapper)
+
+      shown.value = true
+      await nextTick()
+      await nextTick()
+      await nextTick()
+
+      expect(emitted).toEqual(['09:45'])
+      expect(wrapper.get('[data-part="minute"]').attributes('aria-valuenow')).toBe('45')
     })
   })
 
@@ -730,6 +880,33 @@ describe('timePicker', () => {
 
       expect(captured?.value).toBe('am')
       expect(captured?.attrs['aria-valuenow']).toBe(0)
+    })
+
+    it('should give each part the text it shows', async () => {
+      function shown (Part: unknown, key: string) {
+        return h(Part as Component, { key }, { default: ({ text }: { text: string }) => text })
+      }
+
+      const { part, wait } = mountTime({ modelValue: '15:05:09', hourCycle: 'h12', seconds: true }, () => [
+        shown(TimePicker.Hour, 'hour'),
+        shown(TimePicker.Minute, 'minute'),
+        shown(TimePicker.Second, 'second'),
+        shown(TimePicker.Period, 'period'),
+      ])
+      await wait()
+
+      expect(part('hour').text()).toBe('03')
+      expect(part('minute').text()).toBe('05')
+      expect(part('second').text()).toBe('09')
+      expect(part('period').text()).toBe('PM')
+
+      press(part('minute').element, 'Delete')
+      press(part('period').element, 'ArrowDown')
+      await wait()
+
+      expect(part('minute').text()).toBe('')
+      expect(part('hour').text()).toBe('03')
+      expect(part('period').text()).toBe('AM')
     })
 
     it('should clear every field through the root slot', async () => {
