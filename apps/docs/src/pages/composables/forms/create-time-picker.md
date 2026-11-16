@@ -109,7 +109,7 @@ An empty field lands on its first multiple, whatever the count: 0 for a minute, 
 
 A string written to `value` from outside replaces every field. The picker moves each field to its nearest multiple, brings a complete time inside `min` and `max`, and writes the result back in canonical form.
 
-The initial value is normalized inside `createTimePicker`, before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. A value and an option that change in the same tick are applied together, so the new value is judged by the new options.
+The initial value is normalized inside `createTimePicker`, before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. A value and an option that change in the same tick are applied together, so the new value is judged by the new options. `commit` and `step` apply any pending pass first, then edit, then write once, so an edit made in the same tick as a change gives the same result as one made a tick later.
 
 | Incoming | Result |
 |----------|--------|
@@ -123,9 +123,19 @@ Turning `seconds` on while the hour and the minute are set keeps the time and se
 
 ### Refused updates
 
-The model has the last word. When its owner does not take a value the picker wrote, as with a parent that rejects the update or a writable computed that caps it, the fields return to what the model holds after the owner's flush.
+The model has the last word. A plain ref always takes what the picker writes. A writable computed, or a component model whose parent decides, may not.
 
-`display` is the time the fields show, as the canonical string, or null while a field is empty. It matches `value` except where the model holds something the fields do not: a string that is not a time, or a value a disabled or readonly picker has not normalized.
+- **Refused.** When the model does not hold what the picker wrote, the fields take the model's value as given, without the step or the bounds applied, and the picker writes nothing more. The check runs one tick after the post flush, so the fields settle within two ticks: `await nextTick()` twice. It never runs after the scope is stopped.
+- **Replaced.** When the owner answers a write with a different value, that value is treated as an incoming one: normalized and written back once. If the owner alters that write too, the picker takes the owner's value as given and stops.
+
+One edit costs at most two writes, whatever the owner does. The picker never retries a write.
+
+Two things follow:
+
+- An owner should accept or refuse synchronously. One that accepts late, after a timer, a debounce, or an awaited request, looks like a refusal until its value arrives. The fields show the old model value in between, and each rapid edit starts from it. Bind the picker to a local ref and debounce or validate downstream of that ref.
+- An owner that rounds or transforms should give the picker the same step. A setter that rounds to 30 minutes over the default `minuteStep` receives `09:01` from `step('minute')` and maps it straight back to `09:00`, every time. With `minuteStep: 30` the picker writes `09:30`.
+
+`display` is the time the fields show, as the canonical string, or null while a field is empty. It matches `value` except when the model holds a string the fields cannot show as written and the picker has not rewritten it, because it is disabled or readonly or because it took the owner's value as given. That is a string that is not a time, where `display` is null, or a time whose seconds do not match the `seconds` option. Under an owner that answers late, `display` also runs ahead of `value` until the answer is checked.
 
 ### Bounds
 
@@ -218,7 +228,7 @@ While a field is still empty the value is already null, so writing null again ch
 
 ??? What happens when the model does not accept a value?
 
-The fields go back to what the model holds once its owner has flushed. Read `display` for the time the fields show. It differs from `value` only while the model holds a string the fields cannot show.
+The fields take the model's value as given and the picker writes nothing more. That happens within two ticks of the refused write. If the owner answered with a different value instead, the picker normalizes it and writes back once. See [Refused updates](#refused-updates). Read `display` for the time the fields show.
 
 ??? Does it write the model during server rendering?
 
