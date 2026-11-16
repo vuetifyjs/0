@@ -86,7 +86,7 @@
     isDisabled: boolean
     /** Whether edits are ignored. */
     isReadonly: boolean
-    /** Clear every field. The value becomes `null`. */
+    /** Clear every field. The value becomes `null`. Does nothing while disabled or readonly. */
     clear: () => void
     /** Attributes for the group element. */
     attrs: {

@@ -165,16 +165,18 @@ export interface TimePickerOptions {
   max?: MaybeRefOrGetter<string | null | undefined>
   /**
    * While true, `commit`, `step`, and `clear` do nothing and the picker
-   * never writes `value`: an incoming value is shown as given, without
-   * snapping, clamping, or dropping its seconds. Turning it off normalizes
-   * the value.
+   * never writes `value`, so the model is left untouched. The fields show
+   * the incoming hour and minute as given, unsnapped and unclamped, and
+   * its seconds only while `seconds` is on. Turning it off normalizes the
+   * value.
    */
   disabled?: MaybeRefOrGetter<boolean>
   /**
    * While true, `commit`, `step`, and `clear` do nothing and the picker
-   * never writes `value`: an incoming value is shown as given, without
-   * snapping, clamping, or dropping its seconds. Turning it off normalizes
-   * the value.
+   * never writes `value`, so the model is left untouched. The fields show
+   * the incoming hour and minute as given, unsnapped and unclamped, and
+   * its seconds only while `seconds` is on. Turning it off normalizes the
+   * value.
    */
   readonly?: MaybeRefOrGetter<boolean>
 }
