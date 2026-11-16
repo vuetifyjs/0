@@ -17,11 +17,12 @@ import { createChecker } from 'vue-component-meta'
 
 import { toCamel, toPascal } from './api-names'
 import { parseFrontmatter } from './frontmatter'
-import { isInternal } from './internal'
 
 // Types
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
 import type { Plugin } from 'vite'
+
+import { isInternal } from '../../../packages/0/scripts/internal'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')

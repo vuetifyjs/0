@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isInternal } from './internal'
+import { isInternal } from '../../../packages/0/scripts/internal'
 
 describe('isInternal', () => {
   it('should match an @internal tag line in the header block', () => {
