@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { Button } from '@vuetify/v0'
   import { useAlarm } from './alarm'
 
   const alarm = useAlarm()
@@ -15,29 +16,26 @@
     </p>
 
     <div class="flex gap-2">
-      <button
+      <Button.Root
         class="px-3 py-2 border border-divider rounded"
-        type="button"
         @click="alarm.step('hour', 1)"
       >
         Hour {{ hour ?? '—' }}
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-2 border border-divider rounded"
-        type="button"
         @click="alarm.step('minute', 1)"
       >
         Minute {{ minute ?? '—' }}
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-2 border border-divider rounded"
-        type="button"
         @click="alarm.step('period')"
       >
         {{ period === 'pm' ? 'PM' : 'AM' }}
-      </button>
+      </Button.Root>
     </div>
   </div>
 </template>

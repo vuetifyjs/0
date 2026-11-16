@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createTimePicker } from '@vuetify/v0'
+  import { Button, createTimePicker } from '@vuetify/v0'
 
   const time = createTimePicker({ minuteStep: 15 })
   const value = time.value
@@ -10,21 +10,19 @@
 <template>
   <div class="flex flex-col items-start gap-3">
     <div class="flex gap-2">
-      <button
+      <Button.Root
         class="px-3 py-2 border border-divider rounded"
-        type="button"
         @click="time.step('hour', 1)"
       >
         Hour {{ hour ?? '—' }}
-      </button>
+      </Button.Root>
 
-      <button
+      <Button.Root
         class="px-3 py-2 border border-divider rounded"
-        type="button"
         @click="time.step('minute', 1)"
       >
         Minute {{ minute ?? '—' }}
-      </button>
+      </Button.Root>
     </div>
 
     <p class="text-sm text-on-surface-variant">
