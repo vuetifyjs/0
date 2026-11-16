@@ -147,6 +147,8 @@ Do not also place `TimePicker.HiddenInput` yourself. Inside a Root that has `nam
 
 Every Root is named "Time" by default, and every field "Hour", "Minute", "Second", or "AM/PM", from the locale catalog. Give a start and an end picker their own names with `ariaLabel`, or point `ariaLabelledby` at a visible label. Both props exist on Root and on each field, and `ariaLabelledby` replaces `ariaLabel`.
 
+Each field's id is generated from the Root id and the field's kind. Two fields of the same kind inside one Root, such as a mobile and a desktop Hour, would share that id, so pass `id` to each.
+
 ```vue
 <template>
   <span id="start-label">Start</span>
@@ -185,7 +187,7 @@ Style field and interaction states without slot props:
 | Attribute | Values | Components |
 |-----------|--------|------------|
 | `data-part` | `hour`, `minute`, `second`, `period` | Hour, Minute, Second, Period |
-| `data-state` | `empty`, `filled` | Hour, Minute, Second, Period |
+| `data-state` | `empty`, `filled` | Hour, Minute, Second. Period is always `filled` |
 | `data-complete` | `true` | Root, while the fields show a complete time |
 | `data-disabled` | `true` | Root, Hour, Minute, Second, Period |
 | `data-readonly` | `true` | Root, Hour, Minute, Second, Period |
@@ -212,6 +214,8 @@ Root renders `role="group"`. Each field renders `role="spinbutton"` per the [WAI
 | `aria-disabled` | `true` or `false` | Root and fields. Omitted on a native button host, which uses `disabled` |
 
 With the default steps the hour runs 0–23, or 1–12 in 12-hour mode, and the minute and second run 0–59. A step narrows the range to its multiples: `minute-step="15"` gives a minute range of 0–45. While Root is `disabled` or `readonly` the fields report their whole range instead, because the value is shown as given and may sit off the step.
+
+The reported range always includes the value the field shows. When that value is off the step, the range widens to take it in.
 
 The `min` and `max` props do not narrow `aria-valuemin` and `aria-valuemax`. They apply to the whole time, not to one field. At a bound, a key that would take the time out of the range leaves it unchanged.
 
@@ -246,7 +250,24 @@ Period:
 
 `Backspace` and `Delete` do nothing on Period. Typing digits into a field is not supported.
 
-Every key is ignored while Root is `disabled` or `readonly`. An ignored key keeps its browser default, so Page, Home, and End scroll the page from a focused readonly field.
+Every key is ignored while Root is `disabled` or `readonly`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page from a focused readonly field.
+
+### Locale Keys
+
+The names and spoken text come from [useLocale](/composables/plugins/use-locale). Without the locale plugin, or without a translation for a key, the English default is used.
+
+| Key | Default | Used for |
+|-----|---------|----------|
+| `TimePicker.label` | `Time` | Root `aria-label` |
+| `TimePicker.hour` | `Hour` | Hour `aria-label` |
+| `TimePicker.minute` | `Minute` | Minute `aria-label` |
+| `TimePicker.second` | `Second` | Second `aria-label` |
+| `TimePicker.period` | `AM/PM` | Period `aria-label` |
+| `TimePicker.am` | `AM` | Period text and `aria-valuetext` |
+| `TimePicker.pm` | `PM` | Period text and `aria-valuetext` |
+| `TimePicker.hourText` | `{hour} {period}` | `aria-valuetext` of the hour in 12-hour mode. A locale can reorder the two parts |
+
+An `ariaLabel` or `ariaLabelledby` prop takes priority over the label keys.
 
 ## FAQ
 
@@ -266,11 +287,22 @@ They keep a complete value inside the window. An incomplete value stays null. A 
 
 ??? What do disabled and readonly do?
 
-Both ignore every key and `clear`, and the picker never emits while either is set. An ignored key keeps its browser default, so Page, Home, and End scroll the page. The value is shown as given, without the step or `min` and `max` applied. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
+Both ignore every key and `clear`, and the picker never emits while either is set. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page. The value is shown as given, without the step or `min` and `max` applied. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
 
 ??? What if the parent refuses an update?
 
-The fields follow the model. When a parent does not accept an emitted value, or replaces it with another, the fields return to what the model holds once the parent has updated. The Root slot's `value` is the time the fields show, so it matches the fields rather than a model string they could not read.
+The fields follow the model. When the parent does not accept an emitted value, the fields take the model's value as given, without the step or the bounds applied, and the picker emits nothing more. The parent sees one `update:modelValue` and the fields return to the model's time within two ticks.
+
+When the parent replaces the emitted value with a different one, the picker treats the replacement as an incoming value: it normalizes it and emits the result once. If the parent changes that too, the picker takes the parent's value as given and stops. One edit emits at most twice.
+
+Two things follow:
+
+- Accept or refuse synchronously. A parent that accepts late, after a timer, a debounce, or an awaited request, looks like a refusal until its value arrives. The fields show the old time in between, and each rapid key press starts from it. Bind the picker to a local ref and debounce or validate downstream of that ref.
+- Give the picker the same step the parent rounds to. A parent that rounds to 30 minutes over a picker with the default `minute-step` gets `09:01` on ArrowUp and maps it straight back, so the field returns to `09:00` every time. With `minute-step="30"` the picker emits `09:30`.
+
+??? Why does the Root slot value differ from the model?
+
+The Root slot's `value` is the time the fields show. It differs from the model only when the model holds a string the fields cannot show as written: a string that is not a time, or a time with or without seconds against the `seconds` setting that the picker has not rewritten, because it is disabled or readonly or because it took a parent's value as given.
 
 ??? Can I type digits into a field?
 
