@@ -313,9 +313,17 @@ export interface TimePickerContext {
   grid: (part: TimeUnit) => TimeGrid
   /**
    * The time the fields show, as the canonical string, or `null` while a
-   * field is empty. Matches `value` except where the model holds something
-   * the fields do not: an unparseable string, or a value a disabled or
-   * readonly picker has not normalized.
+   * field is empty. It is always the format of the fields, so it differs
+   * from `value` whenever the model holds a string the fields cannot show
+   * exactly:
+   *
+   * - an unparseable string, where `display` is `null`
+   * - a value a disabled or readonly picker has not normalized
+   * - a value the fields took as given after the model refused a write,
+   *   when its seconds do not match the `seconds` option: `display` adds
+   *   `:00` or leaves the seconds out
+   * - a write the model's owner has not answered yet, until the check one
+   *   tick later
    *
    * @example
    * ```ts
