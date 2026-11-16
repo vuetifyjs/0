@@ -23,6 +23,14 @@ const VUE_INTERNALS = new Set([
   'onVue:updated', 'onVue:beforeUnmount', 'onVue:unmounted',
 ])
 
+// An SFC whose header block, the JSDoc comment above the first `<script>`,
+// carries an `@internal` tag line is a private building block and is left
+// out. `apps/docs/build/internal.ts` keeps the tested copy of this check.
+function isInternal (source: string): boolean {
+  const header = source.slice(0, Math.max(0, source.indexOf('<script')))
+  return /^\s*\*\s*@internal\b/m.test(header)
+}
+
 function toKebab (str: string) {
   return str.replace(/\./g, '-').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 }
@@ -71,6 +79,8 @@ async function run () {
 
       const componentName = entry.replace('.vue', '')
       const filePath = resolve(dirPath, entry)
+
+      if (isInternal(readFileSync(filePath, 'utf8'))) continue
 
       console.log(`Processing ${componentName}...`)
 
