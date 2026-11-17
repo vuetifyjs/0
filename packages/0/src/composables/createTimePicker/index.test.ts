@@ -8,7 +8,7 @@ import { computed, createApp, customRef, effectScope, nextTick, shallowRef, watc
 
 // Types
 import type { TimeHourCycle, TimePickerContext, TimePickerOptions } from './index'
-import type { EffectScope } from 'vue'
+import type { EffectScope, Ref } from 'vue'
 
 const scopes: EffectScope[] = []
 
@@ -68,6 +68,12 @@ function bump (next: string | null): string | null {
 
 async function rest (rounds = 4) {
   for (let index = 0; index < rounds; index++) await answer()
+}
+
+interface Pending {
+  value: Ref<string | null>
+  minuteStep: Ref<number>
+  seconds: Ref<boolean>
 }
 
 function walk (time: TimePickerContext, part: 'hour' | 'minute' | 'second', count: number, times: number): (number | null)[] {
@@ -875,6 +881,32 @@ describe('createTimePicker', () => {
 
       expect(() => time.clear()).not.toThrow()
       expect(time.hour.value).toBeNull()
+    })
+
+    it.each([
+      ['an incoming value', '10:00', '10:00', (o: Pending) => {
+        o.value.value = '10:07'
+      }],
+      ['a step change', '09:07', '09:00', (o: Pending) => {
+        o.minuteStep.value = 15
+      }],
+      ['seconds turning on', '09:30', '09:30:00', (o: Pending) => {
+        o.seconds.value = true
+      }],
+    ] as const)('should still apply %s when an edit in the same tick throws', async (name, start, wanted, change) => {
+      const { value, state } = fragile(start)
+      const minuteStep = shallowRef(name === 'a step change' ? 1 : 15)
+      const seconds = shallowRef(false)
+      const time = setup({ value, minuteStep, seconds })
+
+      change({ value, minuteStep, seconds })
+      state.fail = true
+      expect(() => time.step('hour', 1)).toThrow('refused')
+      state.fail = false
+      await rest()
+
+      expect(state.held).toBe(wanted)
+      expect(time.display.value).toBe(wanted)
     })
 
     it('should give an incoming value its whole exchange after an edit threw', async () => {
