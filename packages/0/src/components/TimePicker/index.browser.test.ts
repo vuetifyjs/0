@@ -1307,6 +1307,107 @@ describe('timePicker', () => {
       expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
     })
 
+    it('should validate again when a step change moves a validated value', async () => {
+      const rules = [(value: unknown) => value !== '09:15' || 'Not a quarter past']
+      const { model, wrapper, part, set } = mountTime({ modelValue: '09:05', minuteStep: 5, validateOn: 'input', rules }, described)
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+
+      await part('minute').trigger('keydown', { key: 'ArrowUp' })
+      await flushPromises()
+      expect(model.value).toBe('09:10')
+      expect(group.attributes('data-state')).toBe('valid')
+
+      set({ minuteStep: 15 })
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('09:15')
+      expect(group.attributes('data-state')).toBe('invalid')
+    })
+
+    it('should clear an error under validateOn blur eager when a step change moves the value off it', async () => {
+      const rules = [(value: unknown) => value !== '09:10' || 'Not ten past']
+      const { model, wrapper, part, set } = mountTime({ modelValue: '09:05', minuteStep: 5, validateOn: 'blur eager', rules }, described)
+      const button = outside()
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+
+      ;(part('minute').element as HTMLElement).focus()
+      await part('minute').trigger('keydown', { key: 'ArrowUp' })
+      button.focus()
+      await flushPromises()
+      expect(model.value).toBe('09:10')
+      expect(group.attributes('data-state')).toBe('invalid')
+
+      set({ minuteStep: 15 })
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('09:15')
+      expect(group.attributes('data-state')).toBe('valid')
+
+      button.remove()
+    })
+
+    it('should validate again when a bound moves a validated value', async () => {
+      const rules = [(value: unknown) => value !== '11:00' || 'Must end after the start']
+      const { model, wrapper, part, set } = mountTime({ modelValue: '10:00', validateOn: 'input', rules }, described)
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+
+      await part('minute').trigger('keydown', { key: 'ArrowUp' })
+      await flushPromises()
+      expect(model.value).toBe('10:01')
+      expect(group.attributes('data-state')).toBe('valid')
+
+      set({ min: '11:00' })
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('11:00')
+      expect(group.attributes('data-state')).toBe('invalid')
+    })
+
+    it('should validate again when release normalizes a value validated while disabled', async () => {
+      const rules = [(value: unknown) => value !== '09:00' || 'Not nine']
+      const { model, wrapper, set } = mountTime({ modelValue: '10:00', minuteStep: 15, disabled: true, validateOn: 'input', rules }, described)
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+
+      model.value = '09:07'
+      await flushPromises()
+      expect(group.attributes('data-state')).toBe('valid')
+
+      set({ disabled: false })
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('09:00')
+      expect(group.attributes('data-state')).toBe('invalid')
+    })
+
+    it('should stay unvalidated after a reset under validateOn input', async () => {
+      let slot!: TimePickerRootSlotProps
+      const rules = [(value: unknown) => value === '09:00' || 'Only nine']
+      const { model, part } = mountTime({ modelValue: '09:07', minuteStep: 15, validateOn: 'input', rules }, root => {
+        slot = root
+        return fields()
+      })
+      await flushPromises()
+
+      await part('hour').trigger('keydown', { key: 'ArrowUp' })
+      await flushPromises()
+      expect(slot.isValid).toBe(false)
+
+      slot.reset()
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('09:00')
+      expect(slot.isValid).toBeNull()
+    })
+
     it('should count focus taken while disabled once the picker is enabled', async () => {
       const { wrapper, part, set, wait } = mountTime({ required: true, disabled: true }, described)
       const button = outside()

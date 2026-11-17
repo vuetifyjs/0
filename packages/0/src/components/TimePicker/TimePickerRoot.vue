@@ -26,7 +26,7 @@
 
   // Utilities
   import { isElement, isNull, useId } from '#v0/utilities'
-  import { mergeProps, nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -67,7 +67,7 @@
     required?: boolean
     /** Validation rules. Each receives the model value. Read once, at setup. */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
-    /** When to validate. Focus moving between the fields is not a blur. Input is an edit or a value from outside, not the picker normalizing on its own. @default 'blur' */
+    /** When to validate. Focus moving between the fields is not a blur. Input is an edit, a value from outside, or the picker normalizing a value that was already validated. @default 'blur' */
     validateOn?: ValidateOn
     /** Force the invalid state, whatever the rules say. @default false */
     error?: boolean
@@ -247,22 +247,12 @@
     if (shouldValidate('blur')) void input.validate()
   })
 
-  let resetting = false
-
-  // Input is a value someone supplied, by an edit or from outside, once it
-  // is in the model in its final form. The picker normalizing on its own,
-  // at mount, on release, or for an option, is not.
-  watch(time.supplied, () => {
-    if (!resetting && shouldValidate('input')) void input.validate()
+  // Input is a new value in the model worth validating: an edit, a value
+  // from outside, or the picker normalizing a value that already has a
+  // validity on show. A reset is not.
+  watch(time.revision, () => {
+    if (shouldValidate('input')) void input.validate()
   })
-
-  function reset () {
-    resetting = true
-    input.reset()
-    void nextTick(() => {
-      resetting = false
-    })
-  }
 
   function onFocusin () {
     within.value = true
@@ -278,7 +268,6 @@
 
   const context: TimePickerRootContext = {
     ...time,
-    input: { ...input, reset },
     id,
     name: toRef(() => name),
     form: toRef(() => form),
@@ -312,7 +301,7 @@
       isValid: input.isValid.value,
       isPristine: input.isPristine.value,
       validate: input.validate,
-      reset,
+      reset: input.reset,
       clear: time.clear,
       attrs: {
         id,
