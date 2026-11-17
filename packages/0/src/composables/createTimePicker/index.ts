@@ -43,7 +43,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isNull, isNullOrUndefined, isNumber, isString, isUndefined } from '#v0/utilities'
-import { nextTick, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { InputContext, InputOptions } from '#v0/composables/createInput'
@@ -180,8 +180,9 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    */
   max?: MaybeRefOrGetter<string | null | undefined>
   /**
-   * While true, `commit`, `step`, and `clear` do nothing and the picker
-   * never writes `value`, so the model is left untouched. The fields show
+   * While true, `commit`, `step`, `clear`, and `input.reset` do not write
+   * `value`, and neither does the picker, so the model is left untouched.
+   * `commit`, `step`, and `clear` do nothing at all. The fields show
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
    * value.
@@ -190,8 +191,9 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    */
   disabled?: MaybeRefOrGetter<boolean>
   /**
-   * While true, `commit`, `step`, and `clear` do nothing and the picker
-   * never writes `value`, so the model is left untouched. The fields show
+   * While true, `commit`, `step`, `clear`, and `input.reset` do not write
+   * `value`, and neither does the picker, so the model is left untouched.
+   * `commit`, `step`, and `clear` do nothing at all. The fields show
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
    * value.
@@ -401,9 +403,14 @@ export interface TimePickerContext {
    * the model value, so `required` fails while a field is still empty.
    *
    * Normalizing is not an edit: a value the picker snapped or bounded is
-   * still pristine. `reset` puts the initial value back, drops a partly
-   * entered time, and clears the validation state. It is not an edit
-   * either, so it also runs while disabled or readonly.
+   * still pristine, unless it was built from fields that were edited.
+   * `reset` puts the initial value back, drops a partly entered time, and
+   * clears the validation state and `isTouched`. While disabled or readonly
+   * it does all of that except write the model. `isPristine` reads true
+   * after a reset even when the model was not written, because the picker
+   * is blocked or the owner refused.
+   *
+   * `required` and `rules` are read once, when the picker is created.
    *
    * @example
    * ```ts
@@ -424,6 +431,29 @@ export interface TimePickerContext {
    * ```
    */
   input: InputContext<string | null>
+  /**
+   * Whether the fields hold something an edit put there. True from the
+   * first `commit`, `step`, or `clear` that changes a field, through every
+   * normalization and every reply to that edit. False at creation, when a
+   * value comes in from outside, and after `input.reset()`. Use it to tell
+   * a change the user made from one the picker or the owner made.
+   *
+   * @example
+   * ```ts
+   * import { shallowRef } from 'vue'
+   * import { createTimePicker } from '@vuetify/v0'
+   *
+   * const value = shallowRef<string | null>('09:07')
+   * const time = createTimePicker({ value, minuteStep: 15 })
+   *
+   * value.value // '09:00' — normalized, not edited
+   * time.isEdited.value // false
+   *
+   * time.step('minute')
+   * time.isEdited.value // true
+   * ```
+   */
+  readonly isEdited: Readonly<Ref<boolean>>
 }
 
 interface ParsedTime {
@@ -445,6 +475,7 @@ interface Snapshot {
   seen: string
   timed: boolean
   base: string | null
+  edited: boolean
   settled: unknown
   tried: string | null | undefined
   turns: number
@@ -593,6 +624,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   // pristine.
   const origin = value.value
   let base = origin
+  const isEdited = shallowRef(false)
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -735,6 +767,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
       seen,
       timed,
       base,
+      edited: isEdited.value,
       settled,
       tried,
       turns,
@@ -751,6 +784,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     seen = from.seen
     timed = from.timed
     base = from.base
+    isEdited.value = from.edited
     settled = from.settled
     tried = from.tried
     turns = from.turns
@@ -763,7 +797,8 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   // throws the change must be waiting for the pass again. It carries the
   // exchange too: an edit begins a new one before it writes, and if that
   // write throws the one it interrupted must still be running. `kept` marks
-  // a write that only normalizes, which leaves a pristine value pristine.
+  // a write that only normalizes, which leaves a pristine value pristine
+  // unless the fields it was built from were edited.
   function publish (from = snapshot(), kept = false) {
     fit()
     const next = format()
@@ -776,7 +811,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     // the bookkeeping and the fields go back to what they were before the
     // error leaves. Reloading the settled value instead would empty a
     // half-entered time, which the value cannot carry.
-    if (kept && (settled === origin || settled === base)) base = next
+    if (kept && !isEdited.value && (settled === origin || settled === base)) base = next
     settled = next
     tried = next
     turns++
@@ -952,10 +987,12 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     const from = snapshot()
     const due = fresh || mark() !== seen
     if (due) drain()
-    if (!change() && !due) return
+    const changed = change()
+    if (!changed && !due) return
 
     begin()
-    publish(from)
+    if (changed) isEdited.value = true
+    publish(from, !changed)
   }
 
   function commit (part: TimeUnit, next: number | null): void
@@ -972,6 +1009,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     if (blocked()) return
     const from = snapshot()
     begin()
+    isEdited.value = true
     hour24.value = null
     minute.value = null
     stored.value = null
@@ -997,7 +1035,10 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     settled = next
     load(next)
     if (open && turns > 1) return
-    if (!open) begin()
+    if (!open) {
+      begin()
+      isEdited.value = false
+    }
     fresh = true
     stale.value++
   }, { flush: 'sync' })
@@ -1056,9 +1097,18 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     )
   }
 
+  // What `createInput` resets through: a blocked picker never writes the
+  // model, so there the write is dropped.
+  const guarded = computed({
+    get: () => value.value,
+    set: next => {
+      if (!blocked()) value.value = next
+    },
+  })
+
   const input = createInput<string | null>({
     ...options,
-    value,
+    value: guarded,
     disabled,
     readonly: _readonly,
     equals: next => next === origin || next === base,
@@ -1070,6 +1120,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   function reset () {
     const held = settled
     input.reset()
+    isEdited.value = false
     if (settled === held) load(settled, false)
   }
 
@@ -1088,7 +1139,8 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     isDisabled,
     isReadonly,
     display,
-    input: { ...input, reset },
+    input: { ...input, value, reset },
+    isEdited,
     commit,
     step,
     clear,

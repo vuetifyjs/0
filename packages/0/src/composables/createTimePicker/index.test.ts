@@ -2303,28 +2303,142 @@ describe('createTimePicker', () => {
       expect(value.value).toBe('09:01')
     })
 
-    it.each([['disabled'], ['readonly']] as const)('should not write the model when a %s picker validates', async flag => {
+    it.each([['disabled'], ['readonly']] as const)('should not write the model when a %s picker validates or resets', async flag => {
       const value = shallowRef<string | null>('09:07')
       const seen: unknown[] = []
       const writes: (string | null)[] = []
-      watch(value, next => writes.push(next), { flush: 'sync' })
       const time = setup({
         value,
         minuteStep: 15,
         [flag]: true,
         rules: [next => {
           seen.push(next)
-          return true
+          return 'Never'
         }],
       })
 
-      expect(await time.input.validate()).toBe(true)
+      value.value = '10:07'
+      await rest()
+      watch(value, next => writes.push(next), { flush: 'sync' })
+
+      time.input.isTouched.value = true
+      expect(await time.input.validate()).toBe(false)
+
       time.input.reset()
       await rest()
 
-      expect(seen).toEqual(['09:07'])
+      expect(seen).toEqual(['10:07'])
       expect(writes).toEqual([])
+      expect(value.value).toBe('10:07')
+      expect(time.display.value).toBe('10:07')
+      expect(time.input.isValid.value).toBeNull()
+      expect(time.input.isTouched.value).toBe(false)
       expect(time.input[flag === 'disabled' ? 'isDisabled' : 'isReadonly'].value).toBe(true)
+    })
+
+    it('should drop a partly entered time when a picker blocked afterwards resets', () => {
+      const disabled = shallowRef(false)
+      const time = setup({ disabled })
+
+      time.commit('hour', 9)
+      disabled.value = true
+      time.input.reset()
+
+      expect(time.hour.value).toBeNull()
+      expect(time.value.value).toBeNull()
+    })
+
+    it('should report a time completed from entered fields as changed', async () => {
+      const seconds = shallowRef(true)
+      const value = shallowRef<string | null>(null)
+      const time = setup({ value, seconds })
+
+      time.commit('hour', 9)
+      time.commit('minute', 30)
+      expect(value.value).toBeNull()
+      expect(time.input.isPristine.value).toBe(true)
+
+      seconds.value = false
+      await rest()
+
+      expect(value.value).toBe('09:30')
+      expect(time.input.isPristine.value).toBe(false)
+    })
+
+    it('should stay pristine when a call that changes nothing publishes an option change', async () => {
+      const minuteStep = shallowRef(5)
+      const value = shallowRef<string | null>('09:05')
+      const time = setup({ value, minuteStep, hourCycle: 'h12' })
+
+      minuteStep.value = 15
+      time.commit('period', 'am')
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+      expect(time.isEdited.value).toBe(false)
+    })
+
+    it('should mark the value edited from the first edit until a value comes in or the picker resets', async () => {
+      const value = shallowRef<string | null>('09:07')
+      const minuteStep = shallowRef(15)
+      const time = setup({ value, minuteStep })
+
+      expect(time.isEdited.value).toBe(false)
+
+      value.value = '10:07'
+      await rest()
+      expect(time.isEdited.value).toBe(false)
+
+      time.step('hour', 1)
+      expect(time.isEdited.value).toBe(true)
+
+      minuteStep.value = 30
+      await rest()
+      expect(time.isEdited.value).toBe(true)
+
+      value.value = '12:00'
+      expect(time.isEdited.value).toBe(false)
+
+      time.clear()
+      expect(time.isEdited.value).toBe(true)
+
+      time.input.reset()
+      expect(time.isEdited.value).toBe(false)
+    })
+
+    it('should keep the edited mark through a reply to the edit', async () => {
+      const { value, held } = lagging('09:00', next => bump(next))
+      const time = setup({ value })
+      await rest()
+
+      time.step('hour', 1)
+      await rest()
+
+      expect(held()).not.toBe('10:00')
+      expect(time.isEdited.value).toBe(true)
+    })
+
+    it('should put the edited mark back when the write of an edit throws', () => {
+      let held: string | null = '09:00'
+      let fail = false
+      const value = customRef<string | null>((track, trigger) => ({
+        get () {
+          track()
+          return held
+        },
+        set (next) {
+          if (fail) throw new Error('refused')
+          held = next
+          trigger()
+        },
+      }))
+      const time = setup({ value })
+
+      fail = true
+      expect(() => time.step('hour', 1)).toThrow('refused')
+
+      expect(time.isEdited.value).toBe(false)
     })
 
     it('should register with a parent form and leave it when the scope stops', async () => {
