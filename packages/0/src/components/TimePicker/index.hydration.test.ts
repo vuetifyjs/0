@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+// Composables
+import { createLocalePlugin } from '#v0/composables/useLocale'
+
 import { hydrate } from '#v0/test-utils/hydrate'
 
 import { TimePicker } from './index'
@@ -105,5 +108,23 @@ describe('timePicker SSR hydration', () => {
     expect(attribute(server.html, 'hour', 'aria-valuetext')).toBe('3 PM')
     expect(client).toBe('3 PM')
     expect(server.mismatches).toEqual([])
+  })
+
+  it('should show the digits of a locale with its own numerals on both sides', async () => {
+    const { model, render } = stateful('15:07', { hourCycle: 'h12' })
+    const { html, mismatches } = await hydrate(render, {
+      setup: app => {
+        app.use(createLocalePlugin({ default: 'ar-EG', messages: { 'ar-EG': {} } }))
+      },
+    })
+
+    const digits = new Intl.NumberFormat('ar-EG')
+
+    expect(html).toContain(`>${digits.format(0)}${digits.format(3)}<`)
+    expect(html).toContain(`>${digits.format(0)}${digits.format(7)}<`)
+    expect(attribute(html, 'hour', 'aria-valuetext')).toContain(digits.format(3))
+    expect(html).toContain('value="15:07"')
+    expect(model.value).toBe('15:07')
+    expect(mismatches).toEqual([])
   })
 })

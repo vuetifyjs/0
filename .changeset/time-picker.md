@@ -8,7 +8,7 @@ feat(TimePicker): add hour, minute, and second spinbuttons (#1161)
 
 Arrow keys move a field one interval, PageUp and PageDown move the hour about 2 hours and the minute or second about 15, Home and End set its lowest and highest value, and Backspace or Delete clears it. Typing digits is not supported. `hour-step`, `minute-step`, and `second-step` keep each field on the multiples of its step, `min` and `max` keep a complete time inside a window on those steps, and `disabled` and `readonly` ignore every key.
 
-Root and each field take `ariaLabel` and `ariaLabelledby`, and Root takes `ariaDescribedby`; names default to the locale catalog. Fields carry `data-state="empty"` or `"filled"`, and Root carries `data-complete` while the fields show a complete time.
+Root and each field take `ariaLabel` and `ariaLabelledby`, and Root takes `ariaDescribedby`; names default to the locale catalog. The digits a field shows follow the locale's numerals, while the model stays in Latin digits. Fields carry `data-state="empty"` or `"filled"`, and Root carries `data-complete` while the fields show a complete time.
 
 `required`, `rules`, `error`, `errorMessages`, and `validateOn` validate the model, and the picker registers with a parent `Form`. Focus moving between the fields is not a blur. `TimePicker.Description` and `TimePicker.Error` hold the help text and the messages; the fields point at them with `aria-describedby` and `aria-errormessage` and carry `aria-required` and `aria-invalid`. Root carries `data-state="pristine"`, `"valid"`, or `"invalid"`, plus `data-dirty` and `data-focused`, and its slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`.
 

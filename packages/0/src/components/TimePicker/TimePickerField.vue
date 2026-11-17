@@ -45,7 +45,7 @@
   }
 
   export interface TimePickerFieldSlotProps {
-    /** Visible digits, or the meridiem label. Empty while the field is unset. */
+    /** Visible digits, two wide and in the locale's numerals, or the meridiem label. Empty while the field is unset. */
     text: string
     /** Value of the field, or `null` while unset. The meridiem for Period. */
     value: number | TimePeriod | null
@@ -148,9 +148,11 @@
     return ''
   }
 
+  // Two digits in the locale's own numerals, so the screen and the spoken
+  // text agree. The value the picker stores stays in Latin digits.
   function text (now: number | null): string {
     if (part === 'period') return meridiem()
-    return isNull(now) ? '' : String(now).padStart(2, '0')
+    return isNull(now) ? '' : locale.n(now).padStart(2, locale.n(0))
   }
 
   // Only where the number alone does not say it: the period reads as its

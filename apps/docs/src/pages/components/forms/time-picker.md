@@ -304,6 +304,8 @@ The names and spoken text come from [useLocale](/composables/plugins/use-locale)
 
 An `ariaLabel` or `ariaLabelledby` prop takes priority over the label keys.
 
+The digits a field shows, and the hour in its `aria-valuetext`, are formatted by the locale's `n()`, two digits wide. Under a locale with its own numerals, such as `ar-EG`, the fields show those. The model, the Root slot's `value`, and the submitted value stay in Latin digits.
+
 ## FAQ
 
 ::: faq
