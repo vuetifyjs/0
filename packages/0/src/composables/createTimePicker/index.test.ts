@@ -909,6 +909,78 @@ describe('createTimePicker', () => {
       expect(time.display.value).toBe(wanted)
     })
 
+    it('should keep every field when the write of a clear throws', () => {
+      const { value, state } = fragile('15:30:20')
+      const time = setup({ value, seconds: true, hourCycle: 'h12' })
+
+      state.fail = true
+      expect(() => time.clear()).toThrow('refused')
+
+      expect(time.hour.value).toBe(3)
+      expect(time.minute.value).toBe(30)
+      expect(time.second.value).toBe(20)
+      expect(time.period.value).toBe('pm')
+      expect(time.display.value).toBe('15:30:20')
+    })
+
+    it('should put the second back when its write throws', () => {
+      const { value, state } = fragile('09:30:20')
+      const time = setup({ value, seconds: true })
+
+      state.fail = true
+      expect(() => time.step('second', 1)).toThrow('refused')
+      expect(time.second.value).toBe(20)
+
+      expect(() => time.commit('second', null)).toThrow('refused')
+      expect(time.second.value).toBe(20)
+    })
+
+    it('should write a normalized reply that equals a value whose write threw meanwhile', async () => {
+      let held: string | null = '10:15'
+      let fail = false
+      let release!: () => void
+      const writes: (string | null)[] = []
+
+      // The owner withholds its answer to the first write, then answers it
+      // with a value off the grid. Later writes are taken at once.
+      const value = customRef<string | null>((track, trigger) => ({
+        get () {
+          track()
+          return held
+        },
+        set (next) {
+          if (fail) throw new Error('refused')
+          writes.push(next)
+
+          if (writes.length === 1) {
+            release = () => {
+              held = '10:07'
+              trigger()
+            }
+            return
+          }
+
+          held = next
+          trigger()
+        },
+      }))
+      const time = setup({ value, minuteStep: 15 })
+
+      time.step('minute', 1)
+      expect(writes).toEqual(['10:30'])
+
+      fail = true
+      expect(() => time.commit('minute', 0)).toThrow('refused')
+      fail = false
+
+      release()
+      await rest()
+
+      expect(writes).toEqual(['10:30', '10:00'])
+      expect(held).toBe('10:00')
+      expect(time.display.value).toBe('10:00')
+    })
+
     it('should give an incoming value its whole exchange after an edit threw', async () => {
       const store = shallowRef<string | null>('09:00')
       const state = { fail: false, writes: [] as (string | null)[] }
