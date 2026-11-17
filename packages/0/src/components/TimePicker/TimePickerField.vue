@@ -63,6 +63,10 @@
       'aria-labelledby': string | undefined
       'aria-disabled': boolean | undefined
       'aria-readonly': true | undefined
+      'aria-required': true | undefined
+      'aria-invalid': true | undefined
+      'aria-describedby': string | undefined
+      'aria-errormessage': string | undefined
       'aria-valuenow': number | undefined
       'aria-valuemin': number
       'aria-valuemax': number
@@ -219,6 +223,7 @@
     const { min, max } = bounds(now)
     const button = as === 'button'
     const blocked = time.isDisabled.value
+    const input = time.input
 
     return {
       text: text(now),
@@ -234,6 +239,10 @@
         'aria-labelledby': ariaLabelledby || undefined,
         'aria-disabled': button ? undefined : blocked,
         'aria-readonly': time.isReadonly.value || undefined,
+        'aria-required': input.required || undefined,
+        'aria-invalid': input.isValid.value === false || undefined,
+        'aria-describedby': input.hasDescription.value ? input.descriptionId : undefined,
+        'aria-errormessage': input.hasError.value && input.errors.value.length > 0 ? input.errorId : undefined,
         'aria-valuenow': isNull(now) ? undefined : now,
         'aria-valuemin': min,
         'aria-valuemax': max,

@@ -1,3 +1,5 @@
+export { default as TimePickerDescription } from './TimePickerDescription.vue'
+export { default as TimePickerError } from './TimePickerError.vue'
 export { default as TimePickerHiddenInput } from './TimePickerHiddenInput.vue'
 export { default as TimePickerHour } from './TimePickerHour.vue'
 export { default as TimePickerMinute } from './TimePickerMinute.vue'
@@ -6,6 +8,8 @@ export { provideTimePickerRoot, useTimePickerRoot } from './TimePickerRoot.vue'
 export { default as TimePickerRoot } from './TimePickerRoot.vue'
 export { default as TimePickerSecond } from './TimePickerSecond.vue'
 
+export type { TimePickerDescriptionProps, TimePickerDescriptionSlotProps } from './TimePickerDescription.vue'
+export type { TimePickerErrorProps, TimePickerErrorSlotProps } from './TimePickerError.vue'
 export type { TimePickerHiddenInputProps } from './TimePickerHiddenInput.vue'
 export type { TimePickerHourProps, TimePickerHourSlotProps } from './TimePickerHour.vue'
 export type { TimePickerMinuteProps, TimePickerMinuteSlotProps } from './TimePickerMinute.vue'
@@ -14,6 +18,8 @@ export type { TimePickerRootContext, TimePickerRootProps, TimePickerRootSlotProp
 export type { TimePickerSecondProps, TimePickerSecondSlotProps } from './TimePickerSecond.vue'
 
 // Context
+import Description from './TimePickerDescription.vue'
+import Error from './TimePickerError.vue'
 import HiddenInput from './TimePickerHiddenInput.vue'
 import Hour from './TimePickerHour.vue'
 import Minute from './TimePickerMinute.vue'
@@ -155,6 +161,59 @@ export const TimePicker = {
    * ```
    */
   Period,
+  /**
+   * Help text for the picker. While it is mounted, the group and every
+   * field point at it with `aria-describedby`.
+   *
+   * @see https://0.vuetifyjs.com/components/forms/time-picker#validation
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     <TimePicker.Description>Opening hours are 9 to 5</TimePicker.Description>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
+  Description,
+  /**
+   * Validation messages for the picker, announced politely. While it is
+   * mounted and there are errors, every field points at it with
+   * `aria-errormessage`.
+   *
+   * @see https://0.vuetifyjs.com/components/forms/time-picker#validation
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value" required>
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     <TimePicker.Error v-slot="{ errors }">
+   *       <span v-for="error in errors" :key="error">{{ error }}</span>
+   *     </TimePicker.Error>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
+  Error,
   /**
    * Hidden input rendered by Root when `name` is set.
    *

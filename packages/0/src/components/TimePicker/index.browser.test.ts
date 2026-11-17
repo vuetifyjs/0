@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// Components
+import { Form } from '#v0/components/Form'
+
 // Composables
 import { createLocalePlugin } from '#v0/composables/useLocale'
 
@@ -7,7 +10,7 @@ import { TimePicker, useTimePickerRoot } from './index'
 
 // Utilities
 import { isNull, isUndefined } from '#v0/utilities'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createVNode, defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
@@ -1063,6 +1066,188 @@ describe('timePicker', () => {
       await wait()
 
       expect(wrapper.find('input[type="hidden"]').exists()).toBe(false)
+    })
+  })
+  describe('validation', () => {
+    function described (): VNode[] {
+      return [
+        ...fields(),
+        h(TimePicker.Description as Component, { key: 'description' }, () => 'Opening hours'),
+        h(TimePicker.Error as Component, { key: 'error' }, {
+          default: ({ errors }: { errors: string[] }) => errors.join(', '),
+        }),
+      ]
+    }
+
+    function outside (): HTMLButtonElement {
+      const button = document.createElement('button')
+      document.body.append(button)
+      return button
+    }
+
+    it('should point the group and every field at the description', async () => {
+      const { wrapper, part, wait } = mountTime({ ariaDescribedby: 'hint' }, described)
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      const id = `${group.attributes('id')}-description`
+
+      expect(wrapper.find(`[id="${id}"]`).text()).toBe('Opening hours')
+      expect(group.attributes('aria-describedby')).toBe(`hint ${id}`)
+      expect(part('hour').attributes('aria-describedby')).toBe(id)
+      expect(part('minute').attributes('aria-describedby')).toBe(id)
+    })
+
+    it('should mark the fields required and leave them unvalidated at first', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true }, described)
+      await wait()
+
+      expect(part('hour').attributes('aria-required')).toBe('true')
+      expect(part('minute').attributes('aria-required')).toBe('true')
+      expect(part('hour').attributes('aria-invalid')).toBeUndefined()
+      expect(part('hour').attributes('aria-errormessage')).toBeUndefined()
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
+    })
+
+    it('should not treat focus moving between two fields as a blur', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true }, described)
+      const button = outside()
+      await wait()
+
+      const group = wrapper.get('[role="group"]')
+      ;(part('hour').element as HTMLElement).focus()
+      await wait()
+      expect(group.attributes('data-focused')).toBe('true')
+
+      ;(part('minute').element as HTMLElement).focus()
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBe('true')
+      expect(part('minute').attributes('aria-invalid')).toBeUndefined()
+
+      button.focus()
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBeUndefined()
+      expect(group.attributes('data-state')).toBe('invalid')
+
+      button.remove()
+    })
+
+    it('should wire the error to every field once focus leaves an invalid picker', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true }, described)
+      const button = outside()
+      await wait()
+
+      ;(part('hour').element as HTMLElement).focus()
+      await part('hour').trigger('keydown', { key: 'ArrowUp' })
+      button.focus()
+      await flushPromises()
+
+      const id = `${wrapper.get('[role="group"]').attributes('id')}-error`
+      const error = wrapper.get(`[id="${id}"]`)
+
+      expect(error.attributes('aria-live')).toBe('polite')
+      expect(error.attributes('data-state')).toBe('visible')
+      expect(error.text()).not.toBe('')
+      for (const name of ['hour', 'minute']) {
+        expect(part(name).attributes('aria-invalid')).toBe('true')
+        expect(part(name).attributes('aria-errormessage')).toBe(id)
+      }
+
+      ;(part('minute').element as HTMLElement).focus()
+      await part('minute').trigger('keydown', { key: 'ArrowUp' })
+      button.focus()
+      await flushPromises()
+
+      expect(part('hour').attributes('aria-invalid')).toBeUndefined()
+      expect(part('hour').attributes('aria-errormessage')).toBeUndefined()
+      expect(error.attributes('data-state')).toBe('hidden')
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('valid')
+
+      button.remove()
+    })
+
+    it('should not validate on blur when validateOn is submit', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true, validateOn: 'submit' }, described)
+      const button = outside()
+      await wait()
+
+      ;(part('hour').element as HTMLElement).focus()
+      button.focus()
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
+
+      button.remove()
+    })
+
+    it('should force the invalid state and show the messages given as props', async () => {
+      const { wrapper, part, set, wait } = mountTime({ modelValue: '09:30' }, described)
+      await wait()
+      expect(part('hour').attributes('aria-invalid')).toBeUndefined()
+
+      set({ error: true, errorMessages: ['Taken'] })
+      await wait()
+
+      expect(part('hour').attributes('aria-invalid')).toBe('true')
+      expect(wrapper.get('[aria-live="polite"]').text()).toBe('Taken')
+    })
+
+    it('should reset to the initial value through the slot', async () => {
+      let slot!: TimePickerRootSlotProps
+      const { model, part, wait } = mountTime({ modelValue: '09:07', minuteStep: 15, required: true }, root => {
+        slot = root
+        return fields()
+      })
+      await wait()
+      await wait()
+      expect(model.value).toBe('09:00')
+      expect(slot.isPristine).toBe(true)
+
+      await part('hour').trigger('keydown', { key: 'ArrowUp' })
+      await wait()
+      expect(model.value).toBe('10:00')
+      expect(slot.isPristine).toBe(false)
+
+      slot.reset()
+      await flushPromises()
+
+      expect(model.value).toBe('09:00')
+      expect(slot.isPristine).toBe(true)
+      expect(slot.isValid).toBeNull()
+    })
+
+    it('should fail a form submit while a field is empty and pass once the time is complete', async () => {
+      const results: boolean[] = []
+      const wrapper = mount(Form as Component, {
+        attachTo: document.body,
+        props: { onSubmit: ({ valid }: { valid: boolean }) => results.push(valid) },
+        slots: {
+          default: () => h(TimePicker.Root as Component, { required: true }, { default: fields }),
+        },
+      })
+      wrappers.push(wrapper)
+
+      async function submit () {
+        wrapper.element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+        await flushPromises()
+      }
+
+      await wrapper.get('[data-part="hour"]').trigger('keydown', { key: 'ArrowUp' })
+      await submit()
+
+      expect(results).toEqual([false])
+      expect(wrapper.get('[data-part="hour"]').attributes('aria-invalid')).toBe('true')
+
+      await wrapper.get('[data-part="minute"]').trigger('keydown', { key: 'ArrowUp' })
+      await submit()
+
+      expect(results).toEqual([false, true])
+      expect(wrapper.get('[data-part="hour"]').attributes('aria-invalid')).toBeUndefined()
+
+      wrapper.element.dispatchEvent(new Event('reset', { bubbles: true, cancelable: true }))
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
     })
   })
 })
