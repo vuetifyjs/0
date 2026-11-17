@@ -50,6 +50,7 @@ describe('useLocale SSR', () => {
 
     expect(locale.n(1234.5)).toBe('1234.5')
     expect(locale.n(7)).toBe('7')
+    expect(createLocale({ default: 'en_US', messages: { en_US: {} } }).n(7)).toBe('7')
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(expect.stringContaining('en_US'))
   })

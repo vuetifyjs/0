@@ -11,6 +11,10 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 import type { ID } from '#v0/types'
 import type { LocaleAdapterContext } from './adapter'
 
+// Locale ids already warned about, so a server that creates a locale per
+// request warns once.
+const REJECTED = /* @__PURE__ */ new Set<ID>()
+
 /**
  * Default locale adapter for @vuetify/v0.
  *
@@ -19,7 +23,6 @@ import type { LocaleAdapterContext } from './adapter'
  */
 export class V0LocaleAdapter extends LocaleAdapter {
   private context: LocaleAdapterContext
-  private rejected = new Set<ID>()
 
   constructor (context: LocaleAdapterContext) {
     super()
@@ -46,8 +49,8 @@ export class V0LocaleAdapter extends LocaleAdapter {
     try {
       return new Intl.NumberFormat(String(locale)).format(value)
     } catch {
-      if (__DEV__ && !this.rejected.has(locale)) {
-        this.rejected.add(locale)
+      if (__DEV__ && !REJECTED.has(locale)) {
+        REJECTED.add(locale)
         useLogger().warn(`useLocale: locale "${String(locale)}" is not a language tag Intl.NumberFormat accepts; n() returns the number unformatted`)
       }
 
