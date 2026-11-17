@@ -432,16 +432,17 @@ export interface TimePickerContext {
    */
   input: InputContext<string | null>
   /**
-   * Counts the values that were supplied to the model, by an edit or from
-   * outside, once the picker has finished with them. It goes up when such
-   * a value is in the model in its final form: after an edit the owner
-   * took, and after a value from outside was normalized, or taken as given.
-   * A value from outside that needs normalizing counts once, not once for
-   * the raw value and once for the normalized one.
+   * Goes up each time the model comes to hold a new value worth
+   * validating, in its final form. Watch it to validate on input.
    *
-   * It does not go up when the picker normalizes a value nobody just
-   * supplied: at creation, when it is released from disabled or readonly,
-   * and when an option changes. Watch it to validate on input.
+   * An edit the owner took counts, and so does a value from outside. A
+   * value from outside that needs normalizing counts once, when its
+   * normalized form is in the model or the owner has refused that form.
+   *
+   * The picker normalizing on its own, at creation, when it is released
+   * from disabled or readonly, or when an option changes, counts only once
+   * the value has a validity: `input.isValid` is not `null`. Until then
+   * there is nothing on show to go stale. `input.reset()` never counts.
    *
    * @example
    * ```ts
@@ -449,18 +450,22 @@ export interface TimePickerContext {
    * import { createTimePicker } from '@vuetify/v0'
    *
    * const value = shallowRef<string | null>('09:07')
-   * const time = createTimePicker({ value, minuteStep: 15 })
+   * const time = createTimePicker({
+   *   value,
+   *   minuteStep: 15,
+   *   rules: [next => next !== '10:00' || 'Closed at ten'],
+   * })
+   *
+   * watch(time.revision, () => time.input.validate())
    *
    * value.value // '09:00' — normalized at creation
-   * time.supplied.value // 0
+   * time.revision.value // 0
    *
-   * watch(time.supplied, () => time.input.validate())
-   *
-   * time.step('minute')
-   * time.supplied.value // 1
+   * time.step('hour')
+   * time.revision.value // 1 — the watcher validates '10:00' and it fails
    * ```
    */
-  readonly supplied: Readonly<Ref<number>>
+  readonly revision: Readonly<Ref<number>>
 }
 
 interface ParsedTime {
@@ -640,7 +645,9 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   let prompted = false
   // The last value `gauge` saw settled in the model.
   let judged = value.value
-  const supplied = shallowRef(0)
+  const revision = shallowRef(0)
+  // A reset wrote the initial value and its owner has not answered yet.
+  let returning = false
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -780,14 +787,15 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
       pending.value !== from.period
   }
 
-  // The model holds a value the picker has finished with. One that was
-  // supplied counts; one the picker normalized on its own is only noted,
-  // so the same value coming back later is not mistaken for a new one.
+  // The model holds a new value the picker has finished with. One that
+  // was supplied counts. One the picker normalized on its own counts only
+  // when a validity is on show for the value it replaced, which would
+  // otherwise go stale.
   function gauge () {
     const held = value.value
     if (fresh || held !== settled || held === judged) return
     judged = held
-    if (prompted) supplied.value++
+    if (prompted || !isNull(input.isValid.value)) revision.value++
   }
 
   function snapshot (): Snapshot {
@@ -1036,7 +1044,10 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     // waiting change, or commits the value a field already holds, is the
     // picker normalizing.
     const edit = changed && moved(was)
-    if (edit) edited = true
+    if (edit) {
+      edited = true
+      returning = false
+    }
     if (edit || waiting) prompted = true
     else if (!open) prompted = false
     publish(from, !edit)
@@ -1063,6 +1074,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     pending.value = 'am'
     if (moved(from)) edited = true
     prompted = true
+    returning = false
     publish(from)
     gauge()
   }
@@ -1086,7 +1098,9 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     if (next === settled) return gauge()
     settled = next
     load(next)
-    prompted = true
+    // The initial value coming back from a reset was not supplied.
+    prompted = !(returning && next === origin)
+    returning = false
     if (open && turns > 1) return gauge()
     if (!open) begin()
     fresh = true
@@ -1174,7 +1188,9 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   // entered time, which the value cannot carry.
   function reset () {
     const held = settled
+    returning = !blocked()
     input.reset()
+    if (value.value === origin) returning = false
     if (settled === held) load(settled, false)
   }
 
@@ -1194,7 +1210,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     isReadonly,
     display,
     input: { ...input, value, reset },
-    supplied,
+    revision,
     commit,
     step,
     clear,

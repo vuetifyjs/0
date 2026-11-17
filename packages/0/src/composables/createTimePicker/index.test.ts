@@ -73,6 +73,11 @@ async function rest (rounds = 4) {
   for (let index = 0; index < rounds; index++) await answer()
 }
 
+interface Tidy {
+  minuteStep: Ref<number>
+  min: Ref<string | null>
+}
+
 interface Pending {
   value: Ref<string | null>
   minuteStep: Ref<number>
@@ -2469,36 +2474,36 @@ describe('createTimePicker', () => {
       const time = setup({ value, minuteStep, disabled: blocked })
 
       expect(value.value).toBe('09:00')
-      expect(time.supplied.value).toBe(0)
+      expect(time.revision.value).toBe(0)
 
       time.step('minute', 1)
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
 
       minuteStep.value = 30
       await rest()
       expect(value.value).toBe('09:30')
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
 
       value.value = '11:20'
       await rest()
       expect(value.value).toBe('11:30')
-      expect(time.supplied.value).toBe(2)
+      expect(time.revision.value).toBe(2)
 
       blocked.value = true
       await rest()
       value.value = '12:10'
       await rest()
-      expect(time.supplied.value).toBe(3)
+      expect(time.revision.value).toBe(3)
 
       blocked.value = false
       await rest()
       expect(value.value).toBe('12:00')
-      expect(time.supplied.value).toBe(3)
+      expect(time.revision.value).toBe(3)
 
       value.value = '12:10'
       await rest()
       expect(value.value).toBe('12:00')
-      expect(time.supplied.value).toBe(3)
+      expect(time.revision.value).toBe(3)
     })
 
     it('should count a value from outside once its normalized form is in the model', async () => {
@@ -2506,17 +2511,17 @@ describe('createTimePicker', () => {
       const time = setup({ value, minuteStep: 15 })
 
       put('10:07')
-      expect(time.supplied.value).toBe(0)
+      expect(time.revision.value).toBe(0)
 
       await nextTick()
       expect(state.asked).toBe('10:00')
-      expect(time.supplied.value).toBe(0)
+      expect(time.revision.value).toBe(0)
 
       put(state.asked)
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
 
       await rest()
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
     })
 
     it('should count a value from outside once when the owner refuses its normalized form', async () => {
@@ -2528,7 +2533,7 @@ describe('createTimePicker', () => {
 
       expect(state.asked).toBe('10:00')
       expect(time.display.value).toBe('10:07')
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
     })
 
     it('should not count an edit the owner refuses', async () => {
@@ -2540,7 +2545,7 @@ describe('createTimePicker', () => {
 
       expect(state.asked).toBe('10:00')
       expect(time.display.value).toBe('09:00')
-      expect(time.supplied.value).toBe(0)
+      expect(time.revision.value).toBe(0)
     })
 
     it('should count an edit when an option changes before its owner answers', async () => {
@@ -2554,7 +2559,118 @@ describe('createTimePicker', () => {
       await rest()
 
       expect(held()).toBe('10:00')
-      expect(time.supplied.value).toBe(1)
+      expect(time.revision.value).toBe(1)
+    })
+
+    it('should count an edit once when the owner replaces its value', async () => {
+      const { value, held } = lagging('09:00', next => bump(next))
+      const time = setup({ value })
+      await rest()
+      const before = time.revision.value
+
+      time.step('hour', 1)
+      await rest()
+
+      expect(held()).toBe('10:01')
+      expect(time.display.value).toBe('10:01')
+      expect(time.revision.value).toBe(before + 1)
+    })
+
+    it('should not count a call that changes nothing in the tick an option changes', async () => {
+      const minuteStep = shallowRef(5)
+      const value = shallowRef<string | null>('09:05')
+      const time = setup({ value, minuteStep, hourCycle: 'h12' })
+
+      time.step('minute', 1)
+      time.step('minute', -1)
+      expect(time.revision.value).toBe(2)
+
+      minuteStep.value = 15
+      time.commit('period', 'am')
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.revision.value).toBe(2)
+    })
+
+    it.each([
+      ['a step', (o: Tidy) => {
+        o.minuteStep.value = 15
+      }, '09:15'],
+      ['a bound', (o: Tidy) => {
+        o.min.value = '11:00'
+      }, '11:00'],
+    ] as const)('should count its own normalizing for %s once the value has a validity', async (_, change, wanted) => {
+      const value = shallowRef<string | null>('09:05')
+      const minuteStep = shallowRef(5)
+      const min = shallowRef<string | null>(null)
+      const time = setup({ value, minuteStep, min, rules: [next => next === '09:10' || 'Moved'] })
+      watch(time.revision, () => void time.input.validate())
+
+      time.step('minute', 1)
+      await rest()
+      expect(time.input.isValid.value).toBe(true)
+
+      change({ minuteStep, min })
+      await rest()
+
+      expect(value.value).toBe(wanted)
+      expect(time.revision.value).toBe(2)
+      expect(time.input.isValid.value).toBe(false)
+    })
+
+    it('should count the normalizing on release once a value was validated while blocked', async () => {
+      const value = shallowRef<string | null>('09:00')
+      const disabled = shallowRef(true)
+      const time = setup({ value, disabled, minuteStep: 15, rules: [next => next !== '09:00' || 'Not nine'] })
+      watch(time.revision, () => void time.input.validate())
+
+      value.value = '09:07'
+      await rest()
+      expect(time.input.isValid.value).toBe(true)
+
+      disabled.value = false
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.input.isValid.value).toBe(false)
+    })
+
+    it('should not count a reset, so a picker that validates on the signal stays unvalidated', async () => {
+      const value = shallowRef<string | null>('09:07')
+      const time = setup({ value, minuteStep: 15, rules: [next => next !== '09:00' || 'Not nine'] })
+      watch(time.revision, () => void time.input.validate())
+
+      time.step('hour', 1)
+      await rest()
+      expect(time.input.isValid.value).toBe(true)
+      const before = time.revision.value
+
+      time.input.reset()
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.revision.value).toBe(before)
+      expect(time.input.isValid.value).toBeNull()
+    })
+
+    it('should not count a reset whose value an owner that answers late takes', async () => {
+      const { value, held } = lagging('09:00')
+      const time = setup({ value })
+      await rest()
+
+      time.step('hour', 1)
+      await rest()
+      const before = time.revision.value
+
+      time.input.reset()
+      await rest()
+      expect(held()).toBe('09:00')
+      expect(time.revision.value).toBe(before)
+
+      time.step('hour', 1)
+      await rest()
+      expect(time.revision.value).toBe(before + 1)
     })
 
     it('should register with a parent form and leave it when the scope stops', async () => {
