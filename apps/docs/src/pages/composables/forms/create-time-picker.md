@@ -194,7 +194,20 @@ The picker never validates on its own. Call `input.validate()` when your markup 
 
 Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. A time the picker completes from fields that were edited, such as an entered hour and minute once `seconds` turns off, is not pristine. `input.isDirty` is true while the value is a non-empty string, whether or not it is a valid time.
 
-`supplied` counts the values that were supplied to the model, by an edit or from outside, once the picker has finished with them. A value from outside that needs normalizing counts once, when its normalized form is in the model, or when the owner refuses that form and the fields take the owner's value. The picker normalizing on its own does not count: at creation, when it is released from disabled or readonly, and when an option changes. [TimePicker](/components/forms/time-picker) watches it to validate on input.
+`revision` goes up each time the model comes to hold a new value worth validating, in its final form. Watch it to validate on input, as [TimePicker](/components/forms/time-picker) does:
+
+```ts
+import { watch } from 'vue'
+import { createTimePicker } from '@vuetify/v0'
+
+const time = createTimePicker({ required: true })
+
+watch(time.revision, () => time.input.validate())
+```
+
+- An edit the owner took counts, and so does a value from outside. A value from outside that needs normalizing counts once, when its normalized form is in the model, or when the owner refuses that form and the fields take the owner's value.
+- The picker normalizing on its own, at creation, when it is released from disabled or readonly, or when an option changes, counts only once the value has a validity, which is when `input.isValid` is not null. Before the first validation nothing is on show to go stale, so a picker that normalizes its initial value stays unvalidated.
+- `input.reset()` never counts.
 
 A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
 
@@ -228,7 +241,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
-| `supplied` | <AppSuccessIcon /> | Count of the values an edit or the owner supplied, once settled in the model. The picker's own normalizing is left out |
+| `revision` | <AppSuccessIcon /> | Goes up each time the model holds a new value worth validating. A reset does not count |
 | `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples
