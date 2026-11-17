@@ -2467,7 +2467,7 @@ describe('createTimePicker', () => {
       return { value, state, put }
     }
 
-    it('should count an edit and a value from outside as supplied, and its own normalizing as not', async () => {
+    it('should count an edit and a value from outside, and its own normalizing only once the value has a validity', async () => {
       const value = shallowRef<string | null>('09:07')
       const minuteStep = shallowRef(15)
       const blocked = shallowRef(false)
