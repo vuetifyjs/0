@@ -48,16 +48,134 @@ import Second from './TimePickerSecond.vue'
  * ```
  */
 export const TimePicker = {
-  /** Group that owns the time value. @example `<TimePicker.Root v-model="value" />` */
+  /**
+   * Group that owns the time value.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
   Root,
-  /** Hour spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it. @example `<TimePicker.Hour />` */
+  /**
+   * Hour spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
   Hour,
-  /** Minute spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it. @example `<TimePicker.Minute />` */
+  /**
+   * Minute spinbutton. Arrow, Page, Home, and End keys move it; Backspace clears it.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
   Minute,
-  /** Second spinbutton. Renders only when seconds are on. @example `<TimePicker.Second />` */
+  /**
+   * Second spinbutton. Renders only when seconds are on.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute, second }" v-model="value" seconds>
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     <TimePicker.Second>{{ second }}</TimePicker.Second>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
   Second,
-  /** Meridiem spinbutton. Renders only in 12-hour mode. @example `<TimePicker.Period />` */
+  /**
+   * Meridiem spinbutton. Renders only in 12-hour mode.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <TimePicker.Root v-slot="{ hour, minute, period }" v-model="value" hour-cycle="h12">
+   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     <TimePicker.Period>{{ period }}</TimePicker.Period>
+   *   </TimePicker.Root>
+   * </template>
+   * ```
+   */
   Period,
-  /** Hidden input rendered by Root when `name` is set. @example `<TimePicker.Root name="start" />` */
+  /**
+   * Hidden input rendered by Root when `name` is set.
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { TimePicker } from '@vuetify/v0'
+   *   import { shallowRef } from 'vue'
+   *
+   *   const value = shallowRef<string | null>(null)
+   * </script>
+   *
+   * <template>
+   *   <form>
+   *     <TimePicker.Root v-slot="{ hour, minute }" v-model="value" name="start">
+   *       <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
+   *       <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     </TimePicker.Root>
+   *   </form>
+   * </template>
+   * ```
+   */
   HiddenInput,
 }
