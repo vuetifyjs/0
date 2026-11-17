@@ -1,3 +1,6 @@
+// Composables
+import { useLogger } from '#v0/composables/useLogger'
+
 // Adapters
 import { LocaleAdapter } from './adapter'
 
@@ -16,6 +19,7 @@ import type { LocaleAdapterContext } from './adapter'
  */
 export class V0LocaleAdapter extends LocaleAdapter {
   private context: LocaleAdapterContext
+  private rejected = new Set<ID>()
 
   constructor (context: LocaleAdapterContext) {
     super()
@@ -37,7 +41,18 @@ export class V0LocaleAdapter extends LocaleAdapter {
 
     if (!locale) return value.toString()
 
-    return new Intl.NumberFormat(String(locale)).format(value)
+    // A locale id is any registry key, so it may not be a language tag Intl
+    // accepts. The bare number is the same on the server and the client.
+    try {
+      return new Intl.NumberFormat(String(locale)).format(value)
+    } catch {
+      if (__DEV__ && !this.rejected.has(locale)) {
+        this.rejected.add(locale)
+        useLogger().warn(`useLocale: locale "${String(locale)}" is not a language tag Intl.NumberFormat accepts; n() returns the number unformatted`)
+      }
+
+      return value.toString()
+    }
   }
 
   private lookup (key: string, params: unknown[]): string | undefined {

@@ -43,4 +43,14 @@ describe('useLocale SSR', () => {
     expect(locale.n(7)).not.toBe('7')
     expect(locale.n(1234.5)).toBe(new Intl.NumberFormat('ar-EG').format(1234.5))
   })
+
+  it('should fall back to the bare number for a locale id Intl rejects, and warn once', () => {
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const locale = createLocale({ default: 'en_US', messages: { en_US: {} } })
+
+    expect(locale.n(1234.5)).toBe('1234.5')
+    expect(locale.n(7)).toBe('7')
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('en_US'))
+  })
 })
