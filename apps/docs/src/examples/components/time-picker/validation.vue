@@ -7,13 +7,14 @@
 
   const rules = [(time: unknown) => time !== '12:00' || 'The desk is closed at noon']
 
-  function onSubmit (payload: { valid: boolean }) {
-    booked.value = payload.valid ? value.value : null
+  async function onBook (submit: () => Promise<boolean>) {
+    const valid = await submit()
+    booked.value = valid ? value.value : null
   }
 </script>
 
 <template>
-  <Form class="flex flex-col items-start gap-3" @submit="onSubmit">
+  <Form v-slot="{ submit }" class="flex flex-col items-start gap-3">
     <TimePicker.Root
       v-model="value"
       class="group flex flex-wrap items-center gap-2"
@@ -48,7 +49,7 @@
       </TimePicker.Error>
     </TimePicker.Root>
 
-    <Button.Root class="px-3 py-2 border border-divider rounded" type="submit">
+    <Button.Root class="px-3 py-2 border border-divider rounded" @click="onBook(submit)">
       Book
     </Button.Root>
 

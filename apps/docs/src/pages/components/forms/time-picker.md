@@ -107,7 +107,7 @@ Seconds stay off, so the second field is not in the tree. Focus a field and use 
 
 ### Validation
 
-A required picker inside a [Form](/components/forms/form). Press Book with a field still empty and the submit fails: the model is null, so `required` rejects it, the fields get `aria-invalid`, and `TimePicker.Error` shows the message. Set both fields and the submit passes, unless the time is `12:00`, which the rule in `rules` turns down.
+A required picker inside a [Form](/components/forms/form). The Book button calls `submit` from the Form's slot, which validates every field in the form. Press it with a field still empty and the submit fails: the model is null, so `required` rejects it, the fields get `aria-invalid`, and `TimePicker.Error` shows the message. Set both fields and the submit passes, unless the time is `12:00`, which the rule in `rules` turns down.
 
 `TimePicker.Description` holds the help text. While it is mounted, Root and every field point at it with `aria-describedby`. The border color comes from `data-state` on Root, which reads `pristine`, `valid`, or `invalid`.
 :::
@@ -116,11 +116,13 @@ A required picker inside a [Form](/components/forms/form). Press Book with a fie
 
 Root takes `required`, `rules`, `error`, and `errorMessages`, and registers with a parent [Form](/components/forms/form), so a form submit validates the picker. The validated value is the model: a 24-hour string, or null while a field is empty. Each rule receives it and returns `true`, or a message.
 
-`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates each time the model changes.
+`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates when a key changes the time. The picker moving a value onto the step, and a value set from outside, are not input. A disabled picker does not validate from focus.
+
+`required` and `rules` are read once, when Root is set up. Changing them later has no effect.
 
 `error` forces the invalid state, and `errorMessages` are shown ahead of the messages the rules produce.
 
-The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`. A value the picker moved onto the step or inside the bounds is still pristine. `reset` puts the initial value back, drops a partly entered time, and clears the validation state.
+The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`. A value the picker moved onto the step or inside the bounds is still pristine. `reset` puts the initial value back, drops a partly entered time, and clears the validation state. While the picker is disabled or readonly it does not emit: it clears the validation state and leaves the time alone. `isPristine` reads true after a reset even when the parent refuses the value.
 
 ## Recipes
 
@@ -304,7 +306,7 @@ The names and spoken text come from [useLocale](/composables/plugins/use-locale)
 
 An `ariaLabel` or `ariaLabelledby` prop takes priority over the label keys.
 
-The digits a field shows, and the hour in its `aria-valuetext`, are formatted by the locale's `n()`, two digits wide. Under a locale with its own numerals, such as `ar-EG`, the fields show those. The model, the Root slot's `value`, and the submitted value stay in Latin digits.
+The digits a field shows are formatted by the locale's `n()` and padded to two digits with the locale's zero. The hour in a 12-hour `aria-valuetext` goes through `n()` too, without padding. Under a locale with its own numerals, such as `ar-EG`, the fields show those. The model, the Root slot's `value`, and the submitted value stay in Latin digits.
 
 ## FAQ
 
@@ -324,7 +326,7 @@ They keep a complete value inside the window. An incomplete value stays null. A 
 
 ??? What do disabled and readonly do?
 
-Both ignore every key and `clear`, and the picker never emits while either is set. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page. The value is shown as given, without the step or `min` and `max` applied. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
+Both ignore every key and `clear`, and the picker never emits while either is set, not even from the slot's `reset`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page. The value is shown as given, without the step or `min` and `max` applied. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
 
 ??? What if the parent refuses an update?
 

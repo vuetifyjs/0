@@ -168,7 +168,7 @@ A bound that does not parse is ignored on its own. When both parse and `min` is 
 
 ### Disabled and readonly
 
-While `disabled` or `readonly` is true, `commit`, `step`, and `clear` do nothing, and the picker never writes `value`. That holds at creation, when `value` changes from outside, and when an option changes. The fields show an incoming value as given, without the step or the bounds applied, and the model keeps the string it was given. When the picker is editable again it applies both and writes the result.
+While `disabled` or `readonly` is true, `commit`, `step`, and `clear` do nothing, and the picker never writes `value`. That holds at creation, when `value` changes from outside, when an option changes, and for `input.reset()`. The fields show an incoming value as given, without the step or the bounds applied, and the model keeps the string it was given. When the picker is editable again it applies both and writes the result.
 
 ### Validation
 
@@ -192,9 +192,13 @@ time.input.errors.value // ['Closed at noon']
 
 The picker never validates on its own. Call `input.validate()` when your markup decides to, and set `input.isFocused` and `input.isTouched` from it.
 
-Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. `input.isDirty` is true whenever the value is not null.
+Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. A time the picker completes from fields that were edited, such as an entered hour and minute once `seconds` turns off, is not pristine. `input.isDirty` is true while the value is a non-empty string, whether or not it is a valid time.
 
-`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. It is not an edit, so it also runs while the picker is disabled or readonly. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
+`isEdited` is true from the first `commit`, `step`, or `clear` that changes a field, and stays true through every normalization and every reply to that edit. It is false at creation, when a value comes in from outside, and after `input.reset()`. [TimePicker](/components/forms/time-picker) reads it to validate on input for edits only.
+
+`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the model was not written, because the picker is blocked or the owner refused the value. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
+
+`required` and `rules` are read once, when the picker is created.
 
 ### Development warnings
 
@@ -222,6 +226,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
+| `isEdited` | <AppSuccessIcon /> | Whether the fields hold something an edit put there |
 | `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples
