@@ -206,8 +206,11 @@ watch(time.revision, () => time.input.validate())
 ```
 
 - An edit the owner took counts, and so does a value from outside. A value from outside that needs normalizing counts once, when its normalized form is in the model, or when the owner refuses that form and the fields take the owner's value.
-- The picker normalizing on its own, at creation, when it is released from disabled or readonly, or when an option changes, counts only once the value has a validity, which is when `input.isValid` is not null. Before the first validation nothing is on show to go stale, so a picker that normalizes its initial value stays unvalidated.
-- `input.reset()` never counts.
+- The picker normalizing on its own, at creation, when it is released from disabled or readonly, or when an option changes, counts only once the value has a validity, which is when `input.isValid` is not null. Before the first validation nothing is on show to go stale, so a picker that normalizes its initial value stays unvalidated. The `error` and `errorMessages` options also give the value a validity, without a validation having run, so with either set the normalization counts and the rules run.
+- A normalization that lands while the first async validation is still pending is not counted, so the result that resolves describes the earlier value.
+- `input.reset()` does not count.
+
+The guarantees for the initial value and for a reset hold for an owner that answers within the exchange. An owner that accepts late, as described under [Refused updates](#refused-updates), hands back a value the picker takes as one from outside, and that counts.
 
 A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
 
@@ -241,7 +244,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
-| `revision` | <AppSuccessIcon /> | Goes up each time the model holds a new value worth validating. A reset does not count |
+| `revision` | <AppSuccessIcon /> | Goes up each time the model holds a new value worth validating. A reset does not count, unless its owner answers late |
 | `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples

@@ -67,7 +67,7 @@
     required?: boolean
     /** Validation rules. Each receives the model value. Read once, at setup. */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
-    /** When to validate. Focus moving between the fields is not a blur. Input is an edit, a value from outside, or the picker normalizing a value that was already validated. @default 'blur' */
+    /** When to validate. Focus moving between the fields is not a blur. Input is an edit, a value from outside, or the picker normalizing a value that has a validity, from a validation or from `error` / `errorMessages`. A parent that accepts late is read as a value from outside. @default 'blur' */
     validateOn?: ValidateOn
     /** Force the invalid state, whatever the rules say. @default false */
     error?: boolean

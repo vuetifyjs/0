@@ -408,7 +408,8 @@ export interface TimePickerContext {
    * clears the validation state and `isTouched`. While disabled or readonly
    * it does all of that except write the model. `isPristine` reads true
    * after a reset even when the model was not written, because the picker
-   * is blocked or the owner refused.
+   * is blocked or the owner refused. `reset` does not count toward
+   * `revision` unless the owner answers after the exchange has closed.
    *
    * `required` and `rules` are read once, when the picker is created.
    *
@@ -442,7 +443,15 @@ export interface TimePickerContext {
    * The picker normalizing on its own, at creation, when it is released
    * from disabled or readonly, or when an option changes, counts only once
    * the value has a validity: `input.isValid` is not `null`. Until then
-   * there is nothing on show to go stale. `input.reset()` never counts.
+   * there is nothing on show to go stale. The `error` and `errorMessages`
+   * options give the value a validity without a validation having run. A
+   * normalization that lands while the first async validation is pending
+   * is not counted, so that result describes the earlier value.
+   *
+   * `input.reset()` does not count, as long as the owner answers within
+   * the exchange. An owner that answers later (see `value`) hands back a
+   * value the picker takes as one from outside, and that counts: both the
+   * reset value, and an initial value the picker had to normalize.
    *
    * @example
    * ```ts
