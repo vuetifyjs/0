@@ -10,4 +10,6 @@ Arrow keys move a field one interval, PageUp and PageDown move the hour about 2 
 
 Root and each field take `ariaLabel` and `ariaLabelledby`, and Root takes `ariaDescribedby`; names default to the locale catalog. Fields carry `data-state="empty"` or `"filled"`, and Root carries `data-complete` while the fields show a complete time.
 
+`required`, `rules`, `error`, `errorMessages`, and `validateOn` validate the model, and the picker registers with a parent `Form`. Focus moving between the fields is not a blur. `TimePicker.Description` and `TimePicker.Error` hold the help text and the messages; the fields point at them with `aria-describedby` and `aria-errormessage` and carry `aria-required` and `aria-invalid`. Root carries `data-state="pristine"`, `"valid"`, or `"invalid"`, plus `data-dirty` and `data-focused`, and its slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`.
+
 Set `name` to submit the displayed time with a form through an auto-rendered `TimePicker.HiddenInput`, and `form` to associate it with a form Root sits outside.

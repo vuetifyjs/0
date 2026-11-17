@@ -47,6 +47,10 @@ Each field is a spinbutton, moved from the keyboard with the arrow, Page, Home, 
 
     <TimePicker.Period />
 
+    <TimePicker.Description />
+
+    <TimePicker.Error />
+
     <TimePicker.HiddenInput />
   </TimePicker.Root>
 </template>
@@ -54,7 +58,7 @@ Each field is a spinbutton, moved from the keyboard with the arrow, Page, Home, 
 
 ## Architecture
 
-Root owns the time value. Hour, Minute, Second, and Period each read and edit one field of it. Second renders only when `seconds` is set. Period renders only when `hour-cycle` is `h12`. HiddenInput carries the displayed time into a form, and Root renders it when `name` is set.
+Root owns the time value. Hour, Minute, Second, and Period each read and edit one field of it. Second renders only when `seconds` is set. Period renders only when `hour-cycle` is `h12`. Description and Error hold the help text and the validation messages, and Root links the fields to them. HiddenInput carries the displayed time into a form, and Root renders it when `name` is set.
 
 ```mermaid "TimePicker Architecture"
 flowchart TD
@@ -64,6 +68,8 @@ flowchart TD
   Minute["TimePicker.Minute"]
   Second["TimePicker.Second"]
   Period["TimePicker.Period"]
+  Description["TimePicker.Description"]
+  Error["TimePicker.Error"]
   HiddenInput["TimePicker.HiddenInput"]
 
   Picker --> Root
@@ -71,6 +77,8 @@ flowchart TD
   Root --> Minute
   Root --> Second
   Root --> Period
+  Root --> Description
+  Root --> Error
   Root --> HiddenInput
 ```
 
@@ -93,6 +101,26 @@ Seconds stay off, so the second field is not in the tree. Focus a field and use 
 | `office.ts` | Open and close bounds |
 | `office.vue` | 12-hour picker and the stored value |
 :::
+
+::: gn-example
+/components/time-picker/validation
+
+### Validation
+
+A required picker inside a [Form](/components/forms/form). Press Book with a field still empty and the submit fails: the model is null, so `required` rejects it, the fields get `aria-invalid`, and `TimePicker.Error` shows the message. Set both fields and the submit passes, unless the time is `12:00`, which the rule in `rules` turns down.
+
+`TimePicker.Description` holds the help text. While it is mounted, Root and every field point at it with `aria-describedby`. The border color comes from `data-state` on Root, which reads `pristine`, `valid`, or `invalid`.
+:::
+
+## Validation
+
+Root takes `required`, `rules`, `error`, and `errorMessages`, and registers with a parent [Form](/components/forms/form), so a form submit validates the picker. The validated value is the model: a 24-hour string, or null while a field is empty. Each rule receives it and returns `true`, or a message.
+
+`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates each time the model changes.
+
+`error` forces the invalid state, and `errorMessages` are shown ahead of the messages the rules produce.
+
+The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`. A value the picker moved onto the step or inside the bounds is still pristine. `reset` puts the initial value back, drops a partly entered time, and clears the validation state.
 
 ## Recipes
 
@@ -130,7 +158,7 @@ Do not also place `TimePicker.HiddenInput` yourself. Inside a Root that has `nam
 
 - A readonly picker still submits. It sends the time the fields show, which is an empty string when the model holds a string that is not a time.
 - A disabled picker is left out of the submission.
-- A native form reset does not restore the picker, and neither does a [Form](/components/forms/form) reset. Reset the model yourself.
+- A native form reset does not restore the picker. A [Form](/components/forms/form) reset clears its validation state and leaves the time alone. Call `reset` from the Root slot to put the initial value back.
 
 ```vue
 <template>
@@ -188,6 +216,9 @@ Style field and interaction states without slot props:
 |-----------|--------|------------|
 | `data-part` | `hour`, `minute`, `second`, `period` | Hour, Minute, Second, Period |
 | `data-state` | `empty`, `filled` | Hour, Minute, Second. Period is always `filled` |
+| `data-state` | `pristine`, `valid`, `invalid` | Root. `pristine` until the first validation |
+| `data-dirty` | `true` | Root, while the model holds a value |
+| `data-focused` | `true` | Root, while one of the fields has focus |
 | `data-complete` | `true` | Root, while the fields show a complete time |
 | `data-disabled` | `true` | Root, Hour, Minute, Second, Period |
 | `data-readonly` | `true` | Root, Hour, Minute, Second, Period |
@@ -204,7 +235,10 @@ Root renders `role="group"`. Each field renders `role="spinbutton"` per the [WAI
 | `role` | `spinbutton` | Hour, Minute, Second, Period |
 | `aria-label` | Label text | Root and fields. The `ariaLabel` prop, or the locale string. Omitted when `ariaLabelledby` is set |
 | `aria-labelledby` | Element id | Root and fields, from the `ariaLabelledby` prop |
-| `aria-describedby` | Element id | Root, from the `ariaDescribedby` prop |
+| `aria-describedby` | Element ids | Root: the `ariaDescribedby` prop, then the Description while one is mounted. Fields: the Description |
+| `aria-required` | `true` | Fields, when Root is `required` |
+| `aria-invalid` | `true` | Fields, while validation has failed or `error` is set |
+| `aria-errormessage` | Element id | Fields, while an Error is mounted and there are messages |
 | `aria-valuenow` | Current number | Absent while the field is empty. Period is `0` for AM and `1` for PM |
 | `aria-valuemin` | Lowest value the field can show | Follows the step, and in 12-hour mode the current AM or PM half. Period is `0` |
 | `aria-valuemax` | Highest value the field can show | Follows the step, and in 12-hour mode the current AM or PM half. Period is `1` |
@@ -266,6 +300,7 @@ The names and spoken text come from [useLocale](/composables/plugins/use-locale)
 | `TimePicker.am` | `AM` | Period text and `aria-valuetext` |
 | `TimePicker.pm` | `PM` | Period text and `aria-valuetext` |
 | `TimePicker.hourText` | `{hour} {period}` | `aria-valuetext` of the hour in 12-hour mode. A locale can reorder the two parts |
+| `Input.required` | `Required` | Message of the `required` rule |
 
 An `ariaLabel` or `ariaLabelledby` prop takes priority over the label keys.
 

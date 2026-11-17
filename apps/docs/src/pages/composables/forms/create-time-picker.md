@@ -59,15 +59,17 @@ Call `createTimePicker` inside a component `setup` or an `effectScope`. Its watc
 
 ## Architecture
 
-`createTimePicker` owns the fields and the canonical string. It reads no DOM, `window`, or date plugin, and reports bad input through `useLogger`. [TimePicker](/components/forms/time-picker) builds its spinbuttons on the returned context.
+`createTimePicker` owns the fields and the canonical string. It reads no DOM, `window`, or date plugin, and reports bad input through `useLogger`. Validation, field state, and form registration come from [createInput](/composables/forms/create-input). [TimePicker](/components/forms/time-picker) builds its spinbuttons on the returned context.
 
 ```mermaid "createTimePicker Architecture"
 flowchart TD
   Logger["useLogger"]
+  Input["createInput"]
   Picker["createTimePicker"]:::primary
   Root["TimePicker.Root"]
 
   Logger --> Picker
+  Input --> Picker
   Picker --> Root
 ```
 
@@ -85,6 +87,12 @@ flowchart TD
 | `max` | `MaybeRefOrGetter<string \| null \| undefined>` | — | Inclusive upper bound, same form as `min` |
 | `disabled` | `MaybeRefOrGetter<boolean>` | `false` | Blocks every edit and every write to `value` |
 | `readonly` | `MaybeRefOrGetter<boolean>` | `false` | Blocks every edit and every write to `value` |
+| `required` | `boolean` | — | Fail validation while the value is null |
+| `rules` | `(FormValidationRule \| RuleAlias \| StandardSchemaV1)[]` | `[]` | Validation rules. Each receives the value |
+| `error` | `MaybeRefOrGetter<boolean>` | `false` | Force the invalid state |
+| `errorMessages` | `MaybeRefOrGetter<MaybeArray<string> \| undefined>` | — | Messages shown ahead of the ones the rules produce |
+| `id`, `label`, `name`, `form` | `string` | — | Passed through to `input` for the markup that renders the field |
+| `formNamespace` | `string` | `'v0:form'` | Namespace of the parent form to register with |
 
 A change to `hourCycle`, `seconds`, a step, or a bound re-applies the step and the bounds to the current value before the next flush.
 
@@ -162,6 +170,32 @@ A bound that does not parse is ignored on its own. When both parse and `min` is 
 
 While `disabled` or `readonly` is true, `commit`, `step`, and `clear` do nothing, and the picker never writes `value`. That holds at creation, when `value` changes from outside, and when an option changes. The fields show an incoming value as given, without the step or the bounds applied, and the model keeps the string it was given. When the picker is editable again it applies both and writes the result.
 
+### Validation
+
+The picker composes [createInput](/composables/forms/create-input) and returns it as `input`. The validated value is the model value: the 24-hour string, or null while a field is empty. With `required`, validation fails until every enabled field is set. Each rule in `rules` receives the value and returns `true` or a message. Called inside a component under a [Form](/components/forms/form), the picker registers with it, and the form's submit validates it.
+
+```ts
+import { createTimePicker } from '@vuetify/v0'
+
+const time = createTimePicker({
+  required: true,
+  rules: [value => value !== '12:00' || 'Closed at noon'],
+})
+
+time.commit('hour', 12)
+await time.input.validate() // false, the minute is still empty
+
+time.commit('minute', 0)
+await time.input.validate() // false
+time.input.errors.value // ['Closed at noon']
+```
+
+The picker never validates on its own. Call `input.validate()` when your markup decides to, and set `input.isFocused` and `input.isTouched` from it.
+
+Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. `input.isDirty` is true whenever the value is not null.
+
+`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. It is not an edit, so it also runs while the picker is disabled or readonly. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
+
 ### Development warnings
 
 In development the picker logs a warning through [useLogger](/composables/plugins/use-logger) when:
@@ -188,6 +222,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
+| `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples
 
@@ -217,6 +252,14 @@ The public value stays null until the hour and the minute are both set. This dem
 ### Quarter-hour steps
 
 `minuteStep: 15` keeps the minute on the quarter hours. Each press of the minute button calls `step('minute')`, so the value's minute reads 00, 15, 30, 45, and then 00 again. The value stays null until both buttons have been pressed once, because the first step on an empty field sets it to its first value.
+:::
+
+::: gn-example
+/composables/create-time-picker/validation
+
+### Required time
+
+`required` and one rule on a quarter-hour picker. Validate reads the value as it stands: null while a button has not been pressed, so `required` fails, and `12:00` fails the rule. Reset puts the picker back to empty and returns the state to `pristine`.
 :::
 
 ## FAQ
