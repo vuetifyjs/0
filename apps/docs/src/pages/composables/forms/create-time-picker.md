@@ -142,10 +142,11 @@ One edit costs at most two writes, whatever the owner does. The picker never ret
 
 Creation follows the same rule. Normalizing the initial value is one synchronous write. An owner that replaces it with a different value gets that replacement normalized and written back once, a tick later, so creation can cost two writes. An owner that only refuses gets one.
 
-Two things follow:
+Three things follow:
 
 - An owner should accept or refuse synchronously. One that accepts late, after a timer, a debounce, or an awaited request, looks like a refusal until its value arrives. The fields show the old model value in between, and each rapid edit starts from it. Bind the picker to a local ref and debounce or validate downstream of that ref.
 - An owner that rounds or transforms should give the picker the same step. A setter that rounds to 30 minutes over the default `minuteStep` receives `09:01` from `step('minute')` and maps it straight back to `09:00`, every time. With `minuteStep: 30` the picker writes `09:30`.
+- An edit made before the picker has checked the owner's answer starts from the value the picker just wrote, not from the model. Several `step` or `commit` calls in a row, or a test that dispatches key events without waiting, can therefore end on a different time than the same edits made one at a time when the owner refuses, caps, or rounds. Wait two ticks between programmatic edits when the owner may refuse. Real key presses arrive as separate tasks and are not affected.
 
 `display` is the time the fields show, as the canonical string, or null while a field is empty. It matches `value` except when the model holds a string the fields cannot show as written and the picker has not rewritten it, because it is disabled or readonly or because it took the owner's value as given. That is a string that is not a time, where `display` is null, or a time whose seconds do not match the `seconds` option. Under an owner that answers late, `display` also runs ahead of `value` until the answer is checked.
 
