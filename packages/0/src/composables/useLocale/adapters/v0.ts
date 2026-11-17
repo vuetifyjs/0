@@ -1,6 +1,3 @@
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Adapters
 import { LocaleAdapter } from './adapter'
 
@@ -38,7 +35,7 @@ export class V0LocaleAdapter extends LocaleAdapter {
   n (value: number): string {
     const locale = this.context.selectedId.value
 
-    if (!IN_BROWSER || !locale) return value.toString()
+    if (!locale) return value.toString()
 
     return new Intl.NumberFormat(String(locale)).format(value)
   }
