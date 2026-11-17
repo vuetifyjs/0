@@ -367,6 +367,9 @@ interface Fields {
   minute: number | null
   second: number | null
   period: TimePeriod
+  fresh: boolean
+  seen: string
+  timed: boolean
 }
 
 function pad (value: number): string {
@@ -632,11 +635,13 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   }
 
   function snapshot (): Fields {
-    return { hour: hour24.value, minute: minute.value, second: stored.value, period: pending.value }
+    return { hour: hour24.value, minute: minute.value, second: stored.value, period: pending.value, fresh, seen, timed }
   }
 
   // `from` is what the fields held before the call that led here, for a
-  // write that throws to go back to.
+  // write that throws to go back to. It carries the pending-change marks
+  // too: an edit applies a change from the same tick before it writes, and
+  // if that write throws the change must be waiting for the pass again.
   function publish (from = snapshot()) {
     fit()
     const next = format()
@@ -665,6 +670,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       minute.value = from.minute
       stored.value = from.second
       pending.value = from.period
+      fresh = from.fresh
+      seen = from.seen
+      timed = from.timed
       throw error
     }
 
