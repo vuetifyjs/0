@@ -541,14 +541,19 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     return isDisabled.value || isReadonly.value
   }
 
+  function stride (part: TimeUnit): number {
+    const step = part === 'hour' ? hourStep : (part === 'minute' ? minuteStep : secondStep)
+    return interval(toValue(step) ?? 1)
+  }
+
   function hours (half: TimePeriod): number[] {
-    const step = interval(toValue(hourStep) ?? 1)
+    const step = stride('hour')
     if (hourCycle.value !== 'h12') return points(0, 23, step)
     return half === 'pm' ? points(12, 23, step) : points(0, 11, step)
   }
 
   function sixty (part: 'minute' | 'second'): number[] {
-    return points(0, 59, interval(toValue(part === 'minute' ? minuteStep : secondStep) ?? 1))
+    return points(0, 59, stride(part))
   }
 
   function whole (): WholeTime | null {
@@ -720,12 +725,15 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     pending.value = meridiem(parsed.hour)
   }
 
+  // Opens a pass: whatever was waiting for it counts as applied from here.
   // Seconds that just turned on start at 0 for a time that was complete
   // without them. Seconds that are off are dropped, but not while blocked,
   // where the incoming value is kept as given.
   function settle () {
     const entered = seconds.value && !timed
     timed = seconds.value
+    fresh = false
+    seen = mark()
 
     if (!seconds.value) {
       if (!blocked()) stored.value = null
@@ -754,8 +762,6 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   function normalize () {
     settle()
-    fresh = false
-    seen = mark()
     if (!blocked()) publish()
   }
 
@@ -774,8 +780,6 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // tick later.
   function drain () {
     settle()
-    fresh = false
-    seen = mark()
     fit()
   }
 
@@ -886,12 +890,12 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   function grid (part: TimeUnit): TimeGrid {
     if (part !== 'hour') {
       const list = sixty(part)
-      return { min: list[0]!, max: list.at(-1)!, step: interval(toValue(part === 'minute' ? minuteStep : secondStep) ?? 1) }
+      return { min: list[0]!, max: list.at(-1)!, step: stride(part) }
     }
 
     const shown = hours(period.value === 'pm' ? 'pm' : 'am')
       .map(point => hourCycle.value === 'h12' ? displayHour(point) : point)
-    return { min: Math.min(...shown), max: Math.max(...shown), step: interval(toValue(hourStep) ?? 1) }
+    return { min: Math.min(...shown), max: Math.max(...shown), step: stride('hour') }
   }
 
   // The picker's own write coming back is `settled` and is skipped, so
