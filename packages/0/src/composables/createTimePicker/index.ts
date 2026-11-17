@@ -362,7 +362,7 @@ interface WholeTime extends ParsedTime {
   second: number
 }
 
-interface Fields {
+interface Snapshot {
   hour: number | null
   minute: number | null
   second: number | null
@@ -370,6 +370,10 @@ interface Fields {
   fresh: boolean
   seen: string
   timed: boolean
+  settled: unknown
+  tried: string | null | undefined
+  turns: number
+  open: boolean
 }
 
 function pad (value: number): string {
@@ -634,14 +638,42 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     return seconds.value ? `${text}:${pad(time.second)}` : text
   }
 
-  function snapshot (): Fields {
-    return { hour: hour24.value, minute: minute.value, second: stored.value, period: pending.value, fresh, seen, timed }
+  function snapshot (): Snapshot {
+    return {
+      hour: hour24.value,
+      minute: minute.value,
+      second: stored.value,
+      period: pending.value,
+      fresh,
+      seen,
+      timed,
+      settled,
+      tried,
+      turns,
+      open,
+    }
   }
 
-  // `from` is what the fields held before the call that led here, for a
-  // write that throws to go back to. It carries the pending-change marks
-  // too: an edit applies a change from the same tick before it writes, and
-  // if that write throws the change must be waiting for the pass again.
+  function restore (from: Snapshot) {
+    hour24.value = from.hour
+    minute.value = from.minute
+    stored.value = from.second
+    pending.value = from.period
+    fresh = from.fresh
+    seen = from.seen
+    timed = from.timed
+    settled = from.settled
+    tried = from.tried
+    turns = from.turns
+    open = from.open
+  }
+
+  // `from` is the state before the call that led here, for a write that
+  // throws to go back to. It carries the pending-change marks: an edit
+  // applies a change from the same tick before it writes, and if that write
+  // throws the change must be waiting for the pass again. It carries the
+  // exchange too: an edit begins a new one before it writes, and if that
+  // write throws the one it interrupted must still be running.
   function publish (from = snapshot()) {
     fit()
     const next = format()
@@ -652,9 +684,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     }
     // A setter or an update handler can throw. Nothing was written then, so
     // the bookkeeping and the fields go back to what they were before the
-    // error leaves. Reloading the agreed value instead would empty a
+    // error leaves. Reloading the settled value instead would empty a
     // half-entered time, which the value cannot carry.
-    const before = { settled, tried, turns, open }
     settled = next
     tried = next
     turns++
@@ -662,17 +693,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     try {
       value.value = next
     } catch (error) {
-      settled = before.settled
-      tried = before.tried
-      turns = before.turns
-      open = before.open
-      hour24.value = from.hour
-      minute.value = from.minute
-      stored.value = from.second
-      pending.value = from.period
-      fresh = from.fresh
-      seen = from.seen
-      timed = from.timed
+      restore(from)
       throw error
     }
 

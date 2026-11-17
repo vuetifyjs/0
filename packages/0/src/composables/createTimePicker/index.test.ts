@@ -981,6 +981,52 @@ describe('createTimePicker', () => {
       expect(time.display.value).toBe('10:00')
     })
 
+    it('should not offer a value again after an edit that began a new exchange threw', async () => {
+      let held: string | null = '10:15'
+      let fail = false
+      let release!: () => void
+      const writes: (string | null)[] = []
+
+      // The owner withholds its answer to the first write, then answers it
+      // with a value that normalizes back to what was written.
+      const value = customRef<string | null>((track, trigger) => ({
+        get () {
+          track()
+          return held
+        },
+        set (next) {
+          if (fail) throw new Error('refused')
+          writes.push(next)
+
+          if (writes.length === 1) {
+            release = () => {
+              held = '10:31'
+              trigger()
+            }
+            return
+          }
+
+          held = next
+          trigger()
+        },
+      }))
+      const time = setup({ value, minuteStep: 15 })
+
+      time.step('minute', 1)
+      expect(writes).toEqual(['10:30'])
+
+      fail = true
+      expect(() => time.commit('minute', 0)).toThrow('refused')
+      fail = false
+
+      release()
+      await rest()
+
+      expect(writes).toEqual(['10:30'])
+      expect(held).toBe('10:31')
+      expect(time.display.value).toBe('10:31')
+    })
+
     it('should give an incoming value its whole exchange after an edit threw', async () => {
       const store = shallowRef<string | null>('09:00')
       const state = { fail: false, writes: [] as (string | null)[] }
