@@ -1249,6 +1249,107 @@ describe('timePicker', () => {
       expect(group.attributes('data-state')).toBe('invalid')
     })
 
+    it.each([['input'], ['blur eager']] as const)('should clear an error when a valid value comes in from outside under validateOn %s', async validateOn => {
+      const rules = [(value: unknown) => value !== '10:00' || 'No ten']
+      const { model, wrapper, part } = mountTime({ modelValue: '09:00', validateOn, rules }, described)
+      const button = outside()
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+
+      ;(part('hour').element as HTMLElement).focus()
+      await part('hour').trigger('keydown', { key: 'ArrowUp' })
+      button.focus()
+      await flushPromises()
+      expect(model.value).toBe('10:00')
+      expect(group.attributes('data-state')).toBe('invalid')
+
+      model.value = '11:00'
+      await flushPromises()
+      await flushPromises()
+
+      expect(group.attributes('data-state')).toBe('valid')
+      expect(wrapper.get('[aria-live="polite"]').text()).toBe('')
+
+      button.remove()
+    })
+
+    it.each([
+      ['a controlled', (value: string | null) => value],
+      ['an owner that keeps the raw value for a', (_: string | null, current: string | null) => current],
+    ] as const)('should validate a value from outside once, in its normalized form, for %s picker', async (name, accept) => {
+      const seen: unknown[] = []
+      const rules = [(value: unknown) => {
+        seen.push(value)
+        return true
+      }]
+      const { model, wrapper } = mountTime({ modelValue: '09:00', minuteStep: 15, validateOn: 'input', rules }, described, undefined, accept)
+      await flushPromises()
+      expect(seen).toEqual([])
+
+      model.value = '10:07'
+      await flushPromises()
+      await flushPromises()
+
+      expect(seen).toEqual([name === 'a controlled' ? '10:00' : '10:07'])
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('valid')
+    })
+
+    it('should not validate on input when an option change normalizes the value', async () => {
+      const rules = [(value: unknown) => value !== '09:00' || 'Not nine']
+      const { model, wrapper, set } = mountTime({ modelValue: '09:05', minuteStep: 5, validateOn: 'input', rules }, described)
+      await flushPromises()
+
+      set({ minuteStep: 15 })
+      await flushPromises()
+      await flushPromises()
+
+      expect(model.value).toBe('09:00')
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
+    })
+
+    it('should count focus taken while disabled once the picker is enabled', async () => {
+      const { wrapper, part, set, wait } = mountTime({ required: true, disabled: true }, described)
+      const button = outside()
+      await wait()
+      const group = wrapper.get('[role="group"]')
+
+      ;(part('hour').element as HTMLElement).focus()
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBeUndefined()
+
+      set({ disabled: false })
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBe('true')
+
+      button.focus()
+      await flushPromises()
+      expect(group.attributes('data-state')).toBe('invalid')
+
+      button.remove()
+    })
+
+    it('should drop the focused state, without validating, when the picker is disabled with focus inside', async () => {
+      const { wrapper, part, set, wait } = mountTime({ required: true }, described)
+      const button = outside()
+      await wait()
+      const group = wrapper.get('[role="group"]')
+
+      ;(part('hour').element as HTMLElement).focus()
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBe('true')
+
+      set({ disabled: true })
+      await flushPromises()
+      expect(group.attributes('data-focused')).toBeUndefined()
+      expect(group.attributes('data-state')).toBe('pristine')
+
+      button.focus()
+      await flushPromises()
+      expect(group.attributes('data-state')).toBe('pristine')
+
+      button.remove()
+    })
+
     it.each([['disabled'], ['readonly']] as const)('should not emit when a %s picker resets through the slot', async flag => {
       let slot!: TimePickerRootSlotProps
       const { model, emitted, part, wait } = mountTime({ modelValue: '09:00', [flag]: true, required: true }, root => {

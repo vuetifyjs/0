@@ -26,7 +26,7 @@
 
   // Utilities
   import { isElement, isNull, useId } from '#v0/utilities'
-  import { mergeProps, nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { mergeProps, nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -67,7 +67,7 @@
     required?: boolean
     /** Validation rules. Each receives the model value. Read once, at setup. */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
-    /** When to validate. Focus moving between the fields is not a blur, and only an edit counts as input. @default 'blur' */
+    /** When to validate. Focus moving between the fields is not a blur. Input is an edit or a value from outside, not the picker normalizing on its own. @default 'blur' */
     validateOn?: ValidateOn
     /** Force the invalid state, whatever the rules say. @default false */
     error?: boolean
@@ -104,7 +104,7 @@
     isDisabled: boolean
     /** Whether edits are ignored. */
     isReadonly: boolean
-    /** Whether one of the fields has focus. */
+    /** Whether one of the fields has focus. Always false while disabled. */
     isFocused: boolean
     /** Error messages: the manual ones, then the ones the rules produced. */
     errors: string[]
@@ -231,6 +231,16 @@
     return trigger === event
   }
 
+  // Focus counts only while the picker is enabled. A disabled field is out
+  // of the tab order but still takes focus from a click or a script, and a
+  // picker can be disabled or enabled with focus already inside.
+  const within = shallowRef(false)
+
+  watch(() => within.value && !time.isDisabled.value, focused => {
+    input.isFocused.value = focused
+  }, { flush: 'sync' })
+
+  // Being disabled is not a blur: nothing left the picker.
   watch(input.isFocused, focused => {
     if (focused || time.isDisabled.value) return
     input.isTouched.value = true
@@ -239,10 +249,11 @@
 
   let resetting = false
 
-  // Only a change the user made counts as input. The picker normalizing a
-  // value, or a value coming in from outside, does not.
-  watch(model, () => {
-    if (!resetting && time.isEdited.value && shouldValidate('input')) void input.validate()
+  // Input is a value someone supplied, by an edit or from outside, once it
+  // is in the model in its final form. The picker normalizing on its own,
+  // at mount, on release, or for an option, is not.
+  watch(time.supplied, () => {
+    if (!resetting && shouldValidate('input')) void input.validate()
   })
 
   function reset () {
@@ -253,11 +264,8 @@
     })
   }
 
-  // A disabled field is out of the tab order but still takes focus from a
-  // click or a script. That focus does not count.
   function onFocusin () {
-    if (time.isDisabled.value) return
-    input.isFocused.value = true
+    within.value = true
   }
 
   // Focus that moves to another field of the same picker has not left it.
@@ -265,7 +273,7 @@
     const group = event.currentTarget
     const next = event.relatedTarget
     if (isElement(group) && isElement(next) && group.contains(next)) return
-    input.isFocused.value = false
+    within.value = false
   }
 
   const context: TimePickerRootContext = {
