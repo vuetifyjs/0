@@ -63,11 +63,11 @@
     name?: string
     /** Id of the form the hidden input belongs to, when it sits outside it. */
     form?: string
-    /** Fail validation while a field is still empty. */
+    /** Fail validation while a field is still empty. Read once, at setup. */
     required?: boolean
-    /** Validation rules. Each receives the model value. */
+    /** Validation rules. Each receives the model value. Read once, at setup. */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
-    /** When to validate. Focus moving between the fields is not a blur. @default 'blur' */
+    /** When to validate. Focus moving between the fields is not a blur, and only an edit counts as input. @default 'blur' */
     validateOn?: ValidateOn
     /** Force the invalid state, whatever the rules say. @default false */
     error?: boolean
@@ -114,7 +114,7 @@
     isPristine: boolean
     /** Run the rules against the model value. */
     validate: () => Promise<boolean>
-    /** Put the initial value back, drop a partly entered time, and clear the validation state. */
+    /** Put the initial value back, drop a partly entered time, and clear the validation state. Does not emit while disabled or readonly. */
     reset: () => void
     /** Clear every field. The value becomes `null`. Does nothing while disabled or readonly. */
     clear: () => void
@@ -232,15 +232,17 @@
   }
 
   watch(input.isFocused, focused => {
-    if (focused) return
+    if (focused || time.isDisabled.value) return
     input.isTouched.value = true
     if (shouldValidate('blur')) void input.validate()
   })
 
   let resetting = false
 
+  // Only a change the user made counts as input. The picker normalizing a
+  // value, or a value coming in from outside, does not.
   watch(model, () => {
-    if (!resetting && shouldValidate('input')) void input.validate()
+    if (!resetting && time.isEdited.value && shouldValidate('input')) void input.validate()
   })
 
   function reset () {
@@ -251,7 +253,10 @@
     })
   }
 
+  // A disabled field is out of the tab order but still takes focus from a
+  // click or a script. That focus does not count.
   function onFocusin () {
+    if (time.isDisabled.value) return
     input.isFocused.value = true
   }
 

@@ -152,7 +152,8 @@
   // text agree. The value the picker stores stays in Latin digits.
   function text (now: number | null): string {
     if (part === 'period') return meridiem()
-    return isNull(now) ? '' : locale.n(now).padStart(2, locale.n(0))
+    if (isNull(now)) return ''
+    return now < 10 ? `${locale.n(0)}${locale.n(now)}` : locale.n(now)
   }
 
   // Only where the number alone does not say it: the period reads as its

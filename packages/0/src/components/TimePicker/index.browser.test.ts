@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Form } from '#v0/components/Form'
 
 // Composables
-import { createLocalePlugin } from '#v0/composables/useLocale'
+import { createLocalePlugin, LocaleAdapter } from '#v0/composables/useLocale'
 
 import { TimePicker, useTimePickerRoot } from './index'
 
@@ -363,6 +363,43 @@ describe('timePicker', () => {
 
       expect(labelled.part(name).attributes('aria-labelledby')).toBe('outside')
       expect(labelled.part(name).attributes('aria-label')).toBeUndefined()
+    })
+
+    it('should pad a single digit with the zero of a locale whose digits take two code units', async () => {
+      // Mathematical bold digits sit outside the basic plane, as the digits
+      // of `ccp` and `ff-Adlm` do, without depending on the browser's data.
+      class Bold extends LocaleAdapter {
+        t (key: string): string {
+          return key
+        }
+
+        ti (): undefined {
+          return undefined
+        }
+
+        n (value: number): string {
+          return [...String(value)].map(digit => String.fromCodePoint(0x1D7CE + Number(digit))).join('')
+        }
+      }
+
+      const digits = new Bold()
+      const wrapper = mount(TimePicker.Root as Component, {
+        props: { modelValue: '07:15' },
+        slots: {
+          default: () => [
+            h(TimePicker.Hour as Component, {}, { default: ({ text }: { text: string }) => text }),
+            h(TimePicker.Minute as Component, {}, { default: ({ text }: { text: string }) => text }),
+          ],
+        },
+        global: { plugins: [createLocalePlugin({ adapter: digits })] },
+        attachTo: document.body,
+      })
+      wrappers.push(wrapper)
+      await nextTick()
+
+      expect(digits.n(7)).toHaveLength(2)
+      expect(wrapper.get('[data-part="hour"]').text()).toBe(`${digits.n(0)}${digits.n(7)}`)
+      expect(wrapper.get('[data-part="minute"]').text()).toBe(digits.n(15))
     })
 
     it('should take the order of a 12-hour hour and its meridiem from the locale catalog', async () => {
@@ -1119,17 +1156,119 @@ describe('timePicker', () => {
       await wait()
       expect(group.attributes('data-focused')).toBe('true')
 
-      ;(part('minute').element as HTMLElement).focus()
+      // No `focusin` follows, so only the handler's own reading of where
+      // focus went keeps the picker focused.
+      part('hour').element.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: part('minute').element }))
       await flushPromises()
       expect(group.attributes('data-focused')).toBe('true')
+      expect(group.attributes('data-state')).toBe('pristine')
       expect(part('minute').attributes('aria-invalid')).toBeUndefined()
 
-      button.focus()
+      part('hour').element.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: button }))
       await flushPromises()
       expect(group.attributes('data-focused')).toBeUndefined()
       expect(group.attributes('data-state')).toBe('invalid')
 
       button.remove()
+    })
+
+    it('should treat focus that leaves the page as a blur', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true }, described)
+      await wait()
+
+      ;(part('hour').element as HTMLElement).focus()
+      await wait()
+      part('hour').element.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('invalid')
+    })
+
+    it('should not validate a disabled picker when a field is focused and blurred', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true, disabled: true }, described)
+      const button = outside()
+      await wait()
+
+      const hour = part('hour').element as HTMLElement
+      hour.focus()
+      await wait()
+      expect(document.activeElement).toBe(hour)
+      expect(wrapper.get('[role="group"]').attributes('data-focused')).toBeUndefined()
+
+      button.focus()
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
+      expect(part('hour').attributes('aria-invalid')).toBeUndefined()
+
+      button.remove()
+    })
+
+    it('should validate a readonly picker when focus leaves it', async () => {
+      const { wrapper, part, wait } = mountTime({ required: true, readonly: true }, described)
+      const button = outside()
+      await wait()
+
+      ;(part('hour').element as HTMLElement).focus()
+      await wait()
+      button.focus()
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('invalid')
+
+      button.remove()
+    })
+
+    it.each([
+      ['a controlled', { modelValue: '09:07' }],
+      ['an uncontrolled', {}],
+    ] as const)('should not validate on input when %s picker normalizes its initial value', async (_, model) => {
+      const rules = [(value: unknown) => (value !== '09:00' && value !== null) || 'Not this']
+      const { wrapper, wait } = mountTime({ ...model, minuteStep: 15, validateOn: 'input', rules }, described)
+      await wait()
+      await flushPromises()
+      await flushPromises()
+
+      expect(wrapper.get('[role="group"]').attributes('data-state')).toBe('pristine')
+    })
+
+    it('should validate on input for an edit, including one back to the initial value', async () => {
+      const rules = [(value: unknown) => value !== '09:00' || 'Not nine']
+      const { model, wrapper, part } = mountTime({ modelValue: '09:07', minuteStep: 15, validateOn: 'input', rules }, described)
+      await flushPromises()
+      const group = wrapper.get('[role="group"]')
+      expect(model.value).toBe('09:00')
+
+      await part('minute').trigger('keydown', { key: 'ArrowUp' })
+      await flushPromises()
+      expect(group.attributes('data-state')).toBe('valid')
+
+      await part('minute').trigger('keydown', { key: 'ArrowDown' })
+      await flushPromises()
+      expect(model.value).toBe('09:00')
+      expect(group.attributes('data-state')).toBe('invalid')
+    })
+
+    it.each([['disabled'], ['readonly']] as const)('should not emit when a %s picker resets through the slot', async flag => {
+      let slot!: TimePickerRootSlotProps
+      const { model, emitted, part, wait } = mountTime({ modelValue: '09:00', [flag]: true, required: true }, root => {
+        slot = root
+        return fields()
+      })
+      await wait()
+
+      model.value = '10:00'
+      await flushPromises()
+      await slot.validate()
+      emitted.length = 0
+
+      slot.reset()
+      await flushPromises()
+
+      expect(emitted).toEqual([])
+      expect(model.value).toBe('10:00')
+      expect(part('hour').attributes('aria-valuenow')).toBe('10')
+      expect(slot.isValid).toBeNull()
     })
 
     it('should wire the error to every field once focus leaves an invalid picker', async () => {
