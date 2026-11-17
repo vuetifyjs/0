@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createFormContext } from '#v0/composables/createForm'
+
 import { createTimePicker } from './index'
 
 // Utilities
@@ -2159,6 +2162,193 @@ describe('createTimePicker', () => {
       expect(time.hour.value).toBeNull()
       expect(time.minute.value).toBeNull()
       expect(time.period.value).toBe('am')
+    })
+  })
+  describe('input', () => {
+    it('should fail required until every enabled field is set', async () => {
+      const time = setup({ required: true })
+
+      expect(time.input.isValid.value).toBeNull()
+      expect(await time.input.validate()).toBe(false)
+      expect(time.input.errors.value).toHaveLength(1)
+
+      time.commit('hour', 9)
+      expect(await time.input.validate()).toBe(false)
+
+      time.commit('minute', 30)
+      expect(await time.input.validate()).toBe(true)
+      expect(time.input.errors.value).toEqual([])
+      expect(time.input.state.value).toBe('valid')
+    })
+
+    it('should validate the normalized model value', async () => {
+      const seen: unknown[] = []
+      const time = setup({
+        value: shallowRef<string | null>('09:07'),
+        minuteStep: 15,
+        rules: [value => {
+          seen.push(value)
+          return value === '09:00' || 'Not nine'
+        }],
+      })
+
+      expect(await time.input.validate()).toBe(true)
+
+      time.step('minute', 1)
+      expect(await time.input.validate()).toBe(false)
+      expect(seen).toEqual(['09:00', '09:15'])
+      expect(time.input.errors.value).toEqual(['Not nine'])
+    })
+
+    it('should force invalid through error and merge errorMessages', async () => {
+      const error = shallowRef(false)
+      const errorMessages = shallowRef<string[]>([])
+      const time = setup({ value: shallowRef<string | null>('09:00'), error, errorMessages })
+
+      expect(await time.input.validate()).toBe(true)
+      expect(time.input.isValid.value).toBe(true)
+
+      error.value = true
+      expect(time.input.isValid.value).toBe(false)
+
+      error.value = false
+      errorMessages.value = ['Taken']
+      expect(time.input.isValid.value).toBe(false)
+      expect(time.input.errors.value).toEqual(['Taken'])
+    })
+
+    it('should stay pristine when the initial value is normalized', async () => {
+      const value = shallowRef<string | null>('09:07')
+      const time = setup({ value, minuteStep: 15 })
+
+      expect(value.value).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+      expect(time.input.isDirty.value).toBe(true)
+
+      time.step('minute', 1)
+      expect(time.input.isPristine.value).toBe(false)
+
+      time.step('minute', -1)
+      expect(time.input.isPristine.value).toBe(true)
+
+      value.value = '10:07'
+      await rest()
+      expect(value.value).toBe('10:00')
+      expect(time.input.isPristine.value).toBe(false)
+    })
+
+    it('should stay pristine when an owner that answers late takes the normalized value', async () => {
+      const { value, held } = lagging('09:07')
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+
+      expect(held()).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+    })
+
+    it.each([['disabled'], ['readonly']] as const)('should stay pristine when a %s picker is released and normalizes', async flag => {
+      const blocked = shallowRef(true)
+      const value = shallowRef<string | null>('09:07')
+      const time = setup({ value, minuteStep: 15, [flag]: blocked })
+
+      blocked.value = false
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+    })
+
+    it('should reset to the initial value and clear the validation state', async () => {
+      const value = shallowRef<string | null>('09:07')
+      const time = setup({ value, minuteStep: 15, rules: [next => next === '09:00' || 'Moved'] })
+
+      time.step('hour', 1)
+      time.input.isTouched.value = true
+      expect(await time.input.validate()).toBe(false)
+
+      time.input.reset()
+      await rest()
+
+      expect(value.value).toBe('09:00')
+      expect(time.display.value).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+      expect(time.input.isTouched.value).toBe(false)
+      expect(time.input.isValid.value).toBeNull()
+      expect(time.input.errors.value).toEqual([])
+    })
+
+    it('should drop a partly entered time on reset', () => {
+      const time = setup({ hourCycle: 'h12' })
+
+      time.commit('period', 'pm')
+      time.commit('hour', 9)
+      expect(time.value.value).toBeNull()
+
+      time.input.reset()
+
+      expect(time.hour.value).toBeNull()
+      expect(time.period.value).toBe('am')
+      expect(time.value.value).toBeNull()
+    })
+
+    it('should give an edit after reset the reset value to start from', () => {
+      const value = shallowRef<string | null>('09:00')
+      const time = setup({ value })
+
+      time.step('hour', 3)
+      time.input.reset()
+      time.step('minute', 1)
+
+      expect(value.value).toBe('09:01')
+    })
+
+    it.each([['disabled'], ['readonly']] as const)('should not write the model when a %s picker validates', async flag => {
+      const value = shallowRef<string | null>('09:07')
+      const seen: unknown[] = []
+      const writes: (string | null)[] = []
+      watch(value, next => writes.push(next), { flush: 'sync' })
+      const time = setup({
+        value,
+        minuteStep: 15,
+        [flag]: true,
+        rules: [next => {
+          seen.push(next)
+          return true
+        }],
+      })
+
+      expect(await time.input.validate()).toBe(true)
+      time.input.reset()
+      await rest()
+
+      expect(seen).toEqual(['09:07'])
+      expect(writes).toEqual([])
+      expect(time.input[flag === 'disabled' ? 'isDisabled' : 'isReadonly'].value).toBe(true)
+    })
+
+    it('should register with a parent form and leave it when the scope stops', async () => {
+      const [, provideForm, form] = createFormContext()
+      const app = createApp({ render: () => null })
+      provideForm(form, app)
+
+      const scope = effectScope()
+      const time = app.runWithContext(() => scope.run(() => createTimePicker({ required: true })))!
+
+      expect(form.size).toBe(1)
+      expect(await form.submit()).toBe(false)
+      expect(time.input.isValid.value).toBe(false)
+
+      time.commit('hour', 9)
+      time.commit('minute', 30)
+      expect(await form.submit()).toBe(true)
+
+      form.reset()
+      expect(time.input.isValid.value).toBeNull()
+      expect(time.value.value).toBe('09:30')
+
+      scope.stop()
+      expect(form.size).toBe(0)
     })
   })
 })

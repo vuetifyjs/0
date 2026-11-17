@@ -15,6 +15,9 @@
  * complete value that falls outside `min` / `max` moves to the nearest
  * on-grid time inside them.
  *
+ * Validation, field state, and form registration come from `createInput`,
+ * exposed as `input`. The validated value is the model value.
+ *
  * Does not read the DOM, `window`, or the date plugin. To follow the locale,
  * map the date adapter yourself:
  * `hourCycle: date.is12HourCycleInCurrentLocale() ? 'h12' : 'h23'`.
@@ -35,6 +38,7 @@
  */
 
 // Composables
+import { createInput } from '#v0/composables/createInput'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
@@ -42,6 +46,7 @@ import { clamp, isNull, isNullOrUndefined, isNumber, isString, isUndefined } fro
 import { nextTick, onScopeDispose, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
+import type { InputContext, InputOptions } from '#v0/composables/createInput'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export type TimeHourCycle = 'h12' | 'h23'
@@ -87,10 +92,12 @@ export interface TimeGrid {
  *   minuteStep: 15,
  *   min: '09:00',
  *   max: '17:00',
+ *   required: true,
+ *   rules: [value => value !== '12:00' || 'Closed at noon'],
  * })
  * ```
  */
-export interface TimePickerOptions {
+export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'value' | 'dirty' | 'equals'> {
   /**
    * Canonical `HH:mm` or `HH:mm:ss` source. An incoming value is snapped to
    * the step grid, moved to the nearest on-grid time inside `min` / `max`
@@ -388,6 +395,35 @@ export interface TimePickerContext {
    * ```
    */
   readonly display: Readonly<Ref<string | null>>
+  /**
+   * The underlying `createInput` context: validation state, the ARIA ids,
+   * focused and touched, and `validate` / `reset`. The validated value is
+   * the model value, so `required` fails while a field is still empty.
+   *
+   * Normalizing is not an edit: a value the picker snapped or bounded is
+   * still pristine. `reset` puts the initial value back, drops a partly
+   * entered time, and clears the validation state. It is not an edit
+   * either, so it also runs while disabled or readonly.
+   *
+   * @example
+   * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
+   * const time = createTimePicker({ required: true })
+   *
+   * time.commit('hour', 9)
+   * await time.input.validate() // false — the minute is still empty
+   * time.input.errors.value // ['Required']
+   *
+   * time.commit('minute', 30)
+   * await time.input.validate() // true
+   *
+   * time.input.reset()
+   * time.value.value // null
+   * time.input.isValid.value // null
+   * ```
+   */
+  input: InputContext<string | null>
 }
 
 interface ParsedTime {
@@ -408,6 +444,7 @@ interface Snapshot {
   fresh: boolean
   seen: string
   timed: boolean
+  base: string | null
   settled: unknown
   tried: string | null | undefined
   turns: number
@@ -502,7 +539,7 @@ function travel (list: number[], value: number, count: number): number {
  * value.value // '09:30'
  * ```
  */
-export function createTimePicker (options: TimePickerOptions = {}): TimePickerContext {
+export function createTimePicker (_options: TimePickerOptions = {}): TimePickerContext {
   const {
     value = shallowRef<string | null>(null),
     hourCycle: _hourCycle = 'h23',
@@ -514,7 +551,8 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     max = null,
     disabled = false,
     readonly: _readonly = false,
-  } = options
+    ...options
+  } = _options
 
   const logger = useLogger()
 
@@ -551,6 +589,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   let fresh = false
   // The options as the last pass saw them, to tell a change it has not.
   let seen = ''
+  // The initial value, and what the picker normalized it to. Both count as
+  // pristine.
+  const origin = value.value
+  let base = origin
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -692,6 +734,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       fresh,
       seen,
       timed,
+      base,
       settled,
       tried,
       turns,
@@ -707,6 +750,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     fresh = from.fresh
     seen = from.seen
     timed = from.timed
+    base = from.base
     settled = from.settled
     tried = from.tried
     turns = from.turns
@@ -718,8 +762,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // applies a change from the same tick before it writes, and if that write
   // throws the change must be waiting for the pass again. It carries the
   // exchange too: an edit begins a new one before it writes, and if that
-  // write throws the one it interrupted must still be running.
-  function publish (from = snapshot()) {
+  // write throws the one it interrupted must still be running. `kept` marks
+  // a write that only normalizes, which leaves a pristine value pristine.
+  function publish (from = snapshot(), kept = false) {
     fit()
     const next = format()
     if (next === settled) return
@@ -731,6 +776,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     // the bookkeeping and the fields go back to what they were before the
     // error leaves. Reloading the settled value instead would empty a
     // half-entered time, which the value cannot carry.
+    if (kept && (settled === origin || settled === base)) base = next
     settled = next
     tried = next
     turns++
@@ -808,7 +854,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   function normalize () {
     settle()
-    if (!blocked()) publish()
+    if (!blocked()) publish(snapshot(), true)
   }
 
   // The owner did not take the last write, so the model has the last word:
@@ -1010,6 +1056,23 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     )
   }
 
+  const input = createInput<string | null>({
+    ...options,
+    value,
+    disabled,
+    readonly: _readonly,
+    equals: next => next === origin || next === base,
+  })
+
+  // The model may already hold the initial value, or its owner may not
+  // have answered yet. Reloading what the picker settled on drops a partly
+  // entered time, which the value cannot carry.
+  function reset () {
+    const held = settled
+    input.reset()
+    if (settled === held) load(settled, false)
+  }
+
   settled = value.value
   load(value.value)
   normalize()
@@ -1025,6 +1088,7 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     isDisabled,
     isReadonly,
     display,
+    input: { ...input, reset },
     commit,
     step,
     clear,
