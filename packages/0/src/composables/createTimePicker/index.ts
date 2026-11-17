@@ -432,28 +432,35 @@ export interface TimePickerContext {
    */
   input: InputContext<string | null>
   /**
-   * Whether the fields hold something an edit put there. True from the
-   * first `commit`, `step`, or `clear` that changes a field, through every
-   * normalization and every reply to that edit. False at creation, when a
-   * value comes in from outside, and after `input.reset()`. Use it to tell
-   * a change the user made from one the picker or the owner made.
+   * Counts the values that were supplied to the model, by an edit or from
+   * outside, once the picker has finished with them. It goes up when such
+   * a value is in the model in its final form: after an edit the owner
+   * took, and after a value from outside was normalized, or taken as given.
+   * A value from outside that needs normalizing counts once, not once for
+   * the raw value and once for the normalized one.
+   *
+   * It does not go up when the picker normalizes a value nobody just
+   * supplied: at creation, when it is released from disabled or readonly,
+   * and when an option changes. Watch it to validate on input.
    *
    * @example
    * ```ts
-   * import { shallowRef } from 'vue'
+   * import { shallowRef, watch } from 'vue'
    * import { createTimePicker } from '@vuetify/v0'
    *
    * const value = shallowRef<string | null>('09:07')
    * const time = createTimePicker({ value, minuteStep: 15 })
    *
-   * value.value // '09:00' — normalized, not edited
-   * time.isEdited.value // false
+   * value.value // '09:00' — normalized at creation
+   * time.supplied.value // 0
+   *
+   * watch(time.supplied, () => time.input.validate())
    *
    * time.step('minute')
-   * time.isEdited.value // true
+   * time.supplied.value // 1
    * ```
    */
-  readonly isEdited: Readonly<Ref<boolean>>
+  readonly supplied: Readonly<Ref<number>>
 }
 
 interface ParsedTime {
@@ -476,6 +483,7 @@ interface Snapshot {
   timed: boolean
   base: string | null
   edited: boolean
+  prompted: boolean
   settled: unknown
   tried: string | null | undefined
   turns: number
@@ -624,7 +632,15 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   // pristine.
   const origin = value.value
   let base = origin
-  const isEdited = shallowRef(false)
+  // The fields hold something an edit put there, so the value built from
+  // them is not pristine however it gets written.
+  let edited = false
+  // The current exchange began with a value someone supplied, an edit or a
+  // value from outside, not with the picker normalizing on its own.
+  let prompted = false
+  // The last value `gauge` saw settled in the model.
+  let judged = value.value
+  const supplied = shallowRef(0)
 
   const hourCycle = toRef((): TimeHourCycle => toValue(_hourCycle) === 'h12' ? 'h12' : 'h23')
   const seconds = toRef(() => Boolean(toValue(_seconds)))
@@ -757,6 +773,23 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     return seconds.value ? `${text}:${pad(time.second)}` : text
   }
 
+  function moved (from: Snapshot): boolean {
+    return hour24.value !== from.hour ||
+      minute.value !== from.minute ||
+      stored.value !== from.second ||
+      pending.value !== from.period
+  }
+
+  // The model holds a value the picker has finished with. One that was
+  // supplied counts; one the picker normalized on its own is only noted,
+  // so the same value coming back later is not mistaken for a new one.
+  function gauge () {
+    const held = value.value
+    if (fresh || held !== settled || held === judged) return
+    judged = held
+    if (prompted) supplied.value++
+  }
+
   function snapshot (): Snapshot {
     return {
       hour: hour24.value,
@@ -767,7 +800,8 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
       seen,
       timed,
       base,
-      edited: isEdited.value,
+      edited,
+      prompted,
       settled,
       tried,
       turns,
@@ -784,7 +818,8 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     seen = from.seen
     timed = from.timed
     base = from.base
-    isEdited.value = from.edited
+    edited = from.edited
+    prompted = from.prompted
     settled = from.settled
     tried = from.tried
     turns = from.turns
@@ -811,7 +846,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     // the bookkeeping and the fields go back to what they were before the
     // error leaves. Reloading the settled value instead would empty a
     // half-entered time, which the value cannot carry.
-    if (kept && !isEdited.value && (settled === origin || settled === base)) base = next
+    if (kept && !edited && (settled === origin || settled === base)) base = next
     settled = next
     tried = next
     turns++
@@ -827,7 +862,9 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     else sent.value++
   }
 
+  // Fields that take the model's value hold nothing an edit put there.
   function load (raw: unknown, warn = true) {
+    edited = false
     const parsed = isString(raw) ? parseTime(raw) : null
     if (isNull(parsed)) {
       if (__DEV__ && warn && !isNullOrUndefined(raw) && raw !== '') {
@@ -890,6 +927,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   function normalize () {
     settle()
     if (!blocked()) publish(snapshot(), true)
+    gauge()
   }
 
   // The owner did not take the last write, so the model has the last word:
@@ -900,6 +938,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     if (held === settled) return
     settled = held
     load(held, false)
+    gauge()
   }
 
   // A value or option that changed in this tick is still waiting for the
@@ -986,13 +1025,22 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
 
     const from = snapshot()
     const due = fresh || mark() !== seen
+    const waiting = fresh
     if (due) drain()
+    const was = snapshot()
     const changed = change()
     if (!changed && !due) return
 
     begin()
-    if (changed) isEdited.value = true
-    publish(from, !changed)
+    // Only a call that moves a field is an edit. One that publishes a
+    // waiting change, or commits the value a field already holds, is the
+    // picker normalizing.
+    const edit = changed && moved(was)
+    if (edit) edited = true
+    if (edit || waiting) prompted = true
+    else if (!open) prompted = false
+    publish(from, !edit)
+    gauge()
   }
 
   function commit (part: TimeUnit, next: number | null): void
@@ -1009,12 +1057,14 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     if (blocked()) return
     const from = snapshot()
     begin()
-    isEdited.value = true
     hour24.value = null
     minute.value = null
     stored.value = null
     pending.value = 'am'
+    if (moved(from)) edited = true
+    prompted = true
     publish(from)
+    gauge()
   }
 
   function grid (part: TimeUnit): TimeGrid {
@@ -1031,14 +1081,14 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   // The picker's own write coming back is `settled` and is skipped, so
   // fields the value cannot carry while it is partial survive the echo.
   watch(value, next => {
-    if (next === settled) return
+    // The picker's own write coming back is where a lagging model first
+    // holds it.
+    if (next === settled) return gauge()
     settled = next
     load(next)
-    if (open && turns > 1) return
-    if (!open) {
-      begin()
-      isEdited.value = false
-    }
+    prompted = true
+    if (open && turns > 1) return gauge()
+    if (!open) begin()
     fresh = true
     stale.value++
   }, { flush: 'sync' })
@@ -1054,7 +1104,12 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
       // The first must not normalize a value the fields took as given; the
       // second must not normalize the edit's result again.
       if (!fresh && next[0] === seen) return
-      if (next[1] === previous[1]) begin()
+      if (next[1] === previous[1]) {
+        begin()
+        // An edit whose owner has not answered yet is still the value
+        // someone supplied.
+        if (!open) prompted = false
+      }
       normalize()
     },
     { flush: 'pre' },
@@ -1120,7 +1175,6 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
   function reset () {
     const held = settled
     input.reset()
-    isEdited.value = false
     if (settled === held) load(settled, false)
   }
 
@@ -1140,7 +1194,7 @@ export function createTimePicker (_options: TimePickerOptions = {}): TimePickerC
     isReadonly,
     display,
     input: { ...input, value, reset },
-    isEdited,
+    supplied,
     commit,
     step,
     clear,

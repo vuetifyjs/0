@@ -2376,51 +2376,42 @@ describe('createTimePicker', () => {
 
       expect(value.value).toBe('09:00')
       expect(time.input.isPristine.value).toBe(true)
-      expect(time.isEdited.value).toBe(false)
     })
 
-    it('should mark the value edited from the first edit until a value comes in or the picker resets', async () => {
-      const value = shallowRef<string | null>('09:07')
-      const minuteStep = shallowRef(15)
+    it('should stay pristine when an option normalizes a value the owner put back after refusing an edit', async () => {
+      const minuteStep = shallowRef(5)
+      // The owner keeps the hour at nine.
+      const pinned = lagging('09:05', next => (next?.startsWith('09') ? next : '09:05'))
+      const time = setup({ value: pinned.value, minuteStep })
+      await rest()
+
+      time.step('hour', 1)
+      await rest()
+      expect(pinned.held()).toBe('09:05')
+      expect(time.display.value).toBe('09:05')
+
+      minuteStep.value = 15
+      await rest()
+
+      expect(pinned.held()).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+    })
+
+    it('should stay pristine after a commit to the value a field already holds', async () => {
+      const value = shallowRef<string | null>('00:05')
+      const minuteStep = shallowRef(5)
       const time = setup({ value, minuteStep })
 
-      expect(time.isEdited.value).toBe(false)
-
-      value.value = '10:07'
+      time.commit('hour', 0)
+      minuteStep.value = 15
       await rest()
-      expect(time.isEdited.value).toBe(false)
 
-      time.step('hour', 1)
-      expect(time.isEdited.value).toBe(true)
-
-      minuteStep.value = 30
-      await rest()
-      expect(time.isEdited.value).toBe(true)
-
-      value.value = '12:00'
-      expect(time.isEdited.value).toBe(false)
-
-      time.clear()
-      expect(time.isEdited.value).toBe(true)
-
-      time.input.reset()
-      expect(time.isEdited.value).toBe(false)
+      expect(value.value).toBe('00:00')
+      expect(time.input.isPristine.value).toBe(true)
     })
 
-    it('should keep the edited mark through a reply to the edit', async () => {
-      const { value, held } = lagging('09:00', next => bump(next))
-      const time = setup({ value })
-      await rest()
-
-      time.step('hour', 1)
-      await rest()
-
-      expect(held()).not.toBe('10:00')
-      expect(time.isEdited.value).toBe(true)
-    })
-
-    it('should put the edited mark back when the write of an edit throws', () => {
-      let held: string | null = '09:00'
+    it('should stay pristine through a later normalization when the write of an edit threw', async () => {
+      let held: string | null = '09:05'
       let fail = false
       const value = customRef<string | null>((track, trigger) => ({
         get () {
@@ -2433,12 +2424,137 @@ describe('createTimePicker', () => {
           trigger()
         },
       }))
-      const time = setup({ value })
+      const minuteStep = shallowRef(5)
+      const time = setup({ value, minuteStep })
 
       fail = true
       expect(() => time.step('hour', 1)).toThrow('refused')
+      fail = false
 
-      expect(time.isEdited.value).toBe(false)
+      minuteStep.value = 15
+      await rest()
+
+      expect(held).toBe('09:00')
+      expect(time.input.isPristine.value).toBe(true)
+    })
+
+    function manual (start: string | null) {
+      const state = { held: start, asked: undefined as string | null | undefined }
+      let notify!: () => void
+      const value = customRef<string | null>((track, trigger) => {
+        notify = trigger
+        return {
+          get () {
+            track()
+            return state.held
+          },
+          set (next) {
+            state.asked = next
+          },
+        }
+      })
+
+      function put (next: string | null | undefined) {
+        state.held = next ?? null
+        notify()
+      }
+
+      return { value, state, put }
+    }
+
+    it('should count an edit and a value from outside as supplied, and its own normalizing as not', async () => {
+      const value = shallowRef<string | null>('09:07')
+      const minuteStep = shallowRef(15)
+      const blocked = shallowRef(false)
+      const time = setup({ value, minuteStep, disabled: blocked })
+
+      expect(value.value).toBe('09:00')
+      expect(time.supplied.value).toBe(0)
+
+      time.step('minute', 1)
+      expect(time.supplied.value).toBe(1)
+
+      minuteStep.value = 30
+      await rest()
+      expect(value.value).toBe('09:30')
+      expect(time.supplied.value).toBe(1)
+
+      value.value = '11:20'
+      await rest()
+      expect(value.value).toBe('11:30')
+      expect(time.supplied.value).toBe(2)
+
+      blocked.value = true
+      await rest()
+      value.value = '12:10'
+      await rest()
+      expect(time.supplied.value).toBe(3)
+
+      blocked.value = false
+      await rest()
+      expect(value.value).toBe('12:00')
+      expect(time.supplied.value).toBe(3)
+
+      value.value = '12:10'
+      await rest()
+      expect(value.value).toBe('12:00')
+      expect(time.supplied.value).toBe(3)
+    })
+
+    it('should count a value from outside once its normalized form is in the model', async () => {
+      const { value, state, put } = manual('09:00')
+      const time = setup({ value, minuteStep: 15 })
+
+      put('10:07')
+      expect(time.supplied.value).toBe(0)
+
+      await nextTick()
+      expect(state.asked).toBe('10:00')
+      expect(time.supplied.value).toBe(0)
+
+      put(state.asked)
+      expect(time.supplied.value).toBe(1)
+
+      await rest()
+      expect(time.supplied.value).toBe(1)
+    })
+
+    it('should count a value from outside once when the owner refuses its normalized form', async () => {
+      const { value, state, put } = manual('09:00')
+      const time = setup({ value, minuteStep: 15 })
+
+      put('10:07')
+      await rest()
+
+      expect(state.asked).toBe('10:00')
+      expect(time.display.value).toBe('10:07')
+      expect(time.supplied.value).toBe(1)
+    })
+
+    it('should not count an edit the owner refuses', async () => {
+      const { value, state } = manual('09:00')
+      const time = setup({ value })
+
+      time.step('hour', 1)
+      await rest()
+
+      expect(state.asked).toBe('10:00')
+      expect(time.display.value).toBe('09:00')
+      expect(time.supplied.value).toBe(0)
+    })
+
+    it('should count an edit when an option changes before its owner answers', async () => {
+      const { value, held } = lagging('09:00')
+      const minuteStep = shallowRef(1)
+      const time = setup({ value, minuteStep })
+      await rest()
+
+      time.step('hour', 1)
+      minuteStep.value = 15
+      await rest()
+
+      expect(held()).toBe('10:00')
+      expect(time.supplied.value).toBe(1)
     })
 
     it('should register with a parent form and leave it when the scope stops', async () => {
