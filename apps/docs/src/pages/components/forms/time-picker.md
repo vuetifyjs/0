@@ -116,7 +116,7 @@ A required picker inside a [Form](/components/forms/form). The Book button calls
 
 Root takes `required`, `rules`, `error`, and `errorMessages`, and registers with a parent [Form](/components/forms/form), so a form submit validates the picker. The validated value is the model: a 24-hour string, or null while a field is empty. Each rule receives it and returns `true`, or a message.
 
-`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates when a key changes the time. The picker moving a value onto the step, and a value set from outside, are not input. A disabled picker does not validate from focus.
+`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates when a key changes the time and when a value is set from outside, as [NumberField](/components/forms/number-field) does. A value from outside is validated once, in the form the picker settles on after applying the step and the bounds. The picker normalizing on its own is not input: at mount, when `disabled` or `readonly` is lifted, and when a step or a bound changes. A disabled picker does not validate from focus, and focus inside it does not set `data-focused` until it is enabled.
 
 `required` and `rules` are read once, when Root is set up. Changing them later has no effect.
 
@@ -220,7 +220,7 @@ Style field and interaction states without slot props:
 | `data-state` | `empty`, `filled` | Hour, Minute, Second. Period is always `filled` |
 | `data-state` | `pristine`, `valid`, `invalid` | Root. `pristine` until the first validation |
 | `data-dirty` | `true` | Root, while the model holds a value |
-| `data-focused` | `true` | Root, while one of the fields has focus |
+| `data-focused` | `true` | Root, while one of the fields has focus and the picker is not disabled |
 | `data-complete` | `true` | Root, while the fields show a complete time |
 | `data-disabled` | `true` | Root, Hour, Minute, Second, Period |
 | `data-readonly` | `true` | Root, Hour, Minute, Second, Period |

@@ -194,7 +194,9 @@ The picker never validates on its own. Call `input.validate()` when your markup 
 
 Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. A time the picker completes from fields that were edited, such as an entered hour and minute once `seconds` turns off, is not pristine. `input.isDirty` is true while the value is a non-empty string, whether or not it is a valid time.
 
-`isEdited` is true from the first `commit`, `step`, or `clear` that changes a field, and stays true through every normalization and every reply to that edit. It is false at creation, when a value comes in from outside, and after `input.reset()`. [TimePicker](/components/forms/time-picker) reads it to validate on input for edits only.
+`supplied` counts the values that were supplied to the model, by an edit or from outside, once the picker has finished with them. A value from outside that needs normalizing counts once, when its normalized form is in the model, or when the owner refuses that form and the fields take the owner's value. The picker normalizing on its own does not count: at creation, when it is released from disabled or readonly, and when an option changes. [TimePicker](/components/forms/time-picker) watches it to validate on input.
+
+A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
 
 `input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the model was not written, because the picker is blocked or the owner refused the value. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
 
@@ -226,7 +228,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
-| `isEdited` | <AppSuccessIcon /> | Whether the fields hold something an edit put there |
+| `supplied` | <AppSuccessIcon /> | Count of the values an edit or the owner supplied, once settled in the model. The picker's own normalizing is left out |
 | `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples
