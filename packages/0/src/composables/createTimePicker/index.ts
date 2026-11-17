@@ -55,18 +55,22 @@ export type TimePart = 'hour' | 'minute' | 'second' | 'period'
 export type TimeUnit = Exclude<TimePart, 'period'>
 
 /**
- * The values a numeric field can show, in display terms.
+ * The lowest and highest grid values of a numeric field, in display terms,
+ * and its step.
  *
  * @example
  * ```ts
+ * import { createTimePicker } from '@vuetify/v0'
+ *
  * const time = createTimePicker({ minuteStep: 15 })
+ *
  * time.grid('minute') // { min: 0, max: 45, step: 15 }
  * ```
  */
 export interface TimeGrid {
-  /** Lowest value the field can show. */
+  /** Lowest grid value. */
   min: number
-  /** Highest value the field can show. */
+  /** Highest grid value. */
   max: number
   /** Resolved step: a whole number, at least `1`. */
   step: number
@@ -75,7 +79,9 @@ export interface TimeGrid {
 /**
  * @example
  * ```ts
- * createTimePicker({
+ * import { createTimePicker } from '@vuetify/v0'
+ *
+ * const time = createTimePicker({
  *   hourCycle: 'h23',
  *   seconds: false,
  *   minuteStep: 15,
@@ -88,11 +94,12 @@ export interface TimePickerOptions {
   /**
    * Canonical `HH:mm` or `HH:mm:ss` source. An incoming value is snapped to
    * the step grid, moved to the nearest on-grid time inside `min` / `max`
-   * when it falls outside them, and written back in canonical form. With `seconds` on, `HH:mm` reads as second `0`; with it off,
-   * `HH:mm:ss` drops the seconds. An unparseable value empties the fields
-   * and becomes `null`. That pass runs before the next flush, together
-   * with any option that changed in the same tick; until then the fields
-   * show the value as written.
+   * when it falls outside them, and written back in canonical form. With
+   * `seconds` on, `HH:mm` reads as second `0`; with it off, `HH:mm:ss`
+   * drops the seconds. An unparseable value empties the fields and becomes
+   * `null`. That pass runs before the next flush, together with any option
+   * that changed in the same tick; until then the fields show the value as
+   * written.
    *
    * The model has the last word. When, after its owner has had a tick to
    * answer, it does not hold the value the picker wrote, the fields take
@@ -191,12 +198,16 @@ export interface TimePickerContext {
   /**
    * Canonical 24-hour value, or `null` while a field is still empty.
    * Writing it from outside replaces every field at once; the picker
-   * normalizes it before the next flush. The picker writes it on every
-   * edit, and never while disabled or readonly.
+   * normalizes it before the next flush. The picker writes it only when
+   * an edit changes the time, and never while disabled or readonly.
    *
    * @example
    * ```ts
+   * import { nextTick } from 'vue'
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ seconds: true })
+   *
    * time.value.value = '09:30'
    * time.hour.value // 9
    * await nextTick()
@@ -209,7 +220,10 @@ export interface TimePickerContext {
    *
    * @example
    * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ hourCycle: 'h12' })
+   *
    * time.commit('hour', 3)
    * time.hour.value // 3
    * ```
@@ -227,7 +241,10 @@ export interface TimePickerContext {
    *
    * @example
    * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ hourCycle: 'h12' })
+   *
    * time.commit('hour', 3)
    * time.commit('minute', 0)
    * time.commit('period', 'pm')
@@ -264,7 +281,10 @@ export interface TimePickerContext {
    *
    * @example
    * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ minuteStep: 15 })
+   *
    * time.commit('hour', 9)
    * time.value.value // null
    * time.commit('minute', 58) // snaps to 45, never wraps to 0
@@ -293,7 +313,10 @@ export interface TimePickerContext {
    *
    * @example
    * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ minuteStep: 15 })
+   *
    * time.commit('hour', 23)
    * time.commit('minute', 45)
    * time.step('minute') // 45 wraps to 0
@@ -308,7 +331,12 @@ export interface TimePickerContext {
    *
    * @example
    * ```ts
-   * const time = createTimePicker({ value: shallowRef('09:30') })
+   * import { shallowRef } from 'vue'
+   * import { createTimePicker } from '@vuetify/v0'
+   *
+   * const value = shallowRef<string | null>('09:30')
+   * const time = createTimePicker({ value })
+   *
    * time.clear()
    * time.value.value // null
    * time.hour.value // null
@@ -316,12 +344,15 @@ export interface TimePickerContext {
    */
   clear: () => void
   /**
-   * Lowest and highest value a numeric field can show, plus its resolved
+   * Lowest and highest grid values of a numeric field, plus its resolved
    * step. An `h12` hour reports display hours for the current meridiem.
    *
    * @example
    * ```ts
+   * import { createTimePicker } from '@vuetify/v0'
+   *
    * const time = createTimePicker({ hourCycle: 'h12', hourStep: 5 })
+   *
    * time.grid('hour') // { min: 5, max: 12, step: 5 } — 12, 5, and 10 AM
    * time.commit('period', 'pm')
    * time.grid('hour') // { min: 3, max: 8, step: 5 } — 3 and 8 PM
@@ -330,21 +361,28 @@ export interface TimePickerContext {
   grid: (part: TimeUnit) => TimeGrid
   /**
    * The time the fields show, as the canonical string, or `null` while a
-   * field is empty. It is always the format of the fields, so it differs
-   * from `value` whenever the model holds a string the fields cannot show
-   * exactly:
+   * field is empty. It matches `value` except in two cases.
    *
-   * - an unparseable string, where `display` is `null`
-   * - a value a disabled or readonly picker has not normalized
-   * - a value the fields took as given after the model refused a write,
-   *   when its seconds do not match the `seconds` option: `display` adds
-   *   `:00` or leaves the seconds out
-   * - a write the model's owner has not answered yet, until the check one
-   *   tick later
+   * The model holds a string the fields cannot show as written, and the
+   * picker has not rewritten it: because it is disabled or readonly,
+   * because it took the owner's value as given after a refused write, or
+   * because the value came in during this tick and the pass has not run
+   * yet. That is a string that is not a time, where `display` is `null`,
+   * or a time whose seconds do not match the `seconds` option, where
+   * `display` adds `:00` or leaves the seconds out.
+   *
+   * The picker wrote a value the model does not hold yet. `display` runs
+   * ahead of `value` until the answer is checked one tick later, whether
+   * the owner answers late or refuses.
    *
    * @example
    * ```ts
-   * const time = createTimePicker({ value: shallowRef('nope'), readonly: true })
+   * import { shallowRef } from 'vue'
+   * import { createTimePicker } from '@vuetify/v0'
+   *
+   * const value = shallowRef<string | null>('nope')
+   * const time = createTimePicker({ value, readonly: true })
+   *
    * time.value.value // 'nope'
    * time.display.value // null
    * ```
@@ -492,8 +530,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   // checked once its owner has had its turn to accept or refuse it.
   const sent = shallowRef(0)
 
-  // The value the model and the fields last agreed on. Under a controlled
-  // model `value` lags the picker's own writes, so it cannot stand in.
+  // The last value written to or received from the model. While a write is
+  // open it is that write, which is how the picker's own value coming back
+  // is told from a reply. Under a controlled model `value` lags the
+  // picker's writes, so it cannot stand in.
   let settled: unknown
   let live = true
   // A write is out and its owner's answer has not been checked yet. A value
@@ -742,6 +782,12 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     }
   }
 
+  // Starts an exchange. There are four starts: an edit, a clear, an
+  // incoming value while no write is open, and an option that changed
+  // without one. A value that comes in while a write is open is a reply and
+  // stays in the exchange it answers. Edits and clear begin before they
+  // publish, so only the pre-flush pass can reach `publish` with `tried`
+  // set.
   function begin () {
     turns = 0
     tried = undefined
@@ -916,8 +962,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   watch(
     () => [mark(), stale.value] as const,
     (next, previous) => {
-      // An option that changed and changed back leaves nothing to apply,
-      // and must not normalize a value the fields took as given.
+      // Nothing is left to apply in two cases: an option changed and
+      // changed back, and an edit in this tick already drained the change.
+      // The first must not normalize a value the fields took as given; the
+      // second must not normalize the edit's result again.
       if (!fresh && next[0] === seen) return
       if (next[1] === previous[1]) begin()
       normalize()
