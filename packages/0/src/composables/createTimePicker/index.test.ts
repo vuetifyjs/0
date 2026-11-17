@@ -725,6 +725,92 @@ describe('createTimePicker', () => {
       expect(time.display.value).toBe('09:07')
     })
 
+    it('should step from the shown minute after the owner insisted on an incoming value', async () => {
+      let held: string | null = '09:00'
+      const writes: (string | null)[] = []
+      let notify!: () => void
+      const value = customRef<string | null>((track, trigger) => {
+        notify = trigger
+        return {
+          get () {
+            track()
+            return held
+          },
+          set (next) {
+            writes.push(next)
+          },
+        }
+      })
+      const time = setup({ value, minuteStep: 15 })
+
+      await rest()
+      held = '09:07'
+      notify()
+      await rest()
+
+      expect(writes).toEqual(['09:00'])
+      expect(time.display.value).toBe('09:07')
+
+      writes.length = 0
+      time.step('minute', -1)
+
+      expect(writes).toEqual(['09:00'])
+    })
+
+    it.each([
+      ['seconds', false],
+      ['disabled', false],
+      ['minuteStep', 15],
+    ] as const)('should write nothing when %s changes and changes back in one tick', async (name, start) => {
+      const { value, writes } = stubborn('09:07')
+      const option = shallowRef<boolean | number>(start)
+      const time = setup({ value, minuteStep: 15, [name]: option })
+
+      await rest()
+      writes.length = 0
+
+      option.value = name === 'minuteStep' ? 1 : true
+      option.value = start
+      await rest()
+
+      expect(writes).toEqual([])
+      expect(time.display.value).toBe('09:07')
+    })
+
+    it('should write again when an option really changes', async () => {
+      const { value, writes } = stubborn('09:07')
+      const disabled = shallowRef(false)
+      setup({ value, minuteStep: 15, disabled })
+
+      await rest()
+      writes.length = 0
+
+      disabled.value = true
+      await rest()
+      disabled.value = false
+      await rest()
+
+      expect(writes).toEqual(['09:00'])
+    })
+
+    it('should write nothing when an empty field is cleared over a model the fields cannot show', async () => {
+      using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const { value, writes } = stubborn('bogus')
+      const time = setup({ value, seconds: true })
+
+      await rest()
+      writes.length = 0
+
+      time.commit('hour', null)
+      time.commit('minute', null)
+      time.commit('second', null)
+      await rest()
+
+      expect(writes).toEqual([])
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
     it('should write nothing when the period committed is the one shown', async () => {
       const { value, writes } = stubborn('09:07')
       const time = setup({ value, minuteStep: 15, hourCycle: 'h12' })
@@ -768,6 +854,71 @@ describe('createTimePicker', () => {
 
       state.fail = false
       time.commit('minute', 30)
+
+      expect(state.writes).toEqual(['09:30'])
+      expect(state.held).toBe('09:30')
+    })
+
+    it('should keep the fields entered before a call whose write throws', () => {
+      const { value, state } = fragile(null)
+      const time = setup({ value, hourCycle: 'h12' })
+
+      time.commit('period', 'pm')
+      time.commit('hour', 9)
+
+      state.fail = true
+      expect(() => time.commit('minute', 30)).toThrow('refused')
+
+      expect(time.hour.value).toBe(9)
+      expect(time.period.value).toBe('pm')
+      expect(time.minute.value).toBeNull()
+
+      expect(() => time.clear()).not.toThrow()
+      expect(time.hour.value).toBeNull()
+    })
+
+    it('should give an incoming value its whole exchange after an edit threw', async () => {
+      const store = shallowRef<string | null>('09:00')
+      const state = { fail: false, writes: [] as (string | null)[] }
+      const value = computed<string | null>({
+        get: () => store.value,
+        set: next => {
+          if (state.fail) throw new Error('refused')
+          state.writes.push(next)
+          store.value = bump(next)
+        },
+      })
+      const time = setup({ value, minuteStep: 2 })
+
+      await rest()
+      state.writes.length = 0
+
+      state.fail = true
+      expect(() => time.commit('minute', 30)).toThrow('refused')
+      state.fail = false
+
+      store.value = '10:05'
+      await rest()
+
+      expect(state.writes).toEqual(['10:06', '10:08'])
+      expect(time.display.value).toBe('10:09')
+    })
+
+    it('should offer a value again in a later exchange after its write threw', async () => {
+      const { value, state } = fragile('09:00')
+      const minuteStep = shallowRef(1)
+      const time = setup({ value, minuteStep })
+
+      state.fail = true
+      expect(() => time.commit('minute', 30)).toThrow('refused')
+      state.fail = false
+
+      expect(time.display.value).toBe('09:00')
+
+      value.value = '09:31'
+      state.writes.length = 0
+      minuteStep.value = 30
+      await rest()
 
       expect(state.writes).toEqual(['09:30'])
       expect(state.held).toBe('09:30')
