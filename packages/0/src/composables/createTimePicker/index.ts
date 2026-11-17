@@ -362,6 +362,13 @@ interface WholeTime extends ParsedTime {
   second: number
 }
 
+interface Fields {
+  hour: number | null
+  minute: number | null
+  second: number | null
+  period: TimePeriod
+}
+
 function pad (value: number): string {
   return String(value).padStart(2, '0')
 }
@@ -624,7 +631,13 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
     return seconds.value ? `${text}:${pad(time.second)}` : text
   }
 
-  function publish () {
+  function snapshot (): Fields {
+    return { hour: hour24.value, minute: minute.value, second: stored.value, period: pending.value }
+  }
+
+  // `from` is what the fields held before the call that led here, for a
+  // write that throws to go back to.
+  function publish (from = snapshot()) {
     fit()
     const next = format()
     if (next === settled) return
@@ -633,8 +646,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       return
     }
     // A setter or an update handler can throw. Nothing was written then, so
-    // the bookkeeping goes back to what it was and the fields return to the
-    // last agreed value, as after a refusal, before the error leaves.
+    // the bookkeeping and the fields go back to what they were before the
+    // error leaves. Reloading the agreed value instead would empty a
+    // half-entered time, which the value cannot carry.
     const before = { settled, tried, turns, open }
     settled = next
     tried = next
@@ -647,7 +661,10 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
       tried = before.tried
       turns = before.turns
       open = before.open
-      load(settled, false)
+      hour24.value = from.hour
+      minute.value = from.minute
+      stored.value = from.second
+      pending.value = from.period
       throw error
     }
 
@@ -807,12 +824,13 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   function edit (change: () => boolean) {
     if (blocked()) return
 
+    const from = snapshot()
     const due = fresh || mark() !== seen
     if (due) drain()
     if (!change() && !due) return
 
     begin()
-    publish()
+    publish(from)
   }
 
   function commit (part: TimeUnit, next: number | null): void
@@ -827,12 +845,13 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
 
   function clear () {
     if (blocked()) return
+    const from = snapshot()
     begin()
     hour24.value = null
     minute.value = null
     stored.value = null
     pending.value = 'am'
-    publish()
+    publish(from)
   }
 
   function grid (part: TimeUnit): TimeGrid {
@@ -864,6 +883,9 @@ export function createTimePicker (options: TimePickerOptions = {}): TimePickerCo
   watch(
     () => [mark(), stale.value] as const,
     (next, previous) => {
+      // An option that changed and changed back leaves nothing to apply,
+      // and must not normalize a value the fields took as given.
+      if (!fresh && next[0] === seen) return
       if (next[1] === previous[1]) begin()
       normalize()
     },
