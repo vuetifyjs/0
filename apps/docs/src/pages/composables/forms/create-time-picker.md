@@ -119,7 +119,7 @@ The initial value is normalized inside `createTimePicker`, before it returns. Fo
 - A value the fields took as given after a [refused update](#refused-updates) is not normalized before the edit. With `minuteStep: 15` and fields showing `04:50`, `step('minute', -1)` gives `04:45`.
 - A call that changes nothing writes nothing: a zero or non-finite count, the period the hour is already in, `period` in `h23`, `second` while `seconds` is off, a non-finite number, or clearing a field that is already empty. If a same-tick change was waiting, that change is still published.
 - A period commit snaps the hour to the nearest multiple inside its new half of the day.
-- When the model's setter throws, the fields stay on the last value the model and the picker agreed on, and the error propagates to the caller.
+- When the model's setter throws, the error propagates to the caller and the fields return to what they held before that call. A half-entered time keeps the fields earlier calls set: with the hour at 9 and the minute empty, a `commit('minute', 30)` that throws leaves the hour at 9 and the minute empty.
 
 | Incoming | Result |
 |----------|--------|
