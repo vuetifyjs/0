@@ -753,13 +753,15 @@ describe('createLocale', () => {
   })
 
   it('should fall back to the bare number for a locale id Intl rejects, and warn once', () => {
+    // An id no other test uses: the warning is given once per id for the
+    // life of the module.
     using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const locale = createLocale({ default: 'en_US', messages: { en_US: {} } })
+    const locale = createLocale({ default: 'no_such_tag', messages: { no_such_tag: {} } })
 
     expect(locale.n(1234.5)).toBe('1234.5')
     expect(locale.n(7)).toBe('7')
-    expect(createLocale({ default: 'en_US', messages: { en_US: {} } }).n(7)).toBe('7')
+    expect(createLocale({ default: 'no_such_tag', messages: { no_such_tag: {} } }).n(7)).toBe('7')
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith(expect.stringContaining('en_US'))
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('no_such_tag'))
   })
 })
