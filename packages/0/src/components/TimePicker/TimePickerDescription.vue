@@ -5,8 +5,8 @@
  *
  * @remarks
  * Help text component for time pickers.
- * Auto-connected to the fields via aria-describedby.
- * Must be used within a TimePicker.Root component.
+ * The fields point at it with aria-describedby.
+ * Use it within a TimePicker.Root component.
  */
 
 <script lang="ts">
@@ -24,7 +24,7 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface TimePickerDescriptionProps extends AtomProps {
-    /** Unique identifier (auto-generated if not provided) */
+    /** Unique identifier. The component generates one when you pass none. */
     id?: string
     /** Namespace for connecting to parent TimePicker.Root */
     namespace?: string

@@ -6,9 +6,9 @@
  * @remarks
  * Error message component for time pickers.
  * Renders validation error messages from the parent TimePicker.Root's validation context.
- * Connected to the fields via aria-errormessage.
+ * The fields point at it with aria-errormessage.
  * Uses aria-live="polite" for screen reader announcements.
- * Must be used within a TimePicker.Root component.
+ * Use it within a TimePicker.Root component.
  */
 
 <script lang="ts">
@@ -26,7 +26,7 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface TimePickerErrorProps extends AtomProps {
-    /** Unique identifier (auto-generated if not provided) */
+    /** Unique identifier. The component generates one when you pass none. */
     id?: string
     /** Namespace for connecting to parent TimePicker.Root */
     namespace?: string
@@ -35,7 +35,7 @@
   export interface TimePickerErrorSlotProps {
     /** Current validation error messages */
     errors: string[]
-    /** Pre-computed attributes for the error element */
+    /** Attributes for the error element */
     attrs: {
       'id': string
       'aria-live': 'polite'

@@ -5,8 +5,8 @@
  *
  * @remarks
  * Meridiem spinbutton. Renders only in a 12-hour cycle. Arrow and Page
- * keys flip it, Home selects AM, and End selects PM. Must be used
- * within TimePicker.Root.
+ * keys flip it, Home selects AM, and End selects PM. Use it within
+ * TimePicker.Root.
  */
 
 <script lang="ts">

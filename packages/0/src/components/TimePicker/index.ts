@@ -32,7 +32,8 @@ import Second from './TimePickerSecond.vue'
  *
  * Hour, minute, and optional second are spinbuttons. The value is a
  * 24-hour `HH:mm` string, or `HH:mm:ss` when seconds are on, and stays
- * null until every enabled field is set. AM/PM renders only in 12-hour mode.
+ * null until every enabled field has a value. AM/PM renders only in
+ * 12-hour mode.
  *
  * @see https://0.vuetifyjs.com/components/forms/time-picker
  *
@@ -187,9 +188,9 @@ export const TimePicker = {
    */
   Description,
   /**
-   * Validation messages for the picker, announced politely. While it is
-   * mounted and there are errors, every field points at it with
-   * `aria-errormessage`.
+   * Validation messages for the picker. Screen readers announce them
+   * politely. While it is mounted and there are errors, every field points
+   * at it with `aria-errormessage`.
    *
    * @see https://0.vuetifyjs.com/components/forms/time-picker#validation
    *
@@ -215,7 +216,7 @@ export const TimePicker = {
    */
   Error,
   /**
-   * Hidden input rendered by Root when `name` is set.
+   * Hidden input that Root renders when you set `name`.
    *
    * @example
    * ```vue

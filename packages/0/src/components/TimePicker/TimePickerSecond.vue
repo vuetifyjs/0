@@ -6,7 +6,7 @@
  * @remarks
  * Second spinbutton, `0`–`59`. Renders only while seconds are on.
  * Arrow, Page, Home, and End keys move it along its step grid;
- * Backspace and Delete clear it. Must be used within TimePicker.Root.
+ * Backspace and Delete clear it. Use it within TimePicker.Root.
  */
 
 <script lang="ts">

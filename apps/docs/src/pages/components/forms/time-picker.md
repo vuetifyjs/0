@@ -24,7 +24,7 @@ Edit a time as hour, minute, and optional second fields. The control stores a 24
 
 ## Usage
 
-Each field is a spinbutton, moved from the keyboard with the arrow, Page, Home, and End keys. The model stays null until the hour and the minute are both set.
+Each field is a spinbutton. The arrow, Page, Home, and End keys move it. The model stays null until both the hour and the minute have a value.
 
 ::: gn-example
 /components/time-picker/basic
@@ -58,7 +58,7 @@ Each field is a spinbutton, moved from the keyboard with the arrow, Page, Home, 
 
 ## Architecture
 
-Root owns the time value. Hour, Minute, Second, and Period each read and edit one field of it. Second renders only when `seconds` is set. Period renders only when `hour-cycle` is `h12`. Description and Error hold the help text and the validation messages, and Root links the fields to them. HiddenInput carries the displayed time into a form, and Root renders it when `name` is set.
+Root owns the time value. Hour, Minute, Second, and Period each read and edit one field of it. Second renders only when `seconds` is on. Period renders only when `hour-cycle` is `h12`. Description and Error hold the help text and the validation messages, and Root links the fields to them. HiddenInput carries the displayed time into a form, and Root renders it when you set `name`.
 
 ```mermaid "TimePicker Architecture"
 flowchart TD
@@ -90,11 +90,11 @@ flowchart TD
 
 ### Office hours
 
-A 12-hour picker bounded to a workday. The hour field shows 1 through 12, and the period field shows AM or PM. The model is still a 24-hour string, so 9 AM is `09:00` and 5 PM is `17:00`.
+A 12-hour picker that stays inside a workday. The hour field shows 1 through 12, and the period field shows AM or PM. The model is still a 24-hour string, so 9 AM is `09:00` and 5 PM is `17:00`.
 
 `min` and `max` keep a complete value inside the window. The bounds live in `office.ts` as `09:00` and `17:00`. Step the hour up from 5 PM and the next hour is `18:00`, then the upper bound pulls the value back to `17:00`. Switch 9 AM to PM and the stored hour shifts by 12, from `09:00` to `21:00`, and the same bound pulls it back to `17:00`. The hour stays inside its half of the day, so ArrowUp on 11 AM wraps to 12 AM, which is `00:00`, and the lower bound pulls that up to `09:00`.
 
-Seconds stay off, so the second field is not in the tree. Focus a field and use the keys listed under [Keyboard Navigation](#keyboard-navigation). On the period field, either arrow toggles AM and PM.
+Seconds stay off, so the second field is not in the tree. Focus a field and use the keys under [Keyboard Navigation](#keyboard-navigation). On the period field, either arrow toggles AM and PM.
 
 | File | Role |
 |------|------|
@@ -114,13 +114,13 @@ A required picker inside a [Form](/components/forms/form). The Book button calls
 
 ## Validation
 
-Root takes `required`, `rules`, `error`, and `errorMessages`, and registers with a parent [Form](/components/forms/form), so a form submit validates the picker. The validated value is the model: a 24-hour string, or null while a field is empty. Each rule receives it and returns `true`, or a message.
+Root takes `required`, `rules`, `error`, and `errorMessages`, and registers with a parent [Form](/components/forms/form), so a form submit validates the picker. The picker validates the model: a 24-hour string, or null while a field is empty. Each rule receives it and returns `true`, or a message.
 
-`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates when a key changes the time and when a value is set from outside, as [NumberField](/components/forms/number-field) does. A value from outside is validated once, in the form the picker settles on after applying the step and the bounds. The picker normalizing on its own, at mount, when `disabled` or `readonly` is lifted, or when a step or a bound changes, is input only once the picker has a validity: the new value is then validated too, so the state on show does not go stale. A validity comes from a validation, or from `error` or `errorMessages`, which set one without a validation having run. A picker that has no validity yet stays that way, and the slot's `reset` is not input unless `error` or `errorMessages` is set. Both hold for a parent that answers an update at once. One that accepts late is read as a value from outside, which is input: see [What if the parent refuses an update?](#faq). A normalization that lands while the first async validation is still pending is not input, so that result describes the earlier value. A disabled picker does not validate from focus, and focus inside it does not set `data-focused` until it is enabled.
+`validateOn` sets when the picker validates on its own. It defaults to `'blur'`, and takes the same values as [Input](/components/forms/input): `'blur'`, `'input'`, or `'submit'`, optionally with `lazy` or `eager`. The picker counts as blurred when focus leaves the group. Focus moving from one field to another is not a blur, so a required picker does not report an error while you tab from the hour to the minute. `'input'` validates when a key changes the time and when a value arrives from outside, as [NumberField](/components/forms/number-field) does. The picker validates a value from outside once, in the form it settles on after applying the step and the bounds. The picker normalizing on its own, at mount, when `disabled` or `readonly` turns off, or when a step or a bound changes, is input only once the picker has a validity: the picker then validates the new value too, so the state on show does not go stale. A validity comes from a validation, or from `error` or `errorMessages`, which set one without a validation having run. A picker that has no validity yet stays that way, and the slot's `reset` is not input unless `error` or `errorMessages` is set. Both hold for a parent that answers an update at once. When a parent accepts late, the picker reads its answer as a value from outside, which is input: see [What if the parent refuses an update?](#faq). A normalization that lands while the first async validation is still pending is not input, so that result describes the earlier value. A disabled picker does not validate from focus, and focus inside it does not set `data-focused` until `disabled` turns off.
 
-`required` and `rules` are read once, when Root is set up. Changing them later has no effect.
+Root reads `required` and `rules` once, at setup. Changing them later has no effect.
 
-`error` forces the invalid state, and `errorMessages` are shown ahead of the messages the rules produce.
+`error` forces the invalid state, and `errorMessages` come before the messages the rules produce.
 
 The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`. A value the picker moved onto the step or inside the bounds is still pristine. `reset` puts the initial value back, drops a partly entered time, and clears the validation state. While the picker is disabled or readonly it does not emit: it clears the validation state and leaves the time alone. `isPristine` reads true after a reset even when the parent refuses the value.
 
@@ -128,7 +128,7 @@ The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`
 
 ### Quarter hours
 
-`minute-step` keeps the minute on the multiples of the step. With a step of 15, ArrowUp moves 00, 15, 30, 45 and wraps to 00, and ArrowDown runs the other way. A value that arrives off the grid moves to the nearest multiple without wrapping and is written back, so `09:50` becomes `09:45`. `hour-step` and `second-step` work the same way.
+`minute-step` keeps the minute on the multiples of the step. With a step of 15, ArrowUp moves 00, 15, 30, 45 and wraps to 00, and ArrowDown runs the other way. A value that arrives off the step moves to the nearest multiple without wrapping, and the picker writes it back, so `09:50` becomes `09:45`. `hour-step` and `second-step` work the same way.
 
 ```vue
 <template>
@@ -141,7 +141,7 @@ The Root slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`
 
 ### Bounds and steps together
 
-A complete value outside `min` and `max` moves to the nearest time inside them that is also on every field's step. With `minute-step="15"`, `min="10:07"` starts the range at `10:15`, and `max="17:10"` ends it at `17:00`. Only when no such time lies between the bounds is the step set aside, and the value is clamped to the bound itself.
+A complete value outside `min` and `max` moves to the nearest time inside them that is also on every field's step. With `minute-step="15"`, `min="10:07"` starts the range at `10:15`, and `max="17:10"` ends it at `17:00`. Only when no such time lies between the bounds does the picker set the step aside and clamp the value to the bound itself.
 
 ```vue
 <template>
@@ -159,7 +159,7 @@ Set `name` and Root renders `TimePicker.HiddenInput` for you. The input submits 
 Do not also place `TimePicker.HiddenInput` yourself. Inside a Root that has `name` it submits the value a second time, and inside a Root without `name` it has no name and submits nothing.
 
 - A readonly picker still submits. It sends the time the fields show, which is an empty string when the model holds a string that is not a time.
-- A disabled picker is left out of the submission.
+- The browser leaves a disabled picker out of the submission.
 - A native form reset does not restore the picker. A [Form](/components/forms/form) reset clears its validation state and leaves the time alone. Call `reset` from the Root slot to put the initial value back.
 
 ```vue
@@ -175,9 +175,9 @@ Do not also place `TimePicker.HiddenInput` yourself. Inside a Root that has `nam
 
 ### Two pickers on one page
 
-Every Root is named "Time" by default, and every field "Hour", "Minute", "Second", or "AM/PM", from the locale catalog. Give a start and an end picker their own names with `ariaLabel`, or point `ariaLabelledby` at a visible label. Both props exist on Root and on each field, and `ariaLabelledby` replaces `ariaLabel`.
+By default the locale catalog names every Root "Time", and every field "Hour", "Minute", "Second", or "AM/PM". Give a start and an end picker their own names with `ariaLabel`, or point `ariaLabelledby` at a visible label. Both props exist on Root and on each field, and `ariaLabelledby` replaces `ariaLabel`.
 
-Each field's id is generated from the Root id and the field's kind. Two fields of the same kind inside one Root, such as a mobile and a desktop Hour, would share that id, so pass `id` to each.
+Each field builds its id from the Root id and the field's kind. Two fields of the same kind inside one Root, such as a mobile and a desktop Hour, would share that id, so pass `id` to each.
 
 ```vue
 <template>
@@ -235,7 +235,7 @@ Root renders `role="group"`. Each field renders `role="spinbutton"` per the [WAI
 |-----------|-------|-------|
 | `role` | `group` | Root |
 | `role` | `spinbutton` | Hour, Minute, Second, Period |
-| `aria-label` | Label text | Root and fields. The `ariaLabel` prop, or the locale string. Omitted when `ariaLabelledby` is set |
+| `aria-label` | Label text | Root and fields. The `ariaLabel` prop, or the locale string. Absent when you pass `ariaLabelledby` |
 | `aria-labelledby` | Element id | Root and fields, from the `ariaLabelledby` prop |
 | `aria-describedby` | Element ids | Root: the `ariaDescribedby` prop, then the Description while one is mounted. Fields: the Description |
 | `aria-required` | `true` | Fields, when Root is `required` |
@@ -247,9 +247,9 @@ Root renders `role="group"`. Each field renders `role="spinbutton"` per the [WAI
 | `aria-valuetext` | `AM` or `PM` | Period |
 | `aria-valuetext` | Hour and period, such as `3 PM` | Hour in 12-hour mode, while it has a value. The 24-hour hour, the minute, and the second have none |
 | `aria-readonly` | `true` | Fields, when Root is `readonly` |
-| `aria-disabled` | `true` or `false` | Root and fields. Omitted on a native button host, which uses `disabled` |
+| `aria-disabled` | `true` or `false` | Root and fields. Absent on a native button host, which uses `disabled` |
 
-With the default steps the hour runs 0–23, or 1–12 in 12-hour mode, and the minute and second run 0–59. A step narrows the range to its multiples: `minute-step="15"` gives a minute range of 0–45. While Root is `disabled` or `readonly` the fields report their whole range instead, because the value is shown as given and may sit off the step.
+With the default steps the hour runs 0–23, or 1–12 in 12-hour mode, and the minute and second run 0–59. A step narrows the range to its multiples: `minute-step="15"` gives a minute range of 0–45. While Root is `disabled` or `readonly` the fields report their whole range instead, because the fields show the value as given and it may sit off the step.
 
 The reported range always includes the value the field shows. When that value is off the step, the range widens to take it in.
 
@@ -284,13 +284,13 @@ Period:
 | `Home` | Set AM |
 | `End` | Set PM |
 
-`Backspace` and `Delete` do nothing on Period. Typing digits into a field is not supported.
+`Backspace` and `Delete` do nothing on Period. The fields do not take typed digits.
 
-Every key is ignored while Root is `disabled` or `readonly`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page from a focused readonly field.
+The fields ignore every key while Root is `disabled` or `readonly`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page from a focused readonly field.
 
 ### Locale Keys
 
-The names and spoken text come from [useLocale](/composables/plugins/use-locale). Without the locale plugin, or without a translation for a key, the English default is used.
+The names and spoken text come from [useLocale](/composables/plugins/use-locale). Without the locale plugin, or without a translation for a key, the picker uses the English default.
 
 | Key | Default | Used for |
 |-----|---------|----------|
@@ -306,7 +306,7 @@ The names and spoken text come from [useLocale](/composables/plugins/use-locale)
 
 An `ariaLabel` or `ariaLabelledby` prop takes priority over the label keys.
 
-The digits a field shows are formatted by the locale's `n()` and padded to two digits with the locale's zero. The hour in a 12-hour `aria-valuetext` goes through `n()` too, without padding. Under a locale with its own numerals, such as `ar-EG`, the fields show those. The model, the Root slot's `value`, and the submitted value stay in Latin digits.
+The locale's `n()` formats the digits a field shows, and the field pads them to two digits with the locale's zero. The hour in a 12-hour `aria-valuetext` goes through `n()` too, without padding. Under a locale with its own numerals, such as `ar-EG`, the fields show those. The model, the Root slot's `value`, and the submitted value stay in Latin digits.
 
 ## FAQ
 
@@ -314,7 +314,7 @@ The digits a field shows are formatted by the locale's `n()` and padded to two d
 
 ??? When does v-model get a string?
 
-The model stays null until the hour and the minute are both set. With `seconds`, a time entered field by field also needs the second. A value that arrives as `HH:mm` while `seconds` is on reads as second 00, so `09:30` becomes `09:30:00`, and turning `seconds` on for a picker whose hour and minute are set keeps the time with second 00. Clearing any field sets the model back to null.
+The model stays null until both the hour and the minute have a value. With `seconds`, a time you enter field by field also needs the second. A value that arrives as `HH:mm` while `seconds` is on reads as second 00, so `09:30` becomes `09:30:00`, and turning `seconds` on for a picker whose hour and minute have values keeps the time with second 00. Clearing any field sets the model back to null.
 
 ??? Why does 12-hour mode still store 15:00?
 
@@ -322,21 +322,21 @@ The stored value is always 24-hour. The hour field shows 1 through 12, and the p
 
 ??? What do min and max do?
 
-They keep a complete value inside the window. An incomplete value stays null. A value outside the window moves to the nearest time inside it that is on every field's step, so with `minute-step="15"` and `min="10:07"` the earliest value is `10:15`. If no such time lies between the bounds, the value is clamped to the bound itself. Bounds use the same 24-hour form as the model, and their seconds count only when `seconds` is on.
+They keep a complete value inside the window. An incomplete value stays null. A value outside the window moves to the nearest time inside it that is on every field's step, so with `minute-step="15"` and `min="10:07"` the earliest value is `10:15`. If no such time lies between the bounds, the picker clamps the value to the bound itself. Bounds use the same 24-hour form as the model, and their seconds count only when `seconds` is on.
 
 ??? What do disabled and readonly do?
 
-Both ignore every key and `clear`, and the picker never emits while either is set, not even from the slot's `reset`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page. The value is shown as given, without the step or `min` and `max` applied. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
+Both ignore every key and `clear`, and the picker never emits while either is on, not even from the slot's `reset`. An ignored key keeps its browser default, so the arrow keys, Page, Home, and End scroll the page. The fields show the value as given, and the picker does not apply the step or `min` and `max`. When the picker is editable again it applies them and emits the result. `disabled` also takes the fields out of the tab order and keeps the hidden input out of form submission. `readonly` keeps the fields focusable, sets `aria-readonly`, and still submits the displayed time.
 
 ??? What if the parent refuses an update?
 
-The fields follow the model. When the parent does not accept an emitted value, the fields take the model's value as given, without the step or the bounds applied, and the picker emits nothing more. The parent sees one `update:modelValue`. The fields return to the model's time once the picker has checked the parent's answer, on the render that follows, so wait for the DOM to update rather than for a fixed number of ticks.
+The fields follow the model. When the parent does not accept an emitted value, the fields take the model's value as given, and the picker applies neither the step nor the bounds and emits nothing more. The parent sees one `update:modelValue`. The fields return to the model's time once the picker has checked the parent's answer, on the render that follows, so wait for the DOM to update rather than for a fixed number of ticks.
 
 When the parent replaces the emitted value with a different one, the picker treats the replacement as an incoming value: it normalizes it and emits the result once. If the parent changes that too, the picker takes the parent's value as given and stops. One edit emits at most twice.
 
 The same holds on mount. A picker that normalizes its initial value emits once, and a parent that replaces that value with a different one gets one more emit a tick later. A parent that only refuses gets one.
 
-A key pressed while the fields show a value taken as given edits what they show. The field moves by the usual rules, then the whole time is normalized and emitted once: with `minute-step="15"` and fields showing `04:50`, ArrowDown gives `04:45`.
+A key you press while the fields show a value they took as given edits what they show. The field moves by the usual rules, then the picker normalizes the whole time and emits it once: with `minute-step="15"` and fields showing `04:50`, ArrowDown gives `04:45`.
 
 Two things follow:
 

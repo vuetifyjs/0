@@ -6,7 +6,7 @@
  * @remarks
  * Hour spinbutton. Shows `0`–`23`, or `1`–`12` in a 12-hour cycle.
  * Arrow, Page, Home, and End keys move it along its step grid;
- * Backspace and Delete clear it. Must be used within TimePicker.Root.
+ * Backspace and Delete clear it. Use it within TimePicker.Root.
  */
 
 <script lang="ts">

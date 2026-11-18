@@ -4,9 +4,9 @@
  * @see https://0.vuetifyjs.com/components/forms/time-picker
  *
  * @remarks
- * Hidden native input for form submission. Auto-rendered by Root when
- * `name` is set. Submits the time the fields show as a 24-hour string, or
- * an empty string while a field is still empty.
+ * Hidden native input for form submission. Root renders it when you set
+ * `name`. Submits the time the fields show as a 24-hour string, or an
+ * empty string while a field is still empty.
  */
 
 <script lang="ts">

@@ -59,19 +59,19 @@
     min?: string | null
     /** Inclusive upper bound, `HH:mm` or `HH:mm:ss`. */
     max?: string | null
-    /** Submit the displayed time with a form when set. */
+    /** Set it to submit the displayed time with a form. */
     name?: string
     /** Id of the form the hidden input belongs to, when it sits outside it. */
     form?: string
-    /** Fail validation while a field is still empty. Read once, at setup. */
+    /** Fail validation while a field is still empty. Root reads it once, at setup. */
     required?: boolean
-    /** Validation rules. Each receives the model value. Read once, at setup. */
+    /** Validation rules. Each receives the model value. Root reads them once, at setup. */
     rules?: (FormValidationRule | RuleAlias | StandardSchemaV1)[]
-    /** When to validate. Focus moving between the fields is not a blur. Input is an edit, a value from outside, or the picker normalizing a value that has a validity, from a validation or from `error` / `errorMessages`. A parent that accepts late is read as a value from outside. @default 'blur' */
+    /** When to validate. Focus moving between the fields is not a blur. Input is an edit, a value from outside, or the picker normalizing a value that has a validity, from a validation or from `error` / `errorMessages`. The picker reads a late-accepting parent's answer as a value from outside. @default 'blur' */
     validateOn?: ValidateOn
     /** Force the invalid state, whatever the rules say. @default false */
     error?: boolean
-    /** Error messages shown ahead of the ones the rules produce. */
+    /** Error messages that come before the ones the rules produce. */
     errorMessages?: MaybeArray<string>
     /** Namespace of the parent Form to register with. @default 'v0:form' */
     formNamespace?: string
@@ -100,9 +100,9 @@
     hourCycle: TimeHourCycle
     /** Whether seconds are part of the value. */
     seconds: boolean
-    /** Whether edits are ignored. */
+    /** Whether the picker ignores edits. */
     isDisabled: boolean
-    /** Whether edits are ignored. */
+    /** Whether the picker ignores edits. */
     isReadonly: boolean
     /** Whether one of the fields has focus. Always false while disabled. */
     isFocused: boolean
@@ -141,9 +141,9 @@
   export interface TimePickerRootContext extends TimePickerContext {
     /** Id of the group element; each field derives its own id from it. */
     readonly id: string
-    /** Form field name. The hidden input renders while it is set. */
+    /** Form field name. Root renders the hidden input while it has a value. */
     readonly name: Readonly<Ref<string | undefined>>
-    /** Id of the form the hidden input is associated with. */
+    /** Id of the form the hidden input belongs to. */
     readonly form: Readonly<Ref<string | undefined>>
   }
 

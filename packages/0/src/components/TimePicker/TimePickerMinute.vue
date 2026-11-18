@@ -5,8 +5,8 @@
  *
  * @remarks
  * Minute spinbutton, `0`–`59`. Arrow, Page, Home, and End keys move it
- * along its step grid; Backspace and Delete clear it. Must be used
- * within TimePicker.Root.
+ * along its step grid; Backspace and Delete clear it. Use it within
+ * TimePicker.Root.
  */
 
 <script lang="ts">

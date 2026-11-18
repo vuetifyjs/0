@@ -8,7 +8,8 @@
  * segment from the TimePicker.Root context, emits the spinbutton ARIA
  * for the values that segment can show, and maps keys onto the context:
  * arrows and Page keys step, Home and End jump to the ends of the grid,
- * Backspace and Delete clear. Not exported; use the named parts.
+ * Backspace and Delete clear. The package does not export it; use the
+ * named parts.
  *
  * @internal
  */
@@ -49,9 +50,9 @@
     text: string
     /** Value of the field, or `null` while unset. The meridiem for Period. */
     value: number | TimePeriod | null
-    /** Whether edits are ignored. */
+    /** Whether the field ignores edits. */
     isDisabled: boolean
-    /** Whether edits are ignored. */
+    /** Whether the field ignores edits. */
     isReadonly: boolean
     /** Attributes for the spinbutton. */
     attrs: {
