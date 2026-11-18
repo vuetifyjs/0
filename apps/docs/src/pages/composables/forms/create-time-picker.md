@@ -205,9 +205,9 @@ const time = createTimePicker({ required: true })
 watch(time.revision, () => time.input.validate())
 ```
 
-An edit counts, and so does a value from outside. The picker normalizing on its own counts only once the value already has a validity, when `input.isValid` is not null. `input.reset()` does not count.
+An edit the owner took counts, and so does a value from outside. The picker normalizing on its own counts only once the value already has a validity, when `input.isValid` is not null. `input.reset()` does not count, except while `error` or `errorMessages` is set, which keep a validity through the reset.
 
-This holds for an owner that answers within the exchange. One that accepts late, as described under [Refused updates](#refused-updates), hands back a value the picker takes as one from outside, and that counts, after a reset too.
+An owner that accepts late, as described under [Refused updates](#refused-updates), hands the picker's own normalizing write back as a value from outside, and that counts. An initial value that needs normalizing then counts at creation, and again after a reset.
 
 A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
 
@@ -241,7 +241,7 @@ In development the picker logs a warning through [useLogger](/composables/plugin
 | `step` | <AppErrorIcon /> | Moves one field by a signed number of intervals. Wraps |
 | `clear` | <AppErrorIcon /> | Clears every field and resets the period to `'am'`. The value becomes null |
 | `grid` | <AppErrorIcon /> | Lowest value, highest value, and step of a numeric field. Reads reactive state, so it tracks inside a getter or a template |
-| `revision` | <AppSuccessIcon /> | Goes up when the settled model value is worth validating. The picker's own normalizing counts only once the value already has a validity. A reset does not count, unless its owner answers late |
+| `revision` | <AppSuccessIcon /> | Goes up when the model holds a new settled value worth validating. The picker's own normalizing counts only once the value already has a validity. A reset does not count unless `error` or `errorMessages` is set |
 | `input` | <AppErrorIcon /> | The [createInput](/composables/forms/create-input) context. Its `errors`, `isValid`, `isValidating`, `isPristine`, `isDirty`, `isTouched`, `isFocused`, and `state` are refs |
 
 ## Examples
