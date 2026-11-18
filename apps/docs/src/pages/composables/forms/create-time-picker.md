@@ -211,7 +211,7 @@ An owner that accepts late, as [Refused updates](#refused-updates) describes, ha
 
 A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
 
-`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the picker did not write the model, because it is disabled or readonly or the owner refused the value. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
+`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the model does not take the initial value back, because the picker is disabled or readonly and writes nothing, or because the owner refuses the write. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
 
 The picker reads `required` and `rules` once, at creation.
 

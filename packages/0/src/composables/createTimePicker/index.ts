@@ -165,8 +165,8 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    * lies between `min` and `max` does the picker set the grid aside and
    * clamp the value to the bound itself. The picker ignores the bound's
    * seconds while `seconds` is off, so `min: '09:00:30'` then admits
-   * `09:00`. The picker ignores an unparseable `min` alone; a `min` above
-   * `max`, by the same comparison, turns both bounds off.
+   * `09:00`. The picker ignores an unparseable `min` and keeps `max`; a
+   * `min` above `max`, by the same comparison, turns both bounds off.
    */
   min?: MaybeRefOrGetter<string | null | undefined>
   /**
@@ -177,8 +177,8 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    * lies between `min` and `max` does the picker set the grid aside and
    * clamp the value to the bound itself. The picker ignores the bound's
    * seconds while `seconds` is off, so `max: '17:00:30'` then stops at
-   * `17:00`. The picker ignores an unparseable `max` alone; a `max` below
-   * `min`, by the same comparison, turns both bounds off.
+   * `17:00`. The picker ignores an unparseable `max` and keeps `min`; a
+   * `max` below `min`, by the same comparison, turns both bounds off.
    */
   max?: MaybeRefOrGetter<string | null | undefined>
   /**
@@ -246,9 +246,10 @@ export interface TimePickerContext {
   readonly second: Readonly<Ref<number | null>>
   /**
    * Meridiem. `null` in `h23`. In `h12` with an empty hour, the meridiem
-   * the picker remembers: the last one you committed, the one the hour had
-   * when you cleared it, or the one of the last incoming value. `clear()`
-   * and an incoming `null`, `''`, or unparseable value reset it to `'am'`.
+   * the picker remembers: the last one you set with `commit` or `step`,
+   * the one the hour had when you cleared it, or the one of the last
+   * incoming value. `clear()` and an incoming `null`, `''`, or
+   * unparseable value reset it to `'am'`.
    *
    * @example
    * ```ts
@@ -411,9 +412,10 @@ export interface TimePickerContext {
    * `reset` puts the initial value back, drops a partly entered time, and
    * clears the validation state and `isTouched`. While disabled or readonly
    * it does all of that except write the model. `isPristine` reads true
-   * after a reset even when the picker did not write the model, because it
-   * is disabled or readonly or the owner refused. `reset` does not count
-   * toward `revision`, except while `error` or `errorMessages` is set.
+   * after a reset even when the model does not take the initial value
+   * back, because the picker is disabled or readonly and writes nothing,
+   * or because the owner refuses the write. `reset` does not count toward
+   * `revision`, except while `error` or `errorMessages` is set.
    *
    * The picker reads `required` and `rules` once, at creation.
    *
