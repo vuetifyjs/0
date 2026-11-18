@@ -37,8 +37,21 @@
 
   const activator = toRef(() => (
     example
-      ? 'bg-surface-tint text-on-surface-tint hover:bg-surface-tint pa-1 inline-flex rounded-none rounded-bl-[0.375rem] cursor-pointer data-[state=open]:bg-surface-tint'
+      ? 'docs-example-theme-chip text-on-surface pa-1 inline-flex rounded-bl-[0.375rem] cursor-pointer'
       : 'bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant data-[state=open]:bg-surface-variant transition-all cursor-pointer'
+  ))
+
+  // Example chip matches the preview frame. Theme tokens on this control
+  // disappear when the page theme and the example theme disagree.
+  const activatorStyle = toRef(() => (
+    example
+      ? {
+        background: 'var(--v0-surface-tint, var(--v0-surface, #f5f5f8))',
+        borderTopLeftRadius: '0',
+        borderTopRightRadius: '0',
+        borderBottomRightRadius: '0',
+      }
+      : undefined
   ))
 
   function onCopy () {
@@ -85,6 +98,7 @@
         :aria-label="example ? 'Example theme' : 'Select theme'"
         :class="activator"
         :data-state="isOpen ? 'open' : undefined"
+        :style="activatorStyle"
       >
         <AppIcon :icon="toggle.icon.value" />
       </Popover.Activator>

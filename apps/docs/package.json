@@ -50,6 +50,7 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
+    "@paper/bootstrap": "workspace:*",
     "@paper/bulma": "workspace:*",
     "@paper/emerald": "workspace:*",
     "@paper/genesis": "workspace:*",

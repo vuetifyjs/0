@@ -10,6 +10,8 @@ export interface Frontmatter {
     category?: string
     label?: string
     order?: number
+    /** Sidebar group under a design system. The path has no third folder. */
+    group?: string
     hidden?: boolean
     level?: 1 | 2 | 3
     emphasized?: boolean
@@ -88,6 +90,8 @@ export function parseFrontmatter (content: string): ParseResult {
         features.label = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
       } else if (trimmed.startsWith('order:')) {
         features.order = Number.parseInt(trimmed.slice(6).trim(), 10)
+      } else if (trimmed.startsWith('group:')) {
+        features.group = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
       } else if (trimmed.startsWith('hidden:')) {
         features.hidden = trimmed.slice(7).trim() === 'true'
       } else if (trimmed.startsWith('level:')) {

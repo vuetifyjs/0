@@ -55,8 +55,51 @@
   // chrome. The contexts between it and the body have to be lifted instead.
   // Moving the frame in the DOM would be the other way out, and is not one:
   // re-parenting an iframe reloads it, taking the open overlay with it.
+
+  // `scrollbar-gutter: stable` on the docs root reserves ~15px that no
+  // descendant can paint into, fixed or not. A promoted modal has to reach
+  // the window edge, so the gutter comes off for as long as the frame is up
+  // and overflow is locked so a real bar does not take the same slot.
+  // The gutter is on the inline end and the page is centered in what remains,
+  // so dropping it slides the whole page sideways. Padding of the same width
+  // puts the content box back; the fixed frame is positioned against the
+  // viewport and still covers the strip.
+  let viewport: { gutter: string, overflow: string, pad: string } | null = null
+
+  function cover () {
+    if (viewport) return
+
+    const root = document.documentElement
+    const before = root.getBoundingClientRect().width
+
+    viewport = {
+      gutter: root.style.scrollbarGutter,
+      overflow: root.style.overflow,
+      pad: root.style.paddingInlineEnd,
+    }
+    root.style.scrollbarGutter = 'auto'
+    root.style.overflow = 'hidden'
+
+    const gap = Math.round(root.getBoundingClientRect().width - before)
+
+    if (gap > 0) root.style.paddingInlineEnd = `${gap}px`
+  }
+
+  function uncover () {
+    if (!viewport) return
+
+    const root = document.documentElement
+
+    root.style.paddingInlineEnd = viewport.pad
+    root.style.scrollbarGutter = viewport.gutter
+    root.style.overflow = viewport.overflow
+    viewport = null
+  }
+
   function raise (el: HTMLElement | null | undefined) {
     if (lifted.length > 0) return
+
+    cover()
 
     for (let node = el?.parentElement; node && node !== document.body; node = node.parentElement) {
       const style = getComputedStyle(node)
@@ -72,6 +115,7 @@
     for (const { el, z } of lifted) el.style.zIndex = z
 
     lifted = []
+    uncover()
   }
 
   export interface DocsSystemExampleProps {
@@ -169,13 +213,18 @@
   const frame = useTemplateRef<HTMLIFrameElement>('frame')
 
   // An iframe paints an opaque canvas — a transparent document inside it does
-  // not make the frame see-through. So a promoted frame is clipped to the
-  // regions the sandbox says it is actually painting: the example box and
-  // whatever floats out of it. Everything else is cut away and the docs page
-  // shows through, which is what puts an open menu *over* the page instead of
-  // behind a white sheet.
+  // not make the frame see-through. A float (a menu) is clipped to the regions
+  // the sandbox is actually painting, so the page shows through everywhere
+  // else. An overlay is not: its scrim is often `::backdrop`, which is not an
+  // element and so never appears in those regions. Clipping one to the dialog
+  // border box leaves a hard rectangle, which squares the radius and hides the
+  // scrim.
   const clip = shallowRef<string | undefined>()
+  const tier = shallowRef('')
 
+  // The promoted iframe is a full-viewport canvas. A square clip of the example
+  // box squares `rounded-2xl`, and a square clip of the menu cuts `--bs-radius-7`.
+  // The first rect is the example. The rest are the spilled popup.
   function shape (rects: { top: number, left: number, width: number, height: number }[]) {
     if (!rects?.length) {
       clip.value = undefined
@@ -184,8 +233,20 @@
     }
 
     clip.value = rects
-      .map(r => `M${r.left} ${r.top}H${r.left + r.width}V${r.top + r.height}H${r.left}Z`)
+      .map((rect, index) => rounded(rect, index === 0 ? 16 : 12))
       .join('')
+  }
+
+  function rounded (rect: { top: number, left: number, width: number, height: number }, radius: number) {
+    const x = rect.left
+    const y = rect.top
+    const w = rect.width
+    const h = rect.height
+    const r = Math.min(radius, w / 2, h / 2)
+
+    if (r <= 0) return `M${x} ${y}H${x + w}V${y + h}H${x}Z`
+
+    return `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w} ${y + r}V${y + h - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}H${x + r}A${r} ${r} 0 0 1 ${x} ${y + h - r}V${y + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`
   }
 
   function post (message: Record<string, unknown>) {
@@ -201,12 +262,26 @@
   // Kept fresh ahead of time: a promotion has to pin in the same tick it is
   // detected, or the trigger button visibly rides the frame to the viewport
   // corner on the way.
-  function place () {
+  // Identical boxes must not be re-posted. The sandbox measures on every box
+  // and replies with a size, and a size used to schedule another place().
+  let placed = ''
+
+  function place (force = false) {
     const rect = frame.value?.parentElement?.getBoundingClientRect()
 
     if (!rect) return
 
-    post({ type: 'v0:sandbox:box', box: { top: rect.top, left: rect.left, width: rect.width } })
+    const box = {
+      top: Math.round(rect.top),
+      left: Math.round(rect.left),
+      width: Math.round(rect.width),
+    }
+    const key = `${box.top}:${box.left}:${box.width}`
+
+    if (!force && key === placed) return
+
+    placed = key
+    post({ type: 'v0:sandbox:box', box })
   }
 
   const token = Symbol('docs-system-example')
@@ -218,6 +293,7 @@
   function release () {
     overlay.value = false
     clip.value = undefined
+    tier.value = ''
 
     if (owner !== token) return
 
@@ -268,11 +344,14 @@
         case 'v0:sandbox:ready': {
           pending.value = false
           sync()
-          place()
+          place(true)
           break
         }
         case 'v0:sandbox:size': {
-          height.value = event.data.height
+          const next = event.data.height
+          const changed = height.value !== next
+
+          height.value = next
 
           // The example as it comes up, with nothing spilling out of it: that
           // is the box worth reserving next time. Once taken, it is not
@@ -283,7 +362,8 @@
           }
 
           // The box the sandbox pins to is the one this height produces.
-          nextTick(place)
+          // An unchanged height must not reply — the reply measures again.
+          if (changed) nextTick(() => place())
           break
         }
         // A fixed overlay is laid out against the frame's viewport, so inline it
@@ -296,20 +376,24 @@
           if (event.data.open) {
             claim(event.data.tier)
             overlay.value = true
+            tier.value = event.data.tier
             shape(event.data.rects)
           } else {
             release()
           }
 
           // Correct any staleness now that the frame has left the flow; the
-          // placeholder keeps its geometry either way.
-          nextTick(place)
+          // placeholder keeps its geometry either way. Force the post: this
+          // box is the ack that the frame has settled, even when the
+          // placeholder did not move.
+          nextTick(() => place(true))
           break
         }
         // A menu can resize under its own content while it stays open, and a
         // dropdown opened inside a modal escalates float to overlay.
         case 'v0:sandbox:rects': {
           claim(event.data.tier)
+          tier.value = event.data.tier
           shape(event.data.rects)
           break
         }
@@ -370,17 +454,17 @@
   >
     <div
       :aria-busy="pending || undefined"
-      class="relative w-full overflow-hidden rounded-2xl rounded-tr-none"
+      class="relative w-full overflow-hidden rounded-2xl"
       :style="[surface, { height: `${height}px` }]"
     >
       <iframe
         ref="frame"
         :class="overlay
           ? 'fixed inset-0 z-[9999] h-full w-full border-0'
-          : 'absolute inset-0 h-full w-full rounded-2xl rounded-tr-none border-0'"
+          : 'absolute inset-0 h-full w-full rounded-2xl border-0'"
         loading="lazy"
         :src
-        :style="[surface, overlay && clip ? { clipPath: `path('${clip}')` } : undefined]"
+        :style="[surface, overlay && tier !== 'overlay' && clip ? { clipPath: `path('${clip}')` } : undefined]"
         :title="`${name} example`"
       />
 

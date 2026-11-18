@@ -1,0 +1,18 @@
+<!--
+  Rendered OTP boxes. The pin is one input.otp-input that the bundle splits.
+  This package renders Otp.Item boxes and does not emit data-bs-otp.
+  maxlength is omitted: the user agent truncates a pasted code before it can
+  be spread across the boxes. Centering is an inline style, ignored by conform.
+-->
+
+<!-- fixture: basic -->
+<div class="otp">
+  <div class="otp-slots">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+    <input type="text" class="otp-input otp-slot pe-auto" inputmode="numeric" autocomplete="one-time-code" value="">
+  </div>
+</div>

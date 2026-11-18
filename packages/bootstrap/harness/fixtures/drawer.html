@@ -1,0 +1,42 @@
+<!--
+  Bootstrap 6 drawer markup from the pinned v6-dev docs.
+  data-bs-toggle / data-bs-dismiss are behavior hooks and are not part of the
+  rendered contract — this package does not emit them.
+-->
+
+<!-- fixture: basic -->
+<dialog class="drawer drawer-start">
+  <div class="drawer-header">
+    <h5 class="drawer-title">Drawer</h5>
+    <button type="button" class="btn-close" aria-label="Close"></button>
+  </div>
+  <div class="drawer-body">
+    Content for the drawer goes here. You can place just about any Bootstrap component or custom elements here.
+  </div>
+</dialog>
+
+<!-- fixture: sheet -->
+<dialog class="drawer drawer-bottom drawer-sheet">
+  <div class="drawer-header">
+    <h5 class="drawer-title">Sheet drawer</h5>
+    <button type="button" class="btn-close" aria-label="Close"></button>
+  </div>
+  <div class="drawer-body">
+    Content for the sheet drawer goes here. It sits flush to the edge with no inset, border, rounded corners, or shadow.
+  </div>
+</dialog>
+
+<!-- fixture: footer -->
+<dialog class="drawer drawer-start">
+  <div class="drawer-header">
+    <h5 class="drawer-title">Drawer with footer</h5>
+    <button type="button" class="btn-close" aria-label="Close"></button>
+  </div>
+  <div class="drawer-body">
+    <p>Content for the drawer goes here. The footer will stick to the bottom.</p>
+  </div>
+  <div class="drawer-footer">
+    <button type="button" class="btn-solid theme-secondary">Close</button>
+    <button type="button" class="btn-solid theme-primary">Save changes</button>
+  </div>
+</dialog>

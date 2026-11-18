@@ -1,0 +1,27 @@
+<!--
+  Bootstrap 6 chips. data-bs-chips is the bundle's behavior hook and is not
+  part of the rendered contract.
+-->
+
+<!-- fixture: basic -->
+<span class="chip">Basic chip</span>
+
+<!-- fixture: image -->
+<span class="chip">
+  <img src="https://github.com/mdo.png" class="chip-img" width="16" height="16" alt="">
+  With avatar
+</span>
+
+<!-- fixture: active -->
+<span class="chip theme-primary active">Active</span>
+
+<!-- fixture: input -->
+<div class="chip-input theme-primary">
+  <span class="chip">
+    JavaScript
+    <button type="button" class="chip-dismiss" aria-label="Remove">
+      <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-width="2" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><line x1="4" x2="12" y1="4" y2="12"></line><line x1="12" x2="4" y1="4" y2="12"></line></svg>
+    </button>
+  </span>
+  <input type="text" class="form-ghost" placeholder="Add more…" value="">
+</div>
