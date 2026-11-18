@@ -6,8 +6,8 @@
  * @remarks
  * Segmented time value. Hour, minute, and optional second stay in separate
  * fields. The public value is a 24-hour `HH:mm` or `HH:mm:ss` string, and it
- * stays `null` until every enabled field is set. `h12` keeps a meridiem and
- * still stores the canonical hour in 24-hour form.
+ * stays `null` until every enabled field has a value. `h12` keeps a
+ * meridiem and still stores the canonical hour in 24-hour form.
  *
  * Each field moves on a cyclic grid: the multiples of its step inside the
  * cycle, anchored at `0` on the stored 24-hour value. Stepping wraps around
@@ -16,10 +16,10 @@
  * on-grid time inside them.
  *
  * Validation, field state, and form registration come from `createInput`,
- * exposed as `input`. The validated value is the model value.
+ * which the picker exposes as `input`. It validates the model value.
  *
- * Does not read the DOM, `window`, or the date plugin. To follow the locale,
- * map the date adapter yourself:
+ * The picker does not read the DOM, `window`, or the date plugin. To follow
+ * the locale, map the date adapter yourself:
  * `hourCycle: date.is12HourCycleInCurrentLocale() ? 'h12' : 'h23'`.
  *
  * @example
@@ -99,34 +99,34 @@ export interface TimeGrid {
  */
 export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'value' | 'dirty' | 'equals'> {
   /**
-   * Canonical `HH:mm` or `HH:mm:ss` source. An incoming value is snapped to
-   * the step grid, moved to the nearest on-grid time inside `min` / `max`
-   * when it falls outside them, and written back in canonical form. With
-   * `seconds` on, `HH:mm` reads as second `0`; with it off, `HH:mm:ss`
-   * drops the seconds. An unparseable value empties the fields and becomes
-   * `null`. That pass runs before the next flush, together with any option
-   * that changed in the same tick; until then the fields show the value as
-   * written.
+   * Canonical `HH:mm` or `HH:mm:ss` source. The picker snaps an incoming
+   * value to the step grid, moves it to the nearest on-grid time inside
+   * `min` / `max` when it falls outside them, and writes it back in
+   * canonical form. With `seconds` on, `HH:mm` reads as second `0`; with
+   * it off, `HH:mm:ss` drops the seconds. An unparseable value empties the
+   * fields and becomes `null`. That pass runs before the next flush,
+   * together with any option that changed in the same tick; until then the
+   * fields show the value as written.
    *
    * The model has the last word. When, after its owner has had a tick to
    * answer, it does not hold the value the picker wrote, the fields take
-   * the model's value as given and the picker writes nothing further. An
-   * owner that answers later than that is treated the same way until its
-   * value arrives.
+   * the model's value as given and the picker writes nothing further. The
+   * picker treats an owner that answers later than that the same way until
+   * its value arrives.
    *
    * @default shallowRef(null)
    */
   value?: Ref<string | null>
   /**
    * `h12` shows 1–12 and a meridiem. `h23` shows 0–23.
-   * Any other value is read as `h23`.
+   * The picker reads any other value as `h23`.
    *
    * @default 'h23'
    */
   hourCycle?: MaybeRefOrGetter<TimeHourCycle | undefined>
   /**
    * Include seconds in the canonical value. Turning it on for a picker whose
-   * hour and minute are set keeps the time and sets the second to `0`.
+   * hour and minute have values keeps the time and sets the second to `0`.
    * Turning it off drops the second.
    *
    * @default false
@@ -135,16 +135,18 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
   /**
    * Hour interval. The hour moves on the multiples of the step inside
    * `0`–`23`; in `h12`, on those inside the current meridiem's half of the
-   * day. Fractions truncate, and a non-finite or non-positive step is read
-   * as `1`. A half with no multiple of the step holds its first hour only.
+   * day. Fractions truncate, and the picker reads a non-finite or
+   * non-positive step as `1`. A half with no multiple of the step holds its
+   * first hour only.
    *
    * @default 1
    */
   hourStep?: MaybeRefOrGetter<number | undefined>
   /**
    * Minute interval. The minute moves on the multiples of the step inside
-   * `0`–`59`. Fractions truncate, and a non-finite or non-positive step is
-   * read as `1`. A step above `59` leaves `0` as the only minute.
+   * `0`–`59`. Fractions truncate, and the picker reads a non-finite or
+   * non-positive step as `1`. A step above `59` leaves `0` as the only
+   * minute.
    *
    * @default 1
    */
@@ -160,11 +162,11 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    * value only. A value below it moves to the earliest time at or after
    * `min` that is on every field's step grid; with `minuteStep: 15`,
    * `min: '10:07'` starts the range at `10:15`. Only when no on-grid time
-   * lies between `min` and `max` is the grid set aside and the value
-   * clamped to the bound itself. The bound's seconds are ignored while
-   * `seconds` is off, so `min: '09:00:30'` then admits `09:00`. An
-   * unparseable `min` is ignored on its own; a `min` above `max`, compared
-   * the same way, turns both bounds off.
+   * lies between `min` and `max` does the picker set the grid aside and
+   * clamp the value to the bound itself. The picker ignores the bound's
+   * seconds while `seconds` is off, so `min: '09:00:30'` then admits
+   * `09:00`. The picker ignores an unparseable `min` alone; a `min` above
+   * `max`, by the same comparison, turns both bounds off.
    */
   min?: MaybeRefOrGetter<string | null | undefined>
   /**
@@ -172,16 +174,16 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
    * value only. A value above it moves to the latest time at or before
    * `max` that is on every field's step grid; with `minuteStep: 15`,
    * `max: '17:10'` ends the range at `17:00`. Only when no on-grid time
-   * lies between `min` and `max` is the grid set aside and the value
-   * clamped to the bound itself. The bound's seconds are ignored while
-   * `seconds` is off, so `max: '17:00:30'` then stops at `17:00`. An
-   * unparseable `max` is ignored on its own; a `max` below `min`, compared
-   * the same way, turns both bounds off.
+   * lies between `min` and `max` does the picker set the grid aside and
+   * clamp the value to the bound itself. The picker ignores the bound's
+   * seconds while `seconds` is off, so `max: '17:00:30'` then stops at
+   * `17:00`. The picker ignores an unparseable `max` alone; a `max` below
+   * `min`, by the same comparison, turns both bounds off.
    */
   max?: MaybeRefOrGetter<string | null | undefined>
   /**
    * While true, `commit`, `step`, `clear`, and `input.reset` do not write
-   * `value`, and neither does the picker, so the model is left untouched.
+   * `value`, and neither does the picker, so the model stays untouched.
    * `commit`, `step`, and `clear` do nothing at all. The fields show
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
@@ -192,7 +194,7 @@ export interface TimePickerOptions extends Omit<InputOptions<string | null>, 'va
   disabled?: MaybeRefOrGetter<boolean>
   /**
    * While true, `commit`, `step`, `clear`, and `input.reset` do not write
-   * `value`, and neither does the picker, so the model is left untouched.
+   * `value`, and neither does the picker, so the model stays untouched.
    * `commit`, `step`, and `clear` do nothing at all. The fields show
    * the incoming hour and minute as given, unsnapped and unclamped, and
    * its seconds only while `seconds` is on. Turning it off normalizes the
@@ -243,10 +245,10 @@ export interface TimePickerContext {
   /** Second field, or `null` when seconds are off or unset. */
   readonly second: Readonly<Ref<number | null>>
   /**
-   * Meridiem. `null` in `h23`. In `h12` with an empty hour, the remembered
-   * meridiem: the last one committed, the one the hour had when it was
-   * cleared, or the one of the last incoming value. `clear()` and an
-   * incoming `null`, `''`, or unparseable value reset it to `'am'`.
+   * Meridiem. `null` in `h23`. In `h12` with an empty hour, the meridiem
+   * the picker remembers: the last one you committed, the one the hour had
+   * when you cleared it, or the one of the last incoming value. `clear()`
+   * and an incoming `null`, `''`, or unparseable value reset it to `'am'`.
    *
    * @example
    * ```ts
@@ -272,21 +274,22 @@ export interface TimePickerContext {
   readonly isReadonly: Readonly<Ref<boolean>>
   /**
    * Set one field. `null` clears a numeric field and the value becomes
-   * `null`. A number is held inside the field's range and snapped to the
-   * nearest grid point without wrapping. In `h12` the hour is read as a
-   * display hour in the current meridiem. A period commit moves a set hour
-   * to the other half of the day, and is remembered while the hour is
-   * empty.
+   * `null`. The picker holds a number inside the field's range and snaps
+   * it to the nearest grid point without wrapping. In `h12` it reads the
+   * hour as a display hour in the current meridiem. A period commit moves
+   * a set hour to the other half of the day, and the picker remembers it
+   * while the hour is empty.
    *
-   * The edit works on what the fields show. A value or option changed
-   * earlier in the same tick is applied first; a value the fields took as
-   * given after a refused write is not. The edited field follows the rules
-   * above, then the whole time is normalized and written once.
+   * The edit works on what the fields show. The picker first applies a
+   * value or option that changed earlier in the same tick, but not a value
+   * the fields took as given after a refused write. The edited field
+   * follows the rules above, then the picker normalizes the whole time and
+   * writes it once.
    *
-   * Writes nothing for `period` in `h23`, for the period already shown,
-   * for `second` while seconds are off, for `null` on an empty field, and
-   * for a non-finite number, unless a change from the same tick was still
-   * waiting, which is then published.
+   * It writes nothing for `period` in `h23`, for the period the hour is
+   * already in, for `second` while seconds are off, for `null` on an empty
+   * field, and for a non-finite number, unless a change from the same tick
+   * was still waiting, which it then publishes.
    *
    * @example
    * ```ts
@@ -314,11 +317,12 @@ export interface TimePickerContext {
    *
    * The step starts from what the field shows, so a value the fields took
    * as given after a refused write moves onto the adjacent grid point in
-   * the direction of travel. A value or option changed earlier in the same
-   * tick is applied first. The whole time is then normalized and written
-   * once. A count of `0`, a non-finite count, `period` in `h23`, and
-   * `second` while seconds are off write nothing, unless a change from the
-   * same tick was still waiting, which is then published.
+   * the direction of travel. The picker first applies a value or option
+   * that changed earlier in the same tick. It then normalizes the whole
+   * time and writes it once. A count of `0`, a non-finite count, `period`
+   * in `h23`, and `second` while seconds are off write nothing, unless a
+   * change from the same tick was still waiting, which the picker then
+   * publishes.
    *
    * @example
    * ```ts
@@ -381,8 +385,8 @@ export interface TimePickerContext {
    * `display` adds `:00` or leaves the seconds out.
    *
    * The picker wrote a value the model does not hold yet. `display` runs
-   * ahead of `value` until the answer is checked one tick later, whether
-   * the owner answers late or refuses.
+   * ahead of `value` until the picker checks the answer one tick later,
+   * whether the owner answers late or refuses.
    *
    * @example
    * ```ts
@@ -399,19 +403,19 @@ export interface TimePickerContext {
   readonly display: Readonly<Ref<string | null>>
   /**
    * The underlying `createInput` context: validation state, the ARIA ids,
-   * focused and touched, and `validate` / `reset`. The validated value is
+   * focused and touched, and `validate` / `reset`. The picker validates
    * the model value, so `required` fails while a field is still empty.
    *
    * Normalizing is not an edit: a value the picker snapped or bounded is
-   * still pristine, unless it was built from fields that were edited.
+   * still pristine, unless the picker built it from edited fields.
    * `reset` puts the initial value back, drops a partly entered time, and
    * clears the validation state and `isTouched`. While disabled or readonly
    * it does all of that except write the model. `isPristine` reads true
-   * after a reset even when the model was not written, because the picker
-   * is blocked or the owner refused. `reset` does not count toward
-   * `revision`, except while `error` or `errorMessages` is set.
+   * after a reset even when the picker did not write the model, because it
+   * is disabled or readonly or the owner refused. `reset` does not count
+   * toward `revision`, except while `error` or `errorMessages` is set.
    *
-   * `required` and `rules` are read once, when the picker is created.
+   * The picker reads `required` and `rules` once, at creation.
    *
    * @example
    * ```ts
