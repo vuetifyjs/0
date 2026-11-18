@@ -46,9 +46,9 @@ import Second from './TimePickerSecond.vue'
  * </script>
  *
  * <template>
- *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
- *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
- *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+ *   <TimePicker.Root v-model="value">
+ *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+ *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
  *   </TimePicker.Root>
  * </template>
  * ```
@@ -67,9 +67,9 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   <TimePicker.Root v-model="value">
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *   </TimePicker.Root>
    * </template>
    * ```
@@ -88,9 +88,9 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   <TimePicker.Root v-model="value">
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *   </TimePicker.Root>
    * </template>
    * ```
@@ -109,9 +109,9 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   <TimePicker.Root v-model="value">
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *   </TimePicker.Root>
    * </template>
    * ```
@@ -130,10 +130,10 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute, second }" v-model="value" seconds>
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
-   *     <TimePicker.Second>{{ second }}</TimePicker.Second>
+   *   <TimePicker.Root v-model="value" seconds>
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
+   *     <TimePicker.Second v-slot="{ text }">{{ text }}</TimePicker.Second>
    *   </TimePicker.Root>
    * </template>
    * ```
@@ -152,10 +152,10 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute, period }" v-model="value" hour-cycle="h12">
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
-   *     <TimePicker.Period>{{ period }}</TimePicker.Period>
+   *   <TimePicker.Root v-model="value" hour-cycle="h12">
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
+   *     <TimePicker.Period v-slot="{ text }">{{ text }}</TimePicker.Period>
    *   </TimePicker.Root>
    * </template>
    * ```
@@ -177,9 +177,9 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value">
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   <TimePicker.Root v-model="value">
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *     <TimePicker.Description>Opening hours are 9 to 5</TimePicker.Description>
    *   </TimePicker.Root>
    * </template>
@@ -203,9 +203,9 @@ export const TimePicker = {
    * </script>
    *
    * <template>
-   *   <TimePicker.Root v-slot="{ hour, minute }" v-model="value" required>
-   *     <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *     <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *   <TimePicker.Root v-model="value" required>
+   *     <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *     <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *     <TimePicker.Error v-slot="{ errors }">
    *       <span v-for="error in errors" :key="error">{{ error }}</span>
    *     </TimePicker.Error>
@@ -228,9 +228,9 @@ export const TimePicker = {
    *
    * <template>
    *   <form>
-   *     <TimePicker.Root v-slot="{ hour, minute }" v-model="value" name="start">
-   *       <TimePicker.Hour>{{ hour }}</TimePicker.Hour>
-   *       <TimePicker.Minute>{{ minute }}</TimePicker.Minute>
+   *     <TimePicker.Root v-model="value" name="start">
+   *       <TimePicker.Hour v-slot="{ text }">{{ text }}</TimePicker.Hour>
+   *       <TimePicker.Minute v-slot="{ text }">{{ text }}</TimePicker.Minute>
    *     </TimePicker.Root>
    *   </form>
    * </template>

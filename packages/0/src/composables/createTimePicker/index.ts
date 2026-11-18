@@ -409,7 +409,7 @@ export interface TimePickerContext {
    * it does all of that except write the model. `isPristine` reads true
    * after a reset even when the model was not written, because the picker
    * is blocked or the owner refused. `reset` does not count toward
-   * `revision` unless the owner answers after the exchange has closed.
+   * `revision`.
    *
    * `required` and `rules` are read once, when the picker is created.
    *
@@ -433,25 +433,12 @@ export interface TimePickerContext {
    */
   input: InputContext<string | null>
   /**
-   * Goes up each time the model comes to hold a new value worth
-   * validating, in its final form. Watch it to validate on input.
+   * Goes up when the model holds a new settled value worth validating.
+   * Watch it to validate on input.
    *
-   * An edit the owner took counts, and so does a value from outside. A
-   * value from outside that needs normalizing counts once, when its
-   * normalized form is in the model or the owner has refused that form.
-   *
-   * The picker normalizing on its own, at creation, when it is released
-   * from disabled or readonly, or when an option changes, counts only once
-   * the value has a validity: `input.isValid` is not `null`. Until then
-   * there is nothing on show to go stale. The `error` and `errorMessages`
-   * options give the value a validity without a validation having run. A
-   * normalization that lands while the first async validation is pending
-   * is not counted, so that result describes the earlier value.
-   *
-   * `input.reset()` does not count, as long as the owner answers within
-   * the exchange. An owner that answers later (see `value`) hands back a
-   * value the picker takes as one from outside, and that counts: both the
-   * reset value, and an initial value the picker had to normalize.
+   * An edit counts, and so does a value from outside. The picker
+   * normalizing on its own counts only once the value already has a
+   * validity: `input.isValid` is not null. `input.reset()` does not count.
    *
    * @example
    * ```ts
