@@ -409,7 +409,7 @@ export interface TimePickerContext {
    * it does all of that except write the model. `isPristine` reads true
    * after a reset even when the model was not written, because the picker
    * is blocked or the owner refused. `reset` does not count toward
-   * `revision`.
+   * `revision`, unless the owner answers after the exchange has closed.
    *
    * `required` and `rules` are read once, when the picker is created.
    *
@@ -439,6 +439,10 @@ export interface TimePickerContext {
    * An edit counts, and so does a value from outside. The picker
    * normalizing on its own counts only once the value already has a
    * validity: `input.isValid` is not null. `input.reset()` does not count.
+   *
+   * An owner that answers after the exchange has closed (see `value`)
+   * hands back a value the picker takes as one from outside, and that
+   * counts, after a reset too.
    *
    * @example
    * ```ts
