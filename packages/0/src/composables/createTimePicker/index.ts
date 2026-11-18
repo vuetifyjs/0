@@ -286,10 +286,10 @@ export interface TimePickerContext {
    * follows the rules above, then the picker normalizes the whole time and
    * writes it once.
    *
-   * It writes nothing for `period` in `h23`, for the period the hour is
-   * already in, for `second` while seconds are off, for `null` on an empty
-   * field, and for a non-finite number, unless a change from the same tick
-   * was still waiting, which it then publishes.
+   * It writes nothing for `period` in `h23`, for the period already shown,
+   * for `second` while seconds are off, for `null` on an empty field, and
+   * for a non-finite number, unless a change from the same tick was still
+   * waiting, which it then publishes.
    *
    * @example
    * ```ts
