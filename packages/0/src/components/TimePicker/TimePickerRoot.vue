@@ -100,9 +100,9 @@
     hourCycle: TimeHourCycle
     /** Whether seconds are part of the value. */
     seconds: boolean
-    /** Whether the picker ignores edits. */
+    /** Whether the picker is disabled. It then ignores edits. */
     isDisabled: boolean
-    /** Whether the picker ignores edits. */
+    /** Whether the picker is readonly. It then ignores edits. */
     isReadonly: boolean
     /** Whether one of the fields has focus. Always false while disabled. */
     isFocused: boolean

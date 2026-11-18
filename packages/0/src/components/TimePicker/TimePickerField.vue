@@ -50,9 +50,9 @@
     text: string
     /** Value of the field, or `null` while unset. The meridiem for Period. */
     value: number | TimePeriod | null
-    /** Whether the field ignores edits. */
+    /** Whether the picker is disabled. The field then ignores edits. */
     isDisabled: boolean
-    /** Whether the field ignores edits. */
+    /** Whether the picker is readonly. The field then ignores edits. */
     isReadonly: boolean
     /** Attributes for the spinbutton. */
     attrs: {
