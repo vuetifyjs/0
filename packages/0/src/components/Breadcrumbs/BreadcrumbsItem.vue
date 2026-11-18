@@ -18,6 +18,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
+  import { isUndefined } from '#v0/utilities'
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
@@ -81,16 +82,22 @@
     type: 'item' as const,
   })
 
+  // Width recorded under `last`; a reindex re-keys it without reading a possibly hidden element.
+  let width: number | undefined
+  let last = ticket.index
+
   watch(
-    () => elRef.value?.element,
-    element => {
-      context.measureElement(ticket.index, 'item', element ?? undefined)
+    () => [elRef.value?.element, ticket.index] as const,
+    ([element, index], previous) => {
+      const changed = isUndefined(previous) || element !== previous[0]
+      width = context.measureElement(index, 'item', changed ? element ?? undefined : width)
+      last = index
     },
     { immediate: true },
   )
 
   onBeforeUnmount(() => {
-    context.measureElement(ticket.index, 'item', undefined)
+    context.measureElement(last, 'item', undefined)
     context.group.unregister(ticket.id)
     context.breadcrumbs.unregister(crumb.id)
   })

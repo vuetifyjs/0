@@ -12,6 +12,7 @@ import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { BreadcrumbsPageSlotProps, BreadcrumbsRootSlotProps } from './index'
+import type { Ref } from 'vue'
 
 describe('breadcrumbs', () => {
   describe('root', () => {
@@ -1224,6 +1225,50 @@ describe('breadcrumbs', () => {
       return { wrapper, context: () => ctx }
     }
 
+    interface TrailSnapshot {
+      capacity: number
+      isOverflowing: boolean
+      hidden: string[]
+    }
+
+    function mountTrail (trail: Ref<string[]>, ellipsis = false) {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      const wrapper = mount(defineComponent({
+        setup () {
+          return () => h(Breadcrumbs.Root as never, {}, {
+            default: (props: BreadcrumbsRootSlotProps) => {
+              slotProps = props
+              const children = trail.value.flatMap((text, index) => {
+                const crumb = h(Breadcrumbs.Item as never, { 'key': text, 'data-t': text, 'style': 'display: inline-block; width: 80px' }, () => text)
+                if (index === trail.value.length - 1) return [crumb]
+                return [crumb, h(Breadcrumbs.Divider as never, { 'key': `divider-${text}`, 'data-t': `divider-${text}`, 'style': 'display: inline-block; width: 10px' })]
+              })
+              if (ellipsis) {
+                children.push(h(Breadcrumbs.Ellipsis as never, { 'key': 'ellipsis', 'data-t': 'ellipsis', 'style': 'display: inline-block; width: 20px' }))
+              }
+              return children
+            },
+          })
+        },
+      }), { attachTo: document.body })
+
+      function snapshot (): TrailSnapshot {
+        const els = [...wrapper.element.querySelectorAll('[data-t]')] as HTMLElement[]
+        return {
+          capacity: slotProps!.capacity,
+          isOverflowing: slotProps!.isOverflowing,
+          hidden: els.filter(el => el.style.display === 'none').map(el => el.dataset.t!),
+        }
+      }
+
+      return { wrapper, props: () => slotProps!, snapshot }
+    }
+
+    async function settle (): Promise<void> {
+      for (let i = 0; i < 3; i++) await nextTick()
+    }
+
     it('should hide ellipsis and show content when capacity is sufficient', async () => {
       const { context } = mountOverflowTree({ itemCount: 4, withEllipsis: true })
       await nextTick()
@@ -1917,6 +1962,101 @@ describe('breadcrumbs', () => {
       expect(ctx.expanded.value).toBe(false)
 
       el.remove()
+    })
+
+    it('should drop pooled widths of crumbs that unmounted', async () => {
+      const trail = ref(['Home', 'Products', 'Shoes'])
+      const { wrapper, props } = mountTrail(trail)
+
+      await nextTick()
+      triggerResize(220)
+      await nextTick()
+
+      // reserved = 80 + 8 + 10 + 8 = 106; pool = 80 + 18 + 88 = 186 > 114
+      expect(props().isOverflowing).toBe(true)
+
+      trail.value = ['Home', 'Cart']
+      await nextTick()
+      await nextTick()
+
+      // pool = 80 <= 114 once Products, its divider and Shoes are gone
+      expect(props().isOverflowing).toBe(false)
+
+      wrapper.unmount()
+    })
+
+    it('should drop pooled widths when the first crumb unmounts', async () => {
+      const trail = ref(['Home', 'Products', 'Shoes'])
+      const { wrapper, props } = mountTrail(trail)
+
+      await nextTick()
+      triggerResize(200)
+      await nextTick()
+
+      // reserved = 80 + 8 + 10 + 8 = 106; pool = 80 + 18 + 88 = 186 > 94
+      expect(props().isOverflowing).toBe(true)
+
+      trail.value = ['Products', 'Shoes']
+      await nextTick()
+      await nextTick()
+
+      // Products and its divider move into the reserved slots; pool = 80 <= 94
+      expect(props().isOverflowing).toBe(false)
+      expect(props().capacity).toBe(1)
+
+      wrapper.unmount()
+    })
+
+    it('should match a fresh mount after a collapsed crumb is reindexed', async () => {
+      const trail = ref(['A', 'X', 'B', 'C', 'D', 'E'])
+      const tree = mountTrail(trail, true)
+      await settle()
+      triggerResize(324)
+      await settle()
+
+      expect(tree.snapshot().hidden).toContain('B')
+
+      trail.value = ['A', 'B', 'C', 'D', 'E']
+      await settle()
+      triggerResize(420)
+      await settle()
+      const after = tree.snapshot()
+      tree.wrapper.unmount()
+
+      const fresh = mountTrail(ref(['A', 'B', 'C', 'D', 'E']), true)
+      await settle()
+      triggerResize(420)
+      await settle()
+      const oracle = fresh.snapshot()
+      fresh.wrapper.unmount()
+
+      expect(oracle).toEqual({ capacity: 4, isOverflowing: true, hidden: ['B', 'divider-B', 'C'] })
+      expect(after).toEqual(oracle)
+    })
+
+    it('should match a fresh mount after the first crumb unmounts while the next is collapsed', async () => {
+      const trail = ref(['A', 'B', 'C', 'D', 'E'])
+      const tree = mountTrail(trail, true)
+      await settle()
+      triggerResize(324)
+      await settle()
+
+      expect(tree.snapshot().hidden).toContain('B')
+
+      trail.value = ['B', 'C', 'D', 'E']
+      await settle()
+      const after = tree.snapshot()
+      tree.wrapper.unmount()
+
+      const fresh = mountTrail(ref(['B', 'C', 'D', 'E']), true)
+      await settle()
+      triggerResize(324)
+      await settle()
+      const oracle = fresh.snapshot()
+      fresh.wrapper.unmount()
+
+      expect(oracle).toEqual({ capacity: 3, isOverflowing: true, hidden: ['C'] })
+      expect(after).toEqual(oracle)
     })
   })
 })

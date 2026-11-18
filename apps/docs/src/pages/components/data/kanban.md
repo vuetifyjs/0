@@ -33,7 +33,7 @@ Each column binds its own array with `v-model`. Render that column's `items`, an
 
 `Kanban.List` may only contain `Kanban.Item` elements. Put headers and counters outside the list. The `value` on `Kanban.Item` must be that same array entry (`===`), and every value on the board must be unique. Put `Kanban.Instructions` and `Kanban.LiveRegion` inside the root, visually hidden. `Kanban.Root` emits `move` when a drop commits. Arrow keys and Escape do not.
 
-A pointer drag fades the card (`data-state="dragging"`) and tints a list that can take it (`data-over`). Space or Enter picks the card up (`data-state="grabbed"`). Arrows then move a target. The column and list get `data-target`, and the card it would land beside gets `data-drop`. That insertion line is keyboard only. Add `touch-none` on the card, or a touch drag loses to page panning.
+A pointer drag fades the card (`data-state="dragging"`) and tints a list that can take it (`data-over`). Space or Enter picks the card up (`data-state="grabbed"`). Arrows then move a target. The column and list get `data-target`, and the card it would land beside gets `data-drop`. A pointer drag sets the same two attributes, on the column under the pointer and on the card the drop line is anchored to. An empty column, or a drag that has not left its own slot, gets `data-target` and no `data-drop`. Add `touch-none` on the card, or a touch drag loses to page panning.
 
 ## Anatomy
 
@@ -182,10 +182,10 @@ Each target step is announced. Focus follows the item. When a drop renders it in
 | Root | `data-orientation` | `horizontal` \| `vertical` |
 | Root, Column, List, Item | `data-disabled` | Present when disabled |
 | List | `data-over` | Present while an accepted pointer drag hovers the list |
-| Column, List | `data-target` | Present while a pending keyboard drop would land here |
+| Column, List | `data-target` | Present while a pending keyboard drop or an accepted pointer drag would land here |
 | List | `data-orientation` | Axis the list's items flow along |
 | Item | `data-state` | `grabbed` (keyboard) \| `dragging` (pointer) \| `idle` |
-| Item | `data-drop` | `before` \| `after`. The pending keyboard drop lands on this side of the item. Pointer drags do not set it |
+| Item | `data-drop` | `before` \| `after`. A pending keyboard or pointer drop is anchored to this side of the item |
 
 ## FAQ
 

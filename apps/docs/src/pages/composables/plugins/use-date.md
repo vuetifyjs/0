@@ -1,8 +1,8 @@
 ---
-title: useDate - Date management with Temporal API
+title: useDate - Date management with a plain Date default
 meta:
 - name: description
-  content: Vue 3 composable for date manipulation using the Temporal API. Supports adapter pattern, locale-aware formatting, and Intl.DateTimeFormat integration.
+  content: Vue 3 date composable. Defaults to a plain JavaScript Date, with an optional Temporal adapter, locale-aware formatting, and Intl.DateTimeFormat.
 - name: keywords
   content: useDate, date, datetime, temporal, date-io, formatting, composable
 features:
@@ -13,11 +13,12 @@ features:
 related:
   - /composables/plugins/use-locale
   - /composables/foundation/create-plugin
+  - /composables/forms/create-calendar
 ---
 
 # useDate
 
-Date manipulation using the Temporal API with locale-aware formatting and adapter support.
+Date manipulation with a plain JavaScript Date default, locale-aware formatting, and an adapter you can swap. Pass `V0DateAdapter` when you want Temporal.
 
 <DocsPageFeatures :frontmatter />
 
@@ -63,7 +64,7 @@ app.use(
 ```
 
 > [!NOTE]
-> The `adapter` option is **required**. The `V0DateAdapter` is exported from a separate subpath (`@vuetify/v0/date`) to avoid bundling the Temporal polyfill unless explicitly used. If you don't need date functionality, simply don't install the plugin—no polyfill will be loaded.
+> The `adapter` option is optional. Omit it and `createDate()` / `useDate()` inside a component use `V0PlainDateAdapter`. Pass `V0DateAdapter` for Temporal. That class is exported from `@vuetify/v0/date` so the Temporal polyfill stays out of the main entry. `useDate()` outside a component still throws.
 
 ## Usage
 
@@ -79,6 +80,7 @@ Adapters let you swap the underlying date library without changing your applicat
 
 | Adapter | Import | Description |
 |---------|--------|-------------|
+| `V0PlainDateAdapter` | `@vuetify/v0` | JavaScript `Date`. Default when no adapter is passed |
 | `V0DateAdapter` | `@vuetify/v0/date` | [Temporal API](https://tc39.es/proposal-temporal/docs/) adapter[^temporal] |
 
 [^temporal]: Uses native Temporal when the runtime provides it; otherwise requires the [@js-temporal/polyfill](https://www.npmjs.com/package/@js-temporal/polyfill) optional peer. Install with `pnpm add @js-temporal/polyfill`.
@@ -339,18 +341,20 @@ app.use(
 
 ## Architecture
 
-`useDate` is a thin plugin around a required `DateAdapter` — there is no default, so `createDatePlugin` must be installed with an explicit adapter. It resolves the active locale (from `useLocale` when present, otherwise its own option) and pushes it plus the derived `firstDayOfWeek` onto the adapter; all date math is delegated. `V0DateAdapter` is the bundled Temporal-backed implementation, but any `DateAdapter` subclass can back a different library.
+`useDate` is a thin plugin around a `DateAdapter`. The default is `V0PlainDateAdapter` (a JavaScript `Date`). Pass `V0DateAdapter` for Temporal, or any other `DateAdapter` subclass. It resolves the active locale (from `useLocale` when present, otherwise its own option) and pushes it plus the derived `firstDayOfWeek` onto the adapter; all date math is delegated.
 
 ```mermaid "useDate Architecture"
 flowchart TD
   Locale["useLocale"]
   UD["useDate"]:::primary
   Adapter["DateAdapter"]
+  Plain["V0PlainDateAdapter"]
   V0["V0DateAdapter (Temporal)"]
   Custom["Custom adapter (date-fns, dayjs, …)"]
 
   Locale --> UD
   UD --> Adapter
+  Adapter --> Plain
   Adapter --> V0
   Adapter --> Custom
 ```
@@ -379,7 +383,7 @@ A navigable month grid with click-to-select, built entirely from the adapter. `u
 
 The composable precomputes each `weeks` cell into a flat `{ date, day, today, selected, outside }` record, so `CalendarGrid.vue` renders the surface from plain props — `weekdays`, `weeks`, `monthYear`, plus the `prev`, `next`, `today`, and `select` callbacks — without ever touching the adapter directly. The entry instantiates the calendar once and reads `selectedLabel` and `locale` for the summary panel. This is the structural half of the adapter interface — building and navigating grids — rather than the formatting presets shown in the Usage example above.
 
-Reach for this pattern when building a DatePicker, DateRangePicker, or any calendar surface where the adapter should own the grid layout. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
+The selection model for a month grid is [createCalendar](/composables/forms/create-calendar). This example stays on the adapter so you can see `getWeekArray` directly. The adapter is locale-aware by default: `getWeekdays` and the month name both respond to the locale set at plugin install time, so switching the active locale via [useLocale](/composables/plugins/use-locale) reformats the calendar with no extra code. See the locale integration section below for how the two plugins sync.
 
 | File | Role |
 |------|------|
@@ -426,19 +430,33 @@ app.use(
 
 When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
 
+### Calendars
+
+`V0DateAdapter` takes a calendar identifier (`persian`, `hebrew`, `islamic-umalqura`, …). Years, months, days, arithmetic and formatting follow that calendar, so a Hebrew leap year returns 13 entries from `getMonthArray`. ISO strings and `Date` values stay Gregorian on the way in and out.
+
+```ts src/main.ts
+app.use(
+  createDatePlugin({
+    adapter: new V0DateAdapter('fa-IR', { calendar: 'persian' }),
+  })
+)
+```
+
+Years, months, days, and arithmetic come from Temporal. Formatting comes from `Intl.DateTimeFormat` with an explicit calendar. Until V8 implements calendar duration math, any calendar other than `iso8601` is computed with `@js-temporal/polyfill`. Node 26 and Chrome ship Temporal, and their non-ISO `add` and `subtract` still throw. The `iso8601` path keeps the runtime Temporal. Without the option the adapter uses `iso8601` and formats in Gregorian, even for locales whose Intl default is another calendar, such as `fa-IR`.
+
 ## FAQ
 
 ::: faq
 
 ??? Why does parse()'s format parameter seem to be ignored?
 
-The `parse()` method's format parameter is currently ignored — the Temporal API doesn't provide built-in format parsing, so the method delegates to `date()`, which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
+The `parse()` method's format parameter is ignored. Both built-in adapters delegate to `date()`, which accepts ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a [custom adapter](#custom-adapters).
 
 ??? Why do my formatted dates differ between the server and the client?
 
 Date formatting can cause hydration mismatches in SSR applications because the server and client environments may produce different formatted output. Two effects are at play:
 
-- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time via `Temporal.Now.plainDateTimeISO()`; on the server it returns the epoch (`1970-01-01T00:00:00`) for deterministic rendering. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
+- **`adapter.date()` is environment-dependent by design.** In the browser it returns the current time. On the server it returns the epoch (`1970-01-01`) so a render does not depend on the request clock. `V0PlainDateAdapter` uses a JavaScript `Date`. `V0DateAdapter` uses `Temporal.Now.plainDateTimeISO()`. This is intentional, to prevent hydration mismatches — if an SSR app needs the current time, pass `Date.now()` explicitly.
 - **`Intl.DateTimeFormat` uses the system timezone.** Server environments (often UTC) and client browsers (the user's local timezone) produce different formatted strings.
 
 ??? How do I avoid date hydration mismatches in SSR?
@@ -499,7 +517,7 @@ The adapter prefers `globalThis.Temporal` at runtime and falls back to [@js-temp
 
 ??? Can I use date-fns, luxon, or dayjs instead of Temporal?
 
-Yes. The adapter pattern decouples date operations from the library — extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. Only `V0DateAdapter` ships built-in; other libraries need a custom adapter.
+Yes. The adapter pattern decouples date operations from the library. Extend `DateAdapter<T>` (the page's `DateFnsAdapter` shows the shape) and pass it as the `adapter` option to `createDatePlugin`. `V0PlainDateAdapter` is the built-in default. `V0DateAdapter` is the built-in Temporal adapter. Other libraries need a custom adapter.
 
 ??? What's the difference between `format()` and `formatByString()`?
 

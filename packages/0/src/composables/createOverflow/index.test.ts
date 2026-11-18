@@ -169,6 +169,59 @@ describe('createOverflow', () => {
     expect(result.total.value).toBe(50)
   })
 
+  it('should record a width passed as a number without reading the DOM', () => {
+    const result = createOverflow()
+    const spy = vi.spyOn(window, 'getComputedStyle')
+
+    expect(result.measure(0, 50)).toBe(50)
+    expect(result.measure(1, 30)).toBe(30)
+    expect(result.measure(2, 0)).toBe(0)
+
+    expect(result.total.value).toBe(80)
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  it('should return the width it measured from an element', () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '4px',
+      marginRight: '2px',
+    } as CSSStyleDeclaration)
+
+    expect(result.measure(0, el)).toBe(56)
+    expect(result.total.value).toBe(56)
+  })
+
+  it('should overwrite a measured width with a recorded one', () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    expect(result.measure(0, 80)).toBe(80)
+    expect(result.total.value).toBe(80)
+  })
+
+  it('should return undefined and drop the entry when cleared', () => {
+    const result = createOverflow()
+
+    result.measure(0, 50)
+    result.measure(1, 30)
+
+    expect(result.measure(1, undefined)).toBeUndefined()
+    expect(result.total.value).toBe(50)
+    expect(result.measure(1)).toBeUndefined()
+    expect(result.total.value).toBe(50)
+  })
+
   it('should reset all measurements', async () => {
     const result = createOverflow()
 

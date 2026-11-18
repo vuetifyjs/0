@@ -56,7 +56,7 @@ import { toElement } from '#v0/composables/toElement'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isNumber, isUndefined, pxToNumber } from '#v0/utilities'
+import { isNullOrUndefined, isNumber, isUndefined, pxToNumber } from '#v0/utilities'
 import { computed, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
@@ -112,12 +112,32 @@ export interface OverflowContext {
   /** Whether items overflow the container */
   isOverflowing: Readonly<Ref<boolean>>
   /**
-   * Register an item's element for width measurement. Required for every
-   * child in both modes — variable mode reads the measured widths for
+   * Record an item's width under its index. Pass the element to measure it,
+   * or a number to record a width without reading the DOM, such as one
+   * measured earlier while the item was still visible. Required for every
+   * child in both modes — variable mode reads the recorded widths for
    * capacity; uniform mode reads only the entry count for isOverflowing.
-   * Pass `undefined` to unregister.
+   * Pass `undefined` to unregister. Returns the width now recorded, or
+   * `undefined` when the entry was cleared or nothing could be measured.
+   *
+   * @example
+   * ```ts
+   * import { useTemplateRef } from 'vue'
+   * import { createOverflow, createRegistry } from '@vuetify/v0'
+   *
+   * const overflow = createOverflow({ container: useTemplateRef('container') })
+   * const registry = createRegistry({ reactive: true })
+   *
+   * // Per item: register, then record its element once it is mounted
+   * const ticket = registry.register()
+   * const el = useTemplateRef('item')
+   * const width = overflow.measure(ticket.index, el.value ?? undefined) // reads the DOM
+   *
+   * overflow.measure(ticket.index, width) // after a reindex: record the number, no DOM read
+   * overflow.measure(ticket.index, undefined) // on unmount: clear
+   * ```
    */
-  measure: (index: number, el: Element | undefined) => void
+  measure: (index: number, source?: Element | number) => number | undefined
   /** Clear all measurements */
   reset: () => void
   /** Probe step. No-op unless `probe` is set. Call after `measure`. */
@@ -193,27 +213,35 @@ export function createOverflow<
 
   const { width } = useElementSize(container)
 
-  function measure (index: number, el: Element | undefined) {
-    if (!el) {
+  function measure (index: number, source?: Element | number): number | undefined {
+    if (isNullOrUndefined(source)) {
       if (widths.value.has(index)) {
         const next = new Map(widths.value)
         next.delete(index)
         widths.value = next
       }
-      return
+      return undefined
     }
 
-    /* v8 ignore start -- browser-only measurement code */
-    if (!IN_BROWSER) return
+    let w: number
+    if (isNumber(source)) {
+      w = source
+    } else {
+      const el = source
+      /* v8 ignore start -- browser-only measurement code */
+      if (!IN_BROWSER) return undefined
 
-    const style = getComputedStyle(el)
-    const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
-    const w = ((el as HTMLElement).offsetWidth || 0) + marginX
+      const style = getComputedStyle(el)
+      const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
+      w = ((el as HTMLElement).offsetWidth || 0) + marginX
+      /* v8 ignore stop */
+    }
 
     if (widths.value.get(index) !== w) {
       widths.value = new Map(widths.value).set(index, w)
     }
-    /* v8 ignore stop */
+
+    return w
   }
 
   function reset () {

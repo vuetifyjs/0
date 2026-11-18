@@ -190,7 +190,9 @@
     root.sync()
   })
 
-  const isTarget = toRef(() => root.preview.value?.column === ticket.id)
+  const isTarget = toRef(() =>
+    root.preview.value?.column === ticket.id || root.pointer.value?.column === ticket.id,
+  )
 
   const slotProps = toRef((): KanbanColumnSlotProps<T> => ({
     id: ticket.id,

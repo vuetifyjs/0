@@ -262,6 +262,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/time-picker': RouteRecordInfo<
+      '/components/forms/time-picker',
+      '/components/forms/time-picker',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/aspect-ratio': RouteRecordInfo<
       '/components/primitives/aspect-ratio',
       '/components/primitives/aspect-ratio',
@@ -465,6 +472,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/forms/create-calendar': RouteRecordInfo<
+      '/composables/forms/create-calendar',
+      '/composables/forms/create-calendar',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-combobox': RouteRecordInfo<
       '/composables/forms/create-combobox',
       '/composables/forms/create-combobox',
@@ -517,6 +531,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-slider': RouteRecordInfo<
       '/composables/forms/create-slider',
       '/composables/forms/create-slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-time-picker': RouteRecordInfo<
+      '/composables/forms/create-time-picker',
+      '/composables/forms/create-time-picker',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1890,6 +1911,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/forms/time-picker.md': {
+      routes:
+        | '/components/forms/time-picker'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/components/primitives/aspect-ratio.md': {
       routes:
         | '/components/primitives/aspect-ratio'
@@ -2122,6 +2151,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/composables/forms/create-calendar.md': {
+      routes:
+        | '/composables/forms/create-calendar'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/composables/forms/create-combobox.md': {
       routes:
         | '/composables/forms/create-combobox'
@@ -2181,6 +2218,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-slider.md': {
       routes:
         | '/composables/forms/create-slider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/forms/create-time-picker.md': {
+      routes:
+        | '/composables/forms/create-time-picker'
       views:
         | never
       pathParamNames:

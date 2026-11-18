@@ -56,6 +56,7 @@ import StepFixture from './fixtures/Step.vue'
 import SwitchFixture from './fixtures/Switch.vue'
 import TabsFixture from './fixtures/Tabs.vue'
 import ThemeFixture from './fixtures/Theme.vue'
+import TimePickerFixture from './fixtures/TimePicker.vue'
 import ToggleFixture from './fixtures/Toggle.vue'
 import TooltipFixture from './fixtures/Tooltip.vue'
 import TourFixture from './fixtures/Tour.vue'
@@ -168,6 +169,7 @@ const FIXTURES = {
   Switch: SwitchFixture,
   Tabs: TabsFixture,
   Theme: ThemeFixture,
+  TimePicker: TimePickerFixture,
   Toggle: ToggleFixture,
   Tooltip: TooltipFixture,
   Tour: TourFixture,

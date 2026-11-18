@@ -25,6 +25,7 @@ export type {
   KanbanGrab,
   KanbanMovePayload,
   KanbanOrientation,
+  KanbanPointer,
   KanbanPosition,
   KanbanRootContext,
   KanbanRootEmits,
@@ -152,8 +153,8 @@ export const Kanban = {
    *
    * Identified by `value`, which must match an entry of the parent
    * Column's v-model. Exposes `data-state="grabbed" | "dragging" | "idle"`,
-   * and `data-drop="before" | "after"` on the neighbour of a pending keyboard
-   * drop target.
+   * and `data-drop="before" | "after"` on the card a pending keyboard or
+   * pointer drop is anchored to.
    *
    * @see https://0.vuetifyjs.com/components/data/kanban#keyboard-moves
    *

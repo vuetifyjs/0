@@ -243,6 +243,7 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
+| [createCalendar](/composables/forms/create-calendar) | Gregorian month grid with single and range selection |
 | [createCombobox](/composables/forms/create-combobox) | Coordinate selection, popover, virtual focus, and filtering for autocomplete |
 | [createForm](/composables/forms/create-form) | Form validation coordinator |
 | [createInput](/composables/forms/create-input) | Shared form field primitive: validation, field state, ARIA IDs |
@@ -251,6 +252,7 @@ Form state management and model binding utilities.
 | [createOtp](/composables/forms/create-otp) | OTP / verification code state with pattern-gated entry and decisional completion hook |
 | [createRating](/composables/forms/create-rating) | Bounded rating value with discrete items and half-step support |
 | [createSlider](/composables/forms/create-slider) | Slider state with multi-thumb support, step snapping, and value math |
+| [createTimePicker](/composables/forms/create-time-picker) | Segmented time value with 12- and 24-hour cycles, step snapping, and min/max bounds |
 | [createValidation](/composables/forms/create-validation) | Per-field validation lifecycle |
 
 ## Data

@@ -21,8 +21,8 @@
   import { toElement } from '#v0/composables/toElement'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef } from 'vue'
+  import { isNull, isUndefined } from '#v0/utilities'
+  import { mergeProps, onBeforeUnmount, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -113,11 +113,46 @@
     onDrop: (drag, position) => onDrop(drag.value, position.index),
   })
 
+  // Only this column's hover may clear. Two lists update in one tick, and the
+  // one that is leaving must not wipe the one that just entered.
+  function release () {
+    const current = root.pointer.value
+    if (isNull(current) || current.column !== column.ticket.id) return
+    root.aim(null)
+  }
+
+  function publish () {
+    if (!zone.isOver.value || !zone.willAccept.value) {
+      release()
+      return
+    }
+
+    const indicator = zone.indicator.value
+    root.aim({
+      column: column.ticket.id,
+      slot: isNull(indicator) ? undefined : { index: indicator.index, edge: indicator.edge },
+    })
+  }
+
+  watch(
+    () => [
+      zone.isOver.value,
+      zone.willAccept.value,
+      zone.indicator.value?.index,
+      zone.indicator.value?.edge,
+    ] as const,
+    publish,
+  )
+
   onBeforeUnmount(() => {
+    release()
     zone.unregister()
   })
 
-  const isTarget = toRef(() => root.preview.value?.column === column.ticket.id)
+  const isTarget = toRef(() =>
+    root.preview.value?.column === column.ticket.id
+    || root.pointer.value?.column === column.ticket.id,
+  )
 
   const slotProps = toRef((): KanbanListSlotProps => ({
     isOver: zone.isOver.value && zone.willAccept.value,

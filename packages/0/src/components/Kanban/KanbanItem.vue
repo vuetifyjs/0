@@ -61,7 +61,7 @@
     isDragging: boolean
     /** Whether the item cannot be moved */
     isDisabled: boolean
-    /** Side of this item a pending keyboard drop would land on */
+    /** Side of this item a pending keyboard or pointer drop is anchored to */
     drop: KanbanItemDrop | undefined
     /** Attributes to bind to the item element */
     attrs: {
@@ -112,6 +112,20 @@
   const isDragging = toRef(() => root.dnd.active.value?.value.value === value)
 
   const drop = toRef((): KanbanItemDrop | undefined => {
+    if (isDragging.value) return undefined
+
+    // Pointer index still counts the dragged card. `before` anchors only the
+    // first child; every later slot is `after` on the previous one. A stay
+    // publishes the column with no slot, so no card is marked.
+    const aim = root.pointer.value
+    if (!isNull(aim) && aim.column === column.ticket.id) {
+      const slot = aim.slot
+      if (!slot) return undefined
+      if (slot.edge === 'before' && slot.index === 0 && index.value === 0) return 'before'
+      if (slot.edge === 'after' && index.value === slot.index - 1) return 'after'
+      return undefined
+    }
+
     const target = root.preview.value
     if (isNull(target) || target.column !== column.ticket.id || isGrabbed.value) return undefined
 

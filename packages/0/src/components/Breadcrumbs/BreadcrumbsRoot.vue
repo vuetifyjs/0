@@ -26,14 +26,13 @@
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Utilities
-  import { isNull, pxToNumber } from '#v0/utilities'
+  import { isNull, isNumber, isUndefined, pxToNumber } from '#v0/utilities'
   import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
-  import type { ShallowRef } from 'vue'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 
@@ -137,39 +136,64 @@
   // an interactive BreadcrumbsEllipsis).
   const expanded = shallowRef(false)
 
-  // Written imperatively by the visibility watcher below rather than derived.
-  // The group is not `reactive`, so membership is not a tracked dependency and
-  // a getter would go stale inside render effects when crumbs come and go.
+  // Set by the visibility watcher: the collapsed plan's count, kept while a disclosure is open.
   const hiddenCount = shallowRef(0)
 
   // Element measurement routing — first item/divider write to reserved refs,
   // everything else feeds into the overflow pool.
   let _firstItemIndex: number | null = null
   let _firstDividerIndex: number | null = null
+  // Highest pool key written so far; stale keys up to it are pruned after every call.
+  let max = -1
 
-  function measureToRef (el: Element | undefined, target: ShallowRef<number>) {
-    if (!IN_BROWSER || !el) {
-      target.value = 0
-      return
-    }
-    const htmlEl = el as HTMLElement
+  function outer (source: Element | number): number {
+    if (isNumber(source)) return source
+    if (!IN_BROWSER) return 0
+    const htmlEl = source as HTMLElement
     const style = getComputedStyle(htmlEl)
     const marginX = pxToNumber(style.marginLeft) + pxToNumber(style.marginRight)
-    target.value = (htmlEl.offsetWidth || 0) + marginX
+    return (htmlEl.offsetWidth || 0) + marginX
   }
 
-  function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
-    if (type === 'item' && (isNull(_firstItemIndex) || index <= _firstItemIndex)) {
-      _firstItemIndex = el ? index : null
-      measureToRef(el, firstItemWidth)
-      return
+  // Parts keep the key they leave on a reindex, since another part may own it; unheld keys drop here.
+  function prune () {
+    const live = new Set<number>()
+    for (const ticket of group.values()) {
+      if (ticket.type !== 'item' && ticket.type !== 'divider') continue
+      if (ticket.type === 'item' && ticket.index === _firstItemIndex) continue
+      if (ticket.type === 'divider' && ticket.index === _firstDividerIndex) continue
+      live.add(ticket.index)
     }
-    if (type === 'divider' && (isNull(_firstDividerIndex) || index <= _firstDividerIndex)) {
-      _firstDividerIndex = el ? index : null
-      measureToRef(el, firstDividerWidth)
-      return
+    for (let key = 0; key <= max; key++) {
+      if (!live.has(key)) overflow.measure(key, undefined)
     }
-    overflow.measure(index, el)
+  }
+
+  function measureElement (index: number, type: 'item' | 'divider', source?: Element | number): number | undefined {
+    let width: number | undefined
+    if (isUndefined(source)) {
+      // A clear routes by where the index was recorded, not by where a new width would land.
+      if (type === 'item' && index === _firstItemIndex) {
+        _firstItemIndex = null
+        firstItemWidth.value = 0
+      } else if (type === 'divider' && index === _firstDividerIndex) {
+        _firstDividerIndex = null
+        firstDividerWidth.value = 0
+      } else {
+        overflow.measure(index, undefined)
+      }
+    } else if (type === 'item' && (isNull(_firstItemIndex) || index <= _firstItemIndex)) {
+      _firstItemIndex = index
+      width = firstItemWidth.value = outer(source)
+    } else if (type === 'divider' && (isNull(_firstDividerIndex) || index <= _firstDividerIndex)) {
+      _firstDividerIndex = index
+      width = firstDividerWidth.value = outer(source)
+    } else {
+      max = Math.max(max, index)
+      width = overflow.measure(index, source)
+    }
+    prune()
+    return width
   }
 
   watch(

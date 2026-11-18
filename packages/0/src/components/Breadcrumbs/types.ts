@@ -40,6 +40,11 @@ export interface BreadcrumbsRootContext {
   hiddenCount: Readonly<ShallowRef<number>>
   /** Measured ellipsis width in pixels (set by BreadcrumbsEllipsis) */
   ellipsisWidth: ShallowRef<number>
-  /** Route element measurement — first item/divider go to reserved space, rest to overflow */
-  measureElement: (index: number, type: 'item' | 'divider', el: Element | undefined) => void
+  /**
+   * Record a part's width under its index — the first item and first divider go to
+   * reserved space, the rest to the overflow pool. Pass the element to measure it, a
+   * number to record a width without reading the DOM, or `undefined` to clear. Returns
+   * the width now recorded.
+   */
+  measureElement: (index: number, type: 'item' | 'divider', source?: Element | number) => number | undefined
 }

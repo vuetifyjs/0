@@ -76,6 +76,21 @@
     index: number
   }
 
+  export interface KanbanPointer {
+    /** Column whose list is under the pointer */
+    column: ID
+    /**
+     * Slot the drop line is anchored to.
+     * Absent on an empty list, and on the dragged item's own slot (a stay).
+     * `edge: 'before'` anchors the first child only; every other slot is
+     * `'after'` on the previous child. The index still counts the dragged item.
+     */
+    slot?: {
+      index: number
+      edge: 'before' | 'after'
+    }
+  }
+
   export interface KanbanGrab {
     /** The picked-up item's value */
     value: unknown
@@ -100,6 +115,10 @@
     grabbed: Readonly<ShallowRef<KanbanGrab | null>>
     /** Pending keyboard drop target, or null when it equals the origin */
     preview: Readonly<Ref<KanbanPosition | null>>
+    /** Accepted pointer hover, or null when nothing is dragged over a list */
+    pointer: Readonly<ShallowRef<KanbanPointer | null>>
+    /** Set or clear `pointer`. Lists publish; items and columns read. */
+    aim: (next: KanbanPointer | null) => void
     /** Item value that should take focus after it re-renders */
     pending: ShallowRef<unknown>
     /** Latest announcement for Kanban.LiveRegion */
@@ -192,6 +211,7 @@
   })
 
   const grabbed = shallowRef<KanbanGrab | null>(null)
+  const pointer = shallowRef<KanbanPointer | null>(null)
   const pending = shallowRef<unknown>()
   const message = shallowRef('')
   const instructions = shallowRef<string>()
@@ -204,6 +224,10 @@
     if (origin.column === target.column && origin.index === target.index) return null
     return target
   })
+
+  function aim (next: KanbanPointer | null) {
+    pointer.value = next
+  }
 
   function name (value: unknown, label?: string) {
     if (label) return label
@@ -434,6 +458,8 @@
     isDisabled,
     grabbed: shallowReadonly(grabbed),
     preview,
+    pointer: shallowReadonly(pointer),
+    aim,
     pending,
     message: shallowReadonly(message),
     instructions,
