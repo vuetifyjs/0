@@ -174,6 +174,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Rating](https://0.vuetifyjs.com/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | [Slider](https://0.vuetifyjs.com/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](https://0.vuetifyjs.com/components/forms/switch) | Toggle switch with on/off states and label association |
+| [TimePicker](https://0.vuetifyjs.com/components/forms/time-picker) | Segmented hour, minute, and second spinbuttons with an optional meridiem |
 
 #### Data
 
@@ -241,6 +242,7 @@ Selection management composables built on `createRegistry`:
 - [`createCombobox`](https://0.vuetifyjs.com/composables/forms/create-combobox) - Combobox state management with filtering and virtual focus
 - [`createRating`](https://0.vuetifyjs.com/composables/forms/create-rating) - Bounded rating value with discrete items and half-step support
 - [`createSlider`](https://0.vuetifyjs.com/composables/forms/create-slider) - Slider state with snapping, range mode, and step control
+- [`createTimePicker`](https://0.vuetifyjs.com/composables/forms/create-time-picker) - Segmented time value with 12- and 24-hour cycles, step snapping, and min/max bounds
 
 #### Data
 

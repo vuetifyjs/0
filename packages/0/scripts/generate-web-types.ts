@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 
 import { createChecker } from 'vue-component-meta'
 
+import { isInternal } from './internal.ts'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const PACKAGE_ROOT = resolve(ROOT, 'packages/0')
@@ -71,6 +73,8 @@ async function run () {
 
       const componentName = entry.replace('.vue', '')
       const filePath = resolve(dirPath, entry)
+
+      if (isInternal(readFileSync(filePath, 'utf8'))) continue
 
       console.log(`Processing ${componentName}...`)
 

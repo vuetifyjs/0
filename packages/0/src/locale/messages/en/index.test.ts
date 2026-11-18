@@ -68,7 +68,7 @@ describe('locale/messages/en', () => {
   it('should export an English aria-string catalog for every v0 component namespace', () => {
     expect(en).toBeTypeOf('object')
 
-    for (const key of ['AlertDialog', 'Avatar', 'Breadcrumbs', 'Button', 'Carousel', 'Combobox', 'DataGrid', 'Dialog', 'Input', 'NumberField', 'Pagination', 'Rating', 'Slider', 'Snackbar', 'Splitter', 'Tour']) {
+    for (const key of ['AlertDialog', 'Avatar', 'Breadcrumbs', 'Button', 'Carousel', 'Combobox', 'DataGrid', 'Dialog', 'Input', 'NumberField', 'Pagination', 'Rating', 'Slider', 'Snackbar', 'Splitter', 'TimePicker', 'Tour']) {
       expect(en).toHaveProperty(key)
     }
   })
@@ -78,6 +78,8 @@ describe('locale/messages/en', () => {
     expect(en.Pagination.status).toContain('{page}')
     expect(en.Pagination.status).toContain('{pages}')
     expect(en.Rating.valueText).toContain('{value}')
+    expect(en.TimePicker.hourText).toContain('{hour}')
+    expect(en.TimePicker.hourText).toContain('{period}')
     expect(en.Carousel.slide).toContain('{current}')
   })
 

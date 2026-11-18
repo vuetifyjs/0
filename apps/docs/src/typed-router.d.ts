@@ -108,6 +108,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/data/virtualizer': RouteRecordInfo<
+      '/components/data/virtualizer',
+      '/components/data/virtualizer',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/alert-dialog': RouteRecordInfo<
       '/components/disclosure/alert-dialog',
       '/components/disclosure/alert-dialog',
@@ -251,6 +258,13 @@ declare module 'vue-router/auto-routes' {
     '/components/forms/switch': RouteRecordInfo<
       '/components/forms/switch',
       '/components/forms/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/components/forms/time-picker': RouteRecordInfo<
+      '/components/forms/time-picker',
+      '/components/forms/time-picker',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -517,6 +531,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/forms/create-slider': RouteRecordInfo<
       '/composables/forms/create-slider',
       '/composables/forms/create-slider',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/forms/create-time-picker': RouteRecordInfo<
+      '/composables/forms/create-time-picker',
+      '/composables/forms/create-time-picker',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -888,6 +909,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-toggle-scope': RouteRecordInfo<
       '/composables/system/use-toggle-scope',
       '/composables/system/use-toggle-scope',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/system/use-typeahead': RouteRecordInfo<
+      '/composables/system/use-typeahead',
+      '/composables/system/use-typeahead',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1686,6 +1714,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/components/data/virtualizer.md': {
+      routes:
+        | '/components/data/virtualizer'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/components/disclosure/alert-dialog.md': {
       routes:
         | '/components/disclosure/alert-dialog'
@@ -1849,6 +1885,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/switch.md': {
       routes:
         | '/components/forms/switch'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/components/forms/time-picker.md': {
+      routes:
+        | '/components/forms/time-picker'
       views:
         | never
       pathParamNames:
@@ -2153,6 +2197,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/forms/create-slider.md': {
       routes:
         | '/composables/forms/create-slider'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/forms/create-time-picker.md': {
+      routes:
+        | '/composables/forms/create-time-picker'
       views:
         | never
       pathParamNames:
@@ -2577,6 +2629,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-toggle-scope.md': {
       routes:
         | '/composables/system/use-toggle-scope'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/composables/system/use-typeahead.md': {
+      routes:
+        | '/composables/system/use-typeahead'
       views:
         | never
       pathParamNames:

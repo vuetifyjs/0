@@ -1,0 +1,49 @@
+/**
+ * @module TimePickerHiddenInput
+ *
+ * @see https://0.vuetifyjs.com/components/forms/time-picker
+ *
+ * @remarks
+ * Hidden native input for form submission. Root renders it when you set
+ * `name`. Submits the time the fields show as a 24-hour string, or an
+ * empty string while a field is still empty.
+ */
+
+<script lang="ts">
+  // Context
+  import { useTimePickerRoot } from './TimePickerRoot.vue'
+
+  // Utilities
+  import { toRef } from 'vue'
+
+  export interface TimePickerHiddenInputProps {
+    /** Namespace for connecting to TimePicker.Root. */
+    namespace?: string
+  }
+</script>
+
+<script setup lang="ts">
+  defineOptions({ name: 'TimePickerHiddenInput' })
+
+  const {
+    namespace = 'v0:time-picker',
+  } = defineProps<TimePickerHiddenInputProps>()
+
+  const root = useTimePickerRoot(namespace)
+
+  const name = toRef(() => root.name.value)
+  const value = toRef(() => root.display.value ?? '')
+  const form = toRef(() => root.form.value)
+  const isDisabled = toRef(() => root.isDisabled.value)
+</script>
+
+<template>
+  <input
+    :disabled="isDisabled || undefined"
+    :form
+    :name
+    tabindex="-1"
+    type="hidden"
+    :value
+  >
+</template>

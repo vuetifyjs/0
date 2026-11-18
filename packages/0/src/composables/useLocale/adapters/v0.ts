@@ -1,5 +1,5 @@
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+// Composables
+import { useLogger } from '#v0/composables/useLogger'
 
 // Adapters
 import { LocaleAdapter } from './adapter'
@@ -10,6 +10,10 @@ import { isObject, isString, isUndefined } from '#v0/utilities'
 // Types
 import type { ID } from '#v0/types'
 import type { LocaleAdapterContext } from './adapter'
+
+// Locale ids already warned about, so a server that creates a locale per
+// request warns once.
+const REJECTED = /* @__PURE__ */ new Set<ID>()
 
 /**
  * Default locale adapter for @vuetify/v0.
@@ -38,9 +42,20 @@ export class V0LocaleAdapter extends LocaleAdapter {
   n (value: number): string {
     const locale = this.context.selectedId.value
 
-    if (!IN_BROWSER || !locale) return value.toString()
+    if (!locale) return value.toString()
 
-    return new Intl.NumberFormat(String(locale)).format(value)
+    // A locale id is any registry key, so it may not be a language tag Intl
+    // accepts. The bare number is the same on the server and the client.
+    try {
+      return new Intl.NumberFormat(String(locale)).format(value)
+    } catch {
+      if (__DEV__ && !REJECTED.has(locale)) {
+        REJECTED.add(locale)
+        useLogger().warn(`useLocale: locale "${String(locale)}" is not a language tag Intl.NumberFormat accepts; n() returns the number unformatted`)
+      }
+
+      return value.toString()
+    }
   }
 
   private lookup (key: string, params: unknown[]): string | undefined {

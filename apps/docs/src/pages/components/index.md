@@ -88,6 +88,7 @@ Form control components with accessibility and validation support.
 | [Rating](/components/forms/rating) | Star/icon rating with hover preview, half-stars, and keyboard navigation |
 | [Slider](/components/forms/slider) | Range input with snapping, range mode, and custom tracks |
 | [Switch](/components/forms/switch) | Toggle switch with on/off states and label association |
+| [TimePicker](/components/forms/time-picker) | Segmented hour, minute, and second spinbuttons with an optional meridiem |
 
 ## Data
 

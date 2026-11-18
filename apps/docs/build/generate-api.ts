@@ -22,6 +22,8 @@ import { parseFrontmatter } from './frontmatter'
 import type { InterfaceDeclaration, JSDocableNode, TypeAliasDeclaration } from 'ts-morph'
 import type { Plugin } from 'vite'
 
+import { isInternal } from '../../../packages/0/scripts/internal'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
@@ -274,9 +276,10 @@ async function findComponentFiles (): Promise<string[]> {
     const entries = await readdir(dirPath).catch(() => [])
 
     for (const entry of entries) {
-      if (entry.endsWith('.vue')) {
-        files.push(resolve(dirPath, entry))
-      }
+      if (!entry.endsWith('.vue')) continue
+
+      const file = resolve(dirPath, entry)
+      if (!isInternal(readFileSync(file, 'utf8'))) files.push(file)
     }
   }
 

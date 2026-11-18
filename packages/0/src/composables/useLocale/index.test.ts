@@ -751,4 +751,17 @@ describe('createLocale', () => {
       expect(locale.ti('missing')).toBeUndefined()
     })
   })
+
+  it('should fall back to the bare number for a locale id Intl rejects, and warn once', () => {
+    // An id no other test uses: the warning is given once per id for the
+    // life of the module.
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const locale = createLocale({ default: 'no_such_tag', messages: { no_such_tag: {} } })
+
+    expect(locale.n(1234.5)).toBe('1234.5')
+    expect(locale.n(7)).toBe('7')
+    expect(createLocale({ default: 'no_such_tag', messages: { no_such_tag: {} } }).n(7)).toBe('7')
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(expect.stringContaining('no_such_tag'))
+  })
 })
