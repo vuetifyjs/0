@@ -1953,6 +1953,44 @@ describe('carousel', () => {
       expect(regionProps.attrs.role).toBe('status')
     })
 
+    it('should silence the live region while autoplay is running', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+      let regionProps: any
+
+      mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [
+              h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+              h(Carousel.LiveRegion as any, {}, {
+                default: (p: any) => {
+                  regionProps = p
+                  return h('div', p.text)
+                },
+              }),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('polite')
+
+      rootProps.play()
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('off')
+
+      rootProps.stop()
+      await nextTick()
+      expect(regionProps.attrs['aria-live']).toBe('polite')
+
+      vi.useRealTimers()
+    })
+
     it('should reflect current slide index (1-indexed)', async () => {
       let regionProps: any
 
@@ -2293,6 +2331,36 @@ describe('carousel', () => {
       expect(viewportProps.attrs.style).toBeDefined()
     })
 
+    it('should expose the viewport element', async () => {
+      const wrapper = mount(Carousel.Root, {
+        slots: {
+          default: () => h(Carousel.Viewport as any, {}, {
+            default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any)
+      expect(viewport.vm.element).toBe(viewport.element)
+    })
+
+    it('should expose a null element when the viewport is renderless', async () => {
+      const wrapper = mount(Carousel.Root, {
+        slots: {
+          default: () => h(Carousel.Viewport as any, { renderless: true }, {
+            default: () => h('span', 'A'),
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any)
+      expect(viewport.vm.element).toBeNull()
+    })
+
     it('should expose vertical orientation in attrs', async () => {
       let viewportProps: any
 
@@ -2375,7 +2443,7 @@ describe('carousel', () => {
       expect(styles.includes('user-select') || styles.includes('scroll-snap-type: none')).toBe(true)
     })
 
-    it('should pause autoplay on touchstart and resume on touchend', async () => {
+    it('should stop autoplay on touch and leave it stopped', async () => {
       vi.useFakeTimers()
 
       let rootProps: any
@@ -2400,16 +2468,416 @@ describe('carousel', () => {
       await nextTick()
       rootProps.play()
       await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
 
       const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
 
       viewportEl.dispatchEvent(new Event('touchstart'))
       await nextTick()
-      expect(rootProps.isPaused).toBe(true)
+      expect(rootProps.isAutoplay).toBe(false)
+      expect(rootProps.isPaused).toBe(false)
 
       viewportEl.dispatchEvent(new Event('touchend'))
       await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should stop autoplay when focus enters and not restart when it leaves', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('focusin'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      wrapper.element.dispatchEvent(new Event('focusout'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should keep autoplay running when the pointer is over a control outside the slides', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return [
+              h(Carousel.Viewport as any, {}, {
+                default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+              }),
+              h('button', { id: 'play' }, 'Play'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.get('#play').element.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
       expect(rootProps.isPaused).toBe(false)
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      viewport.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should pause autoplay while the pointer is over the carousel', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should not resume on pointer leave after stop', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      rootProps.stop()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(false)
+      expect(rootProps.isPaused).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should not stop autoplay when focus comes from a click', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerdown'))
+      wrapper.element.dispatchEvent(new Event('focusin'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      window.dispatchEvent(new Event('pointerup'))
+
+      vi.useRealTimers()
+    })
+
+    it('should not resume a consumer pause on pointer leave', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      rootProps.pause()
+      await nextTick()
+
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      wrapper.element.dispatchEvent(new Event('pointerleave'))
+      await nextTick()
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should pause when play starts with the pointer already over the slides', async () => {
+      vi.useFakeTimers()
+      const matches = Element.prototype.matches
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Viewport as any, {}, {
+              default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            })
+          },
+        },
+      })
+
+      await nextTick()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      Element.prototype.matches = function (this: Element, selectors: string) {
+        if (selectors === ':hover') return this === viewport
+        return matches.call(this, selectors)
+      } as typeof matches
+
+      try {
+        wrapper.element.dispatchEvent(new Event('pointerenter'))
+        rootProps.play()
+        await nextTick()
+        expect(rootProps.isAutoplay).toBe(true)
+        expect(rootProps.isPaused).toBe(true)
+      } finally {
+        Element.prototype.matches = matches
+        vi.useRealTimers()
+      }
+    })
+
+    it('should keep playing when play starts over the root but not the slides', async () => {
+      vi.useFakeTimers()
+      const matches = Element.prototype.matches
+      Element.prototype.matches = function (this: Element, selectors: string) {
+        if (selectors === ':hover') return false
+        return matches.call(this, selectors)
+      } as typeof matches
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Viewport as any, {}, {
+              default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            })
+          },
+        },
+      })
+
+      try {
+        await nextTick()
+        wrapper.element.dispatchEvent(new Event('pointerenter'))
+        rootProps.play()
+        await nextTick()
+        expect(rootProps.isAutoplay).toBe(true)
+        expect(rootProps.isPaused).toBe(false)
+      } finally {
+        Element.prototype.matches = matches
+        vi.useRealTimers()
+      }
+    })
+
+    it('should pause when play starts over a root with no viewport element', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      rootProps.play()
+      await nextTick()
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should ignore a pointerover whose target is not an element', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Viewport as any, {}, {
+              default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+
+      const viewport = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      const text = document.createTextNode('')
+      viewport.append(text)
+      text.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(false)
+
+      vi.useRealTimers()
+    })
+
+    it('should pause on pointerover when no viewport is registered', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      wrapper.element.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }))
+      await nextTick()
+
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should pause on pointerenter when the viewport is renderless', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Viewport as any, { renderless: true }, {
+              default: () => h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+            })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      wrapper.element.dispatchEvent(new Event('pointerenter'))
+      await nextTick()
+
+      expect(rootProps.isAutoplay).toBe(true)
+      expect(rootProps.isPaused).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should stop autoplay on focus after the pointer is cancelled', async () => {
+      vi.useFakeTimers()
+
+      let rootProps: any
+
+      const wrapper = mount(Carousel.Root, {
+        props: { autoplay: 1000 },
+        slots: {
+          default: (props: any) => {
+            rootProps = props
+            return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+          },
+        },
+      })
+
+      await nextTick()
+      rootProps.play()
+      wrapper.element.dispatchEvent(new Event('pointerdown'))
+      window.dispatchEvent(new Event('pointercancel'))
+      wrapper.element.dispatchEvent(new Event('focusin'))
+      await nextTick()
+
+      expect(rootProps.isAutoplay).toBe(false)
 
       vi.useRealTimers()
     })
@@ -2727,6 +3195,105 @@ describe('carousel', () => {
       await nextTick()
 
       expect(wrapper.exists()).toBe(true)
+    })
+
+    it('should settle the slide under the pointer when the step is known', async () => {
+      // happy-dom reports 0×0, so the step stays 0 and mouseup bails before
+      // the release. A width here is what lets the measurement run.
+      const style = vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        width: '400px',
+        height: '200px',
+        paddingTop: '0px',
+        paddingRight: '0px',
+        paddingBottom: '0px',
+        paddingLeft: '0px',
+        borderTopWidth: '0px',
+        borderRightWidth: '0px',
+        borderBottomWidth: '0px',
+        borderLeftWidth: '0px',
+        boxSizing: 'content-box',
+        writingMode: 'horizontal-tb',
+      } as CSSStyleDeclaration)
+      const protoScrollTo = HTMLElement.prototype.scrollTo
+
+      try {
+        const wrapper = mount(Carousel.Root, {
+          slots: {
+            default: () => [
+              h(Carousel.Viewport as any, {}, {
+                default: () => [
+                  h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') }),
+                  h(Carousel.Item as any, { value: 'b' }, { default: () => h('div', 'B') }),
+                ],
+              }),
+            ],
+          },
+        })
+
+        const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+        const items = wrapper.findAllComponents(Carousel.Item as any)
+        Object.defineProperty(items[0].element, 'offsetLeft', { configurable: true, value: 0 })
+        Object.defineProperty(items[1].element, 'offsetLeft', { configurable: true, value: 200 })
+        Object.defineProperty(viewportEl, 'scrollLeft', { configurable: true, writable: true, value: 200 })
+        const scrollTo = vi.fn()
+        HTMLElement.prototype.scrollTo = scrollTo
+
+        // mousedown is bound on a post flush; the document listeners follow
+        // the snapDisabled watch on the flush after the press.
+        await nextTick()
+        viewportEl.dispatchEvent(new MouseEvent('mousedown', {
+          button: 0,
+          clientX: 100,
+          bubbles: true,
+        }))
+        await nextTick()
+        document.dispatchEvent(new MouseEvent('mousemove', { clientX: 80, bubbles: true }))
+        document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+        await nextTick()
+
+        expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ left: 200 }))
+        expect(viewportEl.style.scrollSnapType).toContain('mandatory')
+      } finally {
+        HTMLElement.prototype.scrollTo = protoScrollTo
+        style.mockRestore()
+      }
+    })
+
+    it('should release a drag after the viewport element is gone', async () => {
+      const renderless = ref(false)
+      let viewportProps: any
+
+      const Host = defineComponent({
+        setup () {
+          return () => h(Carousel.Root, null, {
+            default: () => h(Carousel.Viewport as any, { renderless: renderless.value }, {
+              default: (props: any) => {
+                viewportProps = props
+                return h(Carousel.Item as any, { value: 'a' }, { default: () => h('div', 'A') })
+              },
+            }),
+          })
+        },
+      })
+
+      const wrapper = mount(Host)
+      await nextTick()
+
+      const viewportEl = wrapper.findComponent(Carousel.Viewport as any).element as HTMLElement
+      viewportEl.dispatchEvent(new MouseEvent('mousedown', {
+        button: 0,
+        clientX: 40,
+        bubbles: true,
+      }))
+      await nextTick()
+
+      renderless.value = true
+      await nextTick()
+
+      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+      await nextTick()
+
+      expect(viewportProps.isDragging).toBe(false)
     })
 
     it('should fire scrollend listener and reset syncing', async () => {
@@ -3134,7 +3701,7 @@ describe('carousel', () => {
         },
       })
 
-      expect(rootProps.attrs['aria-label']).toBe('Carousel')
+      expect(rootProps.attrs['aria-label']).toBe('Slides')
     })
 
     it('should use the translated locale string for aria-label when one is registered', async () => {

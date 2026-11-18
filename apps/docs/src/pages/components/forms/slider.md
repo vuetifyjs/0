@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Slider/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/slider/
 related:
   - /composables/forms/create-slider
 ---

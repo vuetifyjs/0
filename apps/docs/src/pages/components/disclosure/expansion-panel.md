@@ -11,6 +11,7 @@ features:
   github: /components/ExpansionPanel/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/
 related:
   - /composables/selection/create-selection
   - /components/disclosure/popover

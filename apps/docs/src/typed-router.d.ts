@@ -1291,6 +1291,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/bulma/conformance': RouteRecordInfo<
+      '/systems/bulma/conformance',
+      '/systems/bulma/conformance',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/bulma/dropdown': RouteRecordInfo<
       '/systems/bulma/dropdown',
       '/systems/bulma/dropdown',
@@ -1487,6 +1494,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/systems/emerald/figma': RouteRecordInfo<
+      '/systems/emerald/figma',
+      '/systems/emerald/figma',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/systems/emerald/icon': RouteRecordInfo<
       '/systems/emerald/icon',
       '/systems/emerald/icon',
@@ -1602,6 +1616,13 @@ declare module 'vue-router/auto-routes' {
     '/systems/emerald/textarea': RouteRecordInfo<
       '/systems/emerald/textarea',
       '/systems/emerald/textarea',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/systems/emerald/tokens': RouteRecordInfo<
+      '/systems/emerald/tokens',
+      '/systems/emerald/tokens',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -3066,6 +3087,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/bulma/conformance.md': {
+      routes:
+        | '/systems/bulma/conformance'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/bulma/dropdown.md': {
       routes:
         | '/systems/bulma/dropdown'
@@ -3290,6 +3319,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/systems/emerald/figma.md': {
+      routes:
+        | '/systems/emerald/figma'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/systems/emerald/icon.md': {
       routes:
         | '/systems/emerald/icon'
@@ -3421,6 +3458,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/systems/emerald/textarea.md': {
       routes:
         | '/systems/emerald/textarea'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/systems/emerald/tokens.md': {
+      routes:
+        | '/systems/emerald/tokens'
       views:
         | never
       pathParamNames:

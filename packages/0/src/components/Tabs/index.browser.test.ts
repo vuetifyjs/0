@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { renderToString } from 'vue/server-renderer'
 
-import { Tabs } from './index'
+import { Tabs, useTabsRoot } from './index'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick, ref, useTemplateRef } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref, shallowRef, useTemplateRef } from 'vue'
 
 describe('tabs', () => {
   describe('root', () => {
@@ -2148,6 +2148,40 @@ describe('tabs', () => {
 
       expect(await press(wrapper, 1, 'ArrowDown')).toBe('c')
       expect(await press(wrapper, 2, 'ArrowUp')).toBe('b')
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('context size', () => {
+    it('should provide a live size', async () => {
+      let context: ReturnType<typeof useTabsRoot> | undefined
+      const third = shallowRef(false)
+
+      const Spy = defineComponent({
+        setup () {
+          context = useTabsRoot('v0:tabs')
+          return () => null
+        },
+      })
+
+      const wrapper = mount(Tabs.Root, {
+        slots: {
+          default: () => [
+            h(Tabs.Item as any, { value: 'a' }, () => 'a'),
+            h(Tabs.Item as any, { value: 'b' }, () => 'b'),
+            third.value ? h(Tabs.Item as any, { value: 'c' }, () => 'c') : null,
+            h(Spy),
+          ],
+        },
+      })
+
+      await nextTick()
+      expect(context!.size).toBe(2)
+
+      third.value = true
+      await nextTick()
+      expect(context!.size).toBe(3)
 
       wrapper.unmount()
     })

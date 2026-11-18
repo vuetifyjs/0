@@ -11,6 +11,7 @@ features:
   github: /components/Carousel/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/carousel/
 related:
   - /components/providers/step
   - /composables/selection/create-step
@@ -66,9 +67,9 @@ The Carousel provides slide navigation with native drag/swipe via CSS scroll-sna
 
 ### Image Gallery
 
-The gallery uses dot indicators, overlay Previous/Next arrows, autoplay with a pause toggle and a timer bar, and a peek viewport that reveals the edges of the neighbouring slides. The selected slide drives a caption panel below the carousel, so the demo also shows how to read the active value back out.
+The gallery uses dot indicators, overlay Previous/Next arrows, autoplay with a stop/play control and a timer bar, and a peek viewport that reveals the edges of the neighbouring slides. The selected slide drives a caption panel below the carousel, so the demo also shows how to read the active value back out.
 
-The gallery leans on the full compound surface. `Carousel.Root` is `circular` with `:autoplay` set to a fixed interval, and its `v-model` carries the active slide value — the same value `Carousel.Item` registers with `:value`. `Carousel.Indicator` hands each dot an `attrs` object (role, `aria-selected`, `aria-controls`, and roving tabindex) that you bind with `v-bind="item.attrs"` for keyboard navigation. The peek is pure CSS: horizontal padding on `Carousel.Viewport` carves the bleed, and the component mirrors that padding onto `scroll-padding` so snap points stay aligned. Autoplay does not start on its own — the play button calls the root's `play` and `stop` slot props, and the carousel auto-pauses the timer during drag and touch. `Carousel.Progress` visualizes the remaining time, faded out via `data-[state=idle]:opacity-0` until playback begins.
+The gallery leans on the full compound surface. `Carousel.Root` is `circular` with `:autoplay` set to a fixed interval, and its `v-model` carries the active slide value — the same value `Carousel.Item` registers with `:value`. `Carousel.Indicator` hands each dot an `attrs` object (role, `aria-selected`, `aria-controls`, and roving tabindex) that you bind with `v-bind="item.attrs"` for keyboard navigation. The peek is pure CSS: horizontal padding on `Carousel.Viewport` carves the bleed, and the component mirrors that padding onto `scroll-padding` so snap points stay aligned. Autoplay does not start on its own. The play button calls the root's `play` and `stop` slot props, and its click is stopped so it does not fall through to the carousel. Hovering the slides, arrows, dots, or progress pauses rotation, and moving the pointer away starts it again. The play button still starts rotation while the pointer is on it. Moving focus into the carousel, or dragging a slide, stops rotation until that button starts it again. `Carousel.Progress` visualizes the remaining time, faded out via `data-[state=idle]:opacity-0` until playback begins.
 
 Reach for this layout when a single carousel needs to be discoverable through several input paths at once — common for marketing heroes, onboarding flows, and product galleries. The tradeoff is surface area: a barebones swipe carousel needs only Root, Viewport, and Item. Because navigation is built on [createStep](/composables/selection/create-step), you get the same first/last/next/prev model the [Step provider](/components/providers/step) exposes; for fade transitions instead of scroll-snap sliding, compose Step with Presence rather than reaching for this scroll-based layout.
 
@@ -83,7 +84,7 @@ Reach for this layout when a single carousel needs to be discoverable through se
 
 ### Circular Navigation
 
-Enable wrapping from last slide to first with the `circular` prop.
+Enable wrapping from last slide to first with the `circular` prop. The viewport then scrolls back to the first slide.
 
 ```vue
 <template>
@@ -179,7 +180,7 @@ The Carousel implements the [WAI-ARIA Carousel Pattern](https://www.w3.org/WAI/A
 | Next | `aria-label` defaults to `"Next slide"` (`Carousel.next` key, localizable), `aria-controls` links to viewport |
 | Indicator | `role="tablist"` container with `aria-orientation`, `role="tab"` per dot, `aria-selected` |
 | Progress | `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax` |
-| LiveRegion | `role="status"`, `aria-live="polite"`, `aria-atomic` |
+| LiveRegion | `role="status"`, `aria-live="polite"` while stopped and `"off"` while auto-rotating, `aria-atomic` |
 
 Indicator dots use roving focus: Arrow Left/Right (Up/Down when vertical) move to and select the adjacent slide, and Home/End jump to the first and last. In a right-to-left context (`dir="rtl"` on the document or any ancestor), Arrow Left/Right are reversed so focus follows the visual order.
 
@@ -199,11 +200,15 @@ The Carousel is built on CSS scroll-snap for native drag/swipe support. For fade
 
 ??? How do I build an autoplay carousel?
 
-Use the `autoplay` prop with an interval in milliseconds. The root slot exposes `isAutoplay`, `isPaused`, `remaining`, `play`, `stop`, `pause`, and `resume` for controlling playback. Autoplay pauses automatically during touch and mouse drag interactions. Use `Carousel.Progress` to visualize the timer.
+Set `autoplay` to an interval in milliseconds. Nothing rotates until `play()` runs. Put that control first inside `Carousel.Root` so it is the first tab stop, and stop its click. Hovering the slides, arrows, dots, or progress pauses rotation until the pointer leaves. The play control still starts rotation while the pointer is on it. Moving keyboard focus into the carousel, or dragging a slide, calls `stop()`, and rotation stays stopped until `play()` runs again. `pause()` and `resume()` are still there when you want to hold the timer yourself. Use `Carousel.Progress` to visualize it.
 
 ```vue
 <template>
   <Carousel.Root v-slot="{ isAutoplay, play, stop }" :autoplay="5000">
+    <button type="button" @click.stop="isAutoplay ? stop() : play()">
+      {{ isAutoplay ? 'Stop slide rotation' : 'Start slide rotation' }}
+    </button>
+
     <Carousel.Viewport>
       <!-- slides -->
     </Carousel.Viewport>

@@ -11,6 +11,7 @@ features:
   github: /components/DataTable/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/table/
 related:
   - /composables/data/create-data-table
   - /composables/data/create-pagination

@@ -1,14 +1,18 @@
 <script setup lang="ts">
   import { Kanban } from '@vuetify/v0'
-  import { ref, shallowRef } from 'vue'
-  import { formatMove } from './format'
+  import { ref } from 'vue'
 
   import type { KanbanMovePayload } from '@vuetify/v0'
 
   const open = ref(['Login fails on Safari', 'Typo in footer'])
   const closed = ref(['Broken avatar upload'])
+  const log = ref<string[]>([])
 
-  const log = shallowRef<string[]>([])
+  function formatMove ({ value, from, to, fromIndex, toIndex }: KanbanMovePayload) {
+    if (from === to) return `"${value}" reordered in ${to}: ${fromIndex + 1} → ${toIndex + 1}`
+
+    return `"${value}" moved ${from} → ${to} at ${toIndex + 1}`
+  }
 
   function onMove (payload: KanbanMovePayload) {
     log.value = [formatMove(payload), ...log.value].slice(0, 4)
@@ -31,7 +35,7 @@
           <Kanban.Item
             v-for="item in items"
             :key="item"
-            class="cursor-grab touch-none select-none rounded-md border border-divider bg-surface px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
+            class="cursor-grab touch-none select-none rounded-md border border-divider bg-surface px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=dragging]:opacity-40 data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
             :value="item"
           >
             {{ item }}
@@ -52,7 +56,7 @@
           <Kanban.Item
             v-for="item in items"
             :key="item"
-            class="cursor-grab touch-none select-none rounded-md border border-divider bg-surface px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
+            class="cursor-grab touch-none select-none rounded-md border border-divider bg-surface px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary data-[state=dragging]:opacity-40 data-[state=grabbed]:ring-2 data-[state=grabbed]:ring-primary"
             :value="item"
           >
             {{ item }}

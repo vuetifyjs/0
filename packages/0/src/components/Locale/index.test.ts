@@ -409,4 +409,30 @@ describe('locale', () => {
 
     expect(capturedItem).toBeDefined()
   })
+
+  describe('context size', () => {
+    it('should provide a live size', () => {
+      const plugin = createPlugin()
+      let context: ReturnType<typeof useLocale> | undefined
+
+      const Child = defineComponent({
+        setup () {
+          context = useLocale()
+          return () => h('span')
+        },
+      })
+
+      mount(Locale, {
+        props: { locale: 'fr' },
+        global: { plugins: [plugin] },
+        slots: { default: () => h(Child) },
+      })
+
+      expect(context!.size).toBe(3)
+
+      context!.register({ id: 'de', messages: { greeting: 'Hallo' } })
+
+      expect(context!.size).toBe(4)
+    })
+  })
 })

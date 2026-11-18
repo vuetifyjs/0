@@ -60,17 +60,18 @@ Every page includes a header area (shown at the top of this page) with breadcrum
 
 | Example | Description |
 |---------|-------------|
-| <span class="whitespace-nowrap"><DocsActionChip color="text-info" icon="pencil" text="Edit this page" /></span> | Open the source file on GitHub for editing |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-info" icon="square-edit" text="Edit" /></span> | Open the source file on GitHub for editing |
 | <span class="whitespace-nowrap"><DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /></span> | File an issue via Vuetify Issues |
-| <span class="whitespace-nowrap"><DocsActionChip color="text-warning" icon="alert" text="Open issues" /></span> | View existing GitHub issues for this feature |
-| <span class="whitespace-nowrap"><DocsActionChip icon="github" text="View on GitHub" /></span> | Browse source code for components/composables |
-| <span class="whitespace-nowrap"><DocsActionChip icon="markdown" text="Copy Page as Markdown" /></span> | Copy page content for use with AI tools |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-warning" icon="alert" text="Issues" /></span> | View existing GitHub issues for this feature |
+| <span class="whitespace-nowrap"><DocsActionChip icon="github" text="Source" /></span> | Browse source code for components/composables |
+| <span class="whitespace-nowrap"><DocsActionChip icon="book-open" text="Specification" /></span> | Open the specification this page implements, when it names one |
+| <span class="whitespace-nowrap"><DocsActionChip icon="markdown" text="Markdown" /></span> | Copy page content for use with AI tools |
 
 **Metadata** (component and composable pages):
 
 | Example | Description |
 |---------|-------------|
-| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Unit-run coverage. Opens the breakdown and the test files for this feature |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
 | <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |
@@ -628,4 +629,4 @@ Found an error or want to improve the docs? Contributions are welcome:
 - Submit pull requests for fixes or enhancements
 - See the [Contributing Guide](/introduction/contributing) for details
 
-> [!TIP] The easiest way to contribute is to click <DocsActionChip color="text-info" icon="pencil" text="Edit this page" /> near the top of any documentation page.
+> [!TIP] The easiest way to contribute is to click <DocsActionChip color="text-info" icon="square-edit" text="Edit" /> near the top of any documentation page.

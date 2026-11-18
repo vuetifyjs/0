@@ -83,10 +83,14 @@
   const displayName = shallowRef<string>('')
   const isVisible = ref(false)
 
-  // Hover timing
+  // Open waits long enough that a pointer crossing a symbol does not open the
+  // card. A pending open is cancelled on leave — the hide grace is only for
+  // moving onto a card that is already open, and must not let a pass-through
+  // still show.
   let hoverTimeout: ReturnType<typeof setTimeout> | null = null
   let hideTimeout: ReturnType<typeof setTimeout> | null = null
-  const HOVER_DELAY = 200
+  let showToken = 0
+  const HOVER_DELAY = 300
   const HIDE_DELAY = 100 // Grace period when moving to popover
 
   // Position state
@@ -95,8 +99,17 @@
     maxHeight: 400,
   })
 
+  function cancelPendingShow () {
+    showToken++
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout)
+      hoverTimeout = null
+    }
+  }
+
   async function showPopover (target: HTMLElement) {
     if (!IN_BROWSER) return
+    const token = showToken
 
     // Cancel any pending hide
     if (hideTimeout) {
@@ -136,6 +149,7 @@
       case 'vue': {
         // Lazy load Vue API content
         const vueContent = await getVueApiContent()
+        if (token !== showToken) return
         if (!vueContent[apiName]) return
         activeApi.value = vueContent[apiName]
         activeApiType.value = 'vue'
@@ -145,7 +159,7 @@
     // No default
     }
 
-    if (!activeApi.value) return
+    if (token !== showToken || !activeApi.value) return
 
     // Mark as valid hover target
     target.classList.add('api-hover-valid')
@@ -158,10 +172,7 @@
   }
 
   function hidePopover () {
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout)
-      hoverTimeout = null
-    }
+    cancelPendingShow()
     if (hideTimeout) {
       clearTimeout(hideTimeout)
       hideTimeout = null
@@ -209,8 +220,18 @@
     if (!target) return
 
     cancelHide()
-    if (hoverTimeout) clearTimeout(hoverTimeout)
-    hoverTimeout = setTimeout(() => showPopover(target), HOVER_DELAY)
+    if (isVisible.value && activeTarget.value === target) return
+
+    // A different symbol dismisses the open card immediately. The new one
+    // still waits out the open delay, so skating across symbols does not
+    // retarget the card.
+    if (isVisible.value) hidePopover()
+    else cancelPendingShow()
+
+    hoverTimeout = setTimeout(() => {
+      hoverTimeout = null
+      showPopover(target)
+    }, HOVER_DELAY)
   }
 
   function onMouseLeave (e: MouseEvent) {
@@ -225,7 +246,11 @@
       if (relatedTarget.closest('[data-api-candidate]')) return
     }
 
-    // Schedule hide with grace period
+    // Drop a pending open immediately. The hide grace is only for a card
+    // that is already visible, so a pass-through cannot still appear.
+    cancelPendingShow()
+    if (!isVisible.value) return
+
     scheduleHide()
   }
 

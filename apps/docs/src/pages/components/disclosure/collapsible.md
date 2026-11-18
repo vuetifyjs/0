@@ -11,6 +11,7 @@ features:
   github: /components/Collapsible/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/
 related:
   - /components/disclosure/expansion-panel
   - /components/disclosure/dialog

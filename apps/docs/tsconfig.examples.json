@@ -50,7 +50,6 @@
     "src/examples/composables/create-queue/**",
     "src/examples/composables/create-progress/**",
     "src/examples/composables/create-timeline/**",
-    "src/examples/composables/create-registry/**",
     "src/examples/composables/create-slider/**",
     "src/examples/composables/create-group/**",
     "src/examples/composables/create-model/**",

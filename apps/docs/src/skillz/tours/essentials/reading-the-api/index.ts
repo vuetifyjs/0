@@ -242,11 +242,12 @@ export function defineTour ({ settings }: TourContext) {
           // Opening the answer and scrolling fires a mouseleave that cancels
           // the card's open delay. Dispatch once the page has stopped moving,
           // then once more if that leave landed after the first dispatch.
+          // The wait has to clear the 300ms open delay.
           target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-          await new Promise(resolve => setTimeout(resolve, 350))
+          await new Promise(resolve => setTimeout(resolve, 450))
           if (!document.querySelector('.docs-api-hover-popover')) {
             target.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-            await new Promise(resolve => setTimeout(resolve, 350))
+            await new Promise(resolve => setTimeout(resolve, 450))
           }
           raiseHover()
         },

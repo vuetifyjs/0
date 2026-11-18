@@ -214,7 +214,14 @@
 
   useProxyModel(single, model, { multiple: false })
 
-  provideRadioGroup(namespace, { ...single, name, activation: toRef(() => activation) })
+  provideRadioGroup(namespace, {
+    ...single,
+    get size () {
+      return single.size
+    },
+    name,
+    activation: toRef(() => activation),
+  })
 
   function focus (options?: FocusOptions) {
     const id = [...single.selectedIds][0]

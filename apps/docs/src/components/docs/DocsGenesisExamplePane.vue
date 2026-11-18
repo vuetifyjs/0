@@ -89,7 +89,7 @@
   }
 
   .genesis-docs-example-code:not([data-truncated]) .docs-genesis-example-pane__scroll {
-    max-height: var(--docs-code-window-max, min(42rem, 105vh));
+    max-height: var(--docs-code-window-max, min(56rem, 105vh));
     overflow: auto;
     overscroll-behavior: contain;
   }

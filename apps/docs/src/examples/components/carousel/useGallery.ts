@@ -4,16 +4,18 @@ export interface Photo {
   id: number
   title: string
   location: string
-  color: string
+  src: string
 }
+
+const cdn = 'https://cdn.vuetifyjs.com/images'
 
 export function useGallery () {
   const photos = ref<Photo[]>([
-    { id: 1, title: 'Alpine Lake', location: 'Dolomites, Italy', color: 'bg-sky-800' },
-    { id: 2, title: 'Dune Crest', location: 'Sahara, Morocco', color: 'bg-amber-700' },
-    { id: 3, title: 'Old Growth', location: 'Olympic, USA', color: 'bg-emerald-800' },
-    { id: 4, title: 'Tide Pools', location: 'Big Sur, USA', color: 'bg-cyan-800' },
-    { id: 5, title: 'Aurora', location: 'Tromsø, Norway', color: 'bg-violet-900' },
+    { id: 1, title: 'Alpine lake', location: 'Sunset', src: `${cdn}/carousel/sky.jpg` },
+    { id: 2, title: 'Red squirrel', location: 'Forest', src: `${cdn}/carousel/squirrel.jpg` },
+    { id: 3, title: 'Eagle owl', location: 'Pine', src: `${cdn}/carousel/bird.jpg` },
+    { id: 4, title: 'Night pier', location: 'Crescent', src: `${cdn}/cards/docks.jpg` },
+    { id: 5, title: 'Saguaro', location: 'Stars', src: `${cdn}/cards/sunshine.jpg` },
   ])
 
   // Autoplay interval in ms. Fixed config, never reactive.

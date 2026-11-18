@@ -9,13 +9,20 @@
 //
 // `createGithubReleases: false` on the action means it does NOT push the
 // per-package tags `changeset publish` makes locally, so `gh release create`
-// mints every tag itself at the publish commit (`--target`). That is also why
-// the substrate carries only the aggregate `v*` tag, not per-package tags.
+// mints every tag itself. The target is the commit that introduced the version
+// (`git log -S` on that package's manifest), not HEAD — a recovery run on a
+// later master push must not point the tag at commits that shipped after it.
+// Falls back to GITHUB_SHA, which is that commit on the publish run itself.
+// That is also why the substrate carries only the aggregate `v*` tag, not
+// per-package tags.
 //
-// Driven by the changesets/action `publishedPackages` output. `gh` is
-// preinstalled on the runner and authenticates via GITHUB_TOKEN.
+// Driven by the changesets/action `publishedPackages` output, plus any current
+// workspace version already on npm (recovery when an earlier run published and
+// then skipped this step). `gh` is preinstalled on the runner and authenticates
+// via GITHUB_TOKEN.
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { npmVersionVisible } from './lib/npm-visible.js'
 
 const SUBSTRATE = new Set(['@vuetify/v0', '@vuetify/paper'])
 
@@ -145,24 +152,49 @@ function overview (body) {
   return `## Overview\n\n${sections.join('\n\n')}\n\n---\n\n`
 }
 
+// True when the release is already there. False only for gh's "release not found".
+// Any other failure throws — a network blip must not look like a missing tag and
+// provoke a second `gh release create`.
 function exists (tag) {
   try {
-    execFileSync('gh', ['release', 'view', tag], { stdio: 'ignore' })
+    execFileSync('gh', ['release', 'view', tag], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
     return true
-  } catch {
-    return false
+  } catch (error) {
+    const err = `${error.stderr ?? ''}\n${error.stdout ?? ''}`
+    if (err.includes('release not found')) return false
+    throw error
   }
 }
 
-// `npm view name@version` exits non-zero when that exact version is not on the
-// registry — the "is it published?" signal used to reconcile recovery runs.
+// Version document, not the packument — the same signal verify-published uses,
+// so a recovery run can see a version whose packument has not caught up.
 function onNpm (name, value) {
+  return npmVersionVisible(name, value)
+}
+
+function manifestPath (name) {
+  if (name === '@vuetify/v0') return 'packages/0/package.json'
+  if (name === '@vuetify/paper') return 'packages/paper/package.json'
+  return `packages/${name.split('/').pop()}/package.json`
+}
+
+// The commit that introduced `"version": "<value>"` in this package's manifest.
+function versionCommit (name, value) {
   try {
-    execFileSync('npm', ['view', `${name}@${value}`, 'version'], { stdio: 'ignore' })
-    return true
+    const hash = execFileSync('git', [
+      'log', '-1', '--format=%H', '-S', `"version": "${value}"`, '--', manifestPath(name),
+    ], { encoding: 'utf8' }).trim()
+    return hash || undefined
   } catch {
-    return false
+    return undefined
   }
+}
+
+function targetFor (name, value) {
+  const commit = versionCommit(name, value)
+  if (commit) return commit
+  console.log(`::warning::could not find the version-bump commit for ${name}@${value}; tagging ${sha}`)
+  return sha
 }
 
 // `gh release create` mints the tag at `target` (the publish commit) and the
@@ -176,11 +208,6 @@ function onNpm (name, value) {
 // `--latest=false`. A prerelease version (anything carrying a `-`, e.g.
 // `-beta.N`) is also flagged `--prerelease` so a beta can never be Latest.
 function release (tag, body, target, { prerelease = false, latest = false } = {}) {
-  if (exists(tag)) {
-    console.log(`release ${tag} already exists, skipping`)
-    return
-  }
-
   const args = ['release', 'create', tag, '--title', tag, '--notes', body || 'No release notes.', '--target', target]
   if (prerelease) args.push('--prerelease')
   args.push(latest && !prerelease ? '--latest' : '--latest=false')
@@ -191,7 +218,41 @@ const failures = []
 
 // Each release is isolated so one failure (e.g. an API hiccup) reports and is
 // retried on a re-run instead of aborting every release not yet minted.
-function mint (tag, body, target, options) {
+// A package this run published (`seen`) is minted from that receipt even when
+// the registry read still lags. A package only reconciled from the working
+// tree has no receipt, so it is minted only when the read succeeds.
+function mint (tag, body, target, options, spec) {
+  let present
+  try {
+    present = exists(tag)
+  } catch (error) {
+    const message = `${error.stderr ?? error.message ?? ''}`.trim()
+    // This run's publish must fail loud. A release that was only reconciled
+    // from npm can wait for the next push — failing here would turn every
+    // unrelated master push red on a GitHub hiccup.
+    if (seen.has(spec.name)) {
+      console.error(`::error::could not read release ${tag}: ${message}`)
+      failures.push(tag)
+    } else {
+      console.log(`::warning::could not tell whether ${tag} exists (${message}); a later push will retry`)
+    }
+    return
+  }
+
+  if (present) {
+    console.log(`release ${tag} already exists, skipping`)
+    return
+  }
+
+  if (!npmVersionVisible(spec.name, spec.version)) {
+    if (!seen.has(spec.name)) {
+      console.error(`::error::${spec.name}@${spec.version} is not on npm — not minting ${tag}`)
+      failures.push(tag)
+      return
+    }
+    console.log(`::warning::${spec.name}@${spec.version} is not readable on the registry yet; minting ${tag} from the publish receipt`)
+  }
+
   try {
     release(tag, body, target, options)
   } catch (error) {
@@ -212,7 +273,11 @@ if (substrate) {
     body += `\n\n---\n\`@vuetify/paper@${version['@vuetify/paper']}\` shipped in lockstep.`
   }
   const pre = substrate.includes('-')
-  mint(`v${substrate}`, body, sha, { prerelease: pre, latest: !pre })
+  const substrateName = version['@vuetify/v0'] ? '@vuetify/v0' : '@vuetify/paper'
+  mint(`v${substrate}`, body, targetFor(substrateName, substrate), { prerelease: pre, latest: !pre }, {
+    name: substrateName,
+    version: substrate,
+  })
 }
 
 // Each non-substrate package (@paper/* design systems, @vuetify/play) releases
@@ -222,10 +287,10 @@ for (const { name, version: value } of published) {
   if (SUBSTRATE.has(name)) continue
   const dir = name.split('/').pop()
   const body = notes(`packages/${dir}/CHANGELOG.md`, value)
-  mint(`${name}@${value}`, overview(body) + body, sha, {
+  mint(`${name}@${value}`, overview(body) + body, targetFor(name, value), {
     prerelease: value.includes('-'),
     latest: false,
-  })
+  }, { name, version: value })
 }
 
 // Fail the step (after attempting every release) if any could not be minted, so a

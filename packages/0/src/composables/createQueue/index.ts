@@ -350,6 +350,7 @@ export function createQueue (_options: QueueOptions = {}): QueueContext {
       timeout,
       isPaused: registry.size > 0,
       dismiss: () => unregister(id),
+      unregister: () => unregister(id),
     }
 
     const registered = registry.register(ticket as Partial<QueueTicket>)

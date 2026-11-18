@@ -11,6 +11,7 @@ features:
   level: 2
   github: /components/Button/
   renderless: false
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/button/
 related:
   - /composables/selection/create-selection
   - /components/providers/single

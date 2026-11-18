@@ -1,13 +1,15 @@
 <script setup lang="ts">
+  import { featureTests } from 'virtual:feature-tests'
   import pageDates from 'virtual:page-dates'
   import { catalog } from 'virtual:registry-catalog'
 
   // Framework
-  import { isUndefined, Tooltip, useDate, useLogger } from '@vuetify/v0'
+  import { isString, isUndefined, Tooltip, useDate, useLogger } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
   import { cliChip } from '@/components/docs/meta/cliChip'
+  import { coverageLines, coverageRows } from '@/components/docs/meta/coveragePanel'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -17,7 +19,8 @@
   // Data
   import { MATURITY_MATRIX_HREF, SKILL_LEVELS_DOCS_HREF } from '@/constants/links'
   // Constants
-  import { MATURITY, MATURITY_LEVELS } from '@/constants/maturity'
+  import { MATURITY, MATURITY_LEVELS, sinceInFramework } from '@/constants/maturity'
+  import { useIconContext } from '@/plugins/icons'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -47,7 +50,7 @@
   interface MetricCoverage {
     overall: number
     statements: number
-    functions?: number
+    functions?: number | null
     branches: number
   }
 
@@ -74,6 +77,8 @@
         label: string
         level?: 1 | 2 | 3
         renderless?: boolean
+        spec?: string
+        specIcon?: string
       }
     }
   }>()
@@ -144,6 +149,29 @@
     return `${base}/tree/master/packages/0/src${github}`
   })
 
+  const icons = useIconContext()
+  const unknownSpecIcons = new Set<string>()
+
+  const spec = toRef(() => {
+    const href = props.frontmatter?.features?.spec
+    if (!isString(href) || !href.startsWith('https://')) return null
+
+    let icon = 'book-open'
+    const named = props.frontmatter?.features?.specIcon
+    if (isString(named) && named.length > 0) {
+      if (isUndefined(icons.resolve(named))) {
+        if (!unknownSpecIcons.has(named)) {
+          unknownSpecIcons.add(named)
+          logger.warn(`Unknown specification icon "${named}"`)
+        }
+      } else {
+        icon = named
+      }
+    }
+
+    return { href, icon }
+  })
+
   const label = toRef(() => {
     const label = props.frontmatter?.features?.label
 
@@ -202,10 +230,16 @@
     if (!m?.coverage) return null
 
     const overall = m.coverage.overall
+    const github = props.frontmatter?.features?.github ?? null
+    const key = github ? (github.endsWith('/') ? github : `${github}/`) : null
+    const tests = key ? featureTests[key] ?? null : null
     return {
       value: overall,
       label: `${overall}% coverage`,
       color: overall >= 80 ? 'text-success' : (overall >= 60 ? 'text-warning' : 'text-error'),
+      detail: 'Unit run',
+      lines: coverageLines(m.coverage),
+      rows: coverageRows(tests, github),
     }
   })
 
@@ -232,13 +266,6 @@
       icon: config?.icon ?? 'benchmark',
       color: config?.color ?? 'text-accent',
     }
-  })
-
-  // GitHub links for test/bench files
-  const testFileLink = toRef(() => {
-    const github = props.frontmatter?.features?.github
-    if (!github || !itemMetrics.value?.coverage) return null
-    return `${base}/blob/master/packages/0/src${github}index.test.ts`
   })
 
   // Static badges from frontmatter
@@ -278,16 +305,16 @@
       }
       case 'preview': {
         title = entry.since
-          ? `Implemented — API may change. Since ${entry.since}`
+          ? `Implemented — API may change. ${sinceInFramework(entry.since)}`
           : 'Implemented — API may change. Not yet released'
         break
       }
       case 'stable': {
-        title = entry.since ? `Production-ready. Stable since ${entry.since}` : 'Production-ready'
+        title = entry.since ? `Production-ready. ${sinceInFramework(entry.since)}` : 'Production-ready'
         break
       }
       case 'mature': {
-        title = entry.since ? `API frozen. Mature since ${entry.since}` : 'API frozen'
+        title = entry.since ? `API frozen. ${sinceInFramework(entry.since)}` : 'API frozen'
         break
       }
       case 'deprecated': {
@@ -347,7 +374,6 @@
     edit,
     github,
     label,
-    testFileLink,
     phase,
     level,
     coverage,
@@ -403,9 +429,9 @@
         <DocsActionChip
           color="text-info"
           :href="edit"
-          icon="pencil"
-          text="Edit this page"
-          title="Edit documentation page"
+          icon="square-edit"
+          text="Edit"
+          title="Edit page on GitHub"
         />
 
         <DocsActionChip
@@ -413,7 +439,7 @@
           :href="reportBugLink"
           icon="vuetify-issues"
           text="Report a Bug"
-          title="Open Vuetify Issues"
+          title="Report a bug in Vuetify Issues"
         />
 
         <DocsActionChip
@@ -421,7 +447,7 @@
           color="text-warning"
           :href="label"
           icon="alert"
-          text="Open issues"
+          text="Issues"
           title="View Issues on GitHub"
         />
 
@@ -429,8 +455,16 @@
           v-if="github"
           :href="github"
           icon="github"
-          text="View on GitHub"
+          text="Source"
           title="View source code on GitHub"
+        />
+
+        <DocsActionChip
+          v-if="spec"
+          :href="spec.href"
+          :icon="spec.icon"
+          text="Specification"
+          title="View the specification"
         />
 
         <Tooltip.Root v-if="cli" interactive>
@@ -469,8 +503,8 @@
         <DocsActionChip
           :color="copyError ? 'text-error' : clipboard.copied.value ? 'text-success' : 'text-on-surface'"
           :icon="loading ? 'loading' : copyError ? 'alert' : clipboard.copied.value ? 'success' : 'markdown'"
-          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Copy Markdown'"
-          title="Copy Markdown"
+          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Markdown'"
+          title="Copy Page as Markdown"
           @click="onClickCopy"
         />
       </div>
@@ -523,14 +557,7 @@
         />
 
         <!-- 4. Coverage - Quality signal (is it tested?) -->
-        <DocsMetaItem
-          v-if="coverage && testFileLink"
-          :color="coverage.color"
-          :href="testFileLink"
-          icon="test"
-          :text="coverage.label"
-          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-        />
+        <DocsMetaCoverage v-if="coverage" />
 
         <!-- 5. Benchmark - Performance (is it fast?) -->
         <DocsMetaItem

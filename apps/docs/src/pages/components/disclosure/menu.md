@@ -11,6 +11,7 @@ features:
   github: /components/Menu/
   renderless: true
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
 related:
   - /components/disclosure/popover
   - /composables/system/use-popover

@@ -11,6 +11,7 @@ features:
   github: /components/NumberField/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/
 related:
   - /composables/forms/create-number-field
   - /components/forms/slider

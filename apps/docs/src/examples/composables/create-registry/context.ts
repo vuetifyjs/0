@@ -1,6 +1,6 @@
 import { createContext } from '@vuetify/v0'
-import type { ID, RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
-import type { ComputedRef, ShallowRef } from 'vue'
+import type { ID, ProxyRegistryContext, RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
+import type { ShallowRef } from 'vue'
 
 export interface TaskTicketInput extends RegistryTicketInput<string> {
   priority: 'low' | 'medium' | 'high'
@@ -10,7 +10,7 @@ export interface TaskTicketInput extends RegistryTicketInput<string> {
 export type TaskTicket = RegistryTicket<string> & TaskTicketInput
 
 export interface TaskContext {
-  tasks: ComputedRef<readonly TaskTicket[]>
+  proxy: ProxyRegistryContext<TaskTicket>
   events: ShallowRef<string[]>
   add: (text: string, priority: TaskTicketInput['priority']) => void
   remove: (id: ID) => void

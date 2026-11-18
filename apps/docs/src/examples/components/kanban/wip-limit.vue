@@ -1,7 +1,16 @@
 <script setup lang="ts">
   import { Kanban } from '@vuetify/v0'
   import { ref } from 'vue'
-  import { createColumns, limit } from './columns'
+
+  interface Column {
+    id: string
+    label: string
+    accept?: () => boolean
+    disabled?: boolean
+    capped?: boolean
+  }
+
+  const limit = 2
 
   const board = ref<Record<string, string[]>>({
     backlog: ['Audit routes', 'Update deps', 'Write tests'],
@@ -10,7 +19,16 @@
     shipped: ['Release 1.2'],
   })
 
-  const columns = createColumns(() => board.value.doing.length)
+  function admitDoing () {
+    return board.value.doing.length < limit
+  }
+
+  const columns: Column[] = [
+    { id: 'backlog', label: 'Backlog' },
+    { id: 'doing', label: 'Doing', accept: admitDoing, capped: true },
+    { id: 'review', label: 'Review' },
+    { id: 'shipped', label: 'Shipped', disabled: true },
+  ]
 </script>
 
 <template>
@@ -29,7 +47,7 @@
       >
         <div class="flex justify-between px-1 text-sm font-semibold">
           {{ column.label }}
-          <span v-if="column.accept" class="text-xs font-normal text-on-surface-variant">{{ items.length }} / {{ limit }}</span>
+          <span v-if="column.capped" class="text-xs font-normal text-on-surface-variant">{{ items.length }} / {{ limit }}</span>
           <span v-else-if="column.disabled" class="text-xs font-normal text-on-surface-variant">locked</span>
         </div>
 
@@ -50,7 +68,7 @@
     </Kanban.Root>
 
     <p class="text-xs text-on-surface-variant">
-      Doing takes at most {{ limit }} items and Shipped is locked. With the keyboard, pick an item up with Space and press the right arrow: full or locked columns are skipped.
+      Doing takes at most {{ limit }} cards, and Shipped is locked. Pick a card up with Space and press the right arrow. Full or locked columns are skipped.
     </p>
   </div>
 </template>

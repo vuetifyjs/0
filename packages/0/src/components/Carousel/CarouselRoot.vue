@@ -17,16 +17,20 @@
   import { createContext } from '#v0/composables/createContext'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { createStep } from '#v0/composables/createStep'
+  import { useEventListener, useWindowEventListener } from '#v0/composables/useEventListener'
   import { useLocale } from '#v0/composables/useLocale'
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { useTimer } from '#v0/composables/useTimer'
 
+  // Transformers
+  import { toElement } from '#v0/composables/toElement'
+
   // Utilities
-  import { useId } from '#v0/utilities'
-  import { toRef, toValue } from 'vue'
+  import { isElement, isNull, useId } from '#v0/utilities'
+  import { toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext, RegistryTicketInput } from '#v0/composables/createRegistry'
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
@@ -131,6 +135,8 @@
     isPaused: Readonly<Ref<boolean>>
     /** Restart autoplay from full interval */
     play: () => void
+    /** Stop autoplay and reset the timer */
+    stop: () => void
     /** Pause autoplay timer */
     pause: () => void
     /** Resume autoplay timer from remaining time */
@@ -205,26 +211,102 @@
     ? useTimer(() => next(), { duration: autoplay, repeat: true })
     : null
 
+  const parts = createRegistry<CarouselPartTicket>()
+
+  // Hold only while the pointer is over a registered part (slides, arrows,
+  // dots, progress). A plain control in the root is not a hover target, or
+  // play() would start the timer and pause it in the same turn. Leave
+  // resumes only that hold. Keyboard focus stops for good; a click's focus
+  // does not, or the rotation control would read the stopped state.
+  let hovering = false
+  let held = false
+  let pointing = false
+  const holdParts = ['viewport', 'previous', 'next', 'indicator', 'progress'] as const
+
+  function partElement (type: CarouselPartTicket['type']): Element | null {
+    for (const part of parts.values()) {
+      if (part.type !== type) continue
+      const element = toValue(part.el)
+      if (isElement(element)) return element
+    }
+    return null
+  }
+
+  function overHold (target: EventTarget | null): boolean {
+    if (isNull(partElement('viewport'))) return true
+    if (!isElement(target)) return false
+    for (const type of holdParts) {
+      const element = partElement(type)
+      if (!isNull(element) && element.contains(target)) return true
+    }
+    return false
+  }
+
+  function pointerOverHold (): boolean {
+    if (isNull(partElement('viewport'))) return hovering
+    for (const type of holdParts) {
+      const element = partElement(type)
+      if (!isNull(element) && element.matches(':hover')) return true
+    }
+    return false
+  }
+
   function pause () {
     timer?.pause()
   }
   function resume () {
     timer?.resume()
   }
+  function hold () {
+    if (!timer?.isActive.value || timer.isPaused.value) return
+    pause()
+    held = true
+  }
   function play () {
     timer?.start()
+    if (hovering && pointerOverHold()) hold()
   }
   function stop () {
     timer?.stop()
+    held = false
   }
 
-  const parts = createRegistry<CarouselPartTicket>()
+  const atomRef = useTemplateRef<AtomExpose>('root')
+  const rootEl = toRef(() => toElement(atomRef.value?.element) ?? null)
+  useEventListener(rootEl, 'pointerenter', () => {
+    hovering = true
+    if (isNull(partElement('viewport'))) hold()
+  })
+  useEventListener(rootEl, 'pointerover', (event: Event) => {
+    hovering = true
+    if (overHold(event.target)) hold()
+  })
+  useEventListener(rootEl, 'pointerdown', () => {
+    pointing = true
+  })
+  useWindowEventListener('pointerup', () => {
+    pointing = false
+  })
+  useWindowEventListener('pointercancel', () => {
+    pointing = false
+  })
+  useEventListener(rootEl, 'pointerleave', () => {
+    hovering = false
+    if (!held) return
+    held = false
+    resume()
+  })
+  useEventListener(rootEl, 'focusin', () => {
+    if (pointing) return
+    stop()
+  })
 
   const context: CarouselContext = {
     ...step,
     next,
     prev,
     play,
+    stop,
     pause,
     resume,
     orientation: toRef(() => orientation),
@@ -264,7 +346,7 @@
     attrs: {
       'role': 'region',
       'aria-roledescription': 'carousel',
-      'aria-label': label ?? locale.ti('Carousel.label') ?? 'Carousel',
+      'aria-label': label ?? locale.ti('Carousel.label') ?? 'Slides',
       'aria-disabled': toValue(step.disabled),
       'data-disabled': toValue(step.disabled) || undefined,
     },
@@ -272,7 +354,7 @@
 </script>
 
 <template>
-  <Atom v-bind="slotProps.attrs" :as :renderless>
+  <Atom ref="root" v-bind="slotProps.attrs" :as :renderless>
     <slot v-bind="slotProps" />
   </Atom>
 </template>

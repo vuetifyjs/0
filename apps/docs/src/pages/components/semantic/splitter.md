@@ -11,6 +11,7 @@ features:
   github: /components/Splitter/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/
 related:
   - /components/primitives/atom
 ---

@@ -11,6 +11,7 @@ features:
   github: /components/AlertDialog/
   renderless: false
   level: 2
+  spec: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
 related:
   - /components/disclosure/dialog
   - /components/disclosure/popover

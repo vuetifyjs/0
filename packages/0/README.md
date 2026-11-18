@@ -69,6 +69,21 @@ yarn add @vuetify/v0
 bun add @vuetify/v0
 ```
 
+### Nightly Builds
+
+Daily snapshots publish as `@vuetify/v0-nightly`. Alias the package so imports stay `@vuetify/v0`:
+
+```bash
+# Pin a build (<version>-<branch>.<date>). Example:
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@1.3.0-master.2026-10-20
+
+# Or track master / dev
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@nightly
+pnpm add @vuetify/v0@npm:@vuetify/v0-nightly@nightly-dev
+```
+
+Nightlies are unstable and not for production. See the [Nightly Builds guide](https://0.vuetifyjs.com/introduction/nightly-builds).
+
 ## CLI
 
 The Vuetify CLI scaffolds projects and seeds working examples from the docs registry.
@@ -214,7 +229,7 @@ Core factories that provide the foundation for all other composables:
 
 Base data structures that most other composables build upon:
 
-- [`createRegistry`](https://0.vuetifyjs.com/composables/registration/create-registry) - Enhanced Map with indexing, caching, and event support
+- [`createRegistry`](https://0.vuetifyjs.com/composables/registration/create-registry) - Ordered, keyed collection — a plain object over a `ReadonlyMap` — with indexing, caching, and event support
 - [`createQueue`](https://0.vuetifyjs.com/composables/registration/create-queue) - FIFO queue with timeout management (notifications/toasts)
 - [`createTimeline`](https://0.vuetifyjs.com/composables/registration/create-timeline) - Bounded undo/redo history
 - [`createTokens`](https://0.vuetifyjs.com/composables/registration/create-tokens) - Design token registry with alias resolution

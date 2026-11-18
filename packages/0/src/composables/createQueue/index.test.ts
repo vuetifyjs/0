@@ -315,6 +315,35 @@ describe('createQueue', () => {
     })
   })
 
+  describe('ticket.unregister', () => {
+    it('should stop the timer and resume the next ticket', () => {
+      const queue = createQueue({ timeout: 1000 })
+      const a = queue.register({ value: 'a' })
+      // the timers one running ticket schedules; b registers paused and adds none
+      const live = vi.getTimerCount()
+      const b = queue.register({ value: 'b' })
+
+      expect(live).toBeGreaterThan(0)
+      expect(vi.getTimerCount()).toBe(live)
+      expect(b.isPaused).toBe(true)
+
+      a.unregister()
+
+      // a's timers are cleared and b's have started: still one ticket's worth
+      expect(vi.getTimerCount()).toBe(live)
+      expect(queue.size).toBe(1)
+      expect(queue.get(a.id)).toBeUndefined()
+      expect(queue.get(b.id)?.isPaused).toBe(false)
+
+      // b's timer runs from the moment a left, not from when a's timer would have fired
+      vi.advanceTimersByTime(999)
+      expect(queue.size).toBe(1)
+
+      vi.advanceTimersByTime(1)
+      expect(queue.size).toBe(0)
+    })
+  })
+
   describe('clear and dispose', () => {
     it('should clear all tickets and timeouts', () => {
       const queue = createQueue({ timeout: 5000 })

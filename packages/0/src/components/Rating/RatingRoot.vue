@@ -172,6 +172,12 @@
 
   const context: RatingRootContext = {
     ...rating,
+    get size () {
+      return rating.size
+    },
+    get half () {
+      return rating.half
+    },
     name,
     hoveredValue,
     isHovering,

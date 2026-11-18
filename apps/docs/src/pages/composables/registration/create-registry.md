@@ -28,20 +28,24 @@ Foundation for ordered, keyed collections. Items are registered with IDs and ind
 
 The `createRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
 
+Pass both generics: the input shape you hand to `register()` first, the resolved ticket you read back second. With only the input type, `ticket.value` widens to `string | undefined`; passing the output type alone is reserved for wrappers that fix their own ticket shape, such as `createForm` and `createQueue`.
+
 ```ts collapse
 import { createRegistry } from '@vuetify/v0'
-import type { RegistryTicket } from '@vuetify/v0'
+import type { RegistryTicket, RegistryTicketInput } from '@vuetify/v0'
 
-interface Item extends RegistryTicket<string> {
+interface ItemInput extends RegistryTicketInput<string> {
   label: string
 }
 
-const registry = createRegistry<Item>()
+type Item = RegistryTicket<string> & ItemInput
+
+const registry = createRegistry<ItemInput, Item>()
 
 // Register individual items
-const a = registry.register({ label: 'Alpha' })
-const b = registry.register({ label: 'Beta' })
-const c = registry.register({ label: 'Gamma' })
+const a = registry.register({ value: 'alpha', label: 'Alpha' })
+const b = registry.register({ value: 'beta', label: 'Beta' })
+const c = registry.register({ value: 'gamma', label: 'Gamma' })
 
 console.log(registry.size) // 3
 console.log(a.index)       // 0
@@ -63,8 +67,8 @@ console.log(registry.size) // 2
 
 // Bulk load
 registry.onboard([
-  { id: 'x', label: 'X' },
-  { id: 'y', label: 'Y' },
+  { id: 'x', value: 'x', label: 'X' },
+  { id: 'y', value: 'y', label: 'Y' },
 ])
 
 // Bulk remove
@@ -73,18 +77,18 @@ registry.offboard(['x', 'y'])
 
 ## Context / DI
 
-Use `createRegistryContext` to share a registry across a component tree:
+Use `createRegistryContext` to share a registry across a component tree. Pass a fresh `createRegistry()` to the provider so each app instance owns its registry, created with the same options: what you pass to `createRegistryContext` only configures the module-scope default that a bare `provideItems()` would provide.
 
 ```ts
-import { createRegistryContext } from '@vuetify/v0'
+import { createRegistry, createRegistryContext } from '@vuetify/v0'
 
 export const [useItems, provideItems, items] =
-  createRegistryContext({ namespace: 'my:items' })
+  createRegistryContext({ namespace: 'my:items', events: true })
 
-// In parent component
-provideItems()
+// In the root component — one registry per app instance, with the same options
+provideItems(createRegistry({ events: true }))
 
-// In child component
+// In child components
 const registry = useItems()
 registry.register({ id: 'item-1', value: 'First' })
 ```
@@ -119,7 +123,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 | `reorder(ids)` | Reorder the registry to match a canonical permutation in one O(n) pass |
 | `onboard(tickets)` | Batch-register an array of tickets |
 | `offboard(ids)` | Batch-unregister an array of IDs |
-| `batch(fn)` | Run multiple mutations with deferred cache invalidation and events |
+| `batch(fn)` | Run multiple mutations with events and the reactive notification deferred to the end |
 | `get(id)` | Retrieve a ticket by ID |
 | `has(id)` | Check whether a ticket ID is registered |
 | `browse(value)` | Reverse-lookup — find ticket ID(s) by value |
@@ -144,7 +148,7 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ### Task Manager
 
-This example demonstrates the full `createRegistry` lifecycle paired with `createContext` so registry mutations stay encapsulated in the provider and the consumer only sees clean, typed methods.
+This example demonstrates the full `createRegistry` lifecycle paired with `createContext` so registry mutations stay encapsulated in the provider and the consumer only sees a reactive `useProxyRegistry` view plus clean, typed methods.
 
 ```mermaid "Event Flow"
 sequenceDiagram
@@ -153,11 +157,12 @@ sequenceDiagram
   participant R as registry
   participant L as listener
 
-  C->>P: addTask(text, priority)
+  C->>P: add(text, priority)
   P->>R: register(ticket)
   R->>L: emit "register:ticket"
-  L->>P: eventLog.push(...)
-  P->>C: tasks computed invalidated
+  L->>P: events.push(...)
+  R->>P: proxy.values recomputes
+  P->>C: filteredTasks and stats re-run
 ```
 
 **File breakdown:**
@@ -165,8 +170,8 @@ sequenceDiagram
 | File | Role |
 |------|------|
 | `context.ts` | Defines `TaskTicketInput` (extending `RegistryTicketInput`) and `TaskContext`, then creates the `[useTaskRegistry, provideTaskRegistry]` tuple |
-| `TaskProvider.vue` | Creates the registry with `events: true`, wires lifecycle listeners, seeds initial data via `onboard`, and exposes mutation methods through context |
-| `TaskConsumer.vue` | Calls `useTaskRegistry()` to access tasks and methods; owns local UI state (filter, new-task input) and derives `filteredTasks` and `stats` as computed |
+| `TaskProvider.vue` | Creates the registry with `events: true`, wraps it in `useProxyRegistry`, wires lifecycle listeners, seeds initial data via `onboard`, and exposes the proxy and mutation methods through context |
+| `TaskConsumer.vue` | Calls `useTaskRegistry()` to read `proxy.values` and the mutation methods; owns local UI state (filter, new-task input) and derives `filteredTasks` and `stats` as computed |
 | `task-manager.vue` | Entry point—composes `TaskProvider` around `TaskConsumer` |
 
 **Key patterns:**
@@ -174,10 +179,9 @@ sequenceDiagram
 - onboard — bulk-loads the initial task list in a single batch
 - `registry.register()` — adds a ticket with custom fields (`value`, `priority`, `done`)
 - `registry.upsert()` — patches a single field without touching the rest of the ticket
-- `registry.move()` — moves a ticket to a new index position, triggers reindex
 - `registry.offboard()` — batch-removes all completed tasks in one call
 - `registry.on('register:ticket')` / `on('unregister:ticket')` — reacts to lifecycle events for the audit log
-- `void version.value` inside a computed — the standard pattern for making a non-reactive `registry.values()` snapshot reactive
+- `useProxyRegistry(registry)` — the registry is `events: true`, so iterate through the proxy's reactive `values` and `size` (or opt into `reactive: true`) rather than a hand-rolled version counter
 
 Add tasks, toggle completion, and filter by priority. Watch the event log at the bottom track every registration change in real time.
 
@@ -203,13 +207,17 @@ createRegistry is the base ordered, keyed collection — registration, indexing,
 
 Pass `{ reactive: true }` to make `keys()`, `values()`, `entries()`, `size`, and per-ticket field reads reactive directly on the registry. Reach for [useProxyRegistry](/composables/reactivity/use-proxy-registry) when you want event-driven snapshots, `deep: true` tracking, or reactivity without wrapping the tickets themselves.
 
-??? How do I run several mutations without firing events and reindexing on each one?
+??? How do I run several mutations without notifying subscribers on each one?
 
-Wrap them in `batch(fn)`. It defers cache invalidation and event emission until the callback finishes, so a sequence of `register` / `move` / `unregister` calls settles once instead of per-mutation.
+Wrap them in `batch(fn)`. Events queue until the callback returns and iteration subscribers are notified once, so a sequence of `register` / `move` / `unregister` calls settles once instead of per mutation. The iteration cache is still cleared per operation, and a reindex deferred by a removal drains when the batch returns, so survivors' `index` is canonical once the outermost `batch()` returns.
 
 ??? Does unregistering many tickets one at a time scale?
 
-Each `unregister` does an O(n) scan to locate and splice the ticket, so tearing down N tickets individually — a parent unmounting hundreds of registered children, for example — is O(n²). Batch removals through `offboard(ids)` or `clear()`, which compact in a single pass, and keep the mounted (and therefore registered) count bounded with [createVirtual](/composables/data/create-virtual) for large lists.
+Yes for head-first or tail-first teardown. Locating a ticket is O(1) while its `index` is canonical, and a removal from a registry whose tickets all carry explicit values defers the reindex instead of renumbering survivors on the spot. Survivors' `index` is canonical again at the end of the enclosing `batch()`, after any index-based call (`lookup`, `browse`, `seek`, `move`, `reorder`, `register`, `upsert`), and in all cases in Vue's post-flush queue, which settles before `await nextTick()` resolves. While that reindex is pending, each further `unregister` in the same tick misses its O(1) position check and falls back to an `indexOf` scan. A parent unmounting hundreds of registered children removes them head-first, so the scan finds each ticket at slot 0; tail-first removals never shift anything; both cost one coalesced reindex. Scattered one-by-one removals in a single tick walk about half the list each time, so route those through `offboard(ids)`, which compacts once. Index-derived tickets (no explicit `value`) reindex eagerly on every mid-list removal, so keep those registries small, or bound the mounted count with [createVirtual](/composables/data/create-virtual).
+
+??? Why does the Context / DI snippet pass `createRegistry()` to `provideItems`?
+
+A bare `provideItems()` provides the trinity's module-scope default, which under SSR is shared by every request on the server — see the per-request warning on [createTrinity](/composables/foundation/create-trinity#usage).
 
 :::
 

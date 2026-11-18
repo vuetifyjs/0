@@ -104,6 +104,9 @@
 
   const scoped = {
     ...parent,
+    get size () {
+      return parent.size
+    },
     selectedId,
     selectedItem,
     t,

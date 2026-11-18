@@ -545,4 +545,36 @@ describe('theme', () => {
       expect(captured.attrs['data-theme']).toBe('light')
     })
   })
+
+  describe('context size', () => {
+    it('should provide a live size', () => {
+      let context: ReturnType<typeof useTheme> | undefined
+      const local = createThemePlugin({
+        default: 'light',
+        themes: {
+          light: { dark: false, colors: {} },
+          dark: { dark: true, colors: {} },
+        },
+      })
+
+      const Child = defineComponent({
+        setup () {
+          context = useTheme()
+          return () => h('span')
+        },
+      })
+
+      mount(Theme, {
+        props: { theme: 'dark' },
+        global: { plugins: [local] },
+        slots: { default: () => h(Child) },
+      })
+
+      expect(context!.size).toBe(2)
+
+      context!.register({ id: 'ocean', dark: false, colors: {} })
+
+      expect(context!.size).toBe(3)
+    })
+  })
 })

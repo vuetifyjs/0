@@ -16,6 +16,9 @@ import { createStorage, useWindowEventListener } from '@vuetify/v0'
 // Globals
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
+// Transformers
+import { readTextFragment } from '@/composables/toTextFragment'
+
 // Utilities
 import { useRouter } from 'vue-router'
 
@@ -53,6 +56,10 @@ export function useScrollPersist (): void {
   }
 
   function restorePosition () {
+    // The painter scrolls to the phrase after this restore is queued.
+    // Putting the path's last offset back cancels that scroll.
+    if (readTextFragment()) return
+
     const key = getScrollKey()
     const position = storage.get<ScrollPosition | null>(key, null)
 

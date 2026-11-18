@@ -2,7 +2,7 @@
   import { GnActionButton } from '@paper/genesis'
 
   // Framework
-  import { createFilter, IN_BROWSER, isString, Popover, useDate } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, isElement, isString, isUndefined, Popover, useDate, useDocumentEventListener, useVirtualFocus } from '@vuetify/v0'
 
   // Context
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -16,7 +16,7 @@
   import { type Release, useReleasesStore } from '@/stores/releases'
 
   // Utilities
-  import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
+  import { computed, nextTick, onBeforeMount, onScopeDispose, shallowRef, toRef, useId, useTemplateRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   // GitHub release reaction summary, in picker order. Glyphs match the
@@ -44,6 +44,10 @@
   const model = shallowRef<Release>()
   const search = shallowRef('')
   const isOpen = shallowRef(false)
+  const activatorId = `releases-activator-${useId()}`
+  const listId = `releases-listbox-${useId()}`
+  const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
+  const list = useTemplateRef<HTMLElement>('list')
   let timeout: ReturnType<typeof setTimeout> | undefined
 
   const tag = toRef(() => route.query.version as string | undefined)
@@ -60,6 +64,21 @@
   const releases = toRef(() => store.releases)
   const filter = createFilter({ keys: ['tag_name', 'name', 'body'] })
   const { items: filteredReleases } = filter.apply(search, releases)
+
+  // Home and End stay on the caret. Arrow keys are handled on the input.
+  const cursor = useVirtualFocus(
+    () => filteredReleases.value.map(release => ({
+      id: release.id,
+      el: () => list.value?.querySelector<HTMLElement>(`[data-id="${CSS.escape(String(release.id))}"]`),
+    })),
+    {
+      control: searchInput,
+      target: () => undefined,
+      orientation: 'vertical',
+    },
+  )
+
+  const { highlightedId, highlight, clear } = cursor
 
   // Splits a release tag into the npm package and its version. Substrate tags are
   // `v<version>` (package `@vuetify/v0`); design-system tags are `@scope/name@<version>`.
@@ -140,10 +159,106 @@
     await installClipboard.copy(install.value)
   }
 
+  function focusActivator () {
+    if (!IN_BROWSER) return
+    document.querySelector<HTMLElement>(`#${CSS.escape(activatorId)}`)?.focus()
+  }
+
   function selectRelease (release: Release) {
     model.value = release
     isOpen.value = false
     search.value = ''
+    focusActivator()
+  }
+
+  function printable (e: KeyboardEvent) {
+    return e.key.length === 1
+      && e.key !== ' '
+      && !e.ctrlKey
+      && !e.metaKey
+      && !e.altKey
+      && !e.isComposing
+  }
+
+  function composing (e: KeyboardEvent) {
+    return e.isComposing && (
+      e.key === 'ArrowUp'
+      || e.key === 'ArrowDown'
+      || e.key === 'Enter'
+      || e.key === 'Escape'
+    )
+  }
+
+  function highlightedRelease () {
+    const id = highlightedId.value
+    if (isUndefined(id)) return filteredReleases.value[0]
+    return filteredReleases.value.find(item => item.id === id)
+  }
+
+  function onActivatorKeydown (e: KeyboardEvent) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (!isOpen.value) {
+        isOpen.value = true
+        return
+      }
+      searchInput.value?.focus()
+      cursor.onKeydown(e)
+      return
+    }
+
+    if (!printable(e)) return
+
+    e.preventDefault()
+    search.value = isOpen.value ? `${search.value}${e.key}` : e.key
+    isOpen.value = true
+  }
+
+  function onDocumentKeydown (e: KeyboardEvent) {
+    const target = e.target
+    if (!isElement(target) || target.id !== activatorId) return
+    onActivatorKeydown(e)
+  }
+
+  useDocumentEventListener('keydown', onDocumentKeydown)
+
+  function onSearchKeydown (e: KeyboardEvent) {
+    if (composing(e)) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowUp': {
+        cursor.onKeydown(e)
+        break
+      }
+      case 'Enter': {
+        const release = highlightedRelease()
+        if (!release) return
+        e.preventDefault()
+        selectRelease(release)
+        break
+      }
+      case 'Escape': {
+        isOpen.value = false
+        focusActivator()
+        break
+      }
+    }
+  }
+
+  function syncHighlight () {
+    const items = filteredReleases.value
+    const selected = items.find(item => item.id === model.value?.id)
+    const target = selected ?? items[0]
+
+    if (target) highlight(target.id)
+    else clear()
+  }
+
+  function highlightFirst () {
+    const first = filteredReleases.value[0]
+    if (first) highlight(first.id)
+    else clear()
   }
 
   function onSearch (query: string) {
@@ -169,7 +284,25 @@
     router.push({ query: { version } })
   })
 
-  watch(search, val => onSearch(val))
+  watch(search, val => {
+    onSearch(val)
+    if (!isOpen.value) return
+    void nextTick(highlightFirst)
+  })
+
+  watch(isOpen, async open => {
+    if (!IN_BROWSER) return
+
+    if (!open) {
+      clear()
+      return
+    }
+
+    await nextTick()
+    searchInput.value?.focus()
+    if (search.value) highlightFirst()
+    else syncHighlight()
+  })
 
   onScopeDispose(() => {
     if (timeout) clearTimeout(timeout)
@@ -181,6 +314,7 @@
     <!-- Release Selector -->
     <Popover.Root v-model="isOpen">
       <Popover.Activator
+        :id="activatorId"
         v-slot="{ isOpen: open }"
         class="w-full px-4 py-3 bg-surface-tint border-none font-inherit text-left cursor-pointer flex items-center gap-3 hover:bg-surface focus-visible:bg-surface transition-colors"
       >
@@ -202,47 +336,71 @@
 
       <!-- Dropdown -->
       <Popover.Content
-        class="bg-surface border-t border-divider rounded-b-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
+        class="bg-surface border-t border-divider rounded-b-lg shadow-lg w-[anchor-size(width)]"
         position-area="bottom"
       >
-        <DocsSearchInput
-          v-model="search"
-          class="p-2"
-          :icon="false"
-          placeholder="Search releases..."
-        />
-
-        <div v-if="filteredReleases.length === 0" class="px-4 py-3 text-center opacity-50">
-          No releases found
+        <div class="p-2">
+          <input
+            ref="searchInput"
+            v-model="search"
+            :aria-activedescendant="isUndefined(highlightedId) ? undefined : `release-option-${highlightedId}`"
+            aria-autocomplete="list"
+            :aria-controls="listId"
+            :aria-expanded="isOpen"
+            aria-label="Search releases"
+            autocomplete="off"
+            class="w-full px-3 py-2 text-sm bg-surface-tint border border-divider rounded-lg outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant"
+            placeholder="Search releases..."
+            role="combobox"
+            type="text"
+            @keydown="onSearchKeydown"
+          >
         </div>
 
-        <button
-          v-for="release in filteredReleases"
-          :key="release.id"
-          class="w-full px-4 py-2 bg-transparent border-none font-inherit text-left cursor-pointer flex items-center gap-2 hover:bg-surface-tint focus-visible:bg-surface-tint transition-colors"
-          :style="model?.id === release.id ? { backgroundColor: 'color-mix(in srgb, var(--v0-primary) 10%, transparent)' } : undefined"
-          type="button"
-          @click="selectRelease(release)"
+        <div
+          :id="listId"
+          ref="list"
+          aria-label="Releases"
+          class="max-h-64 overflow-auto"
+          role="listbox"
         >
-          <span>{{ release.tag_name }}</span>
+          <div v-if="filteredReleases.length === 0" class="px-4 py-3 text-center opacity-50">
+            No releases found
+          </div>
 
-          <span v-if="release.name && release.name !== release.tag_name" class="opacity-50 text-sm truncate">
-            {{ release.name }}
-          </span>
+          <div
+            v-for="release in filteredReleases"
+            :id="`release-option-${release.id}`"
+            :key="release.id"
+            :aria-selected="model?.id === release.id"
+            class="w-full px-4 py-2 text-left cursor-pointer flex items-center gap-2 hover:bg-surface-tint data-[highlighted]:bg-surface-tint data-[selected]:bg-primary/10 data-[highlighted]:data-[selected]:bg-surface-tint transition-colors"
+            :data-highlighted="highlightedId === release.id ? '' : undefined"
+            :data-id="release.id"
+            :data-selected="model?.id === release.id || undefined"
+            role="option"
+            @click="selectRelease(release)"
+            @pointerenter="highlight(release.id)"
+          >
+            <span>{{ release.tag_name }}</span>
 
-          <span class="ml-auto flex items-center gap-1.5">
-            <AppIcon
-              v-if="isBreaking(release)"
-              class="text-error"
-              icon="alert"
-              :size="14"
-            />
-
-            <span v-if="release.reactions?.total_count">
-              {{ genEmoji(release.reactions.total_count) }}
+            <span v-if="release.name && release.name !== release.tag_name" class="opacity-50 text-sm truncate">
+              {{ release.name }}
             </span>
-          </span>
-        </button>
+
+            <span class="ml-auto flex items-center gap-1.5">
+              <AppIcon
+                v-if="isBreaking(release)"
+                class="text-error"
+                icon="alert"
+                :size="14"
+              />
+
+              <span v-if="release.reactions?.total_count">
+                {{ genEmoji(release.reactions.total_count) }}
+              </span>
+            </span>
+          </div>
+        </div>
 
         <div
           v-if="store.error"
