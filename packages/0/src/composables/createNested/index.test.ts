@@ -2445,6 +2445,266 @@ describe('clear', () => {
   })
 })
 
+describe('late register', () => {
+  it('should select a new child under a fully selected parent', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.select('root')
+
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root' })
+
+    expect(nested.selected('child-3')).toBe(true)
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.mixed('root')).toBe(false)
+  })
+
+  it('should not select a new child under a mixed parent', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.select('child-1')
+
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root' })
+
+    expect(nested.selected('child-3')).toBe(false)
+    expect(nested.mixed('root')).toBe(true)
+  })
+
+  it('should not select a disabled child under a selected parent', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.select('root')
+
+    nested.register({ id: 'child-3', value: 'Child 3', parentId: 'root', disabled: true })
+
+    expect(nested.selected('child-3')).toBe(false)
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.mixed('root')).toBe(false)
+  })
+
+  it('should not inherit selection in independent mode', () => {
+    const nested = createNested({ selection: 'independent' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.select('root')
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.selected('child')).toBe(false)
+  })
+
+  it('should not inherit selection when multiple is false', () => {
+    const nested = createNested({ selection: 'cascade', multiple: false })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.select('root')
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.selected('child')).toBe(false)
+  })
+
+  it('should select a child onboarded after its parent is selected', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.select('root')
+    nested.onboard([{ id: 'child-3', value: 'Child 3', parentId: 'root' }])
+
+    expect(nested.selected('child-3')).toBe(true)
+    expect(nested.selected('root')).toBe(true)
+  })
+
+  it('should not select inline children onboarded with an unselected parent', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.onboard([{
+      id: 'root',
+      value: 'Root',
+      children: [{ id: 'child', value: 'Child' }],
+    }])
+
+    expect(nested.selected('root')).toBe(false)
+    expect(nested.selected('child')).toBe(false)
+  })
+
+  it('should clear a mixed parent when its selected child unregisters', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.select('child-1')
+
+    nested.unregister('child-1')
+
+    expect(nested.selected('root')).toBe(false)
+    expect(nested.mixed('root')).toBe(false)
+    expect(nested.selected('child-2')).toBe(false)
+  })
+
+  it('should keep the parent selected when every remaining child is selected', () => {
+    const nested = createNested({ selection: 'cascade' })
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.select('child-1')
+    nested.select('child-2')
+
+    nested.unregister('child-1')
+
+    expect(nested.selected('child-2')).toBe(true)
+    expect(nested.selected('root')).toBe(true)
+    expect(nested.mixed('root')).toBe(false)
+  })
+})
+
+describe('release', () => {
+  it('should keep a released child selected and linked', () => {
+    const nested = createNested()
+    const element = document.createElement('div')
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'sibling', value: 'Sibling', parentId: 'root' })
+    const child = nested.register({ id: 'child', value: 'Child', parentId: 'root', el: element })
+    nested.select('child')
+
+    nested.release('child')
+
+    expect(nested.has('child')).toBe(true)
+    expect(nested.selected('child')).toBe(true)
+    expect(nested.getDescendants('root')).toContain('child')
+    expect(nested.mixed('root')).toBe(true)
+    expect(child.el).toBeUndefined()
+    expect(nested.size).toBe(3)
+  })
+
+  it('should ignore release of an unknown id', () => {
+    const nested = createNested()
+
+    expect(() => nested.release('missing')).not.toThrow()
+  })
+
+  it('should reclaim a released ticket by id', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.select('child')
+    nested.release('child')
+
+    const next = document.createElement('span')
+    const ticket = nested.register({ id: 'child', value: 'Child', parentId: 'root', el: next })
+
+    expect(ticket.id).toBe('child')
+    expect(nested.size).toBe(2)
+    expect(ticket.el).toBe(next)
+    expect(nested.selected('child')).toBe(true)
+  })
+
+  it('should reclaim a released ticket by parent and value when id is omitted', () => {
+    const nested = createNested()
+    const element = document.createElement('div')
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.release('child')
+
+    const ticket = nested.register({ value: 'Child', parentId: 'root', el: element })
+
+    expect(ticket.id).toBe('child')
+    expect(nested.size).toBe(2)
+    expect(ticket.el).toBe(element)
+  })
+
+  it('should warn and keep the element when registering a live id', () => {
+    using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const nested = createNested()
+    const element = document.createElement('div')
+    const replacement = document.createElement('span')
+
+    nested.register({ id: 'root', value: 'Root' })
+    const child = nested.register({ id: 'child', value: 'Child', parentId: 'root', el: element })
+
+    const again = nested.register({ id: 'child', value: 'Child', parentId: 'root', el: replacement })
+
+    expect(spy).toHaveBeenCalled()
+    expect(again.id).toBe('child')
+    expect(again.el).toBe(element)
+    expect(child.el).toBe(element)
+  })
+
+  it('should reclaim duplicate values in child-list order', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'a1', value: 'A', parentId: 'root' })
+    nested.register({ id: 'a2', value: 'A', parentId: 'root' })
+    nested.release('a1')
+    nested.release('a2')
+
+    const first = nested.register({ value: 'A', parentId: 'root' })
+    const second = nested.register({ value: 'A', parentId: 'root' })
+
+    expect(first.id).toBe('a1')
+    expect(second.id).toBe('a2')
+    expect(nested.size).toBe(3)
+  })
+
+  it('should cascade selection through a released child', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.release('child')
+
+    nested.select('root')
+
+    expect(nested.selected('child')).toBe(true)
+
+    nested.unselect('root')
+
+    expect(nested.selected('child')).toBe(false)
+    expect(nested.selected('root')).toBe(false)
+  })
+
+  it('should repair the parent when a released child is unregistered', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+    nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+    nested.select('child-1')
+    nested.release('child-1')
+
+    nested.unregister('child-1')
+
+    expect(nested.has('child-1')).toBe(false)
+    expect(nested.mixed('root')).toBe(false)
+    expect(nested.selected('root')).toBe(false)
+  })
+
+  it('should drop a released id on clear', () => {
+    const nested = createNested()
+
+    nested.register({ id: 'root', value: 'Root' })
+    nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+    nested.release('child')
+    nested.clear()
+
+    expect(nested.has('child')).toBe(false)
+    expect(nested.size).toBe(0)
+  })
+})
+
 describe('provideNestedContext', () => {
   it('should provide context via provideNestedContext', async () => {
     using spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
