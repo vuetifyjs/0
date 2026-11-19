@@ -21,20 +21,60 @@
       required
       :rules
     >
-      <TimePicker.Hour
-        v-slot="{ text }"
-        class="w-16 h-12 flex items-center justify-center border border-divider rounded tabular-nums group-data-[state=invalid]:border-error"
-      >
-        {{ text || '—' }}
+      <TimePicker.Hour v-slot="{ attrs, isDisabled, isReadonly, step, text }" renderless>
+        <Button.Root
+          aria-label="Decrease hour"
+          class="px-3 h-12 border border-divider rounded-l hover:bg-surface-tint disabled:opacity-50 group-data-[state=invalid]:border-error"
+          :disabled="isDisabled || isReadonly"
+          @click="step(-1)"
+        >
+          &minus;
+        </Button.Root>
+
+        <div
+          v-bind="attrs"
+          class="w-16 h-12 flex items-center justify-center border-y border-divider tabular-nums focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 group-data-[state=invalid]:border-error"
+        >
+          {{ text || '—' }}
+        </div>
+
+        <Button.Root
+          aria-label="Increase hour"
+          class="px-3 h-12 border border-divider rounded-r hover:bg-surface-tint disabled:opacity-50 group-data-[state=invalid]:border-error"
+          :disabled="isDisabled || isReadonly"
+          @click="step(1)"
+        >
+          +
+        </Button.Root>
       </TimePicker.Hour>
 
       <span aria-hidden="true">:</span>
 
-      <TimePicker.Minute
-        v-slot="{ text }"
-        class="w-16 h-12 flex items-center justify-center border border-divider rounded tabular-nums group-data-[state=invalid]:border-error"
-      >
-        {{ text || '—' }}
+      <TimePicker.Minute v-slot="{ attrs, isDisabled, isReadonly, step, text }" renderless>
+        <Button.Root
+          aria-label="Decrease minute"
+          class="px-3 h-12 border border-divider rounded-l hover:bg-surface-tint disabled:opacity-50 group-data-[state=invalid]:border-error"
+          :disabled="isDisabled || isReadonly"
+          @click="step(-1)"
+        >
+          &minus;
+        </Button.Root>
+
+        <div
+          v-bind="attrs"
+          class="w-16 h-12 flex items-center justify-center border-y border-divider tabular-nums focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 group-data-[state=invalid]:border-error"
+        >
+          {{ text || '—' }}
+        </div>
+
+        <Button.Root
+          aria-label="Increase minute"
+          class="px-3 h-12 border border-divider rounded-r hover:bg-surface-tint disabled:opacity-50 group-data-[state=invalid]:border-error"
+          :disabled="isDisabled || isReadonly"
+          @click="step(1)"
+        >
+          +
+        </Button.Root>
       </TimePicker.Minute>
 
       <TimePicker.Description class="basis-full text-sm text-on-surface-variant">

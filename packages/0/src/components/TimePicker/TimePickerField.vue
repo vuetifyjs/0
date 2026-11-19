@@ -8,7 +8,8 @@
  * segment from the TimePicker.Root context, emits the spinbutton ARIA
  * for the values that segment can show, and maps keys onto the context:
  * arrows and Page keys step, Home and End jump to the ends of the grid,
- * Backspace and Delete clear. The package does not export it; use the
+ * Backspace and Delete clear. The slot's `step` moves that same grid
+ * for a button beside the field. The package does not export it; use the
  * named parts.
  *
  * @internal
@@ -54,6 +55,12 @@
     isDisabled: boolean
     /** Whether the picker is readonly. The field then ignores edits. */
     isReadonly: boolean
+    /**
+     * Move this field by `count` intervals. The sign is the direction.
+     * An empty field lands on its first grid point. On the period field
+     * any non-zero count flips AM and PM.
+     */
+    step: (count?: number) => void
     /** Attributes for the spinbutton. */
     attrs: {
       'id': string
@@ -180,6 +187,10 @@
     else time.commit(part, time.grid(part)[side])
   }
 
+  function step (count = 1) {
+    time.step(part, count)
+  }
+
   function onKeydown (event: KeyboardEvent) {
     if (time.isDisabled.value || time.isReadonly.value) return
 
@@ -234,6 +245,7 @@
       value: part === 'period' ? time.period.value : now,
       isDisabled: blocked,
       isReadonly: time.isReadonly.value,
+      step,
       attrs: {
         'id': id ?? `${time.id}-${part}`,
         'role': 'spinbutton',

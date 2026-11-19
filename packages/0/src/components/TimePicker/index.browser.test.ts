@@ -14,7 +14,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createVNode, defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
-import type { TimePickerPeriodSlotProps, TimePickerRootContext, TimePickerRootSlotProps } from './index'
+import type { TimePickerHourSlotProps, TimePickerPeriodSlotProps, TimePickerRootContext, TimePickerRootSlotProps } from './index'
 import type { VueWrapper } from '@vue/test-utils'
 import type { Component, VNode } from 'vue'
 
@@ -961,6 +961,26 @@ describe('timePicker', () => {
   })
 
   describe('slot props', () => {
+    it('should step the field from its slot', async () => {
+      let step: TimePickerHourSlotProps['step'] | undefined
+
+      const { model, wait } = mountTime({ modelValue: '09:30' }, () => [
+        h(TimePicker.Hour as Component, { key: 'hour' }, {
+          default: (props: TimePickerHourSlotProps) => {
+            step = props.step
+            return props.text
+          },
+        }),
+        h(TimePicker.Minute as Component, { key: 'minute' }),
+      ])
+      await wait()
+
+      step?.(-1)
+      await wait()
+
+      expect(model.value).toBe('08:30')
+    })
+
     it('should expose the meridiem as the period value', async () => {
       let captured: TimePickerPeriodSlotProps | undefined
 
