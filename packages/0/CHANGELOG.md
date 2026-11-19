@@ -1,5 +1,67 @@
 # @vuetify/v0
 
+## 1.4.0
+
+### Minor Changes
+
+- [#1161](https://github.com/vuetifyjs/0/pull/1161) [`9fefa00`](https://github.com/vuetifyjs/0/commit/9fefa00ee7d79eca9272535be8fde4f542a5b47b) Thanks [@johnleider](https://github.com/johnleider)! - feat(createTimePicker): add a segmented time value ([#1161](https://github.com/vuetifyjs/0/issues/1161))
+
+  `createTimePicker` keeps a time as separate hour, minute, and optional second fields. The value is a 24-hour `HH:mm` string, or `HH:mm:ss` when `seconds` is on, and it stays null until every enabled field has a value. `hourCycle: 'h12'` shows the hour as 1–12 with an AM/PM period while the stored hour stays 24-hour.
+
+  `hourStep`, `minuteStep`, and `secondStep` keep each field on the multiples of its step. `step` moves a field by a signed number of intervals and wraps at either end, `commit` sets a field to the nearest multiple without wrapping, and `grid` reports the lowest value, highest value, and step a field can show. A complete value outside `min` and `max` moves to the nearest time inside them that is on every field's step, so `minuteStep: 15` with `min: '10:07'` starts at `10:15`. When no such time lies between the bounds, the picker clamps the value to the bound itself.
+
+  The picker normalizes the initial value at creation. It normalizes a string that reaches `value` later before the next flush and writes it back in canonical form. A string that is not a valid time empties the fields and logs a warning in development. When the model's owner refuses a value the picker wrote, the fields take the model's value as given and the picker writes nothing more; the picker normalizes a value the owner substitutes and writes it back once. `display` reports the time the fields show. While `disabled` or `readonly` is on, `commit`, `step`, and `clear` do nothing and the picker never writes `value`.
+
+  `required`, `rules`, `error`, and `errorMessages` validate the value through `createInput`, which the picker returns as `input` with `validate`, `reset`, `errors`, `isValid`, `isPristine`, `isDirty`, and `isTouched`. The picker registers with a parent form. A value the picker normalized is still pristine, and `input.reset()` puts the initial value back and drops a partly entered time; while `disabled` or `readonly` it does not write `value`. `revision` goes up when the model holds a new settled value worth validating. An edit the owner took counts, and so does a value from outside. The picker's own normalizing counts only once the value already has a validity. `input.reset()` does not count unless `error` or `errorMessages` is set. Under an owner that accepts late, the picker's normalizing of the initial value comes back as a value from outside and counts. Watch it to validate on input.
+
+  Call it inside a component `setup` or an `effectScope`; stopping the scope disposes the picker.
+
+- [#1110](https://github.com/vuetifyjs/0/pull/1110) [`4cda0bd`](https://github.com/vuetifyjs/0/commit/4cda0bddc308207efe32f6e1b1e8ee94d2459c2d) Thanks [@johnleider](https://github.com/johnleider)! - feat(useDate): add a `calendar` option to `V0DateAdapter` for non-Gregorian calendars
+
+  `new V0DateAdapter('fa-IR', { calendar: 'persian' })` reads, computes and formats dates in that calendar. ISO strings and `Date` values stay Gregorian.
+
+  Until V8 implements calendar duration math, a calendar other than `iso8601` is computed with `@js-temporal/polyfill`. The `iso8601` path keeps the runtime's Temporal.
+
+  Without the option, formatting is now always Gregorian. Locales whose Intl default is another calendar, such as `fa-IR`, previously formatted month names and years in that calendar while date fields stayed Gregorian.
+
+- [#1136](https://github.com/vuetifyjs/0/pull/1136) [`1a4ad81`](https://github.com/vuetifyjs/0/commit/1a4ad81634ac30551aac0252ea76339029b26538) Thanks [@johnleider](https://github.com/johnleider)! - feat(Kanban): mark the card a pointer drop is anchored to ([#1136](https://github.com/vuetifyjs/0/issues/1136))
+
+  A pointer drag sets `data-target` on the column and list under the pointer, and `data-drop` on the card the drop line is anchored to. Keyboard moves keep the same attributes. The board context exposes `pointer` and `aim` for that hover.
+
+- [#1147](https://github.com/vuetifyjs/0/pull/1147) [`d3e635a`](https://github.com/vuetifyjs/0/commit/d3e635aa3c602d842877fbb7ad48898fc7bea0ab) Thanks [@johnleider](https://github.com/johnleider)! - feat(createOverflow): measure() takes a width in pixels and returns the recorded width
+
+  `measure(index, source)` accepts a number as well as an element and returns the width it recorded, so an item that moves to another index can keep the width it had while visible. Breadcrumbs and Overflow do this now: removing a crumb or item no longer leaves its width behind or records a collapsed sibling as zero, so the ellipsis and the indicator match a fresh mount of the remaining items.
+
+- [#1086](https://github.com/vuetifyjs/0/pull/1086) [`39de444`](https://github.com/vuetifyjs/0/commit/39de4444677e336c71c6f7a6c4d643259a9b760e) Thanks [@johnleider](https://github.com/johnleider)! - feat(useDate): default to a plain JavaScript Date
+
+  `createDate()` and `useDate()` inside a component work without an adapter. Pass `V0DateAdapter` when you want Temporal. `useDate()` outside a component still throws.
+
+- [#1116](https://github.com/vuetifyjs/0/pull/1116) [`9f7c351`](https://github.com/vuetifyjs/0/commit/9f7c351a5647eb262440c9e465933df8887e4363) Thanks [@johnleider](https://github.com/johnleider)! - feat(createCalendar): add a Gregorian month grid
+
+  `createCalendar` is a Gregorian month grid with single and range selection. `mode` may be a ref, and changing it clears the selection. Days outside `min` and `max` are disabled. `disabled` can also name individual days with a list or a predicate. A day that is not a real calendar day is ignored. A month outside 1 through 12 is ignored. Paging stops at year 0000 and year 9999. A move past those years stops on `min` or `max` when one is set. A spill day outside `YYYY-MM-DD` stays disabled. An omitted month is today on the server as well as in the browser. When the grid owns its adapter, a locale ref also updates the week columns.
+
+- [#1161](https://github.com/vuetifyjs/0/pull/1161) [`9fefa00`](https://github.com/vuetifyjs/0/commit/9fefa00ee7d79eca9272535be8fde4f542a5b47b) Thanks [@johnleider](https://github.com/johnleider)! - feat(TimePicker): add hour, minute, and second spinbuttons ([#1161](https://github.com/vuetifyjs/0/issues/1161))
+
+  `TimePicker` edits a 24-hour time string through `TimePicker.Hour`, `TimePicker.Minute`, `TimePicker.Second`, and `TimePicker.Period` spinbuttons inside `TimePicker.Root`. The second field renders only with `seconds`, and the AM/PM field only with `hour-cycle="h12"`. The model stays null until the hour, the minute, and, with `seconds`, the second all have a value.
+
+  Arrow keys move a field one interval, PageUp and PageDown move the hour about 2 hours and the minute or second about 15, Home and End set its lowest and highest value, and Backspace or Delete clears it. The fields do not take typed digits. `hour-step`, `minute-step`, and `second-step` keep each field on the multiples of its step, `min` and `max` keep a complete time inside a window on those steps, and `disabled` and `readonly` ignore every key.
+
+  Root and each field take `ariaLabel` and `ariaLabelledby`, and Root takes `ariaDescribedby`; names default to the locale catalog. The digits a field shows follow the locale's numerals, while the model stays in Latin digits. Fields carry `data-state="empty"` or `"filled"`, and Root carries `data-complete` while the fields show a complete time.
+
+  `required`, `rules`, `error`, `errorMessages`, and `validateOn` validate the model, and the picker registers with a parent `Form`. Focus moving between the fields is not a blur, and `validateOn="input"` validates an edit or a value from outside. The picker normalizing a value on its own validates only once the picker has a validity, from a validation or from `error` or `errorMessages`, and a reset does not unless `error` or `errorMessages` is set; when a parent accepts an update late, the picker reads its answer as a value from outside, which validates. `TimePicker.Description` and `TimePicker.Error` hold the help text and the messages; the fields point at them with `aria-describedby` and `aria-errormessage` and carry `aria-required` and `aria-invalid`. Root carries `data-state="pristine"`, `"valid"`, or `"invalid"`, plus `data-dirty` and `data-focused`, and its slot exposes `errors`, `isValid`, `isPristine`, `isFocused`, `validate`, and `reset`.
+
+  Set `name` to submit the displayed time with a form through a `TimePicker.HiddenInput` that Root renders, and `form` to associate it with a form Root sits outside.
+
+- [#1122](https://github.com/vuetifyjs/0/pull/1122) [`70ba978`](https://github.com/vuetifyjs/0/commit/70ba97844f78b4a5ee8440168ca7ef92db24f3fc) Thanks [@johnleider](https://github.com/johnleider)! - feat(useDate): name the default date adapter `V0PlainDateAdapter`
+
+  `PlainDateAdapter` still imports that class. `constructor.name` is `V0PlainDateAdapter`.
+
+### Patch Changes
+
+- [#1161](https://github.com/vuetifyjs/0/pull/1161) [`9fefa00`](https://github.com/vuetifyjs/0/commit/9fefa00ee7d79eca9272535be8fde4f542a5b47b) Thanks [@johnleider](https://github.com/johnleider)! - fix(useLocale): format numbers on the server the way the client does
+
+  `locale.n()` returned the bare number during a server render and the `Intl.NumberFormat` result in the browser, so a locale with its own digits or grouping, such as `ar-EG`, rendered `7` on the server and `٧` on the client and failed hydration. It now formats for the selected locale in both places. Without a selected locale it still returns the bare number. A locale id that is not a language tag `Intl.NumberFormat` accepts, such as `en_US`, also returns the bare number, with a warning in development, instead of throwing.
+
 ## 1.3.3
 
 ### Patch Changes
