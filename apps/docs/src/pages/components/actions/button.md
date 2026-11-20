@@ -107,6 +107,8 @@ Use `Button.Icon` to wrap icon content. It sets `aria-hidden="true"` on itself a
 
 ### Form Submission
 
+`Button.Root` renders `type="button"` unless you pass `type="submit"` or `type="reset"`. The default keeps the control from submitting a parent form.
+
 Use `Button.HiddenInput` inside a group to submit toggle state with forms. It renders a visually hidden checkbox that reflects the button's selected state.
 
 ```vue
@@ -135,7 +137,7 @@ Use `Button.HiddenInput` inside a group to submit toggle state with forms. It re
       </Button.Root>
     </Button.Group>
 
-    <button type="submit">Submit</button>
+    <Button.Root type="submit">Submit</Button.Root>
   </Form>
 </template>
 ```
@@ -175,7 +177,7 @@ Each state sets a corresponding `data-*` attribute on the element for CSS stylin
 Button.Root handles ARIA attributes automatically:
 
 - `role="button"` for proper semantics
-- `type="button"` when rendered as a `<button>` (prevents implicit form submission)
+- `type="button"` by default when rendered as a `<button>`, so it does not submit a parent form. Pass `type="submit"` or `type="reset"` to opt into that native behavior. A non-button host omits `type`.
 - `aria-pressed` reflects selection state when inside a group
 - `aria-disabled` is true when the button is disabled or passive. `passive` stays focusable. `disabled` also sets the native `disabled` attribute
 - `aria-label` from the `ariaLabel` prop

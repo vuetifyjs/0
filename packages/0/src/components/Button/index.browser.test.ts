@@ -113,14 +113,78 @@ describe('button', () => {
         expect(wrapper.attributes('type')).toBe('button')
       })
 
+      it('should set type="submit" when type is submit', () => {
+        const { wrapper } = mountButton({ props: { type: 'submit' } })
+        expect(wrapper.attributes('type')).toBe('submit')
+      })
+
+      it('should set type="reset" when type is reset', () => {
+        const { wrapper } = mountButton({ props: { type: 'reset' } })
+        expect(wrapper.attributes('type')).toBe('reset')
+      })
+
       it('should not set type when rendering as non-button element', () => {
         const { wrapper } = mountButton({ props: { as: 'div' } })
+        expect(wrapper.attributes('type')).toBeUndefined()
+      })
+
+      it('should not set type when rendering as non-button element even if type is submit', () => {
+        const { wrapper } = mountButton({ props: { as: 'div', type: 'submit' } })
         expect(wrapper.attributes('type')).toBeUndefined()
       })
 
       it('should set role="button"', () => {
         const { wrapper } = mountButton()
         expect(wrapper.attributes('role')).toBe('button')
+      })
+    })
+
+    describe('form submission', () => {
+      function mountInForm (props: Record<string, unknown> = {}) {
+        const submitted = vi.fn((event: Event) => {
+          event.preventDefault()
+        })
+
+        const wrapper = mount(defineComponent({
+          name: 'ButtonFormHarness',
+          setup () {
+            return () => h('form', { onSubmit: submitted }, [
+              h(Button.Root, props, { default: () => 'Save' }),
+            ])
+          },
+        }), { attachTo: document.body })
+
+        return { submitted, wrapper }
+      }
+
+      function clickSave (wrapper: VueWrapper) {
+        (wrapper.get('button').element as HTMLButtonElement).click()
+      }
+
+      function activate (props: Record<string, unknown> = {}) {
+        const { submitted, wrapper } = mountInForm(props)
+        try {
+          clickSave(wrapper)
+          return submitted
+        } finally {
+          wrapper.unmount()
+        }
+      }
+
+      it('should not submit the parent form by default', () => {
+        expect(activate()).not.toHaveBeenCalled()
+      })
+
+      it('should submit the parent form when type is submit', () => {
+        expect(activate({ type: 'submit' })).toHaveBeenCalledTimes(1)
+      })
+
+      it('should not submit the parent form when disabled', () => {
+        expect(activate({ type: 'submit', disabled: true })).not.toHaveBeenCalled()
+      })
+
+      it.each(['readonly', 'passive', 'loading'] as const)('should not submit the parent form when %s', state => {
+        expect(activate({ type: 'submit', [state]: true })).not.toHaveBeenCalled()
       })
     })
 
