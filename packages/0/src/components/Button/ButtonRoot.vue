@@ -82,6 +82,12 @@
     name?: string
     /** Associate with form by ID */
     form?: string
+    /**
+     * Native button type. Defaults to `button`, so the control does not submit
+     * a parent form. `submit` and `reset` opt into that native behavior.
+     * Ignored when `as` is not `button`.
+     */
+    type?: 'button' | 'submit' | 'reset'
     /** Accessible label for the button */
     ariaLabel?: string
   }
@@ -99,7 +105,7 @@
     isSelected: boolean
     /** Attributes to bind to the button element */
     attrs: {
-      'type': 'button' | undefined
+      'type': 'button' | 'submit' | 'reset' | undefined
       'role': 'button'
       'disabled': true | undefined
       'aria-disabled': boolean
@@ -141,6 +147,7 @@
     value,
     name,
     form,
+    type = 'button',
     ariaLabel,
     namespace = 'v0:button:root',
     groupNamespace = 'v0:button:group',
@@ -190,8 +197,17 @@
   const isSolo = shallowRef(false)
   const locale = useLocale()
 
-  function onClick () {
-    if (isDisabled.value || isReadonly.value || isPassive.value || loading || !ticket) return
+  function nativeType (): 'button' | 'submit' | 'reset' {
+    if (type === 'submit' || type === 'reset') return type
+    return 'button'
+  }
+
+  function onClick (event?: Event) {
+    if (isDisabled.value || isReadonly.value || isPassive.value || loading) {
+      if (as === 'button' && nativeType() !== 'button') event?.preventDefault()
+      return
+    }
+    if (!ticket) return
     ticket.toggle()
   }
 
@@ -222,24 +238,30 @@
 
   provideButtonRoot(namespace, context)
 
-  const elementAttrs = toRef((): ButtonRootSlotProps['attrs'] => ({
-    'type': as === 'button' ? 'button' : undefined,
-    'role': 'button',
-    'disabled': isDisabled.value ? true : undefined,
-    'aria-disabled': isDisabled.value || isPassive.value,
-    'aria-busy': isLoading.value ? true : undefined,
-    'aria-pressed': group ? isSelected.value : undefined,
-    'aria-label': ariaLabel || (!renderless && isSolo.value ? (locale.ti('Button.label') ?? 'Button') : undefined),
-    'tabindex': isDisabled.value ? -1 : 0,
-    'data-loading': isLoading.value ? true : undefined,
-    'data-passive': isPassive.value ? true : undefined,
-    'data-readonly': isReadonly.value ? true : undefined,
-    'data-disabled': isDisabled.value ? true : undefined,
-    'data-selected': group && isSelected.value ? true : undefined,
-    'data-solo': isSolo.value ? true : undefined,
-    'onClick': ticket ? onClick : undefined,
-    'onKeydown': as === 'button' ? undefined : onKeydown,
-  }))
+  const elementAttrs = toRef((): ButtonRootSlotProps['attrs'] => {
+    const guardsForm = as === 'button'
+      && nativeType() !== 'button'
+      && (isReadonly.value || isPassive.value || loading)
+
+    return {
+      'type': as === 'button' ? nativeType() : undefined,
+      'role': 'button',
+      'disabled': isDisabled.value ? true : undefined,
+      'aria-disabled': isDisabled.value || isPassive.value,
+      'aria-busy': isLoading.value ? true : undefined,
+      'aria-pressed': group ? isSelected.value : undefined,
+      'aria-label': ariaLabel || (!renderless && isSolo.value ? (locale.ti('Button.label') ?? 'Button') : undefined),
+      'tabindex': isDisabled.value ? -1 : 0,
+      'data-loading': isLoading.value ? true : undefined,
+      'data-passive': isPassive.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
+      'data-disabled': isDisabled.value ? true : undefined,
+      'data-selected': group && isSelected.value ? true : undefined,
+      'data-solo': isSolo.value ? true : undefined,
+      'onClick': ticket || guardsForm ? onClick : undefined,
+      'onKeydown': as === 'button' ? undefined : onKeydown,
+    }
+  })
 
   const slotProps = toRef((): ButtonRootSlotProps => ({
     isLoading: isLoading.value,
