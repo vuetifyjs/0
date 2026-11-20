@@ -24,7 +24,7 @@ Edit a time as hour, minute, and optional second fields. The control stores a 24
 
 ## Usage
 
-Each field is a spinbutton. The arrow, Page, Home, and End keys move it. The model stays null until both the hour and the minute have a value.
+Each field is a spinbutton. The arrow, Page, Home, and End keys move it, and `step` on the field slot moves it the same way from a button. The model stays null until both the hour and the minute have a value.
 
 ::: gn-example
 /components/time-picker/basic
@@ -94,7 +94,7 @@ A 12-hour picker that stays inside a workday. The hour field shows 1 through 12,
 
 `min` and `max` keep a complete value inside the window. The bounds live in `office.ts` as `09:00` and `17:00`. Step the hour up from 5 PM and the next hour is `18:00`, then the upper bound pulls the value back to `17:00`. Switch 9 AM to PM and the stored hour shifts by 12, from `09:00` to `21:00`, and the same bound pulls it back to `17:00`. The hour stays inside its half of the day, so ArrowUp on 11 AM wraps to 12 AM, which is `00:00`, and the lower bound pulls that up to `09:00`.
 
-Seconds stay off, so the second field is not in the tree. Focus a field and use the keys under [Keyboard Navigation](#keyboard-navigation). On the period field, either arrow toggles AM and PM.
+Seconds stay off, so the second field is not in the tree. The minus and plus buttons call that field's `step`. Focus a field and use the keys under [Keyboard Navigation](#keyboard-navigation). On the period field, either arrow toggles AM and PM, and the switch button does the same.
 
 | File | Role |
 |------|------|
@@ -107,7 +107,7 @@ Seconds stay off, so the second field is not in the tree. Focus a field and use 
 
 ### Validation
 
-A required picker inside a [Form](/components/forms/form). The Book button calls `submit` from the Form's slot, which validates every field in the form. Press it with a field still empty and the submit fails: the model is null, so `required` rejects it, the fields get `aria-invalid`, and `TimePicker.Error` shows the message. Set both fields and the submit passes, unless the time is `12:00`, which the rule in `rules` turns down.
+A required picker inside a [Form](/components/forms/form). The Book button calls `submit` from the Form's slot, which validates every field in the form. Press it with a field still empty and the submit fails: the model is null, so `required` rejects it, the fields get `aria-invalid`, and `TimePicker.Error` shows the message. Set both fields with the buttons or the arrow keys and the submit passes, unless the time is `12:00`, which the rule in `rules` turns down.
 
 `TimePicker.Description` holds the help text. While it is mounted, Root and every field point at it with `aria-describedby`. The border color comes from `data-state` on Root, which reads `pristine`, `valid`, or `invalid`.
 :::
@@ -346,6 +346,10 @@ Two things follow:
 ??? Why does the Root slot value differ from the model?
 
 The Root slot's `value` is the time the fields show. It differs from the model only when the model holds a string the fields cannot show as written: a string that is not a time, or a time with or without seconds against the `seconds` setting that the picker has not rewritten, because it is disabled or readonly or because it took a parent's value as given.
+
+??? How do the buttons in the examples change the time?
+
+Each field slot has `step`. `step(1)` moves up one interval and `step(-1)` moves down one. On the period field any non-zero count flips AM and PM. A click on the field only focuses it. The keys still move it.
 
 ??? Can I type digits into a field?
 
