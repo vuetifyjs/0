@@ -402,6 +402,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/scroll-area': RouteRecordInfo<
+      '/components/semantic/scroll-area',
+      '/components/semantic/scroll-area',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/snackbar': RouteRecordInfo<
       '/components/semantic/snackbar',
       '/components/semantic/snackbar',

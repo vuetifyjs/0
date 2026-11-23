@@ -212,6 +212,7 @@ import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 | [Overflow](https://0.vuetifyjs.com/components/semantic/overflow) | Responsive truncation primitive with overflow detection and indicator |
 | [Pagination](https://0.vuetifyjs.com/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Progress](https://0.vuetifyjs.com/components/semantic/progress) | Headless progress indicator with multi-segment and buffer support |
+| [ScrollArea](https://0.vuetifyjs.com/components/semantic/scroll-area) | Native scrolling with custom, styleable scrollbars |
 | [Snackbar](https://0.vuetifyjs.com/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](https://0.vuetifyjs.com/components/semantic/splitter) | Resizable panel layout with drag handles |
 

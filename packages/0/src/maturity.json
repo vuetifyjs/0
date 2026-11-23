@@ -730,6 +730,12 @@
       "category": "semantic",
       "description": "A headless component for building resizable panel layouts with drag handles and full keyboard support."
     },
+    "ScrollArea": {
+      "level": "preview",
+      "since": null,
+      "category": "semantic",
+      "description": "Native scrolling with custom, styleable scrollbars that can show on hover, while scrolling, or always."
+    },
     "Treeview": {
       "level": "preview",
       "since": "0.1.11",
