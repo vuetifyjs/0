@@ -96,49 +96,6 @@ flowchart TD
 
 A change to `hourCycle`, `seconds`, a step, or a bound re-applies the step and the bounds to the current value before the next flush.
 
-### Step grid
-
-Each field moves on the multiples of its step. The picker counts them from 0 on the stored 24-hour value: hours inside 0–23, minutes and seconds inside 0–59. `minuteStep: 15` allows 0, 15, 30, and 45.
-
-- `step` moves along the multiples and wraps at either end. With `minuteStep: 15`, stepping up from 0 gives 15, 30, 45, 0, and stepping down gives 45, 30, 15, 0.
-- `commit` goes to the nearest multiple and never wraps. `commit('minute', 58)` is 45.
-- A fractional step truncates. The picker reads a non-finite or non-positive step as 1. A minute or second step above 59, or an `h23` hour step above 23, leaves 0 as the field's only value.
-- In `h12` the hour stays inside the current half of the day. The picker still counts the multiples on the 24-hour value, so `hourStep: 5` allows 12, 5, and 10 in the morning and 3 and 8 in the afternoon. A half of the day that holds no multiple keeps its first hour, so `hourStep: 24` allows 12 AM and 12 PM.
-
-`grid(part)` returns the lowest and highest value a numeric field can show and its resolved step, in display values. An `h12` hour reports the range for the current period. `grid` and the numeric form of `commit` take a `TimeUnit`, which is `'hour' | 'minute' | 'second'`. `step` takes a `TimePart`, which adds `'period'`.
-
-### Step count
-
-`step(part, count)` takes a signed count. The sign is the direction and the magnitude is the number of intervals. The count defaults to 1 and a fractional count truncates. A count of 0 or a non-finite count changes nothing. A field that sits off its multiples moves to the adjacent multiple in the direction of travel on the first interval.
-
-An empty field lands on its first multiple, whatever the count: 0 for a minute, a second, or an `h23` hour. An empty `h12` hour lands on the first hour of the remembered period, which is 12 with the default step. For `period`, any non-zero count toggles AM and PM.
-
-### Incoming values
-
-A string that reaches `value` from outside replaces every field. The picker moves each field to its nearest multiple, brings a complete time inside `min` and `max`, and writes the result back in canonical form.
-
-`createTimePicker` normalizes the initial value before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. The picker applies a value and an option that change in the same tick together, so the new options judge the new value.
-
-### Edits
-
-`commit` and `step` work on what the fields show. The edited field snaps or steps by the rules above, then the picker normalizes the whole time and writes it once.
-
-- The picker first applies a value or an option that changed earlier in the same tick, so an edit in the same tick as a change gives the same result as one a tick later.
-- The picker does not normalize a value the fields took as given after a [refused update](#refused-updates) before the edit. With `minuteStep: 15` and fields showing `04:50`, `step('minute', -1)` gives `04:45`.
-- A call that changes nothing writes nothing: a zero or non-finite count, the period the hour is already in, `period` in `h23`, `second` while `seconds` is off, a non-finite number, or clearing a field that is already empty. If a same-tick change was waiting, the picker still publishes that change.
-- A period commit snaps the hour to the nearest multiple inside its new half of the day.
-- When the model's setter throws, the error propagates to the caller and the fields return to what they held before that call. A half-entered time keeps the fields earlier calls set: with the hour at 9 and the minute empty, a `commit('minute', 30)` that throws leaves the hour at 9 and the minute empty.
-
-| Incoming | Result |
-|----------|--------|
-| `'09:50'` with `minuteStep: 15` | `'09:45'` |
-| `'09:30'` with `seconds` on | `'09:30:00'` |
-| `'09:30:15'` with `seconds` off | `'09:30'` |
-| `null` or `''` | Fields empty, value null |
-| Anything else, such as `'9:30'` or `'25:00'` | Fields empty, value null, and a development warning |
-
-Turning `seconds` on while the hour and the minute have values keeps the time and sets the second to 0. A second you enter through `commit` or `step` is different: with `seconds` on, the value stays null until the second has a value.
-
 ### Refused updates
 
 The model has the last word. A plain ref always takes what the picker writes. A writable computed, or a component model whose parent decides, may not.
@@ -146,82 +103,9 @@ The model has the last word. A plain ref always takes what the picker writes. A 
 - **Refused.** When the model does not hold what the picker wrote, the fields take the model's value as given, and the picker applies neither the step nor the bounds and writes nothing more. The check runs one tick after the post flush, so the fields and `display` settle within two ticks: `await nextTick()` twice. Rendered output that reads them follows one render later. The check never runs after the scope stops.
 - **Replaced.** When the owner answers a write with a different value, the picker treats that value as an incoming one: it normalizes it and writes it back once. If the owner alters that write too, the picker takes the owner's value as given and stops.
 
-One edit costs at most two writes, whatever the owner does. The picker never retries a write.
+One edit costs at most two writes. The picker never retries a write. Creation is the same: normalizing the initial value is one synchronous write, and a replacement can cost a second write a tick later. An owner that only refuses gets one.
 
-Creation follows the same rule. Normalizing the initial value is one synchronous write. When an owner replaces it with a different value, the picker normalizes that replacement and writes it back once, a tick later, so creation can cost two writes. An owner that only refuses gets one.
-
-Three things follow:
-
-- An owner should accept or refuse synchronously. One that accepts late, after a timer, a debounce, or an awaited request, looks like a refusal until its value arrives. The fields show the old model value in between, and each rapid edit starts from it. Bind the picker to a local ref and debounce or validate downstream of that ref.
-- An owner that rounds or transforms should give the picker the same step. A setter that rounds to 30 minutes over the default `minuteStep` receives `09:01` from `step('minute')` and maps it straight back to `09:00`, every time. With `minuteStep: 30` the picker writes `09:30`.
-- An edit made before the picker has checked the owner's answer starts from the value the picker just wrote, not from the model. Several `step` or `commit` calls in a row, or a test that dispatches key events without waiting, can therefore end on a different time than the same edits made one at a time when the owner refuses, caps, or rounds. Wait two ticks between programmatic edits when the owner may refuse. Real key presses arrive as separate tasks, so this does not affect them.
-
-`display` is the time the fields show, as the canonical string, or null while a field is empty. It matches `value` except when the model holds a string the fields cannot show as written and the picker has not rewritten it, because it is disabled or readonly, because it took the owner's value as given, or because the value came in during this tick and the picker has not normalized it yet. That is a string that is not a time, where `display` is null, or a time whose seconds do not match the `seconds` option. `display` also runs ahead of `value` after a write the model does not hold straight away, until the picker checks the answer. That is the case under an owner that answers late, and under any owner that refuses, between the write and the check.
-
-### Bounds
-
-`min` and `max` apply to a complete value only. A value below `min` moves to the earliest time at or after `min` that is on every field's step. A value above `max` moves to the latest such time at or before `max`. With `minuteStep: 15`, `min: '10:07'` starts the range at `10:15`, and `max: '17:10'` ends it at `17:00`.
-
-Only when no on-step time lies between the bounds does the picker set the step aside. It then clamps the value to the bound itself. `minuteStep: 15` with `min: '10:05'` and `max: '10:10'` is such a range.
-
-The picker ignores a bound that does not parse, and only that bound. When both parse and `min` is later than `max`, neither applies. Seconds in a bound count only when `seconds` is on.
-
-### Disabled and readonly
-
-While `disabled` or `readonly` is true, `commit`, `step`, and `clear` do nothing, and the picker never writes `value`. That holds at creation, when `value` changes from outside, when an option changes, and for `input.reset()`. The fields show an incoming value as given, the picker applies neither the step nor the bounds, and the model keeps the string it received. When the picker is editable again it applies both and writes the result.
-
-### Validation
-
-The picker composes [createInput](/composables/forms/create-input) and returns it as `input`. It validates the model value: the 24-hour string, or null while a field is empty. With `required`, validation fails until every enabled field has a value. Each rule in `rules` receives the value and returns `true` or a message. Inside a component under a [Form](/components/forms/form), the picker registers with it, and the form's submit validates it.
-
-```ts
-import { createTimePicker } from '@vuetify/v0'
-
-const time = createTimePicker({
-  required: true,
-  rules: [value => value !== '12:00' || 'Closed at noon'],
-})
-
-time.commit('hour', 12)
-await time.input.validate() // false, the minute is still empty
-
-time.commit('minute', 0)
-await time.input.validate() // false
-time.input.errors.value // ['Closed at noon']
-```
-
-The picker never validates on its own. Call `input.validate()` when your markup decides to, and set `input.isFocused` and `input.isTouched` from it.
-
-Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. A time the picker completes from edited fields, such as an entered hour and minute once `seconds` turns off, is not pristine. `input.isDirty` is true while the value is a non-empty string, whether or not it is a valid time.
-
-`revision` goes up when the model holds a new settled value worth validating. Watch it to validate on input, as [TimePicker](/components/forms/time-picker) does:
-
-```ts
-import { watch } from 'vue'
-import { createTimePicker } from '@vuetify/v0'
-
-const time = createTimePicker({ required: true })
-
-watch(time.revision, () => time.input.validate())
-```
-
-An edit the owner took counts, and so does a value from outside. The picker normalizing on its own counts only once the value already has a validity, when `input.isValid` is not null. `input.reset()` does not count, except while `error` or `errorMessages` is set, which keep a validity through the reset.
-
-An owner that accepts late, as [Refused updates](#refused-updates) describes, hands the picker's own normalizing write back as a value from outside, and that counts. An initial value that needs normalizing then counts at creation, and again after a reset.
-
-A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
-
-`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the model does not take the initial value back, because the picker is disabled or readonly and writes nothing, or because the owner refuses the write. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
-
-The picker reads `required` and `rules` once, at creation.
-
-### Development warnings
-
-In development the picker logs a warning through [useLogger](/composables/plugins/use-logger) when:
-
-- `value` receives a string that is not a 24-hour `HH:mm` or `HH:mm:ss` time. `null` and `''` are silent.
-- `min` or `max` does not parse. The picker ignores that bound.
-- `min` is later than `max`. The picker ignores the range.
+Late-accepting owners, rounding setters, rapid programmatic edits, and how `display` relates to `value` are in the FAQ.
 
 ## Reactivity
 
@@ -266,6 +150,21 @@ The public value stays null until both the hour and the minute have a value. Thi
 
 ## Recipes
 
+### Step grid
+
+Each field moves on the multiples of its step, counted from 0 on the stored 24-hour value: hours inside 0–23, minutes and seconds inside 0–59. `minuteStep: 15` allows 0, 15, 30, and 45.
+
+- `step` moves along the multiples and wraps at either end. With `minuteStep: 15`, stepping up from 0 gives 15, 30, 45, 0, and stepping down gives 45, 30, 15, 0.
+- `commit` goes to the nearest multiple and never wraps. `commit('minute', 58)` is 45.
+- A fractional step truncates. The picker reads a non-finite or non-positive step as 1. A minute or second step above 59, or an `h23` hour step above 23, leaves 0 as the field's only value.
+- In `h12` the hour stays inside the current half of the day. The picker still counts the multiples on the 24-hour value, so `hourStep: 5` allows 12, 5, and 10 in the morning and 3 and 8 in the afternoon. A half of the day that holds no multiple keeps its first hour, so `hourStep: 24` allows 12 AM and 12 PM.
+
+`grid(part)` returns the lowest and highest value a numeric field can show and its resolved step, in display values. An `h12` hour reports the range for the current period. `grid` and the numeric form of `commit` take a `TimeUnit` (`'hour' | 'minute' | 'second'`). `step` takes a `TimePart`, which adds `'period'`.
+
+`step(part, count)` takes a signed count. The sign is the direction and the magnitude is the number of intervals. The count defaults to 1 and a fractional count truncates. A count of 0 or a non-finite count changes nothing. A field that sits off its multiples moves to the adjacent multiple in the direction of travel on the first interval.
+
+An empty field lands on its first multiple, whatever the count: 0 for a minute, a second, or an `h23` hour. An empty `h12` hour lands on the first hour of the remembered period, which is 12 with the default step. For `period`, any non-zero count toggles AM and PM.
+
 ::: gn-example
 /composables/create-time-picker/basic
 
@@ -273,6 +172,75 @@ The public value stays null until both the hour and the minute have a value. Thi
 
 `minuteStep: 15` keeps the minute on the quarter hours. Each press of the minute button calls `step('minute')`, so the value's minute reads 00, 15, 30, 45, and then 00 again. The value stays null until you have pressed both buttons once, because the first step on an empty field sets it to its first value.
 :::
+
+### Incoming values
+
+A string that reaches `value` from outside replaces every field. The picker moves each field to its nearest multiple, brings a complete time inside `min` and `max`, and writes the result back in canonical form.
+
+`createTimePicker` normalizes the initial value before it returns. For a later write the pass runs before the next flush, not inside the assignment. The fields show the incoming value as written until then, so `await nextTick()` before reading the normalized `value`. The picker applies a value and an option that change in the same tick together, so the new options judge the new value.
+
+`commit` and `step` work on what the fields show. The edited field snaps or steps by the rules above, then the picker normalizes the whole time and writes it once.
+
+- The picker first applies a value or an option that changed earlier in the same tick, so an edit in the same tick as a change gives the same result as one a tick later.
+- The picker does not normalize a value the fields took as given after a [refused update](#refused-updates) before the edit. With `minuteStep: 15` and fields showing `04:50`, `step('minute', -1)` gives `04:45`.
+- A call that changes nothing writes nothing: a zero or non-finite count, the period the hour is already in, `period` in `h23`, `second` while `seconds` is off, a non-finite number, or clearing a field that is already empty. If a same-tick change was waiting, the picker still publishes that change.
+- A period commit snaps the hour to the nearest multiple inside its new half of the day.
+- When the model's setter throws, the error propagates to the caller and the fields return to what they held before that call. A half-entered time keeps the fields earlier calls set: with the hour at 9 and the minute empty, a `commit('minute', 30)` that throws leaves the hour at 9 and the minute empty.
+
+| Incoming | Result |
+|----------|--------|
+| `'09:50'` with `minuteStep: 15` | `'09:45'` |
+| `'09:30'` with `seconds` on | `'09:30:00'` |
+| `'09:30:15'` with `seconds` off | `'09:30'` |
+| `null` or `''` | Fields empty, value null |
+| Anything else, such as `'9:30'` or `'25:00'` | Fields empty, value null, and a development warning |
+
+Turning `seconds` on while the hour and the minute have values keeps the time and sets the second to 0. A second you enter through `commit` or `step` is different: with `seconds` on, the value stays null until the second has a value.
+
+### Validation
+
+The picker composes [createInput](/composables/forms/create-input) and returns it as `input`. It validates the model value: the 24-hour string, or null while a field is empty. With `required`, validation fails until every enabled field has a value. Each rule in `rules` receives the value and returns `true` or a message. Inside a component under a [Form](/components/forms/form), the picker registers with it, and the form's submit validates it.
+
+```ts
+import { createTimePicker } from '@vuetify/v0'
+
+const time = createTimePicker({
+  required: true,
+  rules: [value => value !== '12:00' || 'Closed at noon'],
+})
+
+time.commit('hour', 12)
+await time.input.validate() // false, the minute is still empty
+
+time.commit('minute', 0)
+await time.input.validate() // false
+time.input.errors.value // ['Closed at noon']
+```
+
+The picker never validates on its own. Call `input.validate()` when your markup decides to, and set `input.isFocused` and `input.isTouched` from it.
+
+Normalizing is not an edit. `input.isPristine` stays true when the picker moves the initial value onto the step or inside the bounds, and turns false on the first edit or the first different value from outside. A time the picker completes from edited fields, such as an entered hour and minute once `seconds` turns off, is not pristine. `input.isDirty` is true while the value is a non-empty string, whether or not it is a valid time.
+
+`revision` goes up when the model holds a new settled value worth validating. Watch it to validate on input, as [TimePicker](/components/forms/time-picker) does:
+
+```ts
+import { watch } from 'vue'
+import { createTimePicker } from '@vuetify/v0'
+
+const time = createTimePicker({ required: true })
+
+watch(time.revision, () => time.input.validate())
+```
+
+An edit the owner took counts, and so does a value from outside. The picker normalizing on its own counts only once the value already has a validity, when `input.isValid` is not null. `input.reset()` does not count, except while `error` or `errorMessages` is set, which keep a validity through the reset.
+
+An owner that accepts late, as [Refused updates](#refused-updates) describes, hands the picker's own normalizing write back as a value from outside, and that counts. An initial value that needs normalizing then counts at creation, and again after a reset.
+
+A call that does not move a field is not an edit. `commit` with the value a field already holds leaves a pristine value pristine.
+
+`input.reset()` writes the initial value back, drops a partly entered time, and clears the validation state and `isTouched`. While the picker is disabled or readonly it does all of that except write the model. `isPristine` reads true after a reset even when the model does not take the initial value back, because the picker is disabled or readonly and writes nothing, or because the owner refuses the write.
+
+The picker reads `required` and `rules` once, at creation.
 
 ::: gn-example
 /composables/create-time-picker/validation
@@ -296,7 +264,7 @@ A partial time is not a time string. `commit('hour', 9)` alone leaves `value` nu
 
 ??? What do min and max do?
 
-They keep a complete value inside the window. A value outside it moves to the nearest time inside it that is on every field's step, so `minuteStep: 15` with `min: '10:07'` starts at `10:15`. If no on-step time lies between the bounds, the picker clamps the value to the bound itself. An incomplete value stays null, and the bounds leave it alone. If both bounds parse and `min` is later than `max`, neither applies.
+They keep a complete value inside the window. A value outside it moves to the nearest time inside it that is on every field's step, so `minuteStep: 15` with `min: '10:07'` starts at `10:15`. If no on-step time lies between the bounds, the picker clamps the value to the bound itself. An incomplete value stays null, and the bounds leave it alone. The picker ignores a bound that does not parse, and only that bound. If both bounds parse and `min` is later than `max`, neither applies. Seconds in a bound count only when `seconds` is on.
 
 ??? Why does setting the value to null not clear a half-entered time?
 
@@ -304,7 +272,15 @@ While a field is still empty the value is already null, so writing null again ch
 
 ??? What happens when the model does not accept a value?
 
-The fields take the model's value as given and the picker writes nothing more. The fields and `display` settle within two ticks of the refused write, and rendered output follows one render later. If the owner answered with a different value instead, the picker normalizes it and writes back once. See [Refused updates](#refused-updates). Read `display` for the time the fields show.
+The fields take the model's value as given and the picker writes nothing more. The fields and `display` settle within two ticks of the refused write, and rendered output follows one render later. If the owner answered with a different value instead, the picker normalizes it and writes back once. See [Refused updates](#refused-updates).
+
+An owner should accept or refuse synchronously. One that accepts late, after a timer, a debounce, or an awaited request, looks like a refusal until its value arrives. The fields show the old model value in between, and each rapid edit starts from it. Bind the picker to a local ref and debounce or validate downstream of that ref.
+
+An owner that rounds or transforms should give the picker the same step. A setter that rounds to 30 minutes over the default `minuteStep` receives `09:01` from `step('minute')` and maps it straight back to `09:00`, every time. With `minuteStep: 30` the picker writes `09:30`.
+
+An edit made before the picker has checked the owner's answer starts from the value the picker just wrote, not from the model. Several `step` or `commit` calls in a row, or a test that dispatches key events without waiting, can therefore end on a different time than the same edits made one at a time when the owner refuses, caps, or rounds. Wait two ticks between programmatic edits when the owner may refuse. Real key presses arrive as separate tasks, so this does not affect them.
+
+`display` is the time the fields show, as the canonical string, or null while a field is empty. It matches `value` except when the model holds a string the fields cannot show as written and the picker has not rewritten it, because it is disabled or readonly, because it took the owner's value as given, or because the value came in during this tick and the picker has not normalized it yet. That is a string that is not a time, where `display` is null, or a time whose seconds do not match the `seconds` option. `display` also runs ahead of `value` after a write the model does not hold straight away, until the picker checks the answer.
 
 ??? Does it write the model during server rendering?
 
@@ -312,7 +288,11 @@ Yes. `createTimePicker` normalizes the initial value before it returns, so it re
 
 ??? What happens when disabled or readonly is true?
 
-`commit`, `step`, and `clear` all no-op, and the picker stops writing `value`. The fields show an incoming value as given. When both flags are false again, the picker applies the step and the bounds and writes the result.
+`commit`, `step`, and `clear` all no-op, and the picker never writes `value`. That holds at creation, when `value` changes from outside, when an option changes, and for `input.reset()`. The fields show an incoming value as given, the picker applies neither the step nor the bounds, and the model keeps the string it received. When the picker is editable again it applies both and writes the result. A disabled or readonly picker still validates: `validate()` reads the model as it is and writes nothing.
+
+??? When does the picker log a development warning?
+
+In development the picker logs a warning through [useLogger](/composables/plugins/use-logger) when `value` receives a string that is not a 24-hour `HH:mm` or `HH:mm:ss` time (`null` and `''` are silent); when `min` or `max` does not parse (that bound is ignored); or when `min` is later than `max` (the range is ignored).
 
 :::
 
