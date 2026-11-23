@@ -177,20 +177,20 @@ flowchart TD
 
 ## Options
 
-```ts
-interface ComboboxOptions {
-  multiple?: MaybeRefOrGetter<boolean>   // Enable multi-select
-  mandatory?: MaybeRefOrGetter<boolean>  // Prevent deselecting last item
-  disabled?: MaybeRefOrGetter<boolean>   // Disable all interaction
-  strict?: MaybeRefOrGetter<boolean>     // Constrain accepted values to registered options; unmatched text is discarded on confirm (Enter/Tab/click-outside/blur)
-  adapter?: ComboboxAdapter              // Filtering strategy (default: ClientComboboxAdapter)
-  positionAdapter?: PopoverAdapter       // Dropdown positioning engine (default: V0PopoverAdapter)
-  displayValue?: (value: unknown) => string  // Format selected value for display in input
-  id?: string                            // Base ID for ARIA attributes
-  name?: string                          // Hidden input name for form submission
-  form?: string                          // Associated form ID
-}
-```
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `multiple` | `MaybeRefOrGetter<boolean>` | `false` | Enable multi-select |
+| `mandatory` | `MaybeRefOrGetter<boolean>` | `false` | Prevent deselecting the last item |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | Disable all interaction |
+| `strict` | `MaybeRefOrGetter<boolean>` | `false` | Constrain accepted values to registered options. Unmatched text is discarded on confirm (Enter, Tab, click-outside, or blur) |
+| `error` | `MaybeRefOrGetter<boolean>` | `false` | Force the invalid state |
+| `errorMessages` | `MaybeRefOrGetter<MaybeArray<string> \| undefined>` | — | Messages that force invalid when present |
+| `adapter` | `ComboboxAdapter` | `ClientComboboxAdapter` | Filtering strategy |
+| `positionAdapter` | `PopoverAdapter` | `V0PopoverAdapter` | Dropdown positioning. Default is CSS anchor positioning |
+| `displayValue` | `(value: unknown) => string` | `v => String(v ?? '')` | Format the selected value for the input |
+| `id` | `string` | `useId()` | Base ID for ARIA attributes |
+| `name` | `string` | — | Hidden input name for form submission |
+| `form` | `string` | — | Associated form ID |
 
 ## Reactivity
 

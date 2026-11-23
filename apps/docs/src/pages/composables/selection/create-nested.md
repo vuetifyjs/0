@@ -84,85 +84,22 @@ flowchart TD
 
 ## Options
 
-### open
+| Option | Type | Default | Notes |
+| - | - | - | - |
+| `open` | `'multiple' \| 'single'` | `'multiple'` | `'single'` keeps only one node open (accordion) |
+| `openAll` | `boolean` | `false` | Open a parent when a child registers |
+| `reveal` | `boolean` | `false` | `open()` also opens ancestors so the target stays visible |
+| `selection` | `'cascade' \| 'independent' \| 'leaf'` | `'cascade'` | How selection moves through the tree |
+| `active` | `'single' \| 'multiple'` | `'single'` | How many items can be highlighted at once |
+| `mandatory` | `MaybeRefOrGetter<boolean \| 'force'>` | `false` | Prevent deselecting the last selected item. `'force'` also auto-selects the first non-disabled item on registration |
+| `multiple` | `MaybeRefOrGetter<boolean>` | `true` | Default differs from [createSelection](/composables/selection/create-selection) (`false`). In cascade, `false` replaces the current selection |
+| `disabled` | `MaybeRefOrGetter<boolean>` | `false` | All tree mutations become no-ops. A ticket can also carry `disabled` to skip only that node |
 
-Controls how nodes expand/collapse:
+### Selection
 
-| Value | Behavior |
-|-------|----------|
-| `'multiple'` | Multiple nodes can be open simultaneously (default) |
-| `'single'` | Only one node open at a time (accordion behavior) |
+`cascade` selects every descendant when you select a parent, and ancestors resolve mixed state from their children: all selected, some selected (mixed), or none. `independent` selects each node alone. `leaf` lets only leaf nodes sit in `selectedIds`; selecting a parent selects its leaf descendants.
 
-```ts
-// Tree view - multiple nodes open
-const tree = createNested({ open: 'multiple' })
-
-// Accordion - single node open
-const accordion = createNested({ open: 'single' })
-```
-
-### mandatory
-
-When `true`, deselecting is prevented if it would leave no items selected:
-
-```ts
-const tree = createNested({ selection: 'cascade', mandatory: true })
-
-tree.select('child-1')
-tree.unselect('child-1') // no-op — would deselect the only selected item
-```
-
-`unselectAll()` with `mandatory: true` clears the selection, then selects `seek('first')`.
-
-### multiple
-
-When `false`, selecting a node in cascade mode clears previous selections first (default: `true`):
-
-```ts
-const tree = createNested({ selection: 'cascade', multiple: false })
-
-tree.select('child-1')
-tree.select('child-2') // child-1 is deselected first
-```
-
-### disabled
-
-When `true`, all tree mutations (`open()`, `close()`, `select()`, `unselect()`, `toggle()`) become no-ops. Individual tickets can also carry a `disabled` flag to skip only that node:
-
-```ts
-const tree = createNested({ disabled: true })
-
-tree.open('branch-1')   // no-op — tree is disabled
-tree.select('leaf-1')   // no-op
-```
-
-Accepts `MaybeRefOrGetter<boolean>` for reactive toggling:
-
-```ts
-const isLocked = shallowRef(false)
-const tree = createNested({ disabled: isLocked })
-```
-
-### selection
-
-Controls how selection cascades through the hierarchy:
-
-| Value | Behavior |
-|-------|----------|
-| `'cascade'` | Selecting parent selects all descendants; ancestors show mixed state (default) |
-| `'independent'` | Each node selected independently, no cascading |
-| `'leaf'` | Only leaf nodes can be selected; parent selection selects leaf descendants |
-
-```ts
-// Cascading checkbox tree
-const tree = createNested({ selection: 'cascade' })
-
-// Independent selection
-const flat = createNested({ selection: 'independent' })
-
-// Leaf-only selection (file picker)
-const picker = createNested({ selection: 'leaf' })
-```
+Worked examples live under Recipes.
 
 ## Reactivity
 
@@ -277,6 +214,28 @@ tree.select('folder')
 // 'folder' itself is not in selectedIds
 ```
 
+### Mandatory and single-select
+
+When `mandatory` is true, `unselect` is a no-op if it would leave nothing selected:
+
+```ts
+const tree = createNested({ selection: 'cascade', mandatory: true })
+
+tree.select('child-1')
+tree.unselect('child-1') // no-op — would deselect the only selected item
+```
+
+`unselectAll()` with `mandatory: true` clears the selection, then selects `seek('first')`.
+
+When `multiple` is `false` in cascade mode, selecting a node clears previous selections first:
+
+```ts
+const tree = createNested({ selection: 'cascade', multiple: false })
+
+tree.select('child-1')
+tree.select('child-2') // child-1 is deselected first
+```
+
 ### Convenience Methods
 
 #### Expand/Collapse All
@@ -362,6 +321,19 @@ tree.register({ id: 'child', value: 'Child', parentId: 'parent' })
 ??? How do I make the tree behave like an accordion?
 
 Pass `open: 'single'` so only one node can be open at a time. The default `open: 'multiple'` lets several branches stay expanded simultaneously.
+
+??? What does mandatory do in a nested tree?
+
+When `mandatory` is true, deselecting is blocked if it would leave no items selected. `unselectAll()` clears the selection, then selects `seek('first')`. `'force'` also auto-selects the first non-disabled item on registration.
+
+??? How do I disable the whole tree?
+
+Pass `disabled: true` so `open()`, `close()`, `select()`, `unselect()`, and `toggle()` become no-ops. A ticket can also carry `disabled` to skip only that node. The option accepts `MaybeRefOrGetter<boolean>`:
+
+```ts
+const isLocked = shallowRef(false)
+const tree = createNested({ disabled: isLocked })
+```
 
 ??? When should I use createNested instead of the Treeview component?
 
