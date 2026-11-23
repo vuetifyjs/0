@@ -46,6 +46,7 @@ import ProgressFixture from './fixtures/Progress.vue'
 import RadioFixture from './fixtures/Radio.vue'
 import RatingFixture from './fixtures/Rating.vue'
 import ScrimFixture from './fixtures/Scrim.vue'
+import ScrollAreaFixture from './fixtures/ScrollArea.vue'
 import SelectFixture from './fixtures/Select.vue'
 import SelectionFixture from './fixtures/Selection.vue'
 import SingleFixture from './fixtures/Single.vue'
@@ -159,6 +160,7 @@ const FIXTURES = {
   Radio: RadioFixture,
   Rating: RatingFixture,
   Scrim: ScrimFixture,
+  ScrollArea: ScrollAreaFixture,
   Select: SelectFixture,
   Selection: SelectionFixture,
   Single: SingleFixture,

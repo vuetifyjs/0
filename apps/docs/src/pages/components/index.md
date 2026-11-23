@@ -115,6 +115,7 @@ Components with meaningful HTML defaults. Render semantic elements by default bu
 | [Overflow](/components/semantic/overflow) | Responsive truncation primitive |
 | [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
 | [Progress](/components/semantic/progress) | Headless progress bar with multi-segment and buffer support |
+| [ScrollArea](/components/semantic/scroll-area) | Native scrolling with custom, styleable scrollbars |
 | [Snackbar](/components/semantic/snackbar) | Toast notification with queue, positioning, and auto-dismiss |
 | [Splitter](/components/semantic/splitter) | Resizable panel layout with drag handles |
 

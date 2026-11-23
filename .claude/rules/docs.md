@@ -428,7 +428,7 @@ Ask: **"What must the reader already know to use this page?"**
 | `forms` | Checkbox, Combobox, Form, Input, NumberField, Radio, Rating, Select, Slider, Switch |
 | `primitives` | AspectRatio, Atom, Portal, Presence |
 | `providers` | Group, Locale, Scrim, Selection, Single, Step, Theme |
-| `semantic` | Avatar, Breadcrumbs, Carousel, Image, Overflow, Pagination, Progress, Snackbar, Splitter |
+| `semantic` | Avatar, Breadcrumbs, Carousel, Image, Overflow, Pagination, Progress, ScrollArea, Snackbar, Splitter |
 
 ## Composable Categories [intent:218]
 
