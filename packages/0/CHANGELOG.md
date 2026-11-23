@@ -1,5 +1,17 @@
 # @vuetify/v0
 
+## 1.4.1
+
+### Patch Changes
+
+- [#1163](https://github.com/vuetifyjs/0/pull/1163) [`2cd22f1`](https://github.com/vuetifyjs/0/commit/2cd22f1a14cfaed4046b06bcb3d8b477211992c0) Thanks [@johnleider](https://github.com/johnleider)! - fix(Button): accept a type prop so a button can submit or reset a form
+
+  `Button.Root` still defaults to `type="button"`, so it does not submit a parent form. Pass `type="submit"` or `type="reset"` when that native behavior is what you want. `readonly`, `passive`, and `loading` still block the submission.
+
+- [#1165](https://github.com/vuetifyjs/0/pull/1165) [`2bb014c`](https://github.com/vuetifyjs/0/commit/2bb014c60f885c15f7682cf1b7cef9803cedadd8) Thanks [@johnleider](https://github.com/johnleider)! - fix(TimePicker): step a field from a button beside it
+
+  The hour, minute, second, and period slots expose `step`. Call `step(1)` or `step(-1)` from a button to move that field by one interval, the same distance as the arrow keys. On the period field any non-zero count flips AM and PM. A click on the field still only focuses it.
+
 ## 1.4.0
 
 ### Minor Changes
