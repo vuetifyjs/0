@@ -9,6 +9,7 @@
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Composables
+  import { readUserTeam } from '@/composables/teamPlaygrounds'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Stores
@@ -43,11 +44,14 @@
 
   const title = shallowRef(currentTitle.value)
   const visibility = shallowRef<'public' | 'private'>('public')
+  const saveTarget = shallowRef<'personal' | 'team'>('personal')
   const status = shallowRef<'idle' | 'saving' | 'error'>('idle')
   const message = shallowRef('')
   const input = useTemplateRef<HTMLInputElement>('input')
 
   const isCreate = toRef(() => asNew || !currentId.value)
+  const userTeam = toRef(() => readUserTeam(auth.user))
+  const showTeam = toRef(() => isCreate.value && userTeam.value !== null)
   const actionLabel = toRef(() => isCreate.value ? 'Save' : 'Rename')
   const isSaving = toRef(() => status.value === 'saving')
 
@@ -59,6 +63,7 @@
     }
     title.value = currentTitle.value || 'Untitled'
     visibility.value = 'public'
+    saveTarget.value = 'personal'
     await nextTick()
     input.value?.focus()
     input.value?.select()
@@ -112,11 +117,13 @@
 
     try {
       const content = playground.snapshotContent()
+      const team = readUserTeam(auth.user)
       await Promise.all([
         save(content, {
           title: title.value.trim() || 'Untitled',
           asNew: isCreate.value,
           visibility: isCreate.value ? visibility.value : undefined,
+          teamId: isCreate.value && saveTarget.value === 'team' ? team?.id : undefined,
         }),
         delay(MIN_LOADING_MS),
       ])
@@ -207,6 +214,49 @@
               >
                 <AppIcon icon="visibility-private" :size="14" />
                 <span>Private</span>
+              </Button.Root>
+            </AppTooltip>
+          </Button.Group>
+        </div>
+
+        <div v-if="showTeam" class="flex items-center justify-between gap-2">
+          <span class="text-[11px] text-on-surface-variant">Save to</span>
+
+          <Button.Group
+            v-model="saveTarget"
+            class="flex items-center gap-1"
+            label="Save to"
+            mandatory
+          >
+            <AppTooltip
+              as="span"
+              class="inline-flex"
+              position-area="top"
+              text="Only you"
+            >
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="personal"
+              >
+                <AppIcon icon="account-outline" :size="14" />
+                <span>Personal</span>
+              </Button.Root>
+            </AppTooltip>
+
+            <AppTooltip
+              as="span"
+              class="inline-flex"
+              position-area="top"
+              :text="userTeam?.name ? `Share with ${userTeam.name}` : 'Share with your team'"
+            >
+              <Button.Root
+                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors border-0 bg-surface-tint text-on-surface-variant hover:bg-surface-variant data-[selected]:bg-primary/15 data-[selected]:text-primary data-[disabled]:opacity-50"
+                :disabled="isSaving"
+                value="team"
+              >
+                <AppIcon icon="account-group" :size="14" />
+                <span>Team</span>
               </Button.Root>
             </AppTooltip>
           </Button.Group>

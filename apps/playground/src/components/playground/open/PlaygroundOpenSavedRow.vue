@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Button, useTimer } from '@vuetify/v0'
+  import { Button, Checkbox, useTimer } from '@vuetify/v0'
 
   // Components
   import AppIcon from '@/components/app/AppIcon.vue'
@@ -8,27 +8,49 @@
   import AppTooltip from '@/components/app/AppTooltip.vue'
 
   // Composables
+  import {
+    canAssignTeam,
+    isPlaygroundOwner,
+    nextTeamId,
+    playgroundTeamId,
+    readUserTeam,
+    settledTeamId,
+  } from '@/composables/teamPlaygrounds'
   import { useOnePlaygrounds } from '@/composables/useOnePlaygrounds'
 
   // Local
   import { formatDate } from './types'
+
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useTemplateRef } from 'vue'
 
   // Types
   import type { VuetifyPlayground } from './types'
+  import type { PlaygroundScope } from '@/composables/teamPlaygrounds'
 
-  const { item } = defineProps<{
+  const {
+    item,
+    selecting = false,
+    selected = false,
+    scope = 'personal',
+  } = defineProps<{
     item: VuetifyPlayground
+    selecting?: boolean
+    selected?: boolean
+    scope?: PlaygroundScope
   }>()
 
   const emit = defineEmits<{
     open: [item: VuetifyPlayground]
     update: [item: VuetifyPlayground]
     remove: [id: string]
+    toggle: [id: string]
   }>()
 
+  const auth = useAuthStore()
   const one = useOnePlaygrounds()
   const busy = shallowRef(false)
   const renaming = shallowRef(false)
@@ -37,6 +59,12 @@
   const input = useTemplateRef<HTMLInputElement>('input')
 
   const canDelete = toRef(() => !item.favorite && !item.locked)
+  const isOwner = toRef(() => isPlaygroundOwner(auth.user?.id, item.owner?.id))
+  const userTeam = toRef(() => readUserTeam(auth.user))
+  const canTeam = toRef(() => canAssignTeam(auth.user?.id, item.owner?.id, userTeam.value?.id))
+  const teamLabel = toRef(() => (
+    playgroundTeamId(item) ? 'Switch to Personal Playground' : 'Switch to Team Playground'
+  ))
   const visibilityIcon = toRef(() => (
     (item.visibility ?? 'public') === 'private' ? 'visibility-private' : 'visibility-public'
   ))
@@ -49,6 +77,7 @@
   }, { duration: 3000 })
 
   const actionClass = 'pa-1 inline-flex items-center justify-center rounded border-0 bg-transparent text-on-surface-variant hover:bg-surface-tint hover:text-on-surface cursor-pointer data-[disabled]:opacity-40 data-[disabled]:hover:bg-transparent data-[disabled]:cursor-not-allowed'
+  const boxClass = 'size-4 shrink-0 inline-flex items-center justify-center rounded-sm border border-on-surface-variant/40 bg-surface data-[state=checked]:border-primary data-[state=checked]:bg-primary/10 data-[state=indeterminate]:border-primary'
 
   function snapshot () {
     return {
@@ -57,25 +86,34 @@
       pinned: item.pinned ?? false,
       locked: item.locked ?? false,
       visibility: item.visibility ?? 'public',
+      teamId: playgroundTeamId(item),
     }
   }
 
   async function patch (
-    next: Partial<Pick<VuetifyPlayground, 'favorite' | 'pinned' | 'locked' | 'visibility'> & { title?: string }>,
+    next: Partial<Pick<VuetifyPlayground, 'favorite' | 'pinned' | 'locked' | 'visibility' | 'teamId'> & { title?: string }>,
   ) {
     if (busy.value) return
     busy.value = true
     const previous = { ...item }
     const source = snapshot()
+    const sent = Object.hasOwn(next, 'teamId')
     emit('update', { ...item, ...next })
     try {
       const result = await one.patchMeta(next, previous.id, source)
-      emit('update', { ...previous, ...result })
+      const teamId = settledTeamId(playgroundTeamId(previous), result, sent)
+      emit('update', { ...previous, ...result, teamId })
     } catch {
       emit('update', previous)
     } finally {
       busy.value = false
     }
+  }
+
+  function onTeam () {
+    const team = userTeam.value
+    if (!team) return
+    void patch({ teamId: nextTeamId(playgroundTeamId(item), team.id) })
   }
 
   function onFavorite () {
@@ -140,9 +178,22 @@
 <template>
   <div
     class="h-12 box-border flex items-center justify-between gap-3 px-3 rounded-md hover:bg-surface-tint/60"
+    :class="selected ? 'bg-primary/5' : ''"
     :data-busy="busy || undefined"
+    @click="selecting ? emit('toggle', item.id) : undefined"
   >
     <div class="min-w-0 flex-1 flex items-center gap-2">
+      <Checkbox.Root
+        v-if="selecting"
+        :class="boxClass"
+        :label="`Select ${item.title || 'Untitled'}`"
+        :model-value="selected"
+        @click.stop
+        @update:model-value="emit('toggle', item.id)"
+      >
+        <Checkbox.Indicator class="text-primary text-[10px] leading-none">✓</Checkbox.Indicator>
+      </Checkbox.Root>
+
       <AppJdenticon :value="item.id" />
 
       <input
@@ -160,20 +211,35 @@
       >
 
       <Button.Root
-        v-else
+        v-else-if="!selecting"
         class="min-w-0 text-sm text-on-surface truncate hover:text-primary border-0 bg-transparent cursor-pointer text-left p-0"
         @click="emit('open', item)"
       >
         {{ item.title || 'Untitled' }}
       </Button.Root>
+
+      <span
+        v-else
+        class="min-w-0 text-sm text-on-surface truncate"
+      >
+        {{ item.title || 'Untitled' }}
+      </span>
+
+      <span
+        v-if="scope === 'team' && item.owner?.name"
+        class="shrink-0 max-w-24 text-xs text-on-surface-variant truncate"
+      >
+        {{ item.owner.name }}
+      </span>
     </div>
 
-    <div class="flex items-center gap-1 shrink-0">
+    <div v-if="!selecting" class="flex items-center gap-1 shrink-0">
       <span class="text-xs text-on-surface-variant tabular-nums me-2">
         {{ formatDate(item.updatedAt || item.createdAt) }}
       </span>
 
       <AppTooltip
+        v-if="isOwner"
         as="span"
         class="inline-flex"
         :open-delay="200"
@@ -225,6 +291,29 @@
       </AppTooltip>
 
       <AppTooltip
+        v-if="canTeam"
+        as="span"
+        class="inline-flex"
+        :open-delay="200"
+        position-area="top"
+        :text="teamLabel"
+      >
+        <Button.Root
+          :aria-label="teamLabel"
+          :class="actionClass"
+          :disabled="busy"
+          @click.stop="onTeam"
+        >
+          <AppIcon
+            :class="playgroundTeamId(item) ? 'text-warning' : ''"
+            :icon="playgroundTeamId(item) ? 'account-outline' : 'account-group'"
+            :size="16"
+          />
+        </Button.Root>
+      </AppTooltip>
+
+      <AppTooltip
+        v-if="isOwner"
         as="span"
         class="inline-flex"
         :open-delay="200"
@@ -242,6 +331,7 @@
       </AppTooltip>
 
       <AppTooltip
+        v-if="isOwner"
         as="span"
         class="inline-flex"
         :open-delay="canDelete ? 200 : 0"
