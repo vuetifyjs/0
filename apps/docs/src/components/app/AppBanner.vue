@@ -27,6 +27,7 @@
     created_at?: string
     metadata: {
       closable?: boolean | null
+      ignore_delay?: boolean | null
       color?: string | null
       height?: number | null
       priority?: string | number | null
@@ -91,11 +92,13 @@
 
   const banner = toRef(() => {
     const now = Date.now()
-    if (cooldownUntil() > now) return undefined
-
+    // A click or close arms this cooldown for ordinary rows. ignore_delay
+    // stays eligible through that window; dismissal and snooze still hide that slug.
+    const cooling = cooldownUntil() > now
     const hidden = dismissedSlugs()
 
     const eligible = all.value.filter(item => {
+      if (cooling && item.metadata.ignore_delay !== true) return false
       if (!targetsDocs(item.metadata.site)) return false
       if (!isString(item.metadata.text) || item.metadata.text.length === 0) return false
       if (hidden.includes(item.slug)) return false
